@@ -6,9 +6,11 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from core.choices import JobIntervalChoices
+from core.models import ObjectType
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
+from netbox.tests.dummy_plugin.webhook_callbacks import set_context
 from netbox.plugins.navigation import PluginMenu
 from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
@@ -23,8 +25,9 @@ class PluginTest(TestCase):
         self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
     def test_model_registration(self):
-        self.assertIn('dummy_plugin', registry['models'])
-        self.assertIn('dummymodel', registry['models']['dummy_plugin'])
+        self.assertTrue(
+            ObjectType.objects.filter(app_label='dummy_plugin', model='dummymodel').exists()
+        )
 
     def test_models(self):
         from netbox.tests.dummy_plugin.models import DummyModel
@@ -218,3 +221,9 @@ class PluginTest(TestCase):
         Check that events pipeline is registered.
         """
         self.assertIn('netbox.tests.dummy_plugin.events.process_events_queue', settings.EVENTS_PIPELINE)
+
+    def test_webhook_callbacks(self):
+        """
+        Test the registration of webhook callbacks.
+        """
+        self.assertIn(set_context, registry['webhook_callbacks'])

@@ -77,4 +77,9 @@
   <div class="field-group my-5">
     {% render_field form.comments %}
   </div>
+
+  {# Meta fields #}
+  <div class="bg-primary-subtle border border-primary rounded-1 pt-3 px-3 mb-3">
+    {% render_field form.changelog_message %}
+  </div>
 {% endblock %}

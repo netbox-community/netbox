@@ -10,10 +10,9 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet
 from rq import Worker
 
-from core.models import ObjectType
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
@@ -218,6 +217,12 @@ class JournalEntryViewSet(NetBoxModelViewSet):
 # Config contexts
 #
 
+class ConfigContextProfileViewSet(SyncedDataMixin, NetBoxModelViewSet):
+    queryset = ConfigContextProfile.objects.all()
+    serializer_class = serializers.ConfigContextProfileSerializer
+    filterset_class = filtersets.ConfigContextProfileFilterSet
+
+
 class ConfigContextViewSet(SyncedDataMixin, NetBoxModelViewSet):
     queryset = ConfigContext.objects.all()
     serializer_class = serializers.ConfigContextSerializer
@@ -314,20 +319,6 @@ class ScriptViewSet(ModelViewSet):
             return Response(serializer.data)
 
         return Response(input_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-#
-# Object types
-#
-
-class ObjectTypeViewSet(ReadOnlyModelViewSet):
-    """
-    Read-only list of ObjectTypes.
-    """
-    permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    queryset = ObjectType.objects.order_by('app_label', 'model')
-    serializer_class = serializers.ObjectTypeSerializer
-    filterset_class = filtersets.ObjectTypeFilterSet
 
 
 #

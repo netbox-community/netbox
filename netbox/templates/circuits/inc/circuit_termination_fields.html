@@ -29,16 +29,16 @@
           {{ peer|linkify }}{% if not forloop.last %},{% endif %}
         {% endfor %}
         <div class="mt-1">
-          <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+          <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
             <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i> {% trans "Trace" %}
           </a>
           {% if perms.dcim.change_cable %}
-            <a href="{% url 'dcim:cable_edit' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Edit cable" %}" class="btn btn-warning lh-1">
+            <a href="{% url 'dcim:cable_edit' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Edit cable" %}" class="btn btn-sm btn-warning">
               <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Edit" %}
             </a>
           {% endif %}
           {% if perms.dcim.delete_cable %}
-            <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Remove cable" %}" class="btn btn-danger lh-1">
+            <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Remove cable" %}" class="btn btn-sm btn-danger">
               <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> {% trans "Disconnect" %}
             </a>
           {% endif %}

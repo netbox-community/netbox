@@ -88,6 +88,21 @@
 #
 `;
 
+      let sharedQuery;
+      const hashArgs = new URLSearchParams(window.location.hash.substring(1));
+      if (hashArgs.has('query')) {
+        sharedQuery = hashArgs.get('query');
+        // reset url to not motivate copying of stale URL
+        hashArgs.delete('query');
+        let remainingHash = "";
+        if (hashArgs.size !== 0) {
+          remainingHash = `#${hashArgs.toString()}`;
+        }
+        history.pushState("", document.title,
+          window.location.pathname + window.location.search + remainingHash
+        );
+      }
+
       const fetchURL = window.location.href;
 
       function httpUrlToWebSockeUrl(url) {
@@ -123,6 +138,8 @@
           defaultEditorToolsVisibility: true,
           plugins: [explorerPlugin],
           inputValueDeprecation: true,
+          defaultQuery: EXAMPLE_QUERY,
+          query: sharedQuery,
         }),
       );
     </script>

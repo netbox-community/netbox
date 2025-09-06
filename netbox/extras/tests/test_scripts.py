@@ -1,6 +1,7 @@
 import logging
 import tempfile
 from datetime import date, datetime, timezone
+from decimal import Decimal
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
@@ -137,6 +138,54 @@ class ScriptVariablesTest(TestCase):
         form = TestScript().as_form(data, None)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['var1'], data['var1'])
+
+    def test_decimalvar(self):
+
+        class TestScript(Script):
+
+            var1 = DecimalVar(
+                min_value=-100.500,
+                max_value=100.500,
+                max_digits=6,
+                decimal_places=3,
+                required=False
+            )
+
+            var2 = DecimalVar(
+                max_digits=3,
+                decimal_places=1,
+                required=False
+            )
+
+        # Validate min_value enforcement
+        data = {'var1': -100.501}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
+        # Validate max_value enforcement
+        data = {'var1': 100.501}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
+        # Validate max_digits enforcement
+        data = {'var2': 123.4}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var2', form.errors)
+
+        # Validate decimal_places
+        data = {'var2': 1.23}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var2', form.errors)
+
+        # Validate valid data
+        data = {'var1': '50.123'}
+        form = TestScript().as_form(data, None)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'], Decimal(data['var1']))
 
     def test_booleanvar(self):
 

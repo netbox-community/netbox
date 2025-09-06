@@ -1,5 +1,7 @@
 import netaddr
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
@@ -7,7 +9,6 @@ from django.db.models.functions import Cast
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType
 from dcim.models.mixins import CachedScopeMixin
 from ipam.choices import *
 from ipam.constants import *
@@ -281,6 +282,13 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
         verbose_name = _('prefix')
         verbose_name_plural = _('prefixes')
+        indexes = [
+            GistIndex(
+                fields=['prefix'],
+                name='ipam_prefix_gist_idx',
+                opclasses=['inet_ops'],
+            ),
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -917,7 +925,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
             original_parent = getattr(original_assigned_object, 'parent_object', None)
 

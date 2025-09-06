@@ -69,7 +69,7 @@ class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
-        label=_('Desciption'),
+        label=_('Description'),
         max_length=200,
         required=False
     )

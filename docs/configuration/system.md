@@ -14,8 +14,6 @@ BASE_PATH = 'netbox/'
 
 ## DATABASE_ROUTERS
 
-!!! info "This parameter was introduced in NetBox v4.3."
-
 Default: `[]` (empty list)
 
 An iterable of [database routers](https://docs.djangoproject.com/en/stable/topics/db/multi-db/) to use for automatically selecting the appropriate database(s) for a query. This is useful only when [multiple databases](./required-parameters.md#databases) have been configured.
@@ -69,6 +67,16 @@ Email is sent from NetBox only for critical events or if configured for [logging
   fail_silently=False
 )
 ```
+
+---
+
+## HOSTNAME
+
+!!! info "This parameter was introduced in NetBox v4.4."
+
+Default: System hostname
+
+The hostname displayed in the user interface identifying the system on which NetBox is running. If not defined, this defaults to the system hostname as reported by Python's `platform.node()`.
 
 ---
 
@@ -159,6 +167,7 @@ LOGGING = {
 * `netbox.auth.*` - Authentication events
 * `netbox.api.views.*` - Views which handle business logic for the REST API
 * `netbox.event_rules` - Event rules
+* `netbox.jobs.*` - Background jobs
 * `netbox.reports.*` - Report execution (`module.name`)
 * `netbox.scripts.*` - Custom script execution (`module.name`)
 * `netbox.views.*` - Views which handle business logic for the web UI
@@ -174,8 +183,6 @@ The file path to the location where media files (such as image attachments) are 
 ---
 
 ## PROXY_ROUTERS
-
-!!! info "This parameter was introduced in NetBox v4.3."
 
 Default: `["utilities.proxy.DefaultProxyRouter"]`
 

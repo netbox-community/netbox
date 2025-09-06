@@ -1,4 +1,5 @@
 {% extends base_template %}
+{% load buttons %}
 {% load helpers %}
 {% load i18n %}
 
@@ -7,8 +8,6 @@ Blocks:
   - content:                   Primary page content
     - table_controls:          Control elements for the child objects table
     - bulk_controls:           Bulk action buttons which appear beneath the child objects table
-      - bulk_edit_controls:    Bulk edit buttons
-      - bulk_delete_controls:  Bulk delete buttons
       - bulk_extra_controls:   Other bulk action buttons
   - modals:                    Any pre-loaded modals
 
@@ -36,36 +35,8 @@ Context:
         </div>
         <div class="d-print-none mt-2">
             {% block bulk_controls %}
-                <div class="btn-group" role="group">
-                    {# Bulk edit buttons #}
-                    {% block bulk_edit_controls %}
-                        {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
-                            {% if 'bulk_edit' in actions and bulk_edit_view %}
-                                <button type="submit" name="_edit"
-                                        {% formaction %}="{% url bulk_edit_view %}?return_url={{ return_url }}"
-                                        class="btn btn-warning">
-                                    <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
-                                </button>
-                            {% endif %}
-                        {% endwith %}
-                    {% endblock bulk_edit_controls %}
-                </div>
-                <div class="btn-group" role="group">
-                    {# Bulk delete buttons #}
-                    {% block bulk_delete_controls %}
-                        {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
-                            {% if 'bulk_delete' in actions and bulk_delete_view %}
-                                <button type="submit"
-                                        {% formaction %}="{% url bulk_delete_view %}?return_url={{ return_url }}"
-                                        class="btn btn-danger">
-                                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete Selected" %}
-                                </button>
-                            {% endif %}
-                        {% endwith %}
-                    {% endblock bulk_delete_controls %}
-                </div>
-                {# Other bulk action buttons #}
-                {% block bulk_extra_controls %}{% endblock %}
+              {% action_buttons actions model multi=True return_url=request.path %}
+              {% block bulk_extra_controls %}{% endblock %}
             {% endblock bulk_controls %}
         </div>
     </form>

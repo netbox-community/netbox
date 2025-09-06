@@ -35,11 +35,7 @@ urlpatterns = [
     path('circuit-group-assignments/<int:pk>/', include(get_model_urls('circuits', 'circuitgroupassignment'))),
 
     # Virtual circuits
-    path('virtual-circuits/', views.VirtualCircuitListView.as_view(), name='virtualcircuit_list'),
-    path('virtual-circuits/add/', views.VirtualCircuitEditView.as_view(), name='virtualcircuit_add'),
-    path('virtual-circuits/import/', views.VirtualCircuitBulkImportView.as_view(), name='virtualcircuit_bulk_import'),
-    path('virtual-circuits/edit/', views.VirtualCircuitBulkEditView.as_view(), name='virtualcircuit_bulk_edit'),
-    path('virtual-circuits/delete/', views.VirtualCircuitBulkDeleteView.as_view(), name='virtualcircuit_bulk_delete'),
+    path('virtual-circuits/', include(get_model_urls('circuits', 'virtualcircuit', detail=False))),
     path('virtual-circuits/<int:pk>/', include(get_model_urls('circuits', 'virtualcircuit'))),
 
     path('virtual-circuit-types/', include(get_model_urls('circuits', 'virtualcircuittype', detail=False))),

@@ -1,7 +1,7 @@
 import json
 import platform
 
-from django import __version__ as DJANGO_VERSION
+from django import __version__ as django_version
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -22,21 +22,23 @@ from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
 from netbox.config import get_config, PARAMS
-from netbox.registry import registry
+from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObject
+from netbox.plugins.utils import get_installed_plugins
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
+from utilities.apps import get_installed_apps
 from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
-from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .jobs import SyncDataSourceJob
 from .models import *
 from .plugins import get_catalog_plugins, get_local_plugins
-from .tables import CatalogPluginTable, PluginVersionTable
+from .tables import CatalogPluginTable, JobLogEntryTable, PluginVersionTable
 
 
 #
@@ -114,6 +116,11 @@ class DataSourceBulkEditView(generic.BulkEditView):
     form = forms.DataSourceBulkEditForm
 
 
+@register_model_view(DataSource, 'bulk_rename', path='rename', detail=False)
+class DataSourceBulkRenameView(generic.BulkRenameView):
+    queryset = DataSource.objects.all()
+
+
 @register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)
 class DataSourceBulkDeleteView(generic.BulkDeleteView):
     queryset = DataSource.objects.annotate(
@@ -133,14 +140,13 @@ class DataFileListView(generic.ObjectListView):
     filterset = filtersets.DataFileFilterSet
     filterset_form = forms.DataFileFilterForm
     table = tables.DataFileTable
-    actions = {
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkDelete,)
 
 
 @register_model_view(DataFile)
 class DataFileView(generic.ObjectView):
     queryset = DataFile.objects.all()
+    actions = (DeleteObject,)
 
 
 @register_model_view(DataFile, 'delete')
@@ -165,15 +171,32 @@ class JobListView(generic.ObjectListView):
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
-    actions = {
-        'export': {'view'},
-        'bulk_delete': {'delete'},
-    }
+    actions = (BulkExport, BulkDelete)
 
 
 @register_model_view(Job)
 class JobView(generic.ObjectView):
     queryset = Job.objects.all()
+    actions = (DeleteObject,)
+
+
+@register_model_view(Job, 'log')
+class JobLogView(generic.ObjectView):
+    queryset = Job.objects.all()
+    actions = (DeleteObject,)
+    template_name = 'core/job/log.html'
+    tab = ViewTab(
+        label=_('Log'),
+        badge=lambda obj: len(obj.log_entries),
+        weight=500,
+    )
+
+    def get_extra_context(self, request, instance):
+        table = JobLogEntryTable(instance.log_entries)
+        table.configure(request)
+        return {
+            'table': table,
+        }
 
 
 @register_model_view(Job, 'delete')
@@ -194,19 +217,23 @@ class JobBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(ObjectChange, 'list', path='', detail=False)
 class ObjectChangeListView(generic.ObjectListView):
-    queryset = ObjectChange.objects.valid_models()
+    queryset = None
     filterset = filtersets.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'core/objectchange_list.html'
-    actions = {
-        'export': {'view'},
-    }
+    actions = (BulkExport,)
+
+    def get_queryset(self, request):
+        return ObjectChange.objects.valid_models()
 
 
 @register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
-    queryset = ObjectChange.objects.valid_models()
+    queryset = None
+
+    def get_queryset(self, request):
+        return ObjectChange.objects.valid_models()
 
     def get_extra_context(self, request, instance):
         related_changes = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
@@ -269,6 +296,7 @@ class ConfigRevisionListView(generic.ObjectListView):
     filterset = filtersets.ConfigRevisionFilterSet
     filterset_form = forms.ConfigRevisionFilterForm
     table = tables.ConfigRevisionTable
+    actions = (AddObject, BulkExport)
 
 
 @register_model_view(ConfigRevision)
@@ -525,7 +553,7 @@ class SystemView(UserPassesTestMixin, View):
 
     def get(self, request):
 
-        # System stats
+        # System status
         psql_version = db_name = db_size = None
         try:
             with connection.cursor() as cursor:
@@ -540,7 +568,7 @@ class SystemView(UserPassesTestMixin, View):
             pass
         stats = {
             'netbox_release': settings.RELEASE,
-            'django_version': DJANGO_VERSION,
+            'django_version': django_version,
             'python_version': platform.python_version(),
             'postgresql_version': psql_version,
             'database_name': db_name,
@@ -548,8 +576,20 @@ class SystemView(UserPassesTestMixin, View):
             'rq_worker_count': Worker.count(get_connection('default')),
         }
 
+        # Django apps
+        django_apps = get_installed_apps()
+
         # Configuration
         config = get_config()
+
+        # Plugins
+        plugins = get_installed_plugins()
+
+        # Object counts
+        objects = {}
+        for ot in ObjectType.objects.public().order_by('app_label', 'model'):
+            if model := ot.model_class():
+                objects[ot] = model.objects.count()
 
         # Raw data export
         if 'export' in request.GET:
@@ -557,9 +597,13 @@ class SystemView(UserPassesTestMixin, View):
             params = [param.name for param in PARAMS]
             data = {
                 **stats,
-                'plugins': registry['plugins']['installed'],
+                'django_apps': django_apps,
+                'plugins': plugins,
                 'config': {
                     k: getattr(config, k) for k in sorted(params)
+                },
+                'objects': {
+                    f'{ot.app_label}.{ot.model}': count for ot, count in objects.items()
                 },
             }
             response = HttpResponse(json.dumps(data, cls=ConfigJSONEncoder, indent=4), content_type='text/json')
@@ -573,7 +617,10 @@ class SystemView(UserPassesTestMixin, View):
 
         return render(request, 'core/system.html', {
             'stats': stats,
+            'django_apps': django_apps,
             'config': config,
+            'plugins': plugins,
+            'objects': objects,
         })
 
 

@@ -15,14 +15,14 @@
           <div class="d-block text-secondary fs-5">{{ notification.event }} {{ notification.created|timesince }} {% trans "ago" %}</div>
         </div>
         <div class="col-auto">
-          <a href="#" hx-get="{% url 'extras:notification_dismiss' pk=notification.pk %}" hx-target="closest .notifications" class="list-group-item-actions text-secondary" title="{% trans "Dismiss" %}">
+          <a href="#" hx-get="{% url 'extras:notification_dismiss' pk=notification.pk %}" hx-target="closest .notifications" class="list-group-item-actions text-red" title="{% trans "Dismiss" %}">
             <i class="mdi mdi-close"></i>
           </a>
         </div>
       </div>
     </div>
   {% empty %}
-    <div class="dropdown-item text-muted">
+    <div class="dropdown-item disabled">
       {% trans "No unread notifications" %}
     </div>
   {% endfor %}

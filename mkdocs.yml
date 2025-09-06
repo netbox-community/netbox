@@ -30,6 +30,8 @@ plugins:
         python:
           paths: ["netbox"]
           options:
+            docstring_options:
+              warn_missing_types: false
             heading_level: 3
             members_order: source
             show_root_heading: true
@@ -144,6 +146,8 @@ nav:
             - Search: 'plugins/development/search.md'
             - Event Types: 'plugins/development/event-types.md'
             - Data Backends: 'plugins/development/data-backends.md'
+            - Webhooks: 'plugins/development/webhooks.md'
+            - User Interface: 'plugins/development/user-interface.md'
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Jobs: 'plugins/development/background-jobs.md'
@@ -158,7 +162,6 @@ nav:
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
         - Error Reporting: 'administration/error-reporting.md'
-        - Housekeeping: 'administration/housekeeping.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
     - Data Model:
@@ -225,6 +228,7 @@ nav:
         - Extras:
             - Bookmark: 'models/extras/bookmark.md'
             - ConfigContext: 'models/extras/configcontext.md'
+            - ConfigContextProfile: 'models/extras/configcontextprofile.md'
             - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
             - CustomFieldChoiceSet: 'models/extras/customfieldchoiceset.md'
@@ -309,6 +313,7 @@ nav:
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 4.4: 'release-notes/version-4.4.md'
         - Version 4.3: 'release-notes/version-4.3.md'
         - Version 4.2: 'release-notes/version-4.2.md'
         - Version 4.1: 'release-notes/version-4.1.md'

@@ -20,7 +20,7 @@ from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.views import ConditionalLoginRequiredMixin
+from utilities.views import ConditionalLoginRequiredMixin, TokenConditionalLoginRequiredMixin
 
 __all__ = (
     'HomeView',
@@ -119,7 +119,7 @@ class SearchView(ConditionalLoginRequiredMixin, View):
         })
 
 
-class MediaView(ConditionalLoginRequiredMixin, View):
+class MediaView(TokenConditionalLoginRequiredMixin, View):
     """
     Wrap Django's serve() view to enforce LOGIN_REQUIRED for static media.
     """

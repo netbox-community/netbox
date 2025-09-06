@@ -1,7 +1,9 @@
 import datetime
+import json
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.test import tag
 from django.urls import reverse
 from rest_framework import status
 
@@ -268,6 +270,60 @@ class CustomFieldTest(TestCase):
         instance.save()
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    @tag('regression')
+    def test_json_field_falsy_defaults(self):
+        """Test that falsy JSON default values are properly handled"""
+        falsy_test_cases = [
+            ({}, 'empty_dict'),
+            ([], 'empty_array'),
+            (0, 'zero'),
+            (False, 'false_bool'),
+            ("", 'empty_string'),
+        ]
+
+        for default, suffix in falsy_test_cases:
+            with self.subTest(default=default, suffix=suffix):
+                cf = CustomField.objects.create(
+                    name=f'json_falsy_{suffix}',
+                    type=CustomFieldTypeChoices.TYPE_JSON,
+                    default=default,
+                    required=False
+                )
+                cf.object_types.set([self.object_type])
+
+                instance = Site.objects.create(name=f'Test Site {suffix}', slug=f'test-site-{suffix}')
+
+                self.assertIsNotNone(instance.custom_field_data)
+                self.assertIn(cf.name, instance.custom_field_data)
+
+                instance.refresh_from_db()
+                stored = instance.custom_field_data[cf.name]
+                self.assertEqual(stored, default)
+
+    @tag('regression')
+    def test_json_field_falsy_to_form_field(self):
+        """Test form field generation preserves falsy defaults"""
+        falsy_test_cases = (
+            ({}, json.dumps({}), 'empty_dict'),
+            ([], json.dumps([]), 'empty_array'),
+            (0, json.dumps(0), 'zero'),
+            (False, json.dumps(False), 'false_bool'),
+            ("", '""', 'empty_string'),
+        )
+
+        for default, expected, suffix in falsy_test_cases:
+            with self.subTest(default=default, expected=expected, suffix=suffix):
+                cf = CustomField.objects.create(
+                    name=f'json_falsy_{suffix}',
+                    type=CustomFieldTypeChoices.TYPE_JSON,
+                    default=default,
+                    required=False
+                )
+                cf.object_types.set([self.object_type])
+
+                form_field = cf.to_form_field(set_initial=True)
+                self.assertEqual(form_field.initial, expected)
 
     def test_select_field(self):
         CHOICES = (
@@ -1615,6 +1671,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf11': manufacturers[2].pk,
                 'cf12': [manufacturers[2].pk, manufacturers[3].pk],
             }),
+            Site(name='Site 4', slug='site-4'),
         ])
 
     def test_filter_integer(self):
@@ -1624,6 +1681,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf1__gte': [200]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf1__lt': [200]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf1__lte': [200]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf1__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_decimal(self):
         self.assertEqual(self.filterset({'cf_cf2': [100.1, 200.2]}, self.queryset).qs.count(), 2)
@@ -1632,6 +1690,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf2__gte': [200.2]}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf2__lt': [200.2]}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf2__lte': [200.2]}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf2__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_boolean(self):
         self.assertEqual(self.filterset({'cf_cf3': True}, self.queryset).qs.count(), 2)
@@ -1648,6 +1707,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf4__niew': ['bar']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf4__ie': ['FOO']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf4__nie': ['FOO']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf4__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_text_loose(self):
         self.assertEqual(self.filterset({'cf_cf5': ['foo']}, self.queryset).qs.count(), 2)
@@ -1659,6 +1719,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf6__gte': ['2016-06-27']}, self.queryset).qs.count(), 2)
         self.assertEqual(self.filterset({'cf_cf6__lt': ['2016-06-27']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf6__lte': ['2016-06-27']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf6__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_url_strict(self):
         self.assertEqual(
@@ -1674,17 +1735,20 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf7__niew': ['.com']}, self.queryset).qs.count(), 0)
         self.assertEqual(self.filterset({'cf_cf7__ie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf7__nie': ['HTTP://A.EXAMPLE.COM']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf7__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_url_loose(self):
         self.assertEqual(self.filterset({'cf_cf8': ['example.com']}, self.queryset).qs.count(), 3)
 
     def test_filter_select(self):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf9__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
         self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)  # Contains a literal null
+        self.assertEqual(self.filterset({'cf_cf10__empty': True}, self.queryset).qs.count(), 2)
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
@@ -1692,6 +1756,7 @@ class CustomFieldModelFilterTest(TestCase):
             self.filterset({'cf_cf11': [manufacturer_ids[0], manufacturer_ids[1]]}, self.queryset).qs.count(),
             2
         )
+        self.assertEqual(self.filterset({'cf_cf11__empty': True}, self.queryset).qs.count(), 1)
 
     def test_filter_multiobject(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)
@@ -1703,3 +1768,4 @@ class CustomFieldModelFilterTest(TestCase):
             self.filterset({'cf_cf12': [manufacturer_ids[3]]}, self.queryset).qs.count(),
             3
         )
+        self.assertEqual(self.filterset({'cf_cf12__empty': True}, self.queryset).qs.count(), 1)

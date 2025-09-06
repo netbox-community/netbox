@@ -1,7 +1,5 @@
 # Virtual Circuit Terminations
 
-!!! info "This feature was introduced in NetBox v4.2."
-
 This model represents the connection of a virtual [interface](../dcim/interface.md) to a [virtual circuit](./virtualcircuit.md).
 
 ## Fields

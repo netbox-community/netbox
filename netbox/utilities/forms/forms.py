@@ -3,11 +3,16 @@ import re
 from django import forms
 from django.utils.translation import gettext as _
 
+from netbox.models.features import ChangeLoggingMixin
+from utilities.forms.mixins import BackgroundJobMixin
+
 __all__ = (
+    'BulkDeleteForm',
     'BulkEditForm',
     'BulkRenameForm',
     'ConfirmationForm',
     'CSVModelForm',
+    'DeleteForm',
     'FilterForm',
     'TableConfigForm',
 )
@@ -28,9 +33,29 @@ class ConfirmationForm(forms.Form):
     )
 
 
-class BulkEditForm(forms.Form):
+class DeleteForm(ConfirmationForm):
+    """
+    Confirm the deletion of an object, optionally providing a changelog message.
+    """
+    changelog_message = forms.CharField(
+        required=False,
+        max_length=200
+    )
+
+    def __init__(self, *args, instance=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Hide the changelog_message filed if the model doesn't support change logging
+        if instance is None or not issubclass(instance._meta.model, ChangeLoggingMixin):
+            self.fields.pop('changelog_message')
+
+
+class BulkEditForm(BackgroundJobMixin, forms.Form):
     """
     Provides bulk edit support for objects.
+
+    Attributes:
+        nullable_fields: A list of field names indicating which fields support being set to null/empty
     """
     nullable_fields = ()
 
@@ -63,6 +88,26 @@ class BulkRenameForm(forms.Form):
                 raise forms.ValidationError({
                     'find': "Invalid regular expression"
                 })
+
+
+class BulkDeleteForm(BackgroundJobMixin, ConfirmationForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=None,
+        widget=forms.MultipleHiddenInput
+    )
+    changelog_message = forms.CharField(
+        required=False,
+        max_length=200
+    )
+
+    def __init__(self, model, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['pk'].queryset = model.objects.all()
+
+        # Hide the changelog_message filed if the model doesn't support change logging
+        if model is None or not issubclass(model, ChangeLoggingMixin):
+            self.fields.pop('changelog_message')
 
 
 class CSVModelForm(forms.ModelForm):

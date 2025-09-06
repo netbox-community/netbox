@@ -633,6 +633,8 @@ class ModuleTypeType(NetBoxObjectType):
     pagination=True
 )
 class PlatformType(OrganizationalObjectType):
+    parent: Annotated['PlatformType', strawberry.lazy('dcim.graphql.types')] | None
+    children: List[Annotated['PlatformType', strawberry.lazy('dcim.graphql.types')]]
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 

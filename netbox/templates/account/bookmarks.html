@@ -24,9 +24,7 @@
 
     {# Form buttons #}
     <div class="btn-list d-print-none mt-2">
-      {% if 'bulk_delete' in actions %}
-        {% bulk_delete_button model query_params=request.GET %}
-      {% endif %}
+      {% bulk_delete_button model query_params=request.GET %}
     </div>
   </form>
 {% endblock %}
