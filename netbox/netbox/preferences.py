@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from users.preferences import UserPreference
+from utilities.constants import CSV_DELIMITERS
 from utilities.paginator import EnhancedPaginator
 
 
@@ -10,6 +11,16 @@ def get_page_lengths():
     return [
         (v, str(v)) for v in EnhancedPaginator.default_page_lengths
     ]
+
+
+def get_csv_delimiters():
+    choices = []
+    for k, v in CSV_DELIMITERS.items():
+        label = _(k.title())
+        if v.strip():
+            label = f'{label} ({v})'
+        choices.append((k, label))
+    return choices
 
 
 PREFERENCES = {
@@ -71,6 +82,12 @@ PREFERENCES = {
             ('yaml', 'YAML'),
         ),
         description=_('The preferred syntax for displaying generic data within the UI')
+    ),
+    'csv_delimiter': UserPreference(
+        label=_('CSV delimiter'),
+        choices=get_csv_delimiters(),
+        default='comma',
+        description=_('The character used to separate fields in CSV data')
     ),
 
 }

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
@@ -48,8 +48,17 @@ class ScopedForm(forms.Form):
     def clean(self):
         super().clean()
 
+        scope = self.cleaned_data.get('scope')
+        scope_type = self.cleaned_data.get('scope_type')
+        if scope_type and not scope:
+            raise ValidationError({
+                'scope': _(
+                    "Please select a {scope_type}."
+                ).format(scope_type=scope_type.model_class()._meta.model_name)
+            })
+
         # Assign the selected scope (if any)
-        self.instance.scope = self.cleaned_data.get('scope')
+        self.instance.scope = scope
 
     def _set_scoped_values(self):
         if scope_type_id := get_field_value(self, 'scope_type'):
@@ -107,3 +116,15 @@ class ScopedImportForm(forms.Form):
         required=False,
         label=_('Scope type (app & model)')
     )
+
+    def clean(self):
+        super().clean()
+
+        scope_id = self.cleaned_data.get('scope_id')
+        scope_type = self.cleaned_data.get('scope_type')
+        if scope_type and not scope_id:
+            raise ValidationError({
+                'scope_id': _(
+                    "Please select a {scope_type}."
+                ).format(scope_type=scope_type.model_class()._meta.model_name)
+            })

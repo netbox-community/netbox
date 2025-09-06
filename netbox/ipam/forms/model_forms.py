@@ -20,8 +20,9 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
+from django.utils.safestring import mark_safe
 from utilities.templatetags.builtins.filters import bettertitle
-from virtualization.models import VMInterface
+from virtualization.models import VMInterface, VirtualMachine
 
 __all__ = (
     'AggregateForm',
@@ -680,7 +681,15 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         queryset=Site.objects.all(),
         required=False,
         null_option='None',
-        selector=True
+        selector=True,
+        help_text=mark_safe(
+            '<span class="text-warning"><i class="mdi mdi-alert"></i> {text}</span>'.format(
+                text=_(
+                    'The direct assignment of VLANs to a site is deprecated and will be removed in a future release. '
+                    'Users are encouraged to utilize VLAN groups for this purpose.'
+                )
+            )
+        )
     )
     role = DynamicModelChoiceField(
         label=_('Role'),
@@ -749,7 +758,7 @@ class ServiceTemplateForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Service Template')),
+        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Application Service Template')),
     )
 
     class Meta:
@@ -783,10 +792,6 @@ class ServiceForm(NetBoxModelForm):
         queryset=IPAddress.objects.all(),
         required=False,
         label=_('IP Addresses'),
-        query_params={
-            'device_id': '$device',
-            'virtual_machine_id': '$virtual_machine',
-        }
     )
     comments = CommentField()
 
@@ -794,7 +799,7 @@ class ServiceForm(NetBoxModelForm):
         FieldSet(
             'parent_object_type', 'parent', 'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
-            'ipaddresses', 'description', 'tags', name=_('Service')
+            'ipaddresses', 'description', 'tags', name=_('Application Service')
         ),
     )
 
@@ -815,10 +820,22 @@ class ServiceForm(NetBoxModelForm):
 
         super().__init__(*args, **kwargs)
 
-        if (parent_object_type_id := get_field_value(self, 'parent_object_type')):
+        if parent_object_type_id := get_field_value(self, 'parent_object_type'):
             try:
                 parent_type = ContentType.objects.get(pk=parent_object_type_id)
                 model = parent_type.model_class()
+                if model == Device:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'device_id': '$parent',
+                    })
+                elif model == VirtualMachine:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'virtual_machine_id': '$parent',
+                    })
+                elif model == FHRPGroup:
+                    self.fields['ipaddresses'].widget.add_query_params({
+                        'fhrpgroup_id': '$parent',
+                    })
                 self.fields['parent'].queryset = model.objects.all()
                 self.fields['parent'].widget.attrs['selector'] = model._meta.label_lower
                 self.fields['parent'].disabled = False
@@ -836,7 +853,7 @@ class ServiceForm(NetBoxModelForm):
 
 class ServiceCreateForm(ServiceForm):
     service_template = DynamicModelChoiceField(
-        label=_('Service template'),
+        label=_('Application Service template'),
         queryset=ServiceTemplate.objects.all(),
         required=False
     )
@@ -848,7 +865,7 @@ class ServiceCreateForm(ServiceForm):
                 FieldSet('service_template', name=_('From Template')),
                 FieldSet('name', 'protocol', 'ports', name=_('Custom')),
             ),
-            'ipaddresses', 'description', 'tags', name=_('Service')
+            'ipaddresses', 'description', 'tags', name=_('Application Service')
         ),
     )
 
@@ -877,4 +894,6 @@ class ServiceCreateForm(ServiceForm):
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
-            raise forms.ValidationError(_("Must specify name, protocol, and port(s) if not using a service template."))
+            raise forms.ValidationError(
+                _("Must specify name, protocol, and port(s) if not using an application service template.")
+            )

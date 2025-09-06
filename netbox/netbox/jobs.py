@@ -12,8 +12,10 @@ from core.exceptions import JobFailed
 from core.models import Job, ObjectType
 from netbox.constants import ADVISORY_LOCK_KEYS
 from netbox.registry import registry
+from utilities.request import apply_request_processors
 
 __all__ = (
+    'AsyncViewJob',
     'JobRunner',
     'system_job',
 )
@@ -35,6 +37,19 @@ def system_job(interval):
     return _wrapper
 
 
+class JobLogHandler(logging.Handler):
+    """
+    A logging handler which records entries on a Job.
+    """
+    def __init__(self, job, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.job = job
+
+    def emit(self, record):
+        # Enter the record in the log of the associated Job
+        self.job.log(record)
+
+
 class JobRunner(ABC):
     """
     Background Job helper class.
@@ -52,6 +67,11 @@ class JobRunner(ABC):
             job: The specific `Job` this `JobRunner` is executing.
         """
         self.job = job
+
+        # Initiate the system logger
+        self.logger = logging.getLogger(f"netbox.jobs.{self.__class__.__name__}")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(JobLogHandler(job))
 
     @classproperty
     def name(cls):
@@ -161,3 +181,22 @@ class JobRunner(ABC):
             job.delete()
 
         return cls.enqueue(instance=instance, schedule_at=schedule_at, interval=interval, *args, **kwargs)
+
+
+class AsyncViewJob(JobRunner):
+    """
+    Execute a view as a background job.
+    """
+    class Meta:
+        name = 'Async View'
+
+    def run(self, view_cls, request, **kwargs):
+        view = view_cls.as_view()
+        request.job = self
+
+        # Apply all registered request processors (e.g. event_tracking)
+        with apply_request_processors(request):
+            view(request)
+
+        if self.job.error:
+            raise JobFailed()

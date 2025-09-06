@@ -8,6 +8,12 @@ When a request is made, a UUID is generated and attached to any change records r
 
 Change records are exposed in the API via the read-only endpoint `/api/extras/object-changes/`. They may also be exported via the web UI in CSV format.
 
+## User Messages
+
+!!! info "This feature was introduced in NetBox v4.4."
+
+When creating, modifying, or deleting an object in NetBox, a user has the option of recording an arbitrary message that will appear in the change record. This can be helpful to capture additional context, such as the reason for the change.
+
 ## Correlating Changes by Request
 
 Every request made to NetBox is assigned a random unique ID that can be used to correlate change records. For example, if you change the status of three sites using the UI's bulk edit feature, you will see three new change records (one for each site) all referencing the same request ID. This shows that all three changes were made as part of the same request.

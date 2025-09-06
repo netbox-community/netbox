@@ -69,6 +69,7 @@ HTTP_REQUEST_META_SAFE_COPY = [
 CSV_DELIMITERS = {
     'comma': ',',
     'semicolon': ';',
+    'pipe': '|',
     'tab': '\t',
 }
 

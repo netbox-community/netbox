@@ -1,3 +1,18 @@
+CORE_APPS = (
+    'account',
+    'circuits',
+    'core',
+    'dcim',
+    'extras',
+    'ipam',
+    'tenancy',
+    'users',
+    'utilities',
+    'virtualization',
+    'vpn',
+    'wireless',
+)
+
 # RQ queue names
 RQ_QUEUE_DEFAULT = 'default'
 RQ_QUEUE_HIGH = 'high'
@@ -23,12 +38,14 @@ ADVISORY_LOCK_KEYS = {
     'wirelesslangroup': 105600,
     'inventoryitem': 105700,
     'inventoryitemtemplate': 105800,
+    'platform': 105900,
 
     # Jobs
     'job-schedules': 110100,
 }
 
-# Default view action permission mapping
+# TODO: Remove in NetBox v4.5
+# Legacy default view action permission mapping
 DEFAULT_ACTION_PERMISSIONS = {
     'add': {'add'},
     'export': {'view'},

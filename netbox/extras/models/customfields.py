@@ -72,7 +72,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     object_types = models.ManyToManyField(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         related_name='custom_fields',
         help_text=_('The object(s) to which this field applies.')
     )
@@ -84,7 +84,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of data this custom field holds')
     )
     related_object_type = models.ForeignKey(
-        to='core.ObjectType',
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,
@@ -174,13 +174,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         verbose_name=_('display weight'),
         help_text=_('Fields with higher weights appear lower in a form.')
     )
-    validation_minimum = models.BigIntegerField(
+    validation_minimum = models.DecimalField(
+        max_digits=16,
+        decimal_places=4,
         blank=True,
         null=True,
         verbose_name=_('minimum value'),
         help_text=_('Minimum allowed value (for numeric fields)')
     )
-    validation_maximum = models.BigIntegerField(
+    validation_maximum = models.DecimalField(
+        max_digits=16,
+        decimal_places=4,
         blank=True,
         null=True,
         verbose_name=_('maximum value'),
@@ -471,7 +475,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             field = forms.DecimalField(
                 required=required,
                 initial=initial,
-                max_digits=12,
+                max_digits=16,
                 decimal_places=4,
                 min_value=self.validation_minimum,
                 max_value=self.validation_maximum
@@ -534,7 +538,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
-            field = JSONField(required=required, initial=json.dumps(initial) if initial else None)
+            field = JSONField(required=required, initial=json.dumps(initial) if initial is not None else None)
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
@@ -600,11 +604,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         kwargs = {
             'field_name': f'custom_field_data__{self.name}'
         }
+        # Native numeric filters will use `isnull` by default for empty lookups, but
+        # JSON fields require `empty` (see bug #20012).
+        if lookup_expr == 'isnull':
+            lookup_expr = 'empty'
         if lookup_expr is not None:
             kwargs['lookup_expr'] = lookup_expr
 
+        # 'Empty' lookup is always a boolean
+        if lookup_expr == 'empty':
+            filter_class = django_filters.BooleanFilter
+
         # Text/URL
-        if self.type in (
+        elif self.type in (
                 CustomFieldTypeChoices.TYPE_TEXT,
                 CustomFieldTypeChoices.TYPE_LONGTEXT,
                 CustomFieldTypeChoices.TYPE_URL,

@@ -209,8 +209,8 @@ IPAM_MENU = Menu(
             label=_('Other'),
             items=(
                 get_model_item('ipam', 'fhrpgroup', _('FHRP Groups')),
-                get_model_item('ipam', 'servicetemplate', _('Service Templates')),
-                get_model_item('ipam', 'service', _('Services')),
+                get_model_item('ipam', 'servicetemplate', _('Application Service Templates')),
+                get_model_item('ipam', 'service', _('Application Services')),
             ),
         ),
     ),
@@ -331,6 +331,7 @@ PROVISIONING_MENU = Menu(
             label=_('Configurations'),
             items=(
                 get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'configcontextprofile', _('Config Context Profiles')),
                 get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
             ),
         ),

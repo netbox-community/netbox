@@ -481,6 +481,78 @@ class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
 
+class ConfigContextProfileTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ConfigContextProfile
+
+    @classmethod
+    def setUpTestData(cls):
+        profiles = (
+            ConfigContextProfile(
+                name='Config Context Profile 1',
+                schema={
+                    "properties": {
+                        "foo": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "foo"
+                    ]
+                }
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 2',
+                schema={
+                    "properties": {
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "bar"
+                    ]
+                }
+            ),
+            ConfigContextProfile(
+                name='Config Context Profile 3',
+                schema={
+                    "properties": {
+                        "baz": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "baz"
+                    ]
+                }
+            ),
+        )
+        ConfigContextProfile.objects.bulk_create(profiles)
+
+        cls.form_data = {
+            'name': 'Config Context Profile X',
+            'description': 'A new config context profile',
+        }
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            'name,description',
+            'Config context profile 1,Foo',
+            'Config context profile 2,Bar',
+            'Config context profile 3,Baz',
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{profiles[0].pk},New description",
+            f"{profiles[1].pk},New description",
+            f"{profiles[2].pk},New description",
+        )
+
+
 # TODO: Change base class to PrimaryObjectViewTestCase
 # Blocked by absence of standard create/edit, bulk create views
 class ConfigContextTestCase(
@@ -807,3 +879,21 @@ class NotificationTestCase(
 
     def test_list_objects_with_constrained_permission(self):
         return
+
+
+class ScriptListViewTest(TestCase):
+    user_permissions = ['extras.view_script']
+
+    def test_script_list_embedded_parameter(self):
+        """Test that ScriptListView accepts embedded parameter without error"""
+        url = reverse('extras:script_list')
+
+        # Test normal request
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'extras/script_list.html')
+
+        # Test embedded request
+        response = self.client.get(url, {'embedded': 'true'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'extras/inc/script_list_content.html')

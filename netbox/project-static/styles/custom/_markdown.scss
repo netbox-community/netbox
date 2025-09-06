@@ -30,7 +30,7 @@
 
 // Remove the bottom margin of the last <p> elements in markdown
 .rendered-markdown {
-  p:last-of-type {
+  p:last-child {
     margin-bottom: 0;
   }
 }

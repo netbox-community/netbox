@@ -7,10 +7,30 @@ from extras.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (
+    'ChangelogMessageMixin',
     'CustomFieldsMixin',
     'SavedFiltersMixin',
     'TagsMixin',
 )
+
+
+class ChangelogMessageMixin(forms.Form):
+    """
+    Adds an optional field for recording a message on the resulting changelog record(s).
+    """
+    changelog_message = forms.CharField(
+        required=False,
+        max_length=200
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Declare changelog_message a meta field
+        if hasattr(self, 'meta_fields'):
+            self.meta_fields.append('changelog_message')
+        else:
+            self.meta_fields = ['changelog_message']
 
 
 class CustomFieldsMixin:

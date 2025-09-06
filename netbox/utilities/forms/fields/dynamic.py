@@ -2,10 +2,9 @@ import django_filters
 from django import forms
 from django.conf import settings
 from django.forms import BoundField
-from django.urls import reverse
 
 from utilities.forms import widgets
-from utilities.views import get_viewname
+from utilities.views import get_action_url
 
 __all__ = (
     'DynamicChoiceField',
@@ -173,13 +172,12 @@ class DynamicModelChoiceMixin:
 
         # Set the data URL on the APISelect widget (if not already set)
         if not widget.attrs.get('data-url'):
-            viewname = get_viewname(self.queryset.model, action='list', rest_api=True)
-            widget.attrs['data-url'] = reverse(viewname)
+            widget.attrs['data-url'] = get_action_url(self.queryset.model, action='list', rest_api=True)
 
         # Include quick add?
         if self.quick_add:
             widget.quick_add_context = {
-                'url': reverse(get_viewname(self.model, 'add')),
+                'url': get_action_url(self.model, action='add'),
                 'params': {},
             }
             for k, v in self.quick_add_params.items():

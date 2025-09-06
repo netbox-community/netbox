@@ -11,12 +11,6 @@
   <li class="breadcrumb-item"><a href="{% url 'core:datafile_list' %}?source_id={{ object.source.pk }}">{{ object.source }}</a></li>
 {% endblock %}
 
-{% block control-buttons %}
-  {% if request.user|can_delete:object %}
-    {% delete_button object %}
-  {% endif %}
-{% endblock control-buttons %}
-
 {% block content %}
   <div class="row mb-3">
     <div class="col">

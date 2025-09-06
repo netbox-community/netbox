@@ -10,19 +10,26 @@ The Django [content types](https://docs.djangoproject.com/en/stable/ref/contrib/
 
 Depending on its classification, each NetBox model may support various features which enhance its operation. Each feature is enabled by inheriting from its designated mixin class, and some features also make use of the [application registry](./application-registry.md#model_features).
 
-| Feature                                                    | Feature Mixin           | Registry Key       | Description                                                                             |
-|------------------------------------------------------------|-------------------------|--------------------|-----------------------------------------------------------------------------------------|
-| [Change logging](../features/change-logging.md)            | `ChangeLoggingMixin`    | -                  | Changes to these objects are automatically recorded in the change log                   |
-| Cloning                                                    | `CloningMixin`          | -                  | Provides the `clone()` method to prepare a copy                                         |
-| [Custom fields](../customization/custom-fields.md)         | `CustomFieldsMixin`     | `custom_fields`    | These models support the addition of user-defined fields                                |
-| [Custom links](../customization/custom-links.md)           | `CustomLinksMixin`      | `custom_links`     | These models support the assignment of custom links                                     |
-| [Custom validation](../customization/custom-validation.md) | `CustomValidationMixin` | -                  | Supports the enforcement of custom validation rules                                     |
-| [Export templates](../customization/export-templates.md)   | `ExportTemplatesMixin`  | `export_templates` | Users can create custom export templates for these models                               |
-| [Job results](../features/background-jobs.md)              | `JobsMixin`             | `jobs`             | Background jobs can be scheduled for these models                                       |
-| [Journaling](../features/journaling.md)                    | `JournalingMixin`       | `journaling`       | These models support persistent historical commentary                                   |
-| [Synchronized data](../integrations/synchronized-data.md)  | `SyncedDataMixin`       | `synced_data`      | Certain model data can be automatically synchronized from a remote data source          |
-| [Tagging](../models/extras/tag.md)                         | `TagsMixin`             | `tags`             | The models can be tagged with user-defined tags                                         |
-| [Event rules](../features/event-rules.md)                  | `EventRulesMixin`       | `event_rules`      | Event rules can send webhooks or run custom scripts automatically in response to events |
+| Feature                                                    | Feature Mixin           | Registry Key        | Description                                                                             |
+|------------------------------------------------------------|-------------------------|---------------------|-----------------------------------------------------------------------------------------|
+| [Bookmarks](../features/customization.md#bookmarks)        | `BookmarksMixin`        | `bookmarks`         | These models can be bookmarked natively in the user interface                           |
+| [Change logging](../features/change-logging.md)            | `ChangeLoggingMixin`    | `change_logging`    | Changes to these objects are automatically recorded in the change log                   |
+| Cloning                                                    | `CloningMixin`          | `cloning`           | Provides the `clone()` method to prepare a copy                                         |
+| [Contacts](../features/contacts.md)                        | `ContactsMixin`         | `contacts`          | Contacts can be associated with these models                                            |
+| [Custom fields](../customization/custom-fields.md)         | `CustomFieldsMixin`     | `custom_fields`     | These models support the addition of user-defined fields                                |
+| [Custom links](../customization/custom-links.md)           | `CustomLinksMixin`      | `custom_links`      | These models support the assignment of custom links                                     |
+| [Custom validation](../customization/custom-validation.md) | `CustomValidationMixin` | -                   | Supports the enforcement of custom validation rules                                     |
+| [Event rules](../features/event-rules.md)                  | `EventRulesMixin`       | `event_rules`       | Event rules can send webhooks or run custom scripts automatically in response to events |
+| [Export templates](../customization/export-templates.md)   | `ExportTemplatesMixin`  | `export_templates`  | Users can create custom export templates for these models                               |
+| [Image attachments](../models/extras/imageattachment.md)   | `ImageAttachmentsMixin` | `image_attachments` | Image uploads can be attached to these models                                           |
+| [Jobs](../features/background-jobs.md)                     | `JobsMixin`             | `jobs`              | Background jobs can be scheduled for these models                                       |
+| [Journaling](../features/journaling.md)                    | `JournalingMixin`       | `journaling`        | These models support persistent historical commentary                                   |
+| [Notifications](../features/notifications.md)              | `NotificationsMixin`    | `notifications`     | These models support user notifications                                                 |
+| [Synchronized data](../integrations/synchronized-data.md)  | `SyncedDataMixin`       | `synced_data`       | Certain model data can be automatically synchronized from a remote data source          |
+| [Tagging](../models/extras/tag.md)                         | `TagsMixin`             | `tags`              | The models can be tagged with user-defined tags                                         |
+
+!!! note
+    The above listed features are supported natively by NetBox. Beginning with NetBox v4.4.0, plugins can register their own model features as well.
 
 ## Models Index
 

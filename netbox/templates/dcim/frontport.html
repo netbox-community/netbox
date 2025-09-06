@@ -77,7 +77,7 @@
                             <th scope="row">{% trans "Cable" %}</th>
                             <td>
                                 {{ object.cable|linkify }}
-                                <a href="{% url 'dcim:frontport_trace' pk=object.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+                                <a href="{% url 'dcim:frontport_trace' pk=object.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
                                     <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                 </a>
                             </td>
