@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Annotated, TYPE_CHECKING
 
-from django.db.models import Q
 import strawberry
 import strawberry_django
 from strawberry import ID
