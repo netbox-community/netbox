@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-05 05:03+0000\n"
+"POT-Creation-Date: 2025-09-06 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -592,9 +592,9 @@ msgstr ""
 #: netbox/templates/wireless/wirelesslangroup.html:33
 #: netbox/templates/wireless/wirelesslink.html:34
 #: netbox/tenancy/forms/bulk_edit.py:32 netbox/tenancy/forms/bulk_edit.py:49
-#: netbox/tenancy/forms/bulk_edit.py:87 netbox/tenancy/forms/bulk_edit.py:135
-#: netbox/users/forms/bulk_edit.py:64 netbox/users/forms/bulk_edit.py:82
-#: netbox/users/forms/bulk_edit.py:112
+#: netbox/tenancy/forms/bulk_edit.py:72 netbox/tenancy/forms/bulk_edit.py:87
+#: netbox/tenancy/forms/bulk_edit.py:135 netbox/users/forms/bulk_edit.py:64
+#: netbox/users/forms/bulk_edit.py:82 netbox/users/forms/bulk_edit.py:112
 #: netbox/virtualization/forms/bulk_edit.py:33
 #: netbox/virtualization/forms/bulk_edit.py:47
 #: netbox/virtualization/forms/bulk_edit.py:82
@@ -1446,25 +1446,25 @@ msgstr ""
 msgid "color"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:34
+#: netbox/circuits/models/circuits.py:33
 msgid "circuit type"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:35
+#: netbox/circuits/models/circuits.py:34
 msgid "circuit types"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:46
+#: netbox/circuits/models/circuits.py:45
 #: netbox/circuits/models/virtual_circuits.py:38
 msgid "circuit ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:47
+#: netbox/circuits/models/circuits.py:46
 #: netbox/circuits/models/virtual_circuits.py:39
 msgid "Unique circuit ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:67
+#: netbox/circuits/models/circuits.py:66
 #: netbox/circuits/models/virtual_circuits.py:59 netbox/core/models/data.py:52
 #: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:51
 #: netbox/dcim/models/device_components.py:487
@@ -1482,52 +1482,52 @@ msgstr ""
 msgid "status"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:82 netbox/templates/core/plugin.html:20
+#: netbox/circuits/models/circuits.py:81 netbox/templates/core/plugin.html:20
 msgid "installed"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:87
+#: netbox/circuits/models/circuits.py:86
 msgid "terminates"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:92
+#: netbox/circuits/models/circuits.py:91
 msgid "commit rate (Kbps)"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:93
+#: netbox/circuits/models/circuits.py:92
 msgid "Committed rate"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:142
+#: netbox/circuits/models/circuits.py:141
 msgid "circuit"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:143
+#: netbox/circuits/models/circuits.py:142
 msgid "circuits"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:172
+#: netbox/circuits/models/circuits.py:171
 msgid "circuit group"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:173
+#: netbox/circuits/models/circuits.py:172
 msgid "circuit groups"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:189
+#: netbox/circuits/models/circuits.py:188
 msgid "member ID"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:201 netbox/ipam/models/fhrp.py:96
+#: netbox/circuits/models/circuits.py:200 netbox/ipam/models/fhrp.py:96
 #: netbox/tenancy/models/contacts.py:118
 msgid "priority"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:219
+#: netbox/circuits/models/circuits.py:218
 msgid "Circuit group assignment"
 msgstr ""
 
-#: netbox/circuits/models/circuits.py:220
+#: netbox/circuits/models/circuits.py:219
 msgid "Circuit group assignments"
 msgstr ""
 
@@ -1568,7 +1568,7 @@ msgid "Patch panel ID and port number(s)"
 msgstr ""
 
 #: netbox/circuits/models/circuits.py:288
-#: netbox/circuits/models/virtual_circuits.py:144
+#: netbox/circuits/models/virtual_circuits.py:145
 #: netbox/dcim/models/device_component_templates.py:57
 #: netbox/dcim/models/device_components.py:63 netbox/dcim/models/racks.py:694
 #: netbox/extras/models/configs.py:41 netbox/extras/models/configs.py:94
@@ -1694,16 +1694,16 @@ msgstr ""
 msgid "virtual circuits"
 msgstr ""
 
-#: netbox/circuits/models/virtual_circuits.py:133 netbox/ipam/models/ip.py:200
+#: netbox/circuits/models/virtual_circuits.py:134 netbox/ipam/models/ip.py:200
 #: netbox/ipam/models/ip.py:765 netbox/vpn/models/tunnels.py:109
 msgid "role"
 msgstr ""
 
-#: netbox/circuits/models/virtual_circuits.py:151
+#: netbox/circuits/models/virtual_circuits.py:152
 msgid "virtual circuit termination"
 msgstr ""
 
-#: netbox/circuits/models/virtual_circuits.py:152
+#: netbox/circuits/models/virtual_circuits.py:153
 msgid "virtual circuit terminations"
 msgstr ""
 
@@ -5114,7 +5114,7 @@ msgid "Component Type"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:1184
-msgid "Compnent name"
+msgid "Component name"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:1186
@@ -5512,12 +5512,12 @@ msgstr ""
 msgid "A virtual chassis member already exists in position {vc_position}."
 msgstr ""
 
-#: netbox/dcim/forms/mixins.py:27 netbox/dcim/forms/mixins.py:79
+#: netbox/dcim/forms/mixins.py:27 netbox/dcim/forms/mixins.py:88
 #: netbox/ipam/forms/bulk_edit.py:425 netbox/ipam/forms/model_forms.py:618
 msgid "Scope type"
 msgstr ""
 
-#: netbox/dcim/forms/mixins.py:30 netbox/dcim/forms/mixins.py:82
+#: netbox/dcim/forms/mixins.py:30 netbox/dcim/forms/mixins.py:91
 #: netbox/ipam/forms/bulk_edit.py:270 netbox/ipam/forms/bulk_edit.py:428
 #: netbox/ipam/forms/bulk_edit.py:447 netbox/ipam/forms/filtersets.py:181
 #: netbox/ipam/forms/model_forms.py:232 netbox/ipam/forms/model_forms.py:621
@@ -5536,7 +5536,13 @@ msgstr ""
 msgid "Scope"
 msgstr ""
 
-#: netbox/dcim/forms/mixins.py:108 netbox/ipam/forms/bulk_import.py:452
+#: netbox/dcim/forms/mixins.py:56 netbox/dcim/forms/mixins.py:128
+#: netbox/dcim/models/mixins.py:91
+#, python-brace-format
+msgid "Please select a {scope_type}."
+msgstr ""
+
+#: netbox/dcim/forms/mixins.py:117 netbox/ipam/forms/bulk_import.py:452
 msgid "Scope type (app & model)"
 msgstr ""
 
@@ -6981,11 +6987,6 @@ msgstr ""
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an "
 "object"
-msgstr ""
-
-#: netbox/dcim/models/mixins.py:92
-#, python-brace-format
-msgid "Please select a {scope_type}."
 msgstr ""
 
 #: netbox/dcim/models/modules.py:40 netbox/extras/models/configs.py:49
@@ -12308,63 +12309,63 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:783
+#: netbox/netbox/settings.py:784
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:784
+#: netbox/netbox/settings.py:785
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:785
+#: netbox/netbox/settings.py:786
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:786
+#: netbox/netbox/settings.py:787
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:787
+#: netbox/netbox/settings.py:788
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:788
+#: netbox/netbox/settings.py:789
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:789
+#: netbox/netbox/settings.py:790
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:790
+#: netbox/netbox/settings.py:791
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:791
+#: netbox/netbox/settings.py:792
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:792
+#: netbox/netbox/settings.py:793
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:793
+#: netbox/netbox/settings.py:794
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:794
+#: netbox/netbox/settings.py:795
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:795
+#: netbox/netbox/settings.py:796
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:796
+#: netbox/netbox/settings.py:797
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:797
+#: netbox/netbox/settings.py:798
 msgid "Chinese"
 msgstr ""
 
@@ -13237,7 +13238,7 @@ msgid "Queues"
 msgstr ""
 
 #: netbox/templates/core/rq_worker.html:63
-msgid "Curent Job"
+msgid "Current Job"
 msgstr ""
 
 #: netbox/templates/core/rq_worker.html:67
@@ -14734,7 +14735,7 @@ msgstr ""
 msgid "Enable light mode"
 msgstr ""
 
-#: netbox/templates/inc/missing_prerequisites.html:8
+#: netbox/templates/inc/missing_prerequisites.html:9
 #, python-format
 msgid ""
 "Before you can add a %(model)s you must first create a "
@@ -15435,10 +15436,6 @@ msgstr ""
 
 #: netbox/tenancy/filtersets.py:246
 msgid "Tenant Group (slug)"
-msgstr ""
-
-#: netbox/tenancy/forms/bulk_edit.py:72
-msgid "Desciption"
 msgstr ""
 
 #: netbox/tenancy/forms/bulk_edit.py:101
