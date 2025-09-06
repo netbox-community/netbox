@@ -26,3 +26,19 @@ PLUGIN_IS_INSTALLED = """
     <span class="text-muted">&mdash;</span>
 {% endif %}
 """
+
+DATA_SOURCE_SYNC_BUTTON = """
+{% load helpers %}
+{% load i18n %}
+{% if perms.core.sync_datasource %}
+    {% if record.ready_for_sync %}
+        <button class="btn btn-primary btn-sm" type="submit" formaction="{% url 'core:datasource_sync' pk=record.pk %}?return_url={{ request.get_full_path|urlencode }}" formmethod="post">
+            <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync" %}
+        </button>
+    {% else %}
+        <button class="btn btn-primary btn-sm" disabled>
+            <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync" %}
+        </button>
+    {% endif %}
+{% endif %}
+"""

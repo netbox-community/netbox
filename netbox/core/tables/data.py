@@ -4,6 +4,7 @@ import django_tables2 as tables
 from core.models import *
 from netbox.tables import NetBoxTable, columns
 from .columns import BackendTypeColumn
+from .template_code import DATA_SOURCE_SYNC_BUTTON
 
 __all__ = (
     'DataFileTable',
@@ -36,6 +37,9 @@ class DataSourceTable(NetBoxTable):
     )
     tags = columns.TagColumn(
         url_name='core:datasource_list',
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=DATA_SOURCE_SYNC_BUTTON,
     )
 
     class Meta(NetBoxTable.Meta):
