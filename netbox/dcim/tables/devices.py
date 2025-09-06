@@ -195,6 +195,11 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         linkify=True,
         verbose_name=_('Type')
     )
+    u_height = columns.TemplateColumn(
+        accessor=tables.A('device_type.u_height'),
+        verbose_name=_('U Height'),
+        template_code='{{ value|floatformat }}'
+    )
     platform = tables.Column(
         linkify=True,
         verbose_name=_('Platform')
