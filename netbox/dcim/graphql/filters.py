@@ -489,6 +489,13 @@ class InterfaceFilter(ModularComponentModelFilterMixin, InterfaceBaseFilterMixin
     )
 
     @strawberry_django.filter_field
+    def connected(self, queryset, value: bool, prefix: str):
+        if value is True:
+            return queryset, Q(**{f"{prefix}_path__is_active": True})
+        else:
+            return queryset, Q(**{f"{prefix}_path__isnull": True}) | Q(**{f"{prefix}_path__is_active": False})
+
+    @strawberry_django.filter_field
     def kind(
         self,
         queryset,
