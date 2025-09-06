@@ -26,3 +26,8 @@ PLUGIN_IS_INSTALLED = """
     <span class="text-muted">&mdash;</span>
 {% endif %}
 """
+
+PLUGIN_NAME_TEMPLATE = """
+<img class="plugin-icon" src="{{ record.icon_url }}">
+<a href="{% url 'core:plugin' record.config_name %}">{{ record.title_long }}</a>
+"""
