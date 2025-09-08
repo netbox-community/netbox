@@ -108,8 +108,8 @@ class Cable(PrimaryModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.__dict__.get('status')
 
-        self._a_terminations = []
-        self._b_terminations = []
+        # self._a_terminations = []
+        # self._b_terminations = []
         self._terminations_modified = False
 
         # Assign or retrieve A/B terminations
