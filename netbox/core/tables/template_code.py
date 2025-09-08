@@ -27,6 +27,16 @@ PLUGIN_IS_INSTALLED = """
 {% endif %}
 """
 
+PLUGIN_NAME_TEMPLATE = """
+{% load static %}
+{% if record.icon_url %}
+    <img class="plugin-icon" src="{{ record.icon_url }}">
+{% else %}
+    <img class="plugin-icon" src="{% static 'plugin-default.svg' %}">
+{% endif %}
+<a href="{% url 'core:plugin' record.config_name %}">{{ record.title_long }}</a>
+"""
+
 DATA_SOURCE_SYNC_BUTTON = """
 {% load helpers %}
 {% load i18n %}
