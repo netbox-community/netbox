@@ -61,6 +61,7 @@ class CatalogPluginTable(BaseTable):
         verbose_name=_('Local')
     )
     is_installed = columns.TemplateColumn(
+        accessor=tables.A('is_loaded'),
         verbose_name=_('Active'),
         template_code=PLUGIN_IS_INSTALLED
     )
