@@ -51,29 +51,44 @@ def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     return data
 
 
-def deserialize_object(model, fields, pk=None):
+def deserialize_object(model, data, pk=None):
     """
     Instantiate an object from the given model and field data. Functions as
     the complement to serialize_object().
     """
     content_type = ContentType.objects.get_for_model(model)
+    data = data.copy()
     m2m_data = {}
 
     # Account for custom field data
-    if 'custom_fields' in fields:
-        fields['custom_field_data'] = fields.pop('custom_fields')
+    if 'custom_fields' in data:
+        data['custom_field_data'] = data.pop('custom_fields')
 
     # Pop any assigned tags to handle the M2M relationships manually
-    if is_taggable(model) and fields.get('tags'):
+    if is_taggable(model) and data.get('tags'):
         Tag = apps.get_model('extras', 'Tag')
-        m2m_data['tags'] = Tag.objects.filter(name__in=fields.pop('tags'))
+        m2m_data['tags'] = Tag.objects.filter(name__in=data.pop('tags'))
 
+    # Separate any non-field attributes for assignment after deserialization of the object
+    model_fields = [
+        field.name for field in model._meta.get_fields()
+    ]
+    attrs = {
+        name: data.pop(name) for name in list(data.keys())
+        if name not in model_fields
+    }
+
+    # Employ Django's native Python deserializer to produce the instance
     data = {
         'model': '.'.join(content_type.natural_key()),
         'pk': pk,
-        'fields': fields,
+        'fields': data,
     }
     instance = list(serializers.deserialize('python', [data]))[0]
+
+    # Assign non-field attributes
+    for name, value in attrs.items():
+        setattr(instance.object, name, value)
 
     # Apply any additional M2M assignments
     instance.m2m_data.update(**m2m_data)
