@@ -13,9 +13,6 @@ contact_links:
   - name: 🌎 Correct a Translation
     url: https://explore.transifex.com/netbox-community/netbox/
     about: "Spot an incorrect translation? You can propose a fix on Transifex."
-  - name: 💡 Plugin Idea
-    url: https://plugin-ideas.netbox.dev
-    about: "Have an idea for a plugin? Head over to the ideas board!"
   - name: 💬 Community Slack
     url: https://netdev.chat
     about: "Join #netbox on the NetDev Community Slack for assistance with installation issues and other problems."
