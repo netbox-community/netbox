@@ -31,7 +31,7 @@ jobs:
       NETBOX_CONFIGURATION: netbox.configuration_testing
     strategy:
       matrix:
-        python-version: ['3.12']
+        python-version: ['3.12', '3.13']
         node-version: ['20.x']
     services:
       redis:

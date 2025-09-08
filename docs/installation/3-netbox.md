@@ -238,7 +238,7 @@ sudo /opt/netbox/upgrade.sh
 Note that **Python 3.12 or later is required** for NetBox v4.5 and later releases. If the default Python installation on your server is set to a lesser version,  pass the path to the supported installation as an environment variable named `PYTHON`. (Note that the environment variable must be passed _after_ the `sudo` command.)
 
 ```no-highlight
-sudo PYTHON=/usr/bin/python3.10 /opt/netbox/upgrade.sh
+sudo PYTHON=/usr/bin/python3.12 /opt/netbox/upgrade.sh
 ```
 
 !!! note
