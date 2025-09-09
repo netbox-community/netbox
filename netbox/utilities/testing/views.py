@@ -805,10 +805,6 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + expected_new_objects)
 
-            # Reset permission constraints for next scenario
-            obj_perm.constraints = {'pk': 0}  # Reset to deny all
-            obj_perm.save()
-
     class BulkEditObjectsViewTestCase(ModelViewTestCase):
         """
         Edit multiple instances.
