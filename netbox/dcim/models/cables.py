@@ -108,8 +108,6 @@ class Cable(PrimaryModel):
         # Cache the original status so we can check later if it's been changed
         self._orig_status = self.__dict__.get('status')
 
-        # self._a_terminations = []
-        # self._b_terminations = []
         self._terminations_modified = False
 
         # Assign or retrieve A/B terminations
@@ -125,43 +123,51 @@ class Cable(PrimaryModel):
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
 
-    @property
-    def a_terminations(self):
-        if hasattr(self, '_a_terminations'):
-            return self._a_terminations
+    def _get_terminations(self, side):
+        """
+        Return the terminating objects for the given cable end (A or B).
+        """
+        if side not in (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B):
+            raise ValueError("Unknown cable side: {side")
+        attr = f'_{side.lower()}_terminations'
 
+        if hasattr(self, attr):
+            return getattr(self, attr)
         if not self.pk:
             return []
-
-        # Query self.terminations.all() to leverage cached results
         return [
-            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_A
+            # Query self.terminations.all() to leverage cached results
+            ct.termination for ct in self.terminations.all() if ct.cable_end == side
         ]
+
+    def _set_terminations(self, side, value):
+        """
+        Set the terminating objects for the given cable end (A or B).
+        """
+        if side not in (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B):
+            raise ValueError("Unknown cable side: {side")
+        public_attr = f'{side.lower()}_terminations'
+        private_attr = f'_{public_attr}'
+
+        if not self.pk or getattr(self, public_attr) != list(value):
+            self._terminations_modified = True
+        setattr(self, private_attr, value)
+
+    @property
+    def a_terminations(self):
+        return self._get_terminations(CableEndChoices.SIDE_A)
 
     @a_terminations.setter
     def a_terminations(self, value):
-        if not self.pk or self.a_terminations != list(value):
-            self._terminations_modified = True
-        self._a_terminations = value
+        self._set_terminations(CableEndChoices.SIDE_A, value)
 
     @property
     def b_terminations(self):
-        if hasattr(self, '_b_terminations'):
-            return self._b_terminations
-
-        if not self.pk:
-            return []
-
-        # Query self.terminations.all() to leverage cached results
-        return [
-            ct.termination for ct in self.terminations.all() if ct.cable_end == CableEndChoices.SIDE_B
-        ]
+        return self._get_terminations(CableEndChoices.SIDE_B)
 
     @b_terminations.setter
     def b_terminations(self, value):
-        if not self.pk or self.b_terminations != list(value):
-            self._terminations_modified = True
-        self._b_terminations = value
+        self._set_terminations(CableEndChoices.SIDE_B, value)
 
     @property
     def color_name(self):
