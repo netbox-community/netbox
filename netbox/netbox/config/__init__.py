@@ -79,7 +79,8 @@ class Config:
 
         try:
             # Enforce the creation date as the ordering parameter
-            revision = ConfigRevision.objects.order_by('-created').first()
+            if not (revision := ConfigRevision.objects.filter(active=True).first()):
+                revision = ConfigRevision.objects.order_by('-created').first()
             if revision is None:
                 logger.debug("No previous configuration found in database; proceeding with default values")
                 return
