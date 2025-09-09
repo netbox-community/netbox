@@ -1078,14 +1078,14 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_modulebaytemplate',
         )
 
+        def verify_module_type_profile(scenario_name):
+            # TODO: remove extra regression asserts once parent test supports testing all import fields
+            fan_module_type = ModuleType.objects.get(part_number='generic-fan')
+            fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
+            assert fan_module_type.profile == fan_module_type_profile
+
         # run base test
-        super().test_bulk_import_objects_with_permission()
-
-        # TODO: remove extra regression asserts once parent test supports testing all import fields
-        fan_module_type = ModuleType.objects.get(part_number='generic-fan')
-        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
-
-        assert fan_module_type.profile == fan_module_type_profile
+        super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_constrained_permission(self):
