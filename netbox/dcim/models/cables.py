@@ -128,7 +128,7 @@ class Cable(PrimaryModel):
         Return the terminating objects for the given cable end (A or B).
         """
         if side not in (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B):
-            raise ValueError("Unknown cable side: {side")
+            raise ValueError(f"Unknown cable side: {side}")
         attr = f'_{side.lower()}_terminations'
 
         if hasattr(self, attr):
@@ -145,7 +145,7 @@ class Cable(PrimaryModel):
         Set the terminating objects for the given cable end (A or B).
         """
         if side not in (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B):
-            raise ValueError("Unknown cable side: {side")
+            raise ValueError(f"Unknown cable side: {side}")
         _attr = f'_{side.lower()}_terminations'
 
         # If the provided value is a list of CableTermination IDs, resolve them
