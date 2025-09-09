@@ -622,6 +622,9 @@ class ViewTestCases:
 
         csv_data = ()
 
+        def get_scenarios(self):
+            return self.csv_data.keys() if isinstance(self.csv_data, dict) else ['default']
+
         def _get_csv_data(self, scenario_name='default'):
             """
             Get CSV data for testing. Supports both tuple/list and dictionary formats.
@@ -657,8 +660,6 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_bulk_import_objects_with_permission(self, post_import_callback=None):
-            scenarios = self.csv_data.keys() if isinstance(self.csv_data, dict) else ['default']
-
             # Assign model-level permission once for all scenarios
             obj_perm = ObjectPermission(name='Test permission', actions=['add'])
             obj_perm.save()
@@ -669,7 +670,7 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.get(self._get_url('bulk_import')), 200)
 
             # Test each scenario
-            for scenario_name in scenarios:
+            for scenario_name in self.get_scenarios():
                 with self.cleanupSubTest(scenario=scenario_name):
                     self._test_bulk_import_with_permission_scenario(scenario_name)
 
@@ -757,8 +758,6 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_bulk_import_objects_with_constrained_permission(self, post_import_callback=None):
-            scenarios = self.csv_data.keys() if isinstance(self.csv_data, dict) else ['default']
-
             # Assign constrained permission (deny all initially)
             obj_perm = ObjectPermission(
                 name='Test permission',
@@ -770,7 +769,7 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Test each scenario with constrained permissions
-            for scenario_name in scenarios:
+            for scenario_name in self.get_scenarios():
                 with self.cleanupSubTest(scenario=scenario_name):
                     self._test_bulk_import_constrained_scenario(scenario_name, obj_perm)
 
