@@ -146,12 +146,19 @@ class Cable(PrimaryModel):
         """
         if side not in (CableEndChoices.SIDE_A, CableEndChoices.SIDE_B):
             raise ValueError("Unknown cable side: {side")
-        public_attr = f'{side.lower()}_terminations'
-        private_attr = f'_{public_attr}'
+        _attr = f'_{side.lower()}_terminations'
 
-        if not self.pk or getattr(self, public_attr) != list(value):
+        # If the provided value is a list of CableTermination IDs, resolve them
+        # to their corresponding termination objects.
+        if all(isinstance(item, int) for item in value):
+            value = [
+                ct.termination for ct in CableTermination.objects.filter(pk__in=value).prefetch_related('termination')
+            ]
+
+        if not self.pk or getattr(self, _attr, []) != list(value):
             self._terminations_modified = True
-        setattr(self, private_attr, value)
+
+        setattr(self, _attr, value)
 
     @property
     def a_terminations(self):
