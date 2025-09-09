@@ -123,7 +123,7 @@ class Cable(PrimaryModel):
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
 
-    def _get_terminations(self, side):
+    def _get_x_terminations(self, side):
         """
         Return the terminating objects for the given cable end (A or B).
         """
@@ -140,7 +140,7 @@ class Cable(PrimaryModel):
             ct.termination for ct in self.terminations.all() if ct.cable_end == side
         ]
 
-    def _set_terminations(self, side, value):
+    def _set_x_terminations(self, side, value):
         """
         Set the terminating objects for the given cable end (A or B).
         """
@@ -162,19 +162,19 @@ class Cable(PrimaryModel):
 
     @property
     def a_terminations(self):
-        return self._get_terminations(CableEndChoices.SIDE_A)
+        return self._get_x_terminations(CableEndChoices.SIDE_A)
 
     @a_terminations.setter
     def a_terminations(self, value):
-        self._set_terminations(CableEndChoices.SIDE_A, value)
+        self._set_x_terminations(CableEndChoices.SIDE_A, value)
 
     @property
     def b_terminations(self):
-        return self._get_terminations(CableEndChoices.SIDE_B)
+        return self._get_x_terminations(CableEndChoices.SIDE_B)
 
     @b_terminations.setter
     def b_terminations(self, value):
-        self._set_terminations(CableEndChoices.SIDE_B, value)
+        self._set_x_terminations(CableEndChoices.SIDE_B, value)
 
     @property
     def color_name(self):
