@@ -30,7 +30,6 @@ class UserTestCase(TestCase, BaseFilterSetTests):
                 first_name='Hank',
                 last_name='Hill',
                 email='hank@stricklandpropane.com',
-                is_staff=True,
                 is_superuser=True
             ),
             User(
@@ -97,10 +96,6 @@ class UserTestCase(TestCase, BaseFilterSetTests):
     def test_is_active(self):
         params = {'is_active': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_is_staff(self):
-        params = {'is_staff': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_is_superuser(self):
         params = {'is_superuser': True}

@@ -64,14 +64,17 @@ item1 = PluginMenuItem(
 
 A `PluginMenuItem` has the following attributes:
 
-| Attribute       | Required | Description                                                                                              |
-|-----------------|----------|----------------------------------------------------------------------------------------------------------|
-| `link`          | Yes      | Name of the URL path to which this menu item links                                                       |
-| `link_text`     | Yes      | The text presented to the user                                                                           |
-| `permissions`   | -        | A list of permissions required to display this link                                                      |
-| `auth_required` | -        | Display only for authenticated users                                                                     |
-| `staff_only`    | -        | Display only for users who have `is_staff` set to true (any specified permissions will also be required) |
-| `buttons`       | -        | An iterable of PluginMenuButton instances to include                                                     |
+| Attribute       | Required | Description                                          |
+|-----------------|----------|------------------------------------------------------|
+| `link`          | Yes      | Name of the URL path to which this menu item links   |
+| `link_text`     | Yes      | The text presented to the user                       |
+| `permissions`   | -        | A list of permissions required to display this link  |
+| `auth_required` | -        | Display only for authenticated users                 |
+| `staff_only`    | -        | Display only for superusers                          |
+| `buttons`       | -        | An iterable of PluginMenuButton instances to include |
+
+!!! note "Changed in NetBox v4.5"
+    In releases prior to NetBox v4.5, `staff_only` restricted display of a menu item to only users with `is_staff` set to True. In NetBox v4.5, the `is_staff` flag was removed from the user model. Menu items with `staff_only` set to True are now displayed only for superusers.
 
 ## Menu Buttons
 

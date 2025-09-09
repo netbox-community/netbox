@@ -81,7 +81,7 @@ class UserFilterSet(BaseFilterSet):
     class Meta:
         model = User
         fields = (
-            'id', 'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_staff', 'is_active',
+            'id', 'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_active',
             'is_superuser',
         )
 

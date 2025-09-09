@@ -47,9 +47,9 @@ class HomeView(ConditionalLoginRequiredMixin, View):
             ))
             dashboard = get_default_dashboard(config=DEFAULT_DASHBOARD).get_layout()
 
-        # Check whether a new release is available. (Only for staff/superusers.)
+        # Check whether a new release is available. (Only for superusers.)
         new_release = None
-        if request.user.is_staff or request.user.is_superuser:
+        if request.user.is_superuser:
             latest_release = cache.get('latest_release')
             if latest_release:
                 release_version, release_url = latest_release

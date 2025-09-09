@@ -38,9 +38,6 @@ class UserTable(NetBoxTable):
     is_active = columns.BooleanColumn(
         verbose_name=_('Is Active'),
     )
-    is_staff = columns.BooleanColumn(
-        verbose_name=_('Is Staff'),
-    )
     is_superuser = columns.BooleanColumn(
         verbose_name=_('Is Superuser'),
     )
@@ -51,8 +48,8 @@ class UserTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = User
         fields = (
-            'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'groups', 'is_active', 'is_staff',
-            'is_superuser', 'last_login',
+            'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'groups', 'is_active', 'is_superuser',
+            'last_login',
         )
         default_columns = ('pk', 'username', 'first_name', 'last_name', 'email', 'is_active')
 

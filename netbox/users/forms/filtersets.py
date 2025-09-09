@@ -29,7 +29,7 @@ class UserFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id',),
         FieldSet('group_id', name=_('Group')),
-        FieldSet('is_active', 'is_staff', 'is_superuser', name=_('Status')),
+        FieldSet('is_active', 'is_superuser', name=_('Status')),
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=Group.objects.all(),
@@ -42,13 +42,6 @@ class UserFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
         label=_('Is Active'),
-    )
-    is_staff = forms.NullBooleanField(
-        required=False,
-        widget=forms.Select(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        ),
-        label=_('Is Staff'),
     )
     is_superuser = forms.NullBooleanField(
         required=False,

@@ -37,7 +37,7 @@
                 path. Refer to <a href="{{ docs_url }}">the installation documentation</a> for further guidance.
               {% endblocktrans %}
               <ul>
-                {% if request.user.is_staff or request.user.is_superuser %}
+                {% if request.user.is_superuser %}
                   <li><code>STATIC_ROOT: <strong>{{ settings.STATIC_ROOT }}</strong></code></li>
                 {% endif %}
                 <li><code>STATIC_URL: <strong>{{ settings.STATIC_URL }}</strong></code></li>

@@ -49,7 +49,6 @@ class MenuItem:
     _url: Optional[str] = None
     permissions: Optional[Sequence[str]] = ()
     auth_required: Optional[bool] = False
-    staff_only: Optional[bool] = False
     buttons: Optional[Sequence[MenuItemButton]] = ()
 
     def __post_init__(self):

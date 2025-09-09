@@ -134,10 +134,7 @@ class BackgroundTaskTestCase(TestCase):
         Create a user and token for API calls.
         """
         # Create the test user and assign permissions
-        self.user = User.objects.create_user(username='testuser')
-        self.user.is_staff = True
-        self.user.is_active = True
-        self.user.save()
+        self.user = User.objects.create_user(username='testuser', is_active=True)
         self.token = Token.objects.create(user=self.user)
         self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
 
@@ -150,13 +147,13 @@ class BackgroundTaskTestCase(TestCase):
         url = reverse('core-api:rqqueue-list')
 
         # Attempt to load view without permission
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 403)
 
         # Load view with permission
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
