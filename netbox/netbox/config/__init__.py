@@ -78,7 +78,8 @@ class Config:
         from core.models import ConfigRevision
 
         try:
-            revision = ConfigRevision.objects.last()
+            # Enforce the creation date as the ordering parameter
+            revision = ConfigRevision.objects.order_by('-created').first()
             if revision is None:
                 logger.debug("No previous configuration found in database; proceeding with default values")
                 return
