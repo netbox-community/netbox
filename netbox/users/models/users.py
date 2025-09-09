@@ -72,7 +72,10 @@ class Group(models.Model):
 
 
 class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
-    pass
+
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(username, email, password, **extra_fields)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
