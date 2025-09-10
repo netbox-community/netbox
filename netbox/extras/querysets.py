@@ -22,9 +22,10 @@ class ConfigContextQuerySet(RestrictedQuerySet):
           aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
         """
 
-        # Device type and location assignment is relevant only for Devices
+        # Device type and location assignment are relevant only for Devices
         device_type = getattr(obj, 'device_type', None)
         location = getattr(obj, 'location', None)
+        locations = location.get_ancestors(include_self=True) if location else []
 
         # Get assigned cluster, group, and type (if any)
         cluster = getattr(obj, 'cluster', None)
@@ -49,7 +50,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
             Q(regions__in=regions) | Q(regions=None),
             Q(site_groups__in=sitegroups) | Q(site_groups=None),
             Q(sites=obj.site) | Q(sites=None),
-            Q(locations=location) | Q(locations=None),
+            Q(locations__in=locations) | Q(locations=None),
             Q(device_types=device_type) | Q(device_types=None),
             Q(roles__in=device_roles) | Q(roles=None),
             Q(platforms=obj.platform) | Q(platforms=None),
@@ -124,7 +125,15 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
 
         # Apply Location & DeviceType filters only for VirtualMachines
         if self.model._meta.model_name == 'device':
-            base_query.add((Q(locations=OuterRef('location')) | Q(locations=None)), Q.AND)
+            base_query.add(
+                (Q(
+                    locations__tree_id=OuterRef('location__tree_id'),
+                    locations__level__lte=OuterRef('location__level'),
+                    locations__lft__lte=OuterRef('location__lft'),
+                    locations__rght__gte=OuterRef('location__rght'),
+                ) | Q(locations=None)),
+                Q.AND
+            )
             base_query.add((Q(device_types=OuterRef('device_type')) | Q(device_types=None)), Q.AND)
         elif self.model._meta.model_name == 'virtualmachine':
             base_query.add(Q(locations=None), Q.AND)
