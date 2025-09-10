@@ -191,11 +191,6 @@ class RemoteUserBackend(_RemoteUserBackend):
         logger.debug(
             f"User {user} should be Superuser: {self._is_superuser(user)}")
 
-        # Set is_staff attribute for compatibility with pre-v4.5
-        user.is_staff = user.is_superuser
-        if user.is_staff:
-            logger.debug(f"Marked user {user} as staff due to superuser status")
-
         user.save()
         return user
 
