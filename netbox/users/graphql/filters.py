@@ -27,7 +27,6 @@ class UserFilter(BaseObjectTypeFilterMixin):
     last_name: FilterLookup[str] | None = strawberry_django.filter_field()
     email: FilterLookup[str] | None = strawberry_django.filter_field()
     is_superuser: FilterLookup[bool] | None = strawberry_django.filter_field()
-    is_staff: FilterLookup[bool] | None = strawberry_django.filter_field()
     is_active: FilterLookup[bool] | None = strawberry_django.filter_field()
     date_joined: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     last_login: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()

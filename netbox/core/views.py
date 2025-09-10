@@ -366,7 +366,7 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 class BaseRQView(UserPassesTestMixin, View):
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_superuser
 
 
 class BackgroundQueueListView(TableMixin, BaseRQView):
@@ -549,7 +549,7 @@ class WorkerView(BaseRQView):
 class SystemView(UserPassesTestMixin, View):
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_superuser
 
     def get(self, request):
 
@@ -632,7 +632,7 @@ class BasePluginView(UserPassesTestMixin, View):
     CACHE_KEY_CATALOG_ERROR = 'plugins-catalog-error'
 
     def test_func(self):
-        return self.request.user.is_staff
+        return self.request.user.is_superuser
 
     def get_cached_plugins(self, request):
         catalog_plugins = {}

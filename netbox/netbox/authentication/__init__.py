@@ -184,14 +184,13 @@ class RemoteUserBackend(_RemoteUserBackend):
         else:
             user.groups.clear()
             logger.debug(f"Stripping user {user} from Groups")
+
+        # Evaluate superuser status
         user.is_superuser = self._is_superuser(user)
         logger.debug(f"User {user} is Superuser: {user.is_superuser}")
         logger.debug(
             f"User {user} should be Superuser: {self._is_superuser(user)}")
 
-        user.is_staff = self._is_staff(user)
-        logger.debug(f"User {user} is Staff: {user.is_staff}")
-        logger.debug(f"User {user} should be Staff: {self._is_staff(user)}")
         user.save()
         return user
 
@@ -251,19 +250,8 @@ class RemoteUserBackend(_RemoteUserBackend):
         return bool(result)
 
     def _is_staff(self, user):
-        logger = logging.getLogger('netbox.auth.RemoteUserBackend')
-        staff_groups = settings.REMOTE_AUTH_STAFF_GROUPS
-        logger.debug(f"Superuser Groups: {staff_groups}")
-        staff_users = settings.REMOTE_AUTH_STAFF_USERS
-        logger.debug(f"Staff Users :{staff_users}")
-        user_groups = set()
-        for g in user.groups.all():
-            user_groups.add(g.name)
-        logger.debug(f"User {user.username} is in Groups:{user_groups}")
-        result = user.username in staff_users or (
-            set(user_groups) & set(staff_groups))
-        logger.debug(f"User {user.username} in Staff Users :{result}")
-        return bool(result)
+        # Retain for pre-v4.5 compatibility
+        return user.is_superuser
 
     def configure_user(self, request, user):
         logger = logging.getLogger('netbox.auth.RemoteUserBackend')

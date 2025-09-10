@@ -27,8 +27,6 @@
         <div class="mt-1 small text-secondary">
           {% if request.user.is_superuser %}
             {% trans "Admin" %}
-          {% elif request.user.is_staff %}
-            {% trans "Staff" %}
           {% else %}
             {% trans "User" %}
           {% endif %}
