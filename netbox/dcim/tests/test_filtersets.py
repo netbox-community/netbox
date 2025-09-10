@@ -1379,9 +1379,20 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1'),
             DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2'),
         ))
-        # Assigned DeviceType must have parent subdevice_role
+        # Assigned DeviceType must have a parent subdevice_role
         inventory_item = InventoryItemTemplate(device_type=device_types[1], name='Inventory Item 1')
         inventory_item.save()
+
+        # Create a Device instance
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        device = Device(
+            name='Device 1',
+            device_type=device_types[0],
+            role=device_role,
+            site=site,
+        )
+        device.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -1434,6 +1445,24 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'default_platform': [platforms[0].slug, platforms[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_has_instances(self):
+        params = {'has_instances': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'has_instances': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_instance_count(self):
+        params = {'instance_count': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'instance_count__gt': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'instance_count__gte': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'instance_count__lt': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'instance_count__lte': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_has_front_image(self):
         params = {'has_front_image': True}
@@ -1643,6 +1672,29 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             )
         )
 
+        # Create a Module instance
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturers[0],
+            model='Model 1',
+            slug='model-1',
+            part_number='Part Number 1',
+        )
+        device = Device.objects.create(
+            name='Device 1',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+        module = Module(
+            device=device,
+            module_bay=module_bay,
+            module_type=module_types[0],
+        )
+        module.save()
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -1665,6 +1717,24 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_has_instances(self):
+        params = {'has_instances': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'has_instances': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_instance_count(self):
+        params = {'instance_count': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'instance_count__gt': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {'instance_count__gte': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'instance_count__lt': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'instance_count__lte': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_console_ports(self):
         params = {'console_ports': 'true'}
