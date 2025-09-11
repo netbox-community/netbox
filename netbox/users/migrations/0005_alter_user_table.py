@@ -24,8 +24,9 @@ def update_content_types(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
+        ('core', '0018_concrete_objecttype'),
+        ('extras', '0117_move_objectchange'),
         ('users', '0002_squashed_0004'),
-        ('extras', '0113_customfield_rename_object_type'),
     ]
 
     operations = [
