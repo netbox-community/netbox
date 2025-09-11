@@ -107,14 +107,14 @@ class ObjectTypeTest(APITestCase):
     def test_list_objects(self):
         object_type_count = ObjectType.objects.count()
 
-        response = self.client.get(reverse('extras-api:objecttype-list'), **self.header)
+        response = self.client.get(reverse('core-api:objecttype-list'), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], object_type_count)
 
     def test_get_object(self):
         object_type = ObjectType.objects.first()
 
-        url = reverse('extras-api:objecttype-detail', kwargs={'pk': object_type.pk})
+        url = reverse('core-api:objecttype-detail', kwargs={'pk': object_type.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
 
 
