@@ -294,7 +294,7 @@ STORAGES = {
 
 This approach works because the environment variables are resolved during NetBox's configuration processing, before the third-party library attempts its own environment variable detection.
 
-!!! warning "Common Gotcha"
+!!! warning "Configuration Behavior"
     Simply setting environment variables like `AWS_STORAGE_BUCKET_NAME` without explicitly reading them in your configuration will not work. The variables must be read using `os.environ.get()` within your `configuration.py` file.
 
 ---
