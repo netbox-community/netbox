@@ -257,6 +257,46 @@ The specific configuration settings for each storage backend can be found in the
 !!! note
     Any keys defined in the `STORAGES` configuration parameter replace those in the default configuration. It is only necessary to define keys within the `STORAGES` for the specific backend(s) you wish to configure.
 
+### Environment Variables and Third-Party Libraries
+
+NetBox uses an explicit Python configuration approach rather than automatic environment variable detection. While this provides clear configuration management and version control capabilities, it affects how some third-party libraries like `django-storages` function within NetBox's context.
+
+Many Django libraries (including `django-storages`) expect to automatically detect environment variables like `AWS_STORAGE_BUCKET_NAME` or `AWS_S3_ACCESS_KEY_ID`. However, NetBox's configuration processing prevents this automatic detection from working as documented in some of these libraries.
+
+When using third-party libraries that rely on environment variable detection, you may need to explicitly read environment variables in your NetBox `configuration.py`:
+
+```python
+import os
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': os.environ.get('AWS_STORAGE_BUCKET_NAME'),
+            'access_key': os.environ.get('AWS_S3_ACCESS_KEY_ID'),
+            'secret_key': os.environ.get('AWS_S3_SECRET_ACCESS_KEY'),
+            'endpoint_url': os.environ.get('AWS_S3_ENDPOINT_URL'),
+            'location': 'media/',
+        }
+    },
+    'staticfiles': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': os.environ.get('AWS_STORAGE_BUCKET_NAME'),
+            'access_key': os.environ.get('AWS_S3_ACCESS_KEY_ID'),
+            'secret_key': os.environ.get('AWS_S3_SECRET_ACCESS_KEY'),
+            'endpoint_url': os.environ.get('AWS_S3_ENDPOINT_URL'),
+            'location': 'static/',
+        }
+    },
+}
+```
+
+This approach works because the environment variables are resolved during NetBox's configuration processing, before the third-party library attempts its own environment variable detection.
+
+!!! warning "Common Gotcha"
+    Simply setting environment variables like `AWS_STORAGE_BUCKET_NAME` without explicitly reading them in your configuration will not work. The variables must be read using `os.environ.get()` within your `configuration.py` file.
+
 ---
 
 ## TIME_ZONE
