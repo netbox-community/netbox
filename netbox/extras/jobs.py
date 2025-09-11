@@ -106,7 +106,7 @@ class ScriptJob(JobRunner):
 
         # Add the current request as a property of the script
         script.request = request
-        self.logger.debug(f"Request ID: {request.id}")
+        self.logger.debug(f"Request ID: {request.id if request else None}")
 
         # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
         # change logging, event rules, etc.
