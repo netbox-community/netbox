@@ -725,8 +725,9 @@ class ScriptResultsTable(BaseTable):
     index = tables.Column(
         verbose_name=_('Line')
     )
-    time = tables.Column(
-        verbose_name=_('Time')
+    time = columns.DateTimeColumn(
+        verbose_name=_('Time'),
+        timespec='seconds'
     )
     status = tables.TemplateColumn(
         template_code="""{% load log_levels %}{% log_level record.status %}""",
