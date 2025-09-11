@@ -99,7 +99,7 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'data': body.encode('utf8'),
     }
     logger.info(
-        f"Sending {params['method']} request to {params['url']} ({context['model']} {context['event']})"
+        f"Sending {params['method']} request to {params['url']} ({context['object_type']} {context['event']})"
     )
     logger.debug(params)
     try:
