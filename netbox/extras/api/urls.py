@@ -1,9 +1,7 @@
 from django.urls import include, path
 
-from core.api.views import ObjectTypeViewSet
 from netbox.api.routers import NetBoxRouter
 from . import views
-
 
 router = NetBoxRouter()
 router.APIRootView = views.ExtrasRootView
@@ -28,9 +26,6 @@ router.register('config-contexts', views.ConfigContextViewSet)
 router.register('config-context-profiles', views.ConfigContextProfileViewSet)
 router.register('config-templates', views.ConfigTemplateViewSet)
 router.register('scripts', views.ScriptViewSet, basename='script')
-
-# TODO: Remove in NetBox v4.5
-router.register('object-types', ObjectTypeViewSet)
 
 app_name = 'extras-api'
 urlpatterns = [
