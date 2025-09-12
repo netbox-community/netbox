@@ -1,12 +1,9 @@
 import inspect
-import json
 import logging
 import os
 import re
 
-import yaml
 from django import forms
-from django.conf import settings
 from django.core.files.storage import storages
 from django.core.validators import RegexValidator
 from django.utils import timezone
@@ -488,7 +485,7 @@ class BaseScript:
         if self.fieldsets:
             fieldsets.extend(self.fieldsets)
         else:
-            fields = list(name for name, _ in self._get_vars().items())
+            fields = list(name for name, __ in self._get_vars().items())
             fieldsets.append((_('Script Data'), fields))
 
         # Append the default fieldset if defined in the Meta class
@@ -579,40 +576,6 @@ class BaseScript:
     def log_failure(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
         self.failed = True
-
-    #
-    # Convenience functions
-    #
-
-    def load_yaml(self, filename):
-        """
-        Return data from a YAML file
-        """
-        # TODO: DEPRECATED: Remove this method in v4.5
-        self._log(
-            _("load_yaml is deprecated and will be removed in v4.5"),
-            level=LogLevelChoices.LOG_WARNING
-        )
-        file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
-            data = yaml.load(datafile, Loader=yaml.SafeLoader)
-
-        return data
-
-    def load_json(self, filename):
-        """
-        Return data from a JSON file
-        """
-        # TODO: DEPRECATED: Remove this method in v4.5
-        self._log(
-            _("load_json is deprecated and will be removed in v4.5"),
-            level=LogLevelChoices.LOG_WARNING
-        )
-        file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
-            data = json.load(datafile)
-
-        return data
 
     #
     # Legacy Report functionality

@@ -131,17 +131,6 @@ self.log_info(f"Running as user {username} (IP: {ip_address})...")
 
 For a complete list of available request parameters, please see the [Django documentation](https://docs.djangoproject.com/en/stable/ref/request-response/).
 
-## Reading Data from Files
-
-The Script class provides two convenience methods for reading data from files:
-
-* `load_yaml`
-* `load_json`
-
-These two methods will load data in YAML or JSON format, respectively, from files within the local path (i.e. `SCRIPTS_ROOT`).
-
-**Note:** These convenience methods are deprecated and will be removed in NetBox v4.4.  These only work if running scripts within the local path, they will not work if using a storage other than ScriptFileSystemStorage.
-
 ## Logging
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
