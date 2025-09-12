@@ -906,8 +906,51 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_5GE_FIXED = '5gbase-t'
 
     # 10 Gbps Ethernet
-    TYPE_10GE_FIXED = '10gbase-t'
     TYPE_10GE_CX4 = '10gbase-cx4'
+    TYPE_10GE_ER = '10gbase-er'
+    TYPE_10GE_LR = '10gbase-lr'
+    TYPE_10GE_LRM = '10gbase-lrm'
+    TYPE_10GE_SR = '10gbase-sr'
+    TYPE_10GE_FIXED = '10gbase-t'
+    TYPE_10GE_ZR = '10gbase-zr'
+
+    # 25 Gbps Ethernet
+    TYPE_25GE_CR = '25gbase-cr'
+    TYPE_25GE_ER = '25gbase-er'
+    TYPE_25GE_LR = '25gbase-lr'
+    TYPE_25GE_SR = '25gbase-sr'
+    TYPE_25GE_T = '25gbase-t'
+
+    # 40 Gbps Ethernet
+    TYPE_40GE_CR4 = '40gbase-cr4'
+    TYPE_40GE_ER4 = '40gbase-er4'
+    TYPE_40GE_FR4 = '40gbase-fr4'
+    TYPE_40GE_LR4 = '40gbase-lr4'
+    TYPE_40GE_SR4 = '40gbase-sr4'
+
+    # 50 Gbps Ethernet
+    TYPE_50GE_CR = '50gbase-cr'
+    TYPE_50GE_ER = '50gbase-er'
+    TYPE_50GE_FR = '50gbase-fr'
+    TYPE_50GE_LR = '50gbase-lr'
+    TYPE_50GE_SR = '50gbase-sr'
+
+    # 100 Gbps Ethernet
+    TYPE_100GE_CR1 = '100gbase-cr1'
+    TYPE_100GE_CR2 = '100gbase-cr2'
+    TYPE_100GE_CR4 = '100gbase-cr4'
+    TYPE_100GE_CR10 = '100gbase-cr10'
+    TYPE_100GE_DR = '100gbase-dr'
+    TYPE_100GE_FR1 = '100gbase-fr1'
+    TYPE_100GE_ER4 = '100gbase-er4'
+    TYPE_100GE_LR1 = '100gbase-lr1'
+    TYPE_100GE_LR4 = '100gbase-lr4'
+    TYPE_100GE_SR1 = '100gbase-sr1'
+    TYPE_100GE_SR1_2 = '100gbase-sr1.2'
+    TYPE_100GE_SR2 = '100gbase-sr2'
+    TYPE_100GE_SR4 = '100gbase-sr4'
+    TYPE_100GE_SR10 = '100gbase-sr10'
+    TYPE_100GE_ZR = '100gbase-zr'
 
     # Ethernet (modular)
     TYPE_100ME_SFP = '100base-x-sfp'
@@ -1064,8 +1107,8 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('FastEthernet (100 Mbps)'),
             (
-                (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
-                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
+                (TYPE_100ME_FX, '100BASE-FX (10/100ME MMF)'),
+                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME MMF)'),
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
             ),
@@ -1089,8 +1132,63 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('10 Gbps Ethernet'),
             (
-                (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
-                (TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'),
+                (TYPE_10GE_CX4, '10GBASE-CX4 (10GE DAC)'),
+                (TYPE_10GE_ER, '10GBASE-ER (10GE SMF)'),
+                (TYPE_10GE_LR, '10GBASE-LR (10GE SMF)'),
+                (TYPE_10GE_LRM, '10GBASE-LRM (10GE SMF)'),
+                (TYPE_10GE_SR, '10GBASE-SR (10GE MMF)'),
+                (TYPE_10GE_FIXED, '10GBASE-T (10GE copper)'),
+                (TYPE_10GE_ZR, '10GBASE-ZR (10GE SMF)'),
+            )
+        ),
+        (
+            _('25 Gbps Ethernet'),
+            (
+                (TYPE_25GE_CR, '25GBASE-CR (25GE DAC)'),
+                (TYPE_25GE_ER, '25GBASE-ER (25GE SMF)'),
+                (TYPE_25GE_LR, '25GBASE-LR (25GE SMF)'),
+                (TYPE_25GE_SR, '25GBASE-SR (25GE MMF)'),
+                (TYPE_25GE_T, '25GBASE-T (25GE copper)'),
+            )
+        ),
+        (
+            _('40 Gbps Ethernet'),
+            (
+                (TYPE_40GE_CR4, '40GBASE-CR4 (40GE DAC)'),
+                (TYPE_40GE_ER4, '40GBASE-ER4 (40GE SMF)'),
+                (TYPE_40GE_FR4, '40GBASE-FR4 (40GE SMF)'),
+                (TYPE_40GE_LR4, '40GBASE-LR4 (40GE SMF)'),
+                (TYPE_40GE_SR4, '40GBASE-SR4 (40GE MMF)'),
+            )
+        ),
+        (
+            _('50 Gbps Ethernet'),
+            (
+                (TYPE_50GE_CR, '50GBASE-CR (50GE DAC)'),
+                (TYPE_50GE_ER, '50GBASE-ER (50GE SMF)'),
+                (TYPE_50GE_FR, '50GBASE-FR (50GE SMF)'),
+                (TYPE_50GE_LR, '50GBASE-LR (50GE SMF)'),
+                (TYPE_50GE_SR, '50GBASE-SR (50GE MMF)'),
+            )
+        ),
+        (
+            _('100 Gbps Ethernet'),
+            (
+                (TYPE_100GE_CR1, '100GBASE-CR1 (100GE DAC)'),
+                (TYPE_100GE_CR2, '100GBASE-CR2 (100GE DAC)'),
+                (TYPE_100GE_CR4, '100GBASE-CR4 (100GE DAC)'),
+                (TYPE_100GE_CR10, '100GBASE-CR10 (100GE DAC)'),
+                (TYPE_100GE_DR, '100GBASE-DR (100GE SMF)'),
+                (TYPE_100GE_ER4, '100GBASE-ER4 (100GE SMF)'),
+                (TYPE_100GE_FR1, '100GBASE-FR1 (100GE SMF)'),
+                (TYPE_100GE_LR1, '100GBASE-LR1 (100GE SMF)'),
+                (TYPE_100GE_LR4, '100GBASE-LR4 (100GE SMF)'),
+                (TYPE_100GE_SR1, '100GBASE-SR1 (100GE MMF)'),
+                (TYPE_100GE_SR1_2, '100GBASE-SR1.2 (100GE MMF BiDi)'),
+                (TYPE_100GE_SR2, '100GBASE-SR2 (100GE MMF)'),
+                (TYPE_100GE_SR4, '100GBASE-SR4 (100GE MMF)'),
+                (TYPE_100GE_SR10, '100GBASE-SR10 (100GE MMF)'),
+                (TYPE_100GE_ZR, '100GBASE-ZR (100GE SMF)'),
             )
         ),
         (
