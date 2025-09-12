@@ -1,15 +1,93 @@
 import tempfile
 from pathlib import Path
 
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.test import tag, TestCase
 
 from core.models import DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, Tag
+from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+
+
+class ImageAttachmentTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.ct_rack = ContentType.objects.get(app_label='dcim', model='rack')
+        cls.image_content = b''
+
+    def _stub_image_attachment(self, object_id, image_filename, name=None):
+        """
+        Creates an instance of ImageAttachment with the provided object_id and image_name.
+
+        This method prepares a stubbed image attachment to test functionalities that
+        require an ImageAttachment object.
+        The function initializes the attachment with a specified file name and
+        pre-defined image content.
+        """
+        ia = ImageAttachment(
+            object_type=self.ct_rack,
+            object_id=object_id,
+            name=name,
+            image=SimpleUploadedFile(
+                name=image_filename,
+                content=self.image_content,
+                content_type='image/jpeg',
+            ),
+        )
+        return ia
+
+    def test_filename_strips_expected_prefix(self):
+        """
+        Tests that the filename of the image attachment is stripped of the expected
+        prefix.
+        """
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_My_File.png')
+        self.assertEqual(ia.filename, 'My_File.png')
+
+    def test_filename_legacy_nested_path_returns_basename(self):
+        """
+        Tests if the filename of a legacy-nested path correctly returns only the basename.
+        """
+        # e.g. "image-attachments/rack_12_5/31/23.jpg" -> "23.jpg"
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_5/31/23.jpg')
+        self.assertEqual(ia.filename, '23.jpg')
+
+    def test_filename_no_prefix_returns_basename(self):
+        """
+        Tests that the filename property correctly returns the basename for an image
+        attachment that has no leading prefix in its path.
+        """
+        ia = self._stub_image_attachment(42, 'image-attachments/just_name.webp')
+        self.assertEqual(ia.filename, 'just_name.webp')
+
+    def test_mismatched_prefix_is_not_stripped(self):
+        """
+        Tests that a mismatched prefix in the filename is not stripped.
+        """
+        # Prefix does not match object_id -> leave as-is (basename only)
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_13_other.png')
+        self.assertEqual('rack_13_other.png', ia.filename)
+
+    def test_str_uses_name_when_present(self):
+        """
+        Tests that the `str` representation of the object uses the
+        `name` attribute when provided.
+        """
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_file.png', name='Human title')
+        self.assertEqual('Human title', str(ia))
+
+    def test_str_falls_back_to_filename(self):
+        """
+        Tests that the `str` representation of the object falls back to
+        the filename if the name attribute is not set.
+        """
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_file.png', name='')
+        self.assertEqual('file.png', str(ia))
 
 
 class TagTest(TestCase):
@@ -445,7 +523,7 @@ class ConfigContextTest(TestCase):
         vm1 = VirtualMachine.objects.create(name="VM 1", site=site, role=vm_role)
         vm2 = VirtualMachine.objects.create(name="VM 2", cluster=cluster, role=vm_role)
 
-        # Check that their individually-rendered config contexts are identical
+        # Check that their individually rendered config contexts are identical
         self.assertEqual(
             vm1.get_config_context(),
             vm2.get_config_context()
@@ -462,7 +540,7 @@ class ConfigContextTest(TestCase):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
         This is combated by appending distinct() to the config context querysets. This test creates a config
-        context assigned to two tags and ensures objects related by those same two tags result in only a single
+        context assigned to two tags and ensures objects related to those same two tags result in only a single
         config context record being returned.
 
         See https://github.com/netbox-community/netbox/issues/5314
@@ -495,14 +573,14 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
-    def test_multiple_tags_return_distinct_objects_with_seperate_config_contexts(self):
+    def test_multiple_tags_return_distinct_objects_with_separate_config_contexts(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
-        This is combatted by by appending distinct() to the config context querysets. This test creates a config
-        context assigned to two tags and ensures objects related by those same two tags result in only a single
+        This is combated by appending distinct() to the config context querysets. This test creates a config
+        context assigned to two tags and ensures objects related to those same two tags result in only a single
         config context record being returned.
 
-        This test case is seperate from the above in that it deals with multiple config context objects in play.
+        This test case is separate from the above in that it deals with multiple config context objects in play.
 
         See https://github.com/netbox-community/netbox/issues/5387
         """
