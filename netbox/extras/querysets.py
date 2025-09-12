@@ -93,7 +93,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                     _data=EmptyGroupByJSONBAgg('data', ordering=['weight', 'name'])
                 ).values("_data").order_by()
             )
-        ).distinct()
+        )
 
     def _get_config_context_filters(self):
         # Construct the set of Q objects for the specific object types
@@ -117,7 +117,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                     ).values_list(
                         'tag_id',
                         flat=True
-                    )
+                    ).distinct()
                 )
             ) | Q(tags=None),
             is_active=True,
