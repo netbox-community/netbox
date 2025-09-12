@@ -17,11 +17,21 @@ __all__ = (
 )
 
 
-@dataclass
+@strawberry.type
 class ContactFilterMixin(BaseFilterMixin):
-    contacts: Annotated['ContactFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
+    @strawberry_django.filter_field
+    def contacts(
+        self,
+        queryset,
+        value: Annotated['ContactFilter', strawberry.lazy('tenancy.graphql.filters')],
+        prefix: str,
+    ):
+        return strawberry_django.process_filters(
+            filters=value,
+            queryset=queryset,
+            info=None,
+            prefix=f"{prefix}contacts__contact__"
+        )
 
 
 @dataclass
