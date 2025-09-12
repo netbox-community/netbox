@@ -965,6 +965,38 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_SR10 = '100gbase-sr10'
     TYPE_100GE_ZR = '100gbase-zr'
 
+    # 200 Gbps Ethernet
+    TYPE_200GE_CR2 = '200gbase-cr2'
+    TYPE_200GE_CR4 = '200gbase-cr4'
+    TYPE_200GE_SR2 = '200gbase-sr2'
+    TYPE_200GE_SR4 = '200gbase-sr4'
+    TYPE_200GE_DR4 = '200gbase-dr4'
+    TYPE_200GE_FR4 = '200gbase-fr4'
+    TYPE_200GE_LR4 = '200gbase-lr4'
+    TYPE_200GE_ER4 = '200gbase-er4'
+    TYPE_200GE_VR2 = '200gbase-vr2'
+
+    # 400 Gbps Ethernet
+    TYPE_400GE_CR4 = '400gbase-cr4'
+    TYPE_400GE_DR4 = '400gbase-dr4'
+    TYPE_400GE_ER8 = '400gbase-er8'
+    TYPE_400GE_FR4 = '400gbase-fr4'
+    TYPE_400GE_FR8 = '400gbase-fr8'
+    TYPE_400GE_LR4 = '400gbase-lr4'
+    TYPE_400GE_LR8 = '400gbase-lr8'
+    TYPE_400GE_SR4 = '400gbase-sr4'
+    TYPE_400GE_SR4_2 = '400gbase-sr4_2'
+    TYPE_400GE_SR8 = '400gbase-sr8'
+    TYPE_400GE_SR16 = '400gbase-sr16'
+    TYPE_400GE_VR4 = '400gbase-vr4'
+    TYPE_400GE_ZR = '400gbase-zr'
+
+    # 800 Gbps Ethernet
+    TYPE_800GE_CR8 = '800gbase-cr8'
+    TYPE_800GE_DR8 = '800gbase-dr8'
+    TYPE_800GE_SR8 = '800gbase-sr8'
+    TYPE_800GE_VR8 = '800gbase-vr8'
+
     # Ethernet (modular)
     TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_GBIC = '1000base-x-gbic'
@@ -1214,6 +1246,47 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_SR4, '100GBASE-SR4 (100GE MMF)'),
                 (TYPE_100GE_SR10, '100GBASE-SR10 (100GE MMF)'),
                 (TYPE_100GE_ZR, '100GBASE-ZR (100GE SMF)'),
+            )
+        ),
+        (
+            _('200 Gbps Ethernet'),
+            (
+                (TYPE_200GE_CR2, '200GBASE-CR2'),
+                (TYPE_200GE_CR4, '200GBASE-CR4'),
+                (TYPE_200GE_SR2, '200GBASE-SR2'),
+                (TYPE_200GE_SR4, '200GBASE-SR4'),
+                (TYPE_200GE_DR4, '200GBASE-DR4'),
+                (TYPE_200GE_ER4, '200GBASE-ER4'),
+                (TYPE_200GE_FR4, '200GBASE-FR4'),
+                (TYPE_200GE_LR4, '200GBASE-LR4'),
+                (TYPE_200GE_VR2, '200GBASE-VR2'),
+            )
+        ),
+        (
+            _('400 Gbps Ethernet'),
+            (
+                (TYPE_400GE_CR4, '400GBASE-CR4'),
+                (TYPE_400GE_DR4, '400GBASE-DR4'),
+                (TYPE_400GE_ER8, '400GBASE-ER8'),
+                (TYPE_400GE_FR4, '400GBASE-FR4'),
+                (TYPE_400GE_FR8, '400GBASE-FR8'),
+                (TYPE_400GE_LR4, '400GBASE-LR4'),
+                (TYPE_400GE_LR8, '400GBASE-LR8'),
+                (TYPE_400GE_SR4, '400GBASE-SR4'),
+                (TYPE_400GE_SR4_2, '400GBASE-SR4.2 (BiDi)'),
+                (TYPE_400GE_SR8, '400GBASE-SR8'),
+                (TYPE_400GE_SR16, '400GBASE-SR16'),
+                (TYPE_400GE_VR4, '400GBASE-VR4'),
+                (TYPE_400GE_ZR, '400GBASE-ZR'),
+            )
+        ),
+        (
+            _('800 Gbps Ethernet'),
+            (
+                (TYPE_800GE_CR8, '800GBASE-CR8'),
+                (TYPE_800GE_DR8, '800GBASE-DR8'),
+                (TYPE_800GE_SR8, '800GBASE-SR8'),
+                (TYPE_800GE_VR8, '800GBASE-VR8'),
             )
         ),
         (
