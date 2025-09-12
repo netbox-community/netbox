@@ -79,3 +79,6 @@ type FormControls = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
 
 type ColorMode = 'light' | 'dark';
 type ColorModePreference = ColorMode | 'none';
+type ColorModeData = {
+  netboxColorMode: ColorMode;
+};

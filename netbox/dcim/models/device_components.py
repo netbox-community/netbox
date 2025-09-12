@@ -750,10 +750,13 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         verbose_name=('channel width (MHz)'),
         help_text=_("Populated by selected channel (if set)")
     )
-    tx_power = models.PositiveSmallIntegerField(
+    tx_power = models.SmallIntegerField(
         blank=True,
         null=True,
-        validators=(MaxValueValidator(127),),
+        validators=(
+            MinValueValidator(-40),
+            MaxValueValidator(127),
+        ),
         verbose_name=_('transmit power (dBm)')
     )
     poe_mode = models.CharField(

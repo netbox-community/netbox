@@ -30,8 +30,6 @@ An alternative physical label identifying the inventory item.
 
 ### Status
 
-!!! info "This field was introduced in NetBox v4.2."
-
 The inventory item's operational status.
 
 ### Role

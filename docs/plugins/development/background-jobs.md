@@ -39,6 +39,27 @@ You can schedule the background job from within your code (e.g. from a model's `
 
 This is the human-friendly names of your background job. If omitted, the class name will be used.
 
+### Logging
+
+!!! info "This feature was introduced in NetBox v4.4."
+
+A Python logger is instantiated by the runner for each job. It can be utilized within a job's `run()` method as needed:
+
+```python
+def run(self, *args, **kwargs):
+    obj = MyModel.objects.get(pk=kwargs.get('pk'))
+    self.logger.info("Retrieved object {obj}")
+```
+
+Four of the standard Python logging levels are supported:
+
+* `debug()`
+* `info()`
+* `warning()`
+* `error()`
+
+Log entries recorded using the runner's logger will be saved in the job's log in the database in addition to being processed by other [system logging handlers](../../configuration/system.md#logging).
+
 ### Scheduled Jobs
 
 As described above, jobs can be scheduled for immediate execution or at any later time using the `enqueue()` method. However, for management purposes, the `enqueue_once()` method allows a job to be scheduled exactly once avoiding duplicates. If a job is already scheduled for a particular instance, a second one won't be scheduled, respecting thread safety. An example use case would be to schedule a periodic task that is bound to an instance in general, but not to any event of that instance (such as updates). The parameters of the `enqueue_once()` method are identical to those of `enqueue()`.
@@ -67,8 +88,6 @@ class MyModel(NetBoxModel):
 
 
 ### System Jobs
-
-!!! info "This feature was introduced in NetBox v4.2."
 
 Some plugins may implement background jobs that are decoupled from the request/response cycle. Typical use cases would be housekeeping tasks or synchronization jobs. These can be registered as _system jobs_ using the `system_job()` decorator. The job interval must be passed as an integer (in minutes) when registering a system job. System jobs are scheduled automatically when the RQ worker (`manage.py rqworker`) is run.
 

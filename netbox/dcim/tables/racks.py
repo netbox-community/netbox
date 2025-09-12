@@ -229,6 +229,9 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name=_('Units')
     )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )
@@ -239,7 +242,7 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = RackReservation
         fields = (
-            'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'user', 'created', 'tenant',
+            'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'status', 'user', 'created', 'tenant',
             'tenant_group', 'description', 'comments', 'tags', 'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'user', 'description')
+        default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'status', 'user', 'description')

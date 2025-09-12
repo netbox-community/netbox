@@ -1,10 +1,14 @@
 import decimal
+import json
 
 from django.core.serializers.json import DjangoJSONEncoder
+
+from utilities.datetime import datetime_from_timestamp
 
 __all__ = (
     'ConfigJSONEncoder',
     'CustomFieldJSONEncoder',
+    'JobLogDecoder',
 )
 
 
@@ -29,3 +33,21 @@ class ConfigJSONEncoder(DjangoJSONEncoder):
             return type(o).__name__
 
         return super().default(o)
+
+
+class JobLogDecoder(json.JSONDecoder):
+    """
+    Deserialize JobLogEntry timestamps.
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs['object_hook'] = self._deserialize_entry
+        super().__init__(*args, **kwargs)
+
+    def _deserialize_entry(self, obj: dict) -> dict:
+        if obj.get('timestamp'):
+            # Deserialize a timestamp string to a native datetime object
+            try:
+                obj['timestamp'] = datetime_from_timestamp(obj['timestamp'])
+            except ValueError:
+                pass
+        return obj

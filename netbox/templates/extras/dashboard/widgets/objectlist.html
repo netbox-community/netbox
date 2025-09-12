@@ -7,6 +7,6 @@
   </div>
 {% else %}
   <div class="text-danger text-center">
-    <i class="mdi mdi-alert"></i> {% trans "Unable to load content. Invalid view name" %}: <span class="font-monospace">{{ viewname }}</span>
+    <i class="mdi mdi-alert"></i> {% trans "Unable to load content. Could not resolve list URL for:" %} <span class="font-monospace">{{ model_name }}</span>
   </div>
 {% endif %}

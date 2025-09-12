@@ -499,6 +499,10 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    status = django_filters.MultipleChoiceFilter(
+        choices=RackReservationStatusChoices,
+        null_value=None
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),
@@ -547,14 +551,17 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
-    default_platform_id = django_filters.ModelMultipleChoiceFilter(
+    default_platform_id = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='default_platform',
+        lookup_expr='in',
         label=_('Default platform (ID)'),
     )
-    default_platform = django_filters.ModelMultipleChoiceFilter(
-        field_name='default_platform__slug',
+    default_platform = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='default_platform',
         to_field_name='slug',
+        lookup_expr='in',
         label=_('Default platform (slug)'),
     )
     has_front_image = django_filters.BooleanFilter(
@@ -979,6 +986,29 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
 
 
 class PlatformFilterSet(OrganizationalModelFilterSet):
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        label=_('Immediate parent platform (ID)'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=Platform.objects.all(),
+        to_field_name='slug',
+        label=_('Immediate parent platform (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Parent platform (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Parent platform (slug)'),
+    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -1058,14 +1088,17 @@ class DeviceFilterSet(
         queryset=Device.objects.all(),
         label=_('Parent Device (ID)'),
     )
-    platform_id = django_filters.ModelMultipleChoiceFilter(
+    platform_id = TreeNodeMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        field_name='platform',
+        lookup_expr='in',
         label=_('Platform (ID)'),
     )
-    platform = django_filters.ModelMultipleChoiceFilter(
-        field_name='platform__slug',
+    platform = TreeNodeMultipleChoiceFilter(
+        field_name='platform',
         queryset=Platform.objects.all(),
         to_field_name='slug',
+        lookup_expr='in',
         label=_('Platform (slug)'),
     )
     region_id = TreeNodeMultipleChoiceFilter(

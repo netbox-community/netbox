@@ -11,6 +11,7 @@ from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VLANGroup, VRF
 from netbox.choices import *
 from netbox.forms import NetBoxModelBulkEditForm
+from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
@@ -475,6 +476,12 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
+    status = forms.ChoiceField(
+        label=_('Status'),
+        choices=add_blank_choice(RackReservationStatusChoices),
+        required=False,
+        initial=''
+    )
     user = forms.ModelChoiceField(
         label=_('User'),
         queryset=User.objects.order_by('username'),
@@ -494,7 +501,7 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RackReservation
     fieldsets = (
-        FieldSet('user', 'tenant', 'description'),
+        FieldSet('status', 'user', 'tenant', 'description'),
     )
     nullable_fields = ('comments',)
 
@@ -681,6 +688,11 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class PlatformBulkEditForm(NetBoxModelBulkEditForm):
+    parent = DynamicModelChoiceField(
+        label=_('Parent'),
+        queryset=Platform.objects.all(),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -696,12 +708,13 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
     model = Platform
     fieldsets = (
-        FieldSet('manufacturer', 'config_template', 'description'),
+        FieldSet('parent', 'manufacturer', 'config_template', 'description'),
     )
-    nullable_fields = ('manufacturer', 'config_template', 'description')
+    nullable_fields = ('parent', 'manufacturer', 'config_template', 'description', 'comments')
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):
@@ -1037,7 +1050,11 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
 # Device component templates
 #
 
-class ConsolePortTemplateBulkEditForm(BulkEditForm):
+class ComponentTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):
+    pass
+
+
+class ConsolePortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsolePortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1056,7 +1073,7 @@ class ConsolePortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'type', 'description')
 
 
-class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
+class ConsoleServerPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ConsoleServerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1079,7 +1096,7 @@ class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'type', 'description')
 
 
-class PowerPortTemplateBulkEditForm(BulkEditForm):
+class PowerPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1114,7 +1131,7 @@ class PowerPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
-class PowerOutletTemplateBulkEditForm(BulkEditForm):
+class PowerOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=PowerOutletTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1165,7 +1182,7 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
             self.fields['power_port'].widget.attrs['disabled'] = True
 
 
-class InterfaceTemplateBulkEditForm(BulkEditForm):
+class InterfaceTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=InterfaceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1216,7 +1233,7 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'description', 'poe_mode', 'poe_type', 'rf_role')
 
 
-class FrontPortTemplateBulkEditForm(BulkEditForm):
+class FrontPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=FrontPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1243,7 +1260,7 @@ class FrontPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('description',)
 
 
-class RearPortTemplateBulkEditForm(BulkEditForm):
+class RearPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=RearPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1270,7 +1287,7 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('description',)
 
 
-class ModuleBayTemplateBulkEditForm(BulkEditForm):
+class ModuleBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=ModuleBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1288,7 +1305,7 @@ class ModuleBayTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'position', 'description')
 
 
-class DeviceBayTemplateBulkEditForm(BulkEditForm):
+class DeviceBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=DeviceBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -1306,7 +1323,7 @@ class DeviceBayTemplateBulkEditForm(BulkEditForm):
     nullable_fields = ('label', 'description')
 
 
-class InventoryItemTemplateBulkEditForm(BulkEditForm):
+class InventoryItemTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=InventoryItemTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()

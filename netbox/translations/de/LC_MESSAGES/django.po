@@ -8,10 +8,10 @@
 # fepilins, 2024
 # Steffen, 2024
 # haagehan, 2024
-# Robin Reinhardt, 2024
 # Niklas, 2025
 # Jeremy Stretch, 2025
 # chbally, 2025
+# Robin Reinhardt, 2025
 # 
 #, fuzzy
 msgid ""
@@ -20,7 +20,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-08-26 05:01+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: chbally, 2025\n"
+"Last-Translator: Robin Reinhardt, 2025\n"
 "Language-Team: German (https://app.transifex.com/netbox-community/teams/178115/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2915,7 +2915,7 @@ msgstr "Älteste Aufgabe"
 
 #: netbox/core/tables/tasks.py:42 netbox/templates/core/rq_worker_list.html:39
 msgid "Workers"
-msgstr "Arbeiter"
+msgstr "Workers"
 
 #: netbox/core/tables/tasks.py:46 netbox/vpn/tables/tunnels.py:88
 msgid "Host"
@@ -9333,8 +9333,8 @@ msgstr ""
 #: netbox/extras/models/customfields.py:405
 msgid "Filter must be defined as a dictionary mapping attributes to values."
 msgstr ""
-"Der Filter muss als Wörterbuch definiert werden, das Attributen Werten "
-"zuordnet."
+"Der Filter muss als Dictionary definiert werden, indem Attribute Werte "
+"zuordnet bekommen."
 
 #: netbox/extras/models/customfields.py:484
 msgid "True"
@@ -10110,7 +10110,7 @@ msgstr "Dieses Feld darf nicht leer sein."
 
 #: netbox/extras/validators.py:94
 msgid "Validation rules must be passed as a dictionary"
-msgstr "Validierungsregeln müssen als Wörterbuch übergeben werden"
+msgstr "Validierungsregeln müssen als Dictionary übergeben werden"
 
 #: netbox/extras/validators.py:119
 #, python-brace-format
@@ -10449,7 +10449,7 @@ msgstr "Adressmuster"
 
 #: netbox/ipam/forms/bulk_edit.py:53
 msgid "Enforce unique space"
-msgstr "Erzwingen Sie einzigartigen Speicherplatz"
+msgstr "Erzwingen Sie einzigartigen Bereich"
 
 #: netbox/ipam/forms/bulk_edit.py:91
 msgid "Is private"
@@ -12654,7 +12654,7 @@ msgstr "Fehler"
 #: netbox/netbox/tables/tables.py:59
 #, python-brace-format
 msgid "No {model_name} found"
-msgstr "Kein {model_name} gefunden"
+msgstr "Keine {model_name} gefunden"
 
 #: netbox/netbox/tables/tables.py:283
 #: netbox/templates/generic/bulk_import.html:117
@@ -13521,12 +13521,12 @@ msgstr ""
 
 #: netbox/templates/core/rq_worker.html:10
 msgid "Worker Info"
-msgstr "Informationen zum Arbeitnehmer"
+msgstr "Informationen zum Worker"
 
 #: netbox/templates/core/rq_worker.html:31
 #: netbox/templates/core/rq_worker.html:40
 msgid "Worker"
-msgstr "Arbeiter"
+msgstr "Worker"
 
 #: netbox/templates/core/rq_worker.html:55
 msgid "Queues"
@@ -13555,7 +13555,7 @@ msgstr "Sekunden"
 #: netbox/templates/core/rq_worker_list.html:13
 #: netbox/templates/core/rq_worker_list.html:21
 msgid "Background Workers"
-msgstr "Berufstätige im Hintergrund"
+msgstr "Hintergrund-Worker"
 
 #: netbox/templates/core/rq_worker_list.html:29
 #, python-format
@@ -13597,7 +13597,7 @@ msgstr "Nicht verfügbar"
 
 #: netbox/templates/core/system.html:66
 msgid "RQ workers"
-msgstr "RQ-Mitarbeiter"
+msgstr "RQ-Worker"
 
 #: netbox/templates/core/system.html:69
 msgid "default queue"

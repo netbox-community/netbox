@@ -31,6 +31,7 @@ __all__ = (
     'DateTimeVar',
     'FileVar',
     'IntegerVar',
+    'DecimalVar',
     'IPAddressVar',
     'IPAddressWithMaskVar',
     'IPNetworkVar',
@@ -133,6 +134,26 @@ class IntegerVar(ScriptVariable):
             self.field_attrs['min_value'] = min_value
         if max_value:
             self.field_attrs['max_value'] = max_value
+
+
+class DecimalVar(ScriptVariable):
+    """
+    Decimal representation. Can enforce minimum/maximum values, maximum digits and decimal places.
+    """
+    form_field = forms.DecimalField
+
+    def __init__(self, min_value=None, max_value=None, max_digits=None, decimal_places=None, *args, **kwargs,):
+        super().__init__(*args, **kwargs)
+
+        # Optional constraints
+        if min_value:
+            self.field_attrs["min_value"] = min_value
+        if max_value:
+            self.field_attrs["max_value"] = max_value
+        if max_digits:
+            self.field_attrs["max_digits"] = max_digits
+        if decimal_places:
+            self.field_attrs["decimal_places"] = decimal_places
 
 
 class BooleanVar(ScriptVariable):
@@ -567,9 +588,9 @@ class BaseScript:
         """
         Return data from a YAML file
         """
-        # TODO: DEPRECATED: Remove this method in v4.4
+        # TODO: DEPRECATED: Remove this method in v4.5
         self._log(
-            _("load_yaml is deprecated and will be removed in v4.4"),
+            _("load_yaml is deprecated and will be removed in v4.5"),
             level=LogLevelChoices.LOG_WARNING
         )
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
@@ -582,9 +603,9 @@ class BaseScript:
         """
         Return data from a JSON file
         """
-        # TODO: DEPRECATED: Remove this method in v4.4
+        # TODO: DEPRECATED: Remove this method in v4.5
         self._log(
-            _("load_json is deprecated and will be removed in v4.4"),
+            _("load_json is deprecated and will be removed in v4.5"),
             level=LogLevelChoices.LOG_WARNING
         )
         file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
