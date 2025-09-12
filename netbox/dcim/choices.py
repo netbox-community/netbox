@@ -889,22 +889,30 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
 
-    # Ethernet
+    # FastEthernet
     TYPE_100ME_FX = '100base-fx'
     TYPE_100ME_LFX = '100base-lfx'
     TYPE_100ME_FIXED = '100base-tx'
     TYPE_100ME_T1 = '100base-t1'
-    TYPE_100ME_SFP = '100base-x-sfp'
+
+    # GigabitEthernet
     TYPE_1GE_FIXED = '1000base-t'
     TYPE_1GE_SX_FIXED = '1000base-sx'
     TYPE_1GE_LX_FIXED = '1000base-lx'
     TYPE_1GE_TX_FIXED = '1000base-tx'
-    TYPE_1GE_GBIC = '1000base-x-gbic'
-    TYPE_1GE_SFP = '1000base-x-sfp'
+
+    # 2.5/5 Gbps Ethernet
     TYPE_2GE_FIXED = '2.5gbase-t'
     TYPE_5GE_FIXED = '5gbase-t'
+
+    # 10 Gbps Ethernet
     TYPE_10GE_FIXED = '10gbase-t'
     TYPE_10GE_CX4 = '10gbase-cx4'
+
+    # Ethernet (modular)
+    TYPE_100ME_SFP = '100base-x-sfp'
+    TYPE_1GE_GBIC = '1000base-x-gbic'
+    TYPE_1GE_SFP = '1000base-x-sfp'
     TYPE_10GE_SFP_PLUS = '10gbase-x-sfpp'
     TYPE_10GE_XFP = '10gbase-x-xfp'
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
@@ -935,7 +943,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
     TYPE_800GE_OSFP = '800gbase-x-osfp'
 
-    # Ethernet Backplane
+    # Backplane Ethernet
     TYPE_1GE_KX = '1000base-kx'
     TYPE_2GE_KX = '2.5gbase-kx'
     TYPE_5GE_KR = '5gbase-kr'
@@ -1054,18 +1062,33 @@ class InterfaceTypeChoices(ChoiceSet):
             ),
         ),
         (
-            _('Ethernet (fixed)'),
+            _('FastEthernet (100 Mbps)'),
             (
                 (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
                 (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
                 (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
+            ),
+        ),
+        (
+            _('GigabitEthernet (1 Gbps)'),
+            (
                 (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
                 (TYPE_1GE_SX_FIXED, '1000BASE-SX (1GE)'),
                 (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE)'),
                 (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
+            ),
+        ),
+        (
+            _('2.5/5 Gbps Ethernet'),
+            (
                 (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
                 (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
+            ),
+        ),
+        (
+            _('10 Gbps Ethernet'),
+            (
                 (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
                 (TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'),
             )
@@ -1108,7 +1131,7 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
-            _('Ethernet (backplane)'),
+            _('Backplane Ethernet'),
             (
                 (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
                 (TYPE_2GE_KX, '2.5GBASE-KX (2.5GE)'),
