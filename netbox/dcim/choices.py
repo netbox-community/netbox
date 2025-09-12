@@ -892,24 +892,36 @@ class InterfaceTypeChoices(ChoiceSet):
     # FastEthernet
     TYPE_100ME_FX = '100base-fx'
     TYPE_100ME_LFX = '100base-lfx'
-    TYPE_100ME_FIXED = '100base-tx'
+    TYPE_100ME_FIXED = '100base-tx'  # TODO: Rename to _TX
     TYPE_100ME_T1 = '100base-t1'
 
     # GigabitEthernet
-    TYPE_1GE_FIXED = '1000base-t'
-    TYPE_1GE_SX_FIXED = '1000base-sx'
-    TYPE_1GE_LX_FIXED = '1000base-lx'
-    TYPE_1GE_TX_FIXED = '1000base-tx'
+    TYPE_1GE_BX10_D = '1000base-bx10-d'
+    TYPE_1GE_BX10_U = '1000base-bx10-u'
+    TYPE_1GE_CWDM = '1000base-cwdm'
+    TYPE_1GE_CX = '1000base-cx'
+    TYPE_1GE_DWDM = '1000base-dwdm'
+    TYPE_1GE_EX = '1000base-ex'
+    TYPE_1GE_SX_FIXED = '1000base-sx'  # TODO: Drop _FIXED suffix
+    TYPE_1GE_LSX = '1000base-lsx'
+    TYPE_1GE_LX_FIXED = '1000base-lx'  # TODO: Drop _FIXED suffix
+    TYPE_1GE_LX10 = '1000base-lx10'
+    TYPE_1GE_FIXED = '1000base-t'  # TODO: Rename to _T
+    TYPE_1GE_TX_FIXED = '1000base-tx'  # TODO: Drop _FIXED suffix
+    TYPE_1GE_ZX = '1000base-zx'
 
     # 2.5/5 Gbps Ethernet
-    TYPE_2GE_FIXED = '2.5gbase-t'
-    TYPE_5GE_FIXED = '5gbase-t'
+    TYPE_2GE_FIXED = '2.5gbase-t'  # TODO: Rename to _T
+    TYPE_5GE_FIXED = '5gbase-t'  # TODO: Rename to _T
 
     # 10 Gbps Ethernet
+    TYPE_10GE_BR_D = '10gbase-br-d'
+    TYPE_10GE_BR_U = '10gbase-br-u'
     TYPE_10GE_CX4 = '10gbase-cx4'
     TYPE_10GE_ER = '10gbase-er'
     TYPE_10GE_LR = '10gbase-lr'
     TYPE_10GE_LRM = '10gbase-lrm'
+    TYPE_10GE_LX4 = '10gbase-lx4'
     TYPE_10GE_SR = '10gbase-sr'
     TYPE_10GE_FIXED = '10gbase-t'
     TYPE_10GE_ZR = '10gbase-zr'
@@ -940,6 +952,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_CR2 = '100gbase-cr2'
     TYPE_100GE_CR4 = '100gbase-cr4'
     TYPE_100GE_CR10 = '100gbase-cr10'
+    TYPE_100GE_CWDM4 = '100gbase-cwdm4'
     TYPE_100GE_DR = '100gbase-dr'
     TYPE_100GE_FR1 = '100gbase-fr1'
     TYPE_100GE_ER4 = '100gbase-er4'
@@ -1116,10 +1129,19 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('GigabitEthernet (1 Gbps)'),
             (
-                (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
-                (TYPE_1GE_SX_FIXED, '1000BASE-SX (1GE)'),
-                (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE)'),
-                (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
+                (TYPE_1GE_BX10_D, '1000BASE-BX10-D (1GE BiDi Down)'),
+                (TYPE_1GE_BX10_U, '1000BASE-BX10-D (1GE BiDi Up)'),
+                (TYPE_1GE_CX, '1000BASE-CX (DAC)'),
+                (TYPE_1GE_CWDM, '1000BASE-CWDM'),
+                (TYPE_1GE_DWDM, '1000BASE-DWDM'),
+                (TYPE_1GE_EX, '1000BASE-EX (SMF)'),
+                (TYPE_1GE_SX_FIXED, '1000BASE-SX (1GE MMF)'),
+                (TYPE_1GE_LSX, '1000BASE-LSX (1GE MMF)'),
+                (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE SMF)'),
+                (TYPE_1GE_LX10, '1000BASE-LX10/LH (1GE SMF)'),
+                (TYPE_1GE_FIXED, '1000BASE-T (1GE copper)'),
+                (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE copper)'),
+                (TYPE_1GE_ZX, '1000BASE-ZX (SMF)'),
             ),
         ),
         (
@@ -1132,10 +1154,13 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             _('10 Gbps Ethernet'),
             (
+                (TYPE_10GE_BR_D, '10GBASE-DR-D (10GE BiDi Down)'),
+                (TYPE_10GE_BR_U, '10GBASE-DR-U (10GE BiDi Up)'),
                 (TYPE_10GE_CX4, '10GBASE-CX4 (10GE DAC)'),
                 (TYPE_10GE_ER, '10GBASE-ER (10GE SMF)'),
                 (TYPE_10GE_LR, '10GBASE-LR (10GE SMF)'),
                 (TYPE_10GE_LRM, '10GBASE-LRM (10GE SMF)'),
+                (TYPE_10GE_LX4, '10GBASE-LX4 (10GE MMF/SMF)'),
                 (TYPE_10GE_SR, '10GBASE-SR (10GE MMF)'),
                 (TYPE_10GE_FIXED, '10GBASE-T (10GE copper)'),
                 (TYPE_10GE_ZR, '10GBASE-ZR (10GE SMF)'),
