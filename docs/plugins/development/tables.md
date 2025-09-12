@@ -47,6 +47,11 @@ table.configure(request)
 
 This will automatically apply any user-specific preferences for the table. (If using a generic view provided by NetBox, table configuration is handled automatically.)
 
+
+### Bulk Edit and Delete Actions
+
+Bulk edit and delete buttons are automatically added to the table, if there is an appropriate view registered to the `${modelname}_bulk_edit` or `${modelname}_bulk_delete` path name.
+
 ## Columns
 
 The table column classes listed below are supported for use in plugins. These classes can be imported from `netbox.tables.columns`.
