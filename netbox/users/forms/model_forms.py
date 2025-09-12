@@ -192,7 +192,7 @@ class UserForm(forms.ModelForm):
     fieldsets = (
         FieldSet('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', name=_('User')),
         FieldSet('groups', name=_('Groups')),
-        FieldSet('is_active', 'is_staff', 'is_superuser', name=_('Status')),
+        FieldSet('is_active', 'is_superuser', name=_('Status')),
         FieldSet('object_permissions', name=_('Permissions')),
     )
 
@@ -200,7 +200,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = [
             'username', 'first_name', 'last_name', 'email', 'groups', 'object_permissions',
-            'is_active', 'is_staff', 'is_superuser',
+            'is_active', 'is_superuser',
         ]
 
     def __init__(self, *args, **kwargs):

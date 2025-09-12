@@ -37,11 +37,6 @@ class UserBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect,
         label=_('Active')
     )
-    is_staff = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect,
-        label=_('Staff status')
-    )
     is_superuser = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
@@ -50,7 +45,7 @@ class UserBulkEditForm(BulkEditForm):
 
     model = User
     fieldsets = (
-        FieldSet('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser'),
+        FieldSet('first_name', 'last_name', 'is_active', 'is_superuser'),
     )
     nullable_fields = ('first_name', 'last_name')
 

@@ -25,7 +25,7 @@ class GroupType(BaseObjectType):
 @strawberry_django.type(
     User,
     fields=[
-        'id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined', 'groups',
+        'id', 'username', 'first_name', 'last_name', 'email', 'is_active', 'date_joined', 'groups',
     ],
     filters=UserFilter,
     pagination=True

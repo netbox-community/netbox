@@ -127,19 +127,3 @@ The list of groups that promote an remote User to Superuser on Login. If group i
 Default: `[]` (Empty list)
 
 The list of users that get promoted to Superuser on Login. If user isn't present in list on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_STAFF_GROUPS
-
-Default: `[]` (Empty list)
-
-The list of groups that promote an remote User to Staff on Login. If group isn't present on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
-
----
-
-## REMOTE_AUTH_STAFF_USERS
-
-Default: `[]` (Empty list)
-
-The list of users that get promoted to Staff on Login. If user isn't present in list on next Login, the Role gets revoked. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )

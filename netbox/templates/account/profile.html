@@ -39,10 +39,6 @@
             <th scope="row">{% trans "Superuser" %}</th>
             <td>{% checkmark request.user.is_superuser %}</td>
           </tr>
-          <tr>
-            <th scope="row">{% trans "Staff" %}</th>
-            <td>{% checkmark request.user.is_staff %}</td>
-          </tr>
         </table>
       </div>
     </div>

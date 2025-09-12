@@ -52,7 +52,7 @@ class UserSerializer(ValidatedModelSerializer):
         model = User
         fields = (
             'id', 'url', 'display_url', 'display', 'username', 'password', 'first_name', 'last_name', 'email',
-            'is_staff', 'is_active', 'date_joined', 'last_login', 'groups', 'permissions',
+            'is_active', 'date_joined', 'last_login', 'groups', 'permissions',
         )
         brief_fields = ('id', 'url', 'display', 'username')
         extra_kwargs = {

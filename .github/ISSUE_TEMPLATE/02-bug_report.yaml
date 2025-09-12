@@ -35,9 +35,9 @@ body:
       label: Python Version
       description: What version of Python are you currently running?
       options:
-        - "3.10"
-        - "3.11"
         - "3.12"
+        - "3.13"
+        - "3.14"
     validations:
       required: true
   - type: textarea
