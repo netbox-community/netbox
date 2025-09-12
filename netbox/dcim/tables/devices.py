@@ -338,6 +338,12 @@ class DeviceComponentTable(NetBoxTable):
         verbose_name=_('Device Type'),
         linkify=True,
     )
+    location_contacts = columns.ManyToManyColumn(
+        accessor=tables.A('device__location__contacts'),
+        verbose_name=_('Location Contacts'),
+        linkify_item=True,
+        transform=lambda obj: obj.contact.name
+    )
 
     def __init__(self, *args, extra_columns=None, **kwargs):
         if extra_columns is None:
@@ -348,13 +354,22 @@ class DeviceComponentTable(NetBoxTable):
         device_custom_fields = CustomField.objects.filter(
             object_types=device_object_type
         ).exclude(ui_visible=CustomFieldUIVisibleChoices.HIDDEN)
-
         for cf in device_custom_fields:
-            # override accessor for device relationship
             column = columns.CustomFieldColumn(cf)
             column.accessor = tables.A(f'device__custom_field_data__{cf.name}')
-            column.verbose_name = f'Device {cf.label or cf.name}'
+            column.verbose_name = f'Device: {cf.label or cf.name}'
             extra_columns.append((f'device_cf_{cf.name}', column))
+
+        # Add columns for each Location custom field
+        location_object_type = ObjectType.objects.get_for_model(models.Location)
+        location_custom_fields = CustomField.objects.filter(
+            object_types=location_object_type
+        ).exclude(ui_visible=CustomFieldUIVisibleChoices.HIDDEN)
+        for cf in location_custom_fields:
+            column = columns.CustomFieldColumn(cf)
+            column.accessor = tables.A(f'device__location__custom_field_data__{cf.name}')
+            column.verbose_name = f'Location: {cf.label or cf.name}'
+            extra_columns.append((f'location_cf_{cf.name}', column))
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
