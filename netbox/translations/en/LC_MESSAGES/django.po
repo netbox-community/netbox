@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-10 05:02+0000\n"
+"POT-Creation-Date: 2025-09-12 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2389,7 +2389,7 @@ msgstr ""
 
 #: netbox/core/forms/filtersets.py:140 netbox/core/tables/change_logging.py:15
 #: netbox/core/tables/jobs.py:69 netbox/extras/tables/tables.py:729
-#: netbox/extras/tables/tables.py:783
+#: netbox/extras/tables/tables.py:784
 #: netbox/templates/core/objectchange.html:32
 msgid "Time"
 msgstr ""
@@ -2606,7 +2606,7 @@ msgid "type"
 msgstr ""
 
 #: netbox/core/models/data.py:49 netbox/extras/choices.py:37
-#: netbox/extras/models/models.py:176 netbox/extras/tables/tables.py:793
+#: netbox/extras/models/models.py:176 netbox/extras/tables/tables.py:794
 #: netbox/templates/core/datasource.html:62
 #: netbox/templates/core/plugin.html:66
 msgid "URL"
@@ -2820,7 +2820,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:347 netbox/extras/tables/tables.py:366
 #: netbox/extras/tables/tables.py:398 netbox/extras/tables/tables.py:478
 #: netbox/extras/tables/tables.py:539 netbox/extras/tables/tables.py:696
-#: netbox/extras/tables/tables.py:736 netbox/extras/tables/tables.py:790
+#: netbox/extras/tables/tables.py:737 netbox/extras/tables/tables.py:791
 #: netbox/netbox/tables/tables.py:276
 #: netbox/templates/core/objectchange.html:58
 #: netbox/templates/extras/eventrule.html:78
@@ -2835,7 +2835,7 @@ msgid "Request ID"
 msgstr ""
 
 #: netbox/core/tables/change_logging.py:45 netbox/core/tables/jobs.py:76
-#: netbox/extras/tables/tables.py:739 netbox/extras/tables/tables.py:796
+#: netbox/extras/tables/tables.py:740 netbox/extras/tables/tables.py:797
 #: netbox/templates/core/objectchange.html:68
 msgid "Message"
 msgstr ""
@@ -2864,7 +2864,7 @@ msgstr ""
 
 #: netbox/core/tables/jobs.py:12 netbox/core/tables/tasks.py:77
 #: netbox/dcim/tables/devicetypes.py:169 netbox/extras/tables/tables.py:232
-#: netbox/extras/tables/tables.py:529 netbox/extras/tables/tables.py:761
+#: netbox/extras/tables/tables.py:529 netbox/extras/tables/tables.py:762
 #: netbox/netbox/tables/tables.py:222
 #: netbox/templates/dcim/virtualchassis_edit.html:56
 #: netbox/utilities/forms/forms.py:118
@@ -2880,8 +2880,8 @@ msgstr ""
 msgid "Log Entries"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:73 netbox/extras/tables/tables.py:733
-#: netbox/extras/tables/tables.py:787
+#: netbox/core/tables/jobs.py:73 netbox/extras/tables/tables.py:734
+#: netbox/extras/tables/tables.py:788
 msgid "Level"
 msgstr ""
 
@@ -9818,11 +9818,11 @@ msgstr ""
 msgid "Comments (Short)"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:726 netbox/extras/tables/tables.py:777
+#: netbox/extras/tables/tables.py:726 netbox/extras/tables/tables.py:778
 msgid "Line"
 msgstr ""
 
-#: netbox/extras/tables/tables.py:780
+#: netbox/extras/tables/tables.py:781
 msgid "Method"
 msgstr ""
 
@@ -9863,32 +9863,32 @@ msgstr ""
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr ""
 
-#: netbox/extras/views.py:1080
+#: netbox/extras/views.py:1081
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
 msgstr ""
 
-#: netbox/extras/views.py:1242
+#: netbox/extras/views.py:1243
 msgid "Your dashboard has been reset."
 msgstr ""
 
-#: netbox/extras/views.py:1288
+#: netbox/extras/views.py:1289
 msgid "Added widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1329
+#: netbox/extras/views.py:1330
 msgid "Updated widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1365
+#: netbox/extras/views.py:1366
 msgid "Deleted widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1367
+#: netbox/extras/views.py:1368
 msgid "Error deleting widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1472
+#: netbox/extras/views.py:1473
 msgid "Unable to run script: RQ worker process not running."
 msgstr ""
 
@@ -16172,7 +16172,7 @@ msgstr ""
 msgid "Selected"
 msgstr ""
 
-#: netbox/utilities/testing/views.py:668
+#: netbox/utilities/testing/views.py:724
 msgid "The test must define csv_update_data."
 msgstr ""
 
