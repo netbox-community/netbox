@@ -1,8 +1,10 @@
+import re
 import tempfile
 from pathlib import Path
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection
 from django.forms import ValidationError
 from django.test import tag, TestCase
 
@@ -536,6 +538,34 @@ class ConfigContextTest(TestCase):
             vms[1].get_config_context()
         )
 
+    def test_valid_local_context_data(self):
+        device = Device.objects.first()
+        device.local_context_data = None
+        device.clean()
+
+        device.local_context_data = {"foo": "bar"}
+        device.clean()
+
+    def test_invalid_local_context_data(self):
+        device = Device.objects.first()
+
+        device.local_context_data = ""
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 0
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = False
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 'foo'
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+    @tag('regression')
     def test_multiple_tags_return_distinct_objects(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
@@ -573,6 +603,7 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
+    @tag('regression')
     def test_multiple_tags_return_distinct_objects_with_separate_config_contexts(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
@@ -621,32 +652,35 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
-    def test_valid_local_context_data(self):
+    @tag('performance', 'regression')
+    def test_config_context_annotation_query_optimization(self):
+        """
+        Regression test for issue #20327: Ensure config context annotation
+        doesn't use expensive DISTINCT on main query.
+
+        Verifies that DISTINCT is only used in tag subquery where needed,
+        not on the main device query which is expensive for large datasets.
+        """
+        # Use existing test device from ConfigContextTest setup
         device = Device.objects.first()
-        device.local_context_data = None
-        device.clean()
 
-        device.local_context_data = {"foo": "bar"}
-        device.clean()
+        # connection.queries_log.clear()
 
-    def test_invalid_local_context_data(self):
-        device = Device.objects.first()
+        # Execute annotation
+        list(Device.objects.filter(pk=device.pk).annotate_config_context_data())
 
-        device.local_context_data = ""
-        with self.assertRaises(ValidationError):
-            device.clean()
+        device_queries = [q['sql'] for q in connection.queries_log if 'dcim_device' in q['sql']]
 
-        device.local_context_data = 0
-        with self.assertRaises(ValidationError):
-            device.clean()
+        for query in device_queries:
+            # Main device query should NOT use DISTINCT
+            self.assertNotIn('SELECT DISTINCT "dcim_device"', query)
 
-        device.local_context_data = False
-        with self.assertRaises(ValidationError):
-            device.clean()
-
-        device.local_context_data = 'foo'
-        with self.assertRaises(ValidationError):
-            device.clean()
+            # Tag sub-query _should_ use DISTINCT
+            tag_distinct_pattern = re.compile(
+                r'SELECT DISTINCT \w+\."tag_id".*FROM "extras_taggeditem" \w+ INNER JOIN "django_content_type"'
+            )
+            distinct_tag_pattern_found = any(tag_distinct_pattern.search(query) for query in device_queries)
+            self.assertTrue(distinct_tag_pattern_found)
 
 
 class ConfigTemplateTest(TestCase):
