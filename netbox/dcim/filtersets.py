@@ -21,6 +21,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.query import count_related
 from virtualization.models import Cluster, ClusterGroup, VMInterface, VirtualMachine
 from vpn.models import L2VPN
 from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
@@ -564,6 +565,30 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         lookup_expr='in',
         label=_('Default platform (slug)'),
     )
+    has_instances = django_filters.BooleanFilter(
+        label=_('Has instances'),
+        method='_has_instances',
+    )
+    instance_count = django_filters.NumberFilter(
+        lookup_expr='exact',
+        method='_instance_count',
+    )
+    instance_count__gt = django_filters.NumberFilter(
+        lookup_expr='gt',
+        method='_instance_count',
+    )
+    instance_count__gte = django_filters.NumberFilter(
+        lookup_expr='gte',
+        method='_instance_count',
+    )
+    instance_count__lt = django_filters.NumberFilter(
+        lookup_expr='lt',
+        method='_instance_count',
+    )
+    instance_count__lte = django_filters.NumberFilter(
+        lookup_expr='lte',
+        method='_instance_count',
+    )
     has_front_image = django_filters.BooleanFilter(
         label=_('Has a front image'),
         method='_has_front_image'
@@ -638,6 +663,20 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
+
+    def _has_instances(self, queryset, name, value):
+        if value is None:
+            return queryset
+        qs = queryset.annotate(instance_count=count_related(Device, 'device_type'))
+        return qs.filter(instance_count__gt=0) if value else qs.filter(instance_count=0)
+
+    def _instance_count(self, queryset, name, value):
+        if value is None:
+            return queryset
+        # Derive the lookup from the filter that invoked us
+        lookup = getattr(self.filters[name], 'lookup_expr', 'exact')
+        qs = queryset.annotate(instance_count=count_related(Device, 'device_type'))
+        return qs.filter(**{f"instance_count__{lookup}": value})
 
     def _has_front_image(self, queryset, name, value):
         if value:
@@ -719,6 +758,30 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
+    has_instances = django_filters.BooleanFilter(
+        label=_('Has instances'),
+        method='_has_instances',
+    )
+    instance_count = django_filters.NumberFilter(
+        lookup_expr='exact',
+        method='_instance_count',
+    )
+    instance_count__gt = django_filters.NumberFilter(
+        lookup_expr='gt',
+        method='_instance_count',
+    )
+    instance_count__gte = django_filters.NumberFilter(
+        lookup_expr='gte',
+        method='_instance_count',
+    )
+    instance_count__lt = django_filters.NumberFilter(
+        lookup_expr='lt',
+        method='_instance_count',
+    )
+    instance_count__lte = django_filters.NumberFilter(
+        lookup_expr='lte',
+        method='_instance_count',
+    )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
         label=_('Has console ports'),
@@ -758,6 +821,20 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, NetBoxModelFilterSet):
             Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
+
+    def _has_instances(self, queryset, name, value):
+        if value is None:
+            return queryset
+        qs = queryset.annotate(instance_count=count_related(Module, 'module_type'))
+        return qs.filter(instance_count__gt=0) if value else qs.filter(instance_count=0)
+
+    def _instance_count(self, queryset, name, value):
+        if value is None:
+            return queryset
+        # Derive the lookup from the filter that invoked us
+        lookup = getattr(self.filters[name], 'lookup_expr', 'exact')
+        qs = queryset.annotate(instance_count=count_related(Module, 'module_type'))
+        return qs.filter(**{f"instance_count__{lookup}": value})
 
     def _console_ports(self, queryset, name, value):
         return queryset.exclude(consoleporttemplates__isnull=value)
