@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-12 05:02+0000\n"
+"POT-Creation-Date: 2025-09-13 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2550,7 +2550,7 @@ msgstr ""
 
 #: netbox/core/models/config.py:18 netbox/core/models/data.py:269
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
-#: netbox/extras/models/models.py:837 netbox/extras/models/notifications.py:39
+#: netbox/extras/models/models.py:839 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
 #: netbox/netbox/models/features.py:61 netbox/users/models/tokens.py:32
 msgid "created"
@@ -6951,7 +6951,7 @@ msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
 #: netbox/dcim/models/devices.py:1222 netbox/extras/models/customfields.py:231
-#: netbox/extras/models/models.py:111 netbox/extras/models/models.py:798
+#: netbox/extras/models/models.py:111 netbox/extras/models/models.py:800
 #: netbox/netbox/models/__init__.py:120 netbox/netbox/models/__init__.py:155
 msgid "comments"
 msgstr ""
@@ -9518,32 +9518,32 @@ msgstr ""
 msgid "Image attachments cannot be assigned to this object type ({type})."
 msgstr ""
 
-#: netbox/extras/models/models.py:792
+#: netbox/extras/models/models.py:794
 msgid "kind"
 msgstr ""
 
-#: netbox/extras/models/models.py:806
+#: netbox/extras/models/models.py:808
 msgid "journal entry"
 msgstr ""
 
-#: netbox/extras/models/models.py:807
+#: netbox/extras/models/models.py:809
 msgid "journal entries"
 msgstr ""
 
-#: netbox/extras/models/models.py:825
+#: netbox/extras/models/models.py:827
 #, python-brace-format
 msgid "Journaling is not supported for this object type ({type})."
 msgstr ""
 
-#: netbox/extras/models/models.py:867
+#: netbox/extras/models/models.py:869
 msgid "bookmark"
 msgstr ""
 
-#: netbox/extras/models/models.py:868
+#: netbox/extras/models/models.py:870
 msgid "bookmarks"
 msgstr ""
 
-#: netbox/extras/models/models.py:884
+#: netbox/extras/models/models.py:886
 #, python-brace-format
 msgid "Bookmarks cannot be assigned to this object type ({type})."
 msgstr ""
