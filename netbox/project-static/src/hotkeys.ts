@@ -5,7 +5,6 @@ const HOTKEYS: Record<string, () => void> = {
 function focusGlobalSearch(): void {
   const searchInput = document.querySelector<HTMLInputElement>('header input[name="q"]')!;
   searchInput.focus();
-  console.debug('Focused global search input');
 }
 
 function handleKeydown(event: KeyboardEvent): void {
