@@ -804,6 +804,7 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(description__icontains=value) |
+            Q(group_id__contains=value) |
             Q(name__icontains=value)
         )
 
