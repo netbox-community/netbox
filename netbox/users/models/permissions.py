@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from netbox.models.features import CloningMixin
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -10,7 +11,7 @@ __all__ = (
 )
 
 
-class ObjectPermission(models.Model):
+class ObjectPermission(CloningMixin, models.Model):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.
@@ -41,6 +42,10 @@ class ObjectPermission(models.Model):
         null=True,
         verbose_name=_('constraints'),
         help_text=_("Queryset filter matching the applicable objects of the selected type(s)")
+    )
+
+    clone_fields = (
+        'description', 'enabled', 'object_types', 'actions', 'constraints',
     )
 
     objects = RestrictedQuerySet.as_manager()
