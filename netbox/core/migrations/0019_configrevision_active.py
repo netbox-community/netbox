@@ -27,7 +27,7 @@ def get_active(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0015_remove_redundant_indexes'),
+        ('core', '0018_concrete_objecttype'),
     ]
 
     operations = [
