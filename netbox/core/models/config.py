@@ -71,8 +71,8 @@ class ConfigRevision(models.Model):
         cache.set('config_version', self.pk, None)
 
         # Set all instances of ConfigRevision to false and set this instance to true
-        ConfigRevision.objects.all().update(active=True)
-        ConfigRevision.objects.get(pk=self.pk).update(active=True)
+        ConfigRevision.objects.all().update(active=False)
+        ConfigRevision.objects.filter(pk=self.pk).update(active=True)
 
     activate.alters_data = True
 
