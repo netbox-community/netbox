@@ -78,4 +78,4 @@ class ConfigRevision(models.Model):
 
     @property
     def is_active(self):
-        return cache.get('config_version') == self.pk
+        return self.active
