@@ -82,18 +82,8 @@ def update_prefix_parents(prefix, delete=False):
         prefixes = prefix.children.all()
 
         for pfx in prefixes:
-            parent = Prefix.objects.exclude(pk=pfx.pk).exclude(pk=prefix.pk).filter(
-                Q(
-                    vrf=pfx.vrf,
-                    prefix__net_contains=str(pfx.prefix)
-                ) | Q(
-                    vrf=None,
-                    status=PrefixStatusChoices.STATUS_CONTAINER,
-                    prefix__net_contains=str(pfx.prefix),
-                )
-            ).last()
             # Set contained addresses to the containing prefix if it exists
-            pfx.parent = parent
+            pfx.parent = prefix.parent
     else:
         # Get all possible addresses
         prefixes = prefix.children.all() | Prefix.objects.filter(

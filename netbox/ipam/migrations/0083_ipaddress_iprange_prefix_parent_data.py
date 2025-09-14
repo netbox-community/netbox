@@ -6,6 +6,7 @@ import time
 from django.db import migrations, models
 
 from ipam.choices import PrefixStatusChoices
+from ipam.models import Prefix
 
 
 def draw_progress(count, total, length=20):
@@ -19,7 +20,7 @@ def draw_progress(count, total, length=20):
     sys.stdout.flush()
 
 
-def set_prefix(apps, schema_editor, model, attr='address', parent_model='Prefix'):
+def set_prefix(apps, schema_editor, model, attr='address', parent_attr='prefix', parent_model='Prefix'):
     start = time.time()
     ChildModel = apps.get_model('ipam', model)
     ParentModel = apps.get_model('ipam', parent_model)
@@ -30,6 +31,8 @@ def set_prefix(apps, schema_editor, model, attr='address', parent_model='Prefix'
         return
 
     print('\r\n')
+    print(f'Migrating {parent_model}')
+    print('\r\n')
     i = 0
     draw_progress(i, total, 50)
     for address in addresses:
@@ -39,10 +42,13 @@ def set_prefix(apps, schema_editor, model, attr='address', parent_model='Prefix'
             prefix__net_contains_or_equals=str(address_attr.ip),
             prefix__net_mask_length__lte=address_attr.prefixlen,
         )
-        if hasattr(ParentModel, 'vrf'):
-            prefixes = prefixes.filter(vrf=address.vrf)
-        address.prefix = prefixes.last()
-        address.save()
+
+        setattr(address, parent_attr, prefixes.last())
+        try:
+            address.save()
+        except Exception as e:
+            print(f'Error at {address}')
+            raise e
         draw_progress(i, total, 50)
 
     end = time.time()
@@ -68,7 +74,7 @@ def unset_iprange_prefix(apps, schema_editor):
 
 
 def set_prefix_aggregate(apps, schema_editor):
-    set_prefix(apps, schema_editor, 'Prefix', 'prefix', 'Aggregate')
+    set_prefix(apps, schema_editor, 'Prefix', 'prefix', 'aggregate', 'Aggregate')
 
 
 def unset_prefix_aggregate(apps, schema_editor):
@@ -118,7 +124,7 @@ def unset_prefix_parent(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0082_ipaddress_iprange_prefix_parent'),
+        ('ipam', '0083_ipaddress_iprange_prefix_parent'),
     ]
 
     operations = [
