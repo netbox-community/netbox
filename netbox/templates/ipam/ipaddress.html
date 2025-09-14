@@ -115,7 +115,7 @@
       {% include 'inc/panel_table.html' with table=duplicate_ips_table heading='Duplicate IPs' panel_class='danger' %}
     {% endif %}
     <div class="card">
-      <h2 class="card-header">{% trans "Services" %}</h2>
+      <h2 class="card-header">{% trans "Application Services" %}</h2>
       {% htmx_table 'ipam:service_list' ip_address_id=object.pk %}
     </div>
     {% plugin_right_page object %}

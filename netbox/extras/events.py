@@ -2,18 +2,19 @@ import logging
 from collections import defaultdict
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.events import *
+from core.models import ObjectType
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
-from netbox.registry import registry
+from netbox.models.features import has_feature
 from users.models import User
 from utilities.api import get_serializer_for_model
+from utilities.request import copy_safe_request
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
 from .choices import EventRuleActionChoices
@@ -50,16 +51,17 @@ def get_snapshots(instance, event_type):
     return snapshots
 
 
-def enqueue_event(queue, instance, user, request_id, event_type):
+def enqueue_event(queue, instance, request, event_type):
     """
     Enqueue a serialized representation of a created/updated/deleted object for the processing of
     events once the request has completed.
     """
-    # Determine whether this type of object supports event rules
+    # Bail if this type of object does not support event rules
+    if not has_feature(instance, 'event_rules'):
+        return
+
     app_label = instance._meta.app_label
     model_name = instance._meta.model_name
-    if model_name not in registry['model_features']['event_rules'].get(app_label, []):
-        return
 
     assert instance.pk is not None
     key = f'{app_label}.{model_name}:{instance.pk}'
@@ -71,17 +73,19 @@ def enqueue_event(queue, instance, user, request_id, event_type):
             queue[key]['event_type'] = event_type
     else:
         queue[key] = {
-            'object_type': ContentType.objects.get_for_model(instance),
+            'object_type': ObjectType.objects.get_for_model(instance),
             'object_id': instance.pk,
             'event_type': event_type,
             'data': serialize_for_event(instance),
             'snapshots': get_snapshots(instance, event_type),
-            'username': user.username,
-            'request_id': request_id
+            'request': request,
+            # Legacy request attributes for backward compatibility
+            'username': request.user.username,
+            'request_id': request.id,
         }
 
 
-def process_event_rules(event_rules, object_type, event_type, data, username=None, snapshots=None, request_id=None):
+def process_event_rules(event_rules, object_type, event_type, data, username=None, snapshots=None, request=None):
     user = User.objects.get(username=username) if username else None
 
     for event_rule in event_rules:
@@ -104,7 +108,7 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             # Compile the task parameters
             params = {
                 "event_rule": event_rule,
-                "model_name": object_type.model,
+                "object_type": object_type,
                 "event_type": event_type,
                 "data": event_data,
                 "snapshots": snapshots,
@@ -114,8 +118,8 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             }
             if snapshots:
                 params["snapshots"] = snapshots
-            if request_id:
-                params["request_id"] = request_id
+            if request:
+                params["request"] = copy_safe_request(request)
 
             # Enqueue the task
             rq_queue.enqueue(
@@ -179,7 +183,7 @@ def process_event_queue(events):
             data=event['data'],
             username=event['username'],
             snapshots=event['snapshots'],
-            request_id=event['request_id']
+            request=event['request'],
         )
 
 

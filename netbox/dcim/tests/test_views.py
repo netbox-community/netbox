@@ -337,6 +337,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'rack': rack.pk,
             'units': "10,11,12",
+            'status': RackReservationStatusChoices.STATUS_PENDING,
             'user': user3.pk,
             'tenant': None,
             'description': 'Rack reservation',
@@ -344,10 +345,10 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'site,location,rack,units,description',
-            'Site 1,Location 1,Rack 1,"10,11,12",Reservation 1',
-            'Site 1,Location 1,Rack 1,"13,14,15",Reservation 2',
-            'Site 1,Location 1,Rack 1,"16,17,18",Reservation 3',
+            'site,location,rack,units,status,description',
+            'Site 1,Location 1,Rack 1,"10,11,12",active,Reservation 1',
+            'Site 1,Location 1,Rack 1,"13,14,15",pending,Reservation 2',
+            'Site 1,Location 1,Rack 1,"16,17,18",stale,Reservation 3',
         )
 
         cls.csv_update_data = (
@@ -358,6 +359,7 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
+            'status': RackReservationStatusChoices.STATUS_STALE,
             'user': user3.pk,
             'tenant': None,
             'description': 'New description',
@@ -619,7 +621,8 @@ class DeviceTypeTestCase(
             Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0]),
             Platform(name='Platform 2', slug='platform-3', manufacturer=manufacturers[1]),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         DeviceType.objects.bulk_create([
             DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturers[0]),
@@ -1075,14 +1078,14 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dcim.add_modulebaytemplate',
         )
 
+        def verify_module_type_profile(scenario_name):
+            # TODO: remove extra regression asserts once parent test supports testing all import fields
+            fan_module_type = ModuleType.objects.get(part_number='generic-fan')
+            fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
+            assert fan_module_type.profile == fan_module_type_profile
+
         # run base test
-        super().test_bulk_import_objects_with_permission()
-
-        # TODO: remove extra regression asserts once parent test supports testing all import fields
-        fan_module_type = ModuleType.objects.get(part_number='generic-fan')
-        fan_module_type_profile = ModuleTypeProfile.objects.get(name='Fan')
-
-        assert fan_module_type.profile == fan_module_type_profile
+        super().test_bulk_import_objects_with_permission(post_import_callback=verify_module_type_profile)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_constrained_permission(self):
@@ -1891,7 +1894,8 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturer),
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturer),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -1912,9 +1916,9 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.csv_update_data = (
             "id,name,description",
-            f"{platforms[0].pk},Platform 7,Fourth platform7",
-            f"{platforms[1].pk},Platform 8,Fifth platform8",
-            f"{platforms[2].pk},Platform 9,Sixth platform9",
+            f"{platforms[0].pk},Foo,New description",
+            f"{platforms[1].pk},Bar,New description",
+            f"{platforms[2].pk},Baz,New description",
         )
 
         cls.bulk_edit_data = {
@@ -1962,7 +1966,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Platform(name='Platform 1', slug='platform-1'),
             Platform(name='Platform 2', slug='platform-2'),
         )
-        Platform.objects.bulk_create(platforms)
+        for platform in platforms:
+            platform.save()
 
         devices = (
             Device(
@@ -3285,8 +3290,10 @@ class CableTestCase(
             Device(name='Device 1', site=sites[0], device_type=devicetype, role=role),
             Device(name='Device 2', site=sites[0], device_type=devicetype, role=role),
             Device(name='Device 3', site=sites[0], device_type=devicetype, role=role),
+            Device(name='Device 4', site=sites[0], device_type=devicetype, role=role),
             # Create 'Device 1' assigned to 'Site 2' (allowed since the site is different)
             Device(name='Device 1', site=sites[1], device_type=devicetype, role=role),
+            Device(name='Device 5', site=sites[1], device_type=devicetype, role=role),
         )
         Device.objects.bulk_create(devices)
 
@@ -3295,22 +3302,36 @@ class CableTestCase(
         vc.save()
 
         interfaces = (
+            # Device 1, Site 1
             Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[0], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            # Device 2, Site 1
             Interface(device=devices[1], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[1], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            # Device 3, Site 1
             Interface(device=devices[2], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[2], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            # Device 3, Site 1
             Interface(device=devices[3], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[3], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[3], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            # Device 1, Site 2
+            Interface(device=devices[4], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+
+            # Device 1, Site 2
+            Interface(device=devices[5], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+
             Interface(device=devices[1], name='Device 2 Interface', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[2], name='Device 3 Interface', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=devices[3], name='Interface 4', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=devices[3], name='Interface 5', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 4', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[4], name='Interface 5', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -3337,16 +3358,29 @@ class CableTestCase(
             'tags': [t.pk for t in tags],
         }
 
-        # Ensure that CSV bulk import supports assigning terminations from parent devices that share
-        # the same device name, provided those devices belong to different sites.
-        cls.csv_data = (
-            "side_a_site,side_a_device,side_a_type,side_a_name,side_b_site,side_b_device,side_b_type,side_b_name",
-            "Site 1,Device 3,dcim.interface,Interface 1,Site 2,Device 1,dcim.interface,Interface 1",
-            "Site 1,Device 3,dcim.interface,Interface 2,Site 2,Device 1,dcim.interface,Interface 2",
-            "Site 1,Device 3,dcim.interface,Interface 3,Site 2,Device 1,dcim.interface,Interface 3",
-            "Site 1,Device 1,dcim.interface,Device 2 Interface,Site 2,Device 1,dcim.interface,Interface 4",
-            "Site 1,Device 1,dcim.interface,Device 3 Interface,Site 2,Device 1,dcim.interface,Interface 5",
-        )
+        cls.csv_data = {
+            'default': (
+                "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
+                "Device 4,dcim.interface,Interface 1,Device 5,dcim.interface,Interface 1",
+                "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
+                "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
+
+                # The following is no longer possible in this scenario, because there are multiple
+                # devices named "Device 1" across multiple sites. See the "site-filtering" scenario
+                # below for how to specify a site for non-unique device names.
+                # "Device 1,dcim.interface,Device 3 Interface,Device 4,dcim.interface,Interface 5",
+            ),
+            'site-filtering': (
+                # Ensure that CSV bulk import supports assigning terminations from parent devices
+                # that share the same device name, provided those devices belong to different sites.
+                "side_a_site,side_a_device,side_a_type,side_a_name,side_b_site,side_b_device,side_b_type,side_b_name",
+                "Site 1,Device 3,dcim.interface,Interface 1,Site 2,Device 1,dcim.interface,Interface 1",
+                "Site 1,Device 3,dcim.interface,Interface 2,Site 2,Device 1,dcim.interface,Interface 2",
+                "Site 1,Device 3,dcim.interface,Interface 3,Site 2,Device 1,dcim.interface,Interface 3",
+                "Site 1,Device 1,dcim.interface,Device 2 Interface,Site 2,Device 1,dcim.interface,Interface 4",
+                "Site 1,Device 1,dcim.interface,Device 3 Interface,Site 2,Device 1,dcim.interface,Interface 5",
+            )
+        }
 
         cls.csv_update_data = (
             "id,label,color",

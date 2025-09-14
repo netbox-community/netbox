@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 from typing import Iterable
 
 from django.conf import settings
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import QuerySet
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
@@ -12,6 +14,7 @@ from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.relations import get_related_models
 from utilities.request import safe_for_redirect
+from utilities.string import title
 from .permissions import resolve_permission
 
 __all__ = (
@@ -22,6 +25,7 @@ __all__ = (
     'ObjectPermissionRequiredMixin',
     'TokenConditionalLoginRequiredMixin',
     'ViewTab',
+    'get_action_url',
     'get_viewname',
     'register_model_view',
 )
@@ -165,7 +169,7 @@ class GetReturnURLMixin:
         # Attempt to dynamically resolve the list view for the object
         if hasattr(self, 'queryset'):
             try:
-                return reverse(get_viewname(self.queryset.model, 'list'))
+                return get_action_url(self.queryset.model, action='list')
             except NoReverseMatch:
                 pass
 
@@ -177,8 +181,17 @@ class GetRelatedModelsMixin:
     """
     Provides logic for collecting all related models for the currently viewed model.
     """
+    @dataclass
+    class RelatedObjectCount:
+        queryset: QuerySet
+        filter_param: str
+        label: str = ''
 
-    def get_related_models(self, request, instance, omit=[], extra=[]):
+        @property
+        def name(self):
+            return self.label or title(_(self.queryset.model._meta.verbose_name_plural))
+
+    def get_related_models(self, request, instance, omit=None, extra=None):
         """
         Get related models of the view's `queryset` model without those listed in `omit`. Will be sorted alphabetical.
 
@@ -191,6 +204,7 @@ class GetRelatedModelsMixin:
             extra: Add extra models to the list of automatically determined related models. Can be used to add indirect
                 relationships.
         """
+        omit = omit or []
         model = self.queryset.model
         related = filter(
             lambda m: m[0] is not model and m[0] not in omit,
@@ -198,7 +212,7 @@ class GetRelatedModelsMixin:
         )
 
         related_models = [
-            (
+            self.RelatedObjectCount(
                 model.objects.restrict(request.user, 'view').filter(**(
                     {f'{field}__in': instance}
                     if isinstance(instance, Iterable)
@@ -208,11 +222,14 @@ class GetRelatedModelsMixin:
             )
             for model, field in related
         ]
-        related_models.extend(extra)
+        if extra is not None:
+            related_models.extend([
+                self.RelatedObjectCount(*attrs) for attrs in extra
+            ])
 
         return sorted(
-            filter(lambda qs: qs[0].exists(), related_models),
-            key=lambda qs: qs[0].model._meta.verbose_name.lower(),
+            filter(lambda roc: roc.queryset.exists(), related_models),
+            key=lambda roc: roc.name,
         )
 
 
@@ -295,6 +312,22 @@ def get_viewname(model, action=None, rest_api=False):
             viewname = f'{viewname}_{action}'
 
     return viewname
+
+
+def get_action_url(model, action=None, rest_api=False, kwargs=None):
+    """
+    Return the URL for the given model and action, if valid; otherwise raise NoReverseMatch.
+    Will defer to _get_action_url() on the model if it exists.
+
+    :param model: The model or instance to which the URL belongs
+    :param action: A string indicating the desired action (if any); e.g. "add" or "list"
+    :param rest_api: A boolean indicating whether this is a REST API action
+    :param kwargs: A dictionary of keyword arguments for the view to include when resolving its URL path (optional)
+    """
+    if hasattr(model, '_get_action_url'):
+        return model._get_action_url(action, rest_api, kwargs)
+
+    return reverse(get_viewname(model, action, rest_api), kwargs=kwargs)
 
 
 def register_model_view(model, name='', path=None, detail=True, kwargs=None):

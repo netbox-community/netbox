@@ -12,26 +12,29 @@ from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django_tables2.export import TableExport
 from mptt.models import MPTTModel
 
+from core.exceptions import JobFailed
 from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.models.features import ChangeLoggingMixin
+from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
-from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
+from utilities.exceptions import AbortRequest, PermissionsViolation
+from utilities.export import TableExport
+from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
+from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
-from utilities.views import GetReturnURLMixin, get_viewname
+from utilities.views import GetReturnURLMixin, get_action_url
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -54,12 +57,12 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
-            action names must be prefixed with `bulk_`. (See ActionsMixin.)
+        actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
     template_name = 'generic/object_list.html'
     filterset = None
     filterset_form = None
+    actions = (AddObject, BulkImport, BulkExport, BulkEdit, BulkRename, BulkDelete)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'view')
@@ -76,7 +79,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         return '---\n'.join(yaml_data)
 
-    def export_table(self, table, columns=None, filename=None):
+    def export_table(self, table, columns=None, filename=None, delimiter=None):
         """
         Export all table data in CSV format.
 
@@ -85,6 +88,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             columns: A list of specific columns to include. If None, all columns will be exported.
             filename: The name of the file attachment sent to the client. If None, will be determined automatically
                 from the queryset model name.
+            delimiter: The character used to separate columns (a comma is used by default)
         """
         exclude_columns = {'pk', 'actions'}
         if columns:
@@ -95,7 +99,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         exporter = TableExport(
             export_format=TableExport.CSV,
             table=table,
-            exclude_columns=exclude_columns
+            exclude_columns=exclude_columns,
+            delimiter=delimiter,
         )
         return exporter.response(
             filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
@@ -125,7 +130,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             redirect_url = f'{request.path}?{query_params.urlencode()}'
             if safe_for_redirect(redirect_url):
                 return redirect(redirect_url)
-            return redirect(get_viewname(self.queryset.model, 'list'))
+            return redirect(get_action_url(self.queryset.model, action='list'))
 
     #
     # Request handlers
@@ -150,15 +155,16 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user)
-        has_bulk_actions = any([a.startswith('bulk_') for a in actions])
+        has_table_actions = any(action.multi for action in actions)
 
         if 'export' in request.GET:
 
             # Export the current table view
             if request.GET['export'] == 'table':
-                table = self.get_table(self.queryset, request, has_bulk_actions)
+                table = self.get_table(self.queryset, request, has_table_actions)
                 columns = [name for name, _ in table.selected_columns]
-                return self.export_table(table, columns)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, columns, delimiter=delimiter)
 
             # Render an ExportTemplate
             elif request.GET['export']:
@@ -174,11 +180,12 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Fall back to default table/YAML export
             else:
-                table = self.get_table(self.queryset, request, has_bulk_actions)
-                return self.export_table(table)
+                table = self.get_table(self.queryset, request, has_table_actions)
+                delimiter = request.user.config.get('csv_delimiter')
+                return self.export_table(table, delimiter=delimiter)
 
         # Render the objects table
-        table = self.get_table(self.queryset, request, has_bulk_actions)
+        table = self.get_table(self.queryset, request, has_table_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
@@ -351,7 +358,18 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         return {**required_fields, **optional_fields}
 
-    def _save_object(self, import_form, model_form, request):
+    def _compile_form_errors(self, errors, index, prefix=None):
+        error_messages = []
+        for field_name, errors in errors.items():
+            prefix = f'{prefix}.' if prefix else ''
+            if field_name == '__all__':
+                field_name = ''
+            for err in errors:
+                error_messages.append(f"Record {index} {prefix}{field_name}: {err}")
+        return error_messages
+
+    def _save_object(self, model_form, request):
+        _action = 'Updated' if model_form.instance.pk else 'Created'
 
         # Save the primary object
         obj = self.save_object(model_form, request)
@@ -377,19 +395,17 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     related_obj_pks.append(related_obj.pk)
                 else:
                     # Replicate errors on the related object form to the import form for display and abort
-                    for subfield_name, errors in f.errors.items():
-                        for err in errors:
-                            if subfield_name == '__all__':
-                                err_msg = f"{field_name}[{i}]: {err}"
-                            else:
-                                err_msg = f"{field_name}[{i}] {subfield_name}: {err}"
-                            import_form.add_error(None, err_msg)
-                    raise AbortTransaction()
+                    raise ValidationError(
+                        self._compile_form_errors(f.errors, index=i, prefix=f'{field_name}[{i}]')
+                    )
 
             # Enforce object-level permissions on related objects
             model = related_object_form.Meta.model
             if model.objects.filter(pk__in=related_obj_pks).count() != len(related_obj_pks):
                 raise ObjectDoesNotExist
+
+        if is_background_request(request):
+            request.job.logger.info(f'{_action} {obj}')
 
         return obj
 
@@ -416,7 +432,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         } if prefetch_ids else {}
 
         for i, record in enumerate(records, start=1):
-            instance = None
             object_id = int(record.pop('id')) if record.get('id') else None
 
             # Determine whether this object is being created or updated
@@ -432,6 +447,8 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     instance.snapshot()
 
             else:
+                instance = self.queryset.model()
+
                 # For newly created objects, apply any default custom field values
                 custom_fields = CustomField.objects.filter(
                     object_types=ContentType.objects.get_for_model(self.queryset.model),
@@ -441,6 +458,9 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     field_name = f'cf_{cf.name}'
                     if field_name not in record:
                         record[field_name] = cf.default
+
+            # Record changelog message (if any)
+            instance._changelog_message = form.cleaned_data.get('changelog_message', '')
 
             # Instantiate the model form for the object
             model_form_kwargs = {
@@ -461,18 +481,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                obj = self._save_object(form, model_form, request)
+                obj = self._save_object(model_form, request)
                 saved_objects.append(obj)
             else:
-                # Replicate model form errors for display
-                for field, errors in model_form.errors.items():
-                    for err in errors:
-                        if field == '__all__':
-                            form.add_error(None, f'Record {i}: {err}')
-                        else:
-                            form.add_error(None, f'Record {i} {field}: {err}')
-
-                raise ValidationError("")
+                # Raise model form errors
+                raise ValidationError(
+                    self._compile_form_errors(model_form.errors, index=i)
+                )
 
         return saved_objects
 
@@ -481,10 +496,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     #
 
     def get(self, request):
+        model = self.model_form._meta.model
         form = BulkImportForm()
+        if not issubclass(model, ChangeLoggingMixin):
+            form.fields.pop('changelog_message')
 
         return render(request, self.template_name, {
-            'model': self.model_form._meta.model,
+            'model': model,
             'form': form,
             'fields': self._get_form_fields(),
             'return_url': self.get_return_url(request),
@@ -495,35 +513,56 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         logger = logging.getLogger('netbox.views.BulkImportView')
         model = self.model_form._meta.model
         form = BulkImportForm(request.POST, request.FILES)
+        if not issubclass(model, ChangeLoggingMixin):
+            form.fields.pop('changelog_message')
 
         if form.is_valid():
             logger.debug("Import form validation was successful")
+            redirect_url = get_action_url(model, action='list')
+
+            # If indicated, defer this request to a background job & redirect the user
+            if form.cleaned_data['background_job']:
+                job_name = _('Bulk import {count} {object_type}').format(
+                    count=len(form.cleaned_data['data']),
+                    object_type=model._meta.verbose_name_plural,
+                )
+                if process_request_as_job(self.__class__, request, name=job_name):
+                    return redirect(redirect_url)
 
             try:
                 # Iterate through data and bind each record to a new model form instance.
                 with transaction.atomic(using=router.db_for_write(model)):
-                    new_objs = self.create_and_update_objects(form, request)
+                    new_objects = self.create_and_update_objects(form, request)
 
                     # Enforce object-level permissions
-                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objs]).count() != len(new_objs):
+                    if self.queryset.filter(pk__in=[obj.pk for obj in new_objects]).count() != len(new_objects):
                         raise PermissionsViolation
 
-                if new_objs:
-                    msg = f"Imported {len(new_objs)} {model._meta.verbose_name_plural}"
-                    logger.info(msg)
-                    messages.success(request, msg)
+                msg = _('Imported {count} {object_type}').format(
+                    count=len(new_objects),
+                    object_type=model._meta.verbose_name_plural
+                )
+                logger.info(msg)
 
-                    view_name = get_viewname(model, action='list')
-                    results_url = f"{reverse(view_name)}?modified_by_request={request.id}"
-                    return redirect(results_url)
+                # Handle background job
+                if is_background_request(request):
+                    request.job.logger.info(msg)
+                    return
 
-            except (AbortTransaction, ValidationError):
+                messages.success(request, msg)
+                return redirect(f"{redirect_url}?modified_by_request={request.id}")
+
+            except (AbortRequest, PermissionsViolation, ValidationError) as e:
+                err_messages = e.messages if type(e) is ValidationError else [e.message]
+                for msg in err_messages:
+                    logger.debug(msg)
+                    form.add_error(None, msg)
+                    if is_background_request(request):
+                        request.job.logger.error(msg)
+                        request.job.logger.warning("Bulk import aborted")
                 clear_events.send(sender=self)
-
-            except (AbortRequest, PermissionsViolation) as e:
-                logger.debug(e.message)
-                form.add_error(None, e.message)
-                clear_events.send(sender=self)
+                if is_background_request(request):
+                    raise JobFailed
 
         else:
             logger.debug("Form validation failed")
@@ -594,6 +633,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
 
+            # Attach the changelog message (if any) to the object
+            obj._changelog_message = form.cleaned_data.get('changelog_message')
+
             # Update standard fields. If a field is listed in _nullify, delete its value.
             for name, model_field in model_fields.items():
                 # Handle nullification
@@ -635,6 +677,9 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     getattr(obj, name).set(form.cleaned_data[name])
 
             self.post_save_operations(form, obj)
+
+            if is_background_request(request):
+                request.job.logger.info(f"Updated {obj}")
 
         # Rebuild the tree for MPTT models
         if issubclass(self.queryset.model, MPTTModel):
@@ -680,6 +725,16 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
         if '_apply' in request.POST:
             if form.is_valid():
                 logger.debug("Form validation was successful")
+
+                # If indicated, defer this request to a background job & redirect the user
+                if form.cleaned_data['background_job']:
+                    job_name = _('Bulk edit {count} {object_type}').format(
+                        count=len(form.cleaned_data['pk']),
+                        object_type=model._meta.verbose_name_plural,
+                    )
+                    if process_request_as_job(self.__class__, request, name=job_name):
+                        return redirect(self.get_return_url(request))
+
                 try:
                     with transaction.atomic(using=router.db_for_write(model)):
                         updated_objects = self._update_objects(form, request)
@@ -689,21 +744,30 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                         if object_count != len(updated_objects):
                             raise PermissionsViolation
 
-                    if updated_objects:
-                        msg = f'Updated {len(updated_objects)} {model._meta.verbose_name_plural}'
-                        logger.info(msg)
-                        messages.success(self.request, msg)
+                    msg = _('Updated {count} {object_type}').format(
+                        count=len(updated_objects),
+                        object_type=model._meta.verbose_name_plural,
+                    )
+                    logger.info(msg)
 
+                    # Handle background job
+                    if is_background_request(request):
+                        request.job.logger.info(msg)
+                        return
+
+                    messages.success(self.request, msg)
                     return redirect(self.get_return_url(request))
 
-                except ValidationError as e:
-                    messages.error(self.request, ", ".join(e.messages))
+                except (AbortRequest, PermissionsViolation, ValidationError) as e:
+                    err_messages = e.messages if type(e) is ValidationError else [e.message]
+                    for msg in err_messages:
+                        logger.debug(msg)
+                        form.add_error(None, msg)
+                        if is_background_request(request):
+                            request.job.logger.error(msg)
                     clear_events.send(sender=self)
-
-                except (AbortRequest, PermissionsViolation) as e:
-                    logger.debug(e.message)
-                    form.add_error(None, e.message)
-                    clear_events.send(sender=self)
+                    if is_background_request(request):
+                        raise JobFailed
 
             else:
                 logger.debug("Form validation failed")
@@ -729,7 +793,11 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     An extendable view for renaming objects in bulk.
+
+    Attributes:
+        field_name: The name of the object attribute for which the value is being updated (defaults to "name")
     """
+    field_name = 'name'
     template_name = 'generic/bulk_rename.html'
 
     def __init__(self, *args, **kwargs):
@@ -759,12 +827,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, obj.name or '')
+                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, ''))
                 # Catch regex group reference errors
                 except re.error:
-                    obj.new_name = obj.name
+                    obj.new_name = getattr(obj, self.field_name)
             else:
-                obj.new_name = (obj.name or '').replace(find, replace)
+                obj.new_name = getattr(obj, self.field_name, '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -783,7 +851,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
                         if '_apply' in request.POST:
                             for obj in selected_objects:
-                                obj.name = obj.new_name
+                                setattr(obj, self.field_name, obj.new_name)
                                 obj.save()
 
                             # Enforce constrained permissions
@@ -813,6 +881,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
 
         return render(request, self.template_name, {
+            'field_name': self.field_name,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
@@ -835,15 +904,6 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
 
-    def get_form(self):
-        """
-        Provide a standard bulk delete form if none has been specified for the view
-        """
-        class BulkDeleteForm(ConfirmationForm):
-            pk = ModelMultipleChoiceField(queryset=self.queryset, widget=MultipleHiddenInput)
-
-        return BulkDeleteForm
-
     #
     # Request handlers
     #
@@ -864,12 +924,19 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             pk_list = [int(pk) for pk in request.POST.getlist('pk')]
 
-        form_cls = self.get_form()
-
         if '_confirm' in request.POST:
-            form = form_cls(request.POST)
+            form = BulkDeleteForm(model, request.POST)
             if form.is_valid():
                 logger.debug("Form validation was successful")
+
+                # If indicated, defer this request to a background job & redirect the user
+                if form.cleaned_data['background_job']:
+                    job_name = _('Bulk delete {count} {object_type}').format(
+                        count=len(form.cleaned_data['pk']),
+                        object_type=model._meta.verbose_name_plural,
+                    )
+                    if process_request_as_job(self.__class__, request, name=job_name):
+                        return redirect(self.get_return_url(request))
 
                 # Delete objects
                 queryset = self.queryset.filter(pk__in=pk_list)
@@ -877,34 +944,56 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     with transaction.atomic(using=router.db_for_write(model)):
                         for obj in queryset:
+
                             # Take a snapshot of change-logged models
                             if hasattr(obj, 'snapshot'):
                                 obj.snapshot()
+
+                            # Attach the changelog message (if any) to the object
+                            obj._changelog_message = form.cleaned_data.get('changelog_message')
+
+                            # Delete the object
                             obj.delete()
 
+                            if is_background_request(request):
+                                request.job.logger.info(f"Deleted {obj}")
+
+                    msg = _('Deleted {count} {object_type}').format(
+                        count=deleted_count,
+                        object_type=model._meta.verbose_name_plural
+                    )
+                    logger.info(msg)
+
+                    # Handle background job
+                    if is_background_request(request):
+                        request.job.logger.info(msg)
+                        return
+
+                    messages.success(request, msg)
+
                 except (ProtectedError, RestrictedError) as e:
-                    logger.info(f"Caught {type(e)} while attempting to delete objects")
+                    logger.warning(f"Caught {type(e)} while attempting to delete objects")
+                    if is_background_request(request):
+                        request.job.logger.error(
+                            _("Deletion failed due to the presence of one or more dependent objects.")
+                        )
+                        raise JobFailed
                     handle_protectederror(queryset, request, e)
-                    return redirect(self.get_return_url(request))
 
                 except AbortRequest as e:
                     logger.debug(e.message)
+                    if is_background_request(request):
+                        request.job.logger.error(e.message)
+                        raise JobFailed
                     messages.error(request, mark_safe(e.message))
-                    return redirect(self.get_return_url(request))
 
-                msg = _("Deleted {count} {object_type}").format(
-                    count=deleted_count,
-                    object_type=model._meta.verbose_name_plural
-                )
-                logger.info(msg)
-                messages.success(request, msg)
                 return redirect(self.get_return_url(request))
 
             else:
                 logger.debug("Form validation failed")
 
         else:
-            form = form_cls(initial={
+            form = BulkDeleteForm(model, initial={
                 'pk': pk_list,
                 'return_url': self.get_return_url(request),
             })

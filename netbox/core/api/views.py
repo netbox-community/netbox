@@ -20,6 +20,7 @@ from core import filtersets
 from core.jobs import SyncDataSourceJob
 from core.models import *
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
@@ -77,9 +78,21 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     Retrieve a list of recent changes.
     """
     metadata_class = ContentTypeMetadata
-    queryset = ObjectChange.objects.valid_models()
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
+
+    def get_queryset(self):
+        return ObjectChange.objects.valid_models()
+
+
+class ObjectTypeViewSet(ReadOnlyModelViewSet):
+    """
+    Read-only list of ObjectTypes.
+    """
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    queryset = ObjectType.objects.order_by('app_label', 'model')
+    serializer_class = serializers.ObjectTypeSerializer
+    filterset_class = filtersets.ObjectTypeFilterSet
 
 
 class BaseRQViewSet(viewsets.ViewSet):

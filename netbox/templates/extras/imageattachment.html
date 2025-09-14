@@ -1,4 +1,67 @@
 {% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
 
-{% block tabs %}
+{% block content %}
+  <div class="row">
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Image Attachment" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Parent Object" %}</th>
+            <td>{{ object.parent|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-12 col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "File" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Filename" %}</th>
+            <td>
+              <a href="{{ object.image.url }}" target="_blank">{{ object.filename }}</a>
+              <i class="mdi mdi-open-in-new"></i>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Dimensions" %}</th>
+            <td>{{ object.image_width }} × {{ object.image_height }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Size" %}</th>
+            <td>
+              <span title="{{ object.size }} {% trans "bytes" %}">{{ object.size|filesizeformat }}</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h2 class="card-header">{% trans "Image" %}</h2>
+        <div class="card-body">
+          <a href="{{ object.image.url }}" title="{{ object.name }}">
+            {{ object.html_tag }}
+          </a>
+        </div>
+      </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
 {% endblock %}

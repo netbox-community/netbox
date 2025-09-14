@@ -17,7 +17,7 @@ CUSTOM_VALIDATORS = {
         },
         "my_plugin.validators.Validator1"
     ],
-    "dim.device": [
+    "dcim.device": [
         "my_plugin.validators.Validator1"
     ]
 }

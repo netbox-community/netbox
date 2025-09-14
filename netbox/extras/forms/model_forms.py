@@ -13,6 +13,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm
+from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.forms import get_field_value
@@ -28,6 +29,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 __all__ = (
     'BookmarkForm',
     'ConfigContextForm',
+    'ConfigContextProfileForm',
     'ConfigTemplateForm',
     'CustomFieldChoiceSetForm',
     'CustomFieldForm',
@@ -45,7 +47,7 @@ __all__ = (
 )
 
 
-class CustomFieldForm(forms.ModelForm):
+class CustomFieldForm(ChangelogMessageMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -164,7 +166,7 @@ class CustomFieldForm(forms.ModelForm):
             del self.fields['choice_set']
 
 
-class CustomFieldChoiceSetForm(forms.ModelForm):
+class CustomFieldChoiceSetForm(ChangelogMessageMixin, forms.ModelForm):
     # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
@@ -217,7 +219,7 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
         return data
 
 
-class CustomLinkForm(forms.ModelForm):
+class CustomLinkForm(ChangelogMessageMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links')
@@ -249,7 +251,7 @@ class CustomLinkForm(forms.ModelForm):
         }
 
 
-class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
+class ExportTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('export_templates')
@@ -291,7 +293,7 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class SavedFilterForm(forms.ModelForm):
+class SavedFilterForm(ChangelogMessageMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -388,7 +390,7 @@ class BookmarkForm(forms.ModelForm):
         fields = ('object_type', 'object_id')
 
 
-class NotificationGroupForm(forms.ModelForm):
+class NotificationGroupForm(ChangelogMessageMixin, forms.ModelForm):
     groups = DynamicModelMultipleChoiceField(
         label=_('Groups'),
         required=False,
@@ -561,7 +563,7 @@ class EventRuleForm(NetBoxModelForm):
         return self.cleaned_data
 
 
-class TagForm(forms.ModelForm):
+class TagForm(ChangelogMessageMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -584,7 +586,36 @@ class TagForm(forms.ModelForm):
         ]
 
 
-class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
+class ConfigContextProfileForm(SyncedDataMixin, NetBoxModelForm):
+    schema = JSONField(
+        label=_('Schema'),
+        required=False,
+        help_text=_("Enter a valid JSON schema to define supported attributes.")
+    )
+    tags = DynamicModelMultipleChoiceField(
+        label=_('Tags'),
+        queryset=Tag.objects.all(),
+        required=False
+    )
+
+    fieldsets = (
+        FieldSet('name', 'description', 'schema', 'tags', name=_('Config Context Profile')),
+        FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
+    )
+
+    class Meta:
+        model = ConfigContextProfile
+        fields = (
+            'name', 'description', 'schema', 'data_source', 'data_file', 'auto_sync_enabled', 'comments', 'tags',
+        )
+
+
+class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
+    profile = DynamicModelChoiceField(
+        label=_('Profile'),
+        queryset=ConfigContextProfile.objects.all(),
+        required=False
+    )
     regions = DynamicModelMultipleChoiceField(
         label=_('Regions'),
         queryset=Region.objects.all(),
@@ -656,7 +687,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'weight', 'description', 'data', 'is_active', name=_('Config Context')),
+        FieldSet('name', 'weight', 'profile', 'description', 'data', 'is_active', name=_('Config Context')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
         FieldSet(
             'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
@@ -668,9 +699,9 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
     class Meta:
         model = ConfigContext
         fields = (
-            'name', 'weight', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites', 'locations',
-            'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups',
-            'tenants', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
+            'name', 'weight', 'profile', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites',
+            'locations', 'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
+            'tenant_groups', 'tenants', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
         )
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -696,7 +727,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
+class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
     tags = DynamicModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
@@ -744,14 +775,17 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
 
 class ImageAttachmentForm(forms.ModelForm):
     fieldsets = (
-        FieldSet(ObjectAttribute('parent'), 'name', 'image'),
+        FieldSet(ObjectAttribute('parent'), 'image', 'name', 'description'),
     )
 
     class Meta:
         model = ImageAttachment
         fields = [
-            'name', 'image',
+            'image', 'name', 'description',
         ]
+        help_texts = {
+            'name': _("If no name is specified, the file name will be used.")
+        }
 
 
 class JournalEntryForm(NetBoxModelForm):

@@ -8,11 +8,13 @@ from django.utils.translation import gettext as _
 
 from core.forms.mixins import SyncedDataMixin
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
+from netbox.forms.mixins import ChangelogMessageMixin
 from utilities.constants import CSV_DELIMITERS
+from utilities.forms.mixins import BackgroundJobMixin
 from utilities.forms.utils import parse_csv
 
 
-class BulkImportForm(SyncedDataMixin, forms.Form):
+class BulkImportForm(ChangelogMessageMixin, BackgroundJobMixin, SyncedDataMixin, forms.Form):
     import_method = forms.ChoiceField(
         choices=ImportMethodChoices,
         required=False
@@ -113,7 +115,7 @@ class BulkImportForm(SyncedDataMixin, forms.Form):
                 dialect = csv.Sniffer().sniff(data.strip(), delimiters=delimiters)
             except csv.Error:
                 dialect = csv.excel
-        elif delimiter in (CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON):
+        elif delimiter in (CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON, CSVDelimiterChoices.PIPE):
             dialect = csv.excel
             dialect.delimiter = delimiter
         elif delimiter == CSVDelimiterChoices.TAB:

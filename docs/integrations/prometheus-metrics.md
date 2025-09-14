@@ -11,6 +11,8 @@ NetBox makes use of the [django-prometheus](https://github.com/korfuri/django-pr
 - Per model insert, update, and delete counters
 - Per view request counters
 - Per view request latency histograms
+- REST API requests (by endpoint & method)
+- GraphQL API requests
 - Request body size histograms
 - Response body size histograms
 - Response code counters

@@ -107,7 +107,7 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
         label=_('Outside IP'),
         queryset=IPAddress.objects.all(),
         required=False,
-        to_field_name='name'
+        to_field_name='address'
     )
 
     class Meta:

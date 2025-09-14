@@ -103,9 +103,13 @@ class DeviceRoleTable(NetBoxTable):
 #
 
 class PlatformTable(NetBoxTable):
-    name = tables.Column(
+    name = columns.MPTTColumn(
         verbose_name=_('Name'),
         linkify=True
+    )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
     )
     manufacturer = tables.Column(
         verbose_name=_('Manufacturer'),
@@ -132,8 +136,8 @@ class PlatformTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Platform
         fields = (
-            'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template', 'description',
-            'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template',
+            'description', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'description',
@@ -190,6 +194,11 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     device_type = tables.Column(
         linkify=True,
         verbose_name=_('Type')
+    )
+    u_height = columns.TemplateColumn(
+        accessor=tables.A('device_type.u_height'),
+        verbose_name=_('U Height'),
+        template_code='{{ value|floatformat }}'
     )
     platform = tables.Column(
         linkify=True,

@@ -34,5 +34,6 @@ registry = Registry({
     'system_jobs': dict(),
     'tables': collections.defaultdict(dict),
     'views': collections.defaultdict(dict),
+    'webhook_callbacks': list(),
     'widgets': dict(),
 })

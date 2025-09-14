@@ -1,4 +1,4 @@
-from .contenttypes import *
+from .object_types import *
 from .change_logging import *
 from .config import *
 from .data import *

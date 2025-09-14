@@ -31,28 +31,14 @@ Close the [release milestone](https://github.com/netbox-community/netbox/milesto
 
 Check that a link to the release notes for the new version is present in the navigation menu (defined in `mkdocs.yml`), and that a summary of all major new features has been added to `docs/index.md`.
 
-### Update the Dependency Requirements Matrix
-
-For every minor release, update the dependency requirements matrix in `docs/installation/upgrading.md` ("All versions") to reflect the supported versions of Python, PostgreSQL, and Redis:
-
-1. Add a new row with the supported dependency versions.
-2. Include a documentation link using the release tag format: `https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md`
-3. Bold any version changes for clarity.
-
-**Example Update:**  
-
-```markdown
-| NetBox Version | Python min | Python max | PostgreSQL min | Redis min | Documentation                                                                                     |
-|:--------------:|:----------:|:----------:|:--------------:|:---------:|:-------------------------------------------------------------------------------------------------:|
-|      4.2       |    3.10    |    3.12    |     **13**     |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md)         |
-```
-
 ### Update System Requirements
 
 If a new Django release is adopted or other major dependencies (Python, PostgreSQL, Redis) change:
 
 * Update the installation guide (`docs/installation/index.md`) with the new minimum versions.
-* Update the upgrade guide (`docs/installation/upgrading.md`) for the current version accordingly.
+* Update the upgrade guide (`docs/installation/upgrading.md`) for the current version.
+    * Update the minimum versions for each dependency.
+    * Add a new row to the release history table. Bold any version changes for clarity.
 * Update the minimum PostgreSQL version in the programming error template (`netbox/templates/exceptions/programming_error.html`).
 * Update the minimum and supported Python versions in the project metadata file (`pyproject.toml`)
 
@@ -137,16 +123,6 @@ $ node bundle.js
 Done in 1.00s.
 ```
 
-### Rebuild the Device Type Definition Schema
-
-Run the following command to update the device type definition validation schema:
-
-```nohighlight
-./manage.py buildschema --write
-```
-
-This will automatically update the schema file at `contrib/generated_schema.json`.
-
 ### Update & Compile Translations
 
 Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. First, retrieve any updated translation files using the Transifex CLI client:
@@ -173,6 +149,24 @@ Then, compile these portable (`.po`) files for use in the application:
 
 !!! tip
     Put yourself in the shoes of the user when recording change notes. Focus on the effect that each change has for the end user, rather than the specific bits of code that were modified in a PR. Ensure that each message conveys meaning absent context of the initial feature request or bug report. Remember to include keywords or phrases (such as exception names) that can be easily searched.
+
+### Rebuild the Device Type Definition Schema
+
+Run the following command to update the device type definition validation schema:
+
+```nohighlight
+./manage.py buildschema --write
+```
+
+This will automatically update the schema file at `contrib/generated_schema.json`.
+
+### Update the OpenAPI Schema
+
+Update the static OpenAPI schema definition at `contrib/openapi.json` with the management command below. If the schema file is up-to-date, only the NetBox version will be changed.
+
+```nohighlight
+./manage.py spectacular --format openapi-json > ../contrib/openapi.json
+```
 
 ### Submit a Pull Request
 

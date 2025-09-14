@@ -25,7 +25,7 @@ Once finished, make note of the application (client) ID; this will be used when 
 ![Completed app registration](../../media/authentication/azure_ad_app_registration_created.png)
 
 !!! tip "Multitenant authentication"
-    NetBox also supports multitenant authentication via Azure AD, however it requires a different backend and an additional configuration parameter. Please see the [`python-social-auth` documentation](https://python-social-auth.readthedocs.io/en/latest/backends/azuread.html#tenant-support) for details concerning multitenant authentication.
+    NetBox also supports multitenant authentication via Azure AD; however, it requires a different backend and an additional configuration parameter. Please see the [`python-social-auth` documentation](https://python-social-auth.readthedocs.io/en/latest/backends/azuread.html#tenant-support) for details concerning multitenant authentication.
 
 ### 3. Create a secret
 

@@ -87,9 +87,12 @@
   </div>
 {% endif %}
 
-{% if form.comments %}
-  <div class="field-group mb-5">
-    <h2 class="text-center">{% trans "Comments" %}</h2>
-    {% render_field form.comments %}
-  </div>
-{% endif %}
+<div class="field-group mb-5">
+  <h2 class="text-center">{% trans "Comments" %}</h2>
+  {% render_field form.comments %}
+</div>
+
+{# Meta fields #}
+<div class="bg-primary-subtle border border-primary rounded-1 pt-3 px-3 mb-3">
+  {% render_field form.changelog_message %}
+</div>

@@ -750,10 +750,13 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         verbose_name=('channel width (MHz)'),
         help_text=_("Populated by selected channel (if set)")
     )
-    tx_power = models.PositiveSmallIntegerField(
+    tx_power = models.SmallIntegerField(
         blank=True,
         null=True,
-        validators=(MaxValueValidator(127),),
+        validators=(
+            MinValueValidator(-40),
+            MaxValueValidator(127),
+        ),
         verbose_name=_('transmit power (dBm)')
     )
     poe_mode = models.CharField(
@@ -869,14 +872,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                         "The selected parent interface ({interface}) belongs to a different device ({device})"
                     ).format(interface=self.parent, device=self.parent.device)
                 })
-            elif self.parent.device.virtual_chassis != self.parent.virtual_chassis:
+            elif self.parent.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
                     'parent': _(
                         "The selected parent interface ({interface}) belongs to {device}, which is not part of "
                         "virtual chassis {virtual_chassis}."
                     ).format(
                         interface=self.parent,
-                        device=self.parent_device,
+                        device=self.parent.device,
                         virtual_chassis=self.device.virtual_chassis
                     )
                 })
@@ -887,7 +890,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         if self.pk and self.bridge_id == self.pk:
             raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
 
-        # A bridged interface belong to the same device or virtual chassis
+        # A bridged interface belongs to the same device or virtual chassis
         if self.bridge and self.bridge.device != self.device:
             if self.device.virtual_chassis is None:
                 raise ValidationError({

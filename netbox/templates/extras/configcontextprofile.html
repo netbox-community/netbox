@@ -1,0 +1,39 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Config Context Profile" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'core/inc/datafile_panel.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+    </div>
+    <div class="col col-6">
+      <div class="card">
+        <h2 class="card-header d-flex justify-content-between">
+          {% trans "JSON Schema" %}
+          <div>
+            {% copy_content "schema" %}
+          </div>
+        </h2>
+        <pre class="card-body rendered-context-data m-0" id="schema">{{ object.schema|json }}</pre>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1108,6 +1108,10 @@ class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
                 name='Policy 2',
                 description='foobar2',
             ),
+            VLANTranslationPolicy(
+                name='Policy 3',
+                description='foobar2',
+            ),
         )
         VLANTranslationPolicy.objects.bulk_create(vlan_translation_policies)
 
@@ -1152,7 +1156,8 @@ class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
         ]
 
         cls.bulk_update_data = {
-            'policy': vlan_translation_policies[1].pk,
+            'policy': vlan_translation_policies[2].pk,
+            'description': 'New description',
         }
 
 
@@ -1162,6 +1167,7 @@ class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    graphql_base_name = 'service_template'
 
     @classmethod
     def setUpTestData(cls):
@@ -1197,6 +1203,7 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    graphql_base_name = 'service'
 
     @classmethod
     def setUpTestData(cls):

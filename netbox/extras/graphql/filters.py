@@ -8,7 +8,7 @@ from strawberry_django import FilterLookup
 from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
 from extras import models
 from extras.graphql.filter_mixins import TagBaseFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin
-from netbox.graphql.filter_mixins import SyncedDataFilterMixin
+from netbox.graphql.filter_mixins import PrimaryModelFilterMixin, SyncedDataFilterMixin
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
@@ -17,13 +17,14 @@ if TYPE_CHECKING:
     )
     from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
     from netbox.graphql.enums import ColorEnum
-    from netbox.graphql.filter_lookups import IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
+    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
     from users.graphql.filters import GroupFilter, UserFilter
     from virtualization.graphql.filters import ClusterFilter, ClusterGroupFilter, ClusterTypeFilter
     from .enums import *
 
 __all__ = (
     'ConfigContextFilter',
+    'ConfigContextProfileFilter',
     'ConfigTemplateFilter',
     'CustomFieldFilter',
     'CustomFieldChoiceSetFilter',
@@ -42,12 +43,12 @@ __all__ = (
 
 @strawberry_django.filter_type(models.ConfigContext, lookups=True)
 class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
-    name: FilterLookup[str] = strawberry_django.filter_field()
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
     weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    description: FilterLookup[str] = strawberry_django.filter_field()
-    is_active: FilterLookup[bool] = strawberry_django.filter_field()
+    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    is_active: FilterLookup[bool] | None = strawberry_django.filter_field()
     regions: Annotated['RegionFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -97,6 +98,13 @@ class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Chan
     )
 
 
+@strawberry_django.filter_type(models.ConfigContextProfile, lookups=True)
+class ConfigContextProfileFilter(SyncedDataFilterMixin, PrimaryModelFilterMixin):
+    name: FilterLookup[str] = strawberry_django.filter_field()
+    description: FilterLookup[str] = strawberry_django.filter_field()
+    tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
+
+
 @strawberry_django.filter_type(models.ConfigTemplate, lookups=True)
 class ConfigTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -143,10 +151,10 @@ class CustomFieldFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
     weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    validation_minimum: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    validation_minimum: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    validation_maximum: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    validation_maximum: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     validation_regex: FilterLookup[str] | None = strawberry_django.filter_field()
