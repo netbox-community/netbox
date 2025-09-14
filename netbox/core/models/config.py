@@ -41,7 +41,7 @@ class ConfigRevision(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=('active',),
-                condition=models.Q(actvive=True),
+                condition=models.Q(active=True),
                 name='unique_active_config_revision',
             )
         ]
@@ -78,4 +78,4 @@ class ConfigRevision(models.Model):
 
     @property
     def is_active(self):
-        return cache.get('config_version') == self.pk
+        return self.active

@@ -3,6 +3,27 @@
 from django.db import migrations, models
 
 
+def get_active(apps, schema_editor):
+    from django.core.cache import cache
+    ConfigRevision = apps.get_model('core', 'ConfigRevision')
+    version = None
+    revision = None
+
+    try:
+        version = cache.get('config_version')
+    except Exception:
+        pass
+
+    if version:
+        revision = ConfigRevision.objects.filter(pk=version).first()
+    else:
+        revision = ConfigRevision.objects.order_by('-created').first()
+
+    if revision:
+        revision.active = True
+        revision.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -15,10 +36,11 @@ class Migration(migrations.Migration):
             name='active',
             field=models.BooleanField(default=False),
         ),
+        migrations.RunPython(code=get_active, reverse_code=migrations.RunPython.noop),
         migrations.AddConstraint(
             model_name='configrevision',
             constraint=models.UniqueConstraint(
-                condition=models.Q(('actvive', True)), fields=('active',), name='unique_active_config_revision'
+                condition=models.Q(('active', True)), fields=('active',), name='unique_active_config_revision'
             ),
         ),
     ]
