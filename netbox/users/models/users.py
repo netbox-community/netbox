@@ -77,9 +77,13 @@ class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(username, email, password, **extra_fields)
 
+    create_user.alters_data = True
+
     async def acreate_user(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', False)
         return await self._acreate_user(username, email, password, **extra_fields)
+
+    acreate_user.alters_data = True
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
@@ -89,6 +93,8 @@ class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
 
         return self._create_user(username, email, password, **extra_fields)
 
+    create_superuser.alters_data = True
+
     async def acreate_superuser(self, username, email=None, password=None, **extra_fields):
         extra_fields.setdefault('is_superuser', True)
 
@@ -96,6 +102,8 @@ class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
             raise ValueError('Superuser must have is_superuser=True.')
 
         return await self._acreate_user(username, email, password, **extra_fields)
+
+    acreate_superuser.alters_data = True
 
 
 class User(AbstractBaseUser, PermissionsMixin):
