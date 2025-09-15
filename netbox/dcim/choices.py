@@ -1497,8 +1497,9 @@ class PortTypeChoices(ChoiceSet):
 # Cables/links
 #
 
-class CableTypeChoices(ChoiceSet):
 
+class CableTypeChoices(ChoiceSet):
+    # Copper - Twisted Pair (UTP/STP)
     TYPE_CAT3 = 'cat3'
     TYPE_CAT5 = 'cat5'
     TYPE_CAT5E = 'cat5e'
@@ -1507,26 +1508,41 @@ class CableTypeChoices(ChoiceSet):
     TYPE_CAT7 = 'cat7'
     TYPE_CAT7A = 'cat7a'
     TYPE_CAT8 = 'cat8'
+    TYPE_MRJ21_TRUNK = 'mrj21-trunk'
+
+    # Copper - Twinax (DAC)
     TYPE_DAC_ACTIVE = 'dac-active'
     TYPE_DAC_PASSIVE = 'dac-passive'
-    TYPE_MRJ21_TRUNK = 'mrj21-trunk'
+
+    # Copper - Coaxial
     TYPE_COAXIAL = 'coaxial'
+
+    # Fiber Optic - Multimode
     TYPE_MMF = 'mmf'
     TYPE_MMF_OM1 = 'mmf-om1'
     TYPE_MMF_OM2 = 'mmf-om2'
     TYPE_MMF_OM3 = 'mmf-om3'
     TYPE_MMF_OM4 = 'mmf-om4'
     TYPE_MMF_OM5 = 'mmf-om5'
+
+    # Fiber Optic - Single-mode
     TYPE_SMF = 'smf'
     TYPE_SMF_OS1 = 'smf-os1'
     TYPE_SMF_OS2 = 'smf-os2'
+
+    # Fiber Optic - Other
     TYPE_AOC = 'aoc'
+
+    # Power
     TYPE_POWER = 'power'
+
+    # USB
     TYPE_USB = 'usb'
 
     CHOICES = (
         (
-            _('Copper'), (
+            _('Copper - Twisted Pair (UTP/STP)'),
+            (
                 (TYPE_CAT3, 'CAT3'),
                 (TYPE_CAT5, 'CAT5'),
                 (TYPE_CAT5E, 'CAT5e'),
@@ -1535,28 +1551,57 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_CAT7, 'CAT7'),
                 (TYPE_CAT7A, 'CAT7a'),
                 (TYPE_CAT8, 'CAT8'),
+                (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
+            ),
+        ),
+        (
+            _('Copper - Twinax (DAC)'),
+            (
                 (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
                 (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
-                (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
+            ),
+        ),
+        (
+            _('Copper - Coaxial'),
+            (
                 (TYPE_COAXIAL, 'Coaxial'),
             ),
         ),
         (
-            _('Fiber'), (
+            _('Fiber - Multimode'),
+            (
                 (TYPE_MMF, 'Multimode Fiber'),
                 (TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
                 (TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
                 (TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
                 (TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
                 (TYPE_MMF_OM5, 'Multimode Fiber (OM5)'),
-                (TYPE_SMF, 'Singlemode Fiber'),
-                (TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
-                (TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),
-                (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
-        (TYPE_USB, _('USB')),
-        (TYPE_POWER, _('Power')),
+        (
+            _('Fiber - Single-mode'),
+            (
+                (TYPE_SMF, 'Single-mode Fiber'),
+                (TYPE_SMF_OS1, 'Single-mode Fiber (OS1)'),
+                (TYPE_SMF_OS2, 'Single-mode Fiber (OS2)'),
+            ),
+        ),
+        (
+            _('Fiber - Other'),
+            ((TYPE_AOC, 'Active Optical Cabling (AOC)'),),
+        ),
+        (
+            _('Power'),
+            (
+                (TYPE_POWER, 'Power'),
+            ),
+        ),
+        (
+            _('USB'),
+            (
+                (TYPE_USB, 'USB'),
+            ),
+        ),
     )
 
 
