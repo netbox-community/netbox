@@ -9,16 +9,18 @@ def get_active(apps, schema_editor):
     version = None
     revision = None
 
+    # Try and get the latest version from cache
     try:
         version = cache.get('config_version')
     except Exception:
         pass
 
-    if version:
-        revision = ConfigRevision.objects.filter(pk=version).first()
-    else:
+    # If there is a version in cache, attempt to set revision to the current version from cache
+    # If the version in cache does not exist or there is no version, try the lastest revision in the database
+    if not version or (version and not (revision := ConfigRevision.objects.filter(pk=version).first())):
         revision = ConfigRevision.objects.order_by('-created').first()
 
+    # If there is a revision set, set the active revision
     if revision:
         revision.active = True
         revision.save()

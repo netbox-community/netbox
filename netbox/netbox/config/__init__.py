@@ -79,12 +79,15 @@ class Config:
 
         try:
             # Enforce the creation date as the ordering parameter
-            if not (revision := ConfigRevision.objects.filter(active=True).first()):
-                revision = ConfigRevision.objects.order_by('-created').first()
+            revision = ConfigRevision.objects.get(active=True)
+            logger.debug(f"Loaded active configuration revision #{revision.pk}")
+        except (ConfigRevision.DoesNotExist, ConfigRevision.MultipleObjectsReturned):
+            logger.warning("No active configuration revision found - falling back to most recent")
+            revision = ConfigRevision.objects.order_by('-created').first()
             if revision is None:
                 logger.debug("No previous configuration found in database; proceeding with default values")
                 return
-            logger.debug("Loaded configuration data from database")
+            logger.debug(f"Using fallback configuration revision #{revision.pk}")
         except DatabaseError:
             # The database may not be available yet (e.g. when running a management command)
             logger.warning("Skipping config initialization (database unavailable)")

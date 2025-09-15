@@ -42,13 +42,6 @@ class CoreConfig(AppConfig):
         # Clear Redis cache on startup in development mode
         if settings.DEBUG:
             try:
-                config = cache.get('config')
-                config_version = cache.get('config_version')
                 cache.clear()
-                if config_version:
-                    # Activate the current config revision
-                    # Do not query DB due to apps still initializing
-                    cache.set('config', config, None)
-                    cache.set('config_version', config_version, None)
             except Exception:
                 pass
