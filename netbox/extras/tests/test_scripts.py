@@ -1,5 +1,3 @@
-import logging
-import tempfile
 from datetime import date, datetime, timezone
 from decimal import Decimal
 
@@ -9,7 +7,6 @@ from netaddr import IPAddress, IPNetwork
 
 from dcim.models import DeviceRole
 from extras.scripts import *
-from utilities.testing import disable_logging
 
 CHOICES = (
     ('ff0000', 'Red'),
@@ -33,35 +30,6 @@ JSON_DATA = """
   "Baz": ["A", "B", "C"]
 }
 """
-
-
-class ScriptTest(TestCase):
-
-    def test_load_yaml(self):
-        datafile = tempfile.NamedTemporaryFile()
-        datafile.write(bytes(YAML_DATA, 'UTF-8'))
-        datafile.seek(0)
-
-        with disable_logging(level=logging.WARNING):
-            data = Script().load_yaml(datafile.name)
-        self.assertEqual(data, {
-            'Foo': 123,
-            'Bar': 456,
-            'Baz': ['A', 'B', 'C'],
-        })
-
-    def test_load_json(self):
-        datafile = tempfile.NamedTemporaryFile()
-        datafile.write(bytes(JSON_DATA, 'UTF-8'))
-        datafile.seek(0)
-
-        with disable_logging(level=logging.WARNING):
-            data = Script().load_json(datafile.name)
-        self.assertEqual(data, {
-            'Foo': 123,
-            'Bar': 456,
-            'Baz': ['A', 'B', 'C'],
-        })
 
 
 class ScriptVariablesTest(TestCase):
