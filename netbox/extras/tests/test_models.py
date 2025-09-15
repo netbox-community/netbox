@@ -1,16 +1,14 @@
-import re
 import tempfile
 from pathlib import Path
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import connection
 from django.forms import ValidationError
 from django.test import tag, TestCase
 
 from core.models import DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag
+from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag, TaggedItem
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -661,26 +659,38 @@ class ConfigContextTest(TestCase):
         Verifies that DISTINCT is only used in tag subquery where needed,
         not on the main device query which is expensive for large datasets.
         """
-        # Use existing test device from ConfigContextTest setup
         device = Device.objects.first()
+        queryset = Device.objects.filter(pk=device.pk).annotate_config_context_data()
 
-        # connection.queries_log.clear()
+        # Main device query should NOT use DISTINCT
+        self.assertFalse(queryset.query.distinct)
 
-        # Execute annotation
-        list(Device.objects.filter(pk=device.pk).annotate_config_context_data())
+        # Check that tag subqueries DO use DISTINCT by inspecting the annotation
+        config_annotation = queryset.query.annotations.get('config_context_data')
+        self.assertIsNotNone(config_annotation)
 
-        device_queries = [q['sql'] for q in connection.queries_log if 'dcim_device' in q['sql']]
+        def find_tag_subqueries(where_node):
+            """Find subqueries in WHERE clause that relate to tag filtering"""
+            subqueries = []
 
-        for query in device_queries:
-            # Main device query should NOT use DISTINCT
-            self.assertNotIn('SELECT DISTINCT "dcim_device"', query)
+            def traverse(node):
+                if hasattr(node, 'children'):
+                    for child in node.children:
+                        try:
+                            if child.rhs.query.model is TaggedItem:
+                                subqueries.append(child.rhs.query)
+                        except AttributeError:
+                            traverse(child)
+            traverse(where_node)
+            return subqueries
 
-            # Tag sub-query _should_ use DISTINCT
-            tag_distinct_pattern = re.compile(
-                r'SELECT DISTINCT \w+\."tag_id".*FROM "extras_taggeditem" \w+ INNER JOIN "django_content_type"'
-            )
-            distinct_tag_pattern_found = any(tag_distinct_pattern.search(query) for query in device_queries)
-            self.assertTrue(distinct_tag_pattern_found)
+        # Find subqueries in the WHERE clause that should have DISTINCT
+        tag_subqueries = find_tag_subqueries(config_annotation.query.where)
+        distinct_subqueries = [sq for sq in tag_subqueries if sq.distinct]
+
+        # Verify we found at least one DISTINCT subquery for tags
+        self.assertEqual(len(distinct_subqueries), 1)
+        self.assertTrue(distinct_subqueries[0].distinct)
 
 
 class ConfigTemplateTest(TestCase):
