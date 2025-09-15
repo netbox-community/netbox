@@ -8,7 +8,7 @@ from django.test import tag, TestCase
 
 from core.models import DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag
+from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag, TaggedItem
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -536,6 +536,34 @@ class ConfigContextTest(TestCase):
             vms[1].get_config_context()
         )
 
+    def test_valid_local_context_data(self):
+        device = Device.objects.first()
+        device.local_context_data = None
+        device.clean()
+
+        device.local_context_data = {"foo": "bar"}
+        device.clean()
+
+    def test_invalid_local_context_data(self):
+        device = Device.objects.first()
+
+        device.local_context_data = ""
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 0
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = False
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 'foo'
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+    @tag('regression')
     def test_multiple_tags_return_distinct_objects(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
@@ -573,6 +601,7 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
+    @tag('regression')
     def test_multiple_tags_return_distinct_objects_with_separate_config_contexts(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
@@ -621,32 +650,47 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
-    def test_valid_local_context_data(self):
+    @tag('performance', 'regression')
+    def test_config_context_annotation_query_optimization(self):
+        """
+        Regression test for issue #20327: Ensure config context annotation
+        doesn't use expensive DISTINCT on main query.
+
+        Verifies that DISTINCT is only used in tag subquery where needed,
+        not on the main device query which is expensive for large datasets.
+        """
         device = Device.objects.first()
-        device.local_context_data = None
-        device.clean()
+        queryset = Device.objects.filter(pk=device.pk).annotate_config_context_data()
 
-        device.local_context_data = {"foo": "bar"}
-        device.clean()
+        # Main device query should NOT use DISTINCT
+        self.assertFalse(queryset.query.distinct)
 
-    def test_invalid_local_context_data(self):
-        device = Device.objects.first()
+        # Check that tag subqueries DO use DISTINCT by inspecting the annotation
+        config_annotation = queryset.query.annotations.get('config_context_data')
+        self.assertIsNotNone(config_annotation)
 
-        device.local_context_data = ""
-        with self.assertRaises(ValidationError):
-            device.clean()
+        def find_tag_subqueries(where_node):
+            """Find subqueries in WHERE clause that relate to tag filtering"""
+            subqueries = []
 
-        device.local_context_data = 0
-        with self.assertRaises(ValidationError):
-            device.clean()
+            def traverse(node):
+                if hasattr(node, 'children'):
+                    for child in node.children:
+                        try:
+                            if child.rhs.query.model is TaggedItem:
+                                subqueries.append(child.rhs.query)
+                        except AttributeError:
+                            traverse(child)
+            traverse(where_node)
+            return subqueries
 
-        device.local_context_data = False
-        with self.assertRaises(ValidationError):
-            device.clean()
+        # Find subqueries in the WHERE clause that should have DISTINCT
+        tag_subqueries = find_tag_subqueries(config_annotation.query.where)
+        distinct_subqueries = [sq for sq in tag_subqueries if sq.distinct]
 
-        device.local_context_data = 'foo'
-        with self.assertRaises(ValidationError):
-            device.clean()
+        # Verify we found at least one DISTINCT subquery for tags
+        self.assertEqual(len(distinct_subqueries), 1)
+        self.assertTrue(distinct_subqueries[0].distinct)
 
 
 class ConfigTemplateTest(TestCase):
