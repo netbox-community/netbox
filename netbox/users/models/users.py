@@ -3,7 +3,7 @@ from django.contrib.auth.models import (
     GroupManager as DjangoGroupManager,
     Permission,
     PermissionsMixin,
-    UserManager as DjangoUserManager
+    UserManager as DjangoUserManager,
 )
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
@@ -74,8 +74,36 @@ class Group(models.Model):
 class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
 
     def create_user(self, username, email=None, password=None, **extra_fields):
-        extra_fields.setdefault("is_superuser", False)
+        extra_fields.setdefault('is_superuser', False)
         return self._create_user(username, email, password, **extra_fields)
+
+    create_user.alters_data = True
+
+    async def acreate_user(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', False)
+        return await self._acreate_user(username, email, password, **extra_fields)
+
+    acreate_user.alters_data = True
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(username, email, password, **extra_fields)
+
+    create_superuser.alters_data = True
+
+    async def acreate_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return await self._acreate_user(username, email, password, **extra_fields)
+
+    acreate_superuser.alters_data = True
 
 
 class User(AbstractBaseUser, PermissionsMixin):
