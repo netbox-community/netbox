@@ -66,7 +66,7 @@ The top level is the project root, which can have any name that you like. Immedi
 * `README.md` - A brief introduction to your plugin, how to install and configure it, where to find help, and any other pertinent information. It is recommended to write `README` files using a markup language such as Markdown to enable human-friendly display.
 * The plugin source directory. This must be a valid Python package name, typically comprising only lowercase letters, numbers, and underscores.
 
-The plugin source directory contains all the actual Python code and other resources used by your plugin. Its structure is left to the author's discretion, however it is recommended to follow best practices as outlined in the [Django documentation](https://docs.djangoproject.com/en/stable/intro/reusable-apps/). At a minimum, this directory **must** contain an `__init__.py` file containing an instance of NetBox's `PluginConfig` class, discussed below.
+The plugin source directory contains all the actual Python code and other resources used by your plugin. Its structure is left to the author's discretion; however, it is recommended to follow best practices as outlined in the [Django documentation](https://docs.djangoproject.com/en/stable/intro/reusable-apps/). At a minimum, this directory **must** contain an `__init__.py` file containing an instance of NetBox's `PluginConfig` class, discussed below.
 
 **Note:** The [Cookiecutter NetBox Plugin](https://github.com/netbox-community/cookiecutter-netbox-plugin) can be used to auto-generate all the needed directories and files for a new plugin.
 
@@ -186,7 +186,7 @@ Many of these are self-explanatory, but for more information, see the [pyproject
 
 ## Create a Virtual Environment
 
-It is strongly recommended to create a Python [virtual environment](https://docs.python.org/3/tutorial/venv.html) for the development of your plugin, as opposed to using system-wide packages. This will afford you complete control over the installed versions of all dependencies and avoid conflict with system packages. This environment can live wherever you'd like, however it should be excluded from revision control. (A popular convention is to keep all virtual environments in the user's home directory, e.g. `~/.virtualenvs/`.)
+It is strongly recommended to create a Python [virtual environment](https://docs.python.org/3/tutorial/venv.html) for the development of your plugin, as opposed to using system-wide packages. This will afford you complete control over the installed versions of all dependencies and avoid conflict with system packages. This environment can live wherever you'd like;however, it should be excluded from revision control. (A popular convention is to keep all virtual environments in the user's home directory, e.g. `~/.virtualenvs/`.)
 
 ```shell
 python3 -m venv ~/.virtualenvs/my_plugin

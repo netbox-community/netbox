@@ -21,6 +21,14 @@ repos:
       language: system
       pass_filenames: false
       types: [python]
+    - id: openapi-check
+      name: "Validate OpenAPI schema"
+      description: "Check for any unexpected changes to the OpenAPI schema"
+      files: api/.*\.py$
+      entry: scripts/verify-openapi.sh
+      language: system
+      pass_filenames: false
+      types: [python]
     - id: mkdocs-build
       name: "Build documentation"
       description: "Build the documentation with mkdocs"

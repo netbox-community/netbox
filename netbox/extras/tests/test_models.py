@@ -1,15 +1,93 @@
 import tempfile
 from pathlib import Path
 
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.test import tag, TestCase
 
 from core.models import DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, Tag
+from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag, TaggedItem
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
+
+
+class ImageAttachmentTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.ct_rack = ContentType.objects.get(app_label='dcim', model='rack')
+        cls.image_content = b''
+
+    def _stub_image_attachment(self, object_id, image_filename, name=None):
+        """
+        Creates an instance of ImageAttachment with the provided object_id and image_name.
+
+        This method prepares a stubbed image attachment to test functionalities that
+        require an ImageAttachment object.
+        The function initializes the attachment with a specified file name and
+        pre-defined image content.
+        """
+        ia = ImageAttachment(
+            object_type=self.ct_rack,
+            object_id=object_id,
+            name=name,
+            image=SimpleUploadedFile(
+                name=image_filename,
+                content=self.image_content,
+                content_type='image/jpeg',
+            ),
+        )
+        return ia
+
+    def test_filename_strips_expected_prefix(self):
+        """
+        Tests that the filename of the image attachment is stripped of the expected
+        prefix.
+        """
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_My_File.png')
+        self.assertEqual(ia.filename, 'My_File.png')
+
+    def test_filename_legacy_nested_path_returns_basename(self):
+        """
+        Tests if the filename of a legacy-nested path correctly returns only the basename.
+        """
+        # e.g. "image-attachments/rack_12_5/31/23.jpg" -> "23.jpg"
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_5/31/23.jpg')
+        self.assertEqual(ia.filename, '23.jpg')
+
+    def test_filename_no_prefix_returns_basename(self):
+        """
+        Tests that the filename property correctly returns the basename for an image
+        attachment that has no leading prefix in its path.
+        """
+        ia = self._stub_image_attachment(42, 'image-attachments/just_name.webp')
+        self.assertEqual(ia.filename, 'just_name.webp')
+
+    def test_mismatched_prefix_is_not_stripped(self):
+        """
+        Tests that a mismatched prefix in the filename is not stripped.
+        """
+        # Prefix does not match object_id -> leave as-is (basename only)
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_13_other.png')
+        self.assertEqual('rack_13_other.png', ia.filename)
+
+    def test_str_uses_name_when_present(self):
+        """
+        Tests that the `str` representation of the object uses the
+        `name` attribute when provided.
+        """
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_file.png', name='Human title')
+        self.assertEqual('Human title', str(ia))
+
+    def test_str_falls_back_to_filename(self):
+        """
+        Tests that the `str` representation of the object falls back to
+        the filename if the name attribute is not set.
+        """
+        ia = self._stub_image_attachment(12, 'image-attachments/rack_12_file.png', name='')
+        self.assertEqual('file.png', str(ia))
 
 
 class TagTest(TestCase):
@@ -445,7 +523,7 @@ class ConfigContextTest(TestCase):
         vm1 = VirtualMachine.objects.create(name="VM 1", site=site, role=vm_role)
         vm2 = VirtualMachine.objects.create(name="VM 2", cluster=cluster, role=vm_role)
 
-        # Check that their individually-rendered config contexts are identical
+        # Check that their individually rendered config contexts are identical
         self.assertEqual(
             vm1.get_config_context(),
             vm2.get_config_context()
@@ -458,11 +536,39 @@ class ConfigContextTest(TestCase):
             vms[1].get_config_context()
         )
 
+    def test_valid_local_context_data(self):
+        device = Device.objects.first()
+        device.local_context_data = None
+        device.clean()
+
+        device.local_context_data = {"foo": "bar"}
+        device.clean()
+
+    def test_invalid_local_context_data(self):
+        device = Device.objects.first()
+
+        device.local_context_data = ""
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 0
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = False
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+        device.local_context_data = 'foo'
+        with self.assertRaises(ValidationError):
+            device.clean()
+
+    @tag('regression')
     def test_multiple_tags_return_distinct_objects(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
         This is combated by appending distinct() to the config context querysets. This test creates a config
-        context assigned to two tags and ensures objects related by those same two tags result in only a single
+        context assigned to two tags and ensures objects related to those same two tags result in only a single
         config context record being returned.
 
         See https://github.com/netbox-community/netbox/issues/5314
@@ -495,14 +601,15 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 1)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
-    def test_multiple_tags_return_distinct_objects_with_seperate_config_contexts(self):
+    @tag('regression')
+    def test_multiple_tags_return_distinct_objects_with_separate_config_contexts(self):
         """
         Tagged items use a generic relationship, which results in duplicate rows being returned when queried.
-        This is combatted by by appending distinct() to the config context querysets. This test creates a config
-        context assigned to two tags and ensures objects related by those same two tags result in only a single
+        This is combated by appending distinct() to the config context querysets. This test creates a config
+        context assigned to two tags and ensures objects related to those same two tags result in only a single
         config context record being returned.
 
-        This test case is seperate from the above in that it deals with multiple config context objects in play.
+        This test case is separate from the above in that it deals with multiple config context objects in play.
 
         See https://github.com/netbox-community/netbox/issues/5387
         """
@@ -543,32 +650,47 @@ class ConfigContextTest(TestCase):
         self.assertEqual(ConfigContext.objects.get_for_object(device).count(), 2)
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
-    def test_valid_local_context_data(self):
+    @tag('performance', 'regression')
+    def test_config_context_annotation_query_optimization(self):
+        """
+        Regression test for issue #20327: Ensure config context annotation
+        doesn't use expensive DISTINCT on main query.
+
+        Verifies that DISTINCT is only used in tag subquery where needed,
+        not on the main device query which is expensive for large datasets.
+        """
         device = Device.objects.first()
-        device.local_context_data = None
-        device.clean()
+        queryset = Device.objects.filter(pk=device.pk).annotate_config_context_data()
 
-        device.local_context_data = {"foo": "bar"}
-        device.clean()
+        # Main device query should NOT use DISTINCT
+        self.assertFalse(queryset.query.distinct)
 
-    def test_invalid_local_context_data(self):
-        device = Device.objects.first()
+        # Check that tag subqueries DO use DISTINCT by inspecting the annotation
+        config_annotation = queryset.query.annotations.get('config_context_data')
+        self.assertIsNotNone(config_annotation)
 
-        device.local_context_data = ""
-        with self.assertRaises(ValidationError):
-            device.clean()
+        def find_tag_subqueries(where_node):
+            """Find subqueries in WHERE clause that relate to tag filtering"""
+            subqueries = []
 
-        device.local_context_data = 0
-        with self.assertRaises(ValidationError):
-            device.clean()
+            def traverse(node):
+                if hasattr(node, 'children'):
+                    for child in node.children:
+                        try:
+                            if child.rhs.query.model is TaggedItem:
+                                subqueries.append(child.rhs.query)
+                        except AttributeError:
+                            traverse(child)
+            traverse(where_node)
+            return subqueries
 
-        device.local_context_data = False
-        with self.assertRaises(ValidationError):
-            device.clean()
+        # Find subqueries in the WHERE clause that should have DISTINCT
+        tag_subqueries = find_tag_subqueries(config_annotation.query.where)
+        distinct_subqueries = [sq for sq in tag_subqueries if sq.distinct]
 
-        device.local_context_data = 'foo'
-        with self.assertRaises(ValidationError):
-            device.clean()
+        # Verify we found at least one DISTINCT subquery for tags
+        self.assertEqual(len(distinct_subqueries), 1)
+        self.assertTrue(distinct_subqueries[0].distinct)
 
 
 class ConfigTemplateTest(TestCase):

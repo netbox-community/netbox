@@ -123,16 +123,6 @@ $ node bundle.js
 Done in 1.00s.
 ```
 
-### Rebuild the Device Type Definition Schema
-
-Run the following command to update the device type definition validation schema:
-
-```nohighlight
-./manage.py buildschema --write
-```
-
-This will automatically update the schema file at `contrib/generated_schema.json`.
-
 ### Update & Compile Translations
 
 Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. First, retrieve any updated translation files using the Transifex CLI client:
@@ -159,6 +149,24 @@ Then, compile these portable (`.po`) files for use in the application:
 
 !!! tip
     Put yourself in the shoes of the user when recording change notes. Focus on the effect that each change has for the end user, rather than the specific bits of code that were modified in a PR. Ensure that each message conveys meaning absent context of the initial feature request or bug report. Remember to include keywords or phrases (such as exception names) that can be easily searched.
+
+### Rebuild the Device Type Definition Schema
+
+Run the following command to update the device type definition validation schema:
+
+```nohighlight
+./manage.py buildschema --write
+```
+
+This will automatically update the schema file at `contrib/generated_schema.json`.
+
+### Update the OpenAPI Schema
+
+Update the static OpenAPI schema definition at `contrib/openapi.json` with the management command below. If the schema file is up-to-date, only the NetBox version will be changed.
+
+```nohighlight
+./manage.py spectacular --format openapi-json > ../contrib/openapi.json
+```
 
 ### Submit a Pull Request
 

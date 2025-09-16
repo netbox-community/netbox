@@ -1,5 +1,6 @@
 from typing import Annotated, TYPE_CHECKING
 
+from django.db.models import Q
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
@@ -7,6 +8,8 @@ from strawberry_django import FilterLookup
 
 from core.graphql.filter_mixins import ChangeLogFilterMixin
 from dcim import models
+from dcim.constants import *
+from dcim.graphql.enums import InterfaceKindEnum
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
 from netbox.graphql.filter_mixins import (
     PrimaryModelFilterMixin,
@@ -484,6 +487,27 @@ class InterfaceFilter(ModularComponentModelFilterMixin, InterfaceBaseFilterMixin
     l2vpn_terminations: Annotated['L2VPNFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+
+    @strawberry_django.filter_field
+    def connected(self, queryset, value: bool, prefix: str):
+        if value is True:
+            return queryset, Q(**{f"{prefix}_path__is_active": True})
+        else:
+            return queryset, Q(**{f"{prefix}_path__isnull": True}) | Q(**{f"{prefix}_path__is_active": False})
+
+    @strawberry_django.filter_field
+    def kind(
+        self,
+        queryset,
+        value: Annotated['InterfaceKindEnum', strawberry.lazy('dcim.graphql.enums')],
+        prefix: str
+    ):
+        if value == InterfaceKindEnum.KIND_PHYSICAL:
+            return queryset, ~Q(**{f"{prefix}type__in": NONCONNECTABLE_IFACE_TYPES})
+        elif value == InterfaceKindEnum.KIND_VIRTUAL:
+            return queryset, Q(**{f"{prefix}type__in": VIRTUAL_IFACE_TYPES})
+        elif value == InterfaceKindEnum.KIND_WIRELESS:
+            return queryset, Q(**{f"{prefix}type__in": WIRELESS_IFACE_TYPES})
 
 
 @strawberry_django.filter_type(models.InterfaceTemplate, lookups=True)

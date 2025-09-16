@@ -8,26 +8,26 @@ body:
     attributes:
       value: >
         **NOTE:** This form is only for reporting _reproducible bugs_ in a current NetBox
-        installation. If you're having trouble with installation or just looking for
-        assistance with using NetBox, please visit our
+        release. If you're having trouble with installation or just looking for assistance
+        using NetBox, please visit our
         [discussion forum](https://github.com/netbox-community/netbox/discussions) instead.
   - type: dropdown
     attributes:
-      label: Deployment Type
+      label: NetBox Edition
       description: >
-        How are you running NetBox? (For issues with the Docker image, please go to the
-        [netbox-docker](https://github.com/netbox-community/netbox-docker) repo.)
+        Users of [NetBox Cloud](https://netboxlabs.com/netbox-cloud/) or
+        [NetBox Enterprise](https://netboxlabs.com/netbox-enterprise/), please contact the
+        [NetBox Labs](https://netboxlabs.com/) support team for assistance to ensure your
+        request receives immediate attention.
       options:
-        - NetBox Cloud
-        - NetBox Enterprise
-        - Self-hosted
+        - NetBox Community
     validations:
       required: true
   - type: input
     attributes:
       label: NetBox Version
       description: What version of NetBox are you currently running?
-      placeholder: v4.4.0
+      placeholder: v4.4.1
     validations:
       required: true
   - type: dropdown

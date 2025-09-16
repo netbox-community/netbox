@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -1547,7 +1548,6 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         except KeyError:
             log_threshold = LOG_LEVEL_RANK[LogLevelChoices.LOG_INFO]
         if job.data:
-
             if 'log' in job.data:
                 if 'tests' in job.data:
                     tests = job.data['tests']
@@ -1558,7 +1558,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                         index += 1
                         result = {
                             'index': index,
-                            'time': log.get('time'),
+                            'time': datetime.fromisoformat(log.get('time')),
                             'status': log.get('status'),
                             'message': log.get('message'),
                             'object': log.get('obj'),
