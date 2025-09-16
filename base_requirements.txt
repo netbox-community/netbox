@@ -139,8 +139,7 @@ requests
 
 # rq
 # https://github.com/rq/rq/blob/master/CHANGES.md
-# RQ v2.5 drops support for Redis < 5.0
-rq==2.4.1
+rq
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
