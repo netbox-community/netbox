@@ -164,7 +164,7 @@ def sync_button(instance):
 
 # TODO: Remove in NetBox v4.7
 @register.inclusion_tag('buttons/add.html')
-def add_button(model, action='add', return_url=None):
+def add_button(model, return_url=None, action='add'):
     try:
         url = get_action_url(model, action=action)
     except NoReverseMatch:
