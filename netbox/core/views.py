@@ -33,7 +33,13 @@ from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
-from utilities.views import ContentTypePermissionRequiredMixin, GetRelatedModelsMixin, ViewTab, register_model_view
+from utilities.views import (
+    ContentTypePermissionRequiredMixin,
+    GetRelatedModelsMixin,
+    GetReturnURLMixin,
+    ViewTab,
+    register_model_view,
+)
 from . import filtersets, forms, tables
 from .jobs import SyncDataSourceJob
 from .models import *
@@ -66,7 +72,7 @@ class DataSourceView(GetRelatedModelsMixin, generic.ObjectView):
 
 
 @register_model_view(DataSource, 'sync')
-class DataSourceSyncView(BaseObjectView):
+class DataSourceSyncView(GetReturnURLMixin, BaseObjectView):
     queryset = DataSource.objects.all()
 
     def get_required_permission(self):
@@ -85,7 +91,7 @@ class DataSourceSyncView(BaseObjectView):
             request,
             _("Queued job #{id} to sync {datasource}").format(id=job.pk, datasource=datasource)
         )
-        return redirect(datasource.get_absolute_url())
+        return redirect(self.get_return_url(request, datasource))
 
 
 @register_model_view(DataSource, 'add', detail=False)

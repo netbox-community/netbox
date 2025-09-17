@@ -1,9 +1,11 @@
 import json
+from contextlib import contextmanager
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
+from django.db import transaction
 from django.db.models import ManyToManyField, ManyToManyRel, JSONField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase
@@ -35,6 +37,20 @@ class TestCase(_TestCase):
         # Initialize the test client
         self.client = Client()
         self.client.force_login(self.user)
+
+    @contextmanager
+    def cleanupSubTest(self, **params):
+        """
+        Context manager that wraps subTest with automatic cleanup.
+        All database changes within the context will be rolled back.
+        """
+        sid = transaction.savepoint()
+
+        try:
+            with self.subTest(**params):
+                yield
+        finally:
+            transaction.savepoint_rollback(sid)
 
     #
     # Permissions management

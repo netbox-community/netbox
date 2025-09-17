@@ -1,5 +1,47 @@
 # NetBox v4.4
 
+## v4.4.1 (2025-09-16)
+
+### Enhancements
+
+* [#15492](https://github.com/netbox-community/netbox/issues/15492) - Enable cloning of permissions
+* [#16381](https://github.com/netbox-community/netbox/issues/16381) - Display script result timestamps in system timezone
+* [#19262](https://github.com/netbox-community/netbox/issues/19262) - No longer restrict FHRP group assignment by assigned IP address
+* [#19408](https://github.com/netbox-community/netbox/issues/19408) - Support export templates for circuit terminations and virtual circuit terminations
+* [#19428](https://github.com/netbox-community/netbox/issues/19428) - Add an optional U height field to the devices table
+* [#19547](https://github.com/netbox-community/netbox/issues/19547) - Add individual "sync" buttons in data sources table
+* [#19865](https://github.com/netbox-community/netbox/issues/19865) - Reorganize cable type groupings
+* [#20222](https://github.com/netbox-community/netbox/issues/20222) - Enable the `HttpOnly` flag for CSRF cookie
+* [#20237](https://github.com/netbox-community/netbox/issues/20237) - Include VPN tunnel groups in global search results
+* [#20241](https://github.com/netbox-community/netbox/issues/20241) - Record A & B terminations in cable changelog data
+* [#20277](https://github.com/netbox-community/netbox/issues/20277) - Add support for attribute assignment to `deserialize_object()` utility
+* [#20321](https://github.com/netbox-community/netbox/issues/20321) - Add physical media types for transceiver interfaces
+* [#20347](https://github.com/netbox-community/netbox/issues/20347) - Add Wi-Fi Alliance aliases to 802.11 interface types
+
+### Bug Fixes
+
+* [#19729](https://github.com/netbox-community/netbox/issues/19729) - Restore `kind` filter for interfaces in GraphQL API
+* [#19744](https://github.com/netbox-community/netbox/issues/19744) - Plugins list should be orderable by "active" column
+* [#19851](https://github.com/netbox-community/netbox/issues/19851) - Fix `ValueError` complaining of missing `scope` when bulk importing wireless LANs
+* [#19896](https://github.com/netbox-community/netbox/issues/19896) - Min/max values for decimal custom fields should accept decimal values
+* [#20197](https://github.com/netbox-community/netbox/issues/20197) - Correct validation for virtual chassis parent interface
+* [#20215](https://github.com/netbox-community/netbox/issues/20215) - All GraphQL filters for config contexts should be optional
+* [#20217](https://github.com/netbox-community/netbox/issues/20217) - Remove "0 VLANs available" row at end of VLAN range table
+* [#20221](https://github.com/netbox-community/netbox/issues/20221) - JSON fields should not coerce empty dictionaries to null
+* [#20227](https://github.com/netbox-community/netbox/issues/20227) - Ensure consistent padding of Markdown content
+* [#20234](https://github.com/netbox-community/netbox/issues/20234) - Fix "add" button link for prerequisite object warning in UI
+* [#20236](https://github.com/netbox-community/netbox/issues/20236) - Strip invalid characters from uploaded image file names
+* [#20238](https://github.com/netbox-community/netbox/issues/20238) - Fix support for outside IP assignment during bulk import of tunnel terminations
+* [#20242](https://github.com/netbox-community/netbox/issues/20242) - Avoid `AttributeError` exception on background jobs with no request ID
+* [#20252](https://github.com/netbox-community/netbox/issues/20252) - Remove generic AddObject from ObjectChildrenView to prevent duplicate "add" buttons
+* [#20264](https://github.com/netbox-community/netbox/issues/20264) - Fix rendering of default icon in plugins list
+* [#20272](https://github.com/netbox-community/netbox/issues/20272) - ConfigContexts assigned to ancestor locations should apply to device/VM
+* [#20282](https://github.com/netbox-community/netbox/issues/20282) - Fix styling of prerequisite objects warning
+* [#20298](https://github.com/netbox-community/netbox/issues/20298) - Display a placeholder when an image thumbnail fails to load
+* [#20327](https://github.com/netbox-community/netbox/issues/20327) - Avoid calling `distinct()` on device/VM queryset when fetching config context data
+
+---
+
 ## v4.4.0 (2025-09-02)
 
 ### New Features

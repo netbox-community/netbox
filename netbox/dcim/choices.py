@@ -889,22 +889,118 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_BRIDGE = 'bridge'
     TYPE_LAG = 'lag'
 
-    # Ethernet
+    # FastEthernet
     TYPE_100ME_FX = '100base-fx'
     TYPE_100ME_LFX = '100base-lfx'
-    TYPE_100ME_FIXED = '100base-tx'
+    TYPE_100ME_FIXED = '100base-tx'  # TODO: Rename to _TX
     TYPE_100ME_T1 = '100base-t1'
+
+    # GigabitEthernet
+    TYPE_1GE_BX10_D = '1000base-bx10-d'
+    TYPE_1GE_BX10_U = '1000base-bx10-u'
+    TYPE_1GE_CWDM = '1000base-cwdm'
+    TYPE_1GE_CX = '1000base-cx'
+    TYPE_1GE_DWDM = '1000base-dwdm'
+    TYPE_1GE_EX = '1000base-ex'
+    TYPE_1GE_SX_FIXED = '1000base-sx'  # TODO: Drop _FIXED suffix
+    TYPE_1GE_LSX = '1000base-lsx'
+    TYPE_1GE_LX_FIXED = '1000base-lx'  # TODO: Drop _FIXED suffix
+    TYPE_1GE_LX10 = '1000base-lx10'
+    TYPE_1GE_FIXED = '1000base-t'  # TODO: Rename to _T
+    TYPE_1GE_TX_FIXED = '1000base-tx'  # TODO: Drop _FIXED suffix
+    TYPE_1GE_ZX = '1000base-zx'
+
+    # 2.5/5 Gbps Ethernet
+    TYPE_2GE_FIXED = '2.5gbase-t'  # TODO: Rename to _T
+    TYPE_5GE_FIXED = '5gbase-t'  # TODO: Rename to _T
+
+    # 10 Gbps Ethernet
+    TYPE_10GE_BR_D = '10gbase-br-d'
+    TYPE_10GE_BR_U = '10gbase-br-u'
+    TYPE_10GE_CX4 = '10gbase-cx4'
+    TYPE_10GE_ER = '10gbase-er'
+    TYPE_10GE_LR = '10gbase-lr'
+    TYPE_10GE_LRM = '10gbase-lrm'
+    TYPE_10GE_LX4 = '10gbase-lx4'
+    TYPE_10GE_SR = '10gbase-sr'
+    TYPE_10GE_FIXED = '10gbase-t'
+    TYPE_10GE_ZR = '10gbase-zr'
+
+    # 25 Gbps Ethernet
+    TYPE_25GE_CR = '25gbase-cr'
+    TYPE_25GE_ER = '25gbase-er'
+    TYPE_25GE_LR = '25gbase-lr'
+    TYPE_25GE_SR = '25gbase-sr'
+    TYPE_25GE_T = '25gbase-t'
+
+    # 40 Gbps Ethernet
+    TYPE_40GE_CR4 = '40gbase-cr4'
+    TYPE_40GE_ER4 = '40gbase-er4'
+    TYPE_40GE_FR4 = '40gbase-fr4'
+    TYPE_40GE_LR4 = '40gbase-lr4'
+    TYPE_40GE_SR4 = '40gbase-sr4'
+
+    # 50 Gbps Ethernet
+    TYPE_50GE_CR = '50gbase-cr'
+    TYPE_50GE_ER = '50gbase-er'
+    TYPE_50GE_FR = '50gbase-fr'
+    TYPE_50GE_LR = '50gbase-lr'
+    TYPE_50GE_SR = '50gbase-sr'
+
+    # 100 Gbps Ethernet
+    TYPE_100GE_CR1 = '100gbase-cr1'
+    TYPE_100GE_CR2 = '100gbase-cr2'
+    TYPE_100GE_CR4 = '100gbase-cr4'
+    TYPE_100GE_CR10 = '100gbase-cr10'
+    TYPE_100GE_CWDM4 = '100gbase-cwdm4'
+    TYPE_100GE_DR = '100gbase-dr'
+    TYPE_100GE_FR1 = '100gbase-fr1'
+    TYPE_100GE_ER4 = '100gbase-er4'
+    TYPE_100GE_LR1 = '100gbase-lr1'
+    TYPE_100GE_LR4 = '100gbase-lr4'
+    TYPE_100GE_SR1 = '100gbase-sr1'
+    TYPE_100GE_SR1_2 = '100gbase-sr1.2'
+    TYPE_100GE_SR2 = '100gbase-sr2'
+    TYPE_100GE_SR4 = '100gbase-sr4'
+    TYPE_100GE_SR10 = '100gbase-sr10'
+    TYPE_100GE_ZR = '100gbase-zr'
+
+    # 200 Gbps Ethernet
+    TYPE_200GE_CR2 = '200gbase-cr2'
+    TYPE_200GE_CR4 = '200gbase-cr4'
+    TYPE_200GE_SR2 = '200gbase-sr2'
+    TYPE_200GE_SR4 = '200gbase-sr4'
+    TYPE_200GE_DR4 = '200gbase-dr4'
+    TYPE_200GE_FR4 = '200gbase-fr4'
+    TYPE_200GE_LR4 = '200gbase-lr4'
+    TYPE_200GE_ER4 = '200gbase-er4'
+    TYPE_200GE_VR2 = '200gbase-vr2'
+
+    # 400 Gbps Ethernet
+    TYPE_400GE_CR4 = '400gbase-cr4'
+    TYPE_400GE_DR4 = '400gbase-dr4'
+    TYPE_400GE_ER8 = '400gbase-er8'
+    TYPE_400GE_FR4 = '400gbase-fr4'
+    TYPE_400GE_FR8 = '400gbase-fr8'
+    TYPE_400GE_LR4 = '400gbase-lr4'
+    TYPE_400GE_LR8 = '400gbase-lr8'
+    TYPE_400GE_SR4 = '400gbase-sr4'
+    TYPE_400GE_SR4_2 = '400gbase-sr4_2'
+    TYPE_400GE_SR8 = '400gbase-sr8'
+    TYPE_400GE_SR16 = '400gbase-sr16'
+    TYPE_400GE_VR4 = '400gbase-vr4'
+    TYPE_400GE_ZR = '400gbase-zr'
+
+    # 800 Gbps Ethernet
+    TYPE_800GE_CR8 = '800gbase-cr8'
+    TYPE_800GE_DR8 = '800gbase-dr8'
+    TYPE_800GE_SR8 = '800gbase-sr8'
+    TYPE_800GE_VR8 = '800gbase-vr8'
+
+    # Ethernet (modular)
     TYPE_100ME_SFP = '100base-x-sfp'
-    TYPE_1GE_FIXED = '1000base-t'
-    TYPE_1GE_SX_FIXED = '1000base-sx'
-    TYPE_1GE_LX_FIXED = '1000base-lx'
-    TYPE_1GE_TX_FIXED = '1000base-tx'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
-    TYPE_2GE_FIXED = '2.5gbase-t'
-    TYPE_5GE_FIXED = '5gbase-t'
-    TYPE_10GE_FIXED = '10gbase-t'
-    TYPE_10GE_CX4 = '10gbase-cx4'
     TYPE_10GE_SFP_PLUS = '10gbase-x-sfpp'
     TYPE_10GE_XFP = '10gbase-x-xfp'
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
@@ -935,7 +1031,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
     TYPE_800GE_OSFP = '800gbase-x-osfp'
 
-    # Ethernet Backplane
+    # Backplane Ethernet
     TYPE_1GE_KX = '1000base-kx'
     TYPE_2GE_KX = '2.5gbase-kx'
     TYPE_5GE_KR = '5gbase-kr'
@@ -1054,24 +1150,147 @@ class InterfaceTypeChoices(ChoiceSet):
             ),
         ),
         (
-            _('Ethernet (fixed)'),
+            _('FastEthernet (100 Mbps)'),
             (
-                (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
-                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
+                (TYPE_100ME_FX, '100BASE-FX (10/100ME)'),
+                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME)'),
                 (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
-                (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
-                (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
+                (TYPE_100ME_T1, '100BASE-T1 (10/100ME)'),
+            ),
+        ),
+        (
+            _('GigabitEthernet (1 Gbps)'),
+            (
+                (TYPE_1GE_BX10_D, '1000BASE-BX10-D (1GE BiDi Down)'),
+                (TYPE_1GE_BX10_U, '1000BASE-BX10-U (1GE BiDi Up)'),
+                (TYPE_1GE_CX, '1000BASE-CX (1GE DAC)'),
+                (TYPE_1GE_CWDM, '1000BASE-CWDM (1GE)'),
+                (TYPE_1GE_DWDM, '1000BASE-DWDM (1GE)'),
+                (TYPE_1GE_EX, '1000BASE-EX (1GE)'),
                 (TYPE_1GE_SX_FIXED, '1000BASE-SX (1GE)'),
+                (TYPE_1GE_LSX, '1000BASE-LSX (1GE)'),
                 (TYPE_1GE_LX_FIXED, '1000BASE-LX (1GE)'),
+                (TYPE_1GE_LX10, '1000BASE-LX10/LH (1GE)'),
+                (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
                 (TYPE_1GE_TX_FIXED, '1000BASE-TX (1GE)'),
+                (TYPE_1GE_ZX, '1000BASE-ZX (1GE)'),
+            ),
+        ),
+        (
+            _('2.5/5 Gbps Ethernet'),
+            (
                 (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
                 (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
+            ),
+        ),
+        (
+            _('10 Gbps Ethernet'),
+            (
+                (TYPE_10GE_BR_D, '10GBASE-DR-D (10GE BiDi Down)'),
+                (TYPE_10GE_BR_U, '10GBASE-DR-U (10GE BiDi Up)'),
+                (TYPE_10GE_CX4, '10GBASE-CX4 (10GE DAC)'),
+                (TYPE_10GE_ER, '10GBASE-ER (10GE)'),
+                (TYPE_10GE_LR, '10GBASE-LR (10GE)'),
+                (TYPE_10GE_LRM, '10GBASE-LRM (10GE)'),
+                (TYPE_10GE_LX4, '10GBASE-LX4 (10GE)'),
+                (TYPE_10GE_SR, '10GBASE-SR (10GE)'),
                 (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
-                (TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'),
+                (TYPE_10GE_ZR, '10GBASE-ZR (10GE)'),
             )
         ),
         (
-            _('Ethernet (modular)'),
+            _('25 Gbps Ethernet'),
+            (
+                (TYPE_25GE_CR, '25GBASE-CR (25GE DAC)'),
+                (TYPE_25GE_ER, '25GBASE-ER (25GE)'),
+                (TYPE_25GE_LR, '25GBASE-LR (25GE)'),
+                (TYPE_25GE_SR, '25GBASE-SR (25GE)'),
+                (TYPE_25GE_T, '25GBASE-T (25GE)'),
+            )
+        ),
+        (
+            _('40 Gbps Ethernet'),
+            (
+                (TYPE_40GE_CR4, '40GBASE-CR4 (40GE DAC)'),
+                (TYPE_40GE_ER4, '40GBASE-ER4 (40GE)'),
+                (TYPE_40GE_FR4, '40GBASE-FR4 (40GE)'),
+                (TYPE_40GE_LR4, '40GBASE-LR4 (40GE)'),
+                (TYPE_40GE_SR4, '40GBASE-SR4 (40GE)'),
+            )
+        ),
+        (
+            _('50 Gbps Ethernet'),
+            (
+                (TYPE_50GE_CR, '50GBASE-CR (50GE DAC)'),
+                (TYPE_50GE_ER, '50GBASE-ER (50GE)'),
+                (TYPE_50GE_FR, '50GBASE-FR (50GE)'),
+                (TYPE_50GE_LR, '50GBASE-LR (50GE)'),
+                (TYPE_50GE_SR, '50GBASE-SR (50GE)'),
+            )
+        ),
+        (
+            _('100 Gbps Ethernet'),
+            (
+                (TYPE_100GE_CR1, '100GBASE-CR1 (100GE DAC)'),
+                (TYPE_100GE_CR2, '100GBASE-CR2 (100GE DAC)'),
+                (TYPE_100GE_CR4, '100GBASE-CR4 (100GE DAC)'),
+                (TYPE_100GE_CR10, '100GBASE-CR10 (100GE DAC)'),
+                (TYPE_100GE_DR, '100GBASE-DR (100GE)'),
+                (TYPE_100GE_ER4, '100GBASE-ER4 (100GE)'),
+                (TYPE_100GE_FR1, '100GBASE-FR1 (100GE)'),
+                (TYPE_100GE_LR1, '100GBASE-LR1 (100GE)'),
+                (TYPE_100GE_LR4, '100GBASE-LR4 (100GE)'),
+                (TYPE_100GE_SR1, '100GBASE-SR1 (100GE)'),
+                (TYPE_100GE_SR1_2, '100GBASE-SR1.2 (100GE BiDi)'),
+                (TYPE_100GE_SR2, '100GBASE-SR2 (100GE)'),
+                (TYPE_100GE_SR4, '100GBASE-SR4 (100GE)'),
+                (TYPE_100GE_SR10, '100GBASE-SR10 (100GE)'),
+                (TYPE_100GE_ZR, '100GBASE-ZR (100GE)'),
+            )
+        ),
+        (
+            _('200 Gbps Ethernet'),
+            (
+                (TYPE_200GE_CR2, '200GBASE-CR2 (200GE)'),
+                (TYPE_200GE_CR4, '200GBASE-CR4 (200GE)'),
+                (TYPE_200GE_SR2, '200GBASE-SR2 (200GE)'),
+                (TYPE_200GE_SR4, '200GBASE-SR4 (200GE)'),
+                (TYPE_200GE_DR4, '200GBASE-DR4 (200GE)'),
+                (TYPE_200GE_ER4, '200GBASE-ER4 (200GE)'),
+                (TYPE_200GE_FR4, '200GBASE-FR4 (200GE)'),
+                (TYPE_200GE_LR4, '200GBASE-LR4 (200GE)'),
+                (TYPE_200GE_VR2, '200GBASE-VR2 (200GE)'),
+            )
+        ),
+        (
+            _('400 Gbps Ethernet'),
+            (
+                (TYPE_400GE_CR4, '400GBASE-CR4 (400GE)'),
+                (TYPE_400GE_DR4, '400GBASE-DR4 (400GE)'),
+                (TYPE_400GE_ER8, '400GBASE-ER8 (400GE)'),
+                (TYPE_400GE_FR4, '400GBASE-FR4 (400GE)'),
+                (TYPE_400GE_FR8, '400GBASE-FR8 (400GE)'),
+                (TYPE_400GE_LR4, '400GBASE-LR4 (400GE)'),
+                (TYPE_400GE_LR8, '400GBASE-LR8 (400GE)'),
+                (TYPE_400GE_SR4, '400GBASE-SR4 (400GE)'),
+                (TYPE_400GE_SR4_2, '400GBASE-SR4.2 (400GE BiDi)'),
+                (TYPE_400GE_SR8, '400GBASE-SR8 (400GE)'),
+                (TYPE_400GE_SR16, '400GBASE-SR16 (400GE)'),
+                (TYPE_400GE_VR4, '400GBASE-VR4 (400GE)'),
+                (TYPE_400GE_ZR, '400GBASE-ZR (400GE)'),
+            )
+        ),
+        (
+            _('800 Gbps Ethernet'),
+            (
+                (TYPE_800GE_CR8, '800GBASE-CR8 (800GE)'),
+                (TYPE_800GE_DR8, '800GBASE-DR8 (800GE)'),
+                (TYPE_800GE_SR8, '800GBASE-SR8 (800GE)'),
+                (TYPE_800GE_VR8, '800GBASE-VR8 (800GE)'),
+            )
+        ),
+        (
+            _('Pluggable transceivers'),
             (
                 (TYPE_100ME_SFP, 'SFP (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
@@ -1108,7 +1327,7 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
-            _('Ethernet (backplane)'),
+            _('Backplane Ethernet'),
             (
                 (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
                 (TYPE_2GE_KX, '2.5GBASE-KX (2.5GE)'),
@@ -1128,12 +1347,12 @@ class InterfaceTypeChoices(ChoiceSet):
             (
                 (TYPE_80211A, 'IEEE 802.11a'),
                 (TYPE_80211G, 'IEEE 802.11b/g'),
-                (TYPE_80211N, 'IEEE 802.11n'),
-                (TYPE_80211AC, 'IEEE 802.11ac'),
-                (TYPE_80211AD, 'IEEE 802.11ad'),
-                (TYPE_80211AX, 'IEEE 802.11ax'),
-                (TYPE_80211AY, 'IEEE 802.11ay'),
-                (TYPE_80211BE, 'IEEE 802.11be'),
+                (TYPE_80211N, 'IEEE 802.11n (Wi-Fi 4)'),
+                (TYPE_80211AC, 'IEEE 802.11ac (Wi-Fi 5)'),
+                (TYPE_80211AD, 'IEEE 802.11ad (WiGig)'),
+                (TYPE_80211AX, 'IEEE 802.11ax (Wi-Fi 6)'),
+                (TYPE_80211AY, 'IEEE 802.11ay (WiGig)'),
+                (TYPE_80211BE, 'IEEE 802.11be (Wi-Fi 7)'),
                 (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
                 (TYPE_802154, 'IEEE 802.15.4 (LR-WPAN)'),
                 (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
@@ -1497,8 +1716,9 @@ class PortTypeChoices(ChoiceSet):
 # Cables/links
 #
 
-class CableTypeChoices(ChoiceSet):
 
+class CableTypeChoices(ChoiceSet):
+    # Copper - Twisted Pair (UTP/STP)
     TYPE_CAT3 = 'cat3'
     TYPE_CAT5 = 'cat5'
     TYPE_CAT5E = 'cat5e'
@@ -1507,26 +1727,41 @@ class CableTypeChoices(ChoiceSet):
     TYPE_CAT7 = 'cat7'
     TYPE_CAT7A = 'cat7a'
     TYPE_CAT8 = 'cat8'
+    TYPE_MRJ21_TRUNK = 'mrj21-trunk'
+
+    # Copper - Twinax (DAC)
     TYPE_DAC_ACTIVE = 'dac-active'
     TYPE_DAC_PASSIVE = 'dac-passive'
-    TYPE_MRJ21_TRUNK = 'mrj21-trunk'
+
+    # Copper - Coaxial
     TYPE_COAXIAL = 'coaxial'
+
+    # Fiber Optic - Multimode
     TYPE_MMF = 'mmf'
     TYPE_MMF_OM1 = 'mmf-om1'
     TYPE_MMF_OM2 = 'mmf-om2'
     TYPE_MMF_OM3 = 'mmf-om3'
     TYPE_MMF_OM4 = 'mmf-om4'
     TYPE_MMF_OM5 = 'mmf-om5'
+
+    # Fiber Optic - Single-mode
     TYPE_SMF = 'smf'
     TYPE_SMF_OS1 = 'smf-os1'
     TYPE_SMF_OS2 = 'smf-os2'
+
+    # Fiber Optic - Other
     TYPE_AOC = 'aoc'
+
+    # Power
     TYPE_POWER = 'power'
+
+    # USB
     TYPE_USB = 'usb'
 
     CHOICES = (
         (
-            _('Copper'), (
+            _('Copper - Twisted Pair (UTP/STP)'),
+            (
                 (TYPE_CAT3, 'CAT3'),
                 (TYPE_CAT5, 'CAT5'),
                 (TYPE_CAT5E, 'CAT5e'),
@@ -1535,28 +1770,57 @@ class CableTypeChoices(ChoiceSet):
                 (TYPE_CAT7, 'CAT7'),
                 (TYPE_CAT7A, 'CAT7a'),
                 (TYPE_CAT8, 'CAT8'),
+                (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
+            ),
+        ),
+        (
+            _('Copper - Twinax (DAC)'),
+            (
                 (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
                 (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
-                (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
+            ),
+        ),
+        (
+            _('Copper - Coaxial'),
+            (
                 (TYPE_COAXIAL, 'Coaxial'),
             ),
         ),
         (
-            _('Fiber'), (
+            _('Fiber - Multimode'),
+            (
                 (TYPE_MMF, 'Multimode Fiber'),
                 (TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
                 (TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
                 (TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
                 (TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
                 (TYPE_MMF_OM5, 'Multimode Fiber (OM5)'),
-                (TYPE_SMF, 'Singlemode Fiber'),
-                (TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
-                (TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),
-                (TYPE_AOC, 'Active Optical Cabling (AOC)'),
             ),
         ),
-        (TYPE_USB, _('USB')),
-        (TYPE_POWER, _('Power')),
+        (
+            _('Fiber - Single-mode'),
+            (
+                (TYPE_SMF, 'Single-mode Fiber'),
+                (TYPE_SMF_OS1, 'Single-mode Fiber (OS1)'),
+                (TYPE_SMF_OS2, 'Single-mode Fiber (OS2)'),
+            ),
+        ),
+        (
+            _('Fiber - Other'),
+            ((TYPE_AOC, 'Active Optical Cabling (AOC)'),),
+        ),
+        (
+            _('Power'),
+            (
+                (TYPE_POWER, 'Power'),
+            ),
+        ),
+        (
+            _('USB'),
+            (
+                (TYPE_USB, 'USB'),
+            ),
+        ),
     )
 
 

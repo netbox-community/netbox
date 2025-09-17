@@ -1,6 +1,6 @@
 import json
-import os
 import urllib.parse
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -728,7 +728,9 @@ class ImageAttachment(ChangeLoggedModel):
 
     @property
     def filename(self):
-        return os.path.basename(self.image.name).split('_', 2)[2]
+        base_name = Path(self.image.name).name
+        prefix = f"{self.object_type.model}_{self.object_id}_"
+        return base_name.removeprefix(prefix)
 
     @property
     def html_tag(self):
