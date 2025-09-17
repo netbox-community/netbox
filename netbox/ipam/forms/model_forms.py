@@ -580,13 +580,6 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
         model = FHRPGroupAssignment
         fields = ('group', 'priority')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        ipaddresses = self.instance.interface.ip_addresses.all()
-        for ipaddress in ipaddresses:
-            self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
-
     def clean_group(self):
         group = self.cleaned_data['group']
 
