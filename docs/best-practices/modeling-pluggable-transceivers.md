@@ -8,7 +8,7 @@ It can be challenging to model SFPs given their dynamic nature. This guide inten
 
 ## Modeling Strategy
 
-Pluggable transceivers are most accurately represented in NetBox as discrete [modules](../models/dcim/module.md) which are installed within [device bays](../models/dcim/devicebay.md). A module can deliver one or more [interfaces](../models/dcim/interface.md) (or other components) to the device in which it is installed. This approach ensures that a new interface is automatically created on the device when the module is installed, and deleted when the module is removed.
+Pluggable transceivers are most accurately represented in NetBox as discrete [modules](../models/dcim/module.md) which are installed within [module bays](../models/dcim/modulebay.md). A module can deliver one or more [interfaces](../models/dcim/interface.md) (or other components) to the device in which it is installed. This approach ensures that a new interface is automatically created on the device when the module is installed, and deleted when the module is removed.
 
 ```mermaid
 flowchart BT
@@ -56,7 +56,7 @@ If you haven't already, create a [device type](../models/dcim/devicetype.md) to 
 
 ### 5. Add Module Bays to the Device Type
 
-Once you've created a deviec type, add the appropriate number of module bays on each device type to represent its SFP slots. For example, a Juniper QFX5110 would have module bays numbered `0/0/0` through `0/0/55`: 48 SFP+ bays and 8 QSFP28 bays (56 total).
+Once you've created a device type, add the appropriate number of module bays on each device type to represent its SFP slots. For example, a Juniper QFX5110 would have module bays numbered `0/0/0` through `0/0/55`: 48 SFP+ bays and 8 QSFP28 bays (56 total).
 
 Be sure to define both the name **and position** of each module bay with a unique value. The module bay's position will be used to automatically name SFP interfaces.
 
