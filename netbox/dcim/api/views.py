@@ -16,7 +16,7 @@ from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
-from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
+from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin, NetBoxReadOnlyModelViewSet
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from utilities.api import get_serializer_for_model
 from utilities.query_functions import CollateAsChar
@@ -563,7 +563,7 @@ class CableViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.CableFilterSet
 
 
-class CableTerminationViewSet(NetBoxModelViewSet):
+class CableTerminationViewSet(NetBoxReadOnlyModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = CableTermination.objects.all()
     serializer_class = serializers.CableTerminationSerializer

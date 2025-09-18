@@ -2376,6 +2376,33 @@ class CableTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class CableTerminationTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+):
+    model = CableTermination
+    brief_fields = ['cable', 'cable_end', 'display', 'id', 'termination_id', 'termination_type', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        device1 = create_test_device('Device 1')
+        device2 = create_test_device('Device 2')
+
+        interfaces = []
+        for device in (device1, device2):
+            for i in range(0, 10):
+                interfaces.append(Interface(device=device, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name=f'eth{i}'))
+        Interface.objects.bulk_create(interfaces)
+
+        cables = (
+            Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[10]], label='Cable 1'),
+            Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[11]], label='Cable 2'),
+            Cable(a_terminations=[interfaces[2]], b_terminations=[interfaces[12]], label='Cable 3'),
+        )
+        for cable in cables:
+            cable.save()
+
+
 class ConnectedDeviceTest(APITestCase):
 
     @classmethod
