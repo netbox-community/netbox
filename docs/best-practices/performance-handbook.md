@@ -16,7 +16,7 @@ General guidance is to set the number of worker processes to double the number o
 
 #### Limit the Worker Lifetime
 
-Set a maximum number of requests that a worker can service before being respawned. This helps protect against potentially memory leaks.
+Set a maximum number of requests that a worker can service before being respawned. This helps protect against potential memory leaks.
 
 #### Set a Request Timeout
 
