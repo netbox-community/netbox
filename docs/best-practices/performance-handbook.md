@@ -1,5 +1,7 @@
 # Performance Handbook
 
+The purpose of this handbook is to help users and administrators use NetBox efficiently. It contains assorted recommendations and best practices compiled over time, intending to serve a wide variety of use cases. 
+
 ## Server Configuration
 
 ### WSGI Server Configuration
