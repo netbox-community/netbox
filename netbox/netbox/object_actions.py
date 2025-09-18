@@ -51,6 +51,14 @@ class ObjectAction:
             return
 
     @classmethod
+    def get_url_params(cls, context):
+        request = context['request']
+        params = request.GET.copy()
+        if 'return_url' in context:
+            params['return_url'] = context['return_url']
+        return params
+
+    @classmethod
     def get_context(cls, context, obj):
         """
         Return any additional context data needed to render the button.
@@ -63,6 +71,7 @@ class ObjectAction:
             'perms': context['perms'],
             'request': context['request'],
             'url': cls.get_url(obj),
+            'url_params': cls.get_url_params(context),
             'label': cls.label,
             **cls.get_context(context, obj),
             **kwargs,
