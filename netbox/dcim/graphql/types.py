@@ -366,6 +366,7 @@ class DeviceTypeType(NetBoxObjectType):
     device_bay_template_count: BigInt
     module_bay_template_count: BigInt
     inventory_item_template_count: BigInt
+    instance_count: BigInt
     front_image: strawberry_django.fields.types.DjangoImageType | None
     rear_image: strawberry_django.fields.types.DjangoImageType | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
@@ -613,6 +614,7 @@ class ModuleTypeProfileType(NetBoxObjectType):
     pagination=True
 )
 class ModuleTypeType(NetBoxObjectType):
+    instance_count: BigInt
     profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
