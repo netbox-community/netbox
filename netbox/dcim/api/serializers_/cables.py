@@ -1,10 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.constants import *
 from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer
@@ -51,9 +49,11 @@ class TracedCableSerializer(BaseModelSerializer):
 
 class CableTerminationSerializer(NetBoxModelSerializer):
     termination_type = ContentTypeField(
-        queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
+        read_only=True,
     )
-    termination = serializers.SerializerMethodField(read_only=True)
+    termination = serializers.SerializerMethodField(
+        read_only=True,
+    )
 
     class Meta:
         model = CableTermination
@@ -61,6 +61,8 @@ class CableTerminationSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id',
             'termination', 'created', 'last_updated',
         ]
+        read_only_fields = fields
+        brief_fields = ('id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_termination(self, obj):
