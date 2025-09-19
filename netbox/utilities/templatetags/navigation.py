@@ -30,7 +30,7 @@ def nav(context):
                     continue
                 if not user.has_perms(item.permissions):
                     continue
-                if item.staff_only and not user.is_staff:
+                if item.staff_only and not any([user.is_staff, user.is_superuser]):
                     continue
                 buttons = [
                     button for button in item.buttons if user.has_perms(button.permissions)

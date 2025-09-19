@@ -412,7 +412,7 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='users:user_list',
                     link_text=_('Users'),
-                    auth_required=True,
+                    staff_only=True,
                     permissions=['users.view_user'],
                     buttons=(
                         MenuItemButton(
@@ -432,7 +432,7 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='users:group_list',
                     link_text=_('Groups'),
-                    auth_required=True,
+                    staff_only=True,
                     permissions=['users.view_group'],
                     buttons=(
                         MenuItemButton(
@@ -452,14 +452,14 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='users:token_list',
                     link_text=_('API Tokens'),
-                    auth_required=True,
+                    staff_only=True,
                     permissions=['users.view_token'],
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
                     link='users:objectpermission_list',
                     link_text=_('Permissions'),
-                    auth_required=True,
+                    staff_only=True,
                     permissions=['users.view_objectpermission'],
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
                 ),
@@ -471,23 +471,23 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='core:system',
                     link_text=_('System'),
-                    auth_required=True
+                    staff_only=True,
                 ),
                 MenuItem(
                     link='core:plugin_list',
                     link_text=_('Plugins'),
-                    auth_required=True
+                    staff_only=True,
                 ),
                 MenuItem(
                     link='core:configrevision_list',
                     link_text=_('Configuration History'),
-                    auth_required=True,
-                    permissions=['core.view_configrevision']
+                    staff_only=True,
+                    permissions=['core.view_configrevision'],
                 ),
                 MenuItem(
                     link='core:background_queue_list',
                     link_text=_('Background Tasks'),
-                    auth_required=True
+                    staff_only=True,
                 ),
             ),
         ),
