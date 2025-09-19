@@ -79,21 +79,23 @@
     {# /Showing #}
 
     {# Pagination options #}
-    <nav class="text-end" aria-label="{% trans "Pagination options" %}">
+    <nav aria-label="{% trans "Pagination options" %}">
       {% if page %}
-        <div class="dropdown">
+        <div class="dropdown dropdown-menu-end">
           <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
             {% trans "Per Page" %}
           </button>
-          <div class="dropdown-menu">
+          <ul class="dropdown-menu">
             {% for n in page.paginator.get_page_lengths %}
-              {% if htmx %}
-                <a href="#" hx-get="{{ table.htmx_url }}{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
-              {% else %}
-                <a href="{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
-              {% endif %}
+              <li>
+                {% if htmx %}
+                  <a href="#" hx-get="{{ table.htmx_url }}{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
+                {% else %}
+                  <a href="{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
+                {% endif %}
+              </li>
             {% endfor %}
-          </div>
+          </ul>
         </div>
       {% endif %}
     </nav>
