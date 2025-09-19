@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-16 05:02+0000\n"
+"POT-Creation-Date: 2025-09-19 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12166,7 +12166,7 @@ msgstr ""
 msgid "Background Tasks"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:78
+#: netbox/netbox/object_actions.py:87
 #: netbox/templates/circuits/inc/circuit_termination.html:10
 #: netbox/templates/dcim/manufacturer.html:11
 #: netbox/templates/extras/tableconfig_edit.html:29
@@ -12178,12 +12178,12 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:88
+#: netbox/netbox/object_actions.py:97
 #: netbox/utilities/templates/buttons/clone.html:4
 msgid "Clone"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:104
+#: netbox/netbox/object_actions.py:113
 #: netbox/templates/circuits/inc/circuit_termination.html:15
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:37
 #: netbox/templates/dcim/inc/panels/inventory_items.html:32
@@ -12196,7 +12196,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:115
+#: netbox/netbox/object_actions.py:124
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/powerpanel.html:66
@@ -12211,26 +12211,26 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:126
+#: netbox/netbox/object_actions.py:135
 #: netbox/utilities/templatetags/buttons.py:190
 msgid "Import"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:136
+#: netbox/netbox/object_actions.py:145
 #: netbox/utilities/templatetags/buttons.py:207
 msgid "Export"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:164
+#: netbox/netbox/object_actions.py:173
 #: netbox/utilities/templatetags/buttons.py:227
 msgid "Edit Selected"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:175
+#: netbox/netbox/object_actions.py:184
 msgid "Rename Selected"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:186
+#: netbox/netbox/object_actions.py:195
 #: netbox/utilities/templatetags/buttons.py:244
 msgid "Delete Selected"
 msgstr ""
@@ -12369,63 +12369,63 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:784
+#: netbox/netbox/settings.py:800
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:785
+#: netbox/netbox/settings.py:801
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:786
+#: netbox/netbox/settings.py:802
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:787
+#: netbox/netbox/settings.py:803
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:788
+#: netbox/netbox/settings.py:804
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:789
+#: netbox/netbox/settings.py:805
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:790
+#: netbox/netbox/settings.py:806
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:791
+#: netbox/netbox/settings.py:807
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:792
+#: netbox/netbox/settings.py:808
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:793
+#: netbox/netbox/settings.py:809
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:794
+#: netbox/netbox/settings.py:810
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:795
+#: netbox/netbox/settings.py:811
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:796
+#: netbox/netbox/settings.py:812
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:797
+#: netbox/netbox/settings.py:813
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:798
+#: netbox/netbox/settings.py:814
 msgid "Chinese"
 msgstr ""
 
