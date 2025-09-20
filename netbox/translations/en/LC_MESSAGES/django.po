@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-19 05:03+0000\n"
+"POT-Creation-Date: 2025-09-20 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1006,7 +1006,7 @@ msgstr ""
 #: netbox/ipam/forms/model_forms.py:331 netbox/ipam/forms/model_forms.py:625
 #: netbox/netbox/navigation/menu.py:24
 #: netbox/templates/dcim/device_edit.html:87
-#: netbox/templates/dcim/htmx/cable_edit.html:75
+#: netbox/templates/dcim/htmx/cable_edit.html:74
 #: netbox/templates/ipam/ipaddress_bulk_add.html:27
 #: netbox/templates/ipam/vlan_edit.html:34
 #: netbox/virtualization/forms/model_forms.py:80
@@ -1886,7 +1886,7 @@ msgstr ""
 #: netbox/ipam/tables/ip.py:355 netbox/ipam/tables/services.py:24
 #: netbox/ipam/tables/services.py:54 netbox/ipam/tables/vlans.py:123
 #: netbox/ipam/tables/vrfs.py:47 netbox/ipam/tables/vrfs.py:72
-#: netbox/templates/dcim/htmx/cable_edit.html:91
+#: netbox/templates/dcim/htmx/cable_edit.html:90
 #: netbox/templates/generic/bulk_edit.html:86
 #: netbox/templates/inc/panels/comments.html:5
 #: netbox/tenancy/tables/contacts.py:35 netbox/tenancy/tables/contacts.py:76
@@ -12049,7 +12049,7 @@ msgstr ""
 
 #: netbox/netbox/navigation/menu.py:348
 #: netbox/templates/dcim/device_edit.html:105
-#: netbox/templates/dcim/htmx/cable_edit.html:84
+#: netbox/templates/dcim/htmx/cable_edit.html:83
 #: netbox/templates/dcim/virtualchassis_edit.html:44
 #: netbox/templates/generic/bulk_edit.html:76
 #: netbox/templates/htmx/form.html:19 netbox/templates/inc/filter_list.html:30
@@ -16204,11 +16204,7 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: netbox/utilities/templates/form_helpers/render_field.html:57
-msgid "This field is required"
-msgstr ""
-
-#: netbox/utilities/templates/form_helpers/render_field.html:70
+#: netbox/utilities/templates/form_helpers/render_field.html:66
 msgid "Set Null"
 msgstr ""
 
