@@ -485,7 +485,8 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'manufacturer_id', 'default_platform_id', 'part_number', 'subdevice_role', 'airflow', name=_('Hardware')
+            'manufacturer_id', 'default_platform_id', 'part_number', 'instance_count',
+            'subdevice_role', 'airflow', name=_('Hardware')
         ),
         FieldSet('has_front_image', 'has_rear_image', name=_('Images')),
         FieldSet(
@@ -508,6 +509,11 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     part_number = forms.CharField(
         label=_('Part number'),
         required=False
+    )
+    instance_count = forms.IntegerField(
+        label=_('Instance count'),
+        required=False,
+        min_value=0,
     )
     subdevice_role = forms.MultipleChoiceField(
         label=_('Subdevice role'),
@@ -620,7 +626,8 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('profile_id', 'manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
+        FieldSet('profile_id', 'manufacturer_id', 'part_number', 'instance_count',
+            'airflow', name=_('Hardware')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', name=_('Components')
@@ -641,6 +648,11 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     part_number = forms.CharField(
         label=_('Part number'),
         required=False
+    )
+    instance_count = forms.IntegerField(
+        label=_('Instance count'),
+        required=False,
+        min_value=0,
     )
     console_ports = forms.NullBooleanField(
         required=False,
