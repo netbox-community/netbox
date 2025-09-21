@@ -26,13 +26,16 @@ class eui64_unix_expanded_uppercase(eui64_unix_expanded):
 #
 
 class MACAddressField(models.Field):
-    description = "PostgreSQL MAC Address field"
+    description = 'PostgreSQL MAC Address field'
 
     def python_type(self):
         return EUI
 
     def from_db_value(self, value, expression, connection):
         return self.to_python(value)
+
+    def get_internal_type(self):
+        return 'CharField'
 
     def to_python(self, value):
         if value is None:
@@ -54,13 +57,16 @@ class MACAddressField(models.Field):
 
 
 class WWNField(models.Field):
-    description = "World Wide Name field"
+    description = 'World Wide Name field'
 
     def python_type(self):
         return EUI
 
     def from_db_value(self, value, expression, connection):
         return self.to_python(value)
+
+    def get_internal_type(self):
+        return 'CharField'
 
     def to_python(self, value):
         if value is None:

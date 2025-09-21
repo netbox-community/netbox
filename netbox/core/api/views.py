@@ -5,7 +5,7 @@ from django_rq.queues import get_redis_connection
 from django_rq.settings import QUEUES_LIST
 from django_rq.utils import get_statistics
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -95,7 +95,7 @@ class ObjectTypeViewSet(ReadOnlyModelViewSet):
     filterset_class = filtersets.ObjectTypeFilterSet
 
 
-class BaseRQViewSet(viewsets.ViewSet):
+class BaseRQViewSet(viewsets.GenericViewSet):
     """
     Base class for RQ view sets. Provides a list() method. Subclasses must implement get_data().
     """
@@ -134,12 +134,16 @@ class BackgroundQueueViewSet(BaseRQViewSet):
     lookup_value_regex = r'[\w.@+-]+'
 
     def get_view_name(self):
-        return "Background Queues"
+        return 'Background Queues'
 
     def get_data(self):
-        return get_statistics(run_maintenance_tasks=True)["queues"]
+        return get_statistics(run_maintenance_tasks=True)['queues']
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(
+        operation_id='core_background_queues_retrieve_by_name',
+        parameters=[OpenApiParameter(name='name', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)],
+        responses={200: OpenApiTypes.OBJECT},
+    )
     def retrieve(self, request, name):
         data = self.get_data()
         if not data:
@@ -161,12 +165,17 @@ class BackgroundWorkerViewSet(BaseRQViewSet):
     lookup_field = 'name'
 
     def get_view_name(self):
-        return "Background Workers"
+        return 'Background Workers'
 
     def get_data(self):
         config = QUEUES_LIST[0]
         return Worker.all(get_redis_connection(config['connection_config']))
 
+    @extend_schema(
+        operation_id='core_background_workers_retrieve_by_name',
+        parameters=[OpenApiParameter(name='name', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)],
+        responses={200: OpenApiTypes.OBJECT},
+    )
     def retrieve(self, request, name):
         # all the RQ queues should use the same connection
         config = QUEUES_LIST[0]
@@ -179,6 +188,13 @@ class BackgroundWorkerViewSet(BaseRQViewSet):
         return Response(serializer.data)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(parameters=[OpenApiParameter('id', str, OpenApiParameter.PATH)]),
+    delete=extend_schema(parameters=[OpenApiParameter('id', str, OpenApiParameter.PATH)]),
+    requeue=extend_schema(parameters=[OpenApiParameter('id', str, OpenApiParameter.PATH)]),
+    enqueue=extend_schema(parameters=[OpenApiParameter('id', str, OpenApiParameter.PATH)]),
+    stop=extend_schema(parameters=[OpenApiParameter('id', str, OpenApiParameter.PATH)]),
+)
 class BackgroundTaskViewSet(BaseRQViewSet):
     """
     Retrieve a list of RQ Tasks.
@@ -186,7 +202,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
     serializer_class = serializers.BackgroundTaskSerializer
 
     def get_view_name(self):
-        return "Background Tasks"
+        return 'Background Tasks'
 
     def get_data(self):
         return get_rq_jobs()
@@ -199,7 +215,11 @@ class BackgroundTaskViewSet(BaseRQViewSet):
 
         return task
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(
+        operation_id='core_background_tasks_retrieve_by_id',
+        parameters=[OpenApiParameter(name='pk', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)],
+        responses={200: OpenApiTypes.OBJECT},
+    )
     def retrieve(self, request, pk):
         """
         Retrieve the details of the specified RQ Task.
@@ -208,7 +228,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
         serializer = self.serializer_class(task, context={'request': request})
         return Response(serializer.data)
 
-    @action(methods=["POST"], detail=True)
+    @action(methods=['POST'], detail=True)
     def delete(self, request, pk):
         """
         Delete the specified RQ Task.
@@ -216,7 +236,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
         delete_rq_job(pk)
         return HttpResponse(status=200)
 
-    @action(methods=["POST"], detail=True)
+    @action(methods=['POST'], detail=True)
     def requeue(self, request, pk):
         """
         Requeues the specified RQ Task.
@@ -224,7 +244,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
         requeue_rq_job(pk)
         return HttpResponse(status=200)
 
-    @action(methods=["POST"], detail=True)
+    @action(methods=['POST'], detail=True)
     def enqueue(self, request, pk):
         """
         Enqueues the specified RQ Task.
@@ -232,7 +252,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
         enqueue_rq_job(pk)
         return HttpResponse(status=200)
 
-    @action(methods=["POST"], detail=True)
+    @action(methods=['POST'], detail=True)
     def stop(self, request, pk):
         """
         Stops the specified RQ Task.
