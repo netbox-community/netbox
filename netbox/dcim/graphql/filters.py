@@ -1,10 +1,10 @@
 from typing import Annotated, TYPE_CHECKING
 
-from django.db.models import Q
+from django.db.models import QuerySet
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import FilterLookup
+from strawberry_django import ComparisonFilterLookup, FilterLookup
 
 from core.graphql.filter_mixins import ChangeLogFilterMixin
 from dcim import models
@@ -19,6 +19,7 @@ from netbox.graphql.filter_mixins import (
     WeightFilterMixin,
 )
 from tenancy.graphql.filter_mixins import TenancyFilterMixin, ContactFilterMixin
+from utilities.query import count_related
 from .filter_mixins import (
     CabledObjectModelFilterMixin,
     ComponentModelFilterMixin,
@@ -326,6 +327,9 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     )
     default_platform_id: ID | None = strawberry_django.filter_field()
     part_number: FilterLookup[str] | None = strawberry_django.filter_field()
+    instances: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+       strawberry_django.filter_field()
+    )
     u_height: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -383,6 +387,30 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     device_bay_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
     module_bay_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
     inventory_item_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field
+    def instance_count(
+        self,
+        info,
+        queryset: QuerySet[models.DeviceType],
+        value: ComparisonFilterLookup[int],
+        prefix: str,
+    ) -> tuple[QuerySet[models.DeviceType], Q]:
+        """
+        Filter by the number of related Device instances.
+
+        Annotates each DeviceType with instance_count and applies comparison lookups
+        (exact, gt, gte, lt, lte, range).
+        """
+        # Annotate each DeviceType with the number of Device instances which use the DeviceType
+        qs = queryset.annotate(instance_count=count_related(models.Device, "device_type"))
+        # NOTE: include the trailing "__" so Strawberry-Django appends lookups correctly
+        return strawberry_django.process_filters(
+            filters=value,
+            queryset=qs,
+            info=info,
+            prefix=f"{prefix}instance_count__",
+        )
 
 
 @strawberry_django.filter_type(models.FrontPort, lookups=True)
@@ -665,6 +693,9 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     profile_id: ID | None = strawberry_django.filter_field()
     model: FilterLookup[str] | None = strawberry_django.filter_field()
     part_number: FilterLookup[str] | None = strawberry_django.filter_field()
+    instances: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     airflow: Annotated['ModuleAirflowEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
@@ -698,6 +729,30 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     inventory_item_templates: (
         Annotated['InventoryItemTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
     ) = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field
+    def instance_count(
+            self,
+            info,
+            queryset: QuerySet[models.ModuleType],
+            value: ComparisonFilterLookup[int],
+            prefix: str,
+    ) -> tuple[QuerySet[models.ModuleType], Q]:
+        """
+        Filter by the number of related Module instances.
+
+        Annotates each ModuleType with instance_count and applies comparison lookups
+        (exact, gt, gte, lt, lte, range).
+        """
+        # Annotate each ModuleType with the number of Module instances which use the ModuleType
+        qs = queryset.annotate(instance_count=count_related(models.Module, "module_type"))
+        # NOTE: include the trailing "__" so Strawberry-Django appends lookups correctly
+        return strawberry_django.process_filters(
+            filters=value,
+            queryset=qs,
+            info=info,
+            prefix=f"{prefix}instance_count__",
+        )
 
 
 @strawberry_django.filter_type(models.Platform, lookups=True)

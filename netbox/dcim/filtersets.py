@@ -18,8 +18,8 @@ from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from tenancy.models import *
 from users.models import User
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
-    NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    AnnotatedCountFilter, ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    MultiValueWWNFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster, ClusterGroup, VMInterface, VirtualMachine
 from vpn.models import L2VPN
@@ -608,6 +608,10 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         method='_inventory_items',
         label=_('Has inventory items'),
     )
+    instance_count = AnnotatedCountFilter(
+        field_name='instance_count',
+        label=_('Instance count'),
+    )
 
     class Meta:
         model = DeviceType
@@ -742,6 +746,10 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, NetBoxModelFilterSet):
     pass_through_ports = django_filters.BooleanFilter(
         method='_pass_through_ports',
         label=_('Has pass-through ports'),
+    )
+    instance_count = AnnotatedCountFilter(
+        field_name='instance_count',
+        label=_('Instance count'),
     )
 
     class Meta:

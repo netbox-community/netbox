@@ -45,8 +45,9 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     device_bay_template_count = serializers.IntegerField(read_only=True)
     module_bay_template_count = serializers.IntegerField(read_only=True)
     inventory_item_template_count = serializers.IntegerField(read_only=True)
+    instance_count = serializers.IntegerField(read_only=True)
 
-    # Related object counts
+    # Related object counts (TODO: Remove in v4.5)
     device_count = RelatedObjectCountField('instances')
 
     class Meta:
@@ -58,7 +59,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
             'created', 'last_updated', 'device_count', 'console_port_template_count',
             'console_server_port_template_count', 'power_port_template_count', 'power_outlet_template_count',
             'interface_template_count', 'front_port_template_count', 'rear_port_template_count',
-            'device_bay_template_count', 'module_bay_template_count', 'inventory_item_template_count',
+            'device_bay_template_count', 'module_bay_template_count', 'inventory_item_template_count', 'instance_count',
         ]
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description', 'device_count')
 
@@ -101,11 +102,14 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
         allow_null=True
     )
 
+    # Counter fields
+    instance_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
             'weight', 'weight_unit', 'description', 'attributes', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'last_updated', 'instance_count',
         ]
         brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description')
