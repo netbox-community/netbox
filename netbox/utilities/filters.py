@@ -7,6 +7,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
 __all__ = (
+    'AnnotatedCountFilter',
     'ContentTypeFilter',
     'MultiValueArrayFilter',
     'MultiValueCharFilter',
@@ -54,6 +55,19 @@ def multivalue_field_factory(field_class):
 #
 # Filters
 #
+
+@extend_schema_field(OpenApiTypes.INT32)
+class AnnotatedCountFilter(django_filters.NumberFilter):
+    """
+    A filter for annotated count fields that supports automatic lookup generation
+    while bypassing model field validation. Used for filtering on counts that are
+    added via queryset annotations (e.g., instance_count).
+    """
+
+    def __init__(self, *args, **kwargs):
+        self._is_annotated = True
+        super().__init__(*args, **kwargs)
+
 
 @extend_schema_field(OpenApiTypes.STR)
 class MultiValueCharFilter(django_filters.MultipleChoiceFilter):
