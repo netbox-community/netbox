@@ -14,6 +14,9 @@ class ConfigRevision(models.Model):
     """
     An atomic revision of NetBox's configuration.
     """
+    active = models.BooleanField(
+        default=False
+    )
     created = models.DateTimeField(
         verbose_name=_('created'),
         auto_now_add=True
@@ -35,6 +38,13 @@ class ConfigRevision(models.Model):
         ordering = ['-created']
         verbose_name = _('config revision')
         verbose_name_plural = _('config revisions')
+        constraints = [
+            models.UniqueConstraint(
+                fields=('active',),
+                condition=models.Q(active=True),
+                name='unique_active_config_revision',
+            )
+        ]
 
     def __str__(self):
         if not self.pk:
@@ -59,8 +69,13 @@ class ConfigRevision(models.Model):
         """
         cache.set('config', self.data, None)
         cache.set('config_version', self.pk, None)
+
+        # Set all instances of ConfigRevision to false and set this instance to true
+        ConfigRevision.objects.all().update(active=False)
+        ConfigRevision.objects.filter(pk=self.pk).update(active=True)
+
     activate.alters_data = True
 
     @property
     def is_active(self):
-        return cache.get('config_version') == self.pk
+        return self.active
