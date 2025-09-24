@@ -155,7 +155,7 @@ class PowerOutletTemplateSerializer(ComponentTemplateSerializer):
         model = PowerOutletTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
-            'power_port', 'feed_leg', 'description', 'created', 'last_updated',
+            'color', 'power_port', 'feed_leg', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

@@ -338,6 +338,10 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         blank=True,
         null=True
     )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
+    )
     power_port = models.ForeignKey(
         to='dcim.PowerPortTemplate',
         on_delete=models.SET_NULL,
@@ -388,6 +392,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
+            color=self.color,
             power_port=power_port,
             feed_leg=self.feed_leg,
             **kwargs
@@ -398,6 +403,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         return {
             'name': self.name,
             'type': self.type,
+            'color': self.color,
             'power_port': self.power_port.name if self.power_port else None,
             'feed_leg': self.feed_leg,
             'label': self.label,

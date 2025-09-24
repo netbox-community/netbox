@@ -218,7 +218,7 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.PowerOutletTemplate
-        fields = ('pk', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description', 'actions')
         empty_text = "None"
 
 
