@@ -1092,14 +1092,14 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+            'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description',
         ),
     )
 
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description',
         ]
 
 
