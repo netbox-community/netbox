@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.conf import settings
 from django.db.models import Count
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.templatetags.static import static
@@ -74,7 +75,8 @@ class TagFilterField(forms.MultipleChoiceField):
                 count=Count('extras_taggeditem_items')
             ).order_by('name')
             return [
-                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
+                (settings.FILTERS_NULL_CHOICE_VALUE, settings.FILTERS_NULL_CHOICE_LABEL),  # "None" option
+                *[(str(tag.slug), f'{tag.name} ({tag.count})') for tag in tags]
             ]
 
         # Choices are fetched each time the form is initialized
