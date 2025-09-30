@@ -632,10 +632,17 @@ class BaseInterface(models.Model):
             })
 
         # Check that the primary MAC address (if any) is assigned to this interface
-        if self.primary_mac_address and self.primary_mac_address.assigned_object != self:
+        if (
+                self.primary_mac_address and
+                self.primary_mac_address.assigned_object is not None and
+                self.primary_mac_address.assigned_object != self
+        ):
             raise ValidationError({
-                'primary_mac_address': _("MAC address {mac_address} is not assigned to this interface.").format(
-                    mac_address=self.primary_mac_address
+                'primary_mac_address': _(
+                    "MAC address {mac_address} is assigned to a different interface ({interface})."
+                ).format(
+                    mac_address=self.primary_mac_address,
+                    interface=self.primary_mac_address.assigned_object,
                 )
             })
 
