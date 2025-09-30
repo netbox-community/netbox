@@ -2,6 +2,8 @@
 
 The `users.UserConfig` model holds individual preferences for each user in the form of JSON data. This page serves as a manifest of all recognized user preferences in NetBox.
 
+For end‑user guidance on resetting saved table layouts, see [Features > User Preferences](../features/user-preferences.md#clearing-table-preferences).
+
 ## Available Preferences
 
 | Name                     | Description                                                   |
