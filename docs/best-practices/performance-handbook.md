@@ -155,7 +155,7 @@ While it can be tempting to pack as much data as possible into a single GraphQL 
 
 You can specify filters when making a GraphQL query to limit the set of objects returned. This works a bit differently from the REST API, as filters are declared inside the query statement rather than appended to the URL, but the concept is the same. For example, to return only active sites:
 
-```
+```graphql
 query {
   site_list(
     filters: {
@@ -173,7 +173,7 @@ This returns only sites with a status of "active" and avoid needing to parse thr
 
 Like the REST API, the GraphQL API supports pagination. Queries which return a large number of objects should employ pagination to limit the size of each response.
 
-```
+```graphql
 {
   device_list(
     pagination: {limit: 100}
