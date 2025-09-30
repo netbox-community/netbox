@@ -1,5 +1,34 @@
 # NetBox v4.4
 
+## v4.4.2 (2025-09-30)
+
+### Enhancements
+
+* [#17010](https://github.com/netbox-community/netbox/issues/17010) - Show admin navigation menu items only for staff & superusers
+* [#19590](https://github.com/netbox-community/netbox/issues/19590) - Add columns for device site & location to device component tables
+* [#19765](https://github.com/netbox-community/netbox/issues/19765) - Linkify assigned object types under saved filter view
+* [#20308](https://github.com/netbox-community/netbox/issues/20308) - Add a hotkey (`/`) for the global search field
+* [#20332](https://github.com/netbox-community/netbox/issues/20332) - Add a "none" option to object tag filters
+* [#20380](https://github.com/netbox-community/netbox/issues/20380) - Introduce the `SENTRY_CONFIG` configuration parameter
+* [#20412](https://github.com/netbox-community/netbox/issues/20412) - Linkify cluster type on virtual machine detail view
+* [#20438](https://github.com/netbox-community/netbox/issues/20438) - Add `facility` field to bulk edit forms for sites and locations
+
+### Bug Fixes
+
+* [#18878](https://github.com/netbox-community/netbox/issues/18878) - Automatically assign a designated primary MAC address upon creation of a new interface
+* [#20243](https://github.com/netbox-community/netbox/issues/20243) - Prevent scheduled system jobs from re-running multiple times
+* [#20253](https://github.com/netbox-community/netbox/issues/20253) - Fix support for filtering object contact assignments in GraphQL API
+* [#20365](https://github.com/netbox-community/netbox/issues/20365) - Address various inaccuracies in generated OpenAPI schema
+* [#20375](https://github.com/netbox-community/netbox/issues/20375) - Preserve filter parameters when performing bulk operations
+* [#20390](https://github.com/netbox-community/netbox/issues/20390) - Fix styling of page size selection dropdown
+* [#20392](https://github.com/netbox-community/netbox/issues/20392) - Clean up ordering of interface type options
+* [#20398](https://github.com/netbox-community/netbox/issues/20398) - Fix misleading error reporting for min/max custom field values
+* [#20419](https://github.com/netbox-community/netbox/issues/20419) - Correct action buttons for child object views
+* [#20425](https://github.com/netbox-community/netbox/issues/20425) - Fix Markdown preview functionality within "quick add" modal
+* [#20441](https://github.com/netbox-community/netbox/issues/20441) - Fix display of the "groups" column in contact assignments table 
+
+---
+
 ## v4.4.1 (2025-09-16)
 
 ### Enhancements
