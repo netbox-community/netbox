@@ -5,7 +5,7 @@ from django_rq.queues import get_redis_connection
 from django_rq.settings import QUEUES_LIST
 from django_rq.utils import get_statistics
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -24,6 +24,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+
 from . import serializers
 
 
@@ -117,29 +118,49 @@ class BaseRQViewSet(viewsets.ViewSet):
     def get_serializer(self, *args, **kwargs):
         """
         Return the serializer instance that should be used for validating and
-        deserializing input, and for serializing output.
+        deserializing input and for serializing output.
         """
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
+    def get_serializer_class(self):
+        """
+        Return the class to use for the serializer.
+        """
+        return self.serializer_class
+
+    def get_serializer_context(self):
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+        }
+
 
 class BackgroundQueueViewSet(BaseRQViewSet):
     """
     Retrieve a list of RQ Queues.
-    Note: Queue names are not URL safe so not returning a detail view.
+    Note: Queue names are not URL safe, so not returning a detail view.
     """
     serializer_class = serializers.BackgroundQueueSerializer
     lookup_field = 'name'
     lookup_value_regex = r'[\w.@+-]+'
 
     def get_view_name(self):
-        return "Background Queues"
+        return 'Background Queues'
 
     def get_data(self):
-        return get_statistics(run_maintenance_tasks=True)["queues"]
+        return get_statistics(run_maintenance_tasks=True)['queues']
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(
+        operation_id='core_background_queues_retrieve_by_name',
+        parameters=[OpenApiParameter(name='name', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)],
+        responses={200: OpenApiTypes.OBJECT},
+    )
     def retrieve(self, request, name):
         data = self.get_data()
         if not data:
@@ -161,12 +182,17 @@ class BackgroundWorkerViewSet(BaseRQViewSet):
     lookup_field = 'name'
 
     def get_view_name(self):
-        return "Background Workers"
+        return 'Background Workers'
 
     def get_data(self):
         config = QUEUES_LIST[0]
         return Worker.all(get_redis_connection(config['connection_config']))
 
+    @extend_schema(
+        operation_id='core_background_workers_retrieve_by_name',
+        parameters=[OpenApiParameter(name='name', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)],
+        responses={200: OpenApiTypes.OBJECT},
+    )
     def retrieve(self, request, name):
         # all the RQ queues should use the same connection
         config = QUEUES_LIST[0]
@@ -184,9 +210,10 @@ class BackgroundTaskViewSet(BaseRQViewSet):
     Retrieve a list of RQ Tasks.
     """
     serializer_class = serializers.BackgroundTaskSerializer
+    lookup_field = 'id'
 
     def get_view_name(self):
-        return "Background Tasks"
+        return 'Background Tasks'
 
     def get_data(self):
         return get_rq_jobs()
@@ -199,45 +226,53 @@ class BackgroundTaskViewSet(BaseRQViewSet):
 
         return task
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
-    def retrieve(self, request, pk):
+    @extend_schema(
+        operation_id='core_background_tasks_retrieve_by_id',
+        parameters=[OpenApiParameter(name='id', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)],
+        responses={200: OpenApiTypes.OBJECT},
+    )
+    def retrieve(self, request, id):
         """
         Retrieve the details of the specified RQ Task.
         """
-        task = self.get_task_from_id(pk)
+        task = self.get_task_from_id(id)
         serializer = self.serializer_class(task, context={'request': request})
         return Response(serializer.data)
 
-    @action(methods=["POST"], detail=True)
-    def delete(self, request, pk):
+    @extend_schema(parameters=[OpenApiParameter(name='id', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)])
+    @action(methods=['POST'], detail=True)
+    def delete(self, request, id):
         """
         Delete the specified RQ Task.
         """
-        delete_rq_job(pk)
+        delete_rq_job(id)
         return HttpResponse(status=200)
 
-    @action(methods=["POST"], detail=True)
-    def requeue(self, request, pk):
+    @extend_schema(parameters=[OpenApiParameter(name='id', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)])
+    @action(methods=['POST'], detail=True)
+    def requeue(self, request, id):
         """
         Requeues the specified RQ Task.
         """
-        requeue_rq_job(pk)
+        requeue_rq_job(id)
         return HttpResponse(status=200)
 
-    @action(methods=["POST"], detail=True)
-    def enqueue(self, request, pk):
+    @extend_schema(parameters=[OpenApiParameter(name='id', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)])
+    @action(methods=['POST'], detail=True)
+    def enqueue(self, request, id):
         """
         Enqueues the specified RQ Task.
         """
-        enqueue_rq_job(pk)
+        enqueue_rq_job(id)
         return HttpResponse(status=200)
 
-    @action(methods=["POST"], detail=True)
-    def stop(self, request, pk):
+    @extend_schema(parameters=[OpenApiParameter(name='id', type=OpenApiTypes.STR, location=OpenApiParameter.PATH)])
+    @action(methods=['POST'], detail=True)
+    def stop(self, request, id):
         """
         Stops the specified RQ Task.
         """
-        stopped_jobs = stop_rq_job(pk)
+        stopped_jobs = stop_rq_job(id)
         if len(stopped_jobs) == 1:
             return HttpResponse(status=200)
         else:
