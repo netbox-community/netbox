@@ -354,13 +354,13 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
     vlan_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan__group',
         queryset=VLANGroup.objects.all(),
-        to_field_name="id",
+        to_field_name='id',
         label=_('VLAN Group (ID)'),
     )
     vlan_group = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan__group__slug',
         queryset=VLANGroup.objects.all(),
-        to_field_name="slug",
+        to_field_name='slug',
         label=_('VLAN Group (slug)'),
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
@@ -695,12 +695,12 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFil
         return queryset.filter(q)
 
     def parse_inet_addresses(self, value):
-        '''
+        """
         Parse networks or IP addresses and cast to a format
         acceptable by the Postgres inet type.
 
         Skips invalid values.
-        '''
+        """
         parsed = []
         for addr in value:
             if netaddr.valid_ipv4(addr) or netaddr.valid_ipv6(addr):
@@ -718,7 +718,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFil
         # as argument. If they are all invalid,
         # we return an empty queryset
         value = self.parse_inet_addresses(value)
-        if (len(value) == 0):
+        if len(value) == 0:
             return queryset.none()
 
         try:
@@ -1079,6 +1079,7 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
 
+    @extend_schema_field(OpenApiTypes.INT)
     def filter_interface_id(self, queryset, name, value):
         if value is None:
             return queryset.none()
@@ -1087,6 +1088,7 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             Q(interfaces_as_untagged=value)
         ).distinct()
 
+    @extend_schema_field(OpenApiTypes.INT)
     def filter_vminterface_id(self, queryset, name, value):
         if value is None:
             return queryset.none()

@@ -26,6 +26,7 @@ class CustomFieldChoiceSetSerializer(ChangeLogMessageSerializer, ValidatedModelS
             max_length=2
         )
     )
+    choices_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CustomFieldChoiceSet
