@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import classproperty
+from django.utils import timezone
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 
@@ -113,7 +114,11 @@ class JobRunner(ABC):
         # If the executed job is a periodic job, schedule its next execution at the specified interval.
         finally:
             if job.interval:
-                new_scheduled_time = (job.scheduled or job.started) + timedelta(minutes=job.interval)
+                # Determine the new scheduled time. Cannot be earlier than one minute in the future.
+                new_scheduled_time = max(
+                    (job.scheduled or job.started) + timedelta(minutes=job.interval),
+                    timezone.now() + timedelta(minutes=1)
+                )
                 if job.object and getattr(job.object, "python_class", None):
                     kwargs["job_timeout"] = job.object.python_class.job_timeout
                 cls.enqueue(
