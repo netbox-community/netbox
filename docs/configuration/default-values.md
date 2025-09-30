@@ -4,7 +4,7 @@
 
 This parameter controls the content and layout of user's default dashboard. Once the dashboard has been created, the user is free to customize it as they please by adding, removing, and reconfiguring widgets.
 
-This parameter must specify an iterable of dictionaries, each representing a discrete dashboard widget and its configuration. The follow widget attributes are supported:
+This parameter must specify an iterable of dictionaries, each representing a discrete dashboard widget and its configuration. The following widget attributes are supported:
 
 * `widget`: Dotted path to the Python class (required)
 * `width`: Default widget width (between 1 and 12, inclusive)
@@ -62,6 +62,8 @@ DEFAULT_USER_PREFERENCES = {
 ```
 
 For a complete list of available preferences, log into NetBox and navigate to `/user/preferences/`. A period in a preference name indicates a level of nesting in the JSON data. The example above maps to `pagination.per_page`.
+
+See also: [Clearing table preferences](../features/user-preferences.md#clearing-table-preferences) for resolving errors caused by saved table columns or ordering.
 
 ---
 

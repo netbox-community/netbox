@@ -2,6 +2,8 @@
 
 While NetBox strives to meet the needs of every network, the needs of users to cater to their own unique environments cannot be ignored. NetBox was built with this in mind, and can be customized in many ways to better suit your particular needs.
 
+For end‑user personalization topics (bookmarks, table preferences, language, CSV delimiter, and more), see [Features > User Preferences](../features/user-preferences.md).
+
 ## Tags
 
 Most objects in NetBox can be assigned user-created tags to aid with organization and filtering. Tag values are completely arbitrary: They may be used to store data in key-value pairs, or they may be employed simply as labels against which objects can be filtered. Each tag can also be assigned a color for quicker differentiation in the user interface.
@@ -17,10 +19,6 @@ The `tag` filter can be specified multiple times to match only objects which hav
 ```no-highlight
 GET /api/dcim/devices/?tag=monitored&tag=deprecated
 ```
-
-## Bookmarks
-
-Users can bookmark their most commonly visited objects for convenient access. Bookmarks are listed under a user's profile, and can be displayed with custom filtering and ordering on the user's personal dashboard.
 
 ## Custom Fields
 
@@ -38,7 +36,7 @@ Custom links allow you to conveniently reference external resources related to N
 http://server.local/vms/?name={{ object.name }}
 ```
 
-Now, when viewing a virtual machine in NetBox, a user will see a handy button with the chosen title and link (complete with the name of the VM being viewed). Both the text and URL of custom links can be templatized in this manner, and custom links can be grouped together into dropdowns for more efficient display.
+Now, when viewing a virtual machine in NetBox, a user will see a handy button with the chosen title and link (complete with the name of the VM being viewed). Both the text and URL of custom links can be templatized in this manner, and custom links can be grouped together into dropdowns for a more efficient display.
 
 To learn more about this feature, check out the [custom link documentation](../customization/custom-links.md).
 
