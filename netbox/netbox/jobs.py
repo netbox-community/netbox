@@ -115,10 +115,10 @@ class JobRunner(ABC):
         finally:
             if job.interval:
                 # Determine the new scheduled time. Cannot be earlier than one minute in the future.
-                new_scheduled_time = max([
+                new_scheduled_time = max(
                     (job.scheduled or job.started) + timedelta(minutes=job.interval),
                     timezone.now() + timedelta(minutes=1)
-                ])
+                )
                 if job.object and getattr(job.object, "python_class", None):
                     kwargs["job_timeout"] = job.object.python_class.job_timeout
                 cls.enqueue(
