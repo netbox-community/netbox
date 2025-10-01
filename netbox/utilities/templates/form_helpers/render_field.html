@@ -52,10 +52,6 @@
       <div class="form-text text-danger">
         {% for error in field.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
       </div>
-    {% elif field.field.required %}
-      <div class="invalid-feedback">
-        {% trans "This field is required" %}.
-      </div>
     {% endif %}
 
     {# Help text #}

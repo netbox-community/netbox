@@ -4,6 +4,7 @@ from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
+from virtualization.models import VMInterface
 from .models import (
     Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
     InventoryItem, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
@@ -170,3 +171,15 @@ def extend_rearport_cable_paths(instance, created, raw, **kwargs):
         rearport = instance.rear_port
         for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
             cablepath.retrace()
+
+
+@receiver(post_save, sender=Interface)
+@receiver(post_save, sender=VMInterface)
+def update_mac_address_interface(instance, created, raw, **kwargs):
+    """
+    When creating a new Interface or VMInterface, check whether a MACAddress has been designated as its primary. If so,
+    assign the MACAddress to the interface.
+    """
+    if created and not raw and instance.primary_mac_address:
+        instance.primary_mac_address.assigned_object = instance
+        instance.primary_mac_address.save()

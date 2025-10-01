@@ -174,11 +174,16 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = getattr(configuration, 'SECURE_HSTS_INCLUDE_SUB
 SECURE_HSTS_PRELOAD = getattr(configuration, 'SECURE_HSTS_PRELOAD', False)
 SECURE_HSTS_SECONDS = getattr(configuration, 'SECURE_HSTS_SECONDS', 0)
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
+SENTRY_CONFIG = getattr(configuration, 'SENTRY_CONFIG', {})
+# TODO: Remove in NetBox v4.5
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
+# TODO: Remove in NetBox v4.5
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+# TODO: Remove in NetBox v4.5
 SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
+# TODO: Remove in NetBox v4.5
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -596,18 +601,29 @@ if SENTRY_ENABLED:
         import sentry_sdk
     except ModuleNotFoundError:
         raise ImproperlyConfigured("SENTRY_ENABLED is True but the sentry-sdk package is not installed.")
-    if not SENTRY_DSN:
-        raise ImproperlyConfigured("SENTRY_ENABLED is True but SENTRY_DSN has not been defined.")
+
+    # Construct default Sentry initialization parameters from legacy SENTRY_* config parameters
+    sentry_config = {
+        'dsn': SENTRY_DSN,
+        'sample_rate': SENTRY_SAMPLE_RATE,
+        'send_default_pii': SENTRY_SEND_DEFAULT_PII,
+        'traces_sample_rate': SENTRY_TRACES_SAMPLE_RATE,
+        # TODO: Support proxy routing
+        'http_proxy': HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
+        'https_proxy': HTTP_PROXIES.get('https') if HTTP_PROXIES else None,
+    }
+    # Override/extend the default parameters with any provided via SENTRY_CONFIG
+    sentry_config.update(SENTRY_CONFIG)
+    # Check for a DSN
+    if not sentry_config.get('dsn'):
+        raise ImproperlyConfigured(
+            "Sentry is enabled but a DSN has not been specified. Set one under the SENTRY_CONFIG parameter."
+        )
+
     # Initialize the SDK
     sentry_sdk.init(
-        dsn=SENTRY_DSN,
         release=RELEASE.full_version,
-        sample_rate=SENTRY_SAMPLE_RATE,
-        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=SENTRY_SEND_DEFAULT_PII,
-        # TODO: Support proxy routing
-        http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
-        https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
+        **sentry_config
     )
     # Assign any configured tags
     for k, v in SENTRY_TAGS.items():
