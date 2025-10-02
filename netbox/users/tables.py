@@ -22,7 +22,7 @@ class TokenTable(UserTokenTable):
     class Meta(NetBoxTable.Meta):
         model = Token
         fields = (
-            'pk', 'id', 'version', 'key', 'pepper', 'user', 'description', 'write_enabled', 'created', 'expires',
+            'pk', 'id', 'version', 'key', 'pepper_id', 'user', 'description', 'write_enabled', 'created', 'expires',
             'last_used', 'allowed_ips',
         )
 

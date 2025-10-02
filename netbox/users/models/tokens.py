@@ -80,8 +80,8 @@ class Token(models.Model):
         validators=[MinLengthValidator(TOKEN_KEY_LENGTH)],
         help_text=_('v2 token identification key'),
     )
-    pepper = models.PositiveSmallIntegerField(
-        verbose_name=_('pepper'),
+    pepper_id = models.PositiveSmallIntegerField(
+        verbose_name=_('pepper ID'),
         blank=True,
         null=True,
         help_text=_('ID of the cryptographic pepper used to hash the token (v2 only)'),
@@ -179,7 +179,7 @@ class Token(models.Model):
         """
         Recalculate and save the HMAC digest using the currently defined pepper and token values.
         """
-        self.pepper, pepper_value = get_current_pepper()
+        self.pepper_id, pepper_value = get_current_pepper()
         self.hmac_digest = hmac.new(
             pepper_value.encode('utf-8'),
             self.token.encode('utf-8'),
@@ -202,7 +202,7 @@ class Token(models.Model):
             return token == self.key
         if self.v2:
             try:
-                pepper = settings.API_TOKEN_PEPPERS[self.pepper]
+                pepper = settings.API_TOKEN_PEPPERS[self.pepper_id]
             except KeyError:
                 # Invalid pepper ID
                 return False

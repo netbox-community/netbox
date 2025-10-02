@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='token',
-            name='pepper',
+            name='pepper_id',
             field=models.PositiveSmallIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
