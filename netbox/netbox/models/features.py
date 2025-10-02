@@ -24,6 +24,7 @@ from netbox.registry import registry
 from netbox.signals import post_clean
 from netbox.utils import register_model_feature
 from utilities.json import CustomFieldJSONEncoder
+from utilities.object_types import objecttype_table_exists
 from utilities.serialization import serialize_object
 
 __all__ = (
@@ -670,6 +671,10 @@ def has_feature(model_or_ct, feature):
     """
     Returns True if the model supports the specified feature.
     """
+    # Check if ObjectType table exists before attempting queries
+    if not objecttype_table_exists():
+        return False
+
     # If an ObjectType was passed, we can use it directly
     if type(model_or_ct) is ObjectType:
         ot = model_or_ct
