@@ -49,8 +49,8 @@ class APITestCase(ModelTestCase):
         # Create the test user and assign permissions
         self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
-        self.token = Token.objects.create(version=1, user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.plaintext}'}
+        self.token = Token.objects.create(user=self.user)
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {self.token.key}.{self.token.token}'}
 
     def _get_view_namespace(self):
         return f'{self.view_namespace or self.model._meta.app_label}-api'
