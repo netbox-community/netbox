@@ -29,6 +29,8 @@ class Token(models.Model):
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
     """
+    _token = None
+
     version = models.PositiveSmallIntegerField(
         verbose_name=_('version'),
         choices=TokenVersionChoices,
@@ -136,12 +138,12 @@ class Token(models.Model):
     def __init__(self, *args, token=None, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # This stores the initial plaintext value (if given) on the creation of a new Token. If not provided, a
+        # random token value will be generated and assigned immediately prior to saving the Token instance.
         self.token = token
 
     def __str__(self):
-        if self.v1:
-            return self.partial
-        return self.key
+        return self.key if self.v2 else self.partial
 
     def get_absolute_url(self):
         return reverse('users:token', args=[self.pk])
@@ -156,14 +158,19 @@ class Token(models.Model):
 
     @property
     def partial(self):
+        """
+        Return a sanitized representation of a v1 token.
+        """
         return f'**********************************{self.plaintext[-6:]}' if self.plaintext else ''
 
     @property
     def token(self):
-        return getattr(self, '_token', None)
+        return self._token
 
     @token.setter
     def token(self, value):
+        if not self._state.adding:
+            raise ValueError("Cannot assign a new plaintext value for an existing token.")
         self._token = value
         if value is not None:
             if self.v1:
@@ -173,8 +180,11 @@ class Token(models.Model):
                 self.update_digest()
 
     def clean(self):
-        if self._state.adding and self.v2 and not settings.API_TOKEN_PEPPERS:
-            raise ValidationError(_("Cannot create v2 tokens: API_TOKEN_PEPPERS is not defined."))
+        if self._state.adding:
+            if self.pepper_id is not None and self.pepper_id not in settings.API_TOKEN_PEPPERS:
+                raise ValidationError(_(
+                    "Invalid pepper ID: {id}. Check configured API_TOKEN_PEPPERS."
+                ).format(id=self.pepper_id))
 
     def save(self, *args, **kwargs):
         # If creating a new Token and no token value has been specified, generate one
@@ -201,9 +211,9 @@ class Token(models.Model):
         """
         Recalculate and save the HMAC digest using the currently defined pepper and token values.
         """
-        self.pepper_id, pepper_value = get_current_pepper()
+        self.pepper_id, pepper = get_current_pepper()
         self.hmac_digest = hmac.new(
-            pepper_value.encode('utf-8'),
+            pepper.encode('utf-8'),
             self.token.encode('utf-8'),
             hashlib.sha256
         ).hexdigest()
@@ -216,12 +226,14 @@ class Token(models.Model):
 
     def validate(self, token):
         """
-        Returns true if the given token value validates.
+        Validate the given plaintext against the token.
+
+        For v1 tokens, check that the given value is equal to the stored plaintext. For v2 tokens, calculate an HMAC
+        from the Token's pepper ID and the given plaintext value, and check whether the result matches the recorded
+        digest.
         """
-        if self.is_expired:
-            return False
         if self.v1:
-            return token == self.key
+            return token == self.token
         if self.v2:
             try:
                 pepper = settings.API_TOKEN_PEPPERS[self.pepper_id]

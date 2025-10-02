@@ -22,5 +22,5 @@ def get_current_pepper():
     """
     if len(settings.API_TOKEN_PEPPERS) < 1:
         raise ImproperlyConfigured("Must define API_TOKEN_PEPPERS to use v2 API tokens")
-    newest_id = sorted(settings.API_TOKEN_PEPPERS)[-1]
+    newest_id = sorted(settings.API_TOKEN_PEPPERS.keys())[-1]
     return newest_id, settings.API_TOKEN_PEPPERS[newest_id]
