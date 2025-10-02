@@ -1,8 +1,6 @@
-import binascii
 import hashlib
 import hmac
 import random
-import os
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -16,7 +14,7 @@ from netaddr import IPNetwork
 
 from ipam.fields import IPNetworkField
 from users.choices import TokenVersionChoices
-from users.constants import TOKEN_CHARSET
+from users.constants import TOKEN_CHARSET, TOKEN_DEFAULT_LENGTH, TOKEN_KEY_LENGTH
 from users.utils import get_current_pepper
 from utilities.querysets import RestrictedQuerySet
 
@@ -75,10 +73,11 @@ class Token(models.Model):
     )
     key = models.CharField(
         verbose_name=_('key'),
-        max_length=16,
+        max_length=TOKEN_KEY_LENGTH,
         unique=True,
         blank=True,
         null=True,
+        validators=[MinLengthValidator(TOKEN_KEY_LENGTH)],
         help_text=_('v2 token identification key'),
     )
     pepper = models.PositiveSmallIntegerField(
@@ -148,7 +147,7 @@ class Token(models.Model):
             if self.v1:
                 self.plaintext = value
             elif self.v2:
-                self.key = self.key or self.generate(16)
+                self.key = self.key or self.generate_key()
                 self.update_digest()
 
     def clean(self):
@@ -162,15 +161,15 @@ class Token(models.Model):
 
         return super().save(*args, **kwargs)
 
-    @staticmethod
-    def generate_key():
+    @classmethod
+    def generate_key(cls):
         """
-        DEPRECATED: Generate and return a random 160-bit key expressed in hexadecimal.
+        Generate and return a random alphanumeric key for v2 tokens.
         """
-        return binascii.hexlify(os.urandom(20)).decode()
+        return cls.generate(length=TOKEN_KEY_LENGTH)
 
     @staticmethod
-    def generate(length=40):
+    def generate(length=TOKEN_DEFAULT_LENGTH):
         """
         Generate and return a random token value of the given length.
         """
