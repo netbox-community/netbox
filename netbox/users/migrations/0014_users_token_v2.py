@@ -72,4 +72,29 @@ class Migration(migrations.Migration):
             name='hmac_digest',
             field=models.CharField(blank=True, max_length=64, null=True),
         ),
+
+        # Add constraints to enforce v1/v2-dependent fields
+        migrations.AddConstraint(
+            model_name='token',
+            constraint=models.CheckConstraint(
+                name='enforce_version_dependent_fields',
+                condition=models.Q(
+                    models.Q(
+                        ('hmac_digest__isnull', True),
+                        ('key__isnull', True),
+                        ('pepper_id__isnull', True),
+                        ('plaintext__isnull', False),
+                        ('version', 1)
+                    ),
+                    models.Q(
+                        ('hmac_digest__isnull', False),
+                        ('key__isnull', False),
+                        ('pepper_id__isnull', False),
+                        ('plaintext__isnull', True),
+                        ('version', 2)
+                    ),
+                    _connector='OR'
+                )
+            )
+        ),
     ]

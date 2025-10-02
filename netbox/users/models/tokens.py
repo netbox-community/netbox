@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -110,6 +111,27 @@ class Token(models.Model):
         ordering = ('-created',)
         verbose_name = _('token')
         verbose_name_plural = _('tokens')
+        constraints = [
+            models.CheckConstraint(
+                name='enforce_version_dependent_fields',
+                condition=(
+                    Q(
+                        version=1,
+                        key__isnull=True,
+                        pepper_id__isnull=True,
+                        hmac_digest__isnull=True,
+                        plaintext__isnull=False
+                    ) |
+                    Q(
+                        version=2,
+                        key__isnull=False,
+                        pepper_id__isnull=False,
+                        hmac_digest__isnull=False,
+                        plaintext__isnull=True
+                    )
+                ),
+            ),
+        ]
 
     def __init__(self, *args, token=None, **kwargs):
         super().__init__(*args, **kwargs)
