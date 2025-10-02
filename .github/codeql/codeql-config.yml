@@ -1,3 +1,11 @@
 paths-ignore:
   # Ignore compiled JS
   - netbox/project-static/dist
+
+query-filters:
+  # Exclude py/url-redirection: NetBox uses safe_for_redirect() wrapper function
+  # which validates all redirects via Django's url_has_allowed_host_and_scheme().
+  # CodeQL's taint tracking doesn't recognize wrapper functions without custom
+  # query configuration. See #20484.
+  - exclude:
+      id: py/url-redirection
