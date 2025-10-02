@@ -53,5 +53,6 @@ class UserTokenTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = UserToken
         fields = (
-            'pk', 'id', 'key', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+            'pk', 'id', 'version', 'key', 'pepper', 'description', 'write_enabled', 'created', 'expires', 'last_used',
+            'allowed_ips',
         )

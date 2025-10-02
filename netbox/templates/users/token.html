@@ -14,9 +14,24 @@
         <h2 class="card-header">{% trans "Token" %}</h2>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">{% trans "Key" %}</th>
-            <td>{% if settings.ALLOW_TOKEN_RETRIEVAL %}{{ object.key }}{% else %}{{ object.partial }}{% endif %}</td>
+            <th scope="row">{% trans "Version" %}</th>
+            <td>{{ object.version }}</td>
           </tr>
+          {% if object.version == 1 %}
+            <tr>
+              <th scope="row">{% trans "Token" %}</th>
+              <td>{{ object.partial }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <th scope="row">{% trans "Key" %}</th>
+              <td>{{ object }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Pepper" %}</th>
+              <td>{{ object.pepper }}</td>
+            </tr>
+          {% endif %}
           <tr>
             <th scope="row">{% trans "User" %}</th>
             <td>

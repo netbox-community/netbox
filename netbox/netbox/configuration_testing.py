@@ -45,6 +45,10 @@ DEFAULT_PERMISSIONS = {}
 
 ALLOW_TOKEN_RETRIEVAL = True
 
+API_TOKEN_PEPPERS = {
+    0: 'TEST-VALUE-DO-NOT-USE',
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True

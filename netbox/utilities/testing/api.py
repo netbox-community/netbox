@@ -49,8 +49,8 @@ class APITestCase(ModelTestCase):
         # Create the test user and assign permissions
         self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
-        self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+        self.token = Token.objects.create(version=1, user=self.user)
+        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.plaintext}'}
 
     def _get_view_namespace(self):
         return f'{self.view_namespace or self.model._meta.app_label}-api'
@@ -153,6 +153,7 @@ class APIViewTestCases:
             url = f'{self._get_list_url()}?brief=1'
             response = self.client.get(url, **self.header)
 
+            self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data['results']), self._get_queryset().count())
             self.assertEqual(sorted(response.data['results'][0]), self.brief_fields)
 

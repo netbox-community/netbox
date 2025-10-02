@@ -1,3 +1,5 @@
+import string
+
 from django.db.models import Q
 
 
@@ -7,3 +9,5 @@ OBJECTPERMISSION_OBJECT_TYPES = Q(
 )
 
 CONSTRAINT_TOKEN_USER = '$user'
+
+TOKEN_CHARSET = string.ascii_letters + string.digits

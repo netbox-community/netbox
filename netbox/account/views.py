@@ -343,7 +343,7 @@ class UserTokenView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
-        key = token.key if settings.ALLOW_TOKEN_RETRIEVAL else None
+        key = token.key if token.v2 or settings.ALLOW_TOKEN_RETRIEVAL else None
 
         return render(request, 'account/token.html', {
             'object': token,

@@ -240,10 +240,12 @@ class ViewTestCases:
         :form_data: Data to be used when updating the first existing object.
         """
         form_data = {}
+        form_edit_data = {}
         validation_excluded_fields = []
 
         def test_edit_object_without_permission(self):
             instance = self._get_queryset().first()
+            form_data = self.form_edit_data or self.form_data
 
             # Try GET without permission
             with disable_warnings('django.request'):
@@ -252,7 +254,7 @@ class ViewTestCases:
             # Try POST without permission
             request = {
                 'path': self._get_url('edit', instance),
-                'data': post_data(self.form_data),
+                'data': post_data(form_data),
             }
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(**request), 403)
@@ -260,6 +262,7 @@ class ViewTestCases:
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_edit_object_with_permission(self):
             instance = self._get_queryset().first()
+            form_data = self.form_edit_data or self.form_data
 
             # Assign model-level permission
             obj_perm = ObjectPermission(
@@ -275,21 +278,21 @@ class ViewTestCases:
 
             # Add custom field data if the model supports it
             if issubclass(self.model, CustomFieldsMixin):
-                add_custom_field_data(self.form_data, self.model)
+                add_custom_field_data(form_data, self.model)
 
             # If supported, add a changelog message
             if issubclass(self.model, ChangeLoggingMixin):
-                if 'changelog_message' not in self.form_data:
-                    self.form_data['changelog_message'] = get_random_string(10)
+                if 'changelog_message' not in form_data:
+                    form_data['changelog_message'] = get_random_string(10)
 
             # Try POST with model-level permission
             request = {
                 'path': self._get_url('edit', instance),
-                'data': post_data(self.form_data),
+                'data': post_data(form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
             instance = self._get_queryset().get(pk=instance.pk)
-            self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
+            self.assertInstanceEqual(instance, form_data, exclude=self.validation_excluded_fields)
 
             # Verify ObjectChange creation
             if issubclass(self.model, ChangeLoggingMixin):
@@ -299,11 +302,12 @@ class ViewTestCases:
                 )
                 self.assertEqual(len(objectchanges), 1)
                 self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_UPDATE)
-                self.assertEqual(objectchanges[0].message, self.form_data['changelog_message'])
+                self.assertEqual(objectchanges[0].message, form_data['changelog_message'])
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
         def test_edit_object_with_constrained_permission(self):
             instance1, instance2 = self._get_queryset().all()[:2]
+            form_data = self.form_edit_data or self.form_data
 
             # Assign constrained permission
             obj_perm = ObjectPermission(
@@ -324,16 +328,16 @@ class ViewTestCases:
             # Try to edit a permitted object
             request = {
                 'path': self._get_url('edit', instance1),
-                'data': post_data(self.form_data),
+                'data': post_data(form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
             instance = self._get_queryset().get(pk=instance1.pk)
-            self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
+            self.assertInstanceEqual(instance, form_data, exclude=self.validation_excluded_fields)
 
             # Try to edit a non-permitted object
             request = {
                 'path': self._get_url('edit', instance2),
-                'data': post_data(self.form_data),
+                'data': post_data(form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 404)
 

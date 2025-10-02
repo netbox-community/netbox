@@ -135,8 +135,8 @@ class BackgroundTaskTestCase(TestCase):
         """
         # Create the test user and assign permissions
         self.user = User.objects.create_user(username='testuser', is_active=True)
-        self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+        self.token = Token.objects.create(version=1, user=self.user)
+        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.token}'}
 
         # Clear all queues prior to running each test
         get_queue('default').connection.flushall()

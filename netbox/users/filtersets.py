@@ -133,7 +133,7 @@ class TokenFilterSet(BaseFilterSet):
 
     class Meta:
         model = Token
-        fields = ('id', 'key', 'write_enabled', 'description', 'last_used')
+        fields = ('id', 'version', 'key', 'pepper', 'write_enabled', 'description', 'last_used')
 
     def search(self, queryset, name, value):
         if not value.strip():

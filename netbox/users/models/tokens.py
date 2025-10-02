@@ -1,8 +1,12 @@
 import binascii
+import hashlib
+import hmac
+import random
 import os
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.urls import reverse
@@ -11,6 +15,9 @@ from django.utils.translation import gettext_lazy as _
 from netaddr import IPNetwork
 
 from ipam.fields import IPNetworkField
+from users.choices import TokenVersionChoices
+from users.constants import TOKEN_CHARSET
+from users.utils import get_current_pepper
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -23,10 +30,20 @@ class Token(models.Model):
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
     """
+    version = models.PositiveSmallIntegerField(
+        verbose_name=_('version'),
+        choices=TokenVersionChoices,
+        default=TokenVersionChoices.V2,
+    )
     user = models.ForeignKey(
         to='users.User',
         on_delete=models.CASCADE,
         related_name='tokens'
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
     )
     created = models.DateTimeField(
         verbose_name=_('created'),
@@ -42,21 +59,40 @@ class Token(models.Model):
         blank=True,
         null=True
     )
-    key = models.CharField(
-        verbose_name=_('key'),
-        max_length=40,
-        unique=True,
-        validators=[MinLengthValidator(40)]
-    )
     write_enabled = models.BooleanField(
         verbose_name=_('write enabled'),
         default=True,
         help_text=_('Permit create/update/delete operations using this key')
     )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True
+    # For legacy v1 tokens, this field stores the plaintext 40-char token value. Not used for v2.
+    plaintext = models.CharField(
+        verbose_name=_('plaintext'),
+        max_length=40,
+        unique=True,
+        blank=True,
+        null=True,
+        validators=[MinLengthValidator(40)],
+    )
+    key = models.CharField(
+        verbose_name=_('key'),
+        max_length=16,
+        unique=True,
+        blank=True,
+        null=True,
+        help_text=_('v2 token identification key'),
+    )
+    pepper = models.PositiveSmallIntegerField(
+        verbose_name=_('pepper'),
+        blank=True,
+        null=True,
+        help_text=_('ID of the cryptographic pepper used to hash the token (v2 only)'),
+    )
+    hmac_digest = models.CharField(
+        verbose_name=_('digest'),
+        max_length=64,
+        blank=True,
+        null=True,
+        help_text=_('SHA256 hash of the token and pepper (v2 only)'),
     )
     allowed_ips = ArrayField(
         base_field=IPNetworkField(),
@@ -72,35 +108,107 @@ class Token(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
+        ordering = ('-created',)
         verbose_name = _('token')
         verbose_name_plural = _('tokens')
-        ordering = ('-created',)
+
+    def __init__(self, *args, token=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.token = token
 
     def __str__(self):
-        return self.key if settings.ALLOW_TOKEN_RETRIEVAL else self.partial
+        if self.v1:
+            return self.partial
+        return self.key
 
     def get_absolute_url(self):
         return reverse('users:token', args=[self.pk])
 
     @property
+    def v1(self):
+        return self.version == 1
+
+    @property
+    def v2(self):
+        return self.version == 2
+
+    @property
     def partial(self):
-        return f'**********************************{self.key[-6:]}' if self.key else ''
+        return f'**********************************{self.plaintext[-6:]}' if self.plaintext else ''
+
+    @property
+    def token(self):
+        return getattr(self, '_token', None)
+
+    @token.setter
+    def token(self, value):
+        self._token = value
+        if value is not None:
+            if self.v1:
+                self.plaintext = value
+            elif self.v2:
+                self.key = self.key or self.generate(16)
+                self.update_digest()
+
+    def clean(self):
+        if self._state.adding and self.v2 and not settings.API_TOKEN_PEPPERS:
+            raise ValidationError(_("Cannot create v2 tokens: API_TOKEN_PEPPERS is not defined."))
 
     def save(self, *args, **kwargs):
-        if not self.key:
-            self.key = self.generate_key()
+        # If creating a new Token and no token value has been specified, generate one
+        if self._state.adding and self.token is None:
+            self.token = self.generate()
+
         return super().save(*args, **kwargs)
 
     @staticmethod
     def generate_key():
-        # Generate a random 160-bit key expressed in hexadecimal.
+        """
+        DEPRECATED: Generate and return a random 160-bit key expressed in hexadecimal.
+        """
         return binascii.hexlify(os.urandom(20)).decode()
+
+    @staticmethod
+    def generate(length=40):
+        """
+        Generate and return a random token value of the given length.
+        """
+        return ''.join(random.choice(TOKEN_CHARSET) for _ in range(length))
+
+    def update_digest(self):
+        """
+        Recalculate and save the HMAC digest using the currently defined pepper and token values.
+        """
+        self.pepper, pepper_value = get_current_pepper()
+        self.hmac_digest = hmac.new(
+            pepper_value.encode('utf-8'),
+            self.token.encode('utf-8'),
+            hashlib.sha256
+        ).hexdigest()
 
     @property
     def is_expired(self):
         if self.expires is None or timezone.now() < self.expires:
             return False
         return True
+
+    def validate(self, token):
+        """
+        Returns true if the given token value validates.
+        """
+        if self.is_expired:
+            return False
+        if self.v1:
+            return token == self.key
+        if self.v2:
+            try:
+                pepper = settings.API_TOKEN_PEPPERS[self.pepper]
+            except KeyError:
+                # Invalid pepper ID
+                return False
+            digest = hmac.new(pepper.encode('utf-8'), token.encode('utf-8'), hashlib.sha256).hexdigest()
+            return digest == self.hmac_digest
 
     def validate_client_ip(self, client_ip):
         """
