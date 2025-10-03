@@ -15,6 +15,7 @@ from netaddr.core import AddrFormatError
 from core.models import ObjectType
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
+from utilities.object_types import objecttype_table_exists
 from utilities.object_types import object_type_identifier
 from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
@@ -209,6 +210,10 @@ class CachedValueSearchBackend(SearchBackend):
                         break
 
                 # Prefetch any associated custom fields
+                # Skip if ObjectType table doesn't exist yet (during migrations)
+                if not objecttype_table_exists():
+                    return
+
                 object_type = ObjectType.objects.get_for_model(indexer.model)
                 custom_fields = CustomField.objects.filter(object_types=object_type).exclude(search_weight=0)
 

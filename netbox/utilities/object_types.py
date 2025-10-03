@@ -1,8 +1,11 @@
+from django.db import connection
+
 from .string import title
 
 __all__ = (
     'object_type_identifier',
     'object_type_name',
+    'objecttype_table_exists',
 )
 
 
@@ -27,3 +30,13 @@ def object_type_name(object_type, include_app=True):
     except AttributeError:
         # Model does not exist
         return f'{object_type.app_label} > {object_type.model}'
+
+
+def objecttype_table_exists():
+    """
+    Check if the core_objecttype table exists.
+
+    Returns True if the table exists, False otherwise.
+    Used to prevent ObjectType queries during migrations when the table doesn't exist yet.
+    """
+    return 'core_objecttype' in connection.introspection.table_names()

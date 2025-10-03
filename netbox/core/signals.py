@@ -13,6 +13,7 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.events import *
 from core.models import ObjectType
+from utilities.object_types import objecttype_table_exists
 from extras.events import enqueue_event
 from extras.models import Tag
 from extras.utils import run_validators
@@ -51,6 +52,10 @@ def update_object_types(sender, **kwargs):
     """
     Create or update the corresponding ObjectType for each model within the migrated app.
     """
+    # Skip ObjectType operations if the table doesn't exist yet (during migrations)
+    if not objecttype_table_exists():
+        return
+
     for model in sender.get_models():
         app_label, model_name = model._meta.label_lower.split('.')
 
