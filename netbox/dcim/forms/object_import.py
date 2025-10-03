@@ -84,6 +84,12 @@ class InterfaceTemplateImportForm(forms.ModelForm):
         label=_('Type'),
         choices=InterfaceTypeChoices.CHOICES
     )
+    bridge = forms.ModelChoiceField(
+        label=_('Bridge'),
+        queryset=InterfaceTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
     poe_mode = forms.ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
@@ -103,9 +109,23 @@ class InterfaceTemplateImportForm(forms.ModelForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'poe_mode',
-            'poe_type', 'rf_role'
+            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge',
+            'poe_mode', 'poe_type', 'rf_role'
         ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            bridge = self.fields['bridge']
+            bridge.queryset = bridge.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            bridge = self.fields['bridge']
+            bridge.queryset = bridge.queryset.filter(module_type=module_type)
+
+        return module_type
 
 
 class FrontPortTemplateImportForm(forms.ModelForm):
