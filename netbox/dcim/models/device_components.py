@@ -618,6 +618,12 @@ class BaseInterface(models.Model):
         null=True,
         verbose_name=_('primary MAC address')
     )
+    mac_addresses = GenericRelation(
+        to='dcim.MACAddress',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='interface',
+    )
 
     class Meta:
         abstract = True
