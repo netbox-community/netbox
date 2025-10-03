@@ -19,6 +19,7 @@ from netbox.plugins import PluginConfig
 from netbox.registry import registry
 import storages.utils  # type: ignore
 from utilities.release import load_release_data
+from utilities.security import validate_peppers
 from utilities.string import trailing_slash
 
 #
@@ -217,10 +218,9 @@ if len(SECRET_KEY) < 50:
     )
 
 # Validate API token peppers
-for key in API_TOKEN_PEPPERS:
-    if type(key) is not int:
-        raise ImproperlyConfigured(f"Invalid API_TOKEN_PEPPERS key: {key}. All keys must be integers.")
-if not API_TOKEN_PEPPERS:
+if API_TOKEN_PEPPERS:
+    validate_peppers(API_TOKEN_PEPPERS)
+else:
     warnings.warn("API_TOKEN_PEPPERS is not defined. v2 API tokens cannot be used.")
 
 # Validate update repo URL and timeout
