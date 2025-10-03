@@ -120,6 +120,23 @@ If you are not yet sure what the domain name and/or IP address of the NetBox ins
 ALLOWED_HOSTS = ['*']
 ```
 
+### API_TOKEN_PEPPERS
+
+Define at least one random cryptographic pepper, identified by a numeric ID starting at 1. This will be used to generate SHA256 checksums for API tokens.
+
+```python
+API_TOKEN_PEPPERS = {
+    # DO NOT USE THIS EXAMPLE PEPPER IN PRODUCTION
+    1: 'kp7ht*76fiQAhUi5dHfASLlYUE_S^gI^(7J^K5M!LfoH@vl&b_',
+}
+```
+
+!!! tip
+    As with [`SECRET_KEY`](#secret_key) below, you can use the `generate_secret_key.py` script to generate a random pepper:
+    ```no-highlight
+    python3 ../generate_secret_key.py
+    ```
+
 ### DATABASES
 
 This parameter holds the PostgreSQL database configuration details. The default database must be defined; additional databases may be defined as needed e.g. by plugins.

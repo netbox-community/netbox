@@ -19,6 +19,7 @@ from netbox.plugins import PluginConfig
 from netbox.registry import registry
 import storages.utils  # type: ignore
 from utilities.release import load_release_data
+from utilities.security import validate_peppers
 from utilities.string import trailing_slash
 
 #
@@ -65,6 +66,7 @@ elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
 ADMINS = getattr(configuration, 'ADMINS', [])
 ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
+API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -214,6 +216,12 @@ if len(SECRET_KEY) < 50:
         f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
         f"  python {BASE_DIR}/generate_secret_key.py"
     )
+
+# Validate API token peppers
+if API_TOKEN_PEPPERS:
+    validate_peppers(API_TOKEN_PEPPERS)
+else:
+    warnings.warn("API_TOKEN_PEPPERS is not defined. v2 API tokens cannot be used.")
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:

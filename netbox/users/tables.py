@@ -1,7 +1,6 @@
 import django_tables2 as tables
 from django.utils.translation import gettext as _
 
-from account.tables import UserTokenTable
 from netbox.tables import NetBoxTable, columns
 from users.models import Group, ObjectPermission, Token, User
 
@@ -12,18 +11,53 @@ __all__ = (
     'UserTable',
 )
 
+TOKEN = """<samp><a href="{{ record.get_absolute_url }}" id="token_{{ record.pk }}">{{ record }}</a></samp>"""
 
-class TokenTable(UserTokenTable):
+COPY_BUTTON = """
+{% if settings.ALLOW_TOKEN_RETRIEVAL %}
+  {% copy_content record.pk prefix="token_" color="success" %}
+{% endif %}
+"""
+
+
+class TokenTable(NetBoxTable):
     user = tables.Column(
         linkify=True,
         verbose_name=_('User')
+    )
+    token = columns.TemplateColumn(
+        verbose_name=_('token'),
+        template_code=TOKEN,
+    )
+    write_enabled = columns.BooleanColumn(
+        verbose_name=_('Write Enabled')
+    )
+    created = columns.DateTimeColumn(
+        timespec='minutes',
+        verbose_name=_('Created'),
+    )
+    expires = columns.DateTimeColumn(
+        timespec='minutes',
+        verbose_name=_('Expires'),
+    )
+    last_used = columns.DateTimeColumn(
+        verbose_name=_('Last Used'),
+    )
+    allowed_ips = columns.ArrayColumn(
+        verbose_name=_('Allowed IPs'),
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+        extra_buttons=COPY_BUTTON
     )
 
     class Meta(NetBoxTable.Meta):
         model = Token
         fields = (
-            'pk', 'id', 'key', 'user', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+            'pk', 'id', 'token', 'version', 'pepper_id', 'user', 'description', 'write_enabled', 'created', 'expires',
+            'last_used', 'allowed_ips',
         )
+        default_columns = ('token', 'version', 'user', 'write_enabled', 'description', 'allowed_ips')
 
 
 class UserTable(NetBoxTable):

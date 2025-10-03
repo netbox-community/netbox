@@ -215,6 +215,7 @@ class TokenTestCase(
 ):
     model = Token
     maxDiff = None
+    validation_excluded_fields = ['token', 'user']
 
     @classmethod
     def setUpTestData(cls):
@@ -223,32 +224,34 @@ class TokenTestCase(
             create_test_user('User 2'),
         )
         tokens = (
-            Token(key='123456789012345678901234567890123456789A', user=users[0]),
-            Token(key='123456789012345678901234567890123456789B', user=users[0]),
-            Token(key='123456789012345678901234567890123456789C', user=users[1]),
+            Token(user=users[0]),
+            Token(user=users[0]),
+            Token(user=users[1]),
         )
-        Token.objects.bulk_create(tokens)
+        for token in tokens:
+            token.save()
 
         cls.form_data = {
+            'version': 2,
+            'token': '4F9DAouzURLbicyoG55htImgqQ0b4UZHP5LUYgl5',
             'user': users[0].pk,
-            'key': '1234567890123456789012345678901234567890',
-            'description': 'testdescription',
+            'description': 'Test token',
         }
 
         cls.csv_data = (
-            "key,user,description",
-            f"123456789012345678901234567890123456789D,{users[0].pk},testdescriptionD",
-            f"123456789012345678901234567890123456789E,{users[1].pk},testdescriptionE",
-            f"123456789012345678901234567890123456789F,{users[1].pk},testdescriptionF",
+            "token,user,description",
+            f"zjebxBPzICiPbWz0Wtx0fTL7bCKXKGTYhNzkgC2S,{users[0].pk},Test token",
+            f"9Z5kGtQWba60Vm226dPDfEAV6BhlTr7H5hAXAfbF,{users[1].pk},Test token",
+            f"njpMnNT6r0k0MDccoUhTYYlvP9BvV3qLzYN2p6Uu,{users[1].pk},Test token",
         )
 
         cls.csv_update_data = (
             "id,description",
-            f"{tokens[0].pk},testdescriptionH",
-            f"{tokens[1].pk},testdescriptionI",
-            f"{tokens[2].pk},testdescriptionJ",
+            f"{tokens[0].pk},New description",
+            f"{tokens[1].pk},New description",
+            f"{tokens[2].pk},New description",
         )
 
         cls.bulk_edit_data = {
-            'description': 'newdescription',
+            'description': 'New description',
         }

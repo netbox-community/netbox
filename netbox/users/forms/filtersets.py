@@ -3,10 +3,12 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
+from users.choices import TokenVersionChoices
 from users.models import Group, ObjectPermission, Token, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
+from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import DateTimePicker
 
 __all__ = (
@@ -110,7 +112,11 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
         FieldSet('q', 'filter_id',),
-        FieldSet('user_id', 'write_enabled', 'expires', 'last_used', name=_('Token')),
+        FieldSet('version', 'user_id', 'write_enabled', 'expires', 'last_used', name=_('Token')),
+    )
+    version = forms.ChoiceField(
+        choices=add_blank_choice(TokenVersionChoices),
+        required=False,
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
