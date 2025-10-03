@@ -282,18 +282,18 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
 
 class FixIntegerRangeSerializerSchema(OpenApiSerializerExtension):
     target_class = 'netbox.api.fields.IntegerRangeSerializer'
+    match_subclasses = True
 
     def map_serializer(self, auto_schema: 'AutoSchema', direction: Direction) -> _SchemaType:
+        # One range = two integers; many=True will wrap this in an outer array
         return {
             'type': 'array',
             'items': {
-                'type': 'array',
-                'items': {
-                    'type': 'integer',
-                },
-                'minItems': 2,
-                'maxItems': 2,
+                'type': 'integer',
             },
+            'minItems': 2,
+            'maxItems': 2,
+            'example': [10, 20],
         }
 
 
