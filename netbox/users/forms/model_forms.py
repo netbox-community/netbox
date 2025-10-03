@@ -16,11 +16,7 @@ from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
 from utilities.data import flatten_dict
-from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField,
-    JSONField,
-)
+from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
@@ -155,17 +151,17 @@ class UserTokenForm(forms.ModelForm):
 
             # Omit the key field when editing an existing token if token retrieval is not permitted
             if self.instance.v1 and settings.ALLOW_TOKEN_RETRIEVAL:
-                self.fields['token'].initial = self.instance.key
+                self.initial['token'] = self.instance.plaintext
             else:
                 del self.fields['token']
 
         # Generate an initial random key if none has been specified
-        if self.instance._state.adding and not self.initial.get('token'):
+        elif self.instance._state.adding and not self.initial.get('token'):
             self.initial['version'] = TokenVersionChoices.V2
             self.initial['token'] = Token.generate()
 
     def save(self, commit=True):
-        if self.cleaned_data.get('token'):
+        if self.instance._state.adding and self.cleaned_data.get('token'):
             self.instance.token = self.cleaned_data['token']
 
         return super().save(commit=commit)
@@ -177,14 +173,10 @@ class TokenForm(UserTokenForm):
         label=_('User')
     )
 
-    class Meta:
-        model = Token
+    class Meta(UserTokenForm.Meta):
         fields = [
             'version', 'token', 'user', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
-        widgets = {
-            'expires': DateTimePicker(),
-        }
 
 
 class UserForm(forms.ModelForm):
