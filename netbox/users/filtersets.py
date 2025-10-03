@@ -130,15 +130,27 @@ class TokenFilterSet(BaseFilterSet):
         field_name='expires',
         lookup_expr='lte'
     )
+    last_used = django_filters.DateTimeFilter()
+    last_used__gte = django_filters.DateTimeFilter(
+        field_name='last_used',
+        lookup_expr='gte'
+    )
+    last_used__lte = django_filters.DateTimeFilter(
+        field_name='last_used',
+        lookup_expr='lte'
+    )
 
     class Meta:
         model = Token
-        fields = ('id', 'version', 'key', 'pepper_id', 'write_enabled', 'description', 'last_used')
+        fields = (
+            'id', 'version', 'key', 'pepper_id', 'write_enabled', 'description', 'created', 'expires', 'last_used',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
+            Q(key=value) |
             Q(user__username__icontains=value) |
             Q(description__icontains=value)
         )

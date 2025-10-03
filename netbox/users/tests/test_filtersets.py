@@ -315,6 +315,15 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         params = {'version': 2}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_key(self):
+        tokens = Token.objects.filter(version=2)
+        params = {'key': [tokens[0].key, tokens[1].key]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_pepper_id(self):
+        params = {'pepper_id': [1]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_user(self):
         users = User.objects.order_by('id')[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
@@ -329,11 +338,6 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'expires__lte': '2021-01-01T00:00:00'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_key(self):
-        tokens = Token.objects.filter(version=2)
-        params = {'key': [tokens[0].key, tokens[1].key]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_write_enabled(self):
         params = {'write_enabled': True}
