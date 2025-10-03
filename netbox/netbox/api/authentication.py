@@ -11,8 +11,8 @@ from netbox.config import get_config
 from users.models import Token
 from utilities.request import get_client_ip
 
-V1_KEYWORD = 'token'
-V2_KEYWORD = 'bearer'
+V1_KEYWORD = 'Token'
+V2_KEYWORD = 'Bearer'
 
 
 class TokenAuthentication(BaseAuthentication):
@@ -22,26 +22,37 @@ class TokenAuthentication(BaseAuthentication):
     model = Token
 
     def authenticate(self, request):
+        # Ignore; Authorization header is not present
         if not (auth := get_authorization_header(request).split()):
             return
 
-        # Check for Token/Bearer keyword in HTTP header value & infer token version
+        # Infer token version from Token/Bearer keyword in HTTP header
         if auth[0].lower() == V1_KEYWORD.lower().encode():
             version = 1
         elif auth[0].lower() == V2_KEYWORD.lower().encode():
             version = 2
         else:
+            # Ignore; unrecognized header value
             return
 
-        # Extract token key from authorization header
+        # Extract token from authorization header. This should be in one of the following two forms:
+        #  * Authorization: Token <token> (v1)
+        #  * Authorization: Bearer <key>.<token> (v2)
         if len(auth) != 2:
-            raise exceptions.AuthenticationFailed("Invalid authorization header: Error parsing token")
+            if version == 1:
+                raise exceptions.AuthenticationFailed(
+                    'Invalid authorization header: Must be in the form "Token <token>"'
+                )
+            else:
+                raise exceptions.AuthenticationFailed(
+                    'Invalid authorization header: Must be in the form "Bearer <key>.<token>"'
+                )
+
+        # Extract the key (if v2) & token plaintext from the auth header
         try:
             auth_value = auth[1].decode()
         except UnicodeError:
             raise exceptions.AuthenticationFailed("Invalid authorization header: Token contains invalid characters")
-
-        # Look for a matching token in the database
         if version == 1:
             key, plaintext = None, auth_value
         else:
@@ -52,6 +63,8 @@ class TokenAuthentication(BaseAuthentication):
                     "Invalid authorization header: Could not parse key from v2 token. Did you mean to use 'Token' "
                     "instead of 'Bearer'?"
                 )
+
+        # Look for a matching token in the database
         try:
             qs = Token.objects.prefetch_related('user')
             if version == 1:
@@ -61,8 +74,8 @@ class TokenAuthentication(BaseAuthentication):
                 # Fetch v2 token by key, then validate the plaintext
                 token = qs.get(version=version, key=key)
                 if not token.validate(plaintext):
-                    # TODO: Consider security implications of enabling validation of token key without valid plaintext
-                    raise exceptions.AuthenticationFailed(f"Validation failed for v2 token {key}")
+                    # Key is valid but plaintext is not. Raise DoesNotExist to guard against key enumeration.
+                    raise Token.DoesNotExist()
         except Token.DoesNotExist:
             raise exceptions.AuthenticationFailed(f"Invalid v{version} token")
 
@@ -180,5 +193,5 @@ class TokenScheme(OpenApiAuthenticationExtension):
             'type': 'apiKey',
             'in': 'header',
             'name': 'Authorization',
-            'description': 'Set `Token <token>` (v1) or `Bearer <token>` (v2) in the Authorization header',
+            'description': '`Token <token>` (v1) or `Bearer <key>.<token>` (v2)',
         }
