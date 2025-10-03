@@ -11,7 +11,7 @@ __all__ = (
     'UserTable',
 )
 
-TOKEN = """<samp><span id="token_{{ record.pk }}">{{ record }}</span></samp>"""
+TOKEN = """<samp><a href="{{ record.get_absolute_url }}" id="token_{{ record.pk }}">{{ record }}</a></samp>"""
 
 COPY_BUTTON = """
 {% if settings.ALLOW_TOKEN_RETRIEVAL %}
