@@ -240,9 +240,9 @@ class TokenTestCase(
 
         cls.csv_data = (
             "token,user,description",
-            f"123456789012345678901234567890123456789A,{users[0].pk},Test token",
-            f"123456789012345678901234567890123456789B,{users[1].pk},Test token",
-            f"123456789012345678901234567890123456789C,{users[1].pk},Test token",
+            f"zjebxBPzICiPbWz0Wtx0fTL7bCKXKGTYhNzkgC2S,{users[0].pk},Test token",
+            f"9Z5kGtQWba60Vm226dPDfEAV6BhlTr7H5hAXAfbF,{users[1].pk},Test token",
+            f"njpMnNT6r0k0MDccoUhTYYlvP9BvV3qLzYN2p6Uu,{users[1].pk},Test token",
         )
 
         cls.csv_update_data = (

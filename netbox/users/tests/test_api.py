@@ -2,6 +2,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from core.models import ObjectType
+from users.constants import TOKEN_DEFAULT_LENGTH
 from users.models import Group, ObjectPermission, Token, User
 from utilities.data import deepmerge
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
@@ -257,7 +258,7 @@ class TokenTest(
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
         self.assertIn('token', response.data)
-        self.assertEqual(len(response.data['token']), 40)
+        self.assertEqual(len(response.data['token']), TOKEN_DEFAULT_LENGTH)
         self.assertEqual(response.data['description'], data['description'])
         self.assertEqual(response.data['expires'], data['expires'])
         token = Token.objects.get(user=user)

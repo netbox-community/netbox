@@ -94,30 +94,46 @@ class TokenAuthenticationTestCase(APITestCase):
     @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_token_write_enabled(self):
         url = reverse('dcim-api:site-list')
-        data = {
-            'name': 'Site 1',
-            'slug': 'site-1',
-        }
+        data = [
+            {
+                'name': 'Site 1',
+                'slug': 'site-1',
+            },
+            {
+                'name': 'Site 2',
+                'slug': 'site-2',
+            },
+        ]
+        self.add_permissions('dcim.view_site', 'dcim.add_site')
 
         # Create v1 & v2 tokens
         token1 = Token.objects.create(version=1, user=self.user, write_enabled=False)
         token2 = Token.objects.create(version=2, user=self.user, write_enabled=False)
 
-        # Request with a write-disabled token should fail
-        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=f'Token {token1.token}')
+        token1_header = f'Token {token1.token}'
+        token2_header = f'Bearer {token2.key}.{token2.token}'
+
+        # GET request with a write-disabled token should succeed
+        response = self.client.get(url, HTTP_AUTHORIZATION=token1_header)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(url, HTTP_AUTHORIZATION=token2_header)
+        self.assertEqual(response.status_code, 200)
+
+        # POST request with a write-disabled token should fail
+        response = self.client.post(url, data[0], format='json', HTTP_AUTHORIZATION=token1_header)
         self.assertEqual(response.status_code, 403)
-        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=f'Bearer {token2.key}.{token2.token}')
+        response = self.client.post(url, data[1], format='json', HTTP_AUTHORIZATION=token2_header)
         self.assertEqual(response.status_code, 403)
 
-        # Request with a write-enabled token should succeed
+        # POST request with a write-enabled token should succeed
         token1.write_enabled = True
         token1.save()
         token2.write_enabled = True
         token2.save()
-        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=f'Token {token1.token}')
-        self.assertEqual(response.status_code, 403)
-        response = self.client.post(url, data, format='json', HTTP_AUTHORIZATION=f'Bearer {token2.key}.{token2.token}')
-        self.assertEqual(response.status_code, 403)
+        response = self.client.post(url, data[0], format='json', HTTP_AUTHORIZATION=token1_header)
+        self.assertEqual(response.status_code, 201)
+        response = self.client.post(url, data[1], format='json', HTTP_AUTHORIZATION=token2_header)
+        self.assertEqual(response.status_code, 201)
 
     @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_token_allowed_ips(self):
