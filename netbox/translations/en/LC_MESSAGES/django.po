@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-01 05:02+0000\n"
+"POT-Creation-Date: 2025-10-02 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10919,8 +10919,7 @@ msgid "Prevent the creation of IP addresses within this range"
 msgstr ""
 
 #: netbox/ipam/models/ip.py:551
-#, python-format
-msgid "Report space as 100% utilized"
+msgid "Report space as fully utilized"
 msgstr ""
 
 #: netbox/ipam/models/ip.py:560
