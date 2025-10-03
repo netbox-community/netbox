@@ -1,5 +1,7 @@
 from django import template
+from django.templatetags.static import static
 from django.utils.safestring import mark_safe
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 
 from extras.choices import CustomFieldTypeChoices
 from utilities.querydict import dict_to_querydict
@@ -11,6 +13,7 @@ __all__ = (
     'customfield_value',
     'htmx_table',
     'formaction',
+    'static_with_params',
     'tag',
 )
 
@@ -127,3 +130,38 @@ def formaction(context):
     if context.get('htmx_navigation', False):
         return mark_safe('hx-push-url="true" hx-post')
     return 'formaction'
+
+
+@register.simple_tag
+def static_with_params(path, **params):
+    """
+    Generate a static URL with properly appended query parameters.
+
+    This template tag handles the case where static files are served from AWS S3 or other
+    CDNs that already include query parameters in the URL. It properly appends additional
+    query parameters without creating double question marks.
+
+    Args:
+        path: The static file path (e.g., 'setmode.js')
+        **params: Query parameters to append (e.g., v='4.3.1')
+
+    Returns:
+        A properly formatted URL with query parameters
+    """
+    # Get the base static URL
+    static_url = static(path)
+
+    # Parse the URL to extract existing query parameters
+    parsed = urlparse(static_url)
+    existing_params = parse_qs(parsed.query)
+
+    # Add new parameters to existing ones
+    for key, value in params.items():
+        existing_params[key] = [str(value)]
+
+    # Rebuild the query string
+    new_query = urlencode(existing_params, doseq=True)
+
+    # Reconstruct the URL with the new query string
+    new_parsed = parsed._replace(query=new_query)
+    return urlunparse(new_parsed)
