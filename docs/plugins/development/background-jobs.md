@@ -60,6 +60,13 @@ Four of the standard Python logging levels are supported:
 
 Log entries recorded using the runner's logger will be saved in the job's log in the database in addition to being processed by other [system logging handlers](../../configuration/system.md#logging).
 
+### Jobs running for Model instances
+
+A Job can be run for a certain instance of a Model.
+To support this, the `JobsMixin` is required for this model.
+
+To assign an instance to a Job use the `instance` parameter when enqueuing the Job.
+
 ### Scheduled Jobs
 
 As described above, jobs can be scheduled for immediate execution or at any later time using the `enqueue()` method. However, for management purposes, the `enqueue_once()` method allows a job to be scheduled exactly once avoiding duplicates. If a job is already scheduled for a particular instance, a second one won't be scheduled, respecting thread safety. An example use case would be to schedule a periodic task that is bound to an instance in general, but not to any event of that instance (such as updates). The parameters of the `enqueue_once()` method are identical to those of `enqueue()`.
