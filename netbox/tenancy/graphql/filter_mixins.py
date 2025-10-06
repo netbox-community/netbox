@@ -9,7 +9,7 @@ from core.graphql.filter_mixins import BaseFilterMixin
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import TreeNodeFilter
-    from .filters import ContactFilter, TenantFilter, TenantGroupFilter
+    from .filters import ContactAssignmentFilter, TenantFilter, TenantGroupFilter
 
 __all__ = (
     'ContactFilterMixin',
@@ -19,7 +19,7 @@ __all__ = (
 
 @dataclass
 class ContactFilterMixin(BaseFilterMixin):
-    contacts: Annotated['ContactFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
+    contacts: Annotated['ContactAssignmentFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 

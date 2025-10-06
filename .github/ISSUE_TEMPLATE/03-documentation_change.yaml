@@ -25,9 +25,12 @@ body:
         - Getting started
         - Configuration
         - Customization
+        - Best practices
         - Integrations/API
         - Plugins
         - Administration
+        - Data model
+        - Reference
         - Development
         - Other
     validations:

@@ -133,6 +133,11 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
+    facility = forms.CharField(
+        label=_('Facility'),
+        max_length=50,
+        required=False
+    )
     asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         label=_('ASNs'),
@@ -166,10 +171,10 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Site
     fieldsets = (
-        FieldSet('status', 'region', 'group', 'tenant', 'asns', 'time_zone', 'description'),
+        FieldSet('status', 'region', 'group', 'tenant', 'facility', 'asns', 'time_zone', 'description'),
     )
     nullable_fields = (
-        'region', 'group', 'tenant', 'asns', 'time_zone', 'description', 'comments',
+        'region', 'group', 'tenant', 'facility', 'asns', 'time_zone', 'description', 'comments',
     )
 
 
@@ -198,6 +203,11 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
+    facility = forms.CharField(
+        label=_('Facility'),
+        max_length=50,
+        required=False
+    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -207,9 +217,9 @@ class LocationBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Location
     fieldsets = (
-        FieldSet('site', 'parent', 'status', 'tenant', 'description'),
+        FieldSet('site', 'parent', 'status', 'tenant', 'facility', 'description'),
     )
-    nullable_fields = ('parent', 'tenant', 'description', 'comments')
+    nullable_fields = ('parent', 'tenant', 'facility', 'description', 'comments')
 
 
 class RackRoleBulkEditForm(NetBoxModelBulkEditForm):

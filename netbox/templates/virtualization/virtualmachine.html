@@ -108,7 +108,9 @@
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Cluster Type" %}</th>
-                    <td>{{ object.cluster.type }}</td>
+                    <td>
+                        {{ object.cluster.type|linkify|placeholder }}
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Device" %}</th>
