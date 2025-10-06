@@ -682,13 +682,13 @@ It is possible to provision authentication tokens for other users via the REST A
 
 ### Authenticating to the API
 
-An authentication token is included with a request in its `Authorization` header. The format of the header value depends on the version of token in use. v2 tokens use the following form, concatenating the token's key and plaintext value with a period:
+An authentication token is included with a request in its `Authorization` header. The format of the header value depends on the version of token in use. v2 tokens use the following form, concatenating the token's prefix (`nbt_`) and key with its plaintext value, separated by a period:
 
 ```
-Authorization: Bearer <key>.<token>
+Authorization: Bearer nbt_<key>.<token>
 ```
 
-v1 tokens use the prefix `Token` rather than `Bearer`, and include only the token plaintext. (v1 tokens do not have a key.)
+Legacy v1 tokens use the prefix `Token` rather than `Bearer`, and include only the token plaintext. (v1 tokens do not have a key.)
 
 ```
 Authorization: Token <token>
@@ -697,7 +697,7 @@ Authorization: Token <token>
 Below is an example REST API request utilizing a v2 token.
 
 ```
-$ curl -H "Authorization: Bearer <key>.<token>" \
+$ curl -H "Authorization: Bearer nbt_4F9DAouzURLb.zjebxBPzICiPbWz0Wtx0fTL7bCKXKGTYhNzkgC2S" \
 -H "Accept: application/json; indent=4" \
 https://netbox/api/dcim/sites/
 {

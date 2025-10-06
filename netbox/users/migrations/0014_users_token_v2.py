@@ -56,10 +56,10 @@ class Migration(migrations.Migration):
             name='key',
             field=models.CharField(
                 blank=True,
-                max_length=16,
+                max_length=12,
                 null=True,
                 unique=True,
-                validators=[django.core.validators.MinLengthValidator(16)]
+                validators=[django.core.validators.MinLengthValidator(12)]
             ),
         ),
         migrations.AddField(

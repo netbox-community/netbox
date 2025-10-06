@@ -8,6 +8,7 @@ from rest_framework.authentication import BaseAuthentication, get_authorization_
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
 from netbox.config import get_config
+from users.constants import TOKEN_PREFIX
 from users.models import Token
 from utilities.request import get_client_ip
 
@@ -22,40 +23,30 @@ class TokenAuthentication(BaseAuthentication):
     model = Token
 
     def authenticate(self, request):
-        # Ignore; Authorization header is not present
+        # Authorization header is not present; ignore
         if not (auth := get_authorization_header(request).split()):
             return
-
-        # Infer token version from Token/Bearer keyword in HTTP header
-        if auth[0].lower() == V1_KEYWORD.lower().encode():
-            version = 1
-        elif auth[0].lower() == V2_KEYWORD.lower().encode():
-            version = 2
-        else:
-            # Ignore; unrecognized header value
+        # Unrecognized header; ignore
+        if auth[0].lower() not in (V1_KEYWORD.lower().encode(), V2_KEYWORD.lower().encode()):
             return
-
-        # Extract token from authorization header. This should be in one of the following two forms:
-        #  * Authorization: Token <token> (v1)
-        #  * Authorization: Bearer <key>.<token> (v2)
+        # Check for extraneous token content
         if len(auth) != 2:
-            if version == 1:
-                raise exceptions.AuthenticationFailed(
-                    'Invalid authorization header: Must be in the form "Token <token>"'
-                )
-            else:
-                raise exceptions.AuthenticationFailed(
-                    'Invalid authorization header: Must be in the form "Bearer <key>.<token>"'
-                )
-
+            raise exceptions.AuthenticationFailed(
+                'Invalid authorization header: Must be in the form "Bearer <key>.<token>" or "Token <token>"'
+            )
         # Extract the key (if v2) & token plaintext from the auth header
         try:
             auth_value = auth[1].decode()
         except UnicodeError:
             raise exceptions.AuthenticationFailed("Invalid authorization header: Token contains invalid characters")
+
+        # Infer token version from presence or absence of prefix
+        version = 2 if auth_value.startswith(TOKEN_PREFIX) else 1
+
         if version == 1:
             key, plaintext = None, auth_value
         else:
+            auth_value = auth_value.removeprefix(TOKEN_PREFIX)
             try:
                 key, plaintext = auth_value.split('.', 1)
             except ValueError:

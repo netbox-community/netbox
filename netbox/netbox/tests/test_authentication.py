@@ -8,6 +8,7 @@ from rest_framework.test import APIClient
 
 from core.models import ObjectType
 from dcim.models import Rack, Site
+from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.testing import TestCase
 from utilities.testing.api import APITestCase
@@ -49,7 +50,7 @@ class TokenAuthenticationTestCase(APITestCase):
         token = Token.objects.create(version=2, user=self.user)
 
         # Valid token should return a 200
-        header = f'Bearer {token.key}.{token.token}'
+        header = f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'
         response = self.client.get(reverse('dcim-api:site-list'), HTTP_AUTHORIZATION=header)
         self.assertEqual(response.status_code, 200, response.data)
 
@@ -60,7 +61,7 @@ class TokenAuthenticationTestCase(APITestCase):
     @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_v2_token_invalid(self):
         # Invalid token should return a 403
-        header = 'Bearer XXXXXXXXXX.XXXXXXXXXX'
+        header = f'Bearer {TOKEN_PREFIX}XXXXXX.XXXXXXXXXX'
         response = self.client.get(reverse('dcim-api:site-list'), HTTP_AUTHORIZATION=header)
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data['detail'], "Invalid v2 token")
@@ -77,7 +78,7 @@ class TokenAuthenticationTestCase(APITestCase):
         # Request with a non-expired token should succeed
         response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token1.token}')
         self.assertEqual(response.status_code, 200)
-        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {token2.key}.{token2.token}')
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}')
         self.assertEqual(response.status_code, 200)
 
         # Request with an expired token should fail
@@ -88,7 +89,7 @@ class TokenAuthenticationTestCase(APITestCase):
         token2.save()
         response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token1.key}')
         self.assertEqual(response.status_code, 403)
-        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {token2.key}')
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}')
         self.assertEqual(response.status_code, 403)
 
     @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -111,7 +112,7 @@ class TokenAuthenticationTestCase(APITestCase):
         token2 = Token.objects.create(version=2, user=self.user, write_enabled=False)
 
         token1_header = f'Token {token1.token}'
-        token2_header = f'Bearer {token2.key}.{token2.token}'
+        token2_header = f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}'
 
         # GET request with a write-disabled token should succeed
         response = self.client.get(url, HTTP_AUTHORIZATION=token1_header)
@@ -152,7 +153,7 @@ class TokenAuthenticationTestCase(APITestCase):
         self.assertEqual(response.status_code, 403)
         response = self.client.get(
             url,
-            HTTP_AUTHORIZATION=f'Bearer {token2.key}.{token2.token}',
+            HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}',
             REMOTE_ADDR='127.0.0.1'
         )
         self.assertEqual(response.status_code, 403)
@@ -166,7 +167,7 @@ class TokenAuthenticationTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get(
             url,
-            HTTP_AUTHORIZATION=f'Bearer {token2.key}.{token2.token}',
+            HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}',
             REMOTE_ADDR='192.0.2.1'
         )
         self.assertEqual(response.status_code, 200)
@@ -519,7 +520,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         """
         self.user = User.objects.create(username='testuser')
         self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Bearer {self.token.key}.{self.token.token}'}
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
     def test_get_object(self):

@@ -17,6 +17,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from ipam.graphql.types import IPAddressFamilyType
 from netbox.models.features import ChangeLoggingMixin
+from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
@@ -50,7 +51,7 @@ class APITestCase(ModelTestCase):
         self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
         self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Bearer {self.token.key}.{self.token.token}'}
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
 
     def _get_view_namespace(self):
         return f'{self.view_namespace or self.model._meta.app_label}-api'

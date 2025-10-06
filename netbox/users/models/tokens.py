@@ -15,7 +15,7 @@ from netaddr import IPNetwork
 
 from ipam.fields import IPNetworkField
 from users.choices import TokenVersionChoices
-from users.constants import TOKEN_CHARSET, TOKEN_DEFAULT_LENGTH, TOKEN_KEY_LENGTH
+from users.constants import TOKEN_CHARSET, TOKEN_DEFAULT_LENGTH, TOKEN_KEY_LENGTH, TOKEN_PREFIX
 from users.utils import get_current_pepper
 from utilities.querysets import RestrictedQuerySet
 
@@ -235,6 +235,7 @@ class Token(models.Model):
         if self.v1:
             return token == self.token
         if self.v2:
+            token = token.removeprefix(TOKEN_PREFIX)
             try:
                 pepper = settings.API_TOKEN_PEPPERS[self.pepper_id]
             except KeyError:

@@ -8,7 +8,7 @@ NetBox's REST API, powered by the [Django REST Framework](https://www.django-res
 
 ```no-highlight
 curl -s -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/ipam/prefixes/ \
 --data '{"prefix": "192.0.2.0/24", "site": {"name": "Branch 12"}}'
