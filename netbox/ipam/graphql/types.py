@@ -74,7 +74,7 @@ class BaseIPAddressFamilyType:
     filters=ASNFilter,
     pagination=True
 )
-class ASNType(NetBoxObjectType):
+class ASNType(NetBoxObjectType, ContactsMixin):
     asn: BigInt
     rir: Annotated["RIRType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
