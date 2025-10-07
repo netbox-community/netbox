@@ -161,9 +161,16 @@ def ranges_to_string(ranges):
 
 def string_to_ranges(value):
     """
-    Given a string in the format "1-100, 200-300" return an list of NumericRanges. Intended for use with ArrayField.
-    For example:
-        "1-99,200-299" => [NumericRange(1, 100), NumericRange(200, 300)]
+    Converts a string representation of numeric ranges into a list of NumericRange objects.
+
+    This function parses a string containing numeric values and ranges separated by commas (e.g.,
+    "1-5,8,10-12") and converts it into a list of NumericRange objects.
+    In the case of a single integer, it is treated as a range where the start and end
+    are equal. The returned ranges are represented as half-open intervals [lower, upper).
+    Intended for use with ArrayField.
+
+    Example:
+        "1-5,8,10-12" => [NumericRange(1, 6), NumericRange(8, 9), NumericRange(10, 13)]
     """
     if not value:
         return None
@@ -181,5 +188,5 @@ def string_to_ranges(value):
             upper = dash_range[1]
         else:
             return None
-        values.append(NumericRange(int(lower), int(upper), bounds='[]'))
+        values.append(NumericRange(int(lower), int(upper) + 1, bounds='[)'))
     return values
