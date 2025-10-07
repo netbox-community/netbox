@@ -2,47 +2,90 @@ import logging
 
 from django.conf import settings
 from django.utils import timezone
-from rest_framework import authentication, exceptions
+from drf_spectacular.extensions import OpenApiAuthenticationExtension
+from rest_framework import exceptions
+from rest_framework.authentication import BaseAuthentication, get_authorization_header
 from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
 
 from netbox.config import get_config
+from users.constants import TOKEN_PREFIX
 from users.models import Token
 from utilities.request import get_client_ip
 
+V1_KEYWORD = 'Token'
+V2_KEYWORD = 'Bearer'
 
-class TokenAuthentication(authentication.TokenAuthentication):
+
+class TokenAuthentication(BaseAuthentication):
     """
     A custom authentication scheme which enforces Token expiration times and source IP restrictions.
     """
     model = Token
 
     def authenticate(self, request):
-        result = super().authenticate(request)
-
-        if result:
-            token = result[1]
-
-            # Enforce source IP restrictions (if any) set on the token
-            if token.allowed_ips:
-                client_ip = get_client_ip(request)
-                if client_ip is None:
-                    raise exceptions.AuthenticationFailed(
-                        "Client IP address could not be determined for validation. Check that the HTTP server is "
-                        "correctly configured to pass the required header(s)."
-                    )
-                if not token.validate_client_ip(client_ip):
-                    raise exceptions.AuthenticationFailed(
-                        f"Source IP {client_ip} is not permitted to authenticate using this token."
-                    )
-
-        return result
-
-    def authenticate_credentials(self, key):
-        model = self.get_model()
+        # Authorization header is not present; ignore
+        if not (auth := get_authorization_header(request).split()):
+            return
+        # Unrecognized header; ignore
+        if auth[0].lower() not in (V1_KEYWORD.lower().encode(), V2_KEYWORD.lower().encode()):
+            return
+        # Check for extraneous token content
+        if len(auth) != 2:
+            raise exceptions.AuthenticationFailed(
+                'Invalid authorization header: Must be in the form "Bearer <key>.<token>" or "Token <token>"'
+            )
+        # Extract the key (if v2) & token plaintext from the auth header
         try:
-            token = model.objects.prefetch_related('user').get(key=key)
-        except model.DoesNotExist:
-            raise exceptions.AuthenticationFailed("Invalid token")
+            auth_value = auth[1].decode()
+        except UnicodeError:
+            raise exceptions.AuthenticationFailed("Invalid authorization header: Token contains invalid characters")
+
+        # Infer token version from presence or absence of prefix
+        version = 2 if auth_value.startswith(TOKEN_PREFIX) else 1
+
+        if version == 1:
+            key, plaintext = None, auth_value
+        else:
+            auth_value = auth_value.removeprefix(TOKEN_PREFIX)
+            try:
+                key, plaintext = auth_value.split('.', 1)
+            except ValueError:
+                raise exceptions.AuthenticationFailed(
+                    "Invalid authorization header: Could not parse key from v2 token. Did you mean to use 'Token' "
+                    "instead of 'Bearer'?"
+                )
+
+        # Look for a matching token in the database
+        try:
+            qs = Token.objects.prefetch_related('user')
+            if version == 1:
+                # Fetch v1 token by querying plaintext value directly
+                token = qs.get(version=version, plaintext=plaintext)
+            else:
+                # Fetch v2 token by key, then validate the plaintext
+                token = qs.get(version=version, key=key)
+                if not token.validate(plaintext):
+                    # Key is valid but plaintext is not. Raise DoesNotExist to guard against key enumeration.
+                    raise Token.DoesNotExist()
+        except Token.DoesNotExist:
+            raise exceptions.AuthenticationFailed(f"Invalid v{version} token")
+
+        # Enforce source IP restrictions (if any) set on the token
+        if token.allowed_ips:
+            client_ip = get_client_ip(request)
+            if client_ip is None:
+                raise exceptions.AuthenticationFailed(
+                    "Client IP address could not be determined for validation. Check that the HTTP server is "
+                    "correctly configured to pass the required header(s)."
+                )
+            if not token.validate_client_ip(client_ip):
+                raise exceptions.AuthenticationFailed(
+                    f"Source IP {client_ip} is not permitted to authenticate using this token."
+                )
+
+        # Enforce the Token's expiration time, if one has been set.
+        if token.is_expired:
+            raise exceptions.AuthenticationFailed("Token expired")
 
         # Update last used, but only once per minute at most. This reduces write load on the database
         if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
@@ -54,11 +97,8 @@ class TokenAuthentication(authentication.TokenAuthentication):
             else:
                 Token.objects.filter(pk=token.pk).update(last_used=timezone.now())
 
-        # Enforce the Token's expiration time, if one has been set.
-        if token.is_expired:
-            raise exceptions.AuthenticationFailed("Token expired")
-
         user = token.user
+
         # When LDAP authentication is active try to load user data from LDAP directory
         if 'netbox.authentication.LDAPBackend' in settings.REMOTE_AUTH_BACKEND:
             from netbox.authentication import LDAPBackend
@@ -132,3 +172,17 @@ class IsAuthenticatedOrLoginNotRequired(BasePermission):
         if not settings.LOGIN_REQUIRED:
             return True
         return request.user.is_authenticated
+
+
+class TokenScheme(OpenApiAuthenticationExtension):
+    target_class = 'netbox.api.authentication.TokenAuthentication'
+    name = 'tokenAuth'
+    match_subclasses = True
+
+    def get_security_definition(self, auto_schema):
+        return {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': '`Token <token>` (v1) or `Bearer <key>.<token>` (v2)',
+        }

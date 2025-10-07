@@ -12,14 +12,11 @@ from core.models import ObjectType
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
+from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
 from utilities.data import flatten_dict
-from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField,
-    JSONField,
-)
+from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
@@ -115,10 +112,10 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
 
 
 class UserTokenForm(forms.ModelForm):
-    key = forms.CharField(
-        label=_('Key'),
+    token = forms.CharField(
+        label=_('Token'),
         help_text=_(
-            'Keys must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
+            'Tokens must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
             'submitting this form, as it may no longer be accessible once the token has been created.'
         ),
         widget=forms.TextInput(
@@ -138,7 +135,7 @@ class UserTokenForm(forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'token', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -147,13 +144,27 @@ class UserTokenForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Omit the key field if token retrieval is not permitted
-        if self.instance.pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-            del self.fields['key']
+        if self.instance.pk:
+            # Disable the version & user fields for existing Tokens
+            self.fields['version'].disabled = True
+            self.fields['user'].disabled = True
+
+            # Omit the key field when editing an existing token if token retrieval is not permitted
+            if self.instance.v1 and settings.ALLOW_TOKEN_RETRIEVAL:
+                self.initial['token'] = self.instance.plaintext
+            else:
+                del self.fields['token']
 
         # Generate an initial random key if none has been specified
-        if not self.instance.pk and not self.initial.get('key'):
-            self.initial['key'] = Token.generate_key()
+        elif self.instance._state.adding and not self.initial.get('token'):
+            self.initial['version'] = TokenVersionChoices.V2
+            self.initial['token'] = Token.generate()
+
+    def save(self, commit=True):
+        if self.instance._state.adding and self.cleaned_data.get('token'):
+            self.instance.token = self.cleaned_data['token']
+
+        return super().save(commit=commit)
 
 
 class TokenForm(UserTokenForm):
@@ -162,14 +173,10 @@ class TokenForm(UserTokenForm):
         label=_('User')
     )
 
-    class Meta:
-        model = Token
+    class Meta(UserTokenForm.Meta):
         fields = [
-            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'token', 'user', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
-        widgets = {
-            'expires': DateTimePicker(),
-        }
 
 
 class UserForm(forms.ModelForm):

@@ -8,6 +8,7 @@ from rq.job import Job as RQ_Job, JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from rest_framework import status
+from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.testing import APITestCase, APIViewTestCases, TestCase
 from utilities.testing.utils import disable_logging
@@ -136,7 +137,7 @@ class BackgroundTaskTestCase(TestCase):
         # Create the test user and assign permissions
         self.user = User.objects.create_user(username='testuser', is_active=True)
         self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
 
         # Clear all queues prior to running each test
         get_queue('default').connection.flushall()

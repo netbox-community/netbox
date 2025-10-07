@@ -26,8 +26,9 @@ from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
-from users import forms, tables
+from users import forms
 from users.models import UserConfig
+from users.tables import TokenTable
 from utilities.request import safe_for_redirect
 from utilities.string import remove_linebreaks
 from utilities.views import register_model_view
@@ -328,7 +329,8 @@ class UserTokenListView(LoginRequiredMixin, View):
 
     def get(self, request):
         tokens = UserToken.objects.filter(user=request.user)
-        table = tables.UserTokenTable(tokens)
+        table = TokenTable(tokens)
+        table.columns.hide('user')
         table.configure(request)
 
         return render(request, 'account/token_list.html', {
@@ -343,11 +345,9 @@ class UserTokenView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
         token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
-        key = token.key if settings.ALLOW_TOKEN_RETRIEVAL else None
 
         return render(request, 'account/token.html', {
             'object': token,
-            'key': key,
         })
 
 

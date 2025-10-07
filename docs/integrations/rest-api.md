@@ -653,18 +653,19 @@ The NetBox REST API primarily employs token-based authentication. For convenienc
 
 ### Tokens
 
-A token is a unique identifier mapped to a NetBox user account. Each user may have one or more tokens which he or she can use for authentication when making REST API requests. To create a token, navigate to the API tokens page under your user profile.
+A token is a secret, unique identifier mapped to a NetBox user account. Each user may have one or more tokens which he or she can use for authentication when making REST API requests. To create a token, navigate to the API tokens page under your user profile. When creating a token, NetBox will automatically populate a randomly-generated token value.
 
 By default, all users can create and manage their own REST API tokens under the user control panel in the UI or via the REST API. This ability can be disabled by overriding the [`DEFAULT_PERMISSIONS`](../configuration/security.md#default_permissions) configuration parameter.
 
-Each token contains a 160-bit key represented as 40 hexadecimal characters. When creating a token, you'll typically leave the key field blank so that a random key will be automatically generated. However, NetBox allows you to specify a key in case you need to restore a previously deleted token to operation.
-
 Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox.
 
-!!! info "Restricting Token Retrieval"
-    The ability to retrieve the key value of a previously-created API token can be restricted by disabling the [`ALLOW_TOKEN_RETRIEVAL`](../configuration/security.md#allow_token_retrieval) configuration parameter.
+#### v1 and v2 Tokens
 
-### Restricting Write Operations
+Beginning with NetBox v4.5, two versions of API token are supported, denoted as v1 and v2. Users are strongly encouraged to create only v2 tokens and to discontinue the use of v1 tokens. Support for v1 tokens will be removed in a future NetBox release.
+
+v2 API tokens offer much stronger security. The token plaintext given at creation time is hashed together with a configured [cryptographic pepper](../configuration/required-parameters.md#api_token_peppers) to generate a unique checksum. This checksum is irreversible; the token plaintext is never stored on the server and thus cannot be retrieved.
+
+#### Restricting Write Operations
 
 By default, a token can be used to perform all actions via the API that a user would be permitted to do via the web UI. Deselecting the "write enabled" option will restrict API requests made with the token to read operations (e.g. GET) only.
 
@@ -681,10 +682,22 @@ It is possible to provision authentication tokens for other users via the REST A
 
 ### Authenticating to the API
 
-An authentication token is attached to a request by setting the `Authorization` header to the string `Token` followed by a space and the user's token:
+An authentication token is included with a request in its `Authorization` header. The format of the header value depends on the version of token in use. v2 tokens use the following form, concatenating the token's prefix (`nbt_`) and key with its plaintext value, separated by a period:
 
 ```
-$ curl -H "Authorization: Token $TOKEN" \
+Authorization: Bearer nbt_<key>.<token>
+```
+
+Legacy v1 tokens use the prefix `Token` rather than `Bearer`, and include only the token plaintext. (v1 tokens do not have a key.)
+
+```
+Authorization: Token <token>
+```
+
+Below is an example REST API request utilizing a v2 token.
+
+```
+$ curl -H "Authorization: Bearer nbt_4F9DAouzURLb.zjebxBPzICiPbWz0Wtx0fTL7bCKXKGTYhNzkgC2S" \
 -H "Accept: application/json; indent=4" \
 https://netbox/api/dcim/sites/
 {

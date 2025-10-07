@@ -266,7 +266,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
 class TokenTestCase(TestCase, BaseFilterSetTests):
     queryset = Token.objects.all()
     filterset = filtersets.TokenFilterSet
-    ignore_fields = ('allowed_ips',)
+    ignore_fields = ('plaintext', 'hmac_digest', 'allowed_ips')
 
     @classmethod
     def setUpTestData(cls):
@@ -282,20 +282,47 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         past_date = make_aware(datetime.datetime(2000, 1, 1))
         tokens = (
             Token(
-                user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar1'
+                version=1,
+                user=users[0],
+                expires=future_date,
+                write_enabled=True,
+                description='foobar1',
             ),
             Token(
-                user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar2'
+                version=2,
+                user=users[1],
+                expires=future_date,
+                write_enabled=True,
+                description='foobar2',
             ),
             Token(
-                user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False
+                version=2,
+                user=users[2],
+                expires=past_date,
+                write_enabled=False,
             ),
         )
-        Token.objects.bulk_create(tokens)
+        for token in tokens:
+            token.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_version(self):
+        params = {'version': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'version': 2}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_key(self):
+        tokens = Token.objects.filter(version=2)
+        params = {'key': [tokens[0].key, tokens[1].key]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_pepper_id(self):
+        params = {'pepper_id': [1]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
         users = User.objects.order_by('id')[:2]
@@ -311,11 +338,6 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'expires__lte': '2021-01-01T00:00:00'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_key(self):
-        tokens = Token.objects.all()[:2]
-        params = {'key': [tokens[0].key, tokens[1].key]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_write_enabled(self):
         params = {'write_enabled': True}
