@@ -61,18 +61,18 @@ class RangeFunctionsTestCase(TestCase):
         self.assertEqual(
             string_to_ranges('10-19, 30-39, 100-199'),
             [
-                NumericRange(10, 19, bounds='[]'),    # 10-19
-                NumericRange(30, 39, bounds='[]'),    # 30-39
-                NumericRange(100, 199, bounds='[]'),  # 100-199
+                NumericRange(10, 20, bounds='[)'),    # 10-20
+                NumericRange(30, 40, bounds='[)'),    # 30-40
+                NumericRange(100, 200, bounds='[)'),  # 100-200
             ]
         )
 
         self.assertEqual(
             string_to_ranges('1-2, 5, 10-12'),
             [
-                NumericRange(1, 2, bounds='[]'),    # 1-2
-                NumericRange(5, 5, bounds='[]'),    # 5-5
-                NumericRange(10, 12, bounds='[]'),  # 10-12
+                NumericRange(1, 3, bounds='[)'),    # 1-3
+                NumericRange(5, 6, bounds='[)'),    # 5-6
+                NumericRange(10, 13, bounds='[)'),  # 10-13
             ]
         )
 

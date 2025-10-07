@@ -137,8 +137,17 @@ def check_ranges_overlap(ranges):
 
 def ranges_to_string(ranges):
     """
-    Generate a human-friendly string from a set of ranges. Intended for use with ArrayField. For example:
-        [[1, 100)], [200, 300)] => "1-99,200-299"
+    Converts a list of ranges into a string representation.
+
+    This function takes a list of range objects and produces a string
+    representation of those ranges. Each range is represented as a
+    hyphen-separated pair of lower and upper bounds, with inclusive or
+    exclusive bounds adjusted accordingly. If the lower and upper bounds
+    of a range are the same, only the single value is added to the string.
+    Intended for use with ArrayField.
+
+    Example:
+        [NumericRange(1, 5), NumericRange(8, 9), NumericRange(10, 12)] => "1-5,8,10-12"
     """
     if not ranges:
         return ''
@@ -146,15 +155,22 @@ def ranges_to_string(ranges):
     for r in ranges:
         lower = r.lower if r.lower_inc else r.lower + 1
         upper = r.upper if r.upper_inc else r.upper - 1
-        output.append(f'{lower}-{upper}')
+        output.append(f"{lower}-{upper}" if lower != upper else str(lower))
     return ','.join(output)
 
 
 def string_to_ranges(value):
     """
-    Given a string in the format "1-100, 200-300" return an list of NumericRanges. Intended for use with ArrayField.
-    For example:
-        "1-99,200-299" => [NumericRange(1, 100), NumericRange(200, 300)]
+    Converts a string representation of numeric ranges into a list of NumericRange objects.
+
+    This function parses a string containing numeric values and ranges separated by commas (e.g.,
+    "1-5,8,10-12") and converts it into a list of NumericRange objects.
+    In the case of a single integer, it is treated as a range where the start and end
+    are equal. The returned ranges are represented as half-open intervals [lower, upper).
+    Intended for use with ArrayField.
+
+    Example:
+        "1-5,8,10-12" => [NumericRange(1, 6), NumericRange(8, 9), NumericRange(10, 13)]
     """
     if not value:
         return None
@@ -172,5 +188,5 @@ def string_to_ranges(value):
             upper = dash_range[1]
         else:
             return None
-        values.append(NumericRange(int(lower), int(upper), bounds='[]'))
+        values.append(NumericRange(int(lower), int(upper) + 1, bounds='[)'))
     return values
