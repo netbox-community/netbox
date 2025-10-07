@@ -44,22 +44,28 @@ class OptionalLimitOffsetPagination(LimitOffsetPagination):
             return list(queryset[self.offset:])
 
     def get_limit(self, request):
+        max_limit = self.default_limit
+        MAX_PAGE_SIZE = get_config().MAX_PAGE_SIZE
+        if MAX_PAGE_SIZE:
+            max_limit = min(max_limit, MAX_PAGE_SIZE)
+
         if self.limit_query_param:
-            MAX_PAGE_SIZE = get_config().MAX_PAGE_SIZE
-            if MAX_PAGE_SIZE:
-                MAX_PAGE_SIZE = max(MAX_PAGE_SIZE, self.default_limit)
             try:
                 limit = int(request.query_params[self.limit_query_param])
                 if limit < 0:
                     raise ValueError()
-                # Enforce maximum page size, if defined
+
                 if MAX_PAGE_SIZE:
-                    return MAX_PAGE_SIZE if limit == 0 else min(limit, MAX_PAGE_SIZE)
-                return limit
+                    if limit == 0:
+                        max_limit = MAX_PAGE_SIZE
+                    else:
+                        max_limit = min(MAX_PAGE_SIZE, limit)
+                else:
+                    max_limit = limit
             except (KeyError, ValueError):
                 pass
 
-        return self.default_limit
+        return max_limit
 
     def get_queryset_count(self, queryset):
         return queryset.count()
