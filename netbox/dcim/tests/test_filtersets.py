@@ -1945,7 +1945,7 @@ class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
     def test_feed_leg(self):
         params = {'feed_leg': [PowerOutletFeedLegChoices.FEED_LEG_A, PowerOutletFeedLegChoices.FEED_LEG_B]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        
+
     def test_color(self):
         params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
