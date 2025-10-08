@@ -24,6 +24,7 @@ __all__ = (
     'FloatLookup',
     'IntegerArrayLookup',
     'IntegerLookup',
+    'IntegerRangeArrayLookup',
     'JSONFilter',
     'StringArrayLookup',
     'TreeNodeFilter',
@@ -216,4 +217,31 @@ class FloatArrayLookup(ArrayLookup[float]):
 
 @strawberry.input(one_of=True, description='Lookup for Array fields. Only one of the lookup fields can be set.')
 class StringArrayLookup(ArrayLookup[str]):
+    pass
+
+
+@strawberry.input(one_of=True, description='Lookups for an ArrayField(RangeField). Only one may be set.')
+class RangeArrayValueLookup(Generic[T]):
+    """
+    class for Array field of Range fields lookups
+    """
+
+    contains: T | None = strawberry.field(
+        default=strawberry.UNSET, description='Return rows where any stored range contains this value.'
+    )
+
+    @strawberry_django.filter_field
+    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+        """
+        Map GraphQL: { <field>: { contains: <T> } } To Django ORM: <field>__range_contains=<T>
+        """
+        if self.contains is strawberry.UNSET or self.contains is None:
+            return queryset, Q()
+
+        # Build '<prefix>range_contains' so it works for nested paths too
+        return queryset, Q(**{f'{prefix}range_contains': self.contains})
+
+
+@strawberry.input(one_of=True, description='Lookups for an ArrayField(IntegerRangeField). Only one may be set.')
+class IntegerRangeArrayLookup(RangeArrayValueLookup[int]):
     pass
