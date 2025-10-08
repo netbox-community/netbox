@@ -7,8 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from core.models import ObjectChange
 
 if TYPE_CHECKING:
-    from core.graphql.types import DataFileType, DataSourceType
-    from netbox.core.graphql.types import ObjectChangeType
+    from core.graphql.types import DataFileType, DataSourceType, ObjectChangeType
 
 __all__ = (
     'ChangelogMixin',
