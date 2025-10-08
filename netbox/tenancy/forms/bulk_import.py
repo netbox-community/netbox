@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
@@ -25,7 +26,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent group')
+        help_text=_('Parent group'),
     )
     slug = SlugField()
 
@@ -41,7 +42,7 @@ class TenantImportForm(NetBoxModelImportForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Assigned group')
+        help_text=_('Assigned group'),
     )
 
     class Meta:
@@ -59,7 +60,7 @@ class ContactGroupImportForm(NetBoxModelImportForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent group')
+        help_text=_('Parent group'),
     )
     slug = SlugField()
 
@@ -81,7 +82,12 @@ class ContactImportForm(NetBoxModelImportForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Group names separated by commas, encased with double quotes (e.g. "Group 1,Group 2")')
+        help_text=_('Group names separated by commas, encased with double quotes (e.g. "Group 1,Group 2")'),
+    )
+    link = forms.URLField(
+        label=_('Link'),
+        assume_scheme='https',
+        required=False,
     )
 
     class Meta:
