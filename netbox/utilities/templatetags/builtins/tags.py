@@ -158,7 +158,7 @@ def static_with_params(path, **params):
     existing_params = parse_qs(parsed.query)
 
     # Check for duplicate parameters and log warnings
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger('netbox.utilities.templatetags.tags')
     for key, value in params.items():
         if key in existing_params:
             logger.warning(
