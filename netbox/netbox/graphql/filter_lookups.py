@@ -7,6 +7,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Q, QuerySet
 from django.db.models.fields.related import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel
 from strawberry import ID
+from strawberry.directive import DirectiveValue
 from strawberry.types import Info
 from strawberry_django import (
     ComparisonFilterLookup,
@@ -68,7 +69,7 @@ class IntegerLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -91,7 +92,7 @@ class FloatLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -110,7 +111,7 @@ class JSONFilter:
     lookup: JSONLookup
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         filters = self.lookup.get_filter()
 
         if not filters:
@@ -137,7 +138,7 @@ class TreeNodeFilter:
     match_type: TreeNodeMatch
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         model_field_name = prefix.removesuffix('__').removesuffix('_id')
         model_field = None
         try:
