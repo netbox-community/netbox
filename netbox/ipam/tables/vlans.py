@@ -41,7 +41,8 @@ class VLANGroupTable(TenancyColumnsMixin, NetBoxTable):
         linkify=True,
         orderable=False
     )
-    vid_ranges_list = tables.Column(
+    vid_ranges_list = columns.ArrayColumn(
+        accessor='vid_ranges_items',
         verbose_name=_('VID Ranges'),
         orderable=False
     )
