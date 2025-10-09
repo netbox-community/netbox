@@ -1,3 +1,5 @@
+import logging
+
 from django import template
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
@@ -155,8 +157,14 @@ def static_with_params(path, **params):
     parsed = urlparse(static_url)
     existing_params = parse_qs(parsed.query)
 
-    # Add new parameters to existing ones
+    # Check for duplicate parameters and log warnings
+    logger = logging.getLogger(__name__)
     for key, value in params.items():
+        if key in existing_params:
+            logger.warning(
+                f"Parameter '{key}' already exists in static URL '{static_url}' "
+                f"with value(s) {existing_params[key]}, overwriting with '{value}'"
+            )
         existing_params[key] = [str(value)]
 
     # Rebuild the query string
