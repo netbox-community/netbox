@@ -148,7 +148,7 @@ def static_with_params(path, **params):
         **params: Query parameters to append (e.g., v='4.3.1')
 
     Returns:
-        A properly formatted URL with query parameters
+        A properly formatted URL with query parameters.
     """
     # Get the base static URL
     static_url = static(path)
