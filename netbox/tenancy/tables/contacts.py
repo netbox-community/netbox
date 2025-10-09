@@ -110,10 +110,10 @@ class ContactAssignmentTable(NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
-    contact_group = tables.Column(
-        accessor=Accessor('contact__group'),
-        verbose_name=_('Group'),
-        linkify=True
+    contact_groups = columns.ManyToManyColumn(
+        accessor=Accessor('contact__groups'),
+        verbose_name=_('Groups'),
+        linkify_item=('tenancy:contactgroup', {'pk': tables.A('pk')})
     )
     contact_title = tables.Column(
         accessor=Accessor('contact__title'),
@@ -152,7 +152,7 @@ class ContactAssignmentTable(NetBoxTable):
         model = ContactAssignment
         fields = (
             'pk', 'object_type', 'object', 'contact', 'role', 'priority', 'contact_title', 'contact_phone',
-            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'contact_group', 'tags',
+            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'contact_groups', 'tags',
             'actions'
         )
         default_columns = (

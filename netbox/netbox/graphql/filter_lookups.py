@@ -7,6 +7,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Q, QuerySet
 from django.db.models.fields.related import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel
 from strawberry import ID
+from strawberry.directive import DirectiveValue
 from strawberry.types import Info
 from strawberry_django import (
     ComparisonFilterLookup,
@@ -24,6 +25,7 @@ __all__ = (
     'FloatLookup',
     'IntegerArrayLookup',
     'IntegerLookup',
+    'IntegerRangeArrayLookup',
     'JSONFilter',
     'StringArrayLookup',
     'TreeNodeFilter',
@@ -67,7 +69,7 @@ class IntegerLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -90,7 +92,7 @@ class FloatLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -109,7 +111,7 @@ class JSONFilter:
     lookup: JSONLookup
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         filters = self.lookup.get_filter()
 
         if not filters:
@@ -136,7 +138,7 @@ class TreeNodeFilter:
     match_type: TreeNodeMatch
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
         model_field_name = prefix.removesuffix('__').removesuffix('_id')
         model_field = None
         try:
@@ -216,4 +218,31 @@ class FloatArrayLookup(ArrayLookup[float]):
 
 @strawberry.input(one_of=True, description='Lookup for Array fields. Only one of the lookup fields can be set.')
 class StringArrayLookup(ArrayLookup[str]):
+    pass
+
+
+@strawberry.input(one_of=True, description='Lookups for an ArrayField(RangeField). Only one may be set.')
+class RangeArrayValueLookup(Generic[T]):
+    """
+    class for Array field of Range fields lookups
+    """
+
+    contains: T | None = strawberry.field(
+        default=strawberry.UNSET, description='Return rows where any stored range contains this value.'
+    )
+
+    @strawberry_django.filter_field
+    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+        """
+        Map GraphQL: { <field>: { contains: <T> } } To Django ORM: <field>__range_contains=<T>
+        """
+        if self.contains is strawberry.UNSET or self.contains is None:
+            return queryset, Q()
+
+        # Build '<prefix>range_contains' so it works for nested paths too
+        return queryset, Q(**{f'{prefix}range_contains': self.contains})
+
+
+@strawberry.input(one_of=True, description='Lookups for an ArrayField(IntegerRangeField). Only one may be set.')
+class IntegerRangeArrayLookup(RangeArrayValueLookup[int]):
     pass

@@ -13,7 +13,7 @@ class BackgroundTaskSerializer(serializers.Serializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='core-api:rqtask-detail',
         lookup_field='id',
-        lookup_url_kwarg='pk'
+        lookup_url_kwarg='id'
     )
     description = serializers.CharField()
     origin = serializers.CharField()

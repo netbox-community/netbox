@@ -238,7 +238,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         model = self.queryset.model
 
         initial_data = normalize_querydict(request.GET)
-        form = self.form(instance=obj, initial=initial_data)
+        form_prefix = 'quickadd' if request.GET.get('_quickadd') else None
+        form = self.form(instance=obj, initial=initial_data, prefix=form_prefix)
         restrict_form_fields(form, request.user)
 
         context = {

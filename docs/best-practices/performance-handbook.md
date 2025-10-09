@@ -141,17 +141,39 @@ Complex API requests, which pull in many related objects, generate a relatively 
 
 NetBox's read-only [GraphQL API](../integrations/graphql-api.md) offers an alternative to its REST API, and provides a very flexible means of retrieving data. GraphQL enables the client to request any object from a single endpoint, specifying only the desired attributes and relations. Many users prefer this to the more rigid structure of the REST API, but it's important to understand the trade-offs of crafting complex queries.
 
+#### Request Only the Necessary Fields
+
+For optimal performance, craft your GraphQL queries to return only the fields needed by the client. This will reduce the overall query time, especially when omitting related objects.
+
 #### Avoid Overly Complex Queries
 
 The primary benefit of the GraphQL API is that it allows the client to offload to the server the work of stitching together various related objects, which would require the client to make multiple requests to different endpoints if using the REST API. However, this advantage does not come for free: The more information that is requested in a single query, the more work the server needs to do to fetch the raw data from the database and render it into a GraphQL response. Very complex queries can yield dozens or hundreds of SQL queries on the backend, which increase the time it takes to render a response.
 
 While it can be tempting to pack as much data as possible into a single GraphQL query, realize that there is a balance to be struck between minimizing the number of queries needed and avoiding complexity in the interest of performance. For example, while it is possible to retrieve via a single GraphQL API request all the IP addresses and all attached cables for every device in a site, it is probably more efficient (often _much_ more efficient) to make two or three separate requests and correlate the data locally.
 
+#### Use Filters
+
+You can specify filters when making a GraphQL query to limit the set of objects returned. This works a bit differently from the REST API, as filters are declared inside the query statement rather than appended to the URL, but the concept is the same. For example, to return only active sites:
+
+```graphql
+query {
+  site_list(
+    filters: {
+      status: STATUS_ACTIVE
+    }
+  ) {
+    name
+  }
+}
+```
+
+This returns only sites with a status of "active" and avoid needing to parse through all the others. For further information about filters, see the [GraphQL API documentation](../integrations/graphql-api.md).
+
 #### Employ Pagination
 
 Like the REST API, the GraphQL API supports pagination. Queries which return a large number of objects should employ pagination to limit the size of each response.
 
-```
+```graphql
 {
   device_list(
     pagination: {limit: 100}

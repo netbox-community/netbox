@@ -673,10 +673,15 @@ def has_feature(model_or_ct, feature):
     # If an ObjectType was passed, we can use it directly
     if type(model_or_ct) is ObjectType:
         ot = model_or_ct
-    # If a ContentType was passed, resolve its model class
+    # If a ContentType was passed, resolve its model class and run the associated feature test
     elif type(model_or_ct) is ContentType:
-        model_class = model_or_ct.model_class()
-        ot = ObjectType.objects.get_for_model(model_class) if model_class else None
+        model = model_or_ct.model_class()
+        try:
+            test_func = registry['model_features'][feature]
+        except KeyError:
+            # Unknown feature
+            return False
+        return test_func(model)
     # For anything else, look up the ObjectType
     else:
         ot = ObjectType.objects.get_for_model(model_or_ct)

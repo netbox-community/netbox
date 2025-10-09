@@ -26,6 +26,9 @@ class BaseIPField(models.Field):
     def from_db_value(self, value, expression, connection):
         return self.to_python(value)
 
+    def get_internal_type(self):
+        return 'CharField'
+
     def to_python(self, value):
         if not value:
             return value
@@ -57,7 +60,7 @@ class IPNetworkField(BaseIPField):
     """
     IP prefix (network and mask)
     """
-    description = "PostgreSQL CIDR field"
+    description = 'PostgreSQL CIDR field'
     default_validators = [validators.prefix_validator]
 
     def db_type(self, connection):
@@ -83,7 +86,7 @@ class IPAddressField(BaseIPField):
     """
     IP address (host address and mask)
     """
-    description = "PostgreSQL INET field"
+    description = 'PostgreSQL INET field'
 
     def db_type(self, connection):
         return 'inet'
@@ -110,7 +113,7 @@ IPAddressField.register_lookup(lookups.Inet)
 
 
 class ASNField(models.BigIntegerField):
-    description = "32-bit ASN field"
+    description = '32-bit ASN field'
     default_validators = [
         MinValueValidator(BGP_ASN_MIN),
         MaxValueValidator(BGP_ASN_MAX),
