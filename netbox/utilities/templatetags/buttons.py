@@ -226,7 +226,6 @@ def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     return {
         'label': _('Edit Selected'),
         'url': url,
-        'htmx_navigation': context.get('htmx_navigation'),
     }
 
 
@@ -243,5 +242,4 @@ def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
     return {
         'label': _('Delete Selected'),
         'url': url,
-        'htmx_navigation': context.get('htmx_navigation'),
     }

@@ -28,7 +28,6 @@ def preferences(request):
     user_preferences = request.user.config if request.user.is_authenticated else {}
     return {
         'preferences': user_preferences,
-        'htmx_navigation': user_preferences.get('ui.htmx_navigation', False) == 'true'
     }
 
 

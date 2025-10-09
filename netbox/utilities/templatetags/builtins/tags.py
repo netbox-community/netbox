@@ -1,5 +1,4 @@
 from django import template
-from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
 from utilities.querydict import dict_to_querydict
@@ -121,9 +120,7 @@ def htmx_table(context, viewname, return_url=None, **kwargs):
 @register.simple_tag(takes_context=True)
 def formaction(context):
     """
-    Replace the 'formaction' attribute on an HTML element with the appropriate HTMX attributes
-    if HTMX navigation is enabled (per the user's preferences).
+    A hook for overriding the 'formaction' attribute on an HTML element, for example to replace
+    with 'hx-push-url="true" hx-post' for HTMX navigation.
     """
-    if context.get('htmx_navigation', False):
-        return mark_safe('hx-push-url="true" hx-post')
     return 'formaction'
