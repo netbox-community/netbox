@@ -1,7 +1,11 @@
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase
-
-from utilities.data import check_ranges_overlap, ranges_to_string, string_to_ranges
+from utilities.data import (
+    check_ranges_overlap,
+    ranges_to_string,
+    ranges_to_string_list,
+    string_to_ranges,
+)
 
 
 class RangeFunctionsTestCase(TestCase):
@@ -47,14 +51,26 @@ class RangeFunctionsTestCase(TestCase):
             ])
         )
 
+    def test_ranges_to_string_list(self):
+        self.assertEqual(
+            ranges_to_string_list([
+                NumericRange(10, 20),    # 10-19
+                NumericRange(30, 40),    # 30-39
+                NumericRange(50, 51),    # 50-50
+                NumericRange(100, 200),  # 100-199
+            ]),
+            ['10-19', '30-39', '50', '100-199']
+        )
+
     def test_ranges_to_string(self):
         self.assertEqual(
             ranges_to_string([
                 NumericRange(10, 20),    # 10-19
                 NumericRange(30, 40),    # 30-39
+                NumericRange(50, 51),    # 50-50
                 NumericRange(100, 200),  # 100-199
             ]),
-            '10-19,30-39,100-199'
+            '10-19,30-39,50,100-199'
         )
 
     def test_string_to_ranges(self):
