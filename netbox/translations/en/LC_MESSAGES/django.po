@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-09 05:04+0000\n"
+"POT-Creation-Date: 2025-10-10 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1125,7 +1125,7 @@ msgstr ""
 #: netbox/templates/vpn/tunneltermination.html:17
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:20
 #: netbox/tenancy/forms/bulk_edit.py:159 netbox/tenancy/forms/filtersets.py:107
-#: netbox/tenancy/forms/model_forms.py:139
+#: netbox/tenancy/forms/model_forms.py:144
 #: netbox/tenancy/tables/contacts.py:110
 #: netbox/virtualization/forms/bulk_edit.py:127
 #: netbox/virtualization/forms/bulk_import.py:112
@@ -1238,7 +1238,7 @@ msgstr ""
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:10
 #: netbox/templates/wireless/wirelesslink.html:10
 #: netbox/templates/wireless/wirelesslink.html:55
-#: netbox/virtualization/forms/model_forms.py:377
+#: netbox/virtualization/forms/model_forms.py:375
 #: netbox/vpn/forms/bulk_import.py:302 netbox/vpn/forms/model_forms.py:439
 #: netbox/vpn/forms/model_forms.py:448 netbox/wireless/forms/model_forms.py:118
 #: netbox/wireless/forms/model_forms.py:160
@@ -1398,10 +1398,10 @@ msgstr ""
 #: netbox/templates/virtualization/cluster.html:29
 #: netbox/templates/vpn/tunnel.html:29
 #: netbox/templates/wireless/wirelesslan.html:18
-#: netbox/tenancy/forms/bulk_edit.py:44 netbox/tenancy/forms/bulk_import.py:40
+#: netbox/tenancy/forms/bulk_edit.py:44 netbox/tenancy/forms/bulk_import.py:41
 #: netbox/tenancy/forms/filtersets.py:48 netbox/tenancy/forms/filtersets.py:97
 #: netbox/tenancy/forms/model_forms.py:46
-#: netbox/tenancy/forms/model_forms.py:124 netbox/tenancy/tables/tenants.py:50
+#: netbox/tenancy/forms/model_forms.py:129 netbox/tenancy/tables/tenants.py:50
 #: netbox/users/filtersets.py:62 netbox/users/filtersets.py:185
 #: netbox/users/forms/filtersets.py:31 netbox/users/forms/filtersets.py:37
 #: netbox/users/forms/filtersets.py:79
@@ -2547,7 +2547,7 @@ msgstr ""
 msgid "Change logging is not supported for this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/config.py:18 netbox/core/models/data.py:269
+#: netbox/core/models/config.py:21 netbox/core/models/data.py:269
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:839 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
@@ -2555,31 +2555,31 @@ msgstr ""
 msgid "created"
 msgstr ""
 
-#: netbox/core/models/config.py:22
+#: netbox/core/models/config.py:25
 msgid "comment"
 msgstr ""
 
-#: netbox/core/models/config.py:29
+#: netbox/core/models/config.py:32
 msgid "configuration data"
 msgstr ""
 
-#: netbox/core/models/config.py:36
+#: netbox/core/models/config.py:39
 msgid "config revision"
 msgstr ""
 
-#: netbox/core/models/config.py:37
+#: netbox/core/models/config.py:40
 msgid "config revisions"
 msgstr ""
 
-#: netbox/core/models/config.py:41
+#: netbox/core/models/config.py:51
 msgid "Default configuration"
 msgstr ""
 
-#: netbox/core/models/config.py:43
+#: netbox/core/models/config.py:53
 msgid "Current configuration"
 msgstr ""
 
-#: netbox/core/models/config.py:44
+#: netbox/core/models/config.py:54
 #, python-brace-format
 msgid "Config revision #{id}"
 msgstr ""
@@ -3196,8 +3196,8 @@ msgstr ""
 #: netbox/templates/virtualization/vminterface.html:39
 #: netbox/templates/wireless/wirelesslangroup.html:37
 #: netbox/tenancy/forms/bulk_edit.py:27 netbox/tenancy/forms/bulk_edit.py:67
-#: netbox/tenancy/forms/bulk_import.py:24
-#: netbox/tenancy/forms/bulk_import.py:58
+#: netbox/tenancy/forms/bulk_import.py:25
+#: netbox/tenancy/forms/bulk_import.py:59
 #: netbox/tenancy/forms/model_forms.py:25
 #: netbox/tenancy/forms/model_forms.py:69 netbox/tenancy/tables/contacts.py:23
 #: netbox/tenancy/tables/tenants.py:20
@@ -3947,7 +3947,7 @@ msgstr ""
 
 #: netbox/dcim/filtersets.py:1849 netbox/templates/dcim/interface.html:81
 #: netbox/templates/virtualization/vminterface.html:55
-#: netbox/virtualization/forms/model_forms.py:395
+#: netbox/virtualization/forms/model_forms.py:393
 msgid "802.1Q Mode"
 msgstr ""
 
@@ -3987,7 +3987,7 @@ msgstr ""
 #: netbox/virtualization/forms/bulk_edit.py:243
 #: netbox/virtualization/forms/bulk_import.py:177
 #: netbox/virtualization/forms/filtersets.py:236
-#: netbox/virtualization/forms/model_forms.py:368
+#: netbox/virtualization/forms/model_forms.py:366
 #: netbox/virtualization/models/virtualmachines.py:336
 #: netbox/virtualization/tables/virtualmachines.py:113
 msgid "VRF"
@@ -4027,7 +4027,7 @@ msgstr ""
 #: netbox/templates/ipam/vlantranslationpolicy.html:11
 #: netbox/virtualization/forms/bulk_edit.py:248
 #: netbox/virtualization/forms/filtersets.py:251
-#: netbox/virtualization/forms/model_forms.py:373
+#: netbox/virtualization/forms/model_forms.py:371
 msgid "VLAN Translation Policy"
 msgstr ""
 
@@ -4077,7 +4077,7 @@ msgstr ""
 
 #: netbox/dcim/filtersets.py:1977 netbox/dcim/forms/model_forms.py:1549
 #: netbox/virtualization/filtersets.py:284
-#: netbox/virtualization/forms/model_forms.py:311
+#: netbox/virtualization/forms/model_forms.py:309
 msgid "Primary MAC address"
 msgstr ""
 
@@ -4724,21 +4724,21 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:1567 netbox/dcim/forms/model_forms.py:1511
 #: netbox/ipam/forms/bulk_import.py:174 netbox/ipam/forms/filtersets.py:561
 #: netbox/ipam/models/vlans.py:93 netbox/virtualization/forms/bulk_edit.py:222
-#: netbox/virtualization/forms/model_forms.py:335
+#: netbox/virtualization/forms/model_forms.py:333
 msgid "VLAN group"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1576 netbox/dcim/forms/model_forms.py:1517
 #: netbox/dcim/tables/devices.py:622
 #: netbox/virtualization/forms/bulk_edit.py:230
-#: netbox/virtualization/forms/model_forms.py:340
+#: netbox/virtualization/forms/model_forms.py:338
 msgid "Untagged VLAN"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1585 netbox/dcim/forms/model_forms.py:1526
 #: netbox/dcim/tables/devices.py:628
 #: netbox/virtualization/forms/bulk_edit.py:238
-#: netbox/virtualization/forms/model_forms.py:349
+#: netbox/virtualization/forms/model_forms.py:347
 msgid "Tagged VLANs"
 msgstr ""
 
@@ -4751,7 +4751,7 @@ msgid "Remove tagged VLANs"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1608 netbox/dcim/forms/model_forms.py:1535
-#: netbox/virtualization/forms/model_forms.py:358
+#: netbox/virtualization/forms/model_forms.py:356
 msgid "Q-in-Q Service VLAN"
 msgstr ""
 
@@ -4774,13 +4774,13 @@ msgstr ""
 #: netbox/templates/ipam/prefix.html:91
 #: netbox/templates/virtualization/vminterface.html:76
 #: netbox/virtualization/forms/filtersets.py:205
-#: netbox/virtualization/forms/model_forms.py:378
+#: netbox/virtualization/forms/model_forms.py:376
 msgid "Addressing"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1638 netbox/dcim/forms/filtersets.py:750
 #: netbox/dcim/forms/model_forms.py:1570
-#: netbox/virtualization/forms/model_forms.py:379
+#: netbox/virtualization/forms/model_forms.py:377
 msgid "Operation"
 msgstr ""
 
@@ -4792,7 +4792,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_edit.py:1640 netbox/dcim/forms/model_forms.py:1571
 #: netbox/templates/dcim/interface.html:105
 #: netbox/virtualization/forms/bulk_edit.py:254
-#: netbox/virtualization/forms/model_forms.py:380
+#: netbox/virtualization/forms/model_forms.py:378
 msgid "Related Interfaces"
 msgstr ""
 
@@ -4800,7 +4800,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:1575
 #: netbox/virtualization/forms/bulk_edit.py:257
 #: netbox/virtualization/forms/filtersets.py:206
-#: netbox/virtualization/forms/model_forms.py:383
+#: netbox/virtualization/forms/model_forms.py:381
 msgid "802.1Q Switching"
 msgstr ""
 
@@ -4828,7 +4828,7 @@ msgstr ""
 msgid "Assigned region"
 msgstr ""
 
-#: netbox/dcim/forms/bulk_import.py:107 netbox/tenancy/forms/bulk_import.py:44
+#: netbox/dcim/forms/bulk_import.py:107 netbox/tenancy/forms/bulk_import.py:45
 #: netbox/wireless/forms/bulk_import.py:42
 msgid "Assigned group"
 msgstr ""
@@ -4961,7 +4961,7 @@ msgid "Limit platform assignments to this manufacturer"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:549 netbox/dcim/forms/bulk_import.py:1674
-#: netbox/tenancy/forms/bulk_import.py:105
+#: netbox/tenancy/forms/bulk_import.py:111
 msgid "Assigned role"
 msgstr ""
 
@@ -5072,13 +5072,13 @@ msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:919 netbox/dcim/forms/model_forms.py:1473
 #: netbox/virtualization/forms/bulk_import.py:161
-#: netbox/virtualization/forms/model_forms.py:319
+#: netbox/virtualization/forms/model_forms.py:317
 msgid "Parent interface"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:926 netbox/dcim/forms/model_forms.py:1481
 #: netbox/virtualization/forms/bulk_import.py:168
-#: netbox/virtualization/forms/model_forms.py:327
+#: netbox/virtualization/forms/model_forms.py:325
 msgid "Bridged interface"
 msgstr ""
 
@@ -5212,7 +5212,7 @@ msgstr ""
 #: netbox/virtualization/forms/bulk_import.py:213
 #: netbox/virtualization/forms/filtersets.py:220
 #: netbox/virtualization/forms/filtersets.py:266
-#: netbox/virtualization/forms/model_forms.py:295
+#: netbox/virtualization/forms/model_forms.py:293
 #: netbox/vpn/forms/bulk_import.py:93 netbox/vpn/forms/bulk_import.py:295
 msgid "Virtual machine"
 msgstr ""
@@ -5427,8 +5427,8 @@ msgstr ""
 msgid "Parent region"
 msgstr ""
 
-#: netbox/dcim/forms/filtersets.py:165 netbox/tenancy/forms/bulk_import.py:28
-#: netbox/tenancy/forms/bulk_import.py:62 netbox/tenancy/forms/filtersets.py:33
+#: netbox/dcim/forms/filtersets.py:165 netbox/tenancy/forms/bulk_import.py:29
+#: netbox/tenancy/forms/bulk_import.py:63 netbox/tenancy/forms/filtersets.py:33
 #: netbox/tenancy/forms/filtersets.py:62
 #: netbox/wireless/forms/bulk_import.py:27
 #: netbox/wireless/forms/filtersets.py:27
@@ -8045,7 +8045,8 @@ msgid "No"
 msgstr ""
 
 #: netbox/extras/choices.py:108 netbox/templates/tenancy/contact.html:67
-#: netbox/tenancy/forms/bulk_edit.py:130
+#: netbox/tenancy/forms/bulk_edit.py:130 netbox/tenancy/forms/bulk_import.py:88
+#: netbox/tenancy/forms/model_forms.py:104
 #: netbox/wireless/forms/model_forms.py:173
 msgid "Link"
 msgstr ""
@@ -8477,7 +8478,7 @@ msgstr ""
 #: netbox/extras/forms/bulk_import.py:176
 #: netbox/extras/forms/bulk_import.py:200
 #: netbox/extras/forms/bulk_import.py:254
-#: netbox/tenancy/forms/bulk_import.py:95
+#: netbox/tenancy/forms/bulk_import.py:101
 msgid "One or more assigned object types"
 msgstr ""
 
@@ -15137,8 +15138,8 @@ msgstr ""
 
 #: netbox/templates/tenancy/contact.html:18 netbox/tenancy/filtersets.py:152
 #: netbox/tenancy/forms/bulk_edit.py:154 netbox/tenancy/forms/filtersets.py:102
-#: netbox/tenancy/forms/forms.py:57 netbox/tenancy/forms/model_forms.py:108
-#: netbox/tenancy/forms/model_forms.py:132
+#: netbox/tenancy/forms/forms.py:57 netbox/tenancy/forms/model_forms.py:113
+#: netbox/tenancy/forms/model_forms.py:137
 #: netbox/tenancy/tables/contacts.py:106
 msgid "Contact"
 msgstr ""
@@ -15522,13 +15523,13 @@ msgstr ""
 msgid "Remove groups"
 msgstr ""
 
-#: netbox/tenancy/forms/bulk_import.py:84
+#: netbox/tenancy/forms/bulk_import.py:85
 msgid ""
 "Group names separated by commas, encased with double quotes (e.g. \"Group 1,"
 "Group 2\")"
 msgstr ""
 
-#: netbox/tenancy/forms/bulk_import.py:100
+#: netbox/tenancy/forms/bulk_import.py:106
 msgid "Assigned contact"
 msgstr ""
 
@@ -16354,7 +16355,7 @@ msgstr ""
 msgid "Disk size is managed via the attachment of virtual disks."
 msgstr ""
 
-#: netbox/virtualization/forms/model_forms.py:405
+#: netbox/virtualization/forms/model_forms.py:403
 #: netbox/virtualization/tables/virtualmachines.py:81
 msgid "Disk"
 msgstr ""
