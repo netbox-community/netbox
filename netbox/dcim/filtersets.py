@@ -842,7 +842,7 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ('id', 'name', 'label', 'type', 'feed_leg', 'description')
+        fields = ('id', 'name', 'label', 'type', 'color', 'feed_leg', 'description')
 
 
 class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):

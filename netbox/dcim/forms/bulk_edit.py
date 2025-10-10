@@ -1163,6 +1163,10 @@ class PowerOutletTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         choices=add_blank_choice(PowerOutletTypeChoices),
         required=False
     )
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
     power_port = forms.ModelChoiceField(
         label=_('Power port'),
         queryset=PowerPortTemplate.objects.all(),
