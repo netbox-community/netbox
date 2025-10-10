@@ -139,9 +139,14 @@ def static_with_params(path, **params):
     """
     Generate a static URL with properly appended query parameters.
 
-    This template tag handles the case where static files are served from AWS S3 or other
-    CDNs that already include query parameters in the URL. It properly appends additional
-    query parameters without creating double question marks.
+    The original Django static tag doesn't properly handle appending new parameters to URLs
+    that already contain query parameters, which can result in malformed URLs with double
+    question marks. This template tag handles the case where static files are served from
+    AWS S3 or other CDNs that automatically append query parameters to URLs.
+
+    This implementation correctly appends new parameters to existing URLs and checks for
+    parameter conflicts. A warning will be logged if any of the provided parameters
+    conflict with existing parameters in the URL.
 
     Args:
         path: The static file path (e.g., 'setmode.js')
@@ -149,6 +154,10 @@ def static_with_params(path, **params):
 
     Returns:
         A properly formatted URL with query parameters.
+
+    Note:
+        If any provided parameters conflict with existing URL parameters, a warning
+        will be logged and the new parameter value will override the existing one.
     """
     # Get the base static URL
     static_url = static(path)
