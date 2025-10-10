@@ -211,6 +211,9 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
 
 class PowerOutletTemplateTable(ComponentTemplateTable):
+    color = columns.ColorColumn(
+        verbose_name=_('Color'),
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
