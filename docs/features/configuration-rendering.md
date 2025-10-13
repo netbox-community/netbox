@@ -90,3 +90,6 @@ http://netbox:8000/api/extras/config-templates/123/render/ \
   "bar": 123
 }'
 ```
+
+!!! note "Permissions"
+    Rendering device or virtual machine configurations via the REST API requires the `render_config` permission for the relevant object type. For example, to render a device's configuration via `/api/dcim/devices/{id}/render-config/`, a user must be assigned a permission for the "DCIM > Device" object type with the `render_config` action.

@@ -1486,11 +1486,28 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.config_template = configtemplate
         device.save()
 
+        self.add_permissions('dcim.render_config_device')
         self.add_permissions('dcim.add_device')
         url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
+
+    def test_render_config_without_permission(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for device {{ device.name }}'
+        )
+
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        # No permissions added - user has no render_config permission
+        self.add_permissions('dcim.add_device')
+        url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
 
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):

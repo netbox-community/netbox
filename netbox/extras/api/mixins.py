@@ -1,10 +1,12 @@
 from jinja2.exceptions import TemplateError
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from netbox.api.renderers import TextRenderer
+from utilities.permissions import get_permission_for_model
 from .serializers import ConfigTemplateSerializer
 
 __all__ = (
@@ -70,6 +72,12 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
         Resolve and render the preferred ConfigTemplate for this Device.
         """
         instance = self.get_object()
+
+        # Check render_config permission
+        perm = get_permission_for_model(instance, 'render_config')
+        if not request.user.has_perm(perm, obj=instance):
+            raise PermissionDenied("This user does not have permission to render device configurations.")
+
         object_type = instance._meta.model_name
         configtemplate = instance.get_config_template()
         if not configtemplate:
