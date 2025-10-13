@@ -1487,7 +1487,6 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.save()
 
         self.add_permissions('dcim.render_config_device')
-        self.add_permissions('dcim.add_device')
         url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -1504,10 +1503,9 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.save()
 
         # No permissions added - user has no render_config permission
-        self.add_permissions('dcim.add_device')
         url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):

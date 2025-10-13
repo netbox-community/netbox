@@ -6,6 +6,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from netbox.api.authentication import TokenWritePermission
 from netbox.api.renderers import TextRenderer
 from utilities.permissions import get_permission_for_model
 from .serializers import ConfigTemplateSerializer
@@ -67,11 +68,19 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
     """
     Provides a /render-config/ endpoint for REST API views whose model may have a ConfigTemplate assigned.
     """
+
+    def get_permissions(self):
+        # For render_config action, check only token write ability (not model permissions)
+        if self.action == 'render_config':
+            return [TokenWritePermission()]
+        return super().get_permissions()
+
     @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
     def render_config(self, request, pk):
         """
         Resolve and render the preferred ConfigTemplate for this Device.
         """
+        self.queryset = self.queryset.model.objects.all().restrict(request.user, 'render_config')
         instance = self.get_object()
 
         # Check render_config permission

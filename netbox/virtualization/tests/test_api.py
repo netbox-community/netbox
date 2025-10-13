@@ -282,7 +282,6 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         vm.save()
 
         self.add_permissions('virtualization.render_config_virtualmachine')
-        self.add_permissions('virtualization.add_virtualmachine')
         url = reverse('virtualization-api:virtualmachine-detail', kwargs={'pk': vm.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -299,10 +298,9 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         vm.save()
 
         # No permissions added - user has no render_config permission
-        self.add_permissions('virtualization.add_virtualmachine')
         url = reverse('virtualization-api:virtualmachine-detail', kwargs={'pk': vm.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
-        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
