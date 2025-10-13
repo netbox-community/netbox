@@ -3,6 +3,7 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
+from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
@@ -853,6 +854,23 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
+
+    def test_render(self):
+        configtemplate = ConfigTemplate.objects.first()
+
+        self.add_permissions('extras.render_config_configtemplate')
+        url = reverse('extras-api:configtemplate-detail', kwargs={'pk': configtemplate.pk}) + 'render/'
+        response = self.client.post(url, {'foo': 'bar'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], 'Foo: bar')
+
+    def test_render_without_permission(self):
+        configtemplate = ConfigTemplate.objects.first()
+
+        # No permissions added - user has no render_config permission
+        url = reverse('extras-api:configtemplate-detail', kwargs={'pk': configtemplate.pk}) + 'render/'
+        response = self.client.post(url, {'foo': 'bar'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
 class ScriptTest(APITestCase):

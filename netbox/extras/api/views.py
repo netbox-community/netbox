@@ -1,5 +1,6 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
@@ -16,12 +17,13 @@ from rq import Worker
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
+from utilities.permissions import get_permission_for_model
 from utilities.request import copy_safe_request
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
@@ -238,13 +240,26 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
     serializer_class = serializers.ConfigTemplateSerializer
     filterset_class = filtersets.ConfigTemplateFilterSet
 
+    def get_permissions(self):
+        # For render action, check only token write ability (not model permissions)
+        if self.action == 'render':
+            return [TokenWritePermission()]
+        return super().get_permissions()
+
     @action(detail=True, methods=['post'], renderer_classes=[JSONRenderer, TextRenderer])
     def render(self, request, pk):
         """
         Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
         return the raw rendered content, rather than serialized JSON.
         """
+        self.queryset = self.queryset.model.objects.all().restrict(request.user, 'render_config')
         configtemplate = self.get_object()
+
+        # Check render_config permission
+        perm = get_permission_for_model(configtemplate, 'render_config')
+        if not request.user.has_perm(perm, obj=configtemplate):
+            raise PermissionDenied(_("This user does not have permission to render configuration templates."))
+
         context = request.data
 
         return self.render_configtemplate(request, configtemplate, context)
