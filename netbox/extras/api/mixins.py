@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from jinja2.exceptions import TemplateError
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -76,7 +77,7 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
         # Check render_config permission
         perm = get_permission_for_model(instance, 'render_config')
         if not request.user.has_perm(perm, obj=instance):
-            raise PermissionDenied("This user does not have permission to render device configurations.")
+            raise PermissionDenied(_("This user does not have permission to render configurations for this object."))
 
         object_type = instance._meta.model_name
         configtemplate = instance.get_config_template()
