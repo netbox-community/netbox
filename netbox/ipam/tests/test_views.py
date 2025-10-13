@@ -653,6 +653,10 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         vrfs = (
             VRF(name='VRF 1', rd='65000:1'),
@@ -664,8 +668,32 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             IPAddress(address=IPNetwork('192.0.2.1/24'), vrf=vrfs[0]),
             IPAddress(address=IPNetwork('192.0.2.2/24'), vrf=vrfs[0]),
             IPAddress(address=IPNetwork('192.0.2.3/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.20/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.21/24'), vrf=vrfs[0]),
+            IPAddress(address=IPNetwork('192.0.2.22/24'), vrf=vrfs[0]),
         )
         IPAddress.objects.bulk_create(ipaddresses)
+
+        devices = (
+            Device(name='Devicebulk1', site=site, device_type=devicetype, role=role),
+            Device(name='Devicebulk2', site=site, device_type=devicetype, role=role),
+            Device(name='Devicebulk3', site=site, device_type=devicetype, role=role),
+        )
+        Device.objects.bulk_create(devices)
+
+        interfaces = (
+            Interface(device=devices[0], name='Loopback', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[1], name='Loopback', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[2], name='Loopback', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+        )
+        Interface.objects.bulk_create(interfaces)
+
+        ipaddresses[-1].assigned_object = interfaces[2]
+        ipaddresses[-1].save()
+        ipaddresses[-2].assigned_object = interfaces[1]
+        ipaddresses[-2].save()
+        ipaddresses[-3].assigned_object = interfaces[0]
+        ipaddresses[-3].save()
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -721,6 +749,21 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dns_name': 'example',
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_edit_ip_oob(self):
+        ip1, ip2, ip3 = IPAddress.objects.order_by('-pk')[:3]
+
+        # Attempt to bulk edit IpAddress as oob
+        data = {
+            'pk': [ip1.pk, ip2.pk, ip3.pk],
+            'is_oob': True,
+            'is_primary': True,
+        }
+
+        self.add_permissions('ipam.change_ipaddress')
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 200)
 
 
 class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):

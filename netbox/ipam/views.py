@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
@@ -988,6 +989,41 @@ class IPAddressBulkEditView(generic.BulkEditView):
     filterset = filtersets.IPAddressFilterSet
     table = tables.IPAddressTable
     form = forms.IPAddressBulkEditForm
+
+    def post_save_operations(self, form, obj):
+        super().post_save_operations(form, obj)
+
+        # Set as primary for device/VM
+        if form.cleaned_data.get('is_primary') is not None:
+            parent = getattr(obj.assigned_object, 'parent_object', None)
+            if parent is None:
+                raise ValidationError(_(f"{obj} not assigned, cannot make it primary"))
+            else:
+                if isinstance(parent, Device) or isinstance(parent, VirtualMachine):
+                    if obj.family == 4:
+                        parent.primary_ip4 = obj if form.cleaned_data.get('is_primary') else None
+                    elif obj.family == 6:
+                        parent.primary_ip6 = obj if form.cleaned_data.get('is_primary') else None
+                    parent.save()
+                else:
+                    raise ValidationError(
+                        _("Only IP addresses assigned to an interface can be designated as primary IPs.")
+                    )
+
+        # Set as OOB for device
+        if form.cleaned_data.get('is_oob') is not None:
+            parent = getattr(obj.assigned_object, 'parent_object', None)
+            if parent is None:
+                raise ValidationError(_(f"{obj} not assigned, cannot make it Oob"))
+            else:
+                if isinstance(parent, Device):
+                    parent.oob_ip = obj if form.cleaned_data.get('is_oob') else None
+                    parent.save()
+                else:
+                    raise ValidationError(
+                        _("Only IP addresses assigned to a device interface can be designated as the out-of-band IP "
+                        "for a device")
+                    )
 
 
 @register_model_view(IPAddress, 'bulk_delete', path='delete', detail=False)

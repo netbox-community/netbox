@@ -359,11 +359,21 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    is_oob = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('Is Oob')
+    )
+    is_primary = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('Is Primary')
+    )
     comments = CommentField()
 
     model = IPAddress
     fieldsets = (
-        FieldSet('status', 'role', 'tenant', 'description'),
+        FieldSet('status', 'role', 'tenant', 'description', 'is_primary', 'is_oob'),
         FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
     )
     nullable_fields = (
