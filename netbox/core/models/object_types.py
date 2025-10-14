@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.db import connection, models
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -65,6 +65,14 @@ class ObjectTypeManager(models.Manager):
         Retrieve or create and return the ObjectType for a model.
         """
         from netbox.models.features import get_model_features, model_is_public
+
+        # TODO: Remove this in NetBox v5.0
+        # If the ObjectType table has not yet been provisioned (e.g. because we're in a pre-v4.4 migration),
+        # fall back to ContentType.
+        if 'core_objecttype' not in connection.introspection.table_names():
+            ct = ContentType.objects.get_for_model(model, for_concrete_model=for_concrete_model)
+            ct.features = get_model_features(ct.model_class())
+            return ct
 
         if not inspect.isclass(model):
             model = model.__class__

@@ -18,7 +18,7 @@
     <li class="nav-item">
       <a class="nav-link{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'account:preferences' %}">{% trans "Preferences" %}</a>
     </li>
-    {% if not request.user.ldap_username %}
+    {% if request.user.has_usable_password %}
       <li class="nav-item">
         <a class="nav-link{% if active_tab == 'password' %} active{% endif %}" href="{% url 'account:change_password' %}">{% trans "Password" %}</a>
       </li>

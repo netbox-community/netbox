@@ -40,7 +40,7 @@
         </tr>
         <tr>
           <th scope="row">{% trans "VLAN IDs" %}</th>
-          <td>{{ object.vid_ranges_list }}</td>
+          <td>{{ object.vid_ranges_items|join:", " }}</td>
         </tr>
         <tr>
           <th scope="row">Utilization</th>

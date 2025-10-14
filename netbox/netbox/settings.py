@@ -11,6 +11,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from rest_framework.utils import field_mapping
 
 from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
@@ -21,6 +22,17 @@ import storages.utils  # type: ignore
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
+from .monkey import get_unique_validators
+
+
+#
+# Monkey-patching
+#
+
+# TODO: Remove this once #20547 has been implemented
+# Override DRF's get_unique_validators() function with our own (see bug #19302)
+field_mapping.get_unique_validators = get_unique_validators
+
 
 #
 # Environment setup

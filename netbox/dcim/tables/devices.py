@@ -196,7 +196,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Type')
     )
     u_height = columns.TemplateColumn(
-        accessor=tables.A('device_type.u_height'),
+        accessor=tables.A('device_type__u_height'),
         verbose_name=_('U Height'),
         template_code='{{ value|floatformat }}'
     )

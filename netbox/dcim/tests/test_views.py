@@ -7,13 +7,14 @@ from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
-from users.models import User
+from users.models import ObjectPermission, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -3728,3 +3729,29 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+    @tag('regression')  # Issue #20542
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_create_macaddress_via_quickadd(self):
+        """
+        Test creating a MAC address via quick-add modal (e.g., from Interface form).
+        Regression test for issue #20542 where form prefix was missing in POST handler.
+        """
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Simulate quick-add form submission with 'quickadd-' prefix
+        formatted_data = post_data(self.form_data)
+        quickadd_data = {f'quickadd-{k}': v for k, v in formatted_data.items()}
+        quickadd_data['_quickadd'] = 'True'
+
+        initial_count = self._get_queryset().count()
+        url = f"{self._get_url('add')}?_quickadd=True&target=id_primary_mac_address"
+        response = self.client.post(url, data=quickadd_data)
+
+        # Should successfully create the MAC address and return the quick_add_created template
+        self.assertHttpStatus(response, 200)
+        self.assertIn(b'quick-add-object', response.content)
+        self.assertEqual(initial_count + 1, self._get_queryset().count())

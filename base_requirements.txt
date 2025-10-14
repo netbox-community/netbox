@@ -12,9 +12,7 @@ django-cors-headers
 
 # Runtime UI tool for debugging Django
 # https://github.com/jazzband/django-debug-toolbar/blob/main/docs/changes.rst
-# django-debug-toolbar v6.0.0 raises "Attribute Error at /: 'function' object has no attribute 'set'" 
-# see https://github.com/netbox-community/netbox/issues/19974
-django-debug-toolbar==5.2.0
+django-debug-toolbar
 
 # Library for writing reusable URL query filters
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
@@ -71,7 +69,8 @@ django-timezone-field
 
 # A REST API framework for Django projects
 # https://www.django-rest-framework.org/community/release-notes/
-djangorestframework
+# TODO: Re-evaluate the monkey-patch of get_unique_validators() before upgrading
+djangorestframework==3.16.1
 
 # Sane and flexible OpenAPI 3 schema generation for Django REST framework.
 # https://github.com/tfranzel/drf-spectacular/blob/master/CHANGELOG.rst

@@ -100,6 +100,11 @@ class ContactForm(NetBoxModelForm):
         queryset=ContactGroup.objects.all(),
         required=False
     )
+    link = forms.URLField(
+        label=_('Link'),
+        assume_scheme='https',
+        required=False,
+    )
     comments = CommentField()
 
     fieldsets = (
