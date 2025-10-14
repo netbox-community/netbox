@@ -71,7 +71,8 @@ django-timezone-field
 
 # A REST API framework for Django projects
 # https://www.django-rest-framework.org/community/release-notes/
-djangorestframework
+# TODO: Re-evaluate the monkey-patch of get_unique_validators() before upgrading
+djangorestframework==3.16.1
 
 # Sane and flexible OpenAPI 3 schema generation for Django REST framework.
 # https://github.com/tfranzel/drf-spectacular/blob/master/CHANGELOG.rst
