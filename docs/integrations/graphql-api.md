@@ -103,7 +103,7 @@ query {
     results {
       id
       name
-      interfaces(filters: {enabled: true}) {
+      interfaces(filters: {enabled: {exact: true}}) {
         name
       }
     }
