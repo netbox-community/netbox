@@ -37,6 +37,15 @@ class TokenSerializer(ValidatedModelSerializer):
         read_only_fields = ('key',)
         brief_fields = ('id', 'url', 'display', 'version', 'key', 'write_enabled', 'description')
 
+    def get_fields(self):
+        fields = super().get_fields()
+
+        # Make user field read-only if updating an existing Token.
+        if self.instance is not None:
+            fields['user'].read_only = True
+
+        return fields
+
     def validate(self, data):
 
         # If the Token is being created on behalf of another user, enforce the grant_token permission.

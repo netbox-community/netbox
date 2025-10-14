@@ -177,6 +177,13 @@ class TokenForm(UserTokenForm):
             'version', 'token', 'user', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If not creating a new Token, disable the user field
+        if self.instance and not self.instance._state.adding:
+            self.fields['user'].disabled = True
+
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(
