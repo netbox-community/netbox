@@ -49,6 +49,9 @@ NetBox provides both a singular and plural query field for each object type:
 
 For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
+!!! note "Changed in NetBox v4.5"
+    List queries now return paginated results. The actual objects are contained within the `results` field of the response, along with `total_count` and `page_info` fields for pagination metadata. Prior to v4.5, list queries returned objects directly as an array.
+
 For more detail on constructing GraphQL queries, see the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry.rocks/docs/django/guide/filters).
 
 ## Filtering
