@@ -88,13 +88,14 @@ class GraphQLAPITestCase(APITestCase):
         url = reverse('graphql')
 
         # A valid request should return the filtered list
-        query = '{location_list(filters: {site_id: "' + str(sites[0].pk) + '"}) {id site {id}}}'
+        query = '{location_list(filters: {site_id: "' + str(sites[0].pk) + '"}) {results {id site {id}} total_count}}'
         response = self.client.post(url, data={'query': query}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
-        self.assertEqual(len(data['data']['location_list']), 1)
-        self.assertIsNotNone(data['data']['location_list'][0]['site'])
+        self.assertEqual(len(data['data']['location_list']['results']), 1)
+        self.assertEqual(data['data']['location_list']['total_count'], 1)
+        self.assertIsNotNone(data['data']['location_list']['results'][0]['site'])
 
         # Test OR logic
         query = """{
@@ -102,21 +103,26 @@ class GraphQLAPITestCase(APITestCase):
                 status: STATUS_PLANNED,
                 OR: {status: STATUS_STAGING}
             }) {
-                id site {id}
+                results {
+                    id site {id}
+                }
+                total_count
             }
         }"""
         response = self.client.post(url, data={'query': query}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
-        self.assertEqual(len(data['data']['location_list']), 2)
+        self.assertEqual(len(data['data']['location_list']['results']), 2)
+        self.assertEqual(data['data']['location_list']['total_count'], 2)
 
         # An invalid request should return an empty list
-        query = '{location_list(filters: {site_id: "99999"}) {id site {id}}}'  # Invalid site ID
+        query = '{location_list(filters: {site_id: "99999"}) {results {id site {id}} total_count}}'  # Invalid site ID
         response = self.client.post(url, data={'query': query}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
-        self.assertEqual(len(data['data']['location_list']), 0)
+        self.assertEqual(len(data['data']['location_list']['results']), 0)
+        self.assertEqual(data['data']['location_list']['total_count'], 0)
 
         # Removing the permissions from location should result in an empty locations list
         obj_perm.object_types.remove(ObjectType.objects.get_for_model(Location))
