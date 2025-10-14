@@ -76,7 +76,6 @@ elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
 API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [

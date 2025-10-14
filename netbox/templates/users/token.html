@@ -20,14 +20,7 @@
           {% if object.version == 1 %}
             <tr>
               <th scope="row">{% trans "Token" %}</th>
-              <td>
-                {% if settings.ALLOW_TOKEN_RETRIEVAL %}
-                  <span id="secret" class="font-monospace" data-secret="{{ object.plaintext }}">{{ object.plaintext }}</span>
-                  <button type="button" class="btn btn-primary toggle-secret float-end" data-bs-toggle="button">{% trans "Show Secret" %}</button>
-                {% else %}
-                  {{ object.partial }}
-                {% endif %}
-              </td>
+              <td>{{ object.partial }}</td>
             </tr>
           {% else %}
             <tr>
