@@ -212,9 +212,9 @@ class TokenTest(
     @classmethod
     def setUpTestData(cls):
         users = (
-            create_test_user('User1'),
-            create_test_user('User2'),
-            create_test_user('User3'),
+            create_test_user('User 1'),
+            create_test_user('User 2'),
+            create_test_user('User 3'),
         )
 
         tokens = (
@@ -237,6 +237,10 @@ class TokenTest(
                 'user': users[2].pk,
             },
         ]
+
+        cls.update_data = {
+            'description': 'Token 1',
+        }
 
     def test_provision_token_valid(self):
         """
@@ -299,6 +303,25 @@ class TokenTest(
         self.add_permissions('users.grant_token')
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
+
+    def test_reassign_token(self):
+        """
+        Check that a Token cannot be reassigned to another User.
+        """
+        user1 = User.objects.get(username='User 1')
+        user2 = User.objects.get(username='User 2')
+        token1 = Token.objects.filter(user=user1).first()
+        self.add_permissions('users.change_token')
+
+        data = {
+            'user': user2.pk,
+        }
+        url = self._get_detail_url(token1)
+        response = self.client.patch(url, data, format='json', **self.header)
+        # Response should succeed because the read-only `user` field is ignored
+        self.assertEqual(response.status_code, 200)
+        token1.refresh_from_db()
+        self.assertEqual(token1.user, user1, "Token's user should not have changed")
 
 
 class ObjectPermissionTest(
