@@ -80,7 +80,7 @@ Likewise, the site, rack, and device objects are located under the "DCIM" applic
 
 The full hierarchy of available endpoints can be viewed by navigating to the API root in a web browser.
 
-Each model generally has two views associated with it: a list view and a detail view. The list view is used to retrieve a list of multiple objects and to create new objects. The detail view is used to retrieve, update, or delete an single existing object. All objects are referenced by their numeric primary key (`id`).
+Each model generally has two views associated with it: a list view and a detail view. The list view is used to retrieve a list of multiple objects and to create new objects. The detail view is used to retrieve, update, or delete a single existing object. All objects are referenced by their numeric primary key (`id`).
 
 * `/api/dcim/devices/` - List existing devices or create a new device
 * `/api/dcim/devices/123/` - Retrieve, update, or delete the device with ID 123
@@ -655,6 +655,9 @@ The NetBox REST API primarily employs token-based authentication. For convenienc
 
 A token is a secret, unique identifier mapped to a NetBox user account. Each user may have one or more tokens which he or she can use for authentication when making REST API requests. To create a token, navigate to the API tokens page under your user profile. When creating a token, NetBox will automatically populate a randomly-generated token value.
 
+!!! note "Tokens cannot be retrieved once created"
+    Once a token has been created, its plaintext value cannot be retrieved. For this reason, you must take care to securely record the token locally immediately upon its creation. If a token plaintext is lost, it cannot be recovered: A new token must be created.
+
 By default, all users can create and manage their own REST API tokens under the user control panel in the UI or via the REST API. This ability can be disabled by overriding the [`DEFAULT_PERMISSIONS`](../configuration/security.md#default_permissions) configuration parameter.
 
 Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox.
@@ -663,7 +666,7 @@ Additionally, a token can be set to expire at a specific time. This can be usefu
 
 Beginning with NetBox v4.5, two versions of API token are supported, denoted as v1 and v2. Users are strongly encouraged to create only v2 tokens and to discontinue the use of v1 tokens. Support for v1 tokens will be removed in a future NetBox release.
 
-v2 API tokens offer much stronger security. The token plaintext given at creation time is hashed together with a configured [cryptographic pepper](../configuration/required-parameters.md#api_token_peppers) to generate a unique checksum. This checksum is irreversible; the token plaintext is never stored on the server and thus cannot be retrieved.
+v2 API tokens offer much stronger security. The token plaintext given at creation time is hashed together with a configured [cryptographic pepper](../configuration/required-parameters.md#api_token_peppers) to generate a unique checksum. This checksum is irreversible; the token plaintext is never stored on the server and thus cannot be retrieved even with database-level access.
 
 #### Restricting Write Operations
 

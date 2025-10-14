@@ -1,7 +1,6 @@
 import json
 
 from django import forms
-from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
@@ -115,7 +114,7 @@ class UserTokenForm(forms.ModelForm):
         label=_('Token'),
         help_text=_(
             'Tokens must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
-            'submitting this form, as it may no longer be accessible once the token has been created.'
+            'submitting this form, as it will no longer be accessible once the token has been created.'
         ),
         widget=forms.TextInput(
             attrs={'data-clipboard': 'true'}
@@ -148,11 +147,8 @@ class UserTokenForm(forms.ModelForm):
             self.fields['version'].disabled = True
             self.fields['user'].disabled = True
 
-            # Omit the key field when editing an existing token if token retrieval is not permitted
-            if self.instance.v1 and settings.ALLOW_TOKEN_RETRIEVAL:
-                self.initial['token'] = self.instance.plaintext
-            else:
-                del self.fields['token']
+            # Omit the key field when editing an existing Token
+            del self.fields['token']
 
         # Generate an initial random key if none has been specified
         elif self.instance._state.adding and not self.initial.get('token'):
