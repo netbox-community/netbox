@@ -143,6 +143,11 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
                     form.cleaned_data.pop('_commit')
                     event_data.update(form.cleaned_data)
                 else:
+                    logger.error(
+                        _("Processing event rule {event_rule} failed - Cannot validate script form: {errors}").format(
+                            event_rule=event_rule, errors=form.errors
+                        )
+                    )
                     continue
 
             # Enqueue a Job to record the script's execution
