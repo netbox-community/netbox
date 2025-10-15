@@ -676,6 +676,8 @@ def has_feature(model_or_ct, feature):
     # If a ContentType was passed, resolve its model class and run the associated feature test
     elif type(model_or_ct) is ContentType:
         model = model_or_ct.model_class()
+        if model is None:  # Stale content type
+            return False
         try:
             test_func = registry['model_features'][feature]
         except KeyError:
