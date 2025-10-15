@@ -166,7 +166,8 @@ strawberry-graphql-django
 svgwrite
 
 # Tabular dataset library (for table-based exports)
-# https://github.com/jazzband/tablib/blob/master/HISTORY.md
+# Current: https://github.com/jazzband/tablib/releases
+# Previous: https://github.com/jazzband/tablib/blob/master/HISTORY.md
 tablib
 
 # Timezone data (required by django-timezone-field on Python 3.9+)

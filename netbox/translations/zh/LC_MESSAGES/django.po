@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-10 05:03+0000\n"
+"POT-Creation-Date: 2025-10-15 05:03+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2025\n"
 "Language-Team: Chinese (https://app.transifex.com/netbox-community/teams/178115/zh/)\n"
@@ -249,7 +249,7 @@ msgstr "站点组（缩写）"
 #: netbox/ipam/forms/bulk_import.py:475 netbox/ipam/forms/filtersets.py:161
 #: netbox/ipam/forms/filtersets.py:236 netbox/ipam/forms/filtersets.py:457
 #: netbox/ipam/forms/filtersets.py:552 netbox/ipam/forms/model_forms.py:673
-#: netbox/ipam/tables/vlans.py:89 netbox/ipam/tables/vlans.py:199
+#: netbox/ipam/tables/vlans.py:90 netbox/ipam/tables/vlans.py:200
 #: netbox/templates/dcim/device.html:22
 #: netbox/templates/dcim/inc/cable_termination.html:8
 #: netbox/templates/dcim/inc/cable_termination.html:36
@@ -515,7 +515,7 @@ msgstr "自治系统编号/AS编号"
 #: netbox/ipam/forms/bulk_edit.py:358 netbox/ipam/forms/bulk_edit.py:401
 #: netbox/ipam/forms/bulk_edit.py:417 netbox/ipam/forms/bulk_edit.py:511
 #: netbox/ipam/forms/bulk_edit.py:543 netbox/ipam/forms/bulk_edit.py:586
-#: netbox/ipam/tables/vlans.py:242 netbox/ipam/tables/vlans.py:269
+#: netbox/ipam/tables/vlans.py:243 netbox/ipam/tables/vlans.py:270
 #: netbox/templates/account/token.html:35
 #: netbox/templates/circuits/circuit.html:69
 #: netbox/templates/circuits/circuitgroup.html:32
@@ -814,7 +814,7 @@ msgstr "运营商账户"
 #: netbox/ipam/forms/model_forms.py:512 netbox/ipam/tables/ip.py:184
 #: netbox/ipam/tables/ip.py:265 netbox/ipam/tables/ip.py:321
 #: netbox/ipam/tables/ip.py:394 netbox/ipam/tables/ip.py:421
-#: netbox/ipam/tables/vlans.py:97 netbox/ipam/tables/vlans.py:210
+#: netbox/ipam/tables/vlans.py:98 netbox/ipam/tables/vlans.py:211
 #: netbox/templates/circuits/circuit.html:34
 #: netbox/templates/circuits/virtualcircuit.html:43
 #: netbox/templates/core/datasource.html:46 netbox/templates/core/job.html:21
@@ -898,7 +898,7 @@ msgstr "状态"
 #: netbox/ipam/forms/filtersets.py:182 netbox/ipam/forms/filtersets.py:282
 #: netbox/ipam/forms/filtersets.py:333 netbox/ipam/forms/filtersets.py:441
 #: netbox/ipam/forms/filtersets.py:532 netbox/ipam/tables/ip.py:424
-#: netbox/ipam/tables/vlans.py:207 netbox/templates/circuits/circuit.html:48
+#: netbox/ipam/tables/vlans.py:208 netbox/templates/circuits/circuit.html:48
 #: netbox/templates/circuits/circuitgroup.html:36
 #: netbox/templates/circuits/virtualcircuit.html:47
 #: netbox/templates/dcim/cable.html:23 netbox/templates/dcim/device.html:85
@@ -1137,7 +1137,7 @@ msgstr "运营商网络"
 #: netbox/ipam/forms/model_forms.py:221 netbox/ipam/forms/model_forms.py:260
 #: netbox/ipam/forms/model_forms.py:688 netbox/ipam/tables/ip.py:210
 #: netbox/ipam/tables/ip.py:269 netbox/ipam/tables/ip.py:325
-#: netbox/ipam/tables/vlans.py:101 netbox/ipam/tables/vlans.py:213
+#: netbox/ipam/tables/vlans.py:102 netbox/ipam/tables/vlans.py:214
 #: netbox/templates/circuits/virtualcircuittermination.html:42
 #: netbox/templates/dcim/device.html:188
 #: netbox/templates/dcim/inc/panels/inventory_items.html:20
@@ -1252,7 +1252,7 @@ msgstr "操作角色"
 #: netbox/dcim/tables/connections.py:65 netbox/dcim/tables/devices.py:1169
 #: netbox/ipam/forms/bulk_import.py:324 netbox/ipam/forms/model_forms.py:291
 #: netbox/ipam/forms/model_forms.py:300 netbox/ipam/tables/fhrp.py:64
-#: netbox/ipam/tables/ip.py:330 netbox/ipam/tables/vlans.py:147
+#: netbox/ipam/tables/ip.py:330 netbox/ipam/tables/vlans.py:148
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:52
 #: netbox/templates/circuits/virtualcircuittermination.html:53
 #: netbox/templates/circuits/virtualcircuittermination.html:60
@@ -1418,8 +1418,8 @@ msgstr "分配"
 #: netbox/dcim/tables/sites.py:103 netbox/extras/forms/filtersets.py:572
 #: netbox/ipam/filtersets.py:981 netbox/ipam/forms/bulk_edit.py:488
 #: netbox/ipam/forms/bulk_import.py:482 netbox/ipam/forms/model_forms.py:571
-#: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:93
-#: netbox/ipam/tables/vlans.py:204
+#: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:94
+#: netbox/ipam/tables/vlans.py:205
 #: netbox/templates/circuits/circuitgroupassignment.html:22
 #: netbox/templates/dcim/interface.html:341 netbox/templates/dcim/site.html:37
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:23
@@ -1503,7 +1503,7 @@ msgstr "唯一线路 ID"
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/racks.py:677
 #: netbox/dcim/models/sites.py:154 netbox/dcim/models/sites.py:270
 #: netbox/ipam/models/ip.py:243 netbox/ipam/models/ip.py:529
-#: netbox/ipam/models/ip.py:758 netbox/ipam/models/vlans.py:217
+#: netbox/ipam/models/ip.py:758 netbox/ipam/models/vlans.py:227
 #: netbox/virtualization/models/clusters.py:70
 #: netbox/virtualization/models/virtualmachines.py:79
 #: netbox/vpn/models/l2vpn.py:36 netbox/vpn/models/tunnels.py:38
@@ -1607,7 +1607,7 @@ msgstr "配线架 ID 和端口号"
 #: netbox/extras/models/models.py:479 netbox/extras/models/models.py:558
 #: netbox/extras/models/models.py:684
 #: netbox/extras/models/notifications.py:131 netbox/extras/models/tags.py:33
-#: netbox/ipam/models/vlans.py:373 netbox/netbox/models/__init__.py:115
+#: netbox/ipam/models/vlans.py:383 netbox/netbox/models/__init__.py:115
 #: netbox/netbox/models/__init__.py:150 netbox/netbox/models/__init__.py:200
 #: netbox/users/models/permissions.py:24 netbox/users/models/tokens.py:57
 #: netbox/users/models/users.py:33
@@ -1647,7 +1647,7 @@ msgstr "电路终端必须连接到终端对象。"
 #: netbox/extras/models/scripts.py:30 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:51
 #: netbox/ipam/models/services.py:80 netbox/ipam/models/vlans.py:38
-#: netbox/ipam/models/vlans.py:206 netbox/ipam/models/vlans.py:352
+#: netbox/ipam/models/vlans.py:216 netbox/ipam/models/vlans.py:362
 #: netbox/ipam/models/vrfs.py:20 netbox/ipam/models/vrfs.py:75
 #: netbox/netbox/models/__init__.py:142 netbox/netbox/models/__init__.py:190
 #: netbox/tenancy/models/contacts.py:56 netbox/tenancy/models/tenants.py:19
@@ -1773,8 +1773,8 @@ msgstr "虚拟电路终止"
 #: netbox/ipam/forms/filtersets.py:496 netbox/ipam/tables/asn.py:16
 #: netbox/ipam/tables/ip.py:32 netbox/ipam/tables/ip.py:107
 #: netbox/ipam/tables/services.py:15 netbox/ipam/tables/services.py:40
-#: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:85
-#: netbox/ipam/tables/vlans.py:233 netbox/ipam/tables/vrfs.py:26
+#: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:86
+#: netbox/ipam/tables/vlans.py:234 netbox/ipam/tables/vrfs.py:26
 #: netbox/ipam/tables/vrfs.py:68
 #: netbox/templates/circuits/circuitgroup.html:28
 #: netbox/templates/circuits/circuittype.html:22
@@ -1921,7 +1921,7 @@ msgstr "承诺速率"
 #: netbox/ipam/tables/fhrp.py:34 netbox/ipam/tables/ip.py:83
 #: netbox/ipam/tables/ip.py:227 netbox/ipam/tables/ip.py:286
 #: netbox/ipam/tables/ip.py:355 netbox/ipam/tables/services.py:24
-#: netbox/ipam/tables/services.py:54 netbox/ipam/tables/vlans.py:123
+#: netbox/ipam/tables/services.py:54 netbox/ipam/tables/vlans.py:124
 #: netbox/ipam/tables/vrfs.py:47 netbox/ipam/tables/vrfs.py:72
 #: netbox/templates/dcim/htmx/cable_edit.html:90
 #: netbox/templates/generic/bulk_edit.html:86
@@ -2021,7 +2021,7 @@ msgstr "终端"
 #: netbox/dcim/tables/devices.py:989 netbox/dcim/tables/devices.py:1118
 #: netbox/dcim/tables/modules.py:87 netbox/extras/forms/filtersets.py:386
 #: netbox/ipam/forms/bulk_import.py:310 netbox/ipam/forms/filtersets.py:626
-#: netbox/ipam/forms/model_forms.py:334 netbox/ipam/tables/vlans.py:158
+#: netbox/ipam/forms/model_forms.py:334 netbox/ipam/tables/vlans.py:159
 #: netbox/templates/circuits/virtualcircuittermination.html:56
 #: netbox/templates/dcim/consoleport.html:20
 #: netbox/templates/dcim/consoleserverport.html:20
@@ -3469,8 +3469,8 @@ msgstr "自动"
 msgid "Access"
 msgstr "接入"
 
-#: netbox/dcim/choices.py:1518 netbox/ipam/tables/vlans.py:150
-#: netbox/ipam/tables/vlans.py:195
+#: netbox/dcim/choices.py:1518 netbox/ipam/tables/vlans.py:151
+#: netbox/ipam/tables/vlans.py:196
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "Trunk口"
@@ -4050,7 +4050,7 @@ msgstr "L2VPN (ID)"
 
 #: netbox/dcim/filtersets.py:1879 netbox/dcim/forms/filtersets.py:1531
 #: netbox/dcim/tables/devices.py:613 netbox/ipam/filtersets.py:1029
-#: netbox/ipam/forms/filtersets.py:592 netbox/ipam/tables/vlans.py:115
+#: netbox/ipam/forms/filtersets.py:592 netbox/ipam/tables/vlans.py:116
 #: netbox/templates/dcim/interface.html:99 netbox/templates/ipam/vlan.html:82
 #: netbox/templates/vpn/l2vpntermination.html:12
 #: netbox/virtualization/forms/filtersets.py:241
@@ -5874,7 +5874,7 @@ msgid "VM Interface"
 msgstr "虚拟机接口"
 
 #: netbox/dcim/forms/model_forms.py:1924 netbox/ipam/forms/filtersets.py:631
-#: netbox/ipam/forms/model_forms.py:335 netbox/ipam/tables/vlans.py:173
+#: netbox/ipam/forms/model_forms.py:335 netbox/ipam/tables/vlans.py:174
 #: netbox/templates/virtualization/virtualdisk.html:21
 #: netbox/templates/virtualization/virtualmachine.html:12
 #: netbox/templates/virtualization/vminterface.html:21
@@ -6414,7 +6414,7 @@ msgstr "已标记 VLANs"
 #: netbox/dcim/models/device_components.py:604
 #: netbox/dcim/tables/devices.py:631 netbox/ipam/forms/bulk_edit.py:521
 #: netbox/ipam/forms/bulk_import.py:514 netbox/ipam/forms/filtersets.py:587
-#: netbox/ipam/forms/model_forms.py:694 netbox/ipam/tables/vlans.py:108
+#: netbox/ipam/forms/model_forms.py:694 netbox/ipam/tables/vlans.py:109
 #: netbox/templates/dcim/interface.html:86 netbox/templates/ipam/vlan.html:77
 #: netbox/templates/virtualization/vminterface.html:60
 msgid "Q-in-Q SVLAN"
@@ -10380,7 +10380,7 @@ msgstr "VLAN组"
 
 #: netbox/ipam/forms/bulk_edit.py:218 netbox/ipam/forms/bulk_import.py:188
 #: netbox/ipam/forms/filtersets.py:271 netbox/ipam/forms/model_forms.py:218
-#: netbox/ipam/models/vlans.py:279 netbox/ipam/tables/ip.py:207
+#: netbox/ipam/models/vlans.py:289 netbox/ipam/tables/ip.py:207
 #: netbox/templates/ipam/prefix.html:56 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
 #: netbox/templates/ipam/vlan_edit.html:14
@@ -10470,8 +10470,8 @@ msgid "VLAN ID ranges"
 msgstr "VLAN ID 范围"
 
 #: netbox/ipam/forms/bulk_edit.py:516 netbox/ipam/forms/bulk_import.py:508
-#: netbox/ipam/forms/filtersets.py:579 netbox/ipam/models/vlans.py:239
-#: netbox/ipam/tables/vlans.py:105
+#: netbox/ipam/forms/filtersets.py:579 netbox/ipam/models/vlans.py:249
+#: netbox/ipam/tables/vlans.py:106
 msgid "Q-in-Q role"
 msgstr "Q-in-Q 角色"
 
@@ -10484,7 +10484,7 @@ msgid "Site & Group"
 msgstr "站点 & 组"
 
 #: netbox/ipam/forms/bulk_edit.py:557 netbox/ipam/forms/bulk_import.py:538
-#: netbox/ipam/forms/model_forms.py:726 netbox/ipam/tables/vlans.py:258
+#: netbox/ipam/forms/model_forms.py:726 netbox/ipam/tables/vlans.py:259
 #: netbox/templates/ipam/vlantranslationrule.html:14
 #: netbox/vpn/forms/model_forms.py:322 netbox/vpn/forms/model_forms.py:359
 msgid "Policy"
@@ -10583,7 +10583,7 @@ msgstr "分配的VLAN组"
 msgid "Service VLAN (for Q-in-Q/802.1ad customer VLANs)"
 msgstr "服务 VLAN（适用于 q-in-q/802.1ad 客户 VLAN）"
 
-#: netbox/ipam/forms/bulk_import.py:541 netbox/ipam/models/vlans.py:358
+#: netbox/ipam/forms/bulk_import.py:541 netbox/ipam/models/vlans.py:368
 msgid "VLAN translation policy"
 msgstr "VLAN 转换策略"
 
@@ -10682,8 +10682,8 @@ msgstr "指定给一个接口"
 msgid "DNS Name"
 msgstr "DNS名称"
 
-#: netbox/ipam/forms/filtersets.py:440 netbox/ipam/models/vlans.py:280
-#: netbox/ipam/tables/ip.py:123 netbox/ipam/tables/vlans.py:51
+#: netbox/ipam/forms/filtersets.py:440 netbox/ipam/models/vlans.py:290
+#: netbox/ipam/tables/ip.py:123 netbox/ipam/tables/vlans.py:52
 #: netbox/ipam/views.py:1086 netbox/netbox/navigation/menu.py:200
 #: netbox/netbox/navigation/menu.py:202
 msgid "VLANs"
@@ -10693,11 +10693,11 @@ msgstr "VLANs"
 msgid "Contains VLAN ID"
 msgstr "包含 VLAN ID"
 
-#: netbox/ipam/forms/filtersets.py:516 netbox/ipam/models/vlans.py:378
+#: netbox/ipam/forms/filtersets.py:516 netbox/ipam/models/vlans.py:388
 msgid "Local VLAN ID"
 msgstr "本地 VLAN ID"
 
-#: netbox/ipam/forms/filtersets.py:521 netbox/ipam/models/vlans.py:386
+#: netbox/ipam/forms/filtersets.py:521 netbox/ipam/models/vlans.py:396
 msgid "Remote VLAN ID"
 msgstr "远程 VLAN ID"
 
@@ -10705,7 +10705,7 @@ msgstr "远程 VLAN ID"
 msgid "Q-in-Q/802.1ad"
 msgstr "q-in-q/802.1ad"
 
-#: netbox/ipam/forms/filtersets.py:576 netbox/ipam/models/vlans.py:198
+#: netbox/ipam/forms/filtersets.py:576 netbox/ipam/models/vlans.py:208
 #: netbox/templates/ipam/vlan.html:31
 msgid "VLAN ID"
 msgstr "VLAN ID"
@@ -11182,63 +11182,63 @@ msgstr "范围内的结束 VLAN ID 必须大于或等于起始 VLAN ID ({range})
 msgid "Ranges cannot overlap."
 msgstr "范围不能重叠。"
 
-#: netbox/ipam/models/vlans.py:187
+#: netbox/ipam/models/vlans.py:197
 msgid "The specific site to which this VLAN is assigned (if any)"
 msgstr "此VLAN所属的站点（如果有）"
 
-#: netbox/ipam/models/vlans.py:195
+#: netbox/ipam/models/vlans.py:205
 msgid "VLAN group (optional)"
 msgstr "VLAN组(可选)"
 
-#: netbox/ipam/models/vlans.py:203 netbox/ipam/models/vlans.py:383
-#: netbox/ipam/models/vlans.py:391
+#: netbox/ipam/models/vlans.py:213 netbox/ipam/models/vlans.py:393
+#: netbox/ipam/models/vlans.py:401
 msgid "Numeric VLAN ID (1-4094)"
 msgstr "VLAN ID(1-4094)"
 
-#: netbox/ipam/models/vlans.py:221
+#: netbox/ipam/models/vlans.py:231
 msgid "Operational status of this VLAN"
 msgstr "此VLAN的操作状态"
 
-#: netbox/ipam/models/vlans.py:229
+#: netbox/ipam/models/vlans.py:239
 msgid "The primary function of this VLAN"
 msgstr "此VLAN的主要功能"
 
-#: netbox/ipam/models/vlans.py:244
+#: netbox/ipam/models/vlans.py:254
 msgid "Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)"
 msgstr "客户/服务 VLAN 指定（适用于 q-in-q/IEEE 802.1ad）"
 
-#: netbox/ipam/models/vlans.py:293
+#: netbox/ipam/models/vlans.py:303
 #, python-brace-format
 msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
 "site {site}."
 msgstr "VLAN 已分配给组 {group}（作用域：{scope}）； 不能再分配给站点:{site}。"
 
-#: netbox/ipam/models/vlans.py:300
+#: netbox/ipam/models/vlans.py:310
 #, python-brace-format
 msgid ""
 "The assigned site {site} is not a member of the assigned group {group} "
 "(scope: {scope})."
 msgstr "分配的站点 {site} 不是分配组的成员 {group} （范围： {scope}）。"
 
-#: netbox/ipam/models/vlans.py:309
+#: netbox/ipam/models/vlans.py:319
 #, python-brace-format
 msgid "VID must be in ranges {ranges} for VLANs in group {group}"
 msgstr "VID 必须在范围内 {ranges} 对于组中的 VLAN {group}"
 
-#: netbox/ipam/models/vlans.py:316
+#: netbox/ipam/models/vlans.py:326
 msgid "Only Q-in-Q customer VLANs maybe assigned to a service VLAN."
 msgstr "只能将 Q-in-Q 客户 VLAN 分配给服务 VLAN。"
 
-#: netbox/ipam/models/vlans.py:322
+#: netbox/ipam/models/vlans.py:332
 msgid "A Q-in-Q customer VLAN must be assigned to a service VLAN."
 msgstr "必须将 Q-in-Q 客户 VLAN 分配给服务 VLAN。"
 
-#: netbox/ipam/models/vlans.py:359
+#: netbox/ipam/models/vlans.py:369
 msgid "VLAN translation policies"
 msgstr "VLAN 转换策略"
 
-#: netbox/ipam/models/vlans.py:400
+#: netbox/ipam/models/vlans.py:410
 msgid "VLAN translation rule"
 msgstr "VLAN 转换规则"
 
@@ -11297,14 +11297,14 @@ msgid "Added"
 msgstr "已添加"
 
 #: netbox/ipam/tables/ip.py:75 netbox/ipam/tables/ip.py:113
-#: netbox/ipam/tables/vlans.py:120 netbox/ipam/views.py:420
+#: netbox/ipam/tables/vlans.py:121 netbox/ipam/views.py:420
 #: netbox/netbox/navigation/menu.py:172 netbox/netbox/navigation/menu.py:174
 #: netbox/templates/ipam/vlan.html:100
 msgid "Prefixes"
 msgstr "前缀"
 
 #: netbox/ipam/tables/ip.py:78 netbox/ipam/tables/ip.py:222
-#: netbox/ipam/tables/ip.py:281 netbox/ipam/tables/vlans.py:55
+#: netbox/ipam/tables/ip.py:281 netbox/ipam/tables/vlans.py:56
 #: netbox/templates/dcim/device.html:266
 #: netbox/templates/ipam/aggregate.html:24
 #: netbox/templates/ipam/iprange.html:37 netbox/templates/ipam/prefix.html:102
@@ -11363,26 +11363,26 @@ msgstr "分配"
 msgid "Assigned Object"
 msgstr "指定对象"
 
-#: netbox/ipam/tables/vlans.py:45
+#: netbox/ipam/tables/vlans.py:46
 msgid "VID Ranges"
 msgstr "VID 范围"
 
-#: netbox/ipam/tables/vlans.py:82 netbox/ipam/tables/vlans.py:192
+#: netbox/ipam/tables/vlans.py:83 netbox/ipam/tables/vlans.py:193
 #: netbox/templates/dcim/inc/interface_vlans_table.html:4
 msgid "VID"
 msgstr "VLAN号"
 
-#: netbox/ipam/tables/vlans.py:239
+#: netbox/ipam/tables/vlans.py:240
 #: netbox/templates/ipam/vlantranslationpolicy.html:22
 msgid "Rules"
 msgstr "规则"
 
-#: netbox/ipam/tables/vlans.py:262
+#: netbox/ipam/tables/vlans.py:263
 #: netbox/templates/ipam/vlantranslationrule.html:18
 msgid "Local VID"
 msgstr "本地视频"
 
-#: netbox/ipam/tables/vlans.py:266
+#: netbox/ipam/tables/vlans.py:267
 #: netbox/templates/ipam/vlantranslationrule.html:22
 msgid "Remote VID"
 msgstr "远程 VID"
@@ -12487,63 +12487,63 @@ msgstr "初始化后无法在注册表中添加存储空间"
 msgid "Cannot delete stores from registry"
 msgstr "无法从注册表中删除存储"
 
-#: netbox/netbox/settings.py:800
+#: netbox/netbox/settings.py:812
 msgid "Czech"
 msgstr "捷克语"
 
-#: netbox/netbox/settings.py:801
+#: netbox/netbox/settings.py:813
 msgid "Danish"
 msgstr "丹麦语"
 
-#: netbox/netbox/settings.py:802
+#: netbox/netbox/settings.py:814
 msgid "German"
 msgstr "德语"
 
-#: netbox/netbox/settings.py:803
+#: netbox/netbox/settings.py:815
 msgid "English"
 msgstr "英语"
 
-#: netbox/netbox/settings.py:804
+#: netbox/netbox/settings.py:816
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: netbox/netbox/settings.py:805
+#: netbox/netbox/settings.py:817
 msgid "French"
 msgstr "法语"
 
-#: netbox/netbox/settings.py:806
+#: netbox/netbox/settings.py:818
 msgid "Italian"
 msgstr "意大利语"
 
-#: netbox/netbox/settings.py:807
+#: netbox/netbox/settings.py:819
 msgid "Japanese"
 msgstr "日语"
 
-#: netbox/netbox/settings.py:808
+#: netbox/netbox/settings.py:820
 msgid "Dutch"
 msgstr "荷兰语"
 
-#: netbox/netbox/settings.py:809
+#: netbox/netbox/settings.py:821
 msgid "Polish"
 msgstr "波兰语"
 
-#: netbox/netbox/settings.py:810
+#: netbox/netbox/settings.py:822
 msgid "Portuguese"
 msgstr "葡萄牙语"
 
-#: netbox/netbox/settings.py:811
+#: netbox/netbox/settings.py:823
 msgid "Russian"
 msgstr "俄语"
 
-#: netbox/netbox/settings.py:812
+#: netbox/netbox/settings.py:824
 msgid "Turkish"
 msgstr "土耳其语"
 
-#: netbox/netbox/settings.py:813
+#: netbox/netbox/settings.py:825
 msgid "Ukrainian"
 msgstr "乌克兰语"
 
-#: netbox/netbox/settings.py:814
+#: netbox/netbox/settings.py:826
 msgid "Chinese"
 msgstr "中文"
 
