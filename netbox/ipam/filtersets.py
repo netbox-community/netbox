@@ -595,6 +595,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFil
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
+    assigned_object_type = ContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -1152,6 +1153,7 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
 
 
 class ServiceFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
+    parent_object_type = ContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
