@@ -3,11 +3,12 @@ from typing import List
 import strawberry_django
 
 from netbox.graphql.types import BaseObjectType
-from users.models import Group, User
+from users.models import Group, Owner, User
 from .filters import *
 
 __all__ = (
     'GroupType',
+    'OwnerType',
     'UserType',
 )
 
@@ -32,3 +33,13 @@ class GroupType(BaseObjectType):
 )
 class UserType(BaseObjectType):
     groups: List[GroupType]
+
+
+@strawberry_django.type(
+    Owner,
+    fields=['id', 'name', 'description', 'groups', 'users'],
+    filters=OwnerFilter,
+    pagination=True
+)
+class OwnerType(BaseObjectType):
+    pass

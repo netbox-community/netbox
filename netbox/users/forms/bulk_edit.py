@@ -12,6 +12,7 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect, DateTimePicker
 __all__ = (
     'GroupBulkEditForm',
     'ObjectPermissionBulkEditForm',
+    'OwnerBulkEditForm',
     'UserBulkEditForm',
     'TokenBulkEditForm',
 )
@@ -124,3 +125,21 @@ class TokenBulkEditForm(BulkEditForm):
     nullable_fields = (
         'expires', 'description', 'allowed_ips',
     )
+
+
+class OwnerBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Owner.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = Owner
+    fieldsets = (
+        FieldSet('description',),
+    )
+    nullable_fields = ('description',)

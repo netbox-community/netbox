@@ -10,6 +10,7 @@ from users import models
 
 __all__ = (
     'GroupFilter',
+    'OwnerFilter',
     'UserFilter',
 )
 
@@ -31,3 +32,11 @@ class UserFilter(BaseObjectTypeFilterMixin):
     date_joined: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     last_login: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     groups: Annotated['GroupFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
+
+
+@strawberry_django.filter_type(models.Owner, lookups=True)
+class OwnerFilter(BaseObjectTypeFilterMixin):
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
+    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    groups: Annotated['GroupFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
+    users: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()

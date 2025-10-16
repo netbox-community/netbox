@@ -23,11 +23,11 @@ from utilities.permissions import qs_filter_from_constraints
 __all__ = (
     'GroupForm',
     'ObjectPermissionForm',
+    'OwnerForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
     'UserTokenForm',
-    'TokenForm',
 )
 
 
@@ -431,3 +431,18 @@ class ObjectPermissionForm(forms.ModelForm):
         instance.groups.set(self.cleaned_data['groups'])
 
         return instance
+
+
+class OwnerForm(forms.ModelForm):
+
+    fieldsets = (
+        FieldSet('name', 'description', name=_('Owner')),
+        FieldSet('groups', name=_('Groups')),
+        FieldSet('users', name=_('Users')),
+    )
+
+    class Meta:
+        model = Owner
+        fields = [
+            'name', 'description', 'groups', 'users',
+        ]
