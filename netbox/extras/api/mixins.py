@@ -8,7 +8,6 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from netbox.api.authentication import TokenWritePermission
 from netbox.api.renderers import TextRenderer
-from utilities.permissions import get_permission_for_model
 from .serializers import ConfigTemplateSerializer
 
 __all__ = (
@@ -80,13 +79,10 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
         """
         Resolve and render the preferred ConfigTemplate for this Device.
         """
-        self.queryset = self.queryset.model.objects.all().restrict(request.user, 'render_config')
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'render_config').restrict(
+            request.user, 'view'
+        )
         instance = self.get_object()
-
-        # Check render_config permission
-        perm = get_permission_for_model(instance, 'render_config')
-        if not request.user.has_perm(perm, obj=instance):
-            raise PermissionDenied(_("This user does not have permission to render configurations for this object."))
 
         object_type = instance._meta.model_name
         configtemplate = instance.get_config_template()
@@ -94,6 +90,10 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
             return Response({
                 'error': f'No config template found for this {object_type}.'
             }, status=HTTP_400_BAD_REQUEST)
+
+        # Check view permission for ConfigTemplate
+        if not request.user.has_perm('extras.view_configtemplate', obj=configtemplate):
+            raise PermissionDenied(_("This user does not have permission to view this configuration template."))
 
         # Compile context data
         context_data = instance.get_config_context()

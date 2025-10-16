@@ -1306,7 +1306,6 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
     }
     user_permissions = (
         'dcim.view_site', 'dcim.view_rack', 'dcim.view_location', 'dcim.view_devicerole', 'dcim.view_devicetype',
-        'extras.view_configtemplate',
     )
 
     @classmethod
@@ -1486,7 +1485,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.config_template = configtemplate
         device.save()
 
-        self.add_permissions('dcim.render_config_device')
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device', 'extras.view_configtemplate')
         url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)

@@ -858,7 +858,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
     def test_render(self):
         configtemplate = ConfigTemplate.objects.first()
 
-        self.add_permissions('extras.render_config_configtemplate')
+        self.add_permissions('extras.render_configtemplate', 'extras.view_configtemplate')
         url = reverse('extras-api:configtemplate-detail', kwargs={'pk': configtemplate.pk}) + 'render/'
         response = self.client.post(url, {'foo': 'bar'}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -867,7 +867,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
     def test_render_without_permission(self):
         configtemplate = ConfigTemplate.objects.first()
 
-        # No permissions added - user has no render_config permission
+        # No permissions added - user has no render permission
         url = reverse('extras-api:configtemplate-detail', kwargs={'pk': configtemplate.pk}) + 'render/'
         response = self.client.post(url, {'foo': 'bar'}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)

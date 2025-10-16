@@ -1,6 +1,5 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
@@ -23,7 +22,6 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.permissions import get_permission_for_model
 from utilities.request import copy_safe_request
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
@@ -252,13 +250,8 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
         Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
         return the raw rendered content, rather than serialized JSON.
         """
-        self.queryset = self.queryset.model.objects.all().restrict(request.user, 'render_config')
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'render').restrict(request.user, 'view')
         configtemplate = self.get_object()
-
-        # Check render_config permission
-        perm = get_permission_for_model(configtemplate, 'render_config')
-        if not request.user.has_perm(perm, obj=configtemplate):
-            raise PermissionDenied(_("This user does not have permission to render configuration templates."))
 
         context = request.data
 
