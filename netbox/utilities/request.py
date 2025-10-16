@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
 from urllib.parse import urlparse
 
-from .constants import HTTP_REQUEST_META_SAFE_COPY
+from .constants import HTTP_REQUEST_META_SAFE_COPY, HTTP_REQUEST_J2_SAFE_COPY
 
 __all__ = (
     'NetBoxFakeRequest',
@@ -48,6 +48,22 @@ def copy_safe_request(request):
         'path': request.path,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
     })
+
+
+def make_request_safe_j2(request):
+    """
+    Return a copy of the request object with only safe attributes.
+    """
+    from django.http import QueryDict
+    q = QueryDict(request.META["QUERY_STRING"])
+    q_dict = q.dict()
+    dict_return = {"request_query": q_dict,
+                  "path": request.path,
+                  "query_string": request.META["QUERY_STRING"]}
+    for attr in HTTP_REQUEST_J2_SAFE_COPY:
+        if hasattr(request, attr):
+            dict_return[attr] = getattr(request, attr, None)
+    return dict_return
 
 
 def get_client_ip(request, additional_headers=()):

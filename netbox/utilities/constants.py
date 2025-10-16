@@ -60,6 +60,10 @@ HTTP_REQUEST_META_SAFE_COPY = [
 ]
 
 
+HTTP_REQUEST_J2_SAFE_COPY = [
+    "data"
+]
+
 #
 # CSV-style format delimiters
 #

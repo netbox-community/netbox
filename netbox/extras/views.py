@@ -28,7 +28,7 @@ from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
-from utilities.request import copy_safe_request
+from utilities.request import copy_safe_request, make_request_safe_j2
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
@@ -920,7 +920,9 @@ class ObjectRenderConfigView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         # Compile context data
-        context_data = instance.get_config_context()
+        context_data = {}
+        context_data['request'] = make_request_safe_j2(request)
+        context_data.update(instance.get_config_context())
         context_data.update(self.get_extra_context_data(request, instance))
 
         # Render the config template

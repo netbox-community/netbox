@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from netbox.api.renderers import TextRenderer
+from utilities.request import make_request_safe_j2
 from .serializers import ConfigTemplateSerializer
 
 __all__ = (
@@ -80,6 +81,7 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
         # Compile context data
         context_data = instance.get_config_context()
         context_data.update(request.data)
+        context_data['request'] = make_request_safe_j2(request)
         context_data.update({object_type: instance})
 
         return self.render_configtemplate(request, configtemplate, context_data)
