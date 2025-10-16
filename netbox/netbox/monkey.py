@@ -22,7 +22,7 @@ def get_unique_validators(field_name, model_field):
     # START custom logic
     conditions = {
         cond for cond in conditions
-        if cond.referenced_base_fields == field_set
+        if cond is None or cond.referenced_base_fields == field_set
     }
     # END custom logic
 

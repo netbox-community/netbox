@@ -1,5 +1,17 @@
 # NetBox v4.4
 
+## v4.4.4 (2025-10-15)
+
+### Bug Fixes
+
+* [#20554](https://github.com/netbox-community/netbox/issues/20554) - Fix generic relation filters to accept `<app>.<model>` format matching POST requests
+* [#20574](https://github.com/netbox-community/netbox/issues/20574) - Fix excessive storage initialization overhead when listing scripts with remote backends
+* [#20584](https://github.com/netbox-community/netbox/issues/20584) - Enforce PoE mode requirement on interface templates when PoE type is set
+* [#20585](https://github.com/netbox-community/netbox/issues/20585) - Fix API schema generation crash for models with single-field UniqueConstraints
+* [#20587](https://github.com/netbox-community/netbox/issues/20587) - Fix upgrade.sh failure when removing stale content types
+
+---
+
 ## v4.4.3 (2025-10-14)
 
 ### Enhancements

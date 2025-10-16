@@ -1764,6 +1764,7 @@ class PowerOutletFilterSet(
 
 class MACAddressFilterSet(NetBoxModelFilterSet):
     mac_address = MultiValueMACAddressFilter()
+    assigned_object_type = ContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',

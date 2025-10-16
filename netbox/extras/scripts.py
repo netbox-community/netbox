@@ -326,6 +326,9 @@ class BaseScript:
         # Declare the placeholder for the current request
         self.request = None
 
+        # Initiate the storage backend (local, S3, etc) as a class attr
+        self.storage = storages.create_storage(storages.backends["scripts"])
+
         # Compile test methods and initialize results skeleton
         for method in dir(self):
             if method.startswith('test_') and callable(getattr(self, method)):
@@ -391,8 +394,7 @@ class BaseScript:
         return inspect.getfile(self.__class__)
 
     def findsource(self, object):
-        storage = storages.create_storage(storages.backends["scripts"])
-        with storage.open(os.path.basename(self.filename), 'r') as f:
+        with self.storage.open(os.path.basename(self.filename), 'r') as f:
             data = f.read()
 
         # Break the source code into lines
