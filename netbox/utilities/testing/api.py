@@ -562,13 +562,27 @@ class APIViewTestCases:
                 else:
                     fields_string += f'{field.name}\n'
 
-            query = f"""
-            {{
-                {name}{filter_string} {{
-                    {fields_string}
+            # Check if this is a list query (ends with '_list')
+            if name.endswith('_list'):
+                # Wrap fields in 'results' for paginated queries
+                query = f"""
+                {{
+                    {name}{filter_string} {{
+                        results {{
+                            {fields_string}
+                        }}
+                    }}
                 }}
-            }}
-            """
+                """
+            else:
+                # Single object query (no pagination)
+                query = f"""
+                {{
+                    {name}{filter_string} {{
+                        {fields_string}
+                    }}
+                }}
+                """
 
             return query
 
@@ -677,7 +691,7 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
-            self.assertEqual(len(data['data'][field_name]), 0)
+            self.assertEqual(len(data['data'][field_name]['results']), 0)
 
             # Remove permission constraint
             obj_perm.constraints = None
@@ -688,7 +702,7 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
-            self.assertEqual(len(data['data'][field_name]), self.model.objects.count())
+            self.assertEqual(len(data['data'][field_name]['results']), self.model.objects.count())
 
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_filter_objects(self):
@@ -712,7 +726,7 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
-            self.assertGreater(len(data['data'][field_name]), 0)
+            self.assertGreater(len(data['data'][field_name]['results']), 0)
 
     class APIViewTestCase(
         GetObjectViewTestCase,
