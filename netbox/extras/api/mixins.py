@@ -1,9 +1,12 @@
+from django.utils.translation import gettext_lazy as _
 from jinja2.exceptions import TemplateError
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from netbox.api.authentication import TokenWritePermission
 from netbox.api.renderers import TextRenderer
 from .serializers import ConfigTemplateSerializer
 
@@ -64,18 +67,33 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
     """
     Provides a /render-config/ endpoint for REST API views whose model may have a ConfigTemplate assigned.
     """
+
+    def get_permissions(self):
+        # For render_config action, check only token write ability (not model permissions)
+        if self.action == 'render_config':
+            return [TokenWritePermission()]
+        return super().get_permissions()
+
     @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
     def render_config(self, request, pk):
         """
         Resolve and render the preferred ConfigTemplate for this Device.
         """
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'render_config').restrict(
+            request.user, 'view'
+        )
         instance = self.get_object()
+
         object_type = instance._meta.model_name
         configtemplate = instance.get_config_template()
         if not configtemplate:
             return Response({
                 'error': f'No config template found for this {object_type}.'
             }, status=HTTP_400_BAD_REQUEST)
+
+        # Check view permission for ConfigTemplate
+        if not request.user.has_perm('extras.view_configtemplate', obj=configtemplate):
+            raise PermissionDenied(_("This user does not have permission to view this configuration template."))
 
         # Compile context data
         context_data = instance.get_config_context()
