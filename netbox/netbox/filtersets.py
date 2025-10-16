@@ -45,6 +45,7 @@ class BaseFilterSet(django_filters.FilterSet):
     """
     A base FilterSet which provides some enhanced functionality over django-filter2's FilterSet class.
     """
+
     FILTER_DEFAULTS = deepcopy(django_filters.filterset.FILTER_FOR_DBFIELD_DEFAULTS)
     FILTER_DEFAULTS.update({
         models.AutoField: {
@@ -179,6 +180,9 @@ class BaseFilterSet(django_filters.FilterSet):
         field_name = existing_filter.field_name
         field = get_model_field(cls._meta.model, field_name)
 
+        # Check if this is an annotated field filter
+        is_annotated_field = hasattr(existing_filter, '_is_annotated') and existing_filter._is_annotated
+
         # Create new filters for each lookup expression in the map
         for lookup_name, lookup_expr in lookup_map.items():
             new_filter_name = f'{existing_filter_name}__{lookup_name}'
@@ -189,9 +193,14 @@ class BaseFilterSet(django_filters.FilterSet):
                     # The filter field has been explicitly defined on the filterset class so we must manually
                     # create the new filter with the same type because there is no guarantee the defined type
                     # is the same as the default type for the field
-                    if field is None:
+                    if field is None and not is_annotated_field:
+                        # Only raise error for non-annotated fields
                         raise ValueError('Invalid field name/lookup on {}: {}'.format(existing_filter_name, field_name))
-                    resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
+
+                    # For annotated fields, we skip the resolve_field check
+                    if not is_annotated_field:
+                        resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
+
                     filter_cls = type(existing_filter)
                     if lookup_expr == 'empty':
                         filter_cls = django_filters.BooleanFilter
@@ -205,6 +214,9 @@ class BaseFilterSet(django_filters.FilterSet):
                         distinct=existing_filter.distinct,
                         **existing_filter_extra
                     )
+                    # Mark the generated filter as annotated too
+                    if is_annotated_field:
+                        new_filter._is_annotated = True
                 elif hasattr(existing_filter, 'custom_field'):
                     # Filter is for a custom field
                     custom_field = existing_filter.custom_field

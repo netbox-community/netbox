@@ -20,6 +20,7 @@ from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from utilities.api import get_serializer_for_model
 from utilities.query_functions import CollateAsChar
+from utilities.query import count_related
 from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
@@ -266,7 +267,9 @@ class ManufacturerViewSet(NetBoxModelViewSet):
 #
 
 class DeviceTypeViewSet(NetBoxModelViewSet):
-    queryset = DeviceType.objects.all()
+    queryset = DeviceType.objects.annotate(instance_count=count_related(Device, 'device_type')).prefetch_related(
+        'manufacturer', 'default_platform'
+    )
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filtersets.DeviceTypeFilterSet
 
@@ -278,7 +281,7 @@ class ModuleTypeProfileViewSet(NetBoxModelViewSet):
 
 
 class ModuleTypeViewSet(NetBoxModelViewSet):
-    queryset = ModuleType.objects.all()
+    queryset = ModuleType.objects.annotate(instance_count=count_related(Module, 'module_type'))
     serializer_class = serializers.ModuleTypeSerializer
     filterset_class = filtersets.ModuleTypeFilterSet
 
