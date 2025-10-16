@@ -6,7 +6,7 @@ from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, B
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import Group, User, ObjectPermission, Token
+from .models import Group, User, ObjectPermission, Owner, Token
 
 
 #
@@ -231,3 +231,60 @@ class ObjectPermissionBulkDeleteView(generic.BulkDeleteView):
     queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet
     table = tables.ObjectPermissionTable
+
+
+#
+# Owners
+#
+
+@register_model_view(Owner, 'list', path='', detail=False)
+class OwnerListView(generic.ObjectListView):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+    filterset_form = forms.OwnerFilterForm
+    table = tables.OwnerTable
+
+
+@register_model_view(Owner)
+class OwnerView(generic.ObjectView):
+    queryset = Owner.objects.all()
+    template_name = 'users/owner.html'
+
+
+@register_model_view(Owner, 'add', detail=False)
+@register_model_view(Owner, 'edit')
+class OwnerEditView(generic.ObjectEditView):
+    queryset = Owner.objects.all()
+    form = forms.OwnerForm
+
+
+@register_model_view(Owner, 'delete')
+class OwnerDeleteView(generic.ObjectDeleteView):
+    queryset = Owner.objects.all()
+
+
+@register_model_view(Owner, 'bulk_import', path='import', detail=False)
+class OwnerBulkImportView(generic.BulkImportView):
+    queryset = Owner.objects.all()
+    model_form = forms.OwnerImportForm
+
+
+@register_model_view(Owner, 'bulk_edit', path='edit', detail=False)
+class OwnerBulkEditView(generic.BulkEditView):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+    table = tables.OwnerTable
+    form = forms.OwnerBulkEditForm
+
+
+@register_model_view(Owner, 'bulk_rename', path='rename', detail=False)
+class OwnerBulkRenameView(generic.BulkRenameView):
+    queryset = Owner.objects.all()
+    field_name = 'ownername'
+
+
+@register_model_view(Owner, 'bulk_delete', path='delete', detail=False)
+class OwnerBulkDeleteView(generic.BulkDeleteView):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+    table = tables.OwnerTable

@@ -18,4 +18,7 @@ urlpatterns = [
     path('permissions/', include(get_model_urls('users', 'objectpermission', detail=False))),
     path('permissions/<int:pk>/', include(get_model_urls('users', 'objectpermission'))),
 
+    path('owners/', include(get_model_urls('users', 'owner', detail=False))),
+    path('owners/<int:pk>/', include(get_model_urls('users', 'owner'))),
+
 ]

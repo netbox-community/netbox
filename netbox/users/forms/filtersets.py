@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from users.choices import TokenVersionChoices
-from users.models import Group, ObjectPermission, Token, User
+from users.models import Group, ObjectPermission, Owner, Token, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
@@ -14,6 +14,7 @@ from utilities.forms.widgets import DateTimePicker
 __all__ = (
     'GroupFilterForm',
     'ObjectPermissionFilterForm',
+    'OwnerFilterForm',
     'TokenFilterForm',
     'UserFilterForm',
 )
@@ -139,4 +140,22 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Last Used'),
         widget=DateTimePicker()
+    )
+
+
+class OwnerFilterForm(NetBoxModelFilterSetForm):
+    model = Owner
+    fieldsets = (
+        FieldSet('q', 'filter_id',),
+        FieldSet('group_id', 'user_id', name=_('Members')),
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        label=_('Group')
+    )
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        label=_('User')
     )
