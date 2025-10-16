@@ -95,7 +95,11 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             continue
 
         # Compile event data
-        event_data = event_rule.action_data or {}
+        if event_rule.action_type == EventRuleActionChoices.SCRIPT:
+            event_data = {}
+        else:
+            event_data = event_rule.action_data or {}
+
         event_data.update(data)
 
         # Webhooks
@@ -131,6 +135,20 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
         elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
             # Resolve the script from action parameters
             script = event_rule.action_object.python_class()
+            if event_rule.action_data:
+                form = script.as_form(event_rule.action_data)
+                if form.is_valid():
+                    form.cleaned_data.pop('_schedule_at')
+                    form.cleaned_data.pop('_interval')
+                    form.cleaned_data.pop('_commit')
+                    event_data.update(form.cleaned_data)
+                else:
+                    logger.error(
+                        _("Processing event rule {event_rule} failed - Cannot validate script form: {errors}").format(
+                            event_rule=event_rule, errors=form.errors
+                        )
+                    )
+                    continue
 
             # Enqueue a Job to record the script's execution
             from extras.jobs import ScriptJob
