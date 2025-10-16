@@ -1,7 +1,8 @@
+import logging
+from django.http import QueryDict
 from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
 from urllib.parse import urlparse
-
 from .constants import HTTP_REQUEST_META_SAFE_COPY, HTTP_REQUEST_J2_SAFE_COPY
 
 __all__ = (
@@ -10,6 +11,7 @@ __all__ = (
     'get_client_ip',
 )
 
+logger = logging.getLogger('netbox.utilities.request')
 
 #
 # Fake request object
@@ -54,16 +56,19 @@ def make_request_safe_j2(request):
     """
     Return a copy of the request object with only safe attributes.
     """
-    from django.http import QueryDict
-    q = QueryDict(request.META["QUERY_STRING"])
-    q_dict = q.dict()
-    dict_return = {"request_query": q_dict,
-                  "path": request.path,
-                  "query_string": request.META["QUERY_STRING"]}
-    for attr in HTTP_REQUEST_J2_SAFE_COPY:
-        if hasattr(request, attr):
-            dict_return[attr] = getattr(request, attr, None)
-    return dict_return
+    try:
+        q = QueryDict(request.META["QUERY_STRING"])
+        q_dict = q.dict()
+        dict_return = {"request_query": q_dict,
+                    "path": request.path,
+                    "query_string": request.META["QUERY_STRING"]}
+        for attr in HTTP_REQUEST_J2_SAFE_COPY:
+            if hasattr(request, attr):
+                dict_return[attr] = getattr(request, attr, None)
+        return dict_return
+    except Exception as e:
+        logger.debug(f"Could not make request safe for Jinja2: {e}")
+        return {}
 
 
 def get_client_ip(request, additional_headers=()):
