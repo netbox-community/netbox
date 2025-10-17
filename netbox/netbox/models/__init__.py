@@ -50,21 +50,15 @@ class NetBoxFeatureSet(
 # Base model classes
 #
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, EventRulesMixin, models.Model):
+class BaseModel(models.Model):
     """
-    Base model for ancillary models; provides limited functionality for models which don't
-    support NetBox's full feature set.
-    """
-    objects = RestrictedQuerySet.as_manager()
+    A global base model for all NetBox objects.
 
-    class Meta:
-        abstract = True
-
-
-class NetBoxModel(NetBoxFeatureSet, models.Model):
+    This class provides some important overrides to Django's default functionality, such as
+    - Overriding the default manager to use RestrictedQuerySet
+    - Extending `clean()` to validate GenericForeignKey fields
     """
-    Base model for most object types. Suitable for use by plugins.
-    """
+
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
@@ -101,6 +95,25 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
 
                     # update the GFK field value
                     setattr(self, field.name, obj)
+
+
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, EventRulesMixin, BaseModel):
+    """
+    Base model for ancillary models; provides limited functionality for models which don't
+    support NetBox's full feature set.
+    """
+
+    class Meta:
+        abstract = True
+
+
+class NetBoxModel(NetBoxFeatureSet, BaseModel):
+    """
+    Base model for most object types. Suitable for use by plugins.
+    """
+
+    class Meta:
+        abstract = True
 
 
 #
@@ -177,7 +190,7 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
             })
 
 
-class OrganizationalModel(NetBoxFeatureSet, models.Model):
+class OrganizationalModel(NetBoxModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational
@@ -201,8 +214,6 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
         max_length=200,
         blank=True
     )
-
-    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         abstract = True
