@@ -4,11 +4,13 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
-from utilities.forms.fields import DynamicModelMultipleChoiceField
+from users.models import Owner
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'ChangelogMessageMixin',
     'CustomFieldsMixin',
+    'OwnerMixin',
     'SavedFiltersMixin',
     'TagsMixin',
 )
@@ -118,3 +120,14 @@ class TagsMixin(forms.Form):
         object_type = ObjectType.objects.get_for_model(self._meta.model)
         if object_type and hasattr(self.fields['tags'].widget, 'add_query_param'):
             self.fields['tags'].widget.add_query_param('for_object_type_id', object_type.pk)
+
+
+class OwnerMixin(forms.Form):
+    """
+    Add an `owner` field to forms for models which support Owner assignment.
+    """
+    owner = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )

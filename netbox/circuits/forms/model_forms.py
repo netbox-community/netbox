@@ -52,7 +52,7 @@ class ProviderForm(NetBoxModelForm):
     class Meta:
         model = Provider
         fields = [
-            'name', 'slug', 'asns', 'description', 'comments', 'tags',
+            'name', 'slug', 'asns', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -68,7 +68,7 @@ class ProviderAccountForm(NetBoxModelForm):
     class Meta:
         model = ProviderAccount
         fields = [
-            'provider', 'name', 'account', 'description', 'comments', 'tags',
+            'provider', 'name', 'account', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -88,7 +88,7 @@ class ProviderNetworkForm(NetBoxModelForm):
     class Meta:
         model = ProviderNetwork
         fields = [
-            'provider', 'name', 'service_id', 'description', 'comments', 'tags',
+            'provider', 'name', 'service_id', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -96,7 +96,7 @@ class CircuitTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        FieldSet('name', 'slug', 'color', 'description', 'tags'),
+        FieldSet('name', 'slug', 'color', 'description', 'owner', 'tags'),
     )
 
     class Meta:
@@ -147,7 +147,7 @@ class CircuitForm(DistanceValidationMixin, TenancyForm, NetBoxModelForm):
         model = Circuit
         fields = [
             'cid', 'type', 'provider', 'provider_account', 'status', 'install_date', 'termination_date', 'commit_rate',
-            'distance', 'distance_unit', 'description', 'tenant_group', 'tenant', 'comments', 'tags',
+            'distance', 'distance_unit', 'description', 'tenant_group', 'tenant', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'install_date': DatePicker(),
@@ -244,7 +244,7 @@ class CircuitGroupForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = CircuitGroup
         fields = [
-            'name', 'slug', 'description', 'tenant_group', 'tenant', 'tags',
+            'name', 'slug', 'description', 'tenant_group', 'tenant', 'owner', 'tags',
         ]
 
 
@@ -317,7 +317,7 @@ class VirtualCircuitTypeForm(NetBoxModelForm):
     class Meta:
         model = VirtualCircuitType
         fields = [
-            'name', 'slug', 'color', 'description', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'tags',
         ]
 
 
@@ -350,7 +350,7 @@ class VirtualCircuitForm(TenancyForm, NetBoxModelForm):
         model = VirtualCircuit
         fields = [
             'cid', 'provider_network', 'provider_account', 'type', 'status', 'description', 'tenant_group', 'tenant',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         ]
 
 

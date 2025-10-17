@@ -36,7 +36,8 @@ class DataSourceForm(NetBoxModelForm):
     class Meta:
         model = DataSource
         fields = [
-            'name', 'type', 'source_url', 'enabled', 'description', 'sync_interval', 'ignore_rules', 'comments', 'tags',
+            'name', 'type', 'source_url', 'enabled', 'description', 'sync_interval', 'ignore_rules', 'owner',
+            'comments', 'tags',
         ]
         widgets = {
             'ignore_rules': forms.Textarea(

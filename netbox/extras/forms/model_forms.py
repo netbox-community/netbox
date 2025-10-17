@@ -179,7 +179,7 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, forms.ModelForm):
 
     class Meta:
         model = CustomFieldChoiceSet
-        fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically')
+        fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically', 'owner')
 
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
@@ -480,7 +480,7 @@ class EventRuleForm(NetBoxModelForm):
         model = EventRule
         fields = (
             'object_types', 'name', 'description', 'enabled', 'event_types', 'conditions', 'action_type',
-            'action_object_type', 'action_object_id', 'action_data', 'comments', 'tags'
+            'action_object_type', 'action_object_id', 'action_data', 'owner', 'comments', 'tags'
         )
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
@@ -582,7 +582,7 @@ class TagForm(ChangelogMessageMixin, forms.ModelForm):
     class Meta:
         model = Tag
         fields = [
-            'name', 'slug', 'color', 'weight', 'description', 'object_types',
+            'name', 'slug', 'color', 'weight', 'description', 'object_types', 'owner',
         ]
 
 
@@ -606,7 +606,8 @@ class ConfigContextProfileForm(SyncedDataMixin, NetBoxModelForm):
     class Meta:
         model = ConfigContextProfile
         fields = (
-            'name', 'description', 'schema', 'data_source', 'data_file', 'auto_sync_enabled', 'comments', 'tags',
+            'name', 'description', 'schema', 'data_source', 'data_file', 'auto_sync_enabled', 'owner', 'comments',
+            'tags',
         )
 
 
@@ -701,7 +702,7 @@ class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm)
         fields = (
             'name', 'weight', 'profile', 'description', 'data', 'is_active', 'regions', 'site_groups', 'sites',
             'locations', 'roles', 'device_types', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-            'tenant_groups', 'tenants', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
+            'tenant_groups', 'tenants', 'owner', 'tags', 'data_source', 'data_file', 'auto_sync_enabled',
         )
 
     def __init__(self, *args, initial=None, **kwargs):

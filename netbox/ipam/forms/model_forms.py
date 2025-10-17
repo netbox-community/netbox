@@ -72,7 +72,7 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         model = VRF
         fields = [
             'name', 'rd', 'enforce_unique', 'import_targets', 'export_targets', 'tenant_group', 'tenant', 'description',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         ]
         labels = {
             'rd': "RD",
@@ -89,7 +89,7 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = RouteTarget
         fields = [
-            'name', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'name', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -103,7 +103,7 @@ class RIRForm(NetBoxModelForm):
     class Meta:
         model = RIR
         fields = [
-            'name', 'slug', 'is_private', 'description', 'tags',
+            'name', 'slug', 'is_private', 'description', 'owner', 'tags',
         ]
 
 
@@ -123,7 +123,7 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Aggregate
         fields = [
-            'prefix', 'rir', 'date_added', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'prefix', 'rir', 'date_added', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'date_added': DatePicker(),
@@ -145,7 +145,7 @@ class ASNRangeForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = ASNRange
         fields = [
-            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'description', 'tags'
+            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'owner', 'description', 'tags'
         ]
 
 
@@ -170,7 +170,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = ASN
         fields = [
-            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
+            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags'
         ]
         widgets = {
             'date_added': DatePicker(),
@@ -198,7 +198,7 @@ class RoleForm(NetBoxModelForm):
     class Meta:
         model = Role
         fields = [
-            'name', 'slug', 'weight', 'description', 'tags',
+            'name', 'slug', 'weight', 'description', 'owner', 'tags',
         ]
 
 
@@ -238,7 +238,7 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
         model = Prefix
         fields = [
             'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'tenant_group',
-            'tenant', 'description', 'comments', 'tags',
+            'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -276,7 +276,7 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
         model = IPRange
         fields = [
             'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_populated',
-            'mark_utilized', 'description', 'comments', 'tags',
+            'mark_utilized', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -344,7 +344,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         model = IPAddress
         fields = [
             'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'oob_for_parent', 'nat_inside',
-            'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -523,7 +523,7 @@ class FHRPGroupForm(NetBoxModelForm):
         model = FHRPGroup
         fields = (
             'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'ip_vrf', 'ip_address', 'ip_status', 'description',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         )
 
     def save(self, *args, **kwargs):
@@ -628,7 +628,7 @@ class VLANGroupForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'owner', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -704,7 +704,7 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         model = VLAN
         fields = [
             'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'qinq_role', 'qinq_svlan',
-            'description', 'comments', 'tags',
+            'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -717,7 +717,7 @@ class VLANTranslationPolicyForm(NetBoxModelForm):
     class Meta:
         model = VLANTranslationPolicy
         fields = [
-            'name', 'description', 'tags',
+            'name', 'description', 'owner', 'tags',
         ]
 
 
@@ -756,7 +756,7 @@ class ServiceTemplateForm(NetBoxModelForm):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'comments', 'tags')
+        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
 
 
 class ServiceForm(NetBoxModelForm):
@@ -799,7 +799,7 @@ class ServiceForm(NetBoxModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
             'parent_object_type',
         ]
 

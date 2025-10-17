@@ -13,6 +13,7 @@ from extras.models.mixins import RenderTemplateMixin
 from extras.querysets import ConfigContextQuerySet
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from netbox.models.mixins import OwnerMixin
 from utilities.data import deepmerge
 from utilities.jsonschema import validate_schema
 
@@ -68,7 +69,7 @@ class ConfigContextProfile(SyncedDataMixin, PrimaryModel):
     sync_data.alters_data = True
 
 
-class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -266,7 +267,13 @@ class ConfigContextModel(models.Model):
 #
 
 class ConfigTemplate(
-    RenderTemplateMixin, SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel
+    RenderTemplateMixin,
+    SyncedDataMixin,
+    CustomLinksMixin,
+    ExportTemplatesMixin,
+    OwnerMixin,
+    TagsMixin,
+    ChangeLoggedModel,
 ):
     name = models.CharField(
         verbose_name=_('name'),

@@ -15,6 +15,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import OwnerMixin
 from utilities.fields import CounterCacheField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -263,7 +264,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 #
 
 
-class ComponentModel(NetBoxModel):
+class ComponentModel(OwnerMixin, NetBoxModel):
     """
     An abstract model inherited by any model which has a parent VirtualMachine.
     """

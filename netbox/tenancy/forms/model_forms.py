@@ -36,7 +36,7 @@ class TenantGroupForm(NetBoxModelForm):
     class Meta:
         model = TenantGroup
         fields = [
-            'parent', 'name', 'slug', 'description', 'tags', 'comments'
+            'parent', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -56,7 +56,7 @@ class TenantForm(NetBoxModelForm):
     class Meta:
         model = Tenant
         fields = (
-            'name', 'slug', 'group', 'description', 'comments', 'tags',
+            'name', 'slug', 'group', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -79,7 +79,7 @@ class ContactGroupForm(NetBoxModelForm):
 
     class Meta:
         model = ContactGroup
-        fields = ('parent', 'name', 'slug', 'description', 'tags', 'comments')
+        fields = ('parent', 'name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
 class ContactRoleForm(NetBoxModelForm):
@@ -91,7 +91,7 @@ class ContactRoleForm(NetBoxModelForm):
 
     class Meta:
         model = ContactRole
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
 class ContactForm(NetBoxModelForm):
@@ -117,7 +117,7 @@ class ContactForm(NetBoxModelForm):
     class Meta:
         model = Contact
         fields = (
-            'groups', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags',
+            'groups', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'owner', 'comments', 'tags',
         )
         widgets = {
             'address': forms.Textarea(attrs={'rows': 3}),
