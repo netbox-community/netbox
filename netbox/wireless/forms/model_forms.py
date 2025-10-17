@@ -34,7 +34,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
     class Meta:
         model = WirelessLANGroup
         fields = [
-            'parent', 'name', 'slug', 'description', 'tags', 'comments',
+            'parent', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -64,7 +64,7 @@ class WirelessLANForm(ScopedForm, TenancyForm, NetBoxModelForm):
         model = WirelessLAN
         fields = [
             'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'scope_type', 'description', 'comments', 'tags',
+            'scope_type', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(
@@ -181,7 +181,7 @@ class WirelessLinkForm(DistanceValidationMixin, TenancyForm, NetBoxModelForm):
         fields = [
             'site_a', 'location_a', 'device_a', 'interface_a', 'site_b', 'location_b', 'device_b', 'interface_b',
             'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'distance', 'distance_unit', 'description', 'comments', 'tags',
+            'distance', 'distance_unit', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(

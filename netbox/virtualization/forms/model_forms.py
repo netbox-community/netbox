@@ -42,7 +42,7 @@ class ClusterTypeForm(NetBoxModelForm):
     class Meta:
         model = ClusterType
         fields = (
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         )
 
 
@@ -56,7 +56,7 @@ class ClusterGroupForm(NetBoxModelForm):
     class Meta:
         model = ClusterGroup
         fields = (
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         )
 
 
@@ -83,7 +83,7 @@ class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -236,7 +236,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         model = VirtualMachine
         fields = [
             'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'comments', 'tags',
+            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'owner', 'comments', 'tags',
             'local_context_data', 'config_template',
         ]
 
@@ -387,7 +387,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
-            'tags',
+            'owner', 'tags',
         ]
         labels = {
             'mode': _('802.1Q Mode'),
@@ -406,5 +406,5 @@ class VirtualDiskForm(VMComponentForm):
     class Meta:
         model = VirtualDisk
         fields = [
-            'virtual_machine', 'name', 'size', 'description', 'tags',
+            'virtual_machine', 'name', 'size', 'description', 'owner', 'tags',
         ]

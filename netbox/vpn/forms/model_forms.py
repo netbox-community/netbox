@@ -39,7 +39,7 @@ class TunnelGroupForm(NetBoxModelForm):
     class Meta:
         model = TunnelGroup
         fields = [
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         ]
 
 
@@ -67,7 +67,7 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
         model = Tunnel
         fields = [
             'name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tenant_group',
-            'tenant', 'comments', 'tags',
+            'tenant', 'owner', 'comments', 'tags',
         ]
 
 
@@ -307,7 +307,7 @@ class IKEProposalForm(NetBoxModelForm):
         model = IKEProposal
         fields = [
             'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group',
-            'sa_lifetime', 'comments', 'tags',
+            'sa_lifetime', 'owner', 'comments', 'tags',
         ]
 
 
@@ -326,7 +326,7 @@ class IKEPolicyForm(NetBoxModelForm):
     class Meta:
         model = IKEPolicy
         fields = [
-            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments', 'tags',
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'owner', 'comments', 'tags',
         ]
 
 
@@ -344,7 +344,7 @@ class IPSecProposalForm(NetBoxModelForm):
         model = IPSecProposal
         fields = [
             'name', 'description', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
-            'sa_lifetime_data', 'comments', 'tags',
+            'sa_lifetime_data', 'owner', 'comments', 'tags',
         ]
 
 
@@ -363,7 +363,7 @@ class IPSecPolicyForm(NetBoxModelForm):
     class Meta:
         model = IPSecPolicy
         fields = [
-            'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
+            'name', 'description', 'proposals', 'pfs_group', 'owner', 'comments', 'tags',
         ]
 
 
@@ -386,7 +386,7 @@ class IPSecProfileForm(NetBoxModelForm):
     class Meta:
         model = IPSecProfile
         fields = [
-            'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
+            'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -417,8 +417,8 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = L2VPN
         fields = (
-            'name', 'slug', 'type', 'status', 'identifier', 'import_targets', 'export_targets', 'tenant',
-            'description', 'comments', 'tags'
+            'name', 'slug', 'type', 'status', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
+            'owner', 'comments', 'tags'
         )
 
 

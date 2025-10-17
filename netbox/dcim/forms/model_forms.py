@@ -91,7 +91,7 @@ class RegionForm(NetBoxModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug', 'description', 'tags', 'comments',
+            'parent', 'name', 'slug', 'description', 'owner', 'tags', 'comments',
         )
 
 
@@ -111,7 +111,7 @@ class SiteGroupForm(NetBoxModelForm):
     class Meta:
         model = SiteGroup
         fields = (
-            'parent', 'name', 'slug', 'description', 'comments', 'tags',
+            'parent', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -154,7 +154,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         model = Site
         fields = (
             'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'owner', 'comments', 'tags',
         )
         widgets = {
             'physical_address': forms.Textarea(
@@ -195,8 +195,8 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Location
         fields = (
-            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
-            'facility', 'tags', 'comments',
+            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant', 'facility', 'owner',
+            'comments', 'tags',
         )
 
 
@@ -210,7 +210,7 @@ class RackRoleForm(NetBoxModelForm):
     class Meta:
         model = RackRole
         fields = [
-            'name', 'slug', 'color', 'description', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'tags',
         ]
 
 
@@ -242,7 +242,7 @@ class RackTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'comments', 'tags',
+            'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -288,7 +288,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
-            'weight_unit', 'description', 'comments', 'tags',
+            'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -343,7 +343,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'status', 'user', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'rack', 'units', 'status', 'user', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -357,7 +357,7 @@ class ManufacturerForm(NetBoxModelForm):
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         ]
 
 
@@ -396,7 +396,7 @@ class DeviceTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
             'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
-            'description', 'comments', 'tags',
+            'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={
@@ -423,7 +423,7 @@ class ModuleTypeProfileForm(NetBoxModelForm):
     class Meta:
         model = ModuleTypeProfile
         fields = [
-            'name', 'description', 'schema', 'comments', 'tags',
+            'name', 'description', 'schema', 'owner', 'comments', 'tags',
         ]
 
 
@@ -452,7 +452,7 @@ class ModuleTypeForm(NetBoxModelForm):
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -531,7 +531,7 @@ class DeviceRoleForm(NetBoxModelForm):
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags',
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -567,7 +567,7 @@ class PlatformForm(NetBoxModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'comments', 'tags',
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -677,7 +677,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'name', 'role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
             'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
-            'comments', 'tags', 'local_context_data',
+            'owner', 'comments', 'tags', 'local_context_data',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -788,7 +788,7 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
         model = Module
         fields = [
             'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag', 'tags', 'replicate_components',
-            'adopt_components', 'description', 'comments',
+            'adopt_components', 'description', 'owner', 'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -828,7 +828,7 @@ class CableForm(TenancyForm, NetBoxModelForm):
         model = Cable
         fields = [
             'a_terminations_type', 'b_terminations_type', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'description', 'comments', 'tags',
+            'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -855,7 +855,7 @@ class PowerPanelForm(NetBoxModelForm):
     class Meta:
         model = PowerPanel
         fields = [
-            'site', 'location', 'name', 'description', 'comments', 'tags',
+            'site', 'location', 'name', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -887,7 +887,7 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
         model = PowerFeed
         fields = [
             'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
+            'max_utilization', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags'
         ]
 
 
@@ -906,7 +906,7 @@ class VirtualChassisForm(NetBoxModelForm):
     class Meta:
         model = VirtualChassis
         fields = [
-            'name', 'domain', 'master', 'description', 'comments', 'tags',
+            'name', 'domain', 'master', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'master': SelectWithPK(),
@@ -1396,7 +1396,7 @@ class ConsolePortForm(ModularDeviceComponentForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'owner', 'tags',
         ]
 
 
@@ -1410,7 +1410,7 @@ class ConsoleServerPortForm(ModularDeviceComponentForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'owner', 'tags',
         ]
 
 
@@ -1426,7 +1426,7 @@ class PowerPortForm(ModularDeviceComponentForm):
         model = PowerPort
         fields = [
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
-            'description', 'tags',
+            'description', 'owner', 'tags',
         ]
 
 
@@ -1443,7 +1443,7 @@ class PowerOutletForm(ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'mark_connected',
-            'description', 'tags',
+            'description', 'owner', 'tags',
         ),
     )
 
@@ -1587,7 +1587,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
-            'tags',
+            'owner', 'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(
@@ -1619,7 +1619,7 @@ class FrontPortForm(ModularDeviceComponentForm):
         model = FrontPort
         fields = [
             'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
-            'description', 'tags',
+            'description', 'owner', 'tags',
         ]
 
 
@@ -1633,7 +1633,8 @@ class RearPortForm(ModularDeviceComponentForm):
     class Meta:
         model = RearPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner',
+            'tags',
         ]
 
 
@@ -1645,7 +1646,7 @@ class ModuleBayForm(ModularDeviceComponentForm):
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'module', 'name', 'label', 'position', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'position', 'description', 'owner', 'tags',
         ]
 
 
@@ -1657,7 +1658,7 @@ class DeviceBayForm(DeviceComponentForm):
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'label', 'description', 'tags',
+            'device', 'name', 'label', 'description', 'owner', 'tags',
         ]
 
 
@@ -1782,7 +1783,7 @@ class InventoryItemForm(DeviceComponentForm):
         model = InventoryItem
         fields = [
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'status', 'description', 'tags',
+            'status', 'description', 'owner', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -1828,9 +1829,6 @@ class InventoryItemForm(DeviceComponentForm):
             self.instance.component = None
 
 
-# Device component roles
-#
-
 class InventoryItemRoleForm(NetBoxModelForm):
     slug = SlugField()
 
@@ -1841,7 +1839,7 @@ class InventoryItemRoleForm(NetBoxModelForm):
     class Meta:
         model = InventoryItemRole
         fields = [
-            'name', 'slug', 'color', 'description', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'tags',
         ]
 
 
@@ -1881,7 +1879,7 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VirtualDeviceContext
         fields = [
-            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant',
+            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'owner',
             'comments', 'tags'
         ]
 
@@ -1929,7 +1927,7 @@ class MACAddressForm(NetBoxModelForm):
     class Meta:
         model = MACAddress
         fields = [
-            'mac_address', 'interface', 'vminterface', 'description', 'tags',
+            'mac_address', 'interface', 'vminterface', 'description', 'owner', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
