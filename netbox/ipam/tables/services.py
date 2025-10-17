@@ -3,6 +3,7 @@ import django_tables2 as tables
 
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
+from tenancy.tables import ContactsColumnMixin
 
 __all__ = (
     'ServiceTable',
@@ -35,7 +36,7 @@ class ServiceTemplateTable(NetBoxTable):
         default_columns = ('pk', 'name', 'protocol', 'ports', 'description')
 
 
-class ServiceTable(NetBoxTable):
+class ServiceTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -60,7 +61,7 @@ class ServiceTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Service
         fields = (
-            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'contacts', 'comments',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')
