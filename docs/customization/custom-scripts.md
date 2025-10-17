@@ -404,6 +404,42 @@ A complete date & time. Returns a `datetime.datetime` object.
 
 Custom scripts can be run via the web UI by navigating to the script, completing any required form data, and clicking the "run script" button. It is possible to schedule a script to be executed at specified time in the future. A scheduled script can be canceled by deleting the associated job result object.
 
+#### Prefilling variables via URL parameters
+
+Script form fields can be prefilled by appending query parameters to the script URL. Each parameter name must match the variable name defined on the script class. Prefilled values are treated as initial values in the form and can be edited before execution.
+
+**Examples**
+
+*String and integer variables*
+
+When a script defines:
+
+```python
+from extras.scripts import Script, StringVar, IntegerVar
+
+class MyScript(Script):
+    name = StringVar()
+    count = IntegerVar()
+```
+
+visiting:
+
+```
+https://<netbox>/extras/scripts/<script_id>/?name=Branch42&count=3
+```
+
+prefills the **name** and **count** fields.
+
+*Object variables*
+
+For `ObjectVar`, supply the object’s primary key (PK). For example:
+
+```
+https://<netbox>/extras/scripts/<script_id>/?device=1
+```
+
+If the provided ID cannot be resolved or the object is not visible to the requesting user, the field remains unpopulated.
+
 ### Via the API
 
 To run a script via the REST API, issue a POST request to the script's endpoint specifying the form data and commitment. For example, to run a script named `example.MyReport`, we would make a request such as the following:
