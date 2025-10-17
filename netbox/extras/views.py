@@ -541,6 +541,21 @@ class NotificationReadView(LoginRequiredMixin, View):
         return redirect('account:notifications')
 
 
+@register_model_view(Notification, name='dismiss_all', path='dismiss-all', detail=False)
+class NotificationDismissAllView(LoginRequiredMixin, View):
+    """
+    Convenience view to clear all *unread* notifications for the current user.
+    """
+
+    def get(self, request):
+        request.user.notifications.unread().delete()
+        if htmx_partial(request):
+            return render(request, 'htmx/notifications.html', {
+                'notifications': request.user.notifications.unread()[:10],
+            })
+        return redirect('account:notifications')
+
+
 @register_model_view(Notification, 'dismiss')
 class NotificationDismissView(LoginRequiredMixin, View):
     """
