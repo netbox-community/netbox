@@ -5,6 +5,7 @@ from rest_framework import serializers
 from core.api.serializers_.jobs import JobSerializer
 from extras.models import Script
 from netbox.api.serializers import ValidatedModelSerializer
+from utilities.datetime import local_now
 
 __all__ = (
     'ScriptDetailSerializer',
@@ -66,11 +67,31 @@ class ScriptInputSerializer(serializers.Serializer):
     interval = serializers.IntegerField(required=False, allow_null=True)
 
     def validate_schedule_at(self, value):
-        if value and not self.context['script'].python_class.scheduling_enabled:
-            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
+        """
+        Validates the specified schedule time for a script execution.
+        """
+        if value:
+            if not self.context['script'].python_class.scheduling_enabled:
+                raise serializers.ValidationError(_('Scheduling is not enabled for this script.'))
+            if value < local_now():
+                raise serializers.ValidationError(_('Scheduled time must be in the future.'))
         return value
 
     def validate_interval(self, value):
+        """
+        Validates the provided interval based on the script's scheduling configuration.
+        """
         if value and not self.context['script'].python_class.scheduling_enabled:
-            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
+            raise serializers.ValidationError(_('Scheduling is not enabled for this script.'))
         return value
+
+    def validate(self, data):
+        """
+        Validates the given data and ensures the necessary fields are populated.
+        """
+        # Set the schedule_at time to now if only an interval is provided
+        # while handling the case where schedule_at is null.
+        if data.get('interval') and not data.get('schedule_at'):
+            data['schedule_at'] = local_now()
+
+        return super().validate(data)

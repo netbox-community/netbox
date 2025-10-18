@@ -3,6 +3,7 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
+from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
@@ -858,16 +859,16 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
 class ScriptTest(APITestCase):
 
     class TestScriptClass(PythonClass):
-
         class Meta:
-            name = "Test script"
+            name = 'Test script'
+            commit = True
+            scheduling_enabled = True
 
         var1 = StringVar()
         var2 = IntegerVar()
         var3 = BooleanVar()
 
         def run(self, data, commit=True):
-
             self.log_info(data['var1'])
             self.log_success(data['var2'])
             self.log_failure(data['var3'])
@@ -878,14 +879,16 @@ class ScriptTest(APITestCase):
     def setUpTestData(cls):
         module = ScriptModule.objects.create(
             file_root=ManagedFileRootPathChoices.SCRIPTS,
-            file_path='/var/tmp/script.py'
+            file_path='script.py',
         )
-        Script.objects.create(
+        script = Script.objects.create(
             module=module,
-            name="Test script",
+            name='Test script',
             is_executable=True,
         )
+        cls.url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
 
+    @property
     def python_class(self):
         return self.TestScriptClass
 
@@ -898,7 +901,7 @@ class ScriptTest(APITestCase):
     def test_get_script(self):
         module = ScriptModule.objects.get(
             file_root=ManagedFileRootPathChoices.SCRIPTS,
-            file_path='/var/tmp/script.py'
+            file_path='script.py',
         )
         script = module.scripts.all().first()
         url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
@@ -908,6 +911,76 @@ class ScriptTest(APITestCase):
         self.assertEqual(response.data['vars']['var1'], 'StringVar')
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
+
+    def test_schedule_script_past_time_rejected(self):
+        """
+        Scheduling with past schedule_at should fail.
+        """
+        self.add_permissions('extras.run_script')
+
+        payload = {
+            'data': {'var1': 'hello', 'var2': 1, 'var3': False},
+            'commit': True,
+            'schedule_at': now() - datetime.timedelta(hours=1),
+        }
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('schedule_at', response.data)
+        # Be tolerant of exact wording but ensure we failed on schedule_at being in the past
+        self.assertIn('future', str(response.data['schedule_at']).lower())
+
+    def test_schedule_script_interval_only(self):
+        """
+        Interval without schedule_at should auto-set schedule_at now.
+        """
+        self.add_permissions('extras.run_script')
+
+        payload = {
+            'data': {'var1': 'hello', 'var2': 1, 'var3': False},
+            'commit': True,
+            'interval': 60,
+        }
+        response = self.client.post(self.url, payload, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        # The latest job is returned in the script detail serializer under "result"
+        self.assertIn('result', response.data)
+        self.assertEqual(response.data['result']['interval'], 60)
+        # Ensure a start time was autopopulated
+        self.assertIsNotNone(response.data['result']['scheduled'])
+
+    def test_schedule_script_when_disabled(self):
+        """
+        Scheduling should fail when script.scheduling_enabled=False.
+        """
+        self.add_permissions('extras.run_script')
+
+        # Temporarily disable scheduling on the in-test Python class
+        original = getattr(self.TestScriptClass.Meta, 'scheduling_enabled', True)
+        self.TestScriptClass.Meta.scheduling_enabled = False
+        base = {
+            'data': {'var1': 'hello', 'var2': 1, 'var3': False},
+            'commit': True,
+        }
+        # Check both schedule_at and interval paths
+        cases = [
+            {**base, 'schedule_at': now() + datetime.timedelta(minutes=5)},
+            {**base, 'interval': 60},
+        ]
+        try:
+            for case in cases:
+                with self.subTest(case=list(case.keys())):
+                    response = self.client.post(self.url, case, format='json', **self.header)
+
+                    self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+                    # Error should be attached to whichever field we used
+                    key = 'schedule_at' if 'schedule_at' in case else 'interval'
+                    self.assertIn(key, response.data)
+                    self.assertIn('scheduling is not enabled', str(response.data[key]).lower())
+        finally:
+            # Restore the original setting for other tests
+            self.TestScriptClass.Meta.scheduling_enabled = original
 
 
 class CreatedUpdatedFilterTest(APITestCase):
