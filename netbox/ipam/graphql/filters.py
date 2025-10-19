@@ -170,7 +170,7 @@ class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
 
     @strawberry_django.filter_field()
     def assigned(self, value: bool, prefix) -> Q:
-        return Q(assigned_object_id__isnull=(not value))
+        return Q(**{f"{prefix}assigned_object_id__isnull": not value})
 
     @strawberry_django.filter_field()
     def parent(self, value: list[str], prefix) -> Q:
