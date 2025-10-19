@@ -1676,12 +1676,16 @@ class MACAddressFilterForm(NetBoxModelFilterSetForm):
     model = MACAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('mac_address', 'device_id', 'virtual_machine_id', name=_('MAC address')),
+        FieldSet('mac_address', name=_('Attributes')),
+        FieldSet(
+            'device_id', 'virtual_machine_id', 'assigned', 'primary',
+            name=_('Assignments'),
+        ),
     )
     selector_fields = ('filter_id', 'q', 'device_id', 'virtual_machine_id')
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC address'),
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -1692,6 +1696,20 @@ class MACAddressFilterForm(NetBoxModelFilterSetForm):
         queryset=VirtualMachine.objects.all(),
         required=False,
         label=_('Assigned VM'),
+    )
+    assigned = forms.NullBooleanField(
+        required=False,
+        label=_('Assigned to an interface'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+    )
+    primary = forms.NullBooleanField(
+        required=False,
+        label=_('Primary MAC of an interface'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
     )
     tag = TagFilterField(model)
 
