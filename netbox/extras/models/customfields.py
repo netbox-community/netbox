@@ -535,6 +535,15 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
             field = LaxURLField(assume_scheme='https', required=required, initial=initial)
+            if self.validation_regex:
+                field.validators = [
+                    RegexValidator(
+                        regex=self.validation_regex,
+                        message=mark_safe(_("Values must match this regex: <code>{regex}</code>").format(
+                            regex=escape(self.validation_regex)
+                        ))
+                    )
+                ]
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
@@ -679,6 +688,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
             # Validate text field
             if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
+                if type(value) is not str:
+                    raise ValidationError(_("Value must be a string."))
+                if self.validation_regex and not re.match(self.validation_regex, value):
+                    raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
+
+            # Validate URL field
+            elif self.type == CustomFieldTypeChoices.TYPE_URL:
                 if type(value) is not str:
                     raise ValidationError(_("Value must be a string."))
                 if self.validation_regex and not re.match(self.validation_regex, value):
