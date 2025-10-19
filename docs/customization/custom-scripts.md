@@ -404,6 +404,61 @@ A complete date & time. Returns a `datetime.datetime` object.
 
 Custom scripts can be run via the web UI by navigating to the script, completing any required form data, and clicking the "run script" button. It is possible to schedule a script to be executed at specified time in the future. A scheduled script can be canceled by deleting the associated job result object.
 
+#### Prefilling variables via URL parameters
+
+Script form fields can be prefilled by appending query parameters to the script URL. Each parameter name must match the variable name defined on the script class. Prefilled values are treated as initial values and can be edited before execution. Multiple values can be supplied by repeating the same parameter. Query values must be percent‑encoded where required (for example, spaces as `%20`).
+
+Examples:
+
+For string and integer variables, when a script defines:
+
+```python
+from extras.scripts import Script, StringVar, IntegerVar
+
+class MyScript(Script):
+    name = StringVar()
+    count = IntegerVar()
+```
+
+the following URL prefills the `name` and `count` fields:
+
+```
+https://<netbox>/extras/scripts/<script_id>/?name=Branch42&count=3
+```
+
+For object variables (`ObjectVar`), supply the object’s primary key (PK):
+
+```
+https://<netbox>/extras/scripts/<script_id>/?device=1
+```
+
+If an object ID cannot be resolved or the object is not visible to the requesting user, the field remains unpopulated.
+
+Supported variable types:
+
+| Variable class           | Expected input                  | Example query string                        |
+|--------------------------|---------------------------------|---------------------------------------------|
+| `StringVar`              | string (percent‑encoded)        | `?name=Branch42`                            |
+| `TextVar`                | string (percent‑encoded)        | `?notes=Initial%20value`                    |
+| `IntegerVar`             | integer                         | `?count=3`                                  |
+| `DecimalVar`             | decimal number                  | `?ratio=0.75`                               |
+| `BooleanVar`             | value → `True`; empty → `False` | `?enabled=true` (True), `?enabled=` (False) |
+| `ChoiceVar`              | choice value (not label)        | `?role=edge`                                |
+| `MultiChoiceVar`         | choice values (repeat)          | `?roles=edge&roles=core`                    |
+| `ObjectVar(Device)`      | PK (integer)                    | `?device=1`                                 |
+| `MultiObjectVar(Device)` | PKs (repeat)                    | `?devices=1&devices=2`                      |
+| `IPAddressVar`           | IP address                      | `?ip=198.51.100.10`                         |
+| `IPAddressWithMaskVar`   | IP address with mask            | `?addr=192.0.2.1/24`                        |
+| `IPNetworkVar`           | IP network prefix               | `?network=2001:db8::/64`                    |
+| `DateVar`                | date `YYYY-MM-DD`               | `?date=2025-01-05`                          |
+| `DateTimeVar`            | ISO datetime                    | `?when=2025-01-05T14:30:00`                 |
+| `FileVar`                | — (not supported)               | —                                           |
+
+!!! note
+    - The parameter names above are examples; use the actual variable attribute names defined by the script.
+    - For `BooleanVar`, only an empty value (`?enabled=`) unchecks the box; any other value including `false` or `0` checks it.
+    - File uploads (`FileVar`) cannot be prefilled via URL parameters.
+
 ### Via the API
 
 To run a script via the REST API, issue a POST request to the script's endpoint specifying the form data and commitment. For example, to run a script named `example.MyReport`, we would make a request such as the following:
