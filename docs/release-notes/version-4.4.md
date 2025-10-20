@@ -1,5 +1,44 @@
 # NetBox v4.4
 
+## v4.4.4 (2025-10-15)
+
+### Bug Fixes
+
+* [#20554](https://github.com/netbox-community/netbox/issues/20554) - Fix generic relation filters to accept `<app>.<model>` format matching POST requests
+* [#20574](https://github.com/netbox-community/netbox/issues/20574) - Fix excessive storage initialization overhead when listing scripts with remote backends
+* [#20584](https://github.com/netbox-community/netbox/issues/20584) - Enforce PoE mode requirement on interface templates when PoE type is set
+* [#20585](https://github.com/netbox-community/netbox/issues/20585) - Fix API schema generation crash for models with single-field UniqueConstraints
+* [#20587](https://github.com/netbox-community/netbox/issues/20587) - Fix upgrade.sh failure when removing stale content types
+
+---
+
+## v4.4.3 (2025-10-14)
+
+### Enhancements
+
+* [#20426](https://github.com/netbox-community/netbox/issues/20426) - Add a copy-to-clipboard button for custom script output
+* [#20516](https://github.com/netbox-community/netbox/issues/20516) - Improve rendering of VLAN ID ranges in VLAN group tables
+
+### Bug Fixes
+
+* [#19302](https://github.com/netbox-community/netbox/issues/19302) - Fix uniqueness validation in REST API for nullable fields
+* [#19615](https://github.com/netbox-community/netbox/issues/19615) - Fix support for static file parameters in templates when external storage is in use
+* [#19818](https://github.com/netbox-community/netbox/issues/19818) - Hide primary IP assignment fields when creating a new virtual machine in the UI
+* [#19825](https://github.com/netbox-community/netbox/issues/19825) - Prevent cache for config revisions from being erroneously overwritten when debugging is enabled
+* [#20140](https://github.com/netbox-community/netbox/issues/20140) - Changing a site's region or group should update any associated circuit terminations
+* [#20156](https://github.com/netbox-community/netbox/issues/20156) - Fix display of rack elevation labels
+* [#20290](https://github.com/netbox-community/netbox/issues/20290) - Fix migration error when upgrading to NetBox v4.4 from releases earlier than v4.3
+* [#20471](https://github.com/netbox-community/netbox/issues/20471) - Saving an unmodified VLAN group should not generate a change record
+* [#20475](https://github.com/netbox-community/netbox/issues/20475) - Collapse singleton VLAN IDs in VLAN group display
+* [#20494](https://github.com/netbox-community/netbox/issues/20494) - Correct OpenAPI schema definition for `IntegerRangeSerializer`
+* [#20496](https://github.com/netbox-community/netbox/issues/20496) - REST API should always honor `MAX_PAGE_SIZE` value
+* [#20497](https://github.com/netbox-community/netbox/issues/20497) - Fix filtering of VLAN groups by VLAN ID range in GraphQL API
+* [#20507](https://github.com/netbox-community/netbox/issues/20507) - Fix support for fetching ASN contacts via GraphQL API
+* [#20523](https://github.com/netbox-community/netbox/issues/20523) - Hide password change form for users authenticated via SSO
+* [#20542](https://github.com/netbox-community/netbox/issues/20542) - Fix the creation of MAC addresses using the "quick add" form
+
+---
+
 ## v4.4.2 (2025-09-30)
 
 ### Enhancements

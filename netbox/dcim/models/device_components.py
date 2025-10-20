@@ -11,6 +11,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
+from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -676,7 +677,14 @@ class BaseInterface(models.Model):
             return self.primary_mac_address.mac_address
 
 
-class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+class Interface(
+    InterfaceValidationMixin,
+    ModularComponentModel,
+    BaseInterface,
+    CabledObjectModel,
+    PathEndpoint,
+    TrackingModelMixin,
+):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -893,10 +901,6 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
 
         # Bridge validation
 
-        # An interface cannot be bridged to itself
-        if self.pk and self.bridge_id == self.pk:
-            raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
-
         # A bridged interface belongs to the same device or virtual chassis
         if self.bridge and self.bridge.device != self.device:
             if self.device.virtual_chassis is None:
@@ -942,29 +946,9 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                     )
                 })
 
-        # PoE validation
-
-        # Only physical interfaces may have a PoE mode/type assigned
-        if self.poe_mode and self.is_virtual:
-            raise ValidationError({
-                'poe_mode': _("Virtual interfaces cannot have a PoE mode.")
-            })
-        if self.poe_type and self.is_virtual:
-            raise ValidationError({
-                'poe_type': _("Virtual interfaces cannot have a PoE type.")
-            })
-
-        # An interface with a PoE type set must also specify a mode
-        if self.poe_type and not self.poe_mode:
-            raise ValidationError({
-                'poe_type': _("Must specify PoE mode when designating a PoE type.")
-            })
-
         # Wireless validation
 
-        # RF role & channel may only be set for wireless interfaces
-        if self.rf_role and not self.is_wireless:
-            raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
+        # RF channel may only be set for wireless interfaces
         if self.rf_channel and not self.is_wireless:
             raise ValidationError({'rf_channel': _("Channel may be set only on wireless interfaces.")})
 

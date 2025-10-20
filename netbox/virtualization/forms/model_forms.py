@@ -280,10 +280,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         else:
 
             # An object that doesn't exist yet can't have any IPs assigned to it
-            self.fields['primary_ip4'].choices = []
-            self.fields['primary_ip4'].widget.attrs['readonly'] = True
-            self.fields['primary_ip6'].choices = []
-            self.fields['primary_ip6'].widget.attrs['readonly'] = True
+            self.fields.pop('primary_ip4')
+            self.fields.pop('primary_ip6')
 
 
 #

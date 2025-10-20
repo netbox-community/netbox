@@ -11,6 +11,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from rest_framework.utils import field_mapping
 
 from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
@@ -21,6 +22,17 @@ import storages.utils  # type: ignore
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
+from .monkey import get_unique_validators
+
+
+#
+# Monkey-patching
+#
+
+# TODO: Remove this once #20547 has been implemented
+# Override DRF's get_unique_validators() function with our own (see bug #19302)
+field_mapping.get_unique_validators = get_unique_validators
+
 
 #
 # Environment setup
@@ -64,7 +76,6 @@ elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
 API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
@@ -126,6 +137,7 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GRAPHQL_DEFAULT_VERSION = getattr(configuration, 'GRAPHQL_DEFAULT_VERSION', 1)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})

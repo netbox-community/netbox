@@ -1,5 +1,6 @@
 import strawberry
 import strawberry_django
+from strawberry.types import Info
 from django.contrib.contenttypes.models import ContentType
 
 from core.graphql.mixins import ChangelogMixin
@@ -26,7 +27,7 @@ class BaseObjectType:
     """
 
     @classmethod
-    def get_queryset(cls, queryset, info, **kwargs):
+    def get_queryset(cls, queryset, info: Info, **kwargs):
         # Enforce object permissions on the queryset
         if hasattr(queryset, 'restrict'):
             return queryset.restrict(info.context.request.user, 'view')

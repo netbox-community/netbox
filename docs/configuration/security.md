@@ -1,16 +1,5 @@
 # Security & Authentication Parameters
 
-## ALLOW_TOKEN_RETRIEVAL
-
-Default: `False`
-
-!!! note
-    The default value of this parameter changed from `True` to `False` in NetBox v4.3.0.
-
-If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token prior to its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
-
----
-
 ## ALLOWED_URL_SCHEMES
 
 !!! tip "Dynamic Configuration Parameter"

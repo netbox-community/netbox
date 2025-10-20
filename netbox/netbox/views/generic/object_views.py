@@ -281,7 +281,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
         obj = self.alter_object(obj, request, args, kwargs)
 
-        form = self.form(data=request.POST, files=request.FILES, instance=obj)
+        form_prefix = 'quickadd' if request.GET.get('_quickadd') else None
+        form = self.form(data=request.POST, files=request.FILES, instance=obj, prefix=form_prefix)
         restrict_form_fields(form, request.user)
 
         if form.is_valid():

@@ -11,13 +11,7 @@ __all__ = (
     'UserTable',
 )
 
-TOKEN = """<samp><a href="{{ record.get_absolute_url }}" id="token_{{ record.pk }}">{{ record }}</a></samp>"""
-
-COPY_BUTTON = """
-{% if settings.ALLOW_TOKEN_RETRIEVAL %}
-  {% copy_content record.pk prefix="token_" color="success" %}
-{% endif %}
-"""
+TOKEN = """<samp><a href="{{ record.get_absolute_url }}">{{ record }}</a></samp>"""
 
 
 class TokenTable(NetBoxTable):
@@ -48,7 +42,6 @@ class TokenTable(NetBoxTable):
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
-        extra_buttons=COPY_BUTTON
     )
 
     class Meta(NetBoxTable.Meta):
