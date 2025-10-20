@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-16 05:03+0000\n"
+"POT-Creation-Date: 2025-10-20 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7966,9 +7966,14 @@ msgstr ""
 msgid "Changing the type of custom fields is not supported."
 msgstr ""
 
-#: netbox/extras/api/serializers_/scripts.py:70
 #: netbox/extras/api/serializers_/scripts.py:75
+#: netbox/extras/api/serializers_/scripts.py:85
 msgid "Scheduling is not enabled for this script."
+msgstr ""
+
+#: netbox/extras/api/serializers_/scripts.py:77
+#: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:53
+msgid "Scheduled time must be in the future."
 msgstr ""
 
 #: netbox/extras/choices.py:30 netbox/extras/forms/misc.py:14
@@ -8887,10 +8892,6 @@ msgstr ""
 #: netbox/extras/forms/reports.py:35 netbox/extras/forms/scripts.py:43
 #, python-brace-format
 msgid " (current time: <strong>{now}</strong>)"
-msgstr ""
-
-#: netbox/extras/forms/reports.py:45 netbox/extras/forms/scripts.py:53
-msgid "Scheduled time must be in the future."
 msgstr ""
 
 #: netbox/extras/forms/scripts.py:19
