@@ -4,17 +4,17 @@ from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.extensions import MaxAliasesLimiter
 from strawberry.schema.config import StrawberryConfig
 
-from circuits.graphql.schema import CircuitsQuery
-from core.graphql.schema import CoreQuery
-from dcim.graphql.schema import DCIMQuery
-from extras.graphql.schema import ExtrasQuery
-from ipam.graphql.schema import IPAMQuery
+from circuits.graphql.schema import CircuitsQuery, CircuitsQueryOld
+from core.graphql.schema import CoreQuery, CoreQueryOld
+from dcim.graphql.schema import DCIMQuery, DCIMQueryOld
+from extras.graphql.schema import ExtrasQuery, ExtrasQueryOld
+from ipam.graphql.schema import IPAMQuery, IPAMQueryOld
 from netbox.registry import registry
-from tenancy.graphql.schema import TenancyQuery
-from users.graphql.schema import UsersQuery
-from virtualization.graphql.schema import VirtualizationQuery
-from vpn.graphql.schema import VPNQuery
-from wireless.graphql.schema import WirelessQuery
+from tenancy.graphql.schema import TenancyQuery, TenancyQueryOld
+from users.graphql.schema import UsersQuery, UsersQueryOld
+from virtualization.graphql.schema import VirtualizationQuery, VirtualizationQueryOld
+from vpn.graphql.schema import VPNQuery, VPNQueryOld
+from wireless.graphql.schema import WirelessQuery, WirelessQueryOld
 
 __all__ = (
     'Query',
@@ -27,16 +27,16 @@ __all__ = (
 
 @strawberry.type
 class QueryV1(
-    UsersQuery,
-    CircuitsQuery,
-    CoreQuery,
-    DCIMQuery,
-    ExtrasQuery,
-    IPAMQuery,
-    TenancyQuery,
-    VirtualizationQuery,
-    VPNQuery,
-    WirelessQuery,
+    UsersQueryOld,
+    CircuitsQueryOld,
+    CoreQueryOld,
+    DCIMQueryOld,
+    ExtrasQueryOld,
+    IPAMQueryOld,
+    TenancyQueryOld,
+    VirtualizationQueryOld,
+    VPNQueryOld,
+    WirelessQueryOld,
     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
 ):
     """Query class for GraphQL API v1"""
