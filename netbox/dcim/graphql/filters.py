@@ -18,7 +18,9 @@ from netbox.graphql.filter_mixins import (
     ImageAttachmentFilterMixin,
     WeightFilterMixin,
 )
-from tenancy.graphql.filter_mixins import TenancyFilterMixin, ContactFilterMixin
+from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
+from virtualization.models import VMInterface
+
 from .filter_mixins import (
     CabledObjectModelFilterMixin,
     ComponentModelFilterMixin,
@@ -418,6 +420,24 @@ class MACAddressFilter(PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     assigned_object_id: ID | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field()
+    def assigned(self, value: bool, prefix) -> Q:
+        return Q(**{f'{prefix}assigned_object_id__isnull': (not value)})
+
+    @strawberry_django.filter_field()
+    def primary(self, value: bool, prefix) -> Q:
+        interface_mac_ids = models.Interface.objects.filter(primary_mac_address_id__isnull=False).values_list(
+            'primary_mac_address_id', flat=True
+        )
+        vminterface_mac_ids = VMInterface.objects.filter(primary_mac_address_id__isnull=False).values_list(
+            'primary_mac_address_id', flat=True
+        )
+        query = Q(**{f'{prefix}pk__in': interface_mac_ids}) | Q(**{f'{prefix}pk__in': vminterface_mac_ids})
+        if value:
+            return Q(query)
+        else:
+            return ~Q(query)
 
 
 @strawberry_django.filter_type(models.Interface, lookups=True)
