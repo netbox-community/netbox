@@ -34,7 +34,7 @@ __all__ = (
 class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('asn_id', name=_('ASN')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -69,7 +69,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class ProviderAccountFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('provider_id', 'account', name=_('Attributes')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
@@ -88,7 +88,7 @@ class ProviderAccountFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm
 class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('provider_id', 'service_id', name=_('Attributes')),
     )
     provider_id = DynamicModelMultipleChoiceField(
@@ -107,7 +107,7 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
 class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('color', name=_('Attributes')),
     )
     tag = TagFilterField(model)
@@ -121,7 +121,7 @@ class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
         FieldSet(
             'type_id', 'status', 'install_date', 'termination_date', 'commit_rate', 'distance', 'distance_unit',
@@ -274,7 +274,7 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
 class CircuitGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = CircuitGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     tag = TagFilterField(model)
@@ -312,7 +312,7 @@ class CircuitGroupAssignmentFilterForm(NetBoxModelFilterSetForm):
 class VirtualCircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = VirtualCircuitType
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('color', name=_('Attributes')),
     )
     tag = TagFilterField(model)
@@ -326,7 +326,7 @@ class VirtualCircuitTypeFilterForm(NetBoxModelFilterSetForm):
 class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = VirtualCircuit
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
         FieldSet('type_id', 'status', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),

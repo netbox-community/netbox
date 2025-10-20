@@ -45,7 +45,7 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 class VRFFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VRF
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('import_target_id', 'export_target_id', name=_('Route Targets')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
@@ -65,7 +65,7 @@ class VRFFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class RouteTargetFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = RouteTarget
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('importing_vrf_id', 'exporting_vrf_id', name=_('VRF')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
@@ -84,6 +84,10 @@ class RouteTargetFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 
 class RIRFilterForm(NetBoxModelFilterSetForm):
     model = RIR
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('is_private', name=_('RIR')),
+    )
     is_private = forms.NullBooleanField(
         required=False,
         label=_('Private'),
@@ -97,7 +101,7 @@ class RIRFilterForm(NetBoxModelFilterSetForm):
 class AggregateFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Aggregate
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('family', 'rir_id', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -118,7 +122,7 @@ class AggregateFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModel
 class ASNRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = ASNRange
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('rir_id', 'start', 'end', name=_('Range')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
@@ -141,7 +145,7 @@ class ASNRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class ASNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = ASN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('rir_id', 'site_group_id', 'site_id', name=_('Assignment')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
@@ -165,13 +169,16 @@ class ASNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 
 class RoleFilterForm(NetBoxModelFilterSetForm):
     model = Role
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+    )
     tag = TagFilterField(model)
 
 
 class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm, ):
     model = Prefix
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet(
             'within_include', 'family', 'status', 'role_id', 'mask_length', 'is_pool', 'mark_utilized',
             name=_('Addressing')
@@ -277,7 +284,7 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFil
 class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPRange
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('family', 'vrf_id', 'status', 'role_id', 'mark_populated', 'mark_utilized', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -324,7 +331,7 @@ class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFi
 class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPAddress
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet(
             'parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface', 'dns_name',
             name=_('Attributes')
@@ -402,7 +409,7 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModel
 class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
     model = FHRPGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('name', 'protocol', 'group_id', name=_('Attributes')),
         FieldSet('auth_type', 'auth_key', name=_('Authentication')),
     )
@@ -434,7 +441,7 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
 
 class VLANGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('region', 'site_group', 'site', 'location', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
         FieldSet('contains_vid', name=_('VLANs')),
@@ -488,7 +495,7 @@ class VLANGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class VLANTranslationPolicyFilterForm(NetBoxModelFilterSetForm):
     model = VLANTranslationPolicy
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('name', name=_('Attributes')),
     )
     name = forms.CharField(
@@ -525,7 +532,7 @@ class VLANTranslationRuleFilterForm(NetBoxModelFilterSetForm):
 class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = VLAN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('group_id', 'status', 'role_id', 'vid', 'l2vpn_id', name=_('Attributes')),
         FieldSet('qinq_role', 'qinq_svlan_id', name=_('Q-in-Q/802.1ad')),
@@ -597,7 +604,7 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
     model = ServiceTemplate
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('protocol', 'port', name=_('Attributes')),
     )
     protocol = forms.ChoiceField(
@@ -615,7 +622,7 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 class ServiceFilterForm(ContactModelFilterForm, ServiceTemplateFilterForm):
     model = Service
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('protocol', 'port', name=_('Attributes')),
         FieldSet('device_id', 'virtual_machine_id', 'fhrpgroup_id', name=_('Assignment')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),

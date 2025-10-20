@@ -21,6 +21,10 @@ __all__ = (
 
 class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
     model = WirelessLANGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('parent_id', name=_('Wireless LAN group')),
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -32,7 +36,7 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
 class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('ssid', 'group_id', 'status', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -98,7 +102,7 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('ssid', 'status', 'distance', 'distance_unit', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),

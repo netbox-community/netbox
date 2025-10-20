@@ -27,6 +27,9 @@ __all__ = (
 
 class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
     model = ClusterType
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+    )
     tag = TagFilterField(model)
 
 
@@ -34,7 +37,7 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
 
@@ -42,7 +45,7 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('group_id', 'type_id', 'status', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -101,7 +104,7 @@ class VirtualMachineFilterForm(
 ):
     model = VirtualMachine
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id', name=_('Cluster')),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet(
@@ -199,7 +202,7 @@ class VirtualMachineFilterForm(
 class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('cluster_id', 'virtual_machine_id', name=_('Virtual Machine')),
         FieldSet('enabled', name=_('Attributes')),
         FieldSet('vrf_id', 'l2vpn_id', 'mac_address', name=_('Addressing')),
@@ -256,7 +259,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
 class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
     model = VirtualDisk
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('virtual_machine_id', name=_('Virtual Machine')),
         FieldSet('size', name=_('Attributes')),
     )

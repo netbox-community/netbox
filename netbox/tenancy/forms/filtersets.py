@@ -27,6 +27,10 @@ __all__ = (
 
 class TenantGroupFilterForm(NetBoxModelFilterSetForm):
     model = TenantGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('parent_id', name=_('Tenant Group')),
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
@@ -38,7 +42,8 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
 class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Tenant
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'group_id'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('group_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts'))
     )
     group_id = DynamicModelMultipleChoiceField(
@@ -56,6 +61,10 @@ class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 
 class ContactGroupFilterForm(NetBoxModelFilterSetForm):
     model = ContactGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('parent_id', name=_('Contact Group')),
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
@@ -66,11 +75,18 @@ class ContactGroupFilterForm(NetBoxModelFilterSetForm):
 
 class ContactRoleFilterForm(NetBoxModelFilterSetForm):
     model = ContactRole
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+    )
     tag = TagFilterField(model)
 
 
 class ContactFilterForm(NetBoxModelFilterSetForm):
     model = Contact
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('group_id', name=_('Contact')),
+    )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,

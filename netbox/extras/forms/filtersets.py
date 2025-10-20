@@ -290,7 +290,7 @@ class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
     )
     http_content_type = forms.CharField(
@@ -311,10 +311,8 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
 
 class EventRuleFilterForm(NetBoxModelFilterSetForm):
     model = EventRule
-    tag = TagFilterField(model)
-
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('object_type_id', 'event_type', 'action_type', 'enabled', name=_('Attributes')),
     )
     object_type_id = ContentTypeMultipleChoiceField(
@@ -339,6 +337,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    tag = TagFilterField(model)
 
 
 class TagFilterForm(SavedFiltersMixin, FilterForm):

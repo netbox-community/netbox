@@ -8,8 +8,9 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, Tag
+from users.models import Owner
 from utilities.forms import BulkEditForm, CSVModelForm
-from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField, CSVModelChoiceField
 from utilities.forms.mixins import CheckLastUpdatedMixin
 from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin, SavedFiltersMixin, TagsMixin
 
@@ -87,8 +88,14 @@ class NetBoxModelForm(
 
 class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     """
-    Base form for creating a NetBox objects from CSV data. Used for bulk importing.
+    Base form for creating NetBox objects from CSV data. Used for bulk importing.
     """
+    owner = CSVModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_("Name of the object's owner")
+    )
     tags = CSVModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
@@ -149,11 +156,16 @@ class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, OwnerMix
         return customfield.to_form_field(set_initial=False, enforce_required=False)
 
     def _extend_nullable_fields(self):
+        nullable_common_fields = ['owner']
         nullable_custom_fields = [
             name for name, customfield in self.custom_fields.items()
             if (not customfield.required and customfield.ui_editable == CustomFieldUIEditableChoices.YES)
         ]
-        self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
+        self.nullable_fields = (
+            *self.nullable_fields,
+            *nullable_common_fields,
+            *nullable_custom_fields,
+        )
 
 
 class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form):
@@ -171,6 +183,11 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
     q = forms.CharField(
         required=False,
         label=_('Search')
+    )
+    owner_id = DynamicModelMultipleChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
     selector_fields = ('filter_id', 'q')

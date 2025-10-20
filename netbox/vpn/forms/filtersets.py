@@ -33,7 +33,7 @@ __all__ = (
 class TunnelGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     tag = TagFilterField(model)
@@ -42,7 +42,7 @@ class TunnelGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Tunnel
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('status', 'encapsulation', 'tunnel_id', name=_('Tunnel')),
         FieldSet('ipsec_profile_id', name=_('Security')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenancy')),
@@ -97,7 +97,7 @@ class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
 class IKEProposalFilterForm(NetBoxModelFilterSetForm):
     model = IKEProposal
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet(
             'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', name=_('Parameters')
         ),
@@ -128,7 +128,7 @@ class IKEProposalFilterForm(NetBoxModelFilterSetForm):
 class IKEPolicyFilterForm(NetBoxModelFilterSetForm):
     model = IKEPolicy
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('version', 'mode', 'proposal_id', name=_('Parameters')),
     )
     version = forms.MultipleChoiceField(
@@ -152,7 +152,7 @@ class IKEPolicyFilterForm(NetBoxModelFilterSetForm):
 class IPSecProposalFilterForm(NetBoxModelFilterSetForm):
     model = IPSecProposal
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('encryption_algorithm', 'authentication_algorithm', name=_('Parameters')),
     )
     encryption_algorithm = forms.MultipleChoiceField(
@@ -171,7 +171,7 @@ class IPSecProposalFilterForm(NetBoxModelFilterSetForm):
 class IPSecPolicyFilterForm(NetBoxModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('proposal_id', 'pfs_group', name=_('Parameters')),
     )
     proposal_id = DynamicModelMultipleChoiceField(
@@ -190,7 +190,7 @@ class IPSecPolicyFilterForm(NetBoxModelFilterSetForm):
 class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('mode', 'ike_policy_id', 'ipsec_policy_id', name=_('Profile')),
     )
     mode = forms.MultipleChoiceField(
@@ -214,7 +214,7 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
 class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
     model = L2VPN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('type', 'status', 'import_target_id', 'export_target_id', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
