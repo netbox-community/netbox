@@ -20,20 +20,15 @@ function slugify(slug: string, chars: number): string {
  * For any slug fields, add event listeners to handle automatically generating slug values.
  */
 export function initReslug(): void {
-  for (const slugButton of getElements<HTMLButtonElement>('button#reslug')) {
+  for (const slugButton of getElements<HTMLButtonElement>('button.reslug')) {
     const form = slugButton.form;
     if (form == null) continue;
 
-    // Try without prefix first, fallback to quickadd prefix for quick-add modals
-    const slugField = (form.querySelector('#id_slug') ??
-      form.querySelector('#id_quickadd-slug')) as HTMLInputElement;
+    const slugField = form.querySelector('input.slug-field') as HTMLInputElement;
     if (slugField == null) continue;
 
     const sourceId = slugField.getAttribute('slug-source');
-
-    // Try both patterns for source field as well
-    const sourceField = (form.querySelector(`#id_${sourceId}`) ??
-      form.querySelector(`#id_quickadd-${sourceId}`)) as HTMLInputElement;
+    const sourceField = form.querySelector(`#id_${sourceId}`) as HTMLInputElement;
 
     const slugLengthAttr = slugField.getAttribute('maxlength');
     let slugLength = 50;
