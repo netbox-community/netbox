@@ -8,6 +8,7 @@ from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
+from users.api.serializers_.mixins import OwnerMixin
 
 __all__ = (
     'CustomFieldChoiceSetSerializer',
@@ -15,7 +16,7 @@ __all__ = (
 )
 
 
-class CustomFieldChoiceSetSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
+class CustomFieldChoiceSetSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedModelSerializer):
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
@@ -32,12 +33,12 @@ class CustomFieldChoiceSetSerializer(ChangeLogMessageSerializer, ValidatedModelS
         model = CustomFieldChoiceSet
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'base_choices', 'extra_choices',
-            'order_alphabetically', 'choices_count', 'created', 'last_updated',
+            'order_alphabetically', 'choices_count', 'owner', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
 
 
-class CustomFieldSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
+class CustomFieldSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedModelSerializer):
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True
@@ -64,8 +65,8 @@ class CustomFieldSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer
             'id', 'url', 'display_url', 'display', 'object_types', 'type', 'related_object_type', 'data_type',
             'name', 'label', 'group_name', 'description', 'required', 'unique', 'search_weight', 'filter_logic',
             'ui_visible', 'ui_editable', 'is_cloneable', 'default', 'related_object_filter', 'weight',
-            'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set', 'comments', 'created',
-            'last_updated',
+            'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set', 'owner', 'comments',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

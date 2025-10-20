@@ -1,6 +1,6 @@
 from ipam.models import RouteTarget, VRF
 from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 __all__ = (
@@ -9,19 +9,19 @@ __all__ = (
 )
 
 
-class RouteTargetSerializer(NetBoxModelSerializer):
+class RouteTargetSerializer(PrimaryModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
         model = RouteTarget
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'tenant', 'description', 'comments', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'tenant', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class VRFSerializer(NetBoxModelSerializer):
+class VRFSerializer(PrimaryModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
@@ -43,8 +43,8 @@ class VRFSerializer(NetBoxModelSerializer):
     class Meta:
         model = VRF
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments',
-            'import_targets', 'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
-            'prefix_count',
+            'id', 'url', 'display_url', 'display', 'name', 'rd', 'tenant', 'enforce_unique', 'description', 'owner',
+            'comments', 'import_targets', 'export_targets', 'tags', 'custom_fields', 'created', 'last_updated',
+            'ipaddress_count', 'prefix_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'rd', 'description', 'prefix_count')

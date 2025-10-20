@@ -7,6 +7,7 @@ from extras.choices import *
 from extras.models import EventRule, Webhook
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
+from users.api.serializers_.mixins import OwnerMixin
 from utilities.api import get_serializer_for_model
 from .scripts import ScriptSerializer
 
@@ -20,7 +21,7 @@ __all__ = (
 # Event Rules
 #
 
-class EventRuleSerializer(NetBoxModelSerializer):
+class EventRuleSerializer(OwnerMixin, NetBoxModelSerializer):
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('event_rules'),
         many=True
@@ -36,7 +37,7 @@ class EventRuleSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'object_types', 'name', 'enabled', 'event_types', 'conditions',
             'action_type', 'action_object_type', 'action_object_id', 'action_object', 'description', 'custom_fields',
-            'tags', 'created', 'last_updated',
+            'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -56,13 +57,13 @@ class EventRuleSerializer(NetBoxModelSerializer):
 # Webhooks
 #
 
-class WebhookSerializer(NetBoxModelSerializer):
+class WebhookSerializer(OwnerMixin, NetBoxModelSerializer):
 
     class Meta:
         model = Webhook
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'payload_url', 'http_method',
             'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification', 'ca_file_path',
-            'custom_fields', 'tags', 'created', 'last_updated',
+            'custom_fields', 'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

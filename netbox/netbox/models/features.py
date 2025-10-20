@@ -641,7 +641,6 @@ register_model_feature('image_attachments', lambda model: issubclass(model, Imag
 register_model_feature('jobs', lambda model: issubclass(model, JobsMixin))
 register_model_feature('journaling', lambda model: issubclass(model, JournalingMixin))
 register_model_feature('notifications', lambda model: issubclass(model, NotificationsMixin))
-register_model_feature('owner', lambda model: issubclass(model, OwnerMixin))
 register_model_feature('synced_data', lambda model: issubclass(model, SyncedDataMixin))
 register_model_feature('tags', lambda model: issubclass(model, TagsMixin))
 
