@@ -6,7 +6,8 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, Spec
 
 from account.views import LoginView, LogoutView
 from netbox.api.views import APIRootView, StatusView
-from netbox.graphql.schema import schema
+from netbox.graphql.schema import schema_v1, schema_v2
+from netbox.graphql.utils import get_default_schema
 from netbox.graphql.views import NetBoxGraphQLView
 from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
 from netbox.views import HomeView, MediaView, StaticMediaFailureView, SearchView, htmx
@@ -40,7 +41,7 @@ _patterns = [
     # HTMX views
     path('htmx/object-selector/', htmx.ObjectSelectorView.as_view(), name='htmx_object_selector'),
 
-    # API
+    # REST API
     path('api/', APIRootView.as_view(), name='api-root'),
     path('api/circuits/', include('circuits.api.urls')),
     path('api/core/', include('core.api.urls')),
@@ -54,6 +55,7 @@ _patterns = [
     path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
 
+    # REST API schema
     path(
         "api/schema/",
         cache_page(timeout=86400, key_prefix=f"api_schema_{settings.RELEASE.version}")(
@@ -64,8 +66,10 @@ _patterns = [
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='api_docs'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='api_redocs'),
 
-    # GraphQL
-    path('graphql/', NetBoxGraphQLView.as_view(schema=schema), name='graphql'),
+    # GraphQL API
+    path('graphql/', NetBoxGraphQLView.as_view(schema=get_default_schema()), name='graphql'),
+    path('graphql/v1/', NetBoxGraphQLView.as_view(schema=schema_v1), name='graphql_v1'),
+    path('graphql/v2/', NetBoxGraphQLView.as_view(schema=schema_v2), name='graphql_v2'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', MediaView.as_view(), name='media'),
