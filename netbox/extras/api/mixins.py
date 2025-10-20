@@ -1,7 +1,5 @@
-from django.utils.translation import gettext_lazy as _
 from jinja2.exceptions import TemplateError
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -90,10 +88,6 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
             return Response({
                 'error': f'No config template found for this {object_type}.'
             }, status=HTTP_400_BAD_REQUEST)
-
-        # Check view permission for ConfigTemplate
-        if not request.user.has_perm('extras.view_configtemplate', obj=configtemplate):
-            raise PermissionDenied(_("This user does not have permission to view this configuration template."))
 
         # Compile context data
         context_data = instance.get_config_context()

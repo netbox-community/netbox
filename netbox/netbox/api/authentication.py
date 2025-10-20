@@ -169,10 +169,13 @@ class TokenWritePermission(BasePermission):
     Verify the token has write_enabled for unsafe methods, without requiring specific model permissions.
     Used for custom actions that accept user data but don't map to standard CRUD operations.
     """
+
     def has_permission(self, request, view):
-        if isinstance(request.auth, Token):
-            return request.method in SAFE_METHODS or request.auth.write_enabled
-        return True
+        if not isinstance(request.auth, Token):
+            raise exceptions.PermissionDenied(
+                "TokenWritePermission requires token authentication."
+            )
+        return bool(request.method in SAFE_METHODS or request.auth.write_enabled)
 
 
 class IsAuthenticatedOrLoginNotRequired(BasePermission):
