@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.models import *
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 
 __all__ = (
@@ -20,14 +20,12 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupForm(NetBoxModelForm):
+class TenantGroupForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=TenantGroup.objects.all(),
         required=False
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Tenant Group')),
@@ -40,14 +38,13 @@ class TenantGroupForm(NetBoxModelForm):
         ]
 
 
-class TenantForm(NetBoxModelForm):
+class TenantForm(PrimaryModelForm):
     slug = SlugField()
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=TenantGroup.objects.all(),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'group', 'description', 'tags', name=_('Tenant')),
@@ -64,14 +61,12 @@ class TenantForm(NetBoxModelForm):
 # Contacts
 #
 
-class ContactGroupForm(NetBoxModelForm):
+class ContactGroupForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=ContactGroup.objects.all(),
         required=False
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Contact Group')),
@@ -82,9 +77,7 @@ class ContactGroupForm(NetBoxModelForm):
         fields = ('parent', 'name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
-class ContactRoleForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ContactRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Contact Role')),
     )
@@ -94,7 +87,7 @@ class ContactRoleForm(NetBoxModelForm):
         fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class ContactForm(NetBoxModelForm):
+class ContactForm(PrimaryModelForm):
     groups = DynamicModelMultipleChoiceField(
         label=_('Groups'),
         queryset=ContactGroup.objects.all(),
@@ -105,7 +98,6 @@ class ContactForm(NetBoxModelForm):
         assume_scheme='https',
         required=False,
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(

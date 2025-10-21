@@ -10,12 +10,10 @@ from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, 
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
-from utilities.forms.fields import (
-    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
-)
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import *
@@ -32,9 +30,7 @@ __all__ = (
 )
 
 
-class ClusterTypeForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ClusterTypeForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Cluster Type')),
     )
@@ -46,9 +42,7 @@ class ClusterTypeForm(NetBoxModelForm):
         )
 
 
-class ClusterGroupForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ClusterGroupForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Cluster Group')),
     )
@@ -60,7 +54,7 @@ class ClusterGroupForm(NetBoxModelForm):
         )
 
 
-class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
+class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -72,7 +66,6 @@ class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
         required=False,
         quick_add=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
@@ -173,7 +166,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
-class VirtualMachineForm(TenancyForm, NetBoxModelForm):
+class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -221,7 +214,6 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('Config template')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'role', 'status', 'description', 'serial', 'tags', name=_('Virtual Machine')),

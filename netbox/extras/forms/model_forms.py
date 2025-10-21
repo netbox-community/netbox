@@ -12,8 +12,8 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
-from netbox.forms import NetBoxModelForm
-from netbox.forms.mixins import ChangelogMessageMixin
+from netbox.forms import NetBoxModelForm, PrimaryModelForm
+from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.forms import get_field_value
@@ -47,7 +47,7 @@ __all__ = (
 )
 
 
-class CustomFieldForm(ChangelogMessageMixin, forms.ModelForm):
+class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -166,7 +166,7 @@ class CustomFieldForm(ChangelogMessageMixin, forms.ModelForm):
             del self.fields['choice_set']
 
 
-class CustomFieldChoiceSetForm(ChangelogMessageMixin, forms.ModelForm):
+class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     # TODO: The extra_choices field definition diverge from the CustomFieldChoiceSet model
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
@@ -219,7 +219,7 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, forms.ModelForm):
         return data
 
 
-class CustomLinkForm(ChangelogMessageMixin, forms.ModelForm):
+class CustomLinkForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links')
@@ -251,7 +251,7 @@ class CustomLinkForm(ChangelogMessageMixin, forms.ModelForm):
         }
 
 
-class ExportTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
+class ExportTemplateForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('export_templates')
@@ -293,7 +293,7 @@ class ExportTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm
         return self.cleaned_data
 
 
-class SavedFilterForm(ChangelogMessageMixin, forms.ModelForm):
+class SavedFilterForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -427,7 +427,7 @@ class SubscriptionForm(forms.ModelForm):
         fields = ('object_type', 'object_id')
 
 
-class WebhookForm(NetBoxModelForm):
+class WebhookForm(OwnerMixin, NetBoxModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Webhook')),
@@ -447,7 +447,7 @@ class WebhookForm(NetBoxModelForm):
         }
 
 
-class EventRuleForm(NetBoxModelForm):
+class EventRuleForm(OwnerMixin, NetBoxModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
@@ -563,7 +563,7 @@ class EventRuleForm(NetBoxModelForm):
         return self.cleaned_data
 
 
-class TagForm(ChangelogMessageMixin, forms.ModelForm):
+class TagForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -586,7 +586,7 @@ class TagForm(ChangelogMessageMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextProfileForm(SyncedDataMixin, NetBoxModelForm):
+class ConfigContextProfileForm(SyncedDataMixin, PrimaryModelForm):
     schema = JSONField(
         label=_('Schema'),
         required=False,
@@ -611,7 +611,7 @@ class ConfigContextProfileForm(SyncedDataMixin, NetBoxModelForm):
         )
 
 
-class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
+class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, forms.ModelForm):
     profile = DynamicModelChoiceField(
         label=_('Profile'),
         queryset=ConfigContextProfile.objects.all(),
@@ -728,7 +728,7 @@ class ConfigContextForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm)
         return self.cleaned_data
 
 
-class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, forms.ModelForm):
+class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, forms.ModelForm):
     tags = DynamicModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),

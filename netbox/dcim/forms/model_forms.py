@@ -10,13 +10,13 @@ from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
-    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
@@ -75,14 +75,12 @@ __all__ = (
 )
 
 
-class RegionForm(NetBoxModelForm):
+class RegionForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=Region.objects.all(),
         required=False
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -95,14 +93,12 @@ class RegionForm(NetBoxModelForm):
         )
 
 
-class SiteGroupForm(NetBoxModelForm):
+class SiteGroupForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=SiteGroup.objects.all(),
         required=False
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -115,7 +111,7 @@ class SiteGroupForm(NetBoxModelForm):
         )
 
 
-class SiteForm(TenancyForm, NetBoxModelForm):
+class SiteForm(TenancyForm, PrimaryModelForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
@@ -139,7 +135,6 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -170,7 +165,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         }
 
 
-class LocationForm(TenancyForm, NetBoxModelForm):
+class LocationForm(TenancyForm, NestedGroupModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -184,8 +179,6 @@ class LocationForm(TenancyForm, NetBoxModelForm):
             'site_id': '$site'
         }
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('site', 'parent', 'name', 'slug', 'status', 'facility', 'description', 'tags', name=_('Location')),
@@ -200,9 +193,7 @@ class LocationForm(TenancyForm, NetBoxModelForm):
         )
 
 
-class RackRoleForm(NetBoxModelForm):
-    slug = SlugField()
-
+class RackRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Rack Role')),
     )
@@ -214,13 +205,12 @@ class RackRoleForm(NetBoxModelForm):
         ]
 
 
-class RackTypeForm(NetBoxModelForm):
+class RackTypeForm(PrimaryModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
         quick_add=True
     )
-    comments = CommentField()
     slug = SlugField(
         label=_('Slug'),
         slug_source='model'
@@ -246,7 +236,7 @@ class RackTypeForm(NetBoxModelForm):
         ]
 
 
-class RackForm(TenancyForm, NetBoxModelForm):
+class RackForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -271,7 +261,6 @@ class RackForm(TenancyForm, NetBoxModelForm):
         required=False,
         help_text=_("Select a pre-defined rack type, or set physical characteristics below.")
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -333,7 +322,6 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         label=_('User'),
         queryset=User.objects.order_by('username')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('rack', 'units', 'status', 'user', 'description', 'tags', name=_('Reservation')),
@@ -347,9 +335,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         ]
 
 
-class ManufacturerForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ManufacturerForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Manufacturer')),
     )
@@ -361,7 +347,7 @@ class ManufacturerForm(NetBoxModelForm):
         ]
 
 
-class DeviceTypeForm(NetBoxModelForm):
+class DeviceTypeForm(PrimaryModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -380,7 +366,6 @@ class DeviceTypeForm(NetBoxModelForm):
         label=_('Slug'),
         slug_source='model'
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
@@ -408,13 +393,12 @@ class DeviceTypeForm(NetBoxModelForm):
         }
 
 
-class ModuleTypeProfileForm(NetBoxModelForm):
+class ModuleTypeProfileForm(PrimaryModelForm):
     schema = JSONField(
         label=_('Schema'),
         required=False,
         help_text=_("Enter a valid JSON schema to define supported attributes.")
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'description', 'schema', 'tags', name=_('Profile')),
@@ -427,7 +411,7 @@ class ModuleTypeProfileForm(NetBoxModelForm):
         ]
 
 
-class ModuleTypeForm(NetBoxModelForm):
+class ModuleTypeForm(PrimaryModelForm):
     profile = forms.ModelChoiceField(
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile'),
@@ -438,7 +422,6 @@ class ModuleTypeForm(NetBoxModelForm):
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
     )
-    comments = CommentField()
 
     @property
     def fieldsets(self):
@@ -507,19 +490,17 @@ class ModuleTypeForm(NetBoxModelForm):
         return super()._post_clean()
 
 
-class DeviceRoleForm(NetBoxModelForm):
+class DeviceRoleForm(NestedGroupModelForm):
     config_template = DynamicModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
-    slug = SlugField()
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=DeviceRole.objects.all(),
         required=False,
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -535,7 +516,7 @@ class DeviceRoleForm(NetBoxModelForm):
         ]
 
 
-class PlatformForm(NetBoxModelForm):
+class PlatformForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=Platform.objects.all(),
@@ -556,7 +537,6 @@ class PlatformForm(NetBoxModelForm):
         label=_('Slug'),
         max_length=64
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -571,7 +551,7 @@ class PlatformForm(NetBoxModelForm):
         ]
 
 
-class DeviceForm(TenancyForm, NetBoxModelForm):
+class DeviceForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -641,7 +621,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'site_id': ['$site', 'null']
         },
     )
-    comments = CommentField()
     local_context_data = JSONField(
         required=False,
         label=''
@@ -742,7 +721,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
-class ModuleForm(ModuleCommonForm, NetBoxModelForm):
+class ModuleForm(ModuleCommonForm, PrimaryModelForm):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -765,7 +744,6 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
         },
         selector=True
     )
-    comments = CommentField()
     replicate_components = forms.BooleanField(
         label=_('Replicate components'),
         required=False,
@@ -809,7 +787,7 @@ def get_termination_type_choices():
     ])
 
 
-class CableForm(TenancyForm, NetBoxModelForm):
+class CableForm(TenancyForm, PrimaryModelForm):
     a_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
         required=False,
@@ -822,7 +800,6 @@ class CableForm(TenancyForm, NetBoxModelForm):
         widget=HTMXSelect(),
         label=_('Type')
     )
-    comments = CommentField()
 
     class Meta:
         model = Cable
@@ -832,7 +809,7 @@ class CableForm(TenancyForm, NetBoxModelForm):
         ]
 
 
-class PowerPanelForm(NetBoxModelForm):
+class PowerPanelForm(PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -846,7 +823,6 @@ class PowerPanelForm(NetBoxModelForm):
             'site_id': '$site'
         }
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('site', 'location', 'name', 'description', 'tags', name=_('Power Panel')),
@@ -859,7 +835,7 @@ class PowerPanelForm(NetBoxModelForm):
         ]
 
 
-class PowerFeedForm(TenancyForm, NetBoxModelForm):
+class PowerFeedForm(TenancyForm, PrimaryModelForm):
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
@@ -872,7 +848,6 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -895,13 +870,12 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
 # Virtual chassis
 #
 
-class VirtualChassisForm(NetBoxModelForm):
+class VirtualChassisForm(PrimaryModelForm):
     master = forms.ModelChoiceField(
         label=_('Master'),
         queryset=Device.objects.all(),
         required=False,
     )
-    comments = CommentField()
 
     class Meta:
         model = VirtualChassis
@@ -1829,9 +1803,7 @@ class InventoryItemForm(DeviceComponentForm):
             self.instance.component = None
 
 
-class InventoryItemRoleForm(NetBoxModelForm):
-    slug = SlugField()
-
+class InventoryItemRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Inventory Item Role')),
     )
@@ -1843,7 +1815,7 @@ class InventoryItemRoleForm(NetBoxModelForm):
         ]
 
 
-class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
+class VirtualDeviceContextForm(TenancyForm, PrimaryModelForm):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1888,7 +1860,7 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
 # Addressing
 #
 
-class MACAddressForm(NetBoxModelForm):
+class MACAddressForm(PrimaryModelForm):
     mac_address = forms.CharField(
         required=True,
         label=_('MAC address')

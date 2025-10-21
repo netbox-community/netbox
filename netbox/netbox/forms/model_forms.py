@@ -4,11 +4,15 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 
 from extras.choices import *
+from utilities.forms.fields import CommentField, SlugField
 from utilities.forms.mixins import CheckLastUpdatedMixin
 from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin, TagsMixin
 
 __all__ = (
+    'NestedGroupModelForm',
     'NetBoxModelForm',
+    'OrganizationalModelForm',
+    'PrimaryModelForm',
 )
 
 
@@ -16,7 +20,6 @@ class NetBoxModelForm(
     ChangelogMessageMixin,
     CheckLastUpdatedMixin,
     CustomFieldsMixin,
-    OwnerMixin,
     TagsMixin,
     forms.ModelForm
 ):
@@ -74,3 +77,25 @@ class NetBoxModelForm(
                 self.instance._m2m_values[field.name] = list(self.cleaned_data[field.name])
 
         return super()._post_clean()
+
+
+class PrimaryModelForm(OwnerMixin, NetBoxModelForm):
+    """
+    Form for models which inherit from PrimaryModel.
+    """
+    comments = CommentField()
+
+
+class OrganizationalModelForm(OwnerMixin, NetBoxModelForm):
+    """
+    Form for models which inherit from OrganizationalModel.
+    """
+    slug = SlugField()
+
+
+class NestedGroupModelForm(OwnerMixin, NetBoxModelForm):
+    """
+    Form for models which inherit from NestedGroupModel.
+    """
+    slug = SlugField()
+    comments = CommentField()

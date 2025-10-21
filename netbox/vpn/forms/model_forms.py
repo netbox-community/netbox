@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
@@ -29,9 +29,7 @@ __all__ = (
 )
 
 
-class TunnelGroupForm(NetBoxModelForm):
-    slug = SlugField()
-
+class TunnelGroupForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Tunnel Group')),
     )
@@ -43,7 +41,7 @@ class TunnelGroupForm(NetBoxModelForm):
         ]
 
 
-class TunnelForm(TenancyForm, NetBoxModelForm):
+class TunnelForm(TenancyForm, PrimaryModelForm):
     group = DynamicModelChoiceField(
         queryset=TunnelGroup.objects.all(),
         label=_('Tunnel Group'),
@@ -55,7 +53,6 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
         label=_('IPSec Profile'),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags', name=_('Tunnel')),
@@ -293,7 +290,7 @@ class TunnelTerminationForm(NetBoxModelForm):
         self.instance.termination = self.cleaned_data.get('termination')
 
 
-class IKEProposalForm(NetBoxModelForm):
+class IKEProposalForm(PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Proposal')),
@@ -311,7 +308,7 @@ class IKEProposalForm(NetBoxModelForm):
         ]
 
 
-class IKEPolicyForm(NetBoxModelForm):
+class IKEPolicyForm(PrimaryModelForm):
     proposals = DynamicModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
         label=_('Proposals'),
@@ -330,7 +327,7 @@ class IKEPolicyForm(NetBoxModelForm):
         ]
 
 
-class IPSecProposalForm(NetBoxModelForm):
+class IPSecProposalForm(PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Proposal')),
@@ -348,7 +345,7 @@ class IPSecProposalForm(NetBoxModelForm):
         ]
 
 
-class IPSecPolicyForm(NetBoxModelForm):
+class IPSecPolicyForm(PrimaryModelForm):
     proposals = DynamicModelMultipleChoiceField(
         queryset=IPSecProposal.objects.all(),
         label=_('Proposals'),
@@ -367,7 +364,7 @@ class IPSecPolicyForm(NetBoxModelForm):
         ]
 
 
-class IPSecProfileForm(NetBoxModelForm):
+class IPSecProfileForm(PrimaryModelForm):
     ike_policy = DynamicModelChoiceField(
         queryset=IKEPolicy.objects.all(),
         label=_('IKE policy')
@@ -376,7 +373,6 @@ class IPSecProfileForm(NetBoxModelForm):
         queryset=IPSecPolicy.objects.all(),
         label=_('IPSec policy')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Profile')),
@@ -394,7 +390,7 @@ class IPSecProfileForm(NetBoxModelForm):
 # L2VPN
 #
 
-class L2VPNForm(TenancyForm, NetBoxModelForm):
+class L2VPNForm(TenancyForm, PrimaryModelForm):
     slug = SlugField()
     import_targets = DynamicModelMultipleChoiceField(
         label=_('Import targets'),
@@ -406,7 +402,6 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'type', 'status', 'identifier', 'description', 'tags', name=_('L2VPN')),
