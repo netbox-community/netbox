@@ -16,6 +16,11 @@ pre {
   background: var(--#{$prefix}bg-surface);
 }
 
+// Permit copying of badge text
+.badge {
+  user-select: text;
+}
+
 // Button adjustments
 .btn {
   // Tabler sets display: flex

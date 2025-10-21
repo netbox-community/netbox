@@ -1723,6 +1723,10 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'contains_vid': 1}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'contains_vid': 12}  # 11 is NOT in [1,11)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'contains_vid': 4095}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_region(self):
         params = {'region': Region.objects.first().pk}

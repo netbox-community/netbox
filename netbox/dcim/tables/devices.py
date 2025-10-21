@@ -196,7 +196,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Type')
     )
     u_height = columns.TemplateColumn(
-        accessor=tables.A('device_type.u_height'),
+        accessor=tables.A('device_type__u_height'),
         verbose_name=_('U Height'),
         template_code='{{ value|floatformat }}'
     )
@@ -1174,6 +1174,9 @@ class MACAddressTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Parent')
     )
+    is_primary = columns.BooleanColumn(
+        verbose_name=_('Primary')
+    )
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
     )
@@ -1184,7 +1187,7 @@ class MACAddressTable(NetBoxTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.MACAddress
         fields = (
-            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'description', 'is_primary',
+            'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object', 'description')

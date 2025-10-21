@@ -755,7 +755,10 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
         queryset=ModuleBay.objects.all(),
         query_params={
             'device_id': '$device'
-        }
+        },
+        context={
+            'disabled': 'installed_module',
+        },
     )
     module_type = DynamicModelChoiceField(
         label=_('Module type'),

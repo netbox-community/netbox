@@ -80,6 +80,7 @@ class JobFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    object_type = ContentTypeFilter()
     created = django_filters.DateTimeFilter()
     created__before = django_filters.DateTimeFilter(
         field_name='created',
@@ -169,6 +170,7 @@ class ObjectChangeFilterSet(BaseFilterSet):
     changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContentType.objects.all()
     )
+    related_object_type = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),

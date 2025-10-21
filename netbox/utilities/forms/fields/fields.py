@@ -53,6 +53,14 @@ class SlugField(forms.SlugField):
 
         self.widget.attrs['slug-source'] = slug_source
 
+    def get_bound_field(self, form, field_name):
+        if prefix := form.prefix:
+            slug_source = self.widget.attrs.get('slug-source')
+            if slug_source and not slug_source.startswith(f'{prefix}-'):
+                self.widget.attrs['slug-source'] = f"{prefix}-{slug_source}"
+
+        return super().get_bound_field(form, field_name)
+
 
 class ColorField(forms.CharField):
     """

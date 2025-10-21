@@ -19,7 +19,7 @@ from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization.models import VMInterface
 
 if TYPE_CHECKING:
-    from netbox.graphql.filter_lookups import IntegerArrayLookup, IntegerLookup
+    from netbox.graphql.filter_lookups import IntegerLookup, IntegerRangeArrayLookup
     from circuits.graphql.filters import ProviderFilter
     from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import SiteFilter
@@ -170,7 +170,7 @@ class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
 
     @strawberry_django.filter_field()
     def assigned(self, value: bool, prefix) -> Q:
-        return Q(assigned_object_id__isnull=(not value))
+        return Q(**{f"{prefix}assigned_object_id__isnull": not value})
 
     @strawberry_django.filter_field()
     def parent(self, value: list[str], prefix) -> Q:
@@ -340,7 +340,7 @@ class VLANFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
 
 @strawberry_django.filter_type(models.VLANGroup, lookups=True)
 class VLANGroupFilter(ScopedFilterMixin, OrganizationalModelFilterMixin):
-    vid_ranges: Annotated['IntegerArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    vid_ranges: Annotated['IntegerRangeArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 

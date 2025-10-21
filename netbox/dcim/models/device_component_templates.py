@@ -7,6 +7,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -405,7 +406,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         }
 
 
-class InterfaceTemplate(ModularComponentTemplateModel):
+class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -469,8 +470,6 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         super().clean()
 
         if self.bridge:
-            if self.pk and self.bridge_id == self.pk:
-                raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
             if self.device_type and self.device_type != self.bridge.device_type:
                 raise ValidationError({
                     'bridge': _(
@@ -483,11 +482,6 @@ class InterfaceTemplate(ModularComponentTemplateModel):
                         "Bridge interface ({bridge}) must belong to the same module type"
                     ).format(bridge=self.bridge)
                 })
-
-        if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
-            raise ValidationError({
-                'rf_role': "Wireless role may be set only on wireless interfaces."
-            })
 
     def instantiate(self, **kwargs):
         return self.component_model(

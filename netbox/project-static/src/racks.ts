@@ -83,7 +83,7 @@ export function initRackElevation(): void {
   }
 
   for (const element of getElements<HTMLObjectElement>('.rack_elevation')) {
-    element.addEventListener('load', () => {
+    element.addEventListener('htmx:afterSettle', () => {
       setRackView(initialView, element);
     });
   }
