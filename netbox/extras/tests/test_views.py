@@ -930,7 +930,6 @@ class ScriptValidationErrorTest(TestCase):
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
-        """Test that form validation errors are displayed to the user"""
         from unittest.mock import patch
 
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
@@ -942,3 +941,29 @@ class ScriptValidationErrorTest(TestCase):
         messages = list(response.context['messages'])
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "bar: This field is required.")
+
+    @tag('regression')
+    def test_script_validation_error_no_toast_for_fieldset_fields(self):
+        from unittest.mock import patch, PropertyMock
+
+        class FieldsetScript(PythonClass):
+            class Meta:
+                name = 'Fieldset test'
+                commit_default = False
+                fieldsets = (("Fields", ("required_field",)),)
+
+            required_field = IntegerVar(min_value=10)
+
+            def run(self, data, commit):
+                return "Complete"
+
+        url = reverse('extras:script', kwargs={'pk': self.script.pk})
+
+        with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock_python_class:
+            mock_python_class.return_value = FieldsetScript
+            with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+                response = self.client.post(url, {'required_field': '5', '_commit': 'true'})
+
+        self.assertEqual(response.status_code, 200)
+        messages = list(response.context['messages'])
+        self.assertEqual(len(messages), 0)

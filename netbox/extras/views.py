@@ -1486,10 +1486,14 @@ class ScriptView(BaseScriptView):
 
             return redirect('extras:script_result', job_pk=job.pk)
         else:
-            messages.error(
-                request,
-                '; '.join(f"{field}: {', '.join(errors)}" for field, errors in form.errors.items())
-            )
+            fieldset_fields = {field for _, fields in script_class.get_fieldsets() for field in fields}
+            hidden_errors = {
+                field: errors for field, errors in form.errors.items()
+                if field not in fieldset_fields
+            }
+            if hidden_errors:
+                error_msg = '; '.join(f"{field}: {', '.join(errors)}" for field, errors in hidden_errors.items())
+                messages.error(request, error_msg)
 
         return render(request, 'extras/script.html', {
             'object': script,
