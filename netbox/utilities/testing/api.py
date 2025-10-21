@@ -664,7 +664,7 @@ class APIViewTestCases:
 
         @override_settings(LOGIN_REQUIRED=True)
         def test_graphql_list_objects(self):
-            url = reverse('graphql')
+            url = reverse('graphql_v2')
             field_name = f'{self._get_graphql_base_name()}_list'
             query = self._build_query(field_name)
 
@@ -709,7 +709,7 @@ class APIViewTestCases:
             if not hasattr(self, 'graphql_filter'):
                 return
 
-            url = reverse('graphql')
+            url = reverse('graphql_v2')
             field_name = f'{self._get_graphql_base_name()}_list'
             query = self._build_filtered_query(field_name, **self.graphql_filter)
 
