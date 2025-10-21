@@ -8,7 +8,10 @@ from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF, VLANTranslationPolicy
 from netbox.choices import *
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import (
+    NestedGroupModelFilterSetForm, NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm,
+    PrimaryModelFilterSetForm,
+)
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
@@ -139,7 +142,7 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class RegionFilterForm(ContactModelFilterForm, NestedGroupModelFilterSetForm):
     model = Region
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -154,7 +157,7 @@ class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class SiteGroupFilterForm(ContactModelFilterForm, NestedGroupModelFilterSetForm):
     model = SiteGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -169,7 +172,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
+class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Site
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -201,7 +204,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     tag = TagFilterField(model)
 
 
-class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
+class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NestedGroupModelFilterSetForm):
     model = Location
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -249,7 +252,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     tag = TagFilterField(model)
 
 
-class RackRoleFilterForm(NetBoxModelFilterSetForm):
+class RackRoleFilterForm(OrganizationalModelFilterSetForm):
     model = RackRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -257,7 +260,7 @@ class RackRoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RackBaseFilterForm(NetBoxModelFilterSetForm):
+class RackBaseFilterForm(PrimaryModelFilterSetForm):
     form_factor = forms.MultipleChoiceField(
         label=_('Form factor'),
         choices=RackFormFactorChoices,
@@ -418,7 +421,7 @@ class RackElevationFilterForm(RackFilterForm):
     )
 
 
-class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class RackReservationFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = RackReservation
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -476,7 +479,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class ManufacturerFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = Manufacturer
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -485,7 +488,7 @@ class ManufacturerFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
+class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
     model = DeviceType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -613,7 +616,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class ModuleTypeProfileFilterForm(NetBoxModelFilterSetForm):
+class ModuleTypeProfileFilterForm(PrimaryModelFilterSetForm):
     model = ModuleTypeProfile
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -621,7 +624,7 @@ class ModuleTypeProfileFilterForm(NetBoxModelFilterSetForm):
     selector_fields = ('filter_id', 'q')
 
 
-class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
+class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -706,7 +709,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
+class DeviceRoleFilterForm(NestedGroupModelFilterSetForm):
     model = DeviceRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -725,7 +728,7 @@ class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PlatformFilterForm(NetBoxModelFilterSetForm):
+class PlatformFilterForm(NestedGroupModelFilterSetForm):
     model = Platform
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -754,7 +757,7 @@ class DeviceFilterForm(
     LocalConfigContextFilterForm,
     TenancyFilterForm,
     ContactModelFilterForm,
-    NetBoxModelFilterSetForm
+    PrimaryModelFilterSetForm
 ):
     model = Device
     fieldsets = (
@@ -948,10 +951,7 @@ class DeviceFilterForm(
     tag = TagFilterField(model)
 
 
-class VirtualDeviceContextFilterForm(
-    TenancyFilterForm,
-    NetBoxModelFilterSetForm
-):
+class VirtualDeviceContextFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VirtualDeviceContext
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -978,7 +978,7 @@ class VirtualDeviceContextFilterForm(
     tag = TagFilterField(model)
 
 
-class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
+class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Module
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1061,7 +1061,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
     tag = TagFilterField(model)
 
 
-class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class VirtualChassisFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VirtualChassis
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1090,7 +1090,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Cable
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1174,7 +1174,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class PowerPanelFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = PowerPanel
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1213,7 +1213,7 @@ class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class PowerFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = PowerFeed
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1676,7 +1676,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
 # Device component roles
 #
 
-class InventoryItemRoleFilterForm(NetBoxModelFilterSetForm):
+class InventoryItemRoleFilterForm(OrganizationalModelFilterSetForm):
     model = InventoryItemRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1688,7 +1688,7 @@ class InventoryItemRoleFilterForm(NetBoxModelFilterSetForm):
 # Addressing
 #
 
-class MACAddressFilterForm(NetBoxModelFilterSetForm):
+class MACAddressFilterForm(PrimaryModelFilterSetForm):
     model = MACAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

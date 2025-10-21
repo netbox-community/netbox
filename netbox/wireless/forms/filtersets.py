@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.models import Location, Region, Site, SiteGroup
 from netbox.choices import *
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import NestedGroupModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
@@ -19,7 +19,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
+class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
     model = WirelessLANGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -33,7 +33,7 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -99,7 +99,7 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class WirelessLinkFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

@@ -2,7 +2,10 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import (
+    NestedGroupModelFilterSetForm, NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm,
+    PrimaryModelFilterSetForm,
+)
 from tenancy.choices import *
 from tenancy.models import *
 from tenancy.forms import ContactModelFilterForm
@@ -25,7 +28,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupFilterForm(NetBoxModelFilterSetForm):
+class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
     model = TenantGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -39,7 +42,7 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Tenant
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -59,7 +62,7 @@ class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 # Contacts
 #
 
-class ContactGroupFilterForm(NetBoxModelFilterSetForm):
+class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
     model = ContactGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -73,7 +76,7 @@ class ContactGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ContactRoleFilterForm(NetBoxModelFilterSetForm):
+class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
     model = ContactRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -81,7 +84,7 @@ class ContactRoleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ContactFilterForm(NetBoxModelFilterSetForm):
+class ContactFilterForm(PrimaryModelFilterSetForm):
     model = Contact
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

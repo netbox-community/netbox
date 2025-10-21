@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import Device, Region, Site
 from ipam.models import RouteTarget, VLAN
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
@@ -30,7 +30,7 @@ __all__ = (
 )
 
 
-class TunnelGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -39,7 +39,7 @@ class TunnelGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
+class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Tunnel
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -94,7 +94,7 @@ class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IKEProposalFilterForm(NetBoxModelFilterSetForm):
+class IKEProposalFilterForm(PrimaryModelFilterSetForm):
     model = IKEProposal
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -125,7 +125,7 @@ class IKEProposalFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IKEPolicyFilterForm(NetBoxModelFilterSetForm):
+class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
     model = IKEPolicy
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -149,7 +149,7 @@ class IKEPolicyFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IPSecProposalFilterForm(NetBoxModelFilterSetForm):
+class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
     model = IPSecProposal
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -168,7 +168,7 @@ class IPSecProposalFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IPSecPolicyFilterForm(NetBoxModelFilterSetForm):
+class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -187,7 +187,7 @@ class IPSecPolicyFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
+class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -211,7 +211,7 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
+class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = L2VPN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

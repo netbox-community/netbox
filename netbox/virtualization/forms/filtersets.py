@@ -6,7 +6,7 @@ from dcim.models import Device, DeviceRole, Location, Platform, Region, Site, Si
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import VRF, VLANTranslationPolicy
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
@@ -25,7 +25,7 @@ __all__ = (
 )
 
 
-class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
+class ClusterTypeFilterForm(OrganizationalModelFilterSetForm):
     model = ClusterType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -33,7 +33,7 @@ class ClusterTypeFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class ClusterGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
     fieldsets = (
@@ -42,7 +42,7 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     )
 
 
-class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
+class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Cluster
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -100,7 +100,7 @@ class VirtualMachineFilterForm(
     LocalConfigContextFilterForm,
     TenancyFilterForm,
     ContactModelFilterForm,
-    NetBoxModelFilterSetForm
+    PrimaryModelFilterSetForm
 ):
     model = VirtualMachine
     fieldsets = (

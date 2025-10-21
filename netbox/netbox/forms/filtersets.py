@@ -3,12 +3,13 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
-from users.models import Owner
-from utilities.forms.fields import DynamicModelMultipleChoiceField
-from .mixins import CustomFieldsMixin, SavedFiltersMixin
+from .mixins import CustomFieldsMixin, OwnerMixin, SavedFiltersMixin
 
 __all__ = (
+    'NestedGroupModelFilterSetForm',
     'NetBoxModelFilterSetForm',
+    'OrganizationalModelFilterSetForm',
+    'PrimaryModelFilterSetForm',
 )
 
 
@@ -28,11 +29,6 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
         required=False,
         label=_('Search')
     )
-    owner_id = DynamicModelMultipleChoiceField(
-        queryset=Owner.objects.all(),
-        required=False,
-        label=_('Owner'),
-    )
 
     selector_fields = ('filter_id', 'q')
 
@@ -44,3 +40,24 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)
+
+
+class PrimaryModelFilterSetForm(OwnerMixin, NetBoxModelFilterSetForm):
+    """
+    FilterSet form for models which inherit from PrimaryModel.
+    """
+    pass
+
+
+class OrganizationalModelFilterSetForm(OwnerMixin, NetBoxModelFilterSetForm):
+    """
+    FilterSet form for models which inherit from OrganizationalModel.
+    """
+    pass
+
+
+class NestedGroupModelFilterSetForm(OwnerMixin, NetBoxModelFilterSetForm):
+    """
+    FilterSet form for models which inherit from NestedGroupModel.
+    """
+    pass

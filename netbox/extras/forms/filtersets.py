@@ -6,8 +6,8 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
-from netbox.forms import NetBoxModelFilterSetForm
-from netbox.forms.mixins import SavedFiltersMixin
+from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
+from netbox.forms.mixins import OwnerMixin, SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
@@ -38,7 +38,7 @@ __all__ = (
 )
 
 
-class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
+class CustomFieldFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -117,7 +117,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
+class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = CustomFieldChoiceSet
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -132,7 +132,7 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
+class CustomLinkFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = CustomLink
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -163,7 +163,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
+class ExportTemplateFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = ExportTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'object_type_id'),
@@ -226,7 +226,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
+class SavedFilterFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = SavedFilter
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -287,7 +287,7 @@ class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class WebhookFilterForm(NetBoxModelFilterSetForm):
+class WebhookFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -309,7 +309,7 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class EventRuleFilterForm(NetBoxModelFilterSetForm):
+class EventRuleFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
     model = EventRule
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -340,7 +340,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class TagFilterForm(SavedFiltersMixin, FilterForm):
+class TagFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = Tag
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('tags'),
@@ -354,7 +354,7 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ConfigContextProfileFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
     model = ConfigContextProfile
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -375,7 +375,7 @@ class ConfigContextProfileFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigContextFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = ConfigContext
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag_id'),
@@ -471,7 +471,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigTemplateFilterForm(SavedFiltersMixin, OwnerMixin, FilterForm):
     model = ConfigTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
