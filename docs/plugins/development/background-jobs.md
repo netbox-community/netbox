@@ -62,10 +62,10 @@ Log entries recorded using the runner's logger will be saved in the job's log in
 
 ### Jobs running for Model instances
 
-A Job can be run for a certain instance of a Model.
-To support this, the `JobsMixin` is required for this model.
+A Job can be executed for a specific instance of a Model.
+To enable this functionality, the model must include the `JobsMixin`.
 
-To assign an instance to a Job use the `instance` parameter when enqueuing the Job.
+When enqueuing a Job, you can associate it with a particular instance by passing that instance to the `instance` parameter.
 
 ### Scheduled Jobs
 
@@ -80,9 +80,10 @@ As described above, jobs can be scheduled for immediate execution or at any late
 from django.db import models
 from core.choices import JobIntervalChoices
 from netbox.models import NetBoxModel
+from netbox.models.features import JobsMixin
 from .jobs import MyTestJob
 
-class MyModel(NetBoxModel):
+class MyModel(JobsMixin, NetBoxModel):
     foo = models.CharField()
 
     def save(self, *args, **kwargs):
