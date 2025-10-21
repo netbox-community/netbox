@@ -57,10 +57,7 @@ class MyModelViewSet(...):
 
 ### Implementing Quick Search
 
-The `ObjectListView` has a field called Quick Search.
-For Quick Search to work the corresponding FilterSet has to override the `search` method that is implemented in `NetBoxModelFilterSet`.
-This function takes a queryset and can perform arbitrary operations on it and return it.
-A common use-case is to search for the given search value in multiple fields:
+The `ObjectListView` has a field called Quick Search. For Quick Search to work the corresponding FilterSet has to override the `search` method that is implemented in `NetBoxModelFilterSet`. This function takes a queryset and can perform arbitrary operations on it and return it. A common use-case is to search for the given search value in multiple fields:
 
 ```python
 from django.db.models import Q
