@@ -58,7 +58,7 @@ class MyModelViewSet(...):
 ### Implementing Quick Search
 
 The `ObjectListView` has a field called Quick Search.
-For Quick Search to work the corresponding FilterSet has to implement the `search` method.
+For Quick Search to work the corresponding FilterSet has to override the `search` method that is implemented in `NetBoxModelFilterSet`.
 This function takes a queryset and can perform arbitrary operations on it and return it.
 A common use-case is to search for the given search value in multiple fields:
 
@@ -76,6 +76,8 @@ class MyFilterSet(NetBoxModelFilterSet):
             Q(description__icontains=value)
         )
 ```
+
+The `search` method is also used by the `q` filter in `NetBoxModelFilterSet` which in turn is used by the Search field in the filters tab.
 
 ## Filter Classes
 
