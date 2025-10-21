@@ -9,7 +9,7 @@ from dcim.models import MACAddress
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
@@ -39,7 +39,7 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
         fields = ('id', 'name', 'slug', 'description')
 
 
-class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ScopedFilterSet, ContactModelFilterSet):
+class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ScopedFilterSet, ContactModelFilterSet):
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
         label=_('Parent group (ID)'),
@@ -80,7 +80,7 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ScopedFilterSet, 
 
 
 class VirtualMachineFilterSet(
-    NetBoxModelFilterSet,
+    PrimaryModelFilterSet,
     TenancyFilterSet,
     ContactModelFilterSet,
     LocalConfigContextFilterSet,
@@ -235,7 +235,7 @@ class VirtualMachineFilterSet(
         return queryset.exclude(params)
 
 
-class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
+class VMInterfaceFilterSet(PrimaryModelFilterSet, CommonInterfaceFilterSet):
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__cluster',
         queryset=Cluster.objects.all(),
@@ -297,7 +297,7 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         )
 
 
-class VirtualDiskFilterSet(NetBoxModelFilterSet):
+class VirtualDiskFilterSet(PrimaryModelFilterSet):
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),

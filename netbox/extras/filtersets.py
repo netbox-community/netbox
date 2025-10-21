@@ -7,6 +7,7 @@ from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
+from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
@@ -619,7 +620,7 @@ class ConfigContextProfileFilterSet(NetBoxModelFilterSet):
         )
 
 
-class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
+class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),

@@ -5,7 +5,7 @@ from dcim.choices import LinkStatusChoices
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Interface
 from ipam.models import VLAN
-from netbox.filtersets import NestedGroupModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import NestedGroupModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *
@@ -44,7 +44,7 @@ class WirelessLANGroupFilterSet(NestedGroupModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
-class WirelessLANFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet):
+class WirelessLANFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=WirelessLANGroup.objects.all(),
         field_name='group',
@@ -87,7 +87,7 @@ class WirelessLANFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterS
         return queryset.filter(qs_filter)
 
 
-class WirelessLinkFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class WirelessLinkFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     interface_a_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Interface.objects.all()
     )
