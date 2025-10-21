@@ -28,6 +28,17 @@ class GroupFilterSet(BaseFilterSet):
         queryset=User.objects.all(),
         label=_('User (ID)'),
     )
+    owner_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner',
+        queryset=Owner.objects.all(),
+        label=_('Owner (ID)'),
+    )
+    owner = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner__name',
+        queryset=Owner.objects.all(),
+        to_field_name='name',
+        label=_('Owner (name)'),
+    )
     permission_id = django_filters.ModelMultipleChoiceFilter(
         field_name='object_permissions',
         queryset=ObjectPermission.objects.all(),
@@ -67,6 +78,17 @@ class UserFilterSet(BaseFilterSet):
         queryset=Group.objects.all(),
         to_field_name='name',
         label=_('Group (name)'),
+    )
+    owner_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner',
+        queryset=Owner.objects.all(),
+        label=_('Owner (ID)'),
+    )
+    owner = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner__name',
+        queryset=Owner.objects.all(),
+        to_field_name='name',
+        label=_('Owner (name)'),
     )
     permission_id = django_filters.ModelMultipleChoiceFilter(
         field_name='object_permissions',

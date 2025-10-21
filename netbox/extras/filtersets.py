@@ -62,7 +62,7 @@ class ScriptFilterSet(BaseFilterSet):
         )
 
 
-class WebhookFilterSet(NetBoxModelFilterSet):
+class WebhookFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -91,7 +91,7 @@ class WebhookFilterSet(NetBoxModelFilterSet):
         )
 
 
-class EventRuleFilterSet(NetBoxModelFilterSet):
+class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -131,7 +131,7 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(event_types__overlap=value)
 
 
-class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
+class CustomFieldFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -180,7 +180,7 @@ class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class CustomFieldChoiceSetFilterSet(ChangeLoggedModelFilterSet):
+class CustomFieldChoiceSetFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -208,7 +208,7 @@ class CustomFieldChoiceSetFilterSet(ChangeLoggedModelFilterSet):
         return queryset.filter(extra_choices__overlap=value)
 
 
-class CustomLinkFilterSet(ChangeLoggedModelFilterSet):
+class CustomLinkFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -238,7 +238,7 @@ class CustomLinkFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
+class ExportTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -276,7 +276,7 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class SavedFilterFilterSet(ChangeLoggedModelFilterSet):
+class SavedFilterFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -495,7 +495,7 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
         return queryset.filter(comments__icontains=value)
 
 
-class TagFilterSet(ChangeLoggedModelFilterSet):
+class TagFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -590,7 +590,7 @@ class TaggedItemFilterSet(BaseFilterSet):
         )
 
 
-class ConfigContextProfileFilterSet(NetBoxModelFilterSet):
+class ConfigContextProfileFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -789,7 +789,7 @@ class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         )
 
 
-class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
+class ConfigTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
