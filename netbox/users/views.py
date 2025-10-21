@@ -280,7 +280,6 @@ class OwnerBulkEditView(generic.BulkEditView):
 @register_model_view(Owner, 'bulk_rename', path='rename', detail=False)
 class OwnerBulkRenameView(generic.BulkRenameView):
     queryset = Owner.objects.all()
-    field_name = 'ownername'
 
 
 @register_model_view(Owner, 'bulk_delete', path='delete', detail=False)
