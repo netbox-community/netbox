@@ -13,7 +13,8 @@ from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
-from users.models import User
+from users.constants import TOKEN_PREFIX
+from users.models import Token, User
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -1306,7 +1307,6 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
     }
     user_permissions = (
         'dcim.view_site', 'dcim.view_rack', 'dcim.view_location', 'dcim.view_devicerole', 'dcim.view_devicetype',
-        'extras.view_configtemplate',
     )
 
     @classmethod
@@ -1486,11 +1486,57 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.config_template = configtemplate
         device.save()
 
-        self.add_permissions('dcim.add_device')
-        url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
+
+    def test_render_config_without_permission(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for device {{ device.name }}'
+        )
+
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        # No permissions added - user has no render_config permission
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_render_config_token_write_enabled(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for device {{ device.name }}'
+        )
+
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+
+        # Request without token auth should fail with PermissionDenied
+        response = self.client.post(url, {}, format='json')
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Create token with write_enabled=False
+        token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        token_header = f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'
+
+        # Request with write-disabled token should fail
+        response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Enable write and retry
+        token.write_enabled = True
+        token.save()
+        response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):

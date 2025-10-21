@@ -3,6 +3,7 @@ import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
+from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
@@ -11,7 +12,8 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Loca
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
-from users.models import Group, User
+from users.constants import TOKEN_PREFIX
+from users.models import Group, Token, User
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -853,6 +855,47 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
+
+    def test_render(self):
+        configtemplate = ConfigTemplate.objects.first()
+
+        self.add_permissions('extras.render_configtemplate', 'extras.view_configtemplate')
+        url = reverse('extras-api:configtemplate-render', kwargs={'pk': configtemplate.pk})
+        response = self.client.post(url, {'foo': 'bar'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], 'Foo: bar')
+
+    def test_render_without_permission(self):
+        configtemplate = ConfigTemplate.objects.first()
+
+        # No permissions added - user has no render permission
+        url = reverse('extras-api:configtemplate-render', kwargs={'pk': configtemplate.pk})
+        response = self.client.post(url, {'foo': 'bar'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_render_token_write_enabled(self):
+        configtemplate = ConfigTemplate.objects.first()
+
+        self.add_permissions('extras.render_configtemplate', 'extras.view_configtemplate')
+        url = reverse('extras-api:configtemplate-render', kwargs={'pk': configtemplate.pk})
+
+        # Request without token auth should fail with PermissionDenied
+        response = self.client.post(url, {'foo': 'bar'}, format='json')
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Create token with write_enabled=False
+        token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        token_header = f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'
+
+        # Request with write-disabled token should fail
+        response = self.client.post(url, {'foo': 'bar'}, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Enable write and retry
+        token.write_enabled = True
+        token.save()
+        response = self.client.post(url, {'foo': 'bar'}, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
 class ScriptTest(APITestCase):
