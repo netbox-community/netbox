@@ -55,10 +55,10 @@ class MyModelViewSet(...):
     filterset_class = filtersets.MyModelFilterSet
 ```
 
-### Search function for use by the ObjectListView quick search
+### Implementing Quick Search
 
 The `ObjectListView` has a field called Quick Search.
-For this field to work the corresponding FilterSet has to implement the `search` function.
+For Quick Search to work the corresponding FilterSet has to implement the `search` method.
 This function takes a queryset and can perform arbitrary operations on it and return it.
 A common use-case is to search for the given search value in multiple fields:
 
