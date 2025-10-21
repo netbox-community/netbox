@@ -7,10 +7,10 @@ from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VRF
-from netbox.forms import NetBoxModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import BulkRenameForm, add_blank_choice
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.choices import *
@@ -28,13 +28,7 @@ __all__ = (
 )
 
 
-class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-
+class ClusterTypeBulkEditForm(OrganizationalModelBulkEditForm):
     model = ClusterType
     fieldsets = (
         FieldSet('description'),
@@ -42,13 +36,7 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-
+class ClusterGroupBulkEditForm(OrganizationalModelBulkEditForm):
     model = ClusterGroup
     fieldsets = (
         FieldSet('description'),
@@ -56,7 +44,7 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class ClusterBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
+class ClusterBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -78,12 +66,6 @@ class ClusterBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = Cluster
     fieldsets = (
@@ -95,7 +77,7 @@ class ClusterBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     )
 
 
-class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
+class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
     status = forms.ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VirtualMachineStatusChoices),
@@ -155,16 +137,10 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Disk (MB)')
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
-    comments = CommentField()
 
     model = VirtualMachine
     fieldsets = (

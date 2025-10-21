@@ -5,15 +5,18 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.models import Tag
 from utilities.forms import BulkEditForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.fields import CommentField, DynamicModelMultipleChoiceField
 from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin
 
 __all__ = (
+    'NestedGroupModelBulkEditForm',
     'NetBoxModelBulkEditForm',
+    'OrganizationalModelBulkEditForm',
+    'PrimaryModelBulkEditForm',
 )
 
 
-class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin, BulkEditForm):
+class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, BulkEditForm):
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
     fields and adding/removing tags.
@@ -65,3 +68,38 @@ class NetBoxModelBulkEditForm(ChangelogMessageMixin, CustomFieldsMixin, OwnerMix
             *nullable_common_fields,
             *nullable_custom_fields,
         )
+
+
+class PrimaryModelBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
+    """
+    Bulk edit form for models which inherit from PrimaryModel.
+    """
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=100,
+        required=False
+    )
+    comments = CommentField()
+
+
+class OrganizationalModelBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
+    """
+    Bulk edit form for models which inherit from OrganizationalModel.
+    """
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+
+class NestedGroupModelBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
+    """
+    Bulk edit form for models which inherit from NestedGroupModel.
+    """
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()

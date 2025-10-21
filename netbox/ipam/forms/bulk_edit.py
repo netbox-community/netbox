@@ -9,11 +9,11 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
 from ipam.models import ASN
-from netbox.forms import NetBoxModelBulkEditForm
+from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet
@@ -41,7 +41,7 @@ __all__ = (
 )
 
 
-class VRFBulkEditForm(NetBoxModelBulkEditForm):
+class VRFBulkEditForm(PrimaryModelBulkEditForm):
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -52,12 +52,6 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect(),
         label=_('Enforce unique space')
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = VRF
     fieldsets = (
@@ -66,18 +60,12 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('tenant', 'description', 'comments')
 
 
-class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
+class RouteTargetBulkEditForm(PrimaryModelBulkEditForm):
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = RouteTarget
     fieldsets = (
@@ -86,16 +74,11 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('tenant', 'description', 'comments')
 
 
-class RIRBulkEditForm(NetBoxModelBulkEditForm):
+class RIRBulkEditForm(OrganizationalModelBulkEditForm):
     is_private = forms.NullBooleanField(
         label=_('Is private'),
         required=False,
         widget=BulkEditNullBooleanSelect
-    )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
     )
 
     model = RIR
@@ -105,7 +88,7 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('is_private', 'description')
 
 
-class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
+class ASNRangeBulkEditForm(OrganizationalModelBulkEditForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         required=False,
@@ -116,11 +99,6 @@ class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
 
     model = ASNRange
     fieldsets = (
@@ -129,7 +107,7 @@ class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class ASNBulkEditForm(NetBoxModelBulkEditForm):
+class ASNBulkEditForm(PrimaryModelBulkEditForm):
     sites = DynamicModelMultipleChoiceField(
         label=_('Sites'),
         queryset=Site.objects.all(),
@@ -145,12 +123,6 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = ASN
     fieldsets = (
@@ -159,7 +131,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('tenant', 'description', 'comments')
 
 
-class AggregateBulkEditForm(NetBoxModelBulkEditForm):
+class AggregateBulkEditForm(PrimaryModelBulkEditForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         required=False,
@@ -174,12 +146,6 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Date added'),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = Aggregate
     fieldsets = (
@@ -188,14 +154,9 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('date_added', 'description', 'comments')
 
 
-class RoleBulkEditForm(NetBoxModelBulkEditForm):
+class RoleBulkEditForm(OrganizationalModelBulkEditForm):
     weight = forms.IntegerField(
         label=_('Weight'),
-        required=False
-    )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
         required=False
     )
 
@@ -206,7 +167,7 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('description',)
 
 
-class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
+class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -256,12 +217,6 @@ class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect(),
         label=_('Treat as fully utilized')
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = Prefix
     fieldsets = (
@@ -275,7 +230,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     )
 
 
-class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
+class IPRangeBulkEditForm(PrimaryModelBulkEditForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -306,12 +261,6 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect(),
         label=_('Treat as fully utilized')
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = IPRange
     fieldsets = (
@@ -322,7 +271,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
+class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -354,12 +303,6 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('DNS name')
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = IPAddress
     fieldsets = (
@@ -371,7 +314,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
+class FHRPGroupBulkEditForm(PrimaryModelBulkEditForm):
     protocol = forms.ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(FHRPGroupProtocolChoices),
@@ -397,12 +340,6 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=100,
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = FHRPGroup
     fieldsets = (
@@ -412,12 +349,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('auth_type', 'auth_key', 'name', 'description', 'comments')
 
 
-class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
+class VLANGroupBulkEditForm(OrganizationalModelBulkEditForm):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
@@ -464,7 +396,7 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
                 pass
 
 
-class VLANBulkEditForm(NetBoxModelBulkEditForm):
+class VLANBulkEditForm(PrimaryModelBulkEditForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
@@ -507,11 +439,6 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Role.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
     qinq_role = forms.ChoiceField(
         label=_('Q-in-Q role'),
         choices=add_blank_choice(VLANQinQRoleChoices),
@@ -525,7 +452,6 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
             'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
         }
     )
-    comments = CommentField()
 
     model = VLAN
     fieldsets = (
@@ -538,13 +464,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class VLANTranslationPolicyBulkEditForm(NetBoxModelBulkEditForm):
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-
+class VLANTranslationPolicyBulkEditForm(PrimaryModelBulkEditForm):
     model = VLANTranslationPolicy
     fieldsets = (
         FieldSet('description'),
@@ -568,7 +488,7 @@ class VLANTranslationRuleBulkEditForm(NetBoxModelBulkEditForm):
     fields = ('policy', 'local_vid', 'remote_vid')
 
 
-class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
+class ServiceTemplateBulkEditForm(PrimaryModelBulkEditForm):
     protocol = forms.ChoiceField(
         label=_('Protocol'),
         choices=add_blank_choice(ServiceProtocolChoices),
@@ -582,12 +502,6 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         ),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = ServiceTemplate
     fieldsets = (
