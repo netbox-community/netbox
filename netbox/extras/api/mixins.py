@@ -77,6 +77,7 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
         """
         Resolve and render the preferred ConfigTemplate for this Device.
         """
+        # Override restrict() on the default queryset to enforce the render_config & view actions
         self.queryset = self.queryset.model.objects.restrict(request.user, 'render_config').restrict(
             request.user, 'view'
         )
