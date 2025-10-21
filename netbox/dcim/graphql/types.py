@@ -5,19 +5,12 @@ import strawberry_django
 
 from core.graphql.mixins import ChangelogMixin
 from dcim import models
-from extras.graphql.mixins import (
-    ConfigContextMixin,
-    ContactsMixin,
-    CustomFieldsMixin,
-    ImageAttachmentsMixin,
-    TagsMixin,
-)
+from extras.graphql.mixins import ConfigContextMixin, ContactsMixin, ImageAttachmentsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType, NestedGroupObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType,
 )
-from users.graphql.mixins import OwnerMixin
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
 
@@ -94,13 +87,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentType(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    OwnerMixin,
-    TagsMixin,
-    BaseObjectType
-):
+class ComponentType(PrimaryObjectType):
     """
     Base type for device/VM components
     """
