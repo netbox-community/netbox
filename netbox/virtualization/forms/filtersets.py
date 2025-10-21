@@ -7,6 +7,7 @@ from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import VRF, VLANTranslationPolicy
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
+from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
@@ -199,7 +200,7 @@ class VirtualMachineFilterForm(
     tag = TagFilterField(model)
 
 
-class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
+class VMInterfaceFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -256,7 +257,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
+class VirtualDiskFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
     model = VirtualDisk
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

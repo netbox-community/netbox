@@ -5,7 +5,9 @@ from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VRF
-from netbox.forms import NetBoxModelImportForm, OrganizationalModelBulkImportForm, PrimaryModelBulkImportForm
+from netbox.forms import (
+    NetBoxModelImportForm, OrganizationalModelBulkImportForm, OwnerCSVMixin, PrimaryModelBulkImportForm,
+)
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField
 from virtualization.choices import *
@@ -146,7 +148,7 @@ class VirtualMachineImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class VMInterfaceImportForm(NetBoxModelImportForm):
+class VMInterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
@@ -184,7 +186,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
         model = VMInterface
         fields = (
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode',
-            'vrf', 'tags'
+            'vrf', 'owner', 'tags'
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -207,7 +209,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
             return self.cleaned_data['enabled']
 
 
-class VirtualDiskImportForm(NetBoxModelImportForm):
+class VirtualDiskImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
@@ -217,5 +219,5 @@ class VirtualDiskImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualDisk
         fields = (
-            'virtual_machine', 'name', 'size', 'description', 'tags'
+            'virtual_machine', 'name', 'size', 'description', 'owner', 'tags'
         )

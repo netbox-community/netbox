@@ -13,7 +13,7 @@ from netbox.choices import *
 from netbox.forms import (
     NestedGroupModelBulkEditForm, NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm,
 )
-from netbox.forms.mixins import ChangelogMessageMixin
+from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
@@ -1246,7 +1246,7 @@ class InventoryItemTemplateBulkEditForm(ComponentTemplateBulkEditForm):
 # Device components
 #
 
-class ComponentBulkEditForm(NetBoxModelBulkEditForm):
+class ComponentBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
     device = forms.ModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),

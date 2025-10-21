@@ -11,6 +11,7 @@ from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
+from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField
@@ -280,7 +281,7 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
 # Virtual machine components
 #
 
-class VMComponentForm(NetBoxModelForm):
+class VMComponentForm(OwnerMixin, NetBoxModelForm):
     virtual_machine = DynamicModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),

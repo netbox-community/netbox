@@ -8,6 +8,7 @@ from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
+from netbox.forms.mixins import OwnerMixin
 from tenancy.models import Tenant
 from utilities.forms import BulkRenameForm, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
@@ -153,7 +154,7 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
     )
 
 
-class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
+class VMInterfaceBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
@@ -287,7 +288,7 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
     )
 
 
-class VirtualDiskBulkEditForm(NetBoxModelBulkEditForm):
+class VirtualDiskBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),

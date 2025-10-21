@@ -11,7 +11,7 @@ from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
-from netbox.forms.mixins import ChangelogMessageMixin
+from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
@@ -1334,7 +1334,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
 # Device components
 #
 
-class DeviceComponentForm(NetBoxModelForm):
+class DeviceComponentForm(OwnerMixin, NetBoxModelForm):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),

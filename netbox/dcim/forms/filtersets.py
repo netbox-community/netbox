@@ -12,6 +12,7 @@ from netbox.forms import (
     NestedGroupModelFilterSetForm, NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm,
     PrimaryModelFilterSetForm,
 )
+from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
@@ -63,7 +64,7 @@ __all__ = (
 )
 
 
-class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
+class DeviceComponentFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
     name = forms.CharField(
         label=_('Name'),
         required=False
