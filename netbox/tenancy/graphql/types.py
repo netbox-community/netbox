@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
-from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+from netbox.graphql.types import BaseObjectType, NestedGroupObjectType, OrganizationalObjectType, PrimaryObjectType
 from tenancy import models
 from .filters import *
 from .mixins import ContactAssignmentsMixin
@@ -57,7 +57,7 @@ __all__ = (
     filters=TenantFilter,
     pagination=True
 )
-class TenantType(ContactsMixin, NetBoxObjectType):
+class TenantType(ContactsMixin, PrimaryObjectType):
     group: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')] | None
     asns: List[Annotated['ASNType', strawberry.lazy('ipam.graphql.types')]]
     circuits: List[Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]]
@@ -91,7 +91,7 @@ class TenantType(ContactsMixin, NetBoxObjectType):
     filters=TenantGroupFilter,
     pagination=True
 )
-class TenantGroupType(OrganizationalObjectType):
+class TenantGroupType(NestedGroupObjectType):
     parent: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')] | None
 
     tenants: List[TenantType]
@@ -108,7 +108,7 @@ class TenantGroupType(OrganizationalObjectType):
     filters=ContactFilter,
     pagination=True
 )
-class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
+class ContactType(ContactAssignmentsMixin, PrimaryObjectType):
     groups: List[Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')]]
 
 
@@ -128,7 +128,7 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
     filters=ContactGroupFilter,
     pagination=True
 )
-class ContactGroupType(OrganizationalObjectType):
+class ContactGroupType(NestedGroupObjectType):
     parent: Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')] | None
 
     contacts: List[ContactType]
