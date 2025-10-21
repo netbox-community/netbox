@@ -1,14 +1,19 @@
+from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.models import CustomField, Tag
 from users.models import Owner
 from utilities.forms import CSVModelForm
-from utilities.forms.fields import CSVModelMultipleChoiceField, CSVModelChoiceField
+from utilities.forms.fields import CSVModelMultipleChoiceField, CSVModelChoiceField, SlugField
 from .model_forms import NetBoxModelForm
 
 __all__ = (
+    'NestedGroupModelBulkImportForm',
     'NetBoxModelImportForm',
+    'OrganizationalModelBulkImportForm',
+    'OwnerCSVMixin',
+    'PrimaryModelBulkImportForm'
 )
 
 
@@ -16,12 +21,6 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating NetBox objects from CSV data. Used for bulk importing.
     """
-    owner = CSVModelChoiceField(
-        queryset=Owner.objects.all(),
-        required=False,
-        to_field_name='name',
-        help_text=_("Name of the object's owner")
-    )
     tags = CSVModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
@@ -38,3 +37,33 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(for_csv_import=True)
+
+
+class OwnerCSVMixin(forms.Form):
+    owner = CSVModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_("Name of the object's owner")
+    )
+
+
+class PrimaryModelBulkImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    """
+    Bulk import form for models which inherit from PrimaryModel.
+    """
+    pass
+
+
+class OrganizationalModelBulkImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    """
+    Bulk import form for models which inherit from OrganizationalModel.
+    """
+    slug = SlugField()
+
+
+class NestedGroupModelBulkImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+    """
+    Bulk import form for models which inherit from NestedGroupModel.
+    """
+    slug = SlugField()

@@ -5,9 +5,9 @@ from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VRF
-from netbox.forms import NetBoxModelImportForm
+from netbox.forms import NetBoxModelImportForm, OrganizationalModelBulkImportForm, PrimaryModelBulkImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -21,23 +21,21 @@ __all__ = (
 )
 
 
-class ClusterTypeImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+class ClusterTypeImportForm(OrganizationalModelBulkImportForm):
 
     class Meta:
         model = ClusterType
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class ClusterGroupImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+class ClusterGroupImportForm(OrganizationalModelBulkImportForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
+class ClusterImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
     type = CSVModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -74,14 +72,15 @@ class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'owner', 'comments',
+            'tags',
         )
         labels = {
             'scope_id': _('Scope ID'),
         }
 
 
-class VirtualMachineImportForm(NetBoxModelImportForm):
+class VirtualMachineImportForm(PrimaryModelBulkImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=VirtualMachineStatusChoices,
@@ -143,7 +142,7 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'serial', 'config_template', 'comments', 'tags',
+            'description', 'serial', 'config_template', 'comments', 'owner', 'tags',
         )
 
 
