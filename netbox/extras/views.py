@@ -1485,6 +1485,11 @@ class ScriptView(BaseScriptView):
             )
 
             return redirect('extras:script_result', job_pk=job.pk)
+        else:
+            messages.error(
+                request,
+                '; '.join(f"{field}: {', '.join(errors)}" for field, errors in form.errors.items())
+            )
 
         return render(request, 'extras/script.html', {
             'object': script,
