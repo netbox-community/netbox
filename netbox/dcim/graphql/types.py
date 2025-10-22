@@ -11,6 +11,7 @@ from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType, NestedGroupObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType,
 )
+from users.graphql.mixins import OwnerMixin
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
 
@@ -87,7 +88,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentType(NetBoxObjectType):
+class ComponentType(OwnerMixin, NetBoxObjectType):
     """
     Base type for device/VM components
     """

@@ -7,6 +7,7 @@ from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType, NetBoxObjectType
+from users.graphql.mixins import OwnerMixin
 from virtualization import models
 from .filters import *
 
@@ -36,7 +37,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentType(NetBoxObjectType):
+class ComponentType(OwnerMixin, NetBoxObjectType):
     """
     Base type for device/VM components
     """
