@@ -1263,7 +1263,7 @@ class InventoryItemImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 # Device component roles
 #
 
-class InventoryItemRoleImportForm(NetBoxModelImportForm):
+class InventoryItemRoleImportForm(OrganizationalModelBulkImportForm):
     slug = SlugField()
 
     class Meta:

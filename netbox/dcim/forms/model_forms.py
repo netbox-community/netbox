@@ -307,7 +307,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
             )
 
 
-class RackReservationForm(TenancyForm, NetBoxModelForm):
+class RackReservationForm(TenancyForm, PrimaryModelForm):
     rack = DynamicModelChoiceField(
         label=_('Rack'),
         queryset=Rack.objects.all(),
