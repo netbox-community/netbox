@@ -168,3 +168,4 @@ class OwnerTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'description', 'groups', 'users',
         )
+        default_columns = ('pk', 'name', 'description', 'groups', 'users')
