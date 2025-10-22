@@ -12,8 +12,8 @@ from extras.models import ConfigTemplate
 from ipam.models import VRF, IPAddress
 from netbox.choices import *
 from netbox.forms import (
-    NestedGroupModelBulkImportForm, NetBoxModelImportForm, OrganizationalModelBulkImportForm, OwnerCSVMixin,
-    PrimaryModelBulkImportForm,
+    NestedGroupModelImportForm, NetBoxModelImportForm, OrganizationalModelImportForm, OwnerCSVMixin,
+    PrimaryModelImportForm,
 )
 from tenancy.models import Tenant
 from utilities.forms.fields import (
@@ -61,7 +61,7 @@ __all__ = (
 )
 
 
-class RegionImportForm(NestedGroupModelBulkImportForm):
+class RegionImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=Region.objects.all(),
@@ -75,7 +75,7 @@ class RegionImportForm(NestedGroupModelBulkImportForm):
         fields = ('name', 'slug', 'parent', 'description', 'owner', 'comments', 'tags')
 
 
-class SiteGroupImportForm(NestedGroupModelBulkImportForm):
+class SiteGroupImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=SiteGroup.objects.all(),
@@ -89,7 +89,7 @@ class SiteGroupImportForm(NestedGroupModelBulkImportForm):
         fields = ('name', 'slug', 'parent', 'description', 'owner', 'comments', 'tags')
 
 
-class SiteImportForm(PrimaryModelBulkImportForm):
+class SiteImportForm(PrimaryModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=SiteStatusChoices,
@@ -132,7 +132,7 @@ class SiteImportForm(PrimaryModelBulkImportForm):
         }
 
 
-class LocationImportForm(NestedGroupModelBulkImportForm):
+class LocationImportForm(NestedGroupModelImportForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -178,14 +178,14 @@ class LocationImportForm(NestedGroupModelBulkImportForm):
             self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
 
 
-class RackRoleImportForm(OrganizationalModelBulkImportForm):
+class RackRoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = RackRole
         fields = ('name', 'slug', 'color', 'description', 'owner', 'tags')
 
 
-class RackTypeImportForm(PrimaryModelBulkImportForm):
+class RackTypeImportForm(PrimaryModelImportForm):
     manufacturer = forms.ModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -233,7 +233,7 @@ class RackTypeImportForm(PrimaryModelBulkImportForm):
         super().__init__(data, *args, **kwargs)
 
 
-class RackImportForm(PrimaryModelBulkImportForm):
+class RackImportForm(PrimaryModelImportForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -335,7 +335,7 @@ class RackImportForm(PrimaryModelBulkImportForm):
                 raise forms.ValidationError(_("U height must be set if not specifying a rack type."))
 
 
-class RackReservationImportForm(PrimaryModelBulkImportForm):
+class RackReservationImportForm(PrimaryModelImportForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -395,14 +395,14 @@ class RackReservationImportForm(PrimaryModelBulkImportForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class ManufacturerImportForm(OrganizationalModelBulkImportForm):
+class ManufacturerImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = Manufacturer
         fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class DeviceTypeImportForm(PrimaryModelBulkImportForm):
+class DeviceTypeImportForm(PrimaryModelImportForm):
     manufacturer = CSVModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -437,7 +437,7 @@ class DeviceTypeImportForm(PrimaryModelBulkImportForm):
         ]
 
 
-class ModuleTypeProfileImportForm(PrimaryModelBulkImportForm):
+class ModuleTypeProfileImportForm(PrimaryModelImportForm):
 
     class Meta:
         model = ModuleTypeProfile
@@ -446,7 +446,7 @@ class ModuleTypeProfileImportForm(PrimaryModelBulkImportForm):
         ]
 
 
-class ModuleTypeImportForm(PrimaryModelBulkImportForm):
+class ModuleTypeImportForm(PrimaryModelImportForm):
     profile = forms.ModelChoiceField(
         label=_('Profile'),
         queryset=ModuleTypeProfile.objects.all(),
@@ -484,7 +484,7 @@ class ModuleTypeImportForm(PrimaryModelBulkImportForm):
         ]
 
 
-class DeviceRoleImportForm(NestedGroupModelBulkImportForm):
+class DeviceRoleImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=DeviceRole.objects.all(),
@@ -510,7 +510,7 @@ class DeviceRoleImportForm(NestedGroupModelBulkImportForm):
         )
 
 
-class PlatformImportForm(NestedGroupModelBulkImportForm):
+class PlatformImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=Platform.objects.all(),
@@ -543,7 +543,7 @@ class PlatformImportForm(NestedGroupModelBulkImportForm):
         )
 
 
-class BaseDeviceImportForm(PrimaryModelBulkImportForm):
+class BaseDeviceImportForm(PrimaryModelImportForm):
     role = CSVModelChoiceField(
         label=_('Device role'),
         queryset=DeviceRole.objects.all(),
@@ -717,7 +717,7 @@ class DeviceImportForm(BaseDeviceImportForm):
             self.instance.parent_bay = device_bay
 
 
-class ModuleImportForm(ModuleCommonForm, PrimaryModelBulkImportForm):
+class ModuleImportForm(ModuleCommonForm, PrimaryModelImportForm):
     device = CSVModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1263,7 +1263,7 @@ class InventoryItemImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 # Device component roles
 #
 
-class InventoryItemRoleImportForm(OrganizationalModelBulkImportForm):
+class InventoryItemRoleImportForm(OrganizationalModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -1275,7 +1275,7 @@ class InventoryItemRoleImportForm(OrganizationalModelBulkImportForm):
 # Addressing
 #
 
-class MACAddressImportForm(PrimaryModelBulkImportForm):
+class MACAddressImportForm(PrimaryModelImportForm):
     device = CSVModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1360,7 +1360,7 @@ class MACAddressImportForm(PrimaryModelBulkImportForm):
 # Cables
 #
 
-class CableImportForm(PrimaryModelBulkImportForm):
+class CableImportForm(PrimaryModelImportForm):
     # Termination A
     side_a_site = CSVModelChoiceField(
         label=_('Side A site'),
@@ -1543,7 +1543,7 @@ class CableImportForm(PrimaryModelBulkImportForm):
 #
 
 
-class VirtualChassisImportForm(PrimaryModelBulkImportForm):
+class VirtualChassisImportForm(PrimaryModelImportForm):
     master = CSVModelChoiceField(
         label=_('Master'),
         queryset=Device.objects.all(),
@@ -1561,7 +1561,7 @@ class VirtualChassisImportForm(PrimaryModelBulkImportForm):
 # Power
 #
 
-class PowerPanelImportForm(PrimaryModelBulkImportForm):
+class PowerPanelImportForm(PrimaryModelImportForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -1589,7 +1589,7 @@ class PowerPanelImportForm(PrimaryModelBulkImportForm):
             self.fields['location'].queryset = self.fields['location'].queryset.filter(**params)
 
 
-class PowerFeedImportForm(PrimaryModelBulkImportForm):
+class PowerFeedImportForm(PrimaryModelImportForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -1671,7 +1671,7 @@ class PowerFeedImportForm(PrimaryModelBulkImportForm):
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
 
-class VirtualDeviceContextImportForm(PrimaryModelBulkImportForm):
+class VirtualDeviceContextImportForm(PrimaryModelImportForm):
     device = CSVModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),

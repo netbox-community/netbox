@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, VLAN
-from netbox.forms import NetBoxModelImportForm, OrganizationalModelBulkImportForm, PrimaryModelBulkImportForm
+from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
 from virtualization.models import VirtualMachine, VMInterface
@@ -24,14 +24,14 @@ __all__ = (
 )
 
 
-class TunnelGroupImportForm(OrganizationalModelBulkImportForm):
+class TunnelGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = TunnelGroup
         fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class TunnelImportForm(PrimaryModelBulkImportForm):
+class TunnelImportForm(PrimaryModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=TunnelStatusChoices,
@@ -139,7 +139,7 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
         return super().save(*args, **kwargs)
 
 
-class IKEProposalImportForm(PrimaryModelBulkImportForm):
+class IKEProposalImportForm(PrimaryModelImportForm):
     authentication_method = CSVChoiceField(
         label=_('Authentication method'),
         choices=AuthenticationMethodChoices
@@ -166,7 +166,7 @@ class IKEProposalImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class IKEPolicyImportForm(PrimaryModelBulkImportForm):
+class IKEPolicyImportForm(PrimaryModelImportForm):
     version = CSVChoiceField(
         label=_('Version'),
         choices=IKEVersionChoices
@@ -189,7 +189,7 @@ class IKEPolicyImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class IPSecProposalImportForm(PrimaryModelBulkImportForm):
+class IPSecProposalImportForm(PrimaryModelImportForm):
     encryption_algorithm = CSVChoiceField(
         label=_('Encryption algorithm'),
         choices=EncryptionAlgorithmChoices,
@@ -209,7 +209,7 @@ class IPSecProposalImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class IPSecPolicyImportForm(PrimaryModelBulkImportForm):
+class IPSecPolicyImportForm(PrimaryModelImportForm):
     pfs_group = CSVChoiceField(
         label=_('Diffie-Hellman group for Perfect Forward Secrecy'),
         choices=DHGroupChoices,
@@ -228,7 +228,7 @@ class IPSecPolicyImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class IPSecProfileImportForm(PrimaryModelBulkImportForm):
+class IPSecProfileImportForm(PrimaryModelImportForm):
     mode = CSVChoiceField(
         label=_('Mode'),
         choices=IPSecModeChoices,
@@ -252,7 +252,7 @@ class IPSecProfileImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class L2VPNImportForm(PrimaryModelBulkImportForm):
+class L2VPNImportForm(PrimaryModelImportForm):
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),

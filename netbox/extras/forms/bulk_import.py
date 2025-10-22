@@ -9,7 +9,7 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
-from netbox.forms import NetBoxModelImportForm, OwnerCSVMixin, PrimaryModelBulkImportForm
+from netbox.forms import NetBoxModelImportForm, OwnerCSVMixin, PrimaryModelImportForm
 from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
@@ -150,7 +150,7 @@ class ExportTemplateImportForm(OwnerCSVMixin, CSVModelForm):
         )
 
 
-class ConfigContextProfileImportForm(PrimaryModelBulkImportForm):
+class ConfigContextProfileImportForm(PrimaryModelImportForm):
 
     class Meta:
         model = ConfigContextProfile

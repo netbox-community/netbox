@@ -7,7 +7,7 @@ from dcim.forms.mixins import ScopedImportForm
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
-from netbox.forms import NetBoxModelImportForm, OrganizationalModelBulkImportForm, PrimaryModelBulkImportForm
+from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField,
@@ -36,7 +36,7 @@ __all__ = (
 )
 
 
-class VRFImportForm(PrimaryModelBulkImportForm):
+class VRFImportForm(PrimaryModelImportForm):
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -65,7 +65,7 @@ class VRFImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class RouteTargetImportForm(PrimaryModelBulkImportForm):
+class RouteTargetImportForm(PrimaryModelImportForm):
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -79,7 +79,7 @@ class RouteTargetImportForm(PrimaryModelBulkImportForm):
         fields = ('name', 'tenant', 'description', 'owner', 'comments', 'tags')
 
 
-class RIRImportForm(OrganizationalModelBulkImportForm):
+class RIRImportForm(OrganizationalModelImportForm):
     slug = SlugField()
 
     class Meta:
@@ -87,7 +87,7 @@ class RIRImportForm(OrganizationalModelBulkImportForm):
         fields = ('name', 'slug', 'is_private', 'description', 'owner', 'tags')
 
 
-class AggregateImportForm(PrimaryModelBulkImportForm):
+class AggregateImportForm(PrimaryModelImportForm):
     rir = CSVModelChoiceField(
         label=_('RIR'),
         queryset=RIR.objects.all(),
@@ -107,7 +107,7 @@ class AggregateImportForm(PrimaryModelBulkImportForm):
         fields = ('prefix', 'rir', 'tenant', 'date_added', 'description', 'owner', 'comments', 'tags')
 
 
-class ASNRangeImportForm(OrganizationalModelBulkImportForm):
+class ASNRangeImportForm(OrganizationalModelImportForm):
     rir = CSVModelChoiceField(
         label=_('RIR'),
         queryset=RIR.objects.all(),
@@ -127,7 +127,7 @@ class ASNRangeImportForm(OrganizationalModelBulkImportForm):
         fields = ('name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'owner', 'tags')
 
 
-class ASNImportForm(PrimaryModelBulkImportForm):
+class ASNImportForm(PrimaryModelImportForm):
     rir = CSVModelChoiceField(
         label=_('RIR'),
         queryset=RIR.objects.all(),
@@ -147,14 +147,14 @@ class ASNImportForm(PrimaryModelBulkImportForm):
         fields = ('asn', 'rir', 'tenant', 'description', 'owner', 'comments', 'tags')
 
 
-class RoleImportForm(OrganizationalModelBulkImportForm):
+class RoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = Role
         fields = ('name', 'slug', 'weight', 'description', 'owner', 'tags')
 
 
-class PrefixImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
+class PrefixImportForm(ScopedImportForm, PrimaryModelImportForm):
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -243,7 +243,7 @@ class PrefixImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
         self.fields['vlan'].queryset = queryset
 
 
-class IPRangeImportForm(PrimaryModelBulkImportForm):
+class IPRangeImportForm(PrimaryModelImportForm):
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -279,7 +279,7 @@ class IPRangeImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class IPAddressImportForm(PrimaryModelBulkImportForm):
+class IPAddressImportForm(PrimaryModelImportForm):
     vrf = CSVModelChoiceField(
         label=_('VRF'),
         queryset=VRF.objects.all(),
@@ -427,7 +427,7 @@ class IPAddressImportForm(PrimaryModelBulkImportForm):
         return ipaddress
 
 
-class FHRPGroupImportForm(PrimaryModelBulkImportForm):
+class FHRPGroupImportForm(PrimaryModelImportForm):
     protocol = CSVChoiceField(
         label=_('Protocol'),
         choices=FHRPGroupProtocolChoices
@@ -443,7 +443,7 @@ class FHRPGroupImportForm(PrimaryModelBulkImportForm):
         fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'owner', 'comments', 'tags')
 
 
-class VLANGroupImportForm(OrganizationalModelBulkImportForm):
+class VLANGroupImportForm(OrganizationalModelImportForm):
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
@@ -468,7 +468,7 @@ class VLANGroupImportForm(OrganizationalModelBulkImportForm):
         }
 
 
-class VLANImportForm(PrimaryModelBulkImportForm):
+class VLANImportForm(PrimaryModelImportForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -524,7 +524,7 @@ class VLANImportForm(PrimaryModelBulkImportForm):
         )
 
 
-class VLANTranslationPolicyImportForm(PrimaryModelBulkImportForm):
+class VLANTranslationPolicyImportForm(PrimaryModelImportForm):
 
     class Meta:
         model = VLANTranslationPolicy
@@ -544,7 +544,7 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
         fields = ('policy', 'local_vid', 'remote_vid')
 
 
-class ServiceTemplateImportForm(PrimaryModelBulkImportForm):
+class ServiceTemplateImportForm(PrimaryModelImportForm):
     protocol = CSVChoiceField(
         label=_('Protocol'),
         choices=ServiceProtocolChoices,
@@ -556,7 +556,7 @@ class ServiceTemplateImportForm(PrimaryModelBulkImportForm):
         fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceImportForm(PrimaryModelBulkImportForm):
+class ServiceImportForm(PrimaryModelImportForm):
     parent_object_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,

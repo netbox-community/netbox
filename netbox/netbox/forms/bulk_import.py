@@ -9,11 +9,11 @@ from utilities.forms.fields import CSVModelMultipleChoiceField, CSVModelChoiceFi
 from .model_forms import NetBoxModelForm
 
 __all__ = (
-    'NestedGroupModelBulkImportForm',
+    'NestedGroupModelImportForm',
     'NetBoxModelImportForm',
-    'OrganizationalModelBulkImportForm',
+    'OrganizationalModelImportForm',
     'OwnerCSVMixin',
-    'PrimaryModelBulkImportForm'
+    'PrimaryModelImportForm'
 )
 
 
@@ -48,21 +48,21 @@ class OwnerCSVMixin(forms.Form):
     )
 
 
-class PrimaryModelBulkImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+class PrimaryModelImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     """
     Bulk import form for models which inherit from PrimaryModel.
     """
     pass
 
 
-class OrganizationalModelBulkImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+class OrganizationalModelImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     """
     Bulk import form for models which inherit from OrganizationalModel.
     """
     slug = SlugField()
 
 
-class NestedGroupModelBulkImportForm(OwnerCSVMixin, NetBoxModelImportForm):
+class NestedGroupModelImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     """
     Bulk import form for models which inherit from NestedGroupModel.
     """

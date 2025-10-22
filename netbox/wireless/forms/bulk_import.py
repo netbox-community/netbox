@@ -5,7 +5,7 @@ from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Device, Interface, Site
 from ipam.models import VLAN
 from netbox.choices import *
-from netbox.forms import NestedGroupModelBulkImportForm, PrimaryModelBulkImportForm
+from netbox.forms import NestedGroupModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField
 from wireless.choices import *
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupImportForm(NestedGroupModelBulkImportForm):
+class WirelessLANGroupImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=WirelessLANGroup.objects.all(),
@@ -32,7 +32,7 @@ class WirelessLANGroupImportForm(NestedGroupModelBulkImportForm):
         fields = ('name', 'slug', 'parent', 'description', 'owner', 'comments', 'tags')
 
 
-class WirelessLANImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
+class WirelessLANImportForm(ScopedImportForm, PrimaryModelImportForm):
     group = CSVModelChoiceField(
         label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
@@ -83,7 +83,7 @@ class WirelessLANImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
         }
 
 
-class WirelessLinkImportForm(PrimaryModelBulkImportForm):
+class WirelessLinkImportForm(PrimaryModelImportForm):
     # Termination A
     site_a = CSVModelChoiceField(
         label=_('Site A'),

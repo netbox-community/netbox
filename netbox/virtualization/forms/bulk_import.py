@@ -6,7 +6,7 @@ from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import (
-    NetBoxModelImportForm, OrganizationalModelBulkImportForm, OwnerCSVMixin, PrimaryModelBulkImportForm,
+    NetBoxModelImportForm, OrganizationalModelImportForm, OwnerCSVMixin, PrimaryModelImportForm,
 )
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField
@@ -23,21 +23,21 @@ __all__ = (
 )
 
 
-class ClusterTypeImportForm(OrganizationalModelBulkImportForm):
+class ClusterTypeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ClusterType
         fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class ClusterGroupImportForm(OrganizationalModelBulkImportForm):
+class ClusterGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ClusterGroup
         fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class ClusterImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
+class ClusterImportForm(ScopedImportForm, PrimaryModelImportForm):
     type = CSVModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -82,7 +82,7 @@ class ClusterImportForm(ScopedImportForm, PrimaryModelBulkImportForm):
         }
 
 
-class VirtualMachineImportForm(PrimaryModelBulkImportForm):
+class VirtualMachineImportForm(PrimaryModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=VirtualMachineStatusChoices,

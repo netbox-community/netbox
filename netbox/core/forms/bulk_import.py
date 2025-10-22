@@ -1,12 +1,12 @@
 from core.models import *
-from netbox.forms import PrimaryModelBulkImportForm
+from netbox.forms import PrimaryModelImportForm
 
 __all__ = (
     'DataSourceImportForm',
 )
 
 
-class DataSourceImportForm(PrimaryModelBulkImportForm):
+class DataSourceImportForm(PrimaryModelImportForm):
 
     class Meta:
         model = DataSource

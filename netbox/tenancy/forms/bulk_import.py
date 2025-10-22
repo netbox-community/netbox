@@ -3,8 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import (
-    NestedGroupModelBulkImportForm, NetBoxModelImportForm, OrganizationalModelBulkImportForm,
-    PrimaryModelBulkImportForm,
+    NestedGroupModelImportForm, NetBoxModelImportForm, OrganizationalModelImportForm,
+    PrimaryModelImportForm,
 )
 from tenancy.models import *
 from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
@@ -23,7 +23,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupImportForm(NestedGroupModelBulkImportForm):
+class TenantGroupImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=TenantGroup.objects.all(),
@@ -37,7 +37,7 @@ class TenantGroupImportForm(NestedGroupModelBulkImportForm):
         fields = ('name', 'slug', 'parent', 'description', 'owner', 'comments', 'tags')
 
 
-class TenantImportForm(PrimaryModelBulkImportForm):
+class TenantImportForm(PrimaryModelImportForm):
     slug = SlugField()
     group = CSVModelChoiceField(
         label=_('Group'),
@@ -56,7 +56,7 @@ class TenantImportForm(PrimaryModelBulkImportForm):
 # Contacts
 #
 
-class ContactGroupImportForm(NestedGroupModelBulkImportForm):
+class ContactGroupImportForm(NestedGroupModelImportForm):
     parent = CSVModelChoiceField(
         label=_('Parent'),
         queryset=ContactGroup.objects.all(),
@@ -70,14 +70,14 @@ class ContactGroupImportForm(NestedGroupModelBulkImportForm):
         fields = ('name', 'slug', 'parent', 'description', 'owner', 'comments', 'tags')
 
 
-class ContactRoleImportForm(OrganizationalModelBulkImportForm):
+class ContactRoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ContactRole
         fields = ('name', 'slug', 'description', 'owner', 'tags')
 
 
-class ContactImportForm(PrimaryModelBulkImportForm):
+class ContactImportForm(PrimaryModelImportForm):
     groups = CSVModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
