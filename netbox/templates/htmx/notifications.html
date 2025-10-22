@@ -1,4 +1,15 @@
 {% load i18n %}
+<div class="card-header px-2 py-1">
+  <h3 class="card-title flex-fill">Notifications</h3>
+  {% if notifications %}
+    <a href="#" hx-get="{% url 'extras:notification_dismiss_all' %}" hx-target="closest .notifications"
+       hx-confirm="{% blocktrans trimmed count count=unread_count %}Dismiss {{ count }} unread notification?{% plural %}Dismiss {{ count }} unread notifications?{% endblocktrans %}"
+       class="btn btn-2 text-danger" title="{% trans 'Dismiss all unread notifications' %}">
+      <i class="icon mdi mdi-delete-sweep-outline"></i>
+      {% trans "Dismiss all" %}
+    </a>
+  {% endif %}
+</div>
 <div class="list-group list-group-flush list-group-hoverable" style="min-width: 300px">
   {% for notification in notifications %}
     <div class="list-group-item p-2">
