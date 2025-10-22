@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class VirtualizationQueryOld:
+class VirtualizationQueryV1:
     cluster: ClusterType = strawberry_django.field()
     cluster_list: List[ClusterType] = strawberry_django.field()
 

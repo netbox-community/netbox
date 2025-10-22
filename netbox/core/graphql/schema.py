@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class CoreQueryOld:
+class CoreQueryV1:
     data_file: DataFileType = strawberry_django.field()
     data_file_list: List[DataFileType] = strawberry_django.field()
 

@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class CircuitsQueryOld:
+class CircuitsQueryV1:
     circuit: CircuitType = strawberry_django.field()
     circuit_list: List[CircuitType] = strawberry_django.field()
 

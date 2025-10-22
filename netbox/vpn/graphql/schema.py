@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class VPNQueryOld:
+class VPNQueryV1:
     ike_policy: IKEPolicyType = strawberry_django.field()
     ike_policy_list: List[IKEPolicyType] = strawberry_django.field()
 

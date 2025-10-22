@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class ExtrasQueryOld:
+class ExtrasQueryV1:
     config_context: ConfigContextType = strawberry_django.field()
     config_context_list: List[ConfigContextType] = strawberry_django.field()
 

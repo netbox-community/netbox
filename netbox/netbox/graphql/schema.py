@@ -4,17 +4,17 @@ from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.extensions import MaxAliasesLimiter
 from strawberry.schema.config import StrawberryConfig
 
-from circuits.graphql.schema import CircuitsQuery, CircuitsQueryOld
-from core.graphql.schema import CoreQuery, CoreQueryOld
-from dcim.graphql.schema import DCIMQuery, DCIMQueryOld
-from extras.graphql.schema import ExtrasQuery, ExtrasQueryOld
-from ipam.graphql.schema import IPAMQuery, IPAMQueryOld
+from circuits.graphql.schema import CircuitsQuery, CircuitsQueryV1
+from core.graphql.schema import CoreQuery, CoreQueryV1
+from dcim.graphql.schema import DCIMQuery, DCIMQueryV1
+from extras.graphql.schema import ExtrasQuery, ExtrasQueryV1
+from ipam.graphql.schema import IPAMQuery, IPAMQueryV1
 from netbox.registry import registry
-from tenancy.graphql.schema import TenancyQuery, TenancyQueryOld
-from users.graphql.schema import UsersQuery, UsersQueryOld
-from virtualization.graphql.schema import VirtualizationQuery, VirtualizationQueryOld
-from vpn.graphql.schema import VPNQuery, VPNQueryOld
-from wireless.graphql.schema import WirelessQuery, WirelessQueryOld
+from tenancy.graphql.schema import TenancyQuery, TenancyQueryV1
+from users.graphql.schema import UsersQuery, UsersQueryV1
+from virtualization.graphql.schema import VirtualizationQuery, VirtualizationQueryV1
+from vpn.graphql.schema import VPNQuery, VPNQueryV1
+from wireless.graphql.schema import WirelessQuery, WirelessQueryV1
 
 __all__ = (
     'Query',
@@ -27,16 +27,16 @@ __all__ = (
 
 @strawberry.type
 class QueryV1(
-    UsersQueryOld,
-    CircuitsQueryOld,
-    CoreQueryOld,
-    DCIMQueryOld,
-    ExtrasQueryOld,
-    IPAMQueryOld,
-    TenancyQueryOld,
-    VirtualizationQueryOld,
-    VPNQueryOld,
-    WirelessQueryOld,
+    UsersQueryV1,
+    CircuitsQueryV1,
+    CoreQueryV1,
+    DCIMQueryV1,
+    ExtrasQueryV1,
+    IPAMQueryV1,
+    TenancyQueryV1,
+    VirtualizationQueryV1,
+    VPNQueryV1,
+    WirelessQueryV1,
     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
 ):
     """Query class for GraphQL API v1"""

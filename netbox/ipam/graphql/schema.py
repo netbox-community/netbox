@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class IPAMQueryOld:
+class IPAMQueryV1:
     asn: ASNType = strawberry_django.field()
     asn_list: List[ASNType] = strawberry_django.field()
 

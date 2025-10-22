@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class WirelessQueryOld:
+class WirelessQueryV1:
     wireless_lan: WirelessLANType = strawberry_django.field()
     wireless_lan_list: List[WirelessLANType] = strawberry_django.field()
 

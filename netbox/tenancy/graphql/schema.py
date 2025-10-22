@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class TenancyQueryOld:
+class TenancyQueryV1:
     tenant: TenantType = strawberry_django.field()
     tenant_list: List[TenantType] = strawberry_django.field()
 

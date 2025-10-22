@@ -8,7 +8,7 @@ from .types import *
 
 
 @strawberry.type(name="Query")
-class UsersQueryOld:
+class UsersQueryV1:
     group: GroupType = strawberry_django.field()
     group_list: List[GroupType] = strawberry_django.field()
 
