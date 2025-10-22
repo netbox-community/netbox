@@ -12,11 +12,10 @@ from netbox.forms import (
     NestedGroupModelFilterSetForm, NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm,
     PrimaryModelFilterSetForm,
 )
-from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
-from users.models import User
+from users.models import Owner, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
-from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -64,7 +63,7 @@ __all__ = (
 )
 
 
-class DeviceComponentFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
+class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     name = forms.CharField(
         label=_('Name'),
         required=False
@@ -140,6 +139,11 @@ class DeviceComponentFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
         choices=DeviceStatusChoices,
         required=False,
         label=_('Device Status'),
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 

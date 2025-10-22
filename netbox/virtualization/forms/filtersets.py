@@ -7,10 +7,10 @@ from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import VRF, VLANTranslationPolicy
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
-from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
+from users.models import Owner
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from virtualization.choices import *
 from virtualization.models import *
@@ -200,7 +200,7 @@ class VirtualMachineFilterForm(
     tag = TagFilterField(model)
 
 
-class VMInterfaceFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
+class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -254,10 +254,15 @@ class VMInterfaceFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
         required=False,
         label=_('VLAN Translation Policy')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
     tag = TagFilterField(model)
 
 
-class VirtualDiskFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
+class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
     model = VirtualDisk
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -273,5 +278,10 @@ class VirtualDiskFilterForm(OwnerMixin, NetBoxModelFilterSetForm):
         label=_('Size (MB)'),
         required=False,
         min_value=1
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
     tag = TagFilterField(model)
