@@ -12,10 +12,11 @@ from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
     AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
-    OrganizationalModelFilterSet, PrimaryModelFilterSet,
+    OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from tenancy.models import *
+from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
@@ -1516,7 +1517,7 @@ class ModuleFilterSet(PrimaryModelFilterSet):
         ).distinct()
 
 
-class DeviceComponentFilterSet(PrimaryModelFilterSet):
+class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
