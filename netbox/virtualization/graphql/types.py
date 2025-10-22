@@ -6,7 +6,7 @@ import strawberry_django
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType, NetBoxObjectType
 from virtualization import models
 from .filters import *
 
@@ -36,7 +36,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentType(PrimaryObjectType):
+class ComponentType(NetBoxObjectType):
     """
     Base type for device/VM components
     """

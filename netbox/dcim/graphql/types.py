@@ -87,7 +87,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentType(PrimaryObjectType):
+class ComponentType(NetBoxObjectType):
     """
     Base type for device/VM components
     """
