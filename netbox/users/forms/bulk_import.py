@@ -3,11 +3,12 @@ from django.utils.translation import gettext as _
 from users.models import *
 from users.choices import TokenVersionChoices
 from utilities.forms import CSVModelForm
-from utilities.forms.fields import CSVModelMultipleChoiceField
+from utilities.forms.fields import CSVModelChoiceField, CSVModelMultipleChoiceField
 
 
 __all__ = (
     'GroupImportForm',
+    'OwnerGroupImportForm',
     'OwnerImportForm',
     'UserImportForm',
     'TokenImportForm',
@@ -54,8 +55,22 @@ class TokenImportForm(CSVModelForm):
         fields = ('user', 'version', 'token', 'write_enabled', 'expires', 'description',)
 
 
+class OwnerGroupImportForm(CSVModelForm):
+
+    class Meta:
+        model = OwnerGroup
+        fields = (
+            'name', 'description',
+        )
+
+
 class OwnerImportForm(CSVModelForm):
-    groups = CSVModelMultipleChoiceField(
+    group = CSVModelChoiceField(
+        queryset=OwnerGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+    )
+    user_groups = CSVModelMultipleChoiceField(
         queryset=Group.objects.all(),
         required=False,
         to_field_name='name',
@@ -69,5 +84,5 @@ class OwnerImportForm(CSVModelForm):
     class Meta:
         model = Owner
         fields = (
-            'name', 'description', 'groups', 'users',
+            'group', 'name', 'description', 'user_groups', 'users',
         )

@@ -7,16 +7,47 @@ from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'Owner',
+    'OwnerGroup',
 )
+
+
+class OwnerGroup(AdminModel):
+    """
+    An arbitrary grouping of Owners.
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+        unique=True,
+    )
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = _('owner group')
+        verbose_name_plural = _('owner groups')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('users:ownergroup', args=[self.pk])
 
 
 class Owner(AdminModel):
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=150,
+        max_length=100,
         unique=True,
     )
-    groups = models.ManyToManyField(
+    group = models.ForeignKey(
+        to='users.OwnerGroup',
+        on_delete=models.PROTECT,
+        related_name='members',
+        verbose_name=_('group'),
+        blank=True,
+        null=True,
+    )
+    user_groups = models.ManyToManyField(
         to='users.Group',
         verbose_name=_('groups'),
         blank=True,
@@ -32,7 +63,7 @@ class Owner(AdminModel):
     )
 
     objects = RestrictedQuerySet.as_manager()
-    clone_fields = ('groups', 'users')
+    clone_fields = ('user_groups', 'users')
 
     class Meta:
         ordering = ('name',)

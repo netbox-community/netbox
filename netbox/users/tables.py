@@ -2,11 +2,12 @@ import django_tables2 as tables
 from django.utils.translation import gettext as _
 
 from netbox.tables import NetBoxTable, columns
-from users.models import Group, ObjectPermission, Owner, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 
 __all__ = (
     'GroupTable',
     'ObjectPermissionTable',
+    'OwnerGroupTable',
     'OwnerTable',
     'TokenTable',
     'UserTable',
@@ -146,12 +147,33 @@ class ObjectPermissionTable(NetBoxTable):
         )
 
 
+class OwnerGroupTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = OwnerGroup
+        fields = (
+            'pk', 'id', 'name', 'description',
+        )
+        default_columns = ('pk', 'name', 'description')
+
+
 class OwnerTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
     )
-    groups = columns.ManyToManyColumn(
+    group = tables.Column(
+        verbose_name=_('Group'),
+        linkify=True,
+    )
+    user_groups = columns.ManyToManyColumn(
         verbose_name=_('Groups'),
         linkify_item=('users:group', {'pk': tables.A('pk')})
     )
@@ -166,6 +188,6 @@ class OwnerTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Owner
         fields = (
-            'pk', 'id', 'name', 'description', 'groups', 'users',
+            'pk', 'id', 'name', 'group', 'description', 'user_groups', 'users',
         )
-        default_columns = ('pk', 'name', 'description', 'groups', 'users')
+        default_columns = ('pk', 'name', 'group', 'description', 'user_groups', 'users')

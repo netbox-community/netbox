@@ -6,13 +6,14 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
-from users.models import Group, ObjectPermission, Owner, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.filters import ContentTypeFilter
 
 __all__ = (
     'GroupFilterSet',
     'ObjectPermissionFilterSet',
     'OwnerFilterSet',
+    'OwnerGroupFilterSet',
     'TokenFilterSet',
     'UserFilterSet',
 )
@@ -246,21 +247,50 @@ class ObjectPermissionFilterSet(BaseFilterSet):
             return queryset.exclude(actions__contains=[action])
 
 
+class OwnerGroupFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = OwnerGroup
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
 class OwnerFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='groups',
-        queryset=Group.objects.all(),
+        queryset=OwnerGroup.objects.all(),
         label=_('Group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
-        field_name='groups__name',
-        queryset=Group.objects.all(),
+        field_name='group__name',
+        queryset=OwnerGroup.objects.all(),
         to_field_name='name',
         label=_('Group (name)'),
+    )
+    user_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='user_groups',
+        queryset=Group.objects.all(),
+        label=_('User group (ID)'),
+    )
+    user_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='user_groups__name',
+        queryset=Group.objects.all(),
+        to_field_name='name',
+        label=_('User group (name)'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',

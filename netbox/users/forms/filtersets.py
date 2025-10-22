@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from users.choices import TokenVersionChoices
-from users.models import Group, ObjectPermission, Owner, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
@@ -15,6 +15,7 @@ __all__ = (
     'GroupFilterForm',
     'ObjectPermissionFilterForm',
     'OwnerFilterForm',
+    'OwnerGroupFilterForm',
     'TokenFilterForm',
     'UserFilterForm',
 )
@@ -143,19 +144,32 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
+class OwnerGroupFilterForm(NetBoxModelFilterSetForm):
+    model = OwnerGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id',),
+    )
+
+
 class OwnerFilterForm(NetBoxModelFilterSetForm):
     model = Owner
     fieldsets = (
         FieldSet('q', 'filter_id',),
-        FieldSet('group_id', 'user_id', name=_('Members')),
+        FieldSet('group_id', name=_('Group')),
+        FieldSet('user_group_id', 'user_id', name=_('Membership')),
     )
     group_id = DynamicModelMultipleChoiceField(
-        queryset=Group.objects.all(),
+        queryset=OwnerGroup.objects.all(),
         required=False,
         label=_('Group')
+    )
+    user_group_id = DynamicModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        required=False,
+        label=_('Groups')
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
-        label=_('User')
+        label=_('Users')
     )

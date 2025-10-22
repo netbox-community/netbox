@@ -1,6 +1,15 @@
 {% extends 'generic/object.html' %}
 {% load i18n %}
 
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.group %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:owner_list' %}?group_id={{ object.group_id }}">{{ object.group }}</a>
+    </li>
+  {% endif %}
+{% endblock %}
+
 {% block subtitle %}{% endblock %}
 
 {% block content %}
@@ -14,6 +23,10 @@
             <td>{{ object.name }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Group" %}</th>
+            <td>{{ object.group|linkify|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
@@ -22,7 +35,7 @@
       <div class="card">
         <h2 class="card-header">{% trans "Groups" %}</h2>
         <div class="list-group list-group-flush">
-          {% for group in object.groups.all %}
+          {% for group in object.user_groups.all %}
             <a href="{% url 'users:group' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>
