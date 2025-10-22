@@ -4,7 +4,7 @@ from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from netbox.views import generic
-from utilities.views import register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import Group, User, ObjectPermission, Owner, Token
 
@@ -246,9 +246,18 @@ class OwnerListView(generic.ObjectListView):
 
 
 @register_model_view(Owner)
-class OwnerView(generic.ObjectView):
+class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Owner.objects.all()
     template_name = 'users/owner.html'
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(Group, User),
+            ),
+        }
 
 
 @register_model_view(Owner, 'add', detail=False)

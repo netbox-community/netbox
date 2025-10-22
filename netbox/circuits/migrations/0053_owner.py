@@ -13,56 +13,56 @@ class Migration(migrations.Migration):
             model_name='circuit',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='circuitgroup',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='circuittype',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='provider',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='provideraccount',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='providernetwork',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='virtualcircuit',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='virtualcircuittype',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
     ]

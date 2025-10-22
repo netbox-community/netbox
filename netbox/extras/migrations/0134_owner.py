@@ -13,77 +13,77 @@ class Migration(migrations.Migration):
             model_name='configcontext',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='configcontextprofile',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='configtemplate',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='customfield',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='customfieldchoiceset',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='customlink',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='eventrule',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='exporttemplate',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='savedfilter',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='tag',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='webhook',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
     ]

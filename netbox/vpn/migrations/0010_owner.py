@@ -13,56 +13,56 @@ class Migration(migrations.Migration):
             model_name='ikepolicy',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='ikeproposal',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='ipsecpolicy',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='ipsecprofile',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='ipsecproposal',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='l2vpn',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='tunnel',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='tunnelgroup',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
     ]

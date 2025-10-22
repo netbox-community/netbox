@@ -19,8 +19,6 @@
           </tr>
         </table>
       </div>
-    </div>
-    <div class="col-md-6">
       <div class="card">
         <h2 class="card-header">{% trans "Groups" %}</h2>
         <div class="list-group list-group-flush">
@@ -41,6 +39,9 @@
           {% endfor %}
         </div>
       </div>
+    </div>
+    <div class="col-md-6">
+      {% include 'inc/panels/related_objects.html' with filter_name='owner_id' %}
     </div>
   </div>
 {% endblock %}

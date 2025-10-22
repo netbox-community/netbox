@@ -13,21 +13,21 @@ class Migration(migrations.Migration):
             model_name='wirelesslan',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='wirelesslangroup',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='wirelesslink',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
     ]

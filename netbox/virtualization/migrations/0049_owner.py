@@ -13,42 +13,42 @@ class Migration(migrations.Migration):
             model_name='cluster',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='clustergroup',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='clustertype',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='virtualdisk',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='virtualmachine',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
         migrations.AddField(
             model_name='vminterface',
             name='owner',
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='+', to='users.owner'
+                blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='users.owner'
             ),
         ),
     ]
