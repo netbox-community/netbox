@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
 from dcim import models
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, WEIGHT
 
@@ -26,7 +26,7 @@ __all__ = (
 # Manufacturers
 #
 
-class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
+class ManufacturerTable(ContactsColumnMixin, OrganizationalModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -60,7 +60,7 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
         url_name='dcim:manufacturer_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(OrganizationalModelTable.Meta):
         model = models.Manufacturer
         fields = (
             'pk', 'id', 'name', 'racktype_count', 'devicetype_count', 'moduletype_count', 'inventoryitem_count',
@@ -76,7 +76,7 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
 # Device types
 #
 
-class DeviceTypeTable(NetBoxTable):
+class DeviceTypeTable(PrimaryModelTable):
     model = tables.Column(
         linkify=True,
         verbose_name=_('Device Type')
@@ -92,9 +92,6 @@ class DeviceTypeTable(NetBoxTable):
     is_full_depth = columns.BooleanColumn(
         verbose_name=_('Full Depth'),
         false_mark=None
-    )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
     )
     tags = columns.TagColumn(
         url_name='dcim:devicetype_list'
@@ -148,7 +145,7 @@ class DeviceTypeTable(NetBoxTable):
         verbose_name=_('Inventory Items')
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = models.DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',

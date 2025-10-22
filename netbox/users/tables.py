@@ -156,7 +156,7 @@ class OwnerTable(NetBoxTable):
         linkify_item=('users:group', {'pk': tables.A('pk')})
     )
     users = columns.ManyToManyColumn(
-        verbose_name=_('Groups'),
+        verbose_name=_('Users'),
         linkify_item=('users:user', {'pk': tables.A('pk')})
     )
     actions = columns.ActionsColumn(

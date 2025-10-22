@@ -45,6 +45,12 @@ from netbox.graphql.types import (
     PrimaryObjectType,
 )
 from netbox.models import NestedGroupModel, NetBoxModel, OrganizationalModel, PrimaryModel
+from netbox.tables import (
+    NestedGroupModelTable,
+    NetBoxTable,
+    OrganizationalModelTable,
+    PrimaryModelTable,
+)
 
 
 class FormClassesTestCase(TestCase):
@@ -196,6 +202,50 @@ class FilterSetClassesTestCase(TestCase):
                 self.assertTrue(
                     issubclass(filterset, base_class),
                     f"{filterset} does not inherit from {base_class}",
+                )
+
+
+class TableClassesTestCase(TestCase):
+
+    @staticmethod
+    def get_table_for_model(model):
+        """
+        Import and return the table class for a given model.
+        """
+        app_label = model._meta.app_label
+        model_name = model.__name__
+        return import_string(f'{app_label}.tables.{model_name}Table')
+
+    @staticmethod
+    def get_model_table_base_class(model):
+        """
+        Return the base table class for the given model.
+        """
+        if model._meta.app_label == 'dummy_plugin':
+            return
+        if issubclass(model, PrimaryModel):
+            return PrimaryModelTable
+        if issubclass(model, OrganizationalModel):
+            return OrganizationalModelTable
+        if issubclass(model, NestedGroupModel):
+            return NestedGroupModelTable
+        if issubclass(model, NetBoxModel):
+            return NetBoxTable
+
+    def test_model_table_base_classes(self):
+        """
+        Check that each table inherits from the appropriate base class.
+        """
+        for model in apps.get_models():
+            if base_class := self.get_model_table_base_class(model):
+                table = self.get_table_for_model(model)
+                self.assertTrue(
+                    issubclass(table, base_class),
+                    f"{table} does not inherit from {base_class}",
+                )
+                self.assertTrue(
+                    issubclass(table.Meta, base_class.Meta),
+                    f"{table}.Meta does not inherit from {base_class}.Meta",
                 )
 
 
