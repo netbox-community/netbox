@@ -126,7 +126,7 @@ class OwnerMixin(forms.Form):
     """
     Add an `owner` field to forms for models which support Owner assignment.
     """
-    owner = DynamicModelChoiceField(
+    owner_id = DynamicModelChoiceField(
         queryset=Owner.objects.all(),
         required=False,
         label=_('Owner'),
