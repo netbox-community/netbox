@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 
 from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
-from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
@@ -590,7 +590,7 @@ class TaggedItemFilterSet(BaseFilterSet):
         )
 
 
-class ConfigContextProfileFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
+class ConfigContextProfileFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),

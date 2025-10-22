@@ -951,7 +951,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
         return queryset.filter(qs_filter)
 
 
-class DeviceRoleFilterSet(OrganizationalModelFilterSet):
+class DeviceRoleFilterSet(NestedGroupModelFilterSet):
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
@@ -985,7 +985,7 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'vm_role', 'description')
 
 
-class PlatformFilterSet(OrganizationalModelFilterSet):
+class PlatformFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
         label=_('Immediate parent platform (ID)'),
