@@ -36,12 +36,6 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['bulk_import']),
             ),
         ),
-        MenuGroup(
-            label=_('Ownership'),
-            items=(
-                get_model_item('users', 'owner', _('Owners')),
-            ),
-        ),
     ),
 )
 
@@ -469,6 +463,12 @@ ADMIN_MENU = Menu(
                     permissions=['users.view_objectpermission'],
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
                 ),
+            ),
+        ),
+        MenuGroup(
+            label=_('Ownership'),
+            items=(
+                get_model_item('users', 'owner', _('Owners')),
             ),
         ),
         MenuGroup(
