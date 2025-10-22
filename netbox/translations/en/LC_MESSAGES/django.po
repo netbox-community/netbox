@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-21 05:03+0000\n"
+"POT-Creation-Date: 2025-10-22 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4162,7 +4162,7 @@ msgstr ""
 #: netbox/templates/circuits/inc/circuit_termination.html:32
 #: netbox/templates/generic/bulk_edit.html:65
 #: netbox/templates/inc/panels/tags.html:5
-#: netbox/utilities/forms/fields/fields.py:83
+#: netbox/utilities/forms/fields/fields.py:91
 msgid "Tags"
 msgstr ""
 
@@ -16033,11 +16033,11 @@ msgstr ""
 msgid "URL-friendly unique shorthand"
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:106
+#: netbox/utilities/forms/fields/fields.py:114
 msgid "Enter context data in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
 
-#: netbox/utilities/forms/fields/fields.py:127
+#: netbox/utilities/forms/fields/fields.py:135
 msgid "MAC address must be in EUI-48 format"
 msgstr ""
 
