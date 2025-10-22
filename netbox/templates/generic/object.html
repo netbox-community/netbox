@@ -55,6 +55,10 @@ Context:
 
 {% block subtitle %}
   <div class="text-secondary fs-5">
+    {% if object.owner %}
+      {{ object.owner|linkify }}
+      <span class="separator">&middot;</span>
+    {% endif %}
     {% trans "Created" %} {{ object.created|isodatetime:"minutes" }}
     {% if object.last_updated %}
       <span class="separator">&middot;</span>
