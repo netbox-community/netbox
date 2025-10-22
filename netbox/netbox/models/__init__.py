@@ -11,10 +11,9 @@ from netbox.models.features import *
 from netbox.models.mixins import OwnerMixin
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
-from utilities.views import get_viewname
-
 
 __all__ = (
+    'AdminModel',
     'ChangeLoggedModel',
     'NestedGroupModel',
     'NetBoxModel',
@@ -44,6 +43,7 @@ class NetBoxFeatureSet(
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
     def get_absolute_url(self):
+        from utilities.views import get_viewname
         return reverse(get_viewname(self), args=[self.pk])
 
 
@@ -222,3 +222,26 @@ class OrganizationalModel(OwnerMixin, NetBoxModel):
 
     def __str__(self):
         return self.name
+
+
+class AdminModel(
+    BookmarksMixin,
+    CloningMixin,
+    CustomLinksMixin,
+    CustomValidationMixin,
+    EventRulesMixin,
+    ExportTemplatesMixin,
+    NotificationsMixin,
+    BaseModel,
+):
+    """
+    A model which represents an administrative resource.
+    """
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
+
+    class Meta:
+        abstract = True

@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from netbox.models import AdminModel
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -9,16 +10,11 @@ __all__ = (
 )
 
 
-class Owner(models.Model):
+class Owner(AdminModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=150,
         unique=True,
-    )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True
     )
     groups = models.ManyToManyField(
         to='users.Group',
@@ -36,6 +32,7 @@ class Owner(models.Model):
     )
 
     objects = RestrictedQuerySet.as_manager()
+    clone_fields = ('groups', 'users')
 
     class Meta:
         ordering = ('name',)
