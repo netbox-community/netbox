@@ -462,6 +462,16 @@ class OwnerForm(forms.ModelForm):
         selector=True,
         quick_add=True
     )
+    user_groups = DynamicModelMultipleChoiceField(
+        label=_('User groups'),
+        queryset=Group.objects.all(),
+        required=False
+    )
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        queryset=User.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = Owner
