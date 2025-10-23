@@ -34,8 +34,11 @@
         {% render_field vc_form.tags %}
       </div>
 
-      <div class="field-group my-5">
-        {% render_field vc_form.comments %}
+      <div class="field-group mb-5">
+        <div class="row">
+          <h2 class="col-9 offset-3">{% trans "Owner" %}</h2>
+        </div>
+        {% render_field vc_form.owner %}
       </div>
 
       {% if vc_form.custom_fields %}
@@ -46,6 +49,10 @@
           {% render_custom_fields vc_form %}
         </div>
       {% endif %}
+
+      <div class="field-group my-5">
+        {% render_field vc_form.comments %}
+      </div>
 
       <div class="field-group mb-5">
         <h2 class="text-center">{% trans "Members" %}</h2>
