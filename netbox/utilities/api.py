@@ -72,7 +72,7 @@ def get_view_name(view):
     Derive the view name from its associated model, if it has one. Fall back to DRF's built-in `get_view_name()`.
     This function is provided to DRF as its VIEW_NAME_FUNCTION.
     """
-    if hasattr(view, 'queryset'):
+    if hasattr(view, 'queryset') and view.queryset is not None:
         # Derive the model name from the queryset.
         name = title(view.queryset.model._meta.verbose_name)
         if suffix := getattr(view, 'suffix', None):
