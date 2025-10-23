@@ -255,3 +255,108 @@ class TokenTestCase(
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+
+class OwnerGroupTestCase(ViewTestCases.AdminModelViewTestCase):
+    model = OwnerGroup
+
+    @classmethod
+    def setUpTestData(cls):
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1'),
+            OwnerGroup(name='Owner Group 2'),
+            OwnerGroup(name='Owner Group 3'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+        cls.form_data = {
+            'name': 'Owner Group X',
+            'description': 'A new owner group',
+        }
+
+        cls.csv_data = (
+            "name,description",
+            "Owner Group 4,Foo",
+            "Owner Group 5,Bar",
+            "Owner Group 6,Baz",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{owner_groups[0].pk},Foo",
+            f"{owner_groups[1].pk},Bar",
+            f"{owner_groups[2].pk},Baz",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
+class OwnerTestCase(ViewTestCases.AdminModelViewTestCase):
+    model = Owner
+
+    @classmethod
+    def setUpTestData(cls):
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1'),
+            OwnerGroup(name='Owner Group 2'),
+            OwnerGroup(name='Owner Group 3'),
+            OwnerGroup(name='Owner Group 4'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+        owners = (
+            Owner(name='Owner 1'),
+            Owner(name='Owner 2'),
+            Owner(name='Owner 3'),
+        )
+        Owner.objects.bulk_create(owners)
+
+        # Assign users and groups to owners
+        owners[0].user_groups.add(groups[0])
+        owners[1].user_groups.add(groups[1])
+        owners[2].user_groups.add(groups[2])
+        owners[0].users.add(users[0])
+        owners[1].users.add(users[1])
+        owners[2].users.add(users[2])
+
+        cls.form_data = {
+            'name': 'Owner X',
+            'group': owner_groups[3].pk,
+            'user_groups': [groups[0].pk, groups[1].pk],
+            'users': [users[0].pk, users[1].pk],
+            'description': 'A new owner',
+        }
+
+        cls.csv_data = (
+            "name,group,description",
+            "Owner 4,Owner Group 4,Foo",
+            "Owner 5,Owner Group 4,Bar",
+            "Owner 6,Owner Group 4,Baz",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{owners[0].pk},Foo",
+            f"{owners[1].pk},Bar",
+            f"{owners[2].pk},Baz",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }

@@ -53,4 +53,4 @@ class OwnerGroupType(BaseObjectType):
     pagination=True
 )
 class OwnerType(BaseObjectType):
-    group: OwnerGroupType
+    group: OwnerGroupType | None
