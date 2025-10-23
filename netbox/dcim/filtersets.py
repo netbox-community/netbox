@@ -1288,7 +1288,6 @@ class DeviceFilterSet(
             Q(name__icontains=value) |
             Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
-            Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(description__icontains=value.strip()) |
             Q(comments__icontains=value) |
