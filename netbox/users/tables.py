@@ -152,6 +152,11 @@ class OwnerGroupTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    owner_count = columns.LinkedCountColumn(
+        viewname='users:owner_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Owners')
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -161,7 +166,7 @@ class OwnerGroupTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'description',
         )
-        default_columns = ('pk', 'name', 'description')
+        default_columns = ('pk', 'name', 'owner_count', 'description')
 
 
 class OwnerTable(NetBoxTable):

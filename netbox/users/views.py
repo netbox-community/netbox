@@ -4,6 +4,7 @@ from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from netbox.views import generic
+from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import Group, User, ObjectPermission, Owner, OwnerGroup, Token
@@ -239,7 +240,9 @@ class ObjectPermissionBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(OwnerGroup, 'list', path='', detail=False)
 class OwnerGroupListView(generic.ObjectListView):
-    queryset = OwnerGroup.objects.all()
+    queryset = OwnerGroup.objects.annotate(
+       owner_count=count_related(Owner, 'group')
+    )
     filterset = filtersets.OwnerGroupFilterSet
     filterset_form = forms.OwnerGroupFilterForm
     table = tables.OwnerGroupTable
