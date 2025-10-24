@@ -967,6 +967,18 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
+    def test_cannot_cable_to_mark_connected(self):
+        """
+        Test that a cable cannot be connected to an interface marked as connected.
+        """
+        device1 = Device.objects.get(name='TestDevice1')
+        interface1 = Interface.objects.get(device__name='TestDevice2', name='eth1')
+
+        mark_connected_interface = Interface(device=device1, name='mark_connected1', mark_connected=True)
+        cable = Cable(a_terminations=[mark_connected_interface], b_terminations=[interface1])
+        with self.assertRaises(ValidationError):
+            cable.clean()
+
 
 class VirtualDeviceContextTestCase(TestCase):
 
