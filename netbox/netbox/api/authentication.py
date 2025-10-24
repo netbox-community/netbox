@@ -164,6 +164,20 @@ class TokenPermissions(DjangoObjectPermissions):
         return super().has_object_permission(request, view, obj)
 
 
+class TokenWritePermission(BasePermission):
+    """
+    Verify the token has write_enabled for unsafe methods, without requiring specific model permissions.
+    Used for custom actions that accept user data but don't map to standard CRUD operations.
+    """
+
+    def has_permission(self, request, view):
+        if not isinstance(request.auth, Token):
+            raise exceptions.PermissionDenied(
+                "TokenWritePermission requires token authentication."
+            )
+        return bool(request.method in SAFE_METHODS or request.auth.write_enabled)
+
+
 class IsAuthenticatedOrLoginNotRequired(BasePermission):
     """
     Returns True if the user is authenticated or LOGIN_REQUIRED is False.
