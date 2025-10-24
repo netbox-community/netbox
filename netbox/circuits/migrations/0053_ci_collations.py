@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('circuits', '0052_extend_circuit_abs_distance_upper_limit'),
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
     ]
 
     operations = [

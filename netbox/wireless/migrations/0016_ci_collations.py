@@ -14,7 +14,7 @@ def remove_indexes(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
         ('wireless', '0015_extend_wireless_link_abs_distance_upper_limit'),
     ]
 

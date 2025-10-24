@@ -22,7 +22,7 @@ def remove_indexes(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
         ('vpn', '0009_remove_redundant_indexes'),
     ]
 

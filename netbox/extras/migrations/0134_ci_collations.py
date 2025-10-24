@@ -26,7 +26,7 @@ def remove_indexes(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('extras', '0133_make_cf_minmax_decimal'),
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
     ]
 
     operations = [

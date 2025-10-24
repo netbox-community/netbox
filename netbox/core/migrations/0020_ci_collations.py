@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('core', '0019_configrevision_active'),
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
     ]
 
     operations = [

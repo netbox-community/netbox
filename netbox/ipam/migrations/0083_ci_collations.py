@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('ipam', '0082_add_prefix_network_containment_indexes'),
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
     ]
 
     operations = [

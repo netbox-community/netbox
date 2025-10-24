@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('tenancy', '0020_remove_contactgroupmembership'),
-        ('dcim', '0216_ci_collations'),
+        ('dcim', '0217_ci_collations'),
     ]
 
     operations = [
