@@ -677,6 +677,7 @@ class PowerOutletTypeV1(ModularComponentTypeV1, CabledObjectMixinV1, PathEndpoin
 )
 class PowerOutletTemplateTypeV1(ModularComponentTemplateTypeV1):
     power_port: Annotated["PowerPortTemplateTypeV1", strawberry.lazy('dcim.graphql.types_v1')] | None
+    color: str
 
 
 @strawberry_django.type(
