@@ -84,15 +84,19 @@ class ObjectPermissionTable(NetBoxTable):
     )
     can_view = columns.BooleanColumn(
         verbose_name=_('Can View'),
+        orderable=False,
     )
     can_add = columns.BooleanColumn(
         verbose_name=_('Can Add'),
+        orderable=False,
     )
     can_change = columns.BooleanColumn(
         verbose_name=_('Can Change'),
+        orderable=False,
     )
     can_delete = columns.BooleanColumn(
         verbose_name=_('Can Delete'),
+        orderable=False,
     )
     custom_actions = columns.ArrayColumn(
         verbose_name=_('Custom Actions'),
