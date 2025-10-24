@@ -32,7 +32,7 @@ class Tunnel(ContactsMixin, PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     status = models.CharField(
         verbose_name=_('status'),

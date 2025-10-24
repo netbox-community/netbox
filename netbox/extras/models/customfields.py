@@ -95,6 +95,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         verbose_name=_('name'),
         max_length=50,
         unique=True,
+        db_collation='ci_natural_sort',
         help_text=_('Internal field name'),
         validators=(
             RegexValidator(
@@ -780,7 +781,8 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
     """
     name = models.CharField(
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     description = models.CharField(
         max_length=200,

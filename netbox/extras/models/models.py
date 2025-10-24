@@ -60,7 +60,8 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
     name = models.CharField(
         verbose_name=_('name'),
         max_length=150,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     description = models.CharField(
         verbose_name=_('description'),
@@ -165,7 +166,8 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
     name = models.CharField(
         verbose_name=_('name'),
         max_length=150,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     description = models.CharField(
         verbose_name=_('description'),
@@ -308,7 +310,8 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMod
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),
@@ -476,12 +479,14 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='case_insensitive',
     )
     description = models.CharField(
         verbose_name=_('description'),

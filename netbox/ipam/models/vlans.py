@@ -37,11 +37,12 @@ class VLANGroup(OrganizationalModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
-        max_length=100
+        max_length=100,
+        db_collation='case_insensitive',
     )
     scope_type = models.ForeignKey(
         to='contenttypes.ContentType',
@@ -214,7 +215,8 @@ class VLAN(PrimaryModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=64
+        max_length=64,
+        db_collation='ci_natural_sort',
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -362,6 +364,7 @@ class VLANTranslationPolicy(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
+        db_collation='ci_natural_sort',
     )
 
     class Meta:

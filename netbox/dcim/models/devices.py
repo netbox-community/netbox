@@ -1,8 +1,7 @@
 import decimal
-import yaml
-
 from functools import cached_property
 
+import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -10,7 +9,6 @@ from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError, prefetch_related_objects
-from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -25,15 +23,14 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
-from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import WeightMixin
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module
-
 
 __all__ = (
     'Device',
@@ -83,11 +80,13 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
     model = models.CharField(
         verbose_name=_('model'),
-        max_length=100
+        max_length=100,
+        db_collation='case_insensitive',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
-        max_length=100
+        max_length=100,
+        db_collation='case_insensitive',
     )
     default_platform = models.ForeignKey(
         to='dcim.Platform',
@@ -525,7 +524,7 @@ class Device(
         max_length=64,
         blank=True,
         null=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     serial = models.CharField(
         max_length=50,
@@ -721,11 +720,11 @@ class Device(
         ordering = ('name', 'pk')  # Name may be null
         constraints = (
             models.UniqueConstraint(
-                Lower('name'), 'site', 'tenant',
+                'name', 'site', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_site_tenant'
             ),
             models.UniqueConstraint(
-                Lower('name'), 'site',
+                'name', 'site',
                 name='%(app_label)s_%(class)s_unique_name_site',
                 condition=Q(tenant__isnull=True),
                 violation_error_message=_("Device name must be unique per site.")
@@ -1119,7 +1118,7 @@ class VirtualChassis(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
-        db_collation="natural_sort"
+        db_collation='natural_sort',
     )
     domain = models.CharField(
         verbose_name=_('domain'),
@@ -1182,7 +1181,7 @@ class VirtualDeviceContext(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     status = models.CharField(
         verbose_name=_('status'),

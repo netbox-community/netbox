@@ -154,11 +154,13 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
     )
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        db_collation='ci_natural_sort',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
-        max_length=100
+        max_length=100,
+        db_collation='case_insensitive',
     )
     description = models.CharField(
         verbose_name=_('description'),
@@ -203,12 +205,14 @@ class OrganizationalModel(OwnerMixin, NetBoxModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='case_insensitive',
     )
     description = models.CharField(
         verbose_name=_('description'),

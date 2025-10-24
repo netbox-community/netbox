@@ -36,7 +36,8 @@ class ConfigContextProfile(SyncedDataMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     description = models.CharField(
         verbose_name=_('description'),
@@ -78,7 +79,8 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     profile = models.ForeignKey(
         to='extras.ConfigContextProfile',

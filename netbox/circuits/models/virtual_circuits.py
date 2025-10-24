@@ -34,9 +34,10 @@ class VirtualCircuit(PrimaryModel):
     A virtual connection between two or more endpoints, delivered across one or more physical circuits.
     """
     cid = models.CharField(
-        max_length=100,
         verbose_name=_('circuit ID'),
-        help_text=_('Unique circuit ID')
+        max_length=100,
+        db_collation='case_insensitive',
+        help_text=_('Unique circuit ID'),
     )
     provider_network = models.ForeignKey(
         to='circuits.ProviderNetwork',

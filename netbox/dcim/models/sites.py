@@ -142,13 +142,14 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        help_text=_("Full name of the site"),
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
+        help_text=_("Full name of the site")
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='case_insensitive',
     )
     status = models.CharField(
         verbose_name=_('status'),

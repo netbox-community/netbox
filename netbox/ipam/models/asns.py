@@ -18,12 +18,7 @@ class ASNRange(OrganizationalModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
-    )
-    slug = models.SlugField(
-        verbose_name=_('slug'),
-        max_length=100,
-        unique=True
+        db_collation='ci_natural_sort',
     )
     rir = models.ForeignKey(
         to='ipam.RIR',
