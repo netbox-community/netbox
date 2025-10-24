@@ -36,7 +36,7 @@ class WirelessLANFilter(
     PrimaryModelFilterMixin
 ):
     ssid: FilterLookup[str] | None = strawberry_django.filter_field()
-    status: Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')] | None = (
+    status: FilterLookup[Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     group: Annotated['WirelessLANGroupFilter', strawberry.lazy('wireless.graphql.filters')] | None = (
@@ -63,6 +63,6 @@ class WirelessLinkFilter(
     )
     interface_b_id: ID | None = strawberry_django.filter_field()
     ssid: FilterLookup[str] | None = strawberry_django.filter_field()
-    status: Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')] | None = (
+    status: FilterLookup[Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
