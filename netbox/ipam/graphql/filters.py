@@ -79,11 +79,27 @@ class ASNRangeFilter(TenancyFilterMixin, OrganizationalModelFilterMixin):
 
 @strawberry_django.filter_type(models.Aggregate, lookups=True)
 class AggregateFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
-    prefix: Annotated['PrefixFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
-    prefix_id: ID | None = strawberry_django.filter_field()
+    prefix: FilterLookup[str] | None = strawberry_django.filter_field()
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     rir_id: ID | None = strawberry_django.filter_field()
     date_added: DateFilterLookup[date] | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field()
+    def contains(self, value: list[str], prefix) -> Q:
+        """
+        Return aggregates whose `prefix` contains any of the supplied networks.
+        Mirrors PrefixFilter.contains but operates on the Aggregate.prefix field itself.
+        """
+        if not value:
+            return Q()
+        q = Q()
+        for subnet in value:
+            try:
+                query = str(netaddr.IPNetwork(subnet.strip()).cidr)
+            except (AddrFormatError, ValueError):
+                continue
+            q |= Q(**{f"{prefix}prefix__net_contains": query})
+        return q
 
 
 @strawberry_django.filter_type(models.FHRPGroup, lookups=True)
@@ -119,28 +135,28 @@ class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin)
     )
 
     @strawberry_django.filter_field()
-    def device_id(self, queryset, value: list[str], prefix) -> Q:
-        return self.filter_device('id', value)
+    def device_id(self, value: list[str], prefix) -> Q:
+        return self.filter_device('id', value, prefix)
 
     @strawberry_django.filter_field()
     def device(self, value: list[str], prefix) -> Q:
-        return self.filter_device('name', value)
+        return self.filter_device('name', value, prefix)
 
     @strawberry_django.filter_field()
     def virtual_machine_id(self, value: list[str], prefix) -> Q:
-        return Q(interface_id__in=VMInterface.objects.filter(virtual_machine_id__in=value))
+        return Q(**{f"{prefix}interface_id__in": VMInterface.objects.filter(virtual_machine_id__in=value)})
 
     @strawberry_django.filter_field()
     def virtual_machine(self, value: list[str], prefix) -> Q:
-        return Q(interface_id__in=VMInterface.objects.filter(virtual_machine__name__in=value))
+        return Q(**{f"{prefix}interface_id__in": VMInterface.objects.filter(virtual_machine__name__in=value)})
 
-    def filter_device(self, field, value) -> Q:
+    def filter_device(self, field, value, prefix) -> Q:
         """Helper to standardize logic for device and device_id filters"""
         devices = Device.objects.filter(**{f'{field}__in': value})
         interface_ids = []
         for device in devices:
             interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-        return Q(interface_id__in=interface_ids)
+        return Q(**{f"{prefix}interface_id__in": interface_ids})
 
 
 @strawberry_django.filter_type(models.IPAddress, lookups=True)
@@ -180,9 +196,9 @@ class IPAddressFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
         for subnet in value:
             try:
                 query = str(netaddr.IPNetwork(subnet.strip()).cidr)
-                q |= Q(address__net_host_contained=query)
             except (AddrFormatError, ValueError):
-                return Q()
+                continue
+            q |= Q(**{f"{prefix}address__net_host_contained": query})
         return q
 
     @strawberry_django.filter_field()
@@ -217,9 +233,14 @@ class IPRangeFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMi
         for subnet in value:
             try:
                 query = str(netaddr.IPNetwork(subnet.strip()).cidr)
-                q |= Q(start_address__net_host_contained=query, end_address__net_host_contained=query)
             except (AddrFormatError, ValueError):
-                return Q()
+                continue
+            q |= Q(
+                **{
+                    f"{prefix}start_address__net_host_contained": query,
+                    f"{prefix}end_address__net_host_contained": query,
+                }
+            )
         return q
 
     @strawberry_django.filter_field()
@@ -228,10 +249,17 @@ class IPRangeFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMi
             return Q()
         q = Q()
         for subnet in value:
-            net = netaddr.IPNetwork(subnet.strip())
+            try:
+                net = netaddr.IPNetwork(subnet.strip())
+                query_start = str(netaddr.IPAddress(net.first))
+                query_end = str(netaddr.IPAddress(net.last))
+            except (AddrFormatError, ValueError):
+                continue
             q |= Q(
-                start_address__host__inet__lte=str(netaddr.IPAddress(net.first)),
-                end_address__host__inet__gte=str(netaddr.IPAddress(net.last)),
+                **{
+                    f"{prefix}start_address__host__inet__lte": query_start,
+                    f"{prefix}end_address__host__inet__gte": query_end,
+                }
             )
         return q
 
@@ -257,8 +285,11 @@ class PrefixFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, Pr
             return Q()
         q = Q()
         for subnet in value:
-            query = str(netaddr.IPNetwork(subnet.strip()).cidr)
-            q |= Q(prefix__net_contains=query)
+            try:
+                query = str(netaddr.IPNetwork(subnet.strip()).cidr)
+            except (AddrFormatError, ValueError):
+                continue
+            q |= Q(**{f"{prefix}prefix__net_contains": query})
         return q
 
 
