@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0215_rackreservation_status'),
+        ('dcim', '0216_poweroutlettemplate_color'),
         ('users', '0015_owner'),
     ]
 
