@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
+from netbox.config import get_config
 from netbox.preferences import PREFERENCES
 from users.constants import *
 from users.models import *
@@ -64,8 +65,8 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
-            'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.htmx_navigation',
-            'ui.tables.striping',
+            'locale.language', 'ui.copilot_enabled', 'pagination.per_page', 'pagination.placement',
+            'ui.htmx_navigation', 'ui.tables.striping',
             name=_('User Interface')
         ),
         FieldSet('data_format', 'csv_delimiter', name=_('Miscellaneous')),
@@ -83,8 +84,7 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     def __init__(self, *args, instance=None, **kwargs):
 
         # Get initial data from UserConfig instance
-        initial_data = flatten_dict(instance.data)
-        kwargs['initial'] = initial_data
+        kwargs['initial'] = flatten_dict(instance.data)
 
         super().__init__(*args, instance=instance, **kwargs)
 
@@ -92,6 +92,10 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
         self.fields['pk'].choices = (
             (f'tables.{table_name}', '') for table_name in instance.data.get('tables', [])
         )
+
+        # Disable Copilot preference if it has been disabled globally
+        if not get_config().COPILOT_ENABLED:
+            self.fields['ui.copilot_enabled'].disabled = True
 
     def save(self, *args, **kwargs):
 
