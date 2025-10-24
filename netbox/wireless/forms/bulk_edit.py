@@ -5,10 +5,10 @@ from dcim.choices import LinkStatusChoices
 from dcim.forms.mixins import ScopedBulkEditForm
 from ipam.models import VLAN
 from netbox.choices import *
-from netbox.forms import NetBoxModelBulkEditForm
+from netbox.forms import NestedGroupModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.fields import DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
@@ -21,18 +21,12 @@ __all__ = (
 )
 
 
-class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
+class WirelessLANGroupBulkEditForm(NestedGroupModelBulkEditForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = WirelessLANGroup
     fieldsets = (
@@ -41,7 +35,7 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ('parent', 'description', 'comments')
 
 
-class WirelessLANBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
+class WirelessLANBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     status = forms.ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(WirelessLANStatusChoices),
@@ -81,12 +75,6 @@ class WirelessLANBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
         required=False,
         label=_('Pre-shared key')
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = WirelessLAN
     fieldsets = (
@@ -99,7 +87,7 @@ class WirelessLANBulkEditForm(ScopedBulkEditForm, NetBoxModelBulkEditForm):
     )
 
 
-class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
+class WirelessLinkBulkEditForm(PrimaryModelBulkEditForm):
     ssid = forms.CharField(
         max_length=SSID_MAX_LENGTH,
         required=False,
@@ -140,12 +128,6 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         initial=''
     )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
 
     model = WirelessLink
     fieldsets = (

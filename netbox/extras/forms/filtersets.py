@@ -6,13 +6,14 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
-from netbox.forms.base import NetBoxModelFilterSetForm
+from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
-from users.models import Group, User
+from users.models import Group, Owner, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
+    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
@@ -115,6 +116,11 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         label=_('Validation regex'),
         required=False
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
@@ -129,6 +135,11 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     )
     choice = forms.CharField(
         required=False
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 
@@ -160,6 +171,11 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     weight = forms.IntegerField(
         label=_('Weight'),
         required=False
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 
@@ -206,6 +222,11 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 
@@ -255,6 +276,11 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
         label=_('Weight'),
         required=False
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
@@ -290,7 +316,7 @@ class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
     )
     http_content_type = forms.CharField(
@@ -306,15 +332,18 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('HTTP method')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
     tag = TagFilterField(model)
 
 
 class EventRuleFilterForm(NetBoxModelFilterSetForm):
     model = EventRule
-    tag = TagFilterField(model)
-
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('object_type_id', 'event_type', 'action_type', 'enabled', name=_('Attributes')),
     )
     object_type_id = ContentTypeMultipleChoiceField(
@@ -339,6 +368,12 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
+    tag = TagFilterField(model)
 
 
 class TagFilterForm(SavedFiltersMixin, FilterForm):
@@ -353,9 +388,14 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Allowed object type')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
-class ConfigContextProfileFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
     model = ConfigContextProfile
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -470,6 +510,11 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Tags')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
@@ -511,6 +556,11 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 

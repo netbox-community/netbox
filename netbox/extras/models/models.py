@@ -25,6 +25,7 @@ from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin, has_feature
 )
+from netbox.models.mixins import OwnerMixin
 from utilities.html import clean_html
 from utilities.jinja2 import render_jinja2
 from utilities.querydict import dict_to_querydict
@@ -44,7 +45,7 @@ __all__ = (
 )
 
 
-class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, ChangeLoggedModel):
     """
     An EventRule defines an action to be taken automatically in response to a specific set of events, such as when a
     specific type of object is created, modified, or deleted. The action to be taken might entail transmitting a
@@ -155,7 +156,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
             return False
 
 
-class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
@@ -294,7 +295,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         return render_jinja2(self.payload_url, context)
 
 
-class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class CustomLink(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
     """
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
@@ -394,7 +395,14 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         }
 
 
-class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, RenderTemplateMixin):
+class ExportTemplate(
+    SyncedDataMixin,
+    CloningMixin,
+    ExportTemplatesMixin,
+    OwnerMixin,
+    ChangeLoggedModel,
+    RenderTemplateMixin,
+):
     object_types = models.ManyToManyField(
         to='contenttypes.ContentType',
         related_name='export_templates',
@@ -456,7 +464,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         return _context
 
 
-class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class SavedFilter(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
     """
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """

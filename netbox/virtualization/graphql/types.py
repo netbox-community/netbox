@@ -6,7 +6,8 @@ import strawberry_django
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
+from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType, NetBoxObjectType
+from users.graphql.mixins import OwnerMixin
 from virtualization import models
 from .filters import *
 
@@ -36,7 +37,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentType(NetBoxObjectType):
+class ComponentType(OwnerMixin, NetBoxObjectType):
     """
     Base type for device/VM components
     """
@@ -49,7 +50,7 @@ class ComponentType(NetBoxObjectType):
     filters=ClusterFilter,
     pagination=True
 )
-class ClusterType(ContactsMixin, VLANGroupsMixin, NetBoxObjectType):
+class ClusterType(ContactsMixin, VLANGroupsMixin, PrimaryObjectType):
     type: Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')] | None
     group: Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -94,7 +95,7 @@ class ClusterTypeType(OrganizationalObjectType):
     filters=VirtualMachineFilter,
     pagination=True
 )
-class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
+class VirtualMachineType(ConfigContextMixin, ContactsMixin, PrimaryObjectType):
     interface_count: BigInt
     virtual_disk_count: BigInt
     interface_count: BigInt

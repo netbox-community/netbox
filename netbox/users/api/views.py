@@ -12,7 +12,7 @@ from rest_framework.viewsets import ViewSet
 
 from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
-from users.models import Group, ObjectPermission, Token, User, UserConfig
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User, UserConfig
 from utilities.data import deepmerge
 from utilities.querysets import RestrictedQuerySet
 from . import serializers
@@ -86,6 +86,22 @@ class ObjectPermissionViewSet(NetBoxModelViewSet):
     queryset = ObjectPermission.objects.all()
     serializer_class = serializers.ObjectPermissionSerializer
     filterset_class = filtersets.ObjectPermissionFilterSet
+
+
+#
+# Owners
+#
+
+class OwnerGroupViewSet(NetBoxModelViewSet):
+    queryset = OwnerGroup.objects.all()
+    serializer_class = serializers.OwnerGroupSerializer
+    filterset_class = filtersets.OwnerGroupFilterSet
+
+
+class OwnerViewSet(NetBoxModelViewSet):
+    queryset = Owner.objects.all()
+    serializer_class = serializers.OwnerSerializer
+    filterset_class = filtersets.OwnerFilterSet
 
 
 #

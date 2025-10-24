@@ -11,7 +11,9 @@ from netaddr.core import AddrFormatError
 
 from circuits.models import Provider
 from dcim.models import Device, Interface, Region, Site, SiteGroup
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import (
+    ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
+)
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 
 from utilities.filters import (
@@ -45,7 +47,7 @@ __all__ = (
 )
 
 
-class VRFFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',
         queryset=RouteTarget.objects.all(),
@@ -83,7 +85,7 @@ class VRFFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         fields = ('id', 'name', 'rd', 'enforce_unique', 'description')
 
 
-class RouteTargetFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     importing_vrf_id = django_filters.ModelMultipleChoiceFilter(
         field_name='importing_vrfs',
         queryset=VRF.objects.all(),
@@ -149,7 +151,7 @@ class RIRFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'is_private', 'description')
 
 
-class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
+class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -221,7 +223,7 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         )
 
 
-class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+class ASNFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
         label=_('RIR (ID)'),
@@ -290,7 +292,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description', 'weight')
 
 
-class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
+class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
         lookup_expr='family'
@@ -456,7 +458,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, ScopedFilterSet, TenancyFilterSet, C
         ).distinct()
 
 
-class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilterSet):
+class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='start_address',
         lookup_expr='family'
@@ -548,7 +550,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet, ContactModelFilte
         return queryset.filter(q)
 
 
-class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
+class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='address',
         lookup_expr='family'
@@ -784,7 +786,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFil
             )
 
 
-class FHRPGroupFilterSet(NetBoxModelFilterSet):
+class FHRPGroupFilterSet(PrimaryModelFilterSet):
     protocol = django_filters.MultipleChoiceFilter(
         choices=FHRPGroupProtocolChoices
     )
@@ -934,7 +936,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         )
 
 
-class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -1085,7 +1087,7 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         ).distinct()
 
 
-class VLANTranslationPolicyFilterSet(NetBoxModelFilterSet):
+class VLANTranslationPolicyFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = VLANTranslationPolicy
@@ -1132,7 +1134,7 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class ServiceTemplateFilterSet(NetBoxModelFilterSet):
+class ServiceTemplateFilterSet(PrimaryModelFilterSet):
     port = NumericArrayFilter(
         field_name='ports',
         lookup_expr='contains'
@@ -1152,7 +1154,7 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class ServiceFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
+class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = ContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',

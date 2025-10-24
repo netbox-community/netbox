@@ -3,7 +3,7 @@ from django.urls import reverse
 
 from core.models import ObjectType
 from users.constants import TOKEN_DEFAULT_LENGTH
-from users.models import Group, ObjectPermission, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.data import deepmerge
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
 
@@ -448,3 +448,112 @@ class UserConfigTest(APITestCase):
         self.assertDictEqual(response.data, new_data)
         userconfig.refresh_from_db()
         self.assertDictEqual(userconfig.data, new_data)
+
+
+class OwnerGroupTest(APIViewTestCases.APIViewTestCase):
+    model = OwnerGroup
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1'),
+            OwnerGroup(name='Owner Group 2'),
+            OwnerGroup(name='Owner Group 3'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+        cls.create_data = [
+            {
+                'name': 'Owner Group 4',
+                'description': 'Fourth owner group',
+            },
+            {
+                'name': 'Owner Group 5',
+                'description': 'Fifth owner group',
+            },
+            {
+                'name': 'Owner Group 6',
+                'description': 'Sixth owner group',
+            },
+        ]
+
+
+class OwnerTest(APIViewTestCases.APIViewTestCase):
+    model = Owner
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1'),
+            OwnerGroup(name='Owner Group 2'),
+            OwnerGroup(name='Owner Group 3'),
+            OwnerGroup(name='Owner Group 4'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+            Group(name='Group 4'),
+        )
+        Group.objects.bulk_create(groups)
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+            User(username='User 4'),
+        )
+        User.objects.bulk_create(users)
+
+        owners = (
+            Owner(name='Owner 1'),
+            Owner(name='Owner 2'),
+            Owner(name='Owner 3'),
+        )
+        Owner.objects.bulk_create(owners)
+
+        # Assign users and groups to owners
+        owners[0].user_groups.add(groups[0])
+        owners[1].user_groups.add(groups[1])
+        owners[2].user_groups.add(groups[2])
+        owners[0].users.add(users[0])
+        owners[1].users.add(users[1])
+        owners[2].users.add(users[2])
+
+        cls.create_data = [
+            {
+                'name': 'Owner 4',
+                'description': 'Fourth owner',
+                'group': owner_groups[3].pk,
+                'user_groups': [groups[3].pk],
+                'users': [users[3].pk],
+            },
+            {
+                'name': 'Owner 5',
+                'description': 'Fifth owner',
+                'group': owner_groups[3].pk,
+                'user_groups': [groups[3].pk],
+                'users': [users[3].pk],
+            },
+            {
+                'name': 'Owner 6',
+                'description': 'Sixth owner',
+                'group': owner_groups[3].pk,
+                'user_groups': [groups[3].pk],
+                'users': [users[3].pk],
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'group': owner_groups[3].pk,
+            'user_groups': [groups[3].pk],
+            'users': [users[3].pk],
+            'description': 'New description',
+        }

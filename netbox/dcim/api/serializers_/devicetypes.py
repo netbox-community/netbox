@@ -6,7 +6,7 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.models import DeviceType, ModuleType, ModuleTypeProfile
 from netbox.api.fields import AttributesField, ChoiceField, RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
 from .manufacturers import ManufacturerSerializer
 from .platforms import PlatformSerializer
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class DeviceTypeSerializer(NetBoxModelSerializer):
+class DeviceTypeSerializer(PrimaryModelSerializer):
     manufacturer = ManufacturerSerializer(nested=True)
     default_platform = PlatformSerializer(nested=True, required=False, allow_null=True)
     u_height = serializers.DecimalField(
@@ -54,7 +54,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number',
             'u_height', 'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-            'weight_unit', 'front_image', 'rear_image', 'description', 'comments', 'tags', 'custom_fields',
+            'weight_unit', 'front_image', 'rear_image', 'description', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'device_count', 'console_port_template_count',
             'console_server_port_template_count', 'power_port_template_count', 'power_outlet_template_count',
             'interface_template_count', 'front_port_template_count', 'rear_port_template_count',
@@ -63,18 +63,18 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description', 'device_count')
 
 
-class ModuleTypeProfileSerializer(NetBoxModelSerializer):
+class ModuleTypeProfileSerializer(PrimaryModelSerializer):
 
     class Meta:
         model = ModuleTypeProfile
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'description', 'schema', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'schema', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class ModuleTypeSerializer(NetBoxModelSerializer):
+class ModuleTypeSerializer(PrimaryModelSerializer):
     profile = ModuleTypeProfileSerializer(
         nested=True,
         required=False,
@@ -105,7 +105,7 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
-            'weight', 'weight_unit', 'description', 'attributes', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'weight', 'weight_unit', 'description', 'attributes', 'owner', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description')

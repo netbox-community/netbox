@@ -8,6 +8,7 @@ from taggit.models import TagBase, GenericTaggedItemBase
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
+from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 
@@ -21,7 +22,7 @@ __all__ = (
 # Tags
 #
 
-class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
+class Tag(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel, TagBase):
     id = models.BigAutoField(
         primary_key=True
     )

@@ -13,7 +13,7 @@ from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from virtualization.choices import *
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
@@ -29,7 +29,7 @@ __all__ = (
 )
 
 
-class VirtualMachineSerializer(NetBoxModelSerializer):
+class VirtualMachineSerializer(PrimaryModelSerializer):
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -51,8 +51,8 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
             'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
-            'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
-            'interface_count', 'virtual_disk_count',
+            'owner', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created',
+            'last_updated', 'interface_count', 'virtual_disk_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

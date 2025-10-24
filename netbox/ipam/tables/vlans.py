@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from ipam.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin, TenantColumn
 from virtualization.models import VMInterface
 from .template_code import *
@@ -28,7 +28,7 @@ AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span
 # VLAN groups
 #
 
-class VLANGroupTable(TenancyColumnsMixin, NetBoxTable):
+class VLANGroupTable(TenancyColumnsMixin, OrganizationalModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -62,7 +62,7 @@ class VLANGroupTable(TenancyColumnsMixin, NetBoxTable):
         extra_buttons=VLANGROUP_BUTTONS
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(OrganizationalModelTable.Meta):
         model = VLANGroup
         fields = (
             'pk', 'id', 'name', 'scope_type', 'scope', 'vid_ranges_list', 'vlan_count', 'slug', 'description',
@@ -77,7 +77,7 @@ class VLANGroupTable(TenancyColumnsMixin, NetBoxTable):
 # VLANs
 #
 
-class VLANTable(TenancyColumnsMixin, NetBoxTable):
+class VLANTable(TenancyColumnsMixin, PrimaryModelTable):
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
         verbose_name=_('VID')
@@ -120,14 +120,11 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name=_('Prefixes')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='ipam:vlan_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = VLAN
         fields = (
             'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
@@ -229,7 +226,7 @@ class InterfaceVLANTable(NetBoxTable):
 # VLAN Translation
 #
 
-class VLANTranslationPolicyTable(NetBoxTable):
+class VLANTranslationPolicyTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -246,7 +243,7 @@ class VLANTranslationPolicyTable(NetBoxTable):
         url_name='ipam:vlantranslationpolicy_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = VLANTranslationPolicy
         fields = (
             'pk', 'id', 'name', 'rule_count', 'description', 'tags', 'created', 'last_updated',

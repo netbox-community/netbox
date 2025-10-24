@@ -1919,18 +1919,21 @@ class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
                 device_type=device_types[0],
                 name='Power Outlet 1',
                 feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A,
+                color=ColorChoices.COLOR_RED,
                 description='foobar1'
             ),
             PowerOutletTemplate(
                 device_type=device_types[1],
                 name='Power Outlet 2',
                 feed_leg=PowerOutletFeedLegChoices.FEED_LEG_B,
+                color=ColorChoices.COLOR_GREEN,
                 description='foobar2'
             ),
             PowerOutletTemplate(
                 device_type=device_types[2],
                 name='Power Outlet 3',
                 feed_leg=PowerOutletFeedLegChoices.FEED_LEG_C,
+                color=ColorChoices.COLOR_BLUE,
                 description='foobar3'
             ),
         ))
@@ -1941,6 +1944,10 @@ class PowerOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
 
     def test_feed_leg(self):
         params = {'feed_leg': [PowerOutletFeedLegChoices.FEED_LEG_A, PowerOutletFeedLegChoices.FEED_LEG_B]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_color(self):
+        params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

@@ -2,11 +2,13 @@ from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault
 
 from extras.api.customfields import CustomFieldsDataField, CustomFieldDefaultValues
+from .base import ValidatedModelSerializer
 from .nested import NestedTagSerializer
 
 __all__ = (
     'ChangeLogMessageSerializer',
     'CustomFieldModelSerializer',
+    'NetBoxModelSerializer',
     'TaggableModelSerializer',
 )
 
@@ -76,3 +78,15 @@ class ChangeLogMessageSerializer(serializers.Serializer):
         if self.instance is not None:
             self.instance._changelog_message = self.validated_data.get('changelog_message')
         return super().save(**kwargs)
+
+
+class NetBoxModelSerializer(
+    ChangeLogMessageSerializer,
+    TaggableModelSerializer,
+    CustomFieldModelSerializer,
+    ValidatedModelSerializer
+):
+    """
+    Adds support for custom fields and tags.
+    """
+    pass

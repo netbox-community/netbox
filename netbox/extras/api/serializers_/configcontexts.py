@@ -8,7 +8,8 @@ from dcim.api.serializers_.sites import LocationSerializer, RegionSerializer, Si
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, ConfigContextProfile, Tag
 from netbox.api.fields import SerializedPKRelatedField
-from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, PrimaryModelSerializer, ValidatedModelSerializer
+from users.api.serializers_.mixins import OwnerMixin
 from tenancy.api.serializers_.tenants import TenantSerializer, TenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
 from virtualization.api.serializers_.clusters import ClusterSerializer, ClusterGroupSerializer, ClusterTypeSerializer
@@ -20,13 +21,7 @@ __all__ = (
 )
 
 
-class ConfigContextProfileSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
-    tags = serializers.SlugRelatedField(
-        queryset=Tag.objects.all(),
-        slug_field='slug',
-        required=False,
-        many=True
-    )
+class ConfigContextProfileSerializer(PrimaryModelSerializer):
     data_source = DataSourceSerializer(
         nested=True,
         required=False
@@ -39,13 +34,13 @@ class ConfigContextProfileSerializer(ChangeLogMessageSerializer, ValidatedModelS
     class Meta:
         model = ConfigContextProfile
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'description', 'schema', 'tags', 'comments', 'data_source',
-            'data_path', 'data_file', 'data_synced', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'schema', 'tags', 'owner', 'comments',
+            'data_source', 'data_path', 'data_file', 'data_synced', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class ConfigContextSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
+class ConfigContextSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedModelSerializer):
     profile = ConfigContextProfileSerializer(
         nested=True,
         required=False,
@@ -156,7 +151,7 @@ class ConfigContextSerializer(ChangeLogMessageSerializer, ValidatedModelSerializ
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'weight', 'profile', 'description', 'is_active', 'regions',
             'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
-            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path', 'data_file',
-            'data_synced', 'data', 'created', 'last_updated',
+            'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'owner', 'tags', 'data_source', 'data_path',
+            'data_file', 'data_synced', 'data', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

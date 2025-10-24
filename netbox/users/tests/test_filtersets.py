@@ -5,7 +5,7 @@ from django.utils.timezone import make_aware
 
 from core.models import ObjectType
 from users import filtersets
-from users.models import Group, ObjectPermission, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.testing import BaseFilterSetTests
 
 
@@ -347,4 +347,107 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class OwnerGroupTestCase(TestCase, BaseFilterSetTests):
+    queryset = OwnerGroup.objects.all()
+    filterset = filtersets.OwnerGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1', description='Foo'),
+            OwnerGroup(name='Owner Group 2', description='Bar'),
+            OwnerGroup(name='Owner Group 3', description='Baz'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+    def test_q(self):
+        params = {'q': 'foo'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Owner Group 1', 'Owner Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['Foo', 'Bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class OwnerTestCase(TestCase, BaseFilterSetTests):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1'),
+            OwnerGroup(name='Owner Group 2'),
+            OwnerGroup(name='Owner Group 3'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        owners = (
+            Owner(name='Owner 1', group=owner_groups[0], description='Foo'),
+            Owner(name='Owner 2', group=owner_groups[1], description='Bar'),
+            Owner(name='Owner 3', group=owner_groups[2], description='Baz'),
+        )
+        Owner.objects.bulk_create(owners)
+
+        # Assign users and groups to owners
+        owners[0].user_groups.add(groups[0])
+        owners[1].user_groups.add(groups[1])
+        owners[2].user_groups.add(groups[2])
+        owners[0].users.add(users[0])
+        owners[1].users.add(users[1])
+        owners[2].users.add(users[2])
+
+    def test_q(self):
+        params = {'q': 'foo'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Owner 1', 'Owner 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['Foo', 'Bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_group(self):
+        owner_groups = OwnerGroup.objects.order_by('id')[:2]
+        params = {'group_id': [owner_groups[0].pk, owner_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [owner_groups[0].name, owner_groups[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_user_group(self):
+        group = Group.objects.order_by('id')[:2]
+        params = {'user_group_id': [group[0].pk, group[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user_group': [group[0].name, group[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_user(self):
+        users = User.objects.order_by('id')[:2]
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user': [users[0].username, users[1].username]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

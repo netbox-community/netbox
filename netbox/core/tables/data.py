@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from core.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 from .columns import BackendTypeColumn
 from .template_code import DATA_SOURCE_SYNC_BUTTON
 
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class DataSourceTable(NetBoxTable):
+class DataSourceTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True,
@@ -42,7 +42,7 @@ class DataSourceTable(NetBoxTable):
         extra_buttons=DATA_SOURCE_SYNC_BUTTON,
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = DataSource
         fields = (
             'pk', 'id', 'name', 'type', 'status', 'enabled', 'source_url', 'description', 'sync_interval', 'comments',

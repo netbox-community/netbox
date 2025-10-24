@@ -1113,6 +1113,21 @@ class ViewTestCases:
         """
         maxDiff = None
 
+    class AdminModelViewTestCase(
+        GetObjectViewTestCase,
+        CreateObjectViewTestCase,
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        ListObjectsViewTestCase,
+        BulkImportObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing all standard View functions for objects which inherit from AdminModel.
+        """
+        maxDiff = None
+
     class DeviceComponentTemplateViewTestCase(
         EditObjectViewTestCase,
         DeleteObjectViewTestCase,

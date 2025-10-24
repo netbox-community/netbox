@@ -8,12 +8,12 @@ from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from netbox.models.features import *
+from netbox.models.mixins import OwnerMixin
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
-from utilities.views import get_viewname
-
 
 __all__ = (
+    'AdminModel',
     'ChangeLoggedModel',
     'NestedGroupModel',
     'NetBoxModel',
@@ -43,6 +43,7 @@ class NetBoxFeatureSet(
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
     def get_absolute_url(self):
+        from utilities.views import get_viewname
         return reverse(get_viewname(self), args=[self.pk])
 
 
@@ -120,7 +121,7 @@ class NetBoxModel(NetBoxFeatureSet, BaseModel):
 # NetBox internal base models
 #
 
-class PrimaryModel(NetBoxModel):
+class PrimaryModel(OwnerMixin, NetBoxModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
@@ -138,7 +139,7 @@ class PrimaryModel(NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
+class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -190,7 +191,7 @@ class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
             })
 
 
-class OrganizationalModel(NetBoxModel):
+class OrganizationalModel(OwnerMixin, NetBoxModel):
     """
     Organizational models are those which are used solely to categorize and qualify other objects, and do not convey
     any real information about the infrastructure being modeled (for example, functional device roles). Organizational
@@ -221,3 +222,26 @@ class OrganizationalModel(NetBoxModel):
 
     def __str__(self):
         return self.name
+
+
+class AdminModel(
+    BookmarksMixin,
+    CloningMixin,
+    CustomLinksMixin,
+    CustomValidationMixin,
+    EventRulesMixin,
+    ExportTemplatesMixin,
+    NotificationsMixin,
+    BaseModel,
+):
+    """
+    A model which represents an administrative resource.
+    """
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
+
+    class Meta:
+        abstract = True

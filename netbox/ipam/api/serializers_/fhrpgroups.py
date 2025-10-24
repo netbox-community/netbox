@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from ipam.models import FHRPGroup, FHRPGroupAssignment
 from netbox.api.fields import ContentTypeField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from utilities.api import get_serializer_for_model
 from .ip import IPAddressSerializer
 
@@ -14,14 +14,14 @@ __all__ = (
 )
 
 
-class FHRPGroupSerializer(NetBoxModelSerializer):
+class FHRPGroupSerializer(PrimaryModelSerializer):
     ip_addresses = IPAddressSerializer(nested=True, many=True, read_only=True)
 
     class Meta:
         model = FHRPGroup
         fields = [
             'id', 'name', 'url', 'display_url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'ip_addresses',
+            'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'ip_addresses',
         ]
         brief_fields = ('id', 'url', 'display', 'protocol', 'group_id', 'description')
 

@@ -466,6 +466,13 @@ ADMIN_MENU = Menu(
             ),
         ),
         MenuGroup(
+            label=_('Ownership'),
+            items=(
+                get_model_item('users', 'ownergroup', _('Owner Groups')),
+                get_model_item('users', 'owner', _('Owners')),
+            ),
+        ),
+        MenuGroup(
             label=_('System'),
             items=(
                 MenuItem(

@@ -7,7 +7,7 @@ from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from .asns import RIRSerializer
@@ -28,7 +28,7 @@ __all__ = (
 )
 
 
-class AggregateSerializer(NetBoxModelSerializer):
+class AggregateSerializer(PrimaryModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = RIRSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -38,12 +38,12 @@ class AggregateSerializer(NetBoxModelSerializer):
         model = Aggregate
         fields = [
             'id', 'url', 'display_url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description')
 
 
-class PrefixSerializer(NetBoxModelSerializer):
+class PrefixSerializer(PrimaryModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
     scope_type = ContentTypeField(
@@ -68,7 +68,7 @@ class PrefixSerializer(NetBoxModelSerializer):
         model = Prefix
         fields = [
             'id', 'url', 'display_url', 'display', 'family', 'prefix', 'vrf', 'scope_type', 'scope_id', 'scope',
-            'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'comments', 'tags',
+            'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
@@ -133,7 +133,7 @@ class AvailablePrefixSerializer(serializers.Serializer):
 # IP ranges
 #
 
-class IPRangeSerializer(NetBoxModelSerializer):
+class IPRangeSerializer(PrimaryModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -146,7 +146,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
         model = IPRange
         fields = [
             'id', 'url', 'display_url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant',
-            'status', 'role', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'status', 'role', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'mark_populated', 'mark_utilized',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'start_address', 'end_address', 'description')
@@ -156,7 +156,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
 # IP addresses
 #
 
-class IPAddressSerializer(NetBoxModelSerializer):
+class IPAddressSerializer(PrimaryModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     address = IPAddressField()
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
@@ -177,7 +177,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role',
             'assigned_object_type', 'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside',
-            'dns_name', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'dns_name', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'address', 'description')
 

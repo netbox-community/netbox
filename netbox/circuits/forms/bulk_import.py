@@ -7,7 +7,7 @@ from circuits.constants import *
 from circuits.models import *
 from dcim.models import Interface
 from netbox.choices import DistanceUnitChoices
-from netbox.forms import NetBoxModelImportForm
+from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 
@@ -28,17 +28,17 @@ __all__ = (
 )
 
 
-class ProviderImportForm(NetBoxModelImportForm):
+class ProviderImportForm(PrimaryModelImportForm):
     slug = SlugField()
 
     class Meta:
         model = Provider
         fields = (
-            'name', 'slug', 'description', 'comments', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         )
 
 
-class ProviderAccountImportForm(NetBoxModelImportForm):
+class ProviderAccountImportForm(PrimaryModelImportForm):
     provider = CSVModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
@@ -49,11 +49,11 @@ class ProviderAccountImportForm(NetBoxModelImportForm):
     class Meta:
         model = ProviderAccount
         fields = (
-            'provider', 'name', 'account', 'description', 'comments', 'tags',
+            'provider', 'name', 'account', 'description', 'owner', 'comments', 'tags',
         )
 
 
-class ProviderNetworkImportForm(NetBoxModelImportForm):
+class ProviderNetworkImportForm(PrimaryModelImportForm):
     provider = CSVModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
@@ -64,19 +64,19 @@ class ProviderNetworkImportForm(NetBoxModelImportForm):
     class Meta:
         model = ProviderNetwork
         fields = [
-            'provider', 'name', 'service_id', 'description', 'comments', 'tags'
+            'provider', 'name', 'service_id', 'description', 'owner', 'comments', 'tags'
         ]
 
 
-class CircuitTypeImportForm(NetBoxModelImportForm):
+class CircuitTypeImportForm(OrganizationalModelImportForm):
     slug = SlugField()
 
     class Meta:
         model = CircuitType
-        fields = ('name', 'slug', 'color', 'description', 'tags')
+        fields = ('name', 'slug', 'color', 'description', 'owner', 'tags')
 
 
-class CircuitImportForm(NetBoxModelImportForm):
+class CircuitImportForm(PrimaryModelImportForm):
     provider = CSVModelChoiceField(
         label=_('Provider'),
         queryset=Provider.objects.all(),
@@ -119,7 +119,7 @@ class CircuitImportForm(NetBoxModelImportForm):
         model = Circuit
         fields = [
             'cid', 'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date',
-            'commit_rate', 'distance', 'distance_unit', 'description', 'comments', 'tags'
+            'commit_rate', 'distance', 'distance_unit', 'description', 'owner', 'comments', 'tags'
         ]
 
 
@@ -165,7 +165,7 @@ class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTermination
         }
 
 
-class CircuitGroupImportForm(NetBoxModelImportForm):
+class CircuitGroupImportForm(OrganizationalModelImportForm):
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -176,7 +176,7 @@ class CircuitGroupImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = CircuitGroup
-        fields = ('name', 'slug', 'description', 'tenant', 'tags')
+        fields = ('name', 'slug', 'description', 'tenant', 'owner', 'tags')
 
 
 class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
@@ -195,15 +195,14 @@ class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
         fields = ('member_type', 'member_id', 'group', 'priority')
 
 
-class VirtualCircuitTypeImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+class VirtualCircuitTypeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = VirtualCircuitType
-        fields = ('name', 'slug', 'color', 'description', 'tags')
+        fields = ('name', 'slug', 'color', 'description', 'owner', 'tags')
 
 
-class VirtualCircuitImportForm(NetBoxModelImportForm):
+class VirtualCircuitImportForm(PrimaryModelImportForm):
     provider_network = CSVModelChoiceField(
         label=_('Provider network'),
         queryset=ProviderNetwork.objects.all(),
@@ -239,8 +238,8 @@ class VirtualCircuitImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualCircuit
         fields = [
-            'cid', 'provider_network', 'provider_account', 'type', 'status', 'tenant', 'description', 'comments',
-            'tags',
+            'cid', 'provider_network', 'provider_account', 'type', 'status', 'tenant', 'description', 'owner',
+            'comments', 'tags',
         ]
 
 

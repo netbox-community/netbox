@@ -9,13 +9,13 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
 from ipam.models import *
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
-    NumericRangeArrayField, SlugField
+    ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.utils import get_field_value
@@ -49,7 +49,7 @@ __all__ = (
 )
 
 
-class VRFForm(TenancyForm, NetBoxModelForm):
+class VRFForm(TenancyForm, PrimaryModelForm):
     import_targets = DynamicModelMultipleChoiceField(
         label=_('Import targets'),
         queryset=RouteTarget.objects.all(),
@@ -60,7 +60,6 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'rd', 'enforce_unique', 'description', 'tags', name=_('VRF')),
@@ -72,30 +71,27 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         model = VRF
         fields = [
             'name', 'rd', 'enforce_unique', 'import_targets', 'export_targets', 'tenant_group', 'tenant', 'description',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         ]
         labels = {
             'rd': "RD",
         }
 
 
-class RouteTargetForm(TenancyForm, NetBoxModelForm):
+class RouteTargetForm(TenancyForm, PrimaryModelForm):
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Route Target')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
-    comments = CommentField()
 
     class Meta:
         model = RouteTarget
         fields = [
-            'name', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'name', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class RIRForm(NetBoxModelForm):
-    slug = SlugField()
-
+class RIRForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'is_private', 'description', 'tags', name=_('RIR')),
     )
@@ -103,17 +99,16 @@ class RIRForm(NetBoxModelForm):
     class Meta:
         model = RIR
         fields = [
-            'name', 'slug', 'is_private', 'description', 'tags',
+            'name', 'slug', 'is_private', 'description', 'owner', 'tags',
         ]
 
 
-class AggregateForm(TenancyForm, NetBoxModelForm):
+class AggregateForm(TenancyForm, PrimaryModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
         quick_add=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('prefix', 'rir', 'date_added', 'description', 'tags', name=_('Aggregate')),
@@ -123,20 +118,19 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Aggregate
         fields = [
-            'prefix', 'rir', 'date_added', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'prefix', 'rir', 'date_added', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'date_added': DatePicker(),
         }
 
 
-class ASNRangeForm(TenancyForm, NetBoxModelForm):
+class ASNRangeForm(TenancyForm, OrganizationalModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
         quick_add=True
     )
-    slug = SlugField()
     fieldsets = (
         FieldSet('name', 'slug', 'rir', 'start', 'end', 'description', 'tags', name=_('ASN Range')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
@@ -145,11 +139,11 @@ class ASNRangeForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = ASNRange
         fields = [
-            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'description', 'tags'
+            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'owner', 'description', 'tags'
         ]
 
 
-class ASNForm(TenancyForm, NetBoxModelForm):
+class ASNForm(TenancyForm, PrimaryModelForm):
     rir = DynamicModelChoiceField(
         queryset=RIR.objects.all(),
         label=_('RIR'),
@@ -160,7 +154,6 @@ class ASNForm(TenancyForm, NetBoxModelForm):
         label=_('Sites'),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('asn', 'rir', 'sites', 'description', 'tags', name=_('ASN')),
@@ -170,7 +163,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = ASN
         fields = [
-            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
+            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags'
         ]
         widgets = {
             'date_added': DatePicker(),
@@ -188,9 +181,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
         return instance
 
 
-class RoleForm(NetBoxModelForm):
-    slug = SlugField()
-
+class RoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'weight', 'description', 'tags', name=_('Role')),
     )
@@ -198,11 +189,11 @@ class RoleForm(NetBoxModelForm):
     class Meta:
         model = Role
         fields = [
-            'name', 'slug', 'weight', 'description', 'tags',
+            'name', 'slug', 'weight', 'description', 'owner', 'tags',
         ]
 
 
-class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
+class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -223,7 +214,6 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
         required=False,
         quick_add=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -238,7 +228,7 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
         model = Prefix
         fields = [
             'prefix', 'vrf', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'scope_type', 'tenant_group',
-            'tenant', 'description', 'comments', 'tags',
+            'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -250,7 +240,7 @@ class PrefixForm(TenancyForm, ScopedForm, NetBoxModelForm):
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
 
 
-class IPRangeForm(TenancyForm, NetBoxModelForm):
+class IPRangeForm(TenancyForm, PrimaryModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -262,7 +252,6 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
         required=False,
         quick_add=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -276,11 +265,11 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
         model = IPRange
         fields = [
             'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_populated',
-            'mark_utilized', 'description', 'comments', 'tags',
+            'mark_utilized', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class IPAddressForm(TenancyForm, NetBoxModelForm):
+class IPAddressForm(TenancyForm, PrimaryModelForm):
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
@@ -324,7 +313,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('Make this the out-of-band IP for the device')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags', name=_('IP Address')),
@@ -344,7 +332,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         model = IPAddress
         fields = [
             'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'oob_for_parent', 'nat_inside',
-            'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -494,7 +482,7 @@ class IPAddressAssignForm(forms.Form):
     )
 
 
-class FHRPGroupForm(NetBoxModelForm):
+class FHRPGroupForm(PrimaryModelForm):
 
     # Optionally create a new IPAddress along with the FHRPGroup
     ip_vrf = DynamicModelChoiceField(
@@ -511,7 +499,6 @@ class FHRPGroupForm(NetBoxModelForm):
         required=False,
         label=_('Status')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('protocol', 'group_id', 'name', 'description', 'tags', name=_('FHRP Group')),
@@ -523,7 +510,7 @@ class FHRPGroupForm(NetBoxModelForm):
         model = FHRPGroup
         fields = (
             'protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'ip_vrf', 'ip_address', 'ip_status', 'description',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         )
 
     def save(self, *args, **kwargs):
@@ -599,8 +586,7 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
         return group
 
 
-class VLANGroupForm(TenancyForm, NetBoxModelForm):
-    slug = SlugField()
+class VLANGroupForm(TenancyForm, OrganizationalModelForm):
     vid_ranges = NumericRangeArrayField(
         label=_('VLAN IDs')
     )
@@ -628,7 +614,7 @@ class VLANGroupForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'owner', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -662,7 +648,7 @@ class VLANGroupForm(TenancyForm, NetBoxModelForm):
         self.instance.scope = self.cleaned_data.get('scope')
 
 
-class VLANForm(TenancyForm, NetBoxModelForm):
+class VLANForm(TenancyForm, PrimaryModelForm):
     group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -698,17 +684,16 @@ class VLANForm(TenancyForm, NetBoxModelForm):
             'qinq_role': VLANQinQRoleChoices.ROLE_SERVICE,
         }
     )
-    comments = CommentField()
 
     class Meta:
         model = VLAN
         fields = [
             'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'qinq_role', 'qinq_svlan',
-            'description', 'comments', 'tags',
+            'description', 'owner', 'comments', 'tags',
         ]
 
 
-class VLANTranslationPolicyForm(NetBoxModelForm):
+class VLANTranslationPolicyForm(PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('VLAN Translation Policy')),
@@ -717,7 +702,7 @@ class VLANTranslationPolicyForm(NetBoxModelForm):
     class Meta:
         model = VLANTranslationPolicy
         fields = [
-            'name', 'description', 'tags',
+            'name', 'description', 'owner', 'tags',
         ]
 
 
@@ -739,7 +724,7 @@ class VLANTranslationRuleForm(NetBoxModelForm):
         ]
 
 
-class ServiceTemplateForm(NetBoxModelForm):
+class ServiceTemplateForm(PrimaryModelForm):
     ports = NumericArrayField(
         label=_('Ports'),
         base_field=forms.IntegerField(
@@ -748,7 +733,6 @@ class ServiceTemplateForm(NetBoxModelForm):
         ),
         help_text=_("Comma-separated list of one or more port numbers. A range may be specified using a hyphen.")
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Application Service Template')),
@@ -756,10 +740,10 @@ class ServiceTemplateForm(NetBoxModelForm):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'comments', 'tags')
+        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceForm(NetBoxModelForm):
+class ServiceForm(PrimaryModelForm):
     parent_object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         widget=HTMXSelect(),
@@ -786,7 +770,6 @@ class ServiceForm(NetBoxModelForm):
         required=False,
         label=_('IP Addresses'),
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -799,7 +782,7 @@ class ServiceForm(NetBoxModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
+            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
             'parent_object_type',
         ]
 
