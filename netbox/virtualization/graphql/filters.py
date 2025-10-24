@@ -3,7 +3,7 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import FilterLookup
+from strawberry_django import BaseFilterLookup, FilterLookup
 
 from dcim.graphql.filter_mixins import InterfaceBaseFilterMixin, RenderConfigFilterMixin, ScopedFilterMixin
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
@@ -50,7 +50,7 @@ class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, P
         strawberry_django.filter_field()
     )
     group_id: ID | None = strawberry_django.filter_field()
-    status: FilterLookup[Annotated['ClusterStatusEnum', strawberry.lazy('virtualization.graphql.enums')]] | None = (
+    status: BaseFilterLookup[Annotated['ClusterStatusEnum', strawberry.lazy('virtualization.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     vlan_groups: Annotated['VLANGroupFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
@@ -93,7 +93,7 @@ class VirtualMachineFilter(
     )
     platform_id: ID | None = strawberry_django.filter_field()
     status: (
-        FilterLookup[Annotated['VirtualMachineStatusEnum', strawberry.lazy('virtualization.graphql.enums')]] | None
+        BaseFilterLookup[Annotated['VirtualMachineStatusEnum', strawberry.lazy('virtualization.graphql.enums')]] | None
     ) = (
         strawberry_django.filter_field()
     )
