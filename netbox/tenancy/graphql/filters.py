@@ -191,6 +191,6 @@ class ContactAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLo
         strawberry_django.filter_field()
     )
     role_id: ID | None = strawberry_django.filter_field()
-    priority: Annotated['ContactPriorityEnum', strawberry.lazy('tenancy.graphql.enums')] | None = (
+    priority: FilterLookup[Annotated['ContactPriorityEnum', strawberry.lazy('tenancy.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
