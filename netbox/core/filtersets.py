@@ -80,6 +80,9 @@ class JobFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.with_feature('jobs'),
+    )
     object_type = ContentTypeFilter()
     created = django_filters.DateTimeFilter()
     created__before = django_filters.DateTimeFilter(
