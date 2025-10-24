@@ -18,11 +18,6 @@ urlpatterns = [
     path('circuit-types/<int:pk>/', include(get_model_urls('circuits', 'circuittype'))),
 
     path('circuits/', include(get_model_urls('circuits', 'circuit', detail=False))),
-    path(
-        'circuits/<int:pk>/terminations/swap/',
-        views.CircuitSwapTerminations.as_view(),
-        name='circuit_terminations_swap'
-    ),
     path('circuits/<int:pk>/', include(get_model_urls('circuits', 'circuit'))),
 
     path('circuit-terminations/', include(get_model_urls('circuits', 'circuittermination', detail=False))),
