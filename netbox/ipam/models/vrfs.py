@@ -19,11 +19,12 @@ class VRF(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='natural_sort',
     )
     rd = models.CharField(
         max_length=VRF_RD_MAX_LENGTH,
         unique=True,
+        db_collation='case_insensitive',
         blank=True,
         null=True,
         verbose_name=_('route distinguisher'),
@@ -75,8 +76,8 @@ class RouteTarget(PrimaryModel):
         verbose_name=_('name'),
         max_length=VRF_RD_MAX_LENGTH,  # Same format options as VRF RD (RFC 4360 section 4)
         unique=True,
+        db_collation='ci_natural_sort',
         help_text=_('Route target value (formatted in accordance with RFC 4360)'),
-        db_collation="natural_sort"
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',

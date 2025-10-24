@@ -55,7 +55,7 @@ class Contact(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='natural_sort',
     )
     title = models.CharField(
         verbose_name=_('title'),

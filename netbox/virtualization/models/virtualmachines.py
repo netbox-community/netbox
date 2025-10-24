@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
-from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import BaseInterface
@@ -70,7 +69,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     status = models.CharField(
         max_length=50,
@@ -156,11 +155,11 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         ordering = ('name', 'pk')  # Name may be non-unique
         constraints = (
             models.UniqueConstraint(
-                Lower('name'), 'cluster', 'tenant',
+                'name', 'cluster', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_cluster_tenant'
             ),
             models.UniqueConstraint(
-                Lower('name'), 'cluster',
+                'name', 'cluster',
                 name='%(app_label)s_%(class)s_unique_name_cluster',
                 condition=Q(tenant__isnull=True),
                 violation_error_message=_("Virtual machine name must be unique per cluster.")
@@ -275,7 +274,7 @@ class ComponentModel(NetBoxModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     description = models.CharField(
         verbose_name=_('description'),

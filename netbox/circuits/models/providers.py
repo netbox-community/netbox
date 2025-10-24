@@ -21,13 +21,14 @@ class Provider(ContactsMixin, PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
+        db_collation='ci_natural_sort',
         help_text=_('Full name of the provider'),
-        db_collation="natural_sort"
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='case_insensitive',
     )
     asns = models.ManyToManyField(
         to='ipam.ASN',
@@ -56,13 +57,15 @@ class ProviderAccount(ContactsMixin, PrimaryModel):
         related_name='accounts'
     )
     account = models.CharField(
+        verbose_name=_('account ID'),
         max_length=100,
-        verbose_name=_('account ID')
+        db_collation='ci_natural_sort',
     )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        blank=True
+        db_collation='ci_natural_sort',
+        blank=True,
     )
 
     clone_fields = ('provider', )
@@ -97,7 +100,7 @@ class ProviderNetwork(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     provider = models.ForeignKey(
         to='circuits.Provider',

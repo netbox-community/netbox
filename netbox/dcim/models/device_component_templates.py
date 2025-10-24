@@ -43,10 +43,10 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
+        db_collation='ci_natural_sort',
         help_text=_(
             "{module} is accepted as a substitution for the module bay position when attached to a module type."
         ),
-        db_collation="natural_sort"
     )
     label = models.CharField(
         verbose_name=_('label'),

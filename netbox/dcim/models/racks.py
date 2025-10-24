@@ -137,12 +137,14 @@ class RackType(RackBase):
     )
     model = models.CharField(
         verbose_name=_('model'),
-        max_length=100
+        max_length=100,
+        db_collation='ci_natural_sort',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='case_insensitive',
     )
 
     clone_fields = (
@@ -262,7 +264,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, RackBase):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     facility_id = models.CharField(
         max_length=50,

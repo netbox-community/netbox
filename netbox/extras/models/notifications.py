@@ -125,7 +125,8 @@ class NotificationGroup(ChangeLoggedModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     description = models.CharField(
         verbose_name=_('description'),

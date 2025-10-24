@@ -23,7 +23,7 @@ class IKEProposal(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     authentication_method = models.CharField(
         verbose_name=('authentication method'),
@@ -69,7 +69,7 @@ class IKEPolicy(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     version = models.PositiveSmallIntegerField(
         verbose_name=_('version'),
@@ -128,7 +128,7 @@ class IPSecProposal(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     encryption_algorithm = models.CharField(
         verbose_name=_('encryption'),
@@ -180,7 +180,7 @@ class IPSecPolicy(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     proposals = models.ManyToManyField(
         to='vpn.IPSecProposal',
@@ -216,7 +216,7 @@ class IPSecProfile(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     mode = models.CharField(
         verbose_name=_('mode'),

@@ -41,9 +41,10 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
     ProviderAccount. Circuit port speed and commit rate are measured in Kbps.
     """
     cid = models.CharField(
-        max_length=100,
         verbose_name=_('circuit ID'),
-        help_text=_('Unique circuit ID')
+        max_length=100,
+        db_collation='case_insensitive',
+        help_text=_('Unique circuit ID'),
     )
     provider = models.ForeignKey(
         to='circuits.Provider',

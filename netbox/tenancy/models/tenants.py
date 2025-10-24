@@ -19,12 +19,13 @@ class TenantGroup(NestedGroupModel):
         verbose_name=_('name'),
         max_length=100,
         unique=True,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort'
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='case_insensitive'
     )
 
     class Meta:
@@ -41,11 +42,12 @@ class Tenant(ContactsMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     slug = models.SlugField(
         verbose_name=_('slug'),
-        max_length=100
+        max_length=100,
+        db_collation='case_insensitive',
     )
     group = models.ForeignKey(
         to='tenancy.TenantGroup',

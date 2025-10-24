@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from netbox.choices import ColorChoices
@@ -24,6 +24,21 @@ __all__ = (
 class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
     id = models.BigAutoField(
         primary_key=True
+    )
+    # Override TagBase.name to set db_collation
+    name = models.CharField(
+        verbose_name=pgettext_lazy("A tag name", "name"),
+        unique=True,
+        max_length=100,
+        db_collation='ci_natural_sort',
+    )
+    # Override TagBase.slug to set db_collation
+    slug = models.SlugField(
+        verbose_name=pgettext_lazy("A tag slug", "slug"),
+        unique=True,
+        max_length=100,
+        allow_unicode=True,
+        db_collation='case_insensitive',
     )
     color = ColorField(
         verbose_name=_('color'),

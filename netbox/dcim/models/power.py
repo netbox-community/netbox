@@ -37,7 +37,7 @@ class PowerPanel(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
 
     prerequisite_models = (
@@ -88,7 +88,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     status = models.CharField(
         verbose_name=_('status'),

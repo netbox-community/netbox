@@ -31,7 +31,8 @@ class ModuleTypeProfile(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
-        unique=True
+        unique=True,
+        db_collation='ci_natural_sort',
     )
     schema = models.JSONField(
         blank=True,
@@ -72,7 +73,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
     model = models.CharField(
         verbose_name=_('model'),
-        max_length=100
+        max_length=100,
+        db_collation='ci_natural_sort',
     )
     part_number = models.CharField(
         verbose_name=_('part number'),

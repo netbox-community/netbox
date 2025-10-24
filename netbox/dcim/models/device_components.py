@@ -52,7 +52,7 @@ class ComponentModel(NetBoxModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
-        db_collation="natural_sort"
+        db_collation='ci_natural_sort',
     )
     label = models.CharField(
         verbose_name=_('label'),
