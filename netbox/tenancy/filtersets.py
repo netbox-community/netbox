@@ -2,7 +2,9 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from netbox.filtersets import NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet
+from netbox.filtersets import (
+    NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
+)
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
 
@@ -64,7 +66,7 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
-class ContactFilterSet(NetBoxModelFilterSet):
+class ContactFilterSet(PrimaryModelFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
         field_name='groups',
@@ -198,7 +200,7 @@ class TenantGroupFilterSet(NestedGroupModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
-class TenantFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
+class TenantFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='group',

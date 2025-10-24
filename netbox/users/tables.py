@@ -2,11 +2,13 @@ import django_tables2 as tables
 from django.utils.translation import gettext as _
 
 from netbox.tables import NetBoxTable, columns
-from users.models import Group, ObjectPermission, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 
 __all__ = (
     'GroupTable',
     'ObjectPermissionTable',
+    'OwnerGroupTable',
+    'OwnerTable',
     'TokenTable',
     'UserTable',
 )
@@ -143,3 +145,54 @@ class ObjectPermissionTable(NetBoxTable):
         default_columns = (
             'pk', 'name', 'enabled', 'object_types', 'can_view', 'can_add', 'can_change', 'can_delete', 'description',
         )
+
+
+class OwnerGroupTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    owner_count = columns.LinkedCountColumn(
+        viewname='users:owner_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Owners')
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = OwnerGroup
+        fields = (
+            'pk', 'id', 'name', 'description',
+        )
+        default_columns = ('pk', 'name', 'owner_count', 'description')
+
+
+class OwnerTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    group = tables.Column(
+        verbose_name=_('Group'),
+        linkify=True,
+    )
+    user_groups = columns.ManyToManyColumn(
+        verbose_name=_('Groups'),
+        linkify_item=('users:group', {'pk': tables.A('pk')})
+    )
+    users = columns.ManyToManyColumn(
+        verbose_name=_('Users'),
+        linkify_item=('users:user', {'pk': tables.A('pk')})
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Owner
+        fields = (
+            'pk', 'id', 'name', 'group', 'description', 'user_groups', 'users',
+        )
+        default_columns = ('pk', 'name', 'group', 'description', 'user_groups', 'users')

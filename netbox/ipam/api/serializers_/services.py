@@ -6,7 +6,7 @@ from ipam.choices import *
 from ipam.constants import SERVICE_ASSIGNMENT_MODELS
 from ipam.models import IPAddress, Service, ServiceTemplate
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from utilities.api import get_serializer_for_model
 from .ip import IPAddressSerializer
 
@@ -16,19 +16,19 @@ __all__ = (
 )
 
 
-class ServiceTemplateSerializer(NetBoxModelSerializer):
+class ServiceTemplateSerializer(PrimaryModelSerializer):
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
 
     class Meta:
         model = ServiceTemplate
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'protocol', 'ports', 'description', 'owner', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports', 'description')
 
 
-class ServiceSerializer(NetBoxModelSerializer):
+class ServiceSerializer(PrimaryModelSerializer):
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
@@ -46,7 +46,7 @@ class ServiceSerializer(NetBoxModelSerializer):
         model = Service
         fields = [
             'id', 'url', 'display_url', 'display', 'parent_object_type', 'parent_object_id', 'parent', 'name',
-            'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags', 'custom_fields',
+            'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports', 'description')

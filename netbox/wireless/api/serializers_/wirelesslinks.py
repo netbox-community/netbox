@@ -1,7 +1,7 @@
 from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.choices import LinkStatusChoices
 from netbox.api.fields import ChoiceField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
 from tenancy.api.serializers_.tenants import TenantSerializer
 from wireless.choices import *
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class WirelessLinkSerializer(NetBoxModelSerializer):
+class WirelessLinkSerializer(PrimaryModelSerializer):
     status = ChoiceField(choices=LinkStatusChoices, required=False)
     interface_a = InterfaceSerializer(nested=True)
     interface_b = InterfaceSerializer(nested=True)
@@ -25,7 +25,7 @@ class WirelessLinkSerializer(NetBoxModelSerializer):
         model = WirelessLink
         fields = [
             'id', 'url', 'display_url', 'display', 'interface_a', 'interface_b', 'ssid', 'status', 'tenant',
-            'auth_type', 'auth_cipher', 'auth_psk', 'distance', 'distance_unit', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'auth_type', 'auth_cipher', 'auth_psk', 'distance', 'distance_unit', 'description', 'owner', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'ssid', 'description')

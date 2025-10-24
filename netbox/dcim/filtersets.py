@@ -11,11 +11,12 @@ from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
-    AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet, NetBoxModelFilterSet,
-    OrganizationalModelFilterSet,
+    AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
+    OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
 )
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from tenancy.models import *
+from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
@@ -143,7 +144,7 @@ class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
-class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
+class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
         null_value=None
@@ -293,7 +294,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
-class RackTypeFilterSet(NetBoxModelFilterSet):
+class RackTypeFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
         label=_('Manufacturer (ID)'),
@@ -328,7 +329,7 @@ class RackTypeFilterSet(NetBoxModelFilterSet):
         )
 
 
-class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
+class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -444,7 +445,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         )
 
 
-class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     rack_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Rack.objects.all(),
         label=_('Rack (ID)'),
@@ -540,7 +541,7 @@ class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
         fields = ('id', 'name', 'slug', 'description')
 
 
-class DeviceTypeFilterSet(NetBoxModelFilterSet):
+class DeviceTypeFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
         label=_('Manufacturer (ID)'),
@@ -682,7 +683,7 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
         return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
-class ModuleTypeProfileFilterSet(NetBoxModelFilterSet):
+class ModuleTypeProfileFilterSet(PrimaryModelFilterSet):
 
     class Meta:
         model = ModuleTypeProfile
@@ -698,7 +699,7 @@ class ModuleTypeProfileFilterSet(NetBoxModelFilterSet):
         )
 
 
-class ModuleTypeFilterSet(AttributeFiltersMixin, NetBoxModelFilterSet):
+class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
     profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile (ID)'),
@@ -951,7 +952,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
         return queryset.filter(qs_filter)
 
 
-class DeviceRoleFilterSet(OrganizationalModelFilterSet):
+class DeviceRoleFilterSet(NestedGroupModelFilterSet):
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
@@ -985,7 +986,7 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'vm_role', 'description')
 
 
-class PlatformFilterSet(OrganizationalModelFilterSet):
+class PlatformFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
         label=_('Immediate parent platform (ID)'),
@@ -1043,7 +1044,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
 
 
 class DeviceFilterSet(
-    NetBoxModelFilterSet,
+    PrimaryModelFilterSet,
     TenancyFilterSet,
     ContactModelFilterSet,
     LocalConfigContextFilterSet,
@@ -1345,7 +1346,7 @@ class DeviceFilterSet(
         return queryset.exclude(params)
 
 
-class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, PrimaryIPFilterSet):
+class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, PrimaryIPFilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
         queryset=Device.objects.all(),
@@ -1394,7 +1395,7 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, Prim
         return queryset.exclude(params)
 
 
-class ModuleFilterSet(NetBoxModelFilterSet):
+class ModuleFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -1516,7 +1517,7 @@ class ModuleFilterSet(NetBoxModelFilterSet):
         ).distinct()
 
 
-class DeviceComponentFilterSet(django_filters.FilterSet):
+class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -1682,12 +1683,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
             return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
 
 
-class ConsolePortFilterSet(
-    ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
-    CabledObjectFilterSet,
-    PathEndpointFilterSet
-):
+class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -1698,12 +1694,7 @@ class ConsolePortFilterSet(
         fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
 
 
-class ConsoleServerPortFilterSet(
-    ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
-    CabledObjectFilterSet,
-    PathEndpointFilterSet
-):
+class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
         null_value=None
@@ -1714,12 +1705,7 @@ class ConsoleServerPortFilterSet(
         fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
 
 
-class PowerPortFilterSet(
-    ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
-    CabledObjectFilterSet,
-    PathEndpointFilterSet
-):
+class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
         null_value=None
@@ -1732,12 +1718,7 @@ class PowerPortFilterSet(
         )
 
 
-class PowerOutletFilterSet(
-    ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
-    CabledObjectFilterSet,
-    PathEndpointFilterSet
-):
+class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
         null_value=None
@@ -1762,7 +1743,7 @@ class PowerOutletFilterSet(
         )
 
 
-class MACAddressFilterSet(NetBoxModelFilterSet):
+class MACAddressFilterSet(PrimaryModelFilterSet):
     mac_address = MultiValueMACAddressFilter()
     assigned_object_type = ContentTypeFilter()
     device = MultiValueCharFilter(
@@ -1914,7 +1895,6 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
 
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
     CabledObjectFilterSet,
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
@@ -2075,11 +2055,7 @@ class InterfaceFilterSet(
             )
 
 
-class FrontPortFilterSet(
-    ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
-    CabledObjectFilterSet
-):
+class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -2095,11 +2071,7 @@ class FrontPortFilterSet(
         )
 
 
-class RearPortFilterSet(
-    ModularDeviceComponentFilterSet,
-    NetBoxModelFilterSet,
-    CabledObjectFilterSet
-):
+class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -2112,7 +2084,7 @@ class RearPortFilterSet(
         )
 
 
-class ModuleBayFilterSet(ModularDeviceComponentFilterSet, NetBoxModelFilterSet):
+class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleBay.objects.all(),
         label=_('Parent module bay (ID)'),
@@ -2128,7 +2100,7 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet, NetBoxModelFilterSet):
         fields = ('id', 'name', 'label', 'position', 'description')
 
 
-class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
+class DeviceBayFilterSet(DeviceComponentFilterSet):
     installed_device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label=_('Installed device (ID)'),
@@ -2145,7 +2117,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
         fields = ('id', 'name', 'label', 'description')
 
 
-class InventoryItemFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
+class InventoryItemFilterSet(DeviceComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
         label=_('Parent inventory item (ID)'),
@@ -2204,7 +2176,7 @@ class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
-class VirtualChassisFilterSet(NetBoxModelFilterSet):
+class VirtualChassisFilterSet(PrimaryModelFilterSet):
     master_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label=_('Master (ID)'),
@@ -2280,7 +2252,7 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
-class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
+class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     termination_a_type = ContentTypeFilter(
         field_name='terminations__termination_type'
     )
@@ -2457,7 +2429,7 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
         fields = ('id', 'cable', 'cable_end', 'termination_type', 'termination_id')
 
 
-class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
+class PowerPanelFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='site__region',
@@ -2515,7 +2487,7 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet, TenancyFilterSet):
+class PowerFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',

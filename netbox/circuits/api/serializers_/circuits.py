@@ -11,7 +11,9 @@ from circuits.models import (
 from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.api.serializers_.cables import CabledObjectSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import (
+    NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer,
+)
 from netbox.choices import DistanceUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
@@ -29,7 +31,7 @@ __all__ = (
 )
 
 
-class CircuitTypeSerializer(NetBoxModelSerializer):
+class CircuitTypeSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     circuit_count = RelatedObjectCountField('circuits')
@@ -37,8 +39,8 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = CircuitType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'circuit_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
 
@@ -71,15 +73,15 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
         return serializer(obj.termination, nested=True, context=context).data
 
 
-class CircuitGroupSerializer(NetBoxModelSerializer):
+class CircuitGroupSerializer(OrganizationalModelSerializer):
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     circuit_count = RelatedObjectCountField('assignments')
 
     class Meta:
         model = CircuitGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tenant',
-            'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count'
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tenant', 'owner', 'tags',
+            'custom_fields', 'created', 'last_updated', 'circuit_count'
         ]
         brief_fields = ('id', 'url', 'display', 'name')
 
@@ -99,7 +101,7 @@ class CircuitGroupAssignmentSerializer_(NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'group', 'priority')
 
 
-class CircuitSerializer(NetBoxModelSerializer):
+class CircuitSerializer(PrimaryModelSerializer):
     provider = ProviderSerializer(nested=True)
     provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
@@ -115,7 +117,7 @@ class CircuitSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider', 'provider_account', 'type', 'status', 'tenant',
             'install_date', 'termination_date', 'commit_rate', 'description', 'distance', 'distance_unit',
-            'termination_a', 'termination_z', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'termination_a', 'termination_z', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'assignments',
         ]
         brief_fields = ('id', 'url', 'display', 'provider', 'cid', 'description')
@@ -176,7 +178,7 @@ class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
         return serializer(obj.member, nested=True, context=context).data
 
 
-class VirtualCircuitTypeSerializer(NetBoxModelSerializer):
+class VirtualCircuitTypeSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     virtual_circuit_count = RelatedObjectCountField('virtual_circuits')
@@ -184,13 +186,13 @@ class VirtualCircuitTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualCircuitType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'virtual_circuit_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'custom_fields', 'created', 'last_updated', 'virtual_circuit_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'virtual_circuit_count')
 
 
-class VirtualCircuitSerializer(NetBoxModelSerializer):
+class VirtualCircuitSerializer(PrimaryModelSerializer):
     provider_network = ProviderNetworkSerializer(nested=True)
     provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True, default=None)
     type = VirtualCircuitTypeSerializer(nested=True)
@@ -201,7 +203,7 @@ class VirtualCircuitSerializer(NetBoxModelSerializer):
         model = VirtualCircuit
         fields = [
             'id', 'url', 'display_url', 'display', 'cid', 'provider_network', 'provider_account', 'type', 'status',
-            'tenant', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'provider_network', 'cid', 'description')
 

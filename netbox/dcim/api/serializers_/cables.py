@@ -5,7 +5,9 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer
+from netbox.api.serializers import (
+    BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer, PrimaryModelSerializer,
+)
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 
@@ -18,7 +20,7 @@ __all__ = (
 )
 
 
-class CableSerializer(NetBoxModelSerializer):
+class CableSerializer(PrimaryModelSerializer):
     a_terminations = GenericObjectSerializer(many=True, required=False)
     b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
@@ -29,8 +31,8 @@ class CableSerializer(NetBoxModelSerializer):
         model = Cable
         fields = [
             'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant',
-            'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'label', 'description')
 

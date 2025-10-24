@@ -18,4 +18,10 @@ urlpatterns = [
     path('permissions/', include(get_model_urls('users', 'objectpermission', detail=False))),
     path('permissions/<int:pk>/', include(get_model_urls('users', 'objectpermission'))),
 
+    path('owner-groups/', include(get_model_urls('users', 'ownergroup', detail=False))),
+    path('owner-groups/<int:pk>/', include(get_model_urls('users', 'ownergroup'))),
+
+    path('owners/', include(get_model_urls('users', 'owner', detail=False))),
+    path('owners/<int:pk>/', include(get_model_urls('users', 'owner'))),
+
 ]

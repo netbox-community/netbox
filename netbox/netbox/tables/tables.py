@@ -27,7 +27,10 @@ from .template_code import *
 
 __all__ = (
     'BaseTable',
+    'NestedGroupModelTable',
     'NetBoxTable',
+    'OrganizationalModelTable',
+    'PrimaryModelTable',
     'SearchTable',
 )
 
@@ -265,6 +268,41 @@ class NetBoxTable(BaseTable):
             except NoReverseMatch:
                 pass
         return ''
+
+
+class PrimaryModelTable(NetBoxTable):
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
+
+
+class OrganizationalModelTable(NetBoxTable):
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
+
+
+class NestedGroupModelTable(NetBoxTable):
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
+    name = columns.MPTTColumn(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True,
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
 
 class SearchTable(tables.Table):

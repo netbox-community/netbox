@@ -6,7 +6,8 @@ import strawberry_django
 from core.graphql.mixins import SyncedDataMixin
 from extras import models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, ContentTypeType, NetBoxObjectType, ObjectType, OrganizationalObjectType
+from netbox.graphql.types import BaseObjectType, ContentTypeType, ObjectType, PrimaryObjectType
+from users.graphql.mixins import OwnerMixin
 from .filters import *
 
 if TYPE_CHECKING:
@@ -51,7 +52,7 @@ __all__ = (
     filters=ConfigContextProfileFilter,
     pagination=True
 )
-class ConfigContextProfileType(SyncedDataMixin, NetBoxObjectType):
+class ConfigContextProfileType(SyncedDataMixin, PrimaryObjectType):
     pass
 
 
@@ -61,7 +62,7 @@ class ConfigContextProfileType(SyncedDataMixin, NetBoxObjectType):
     filters=ConfigContextFilter,
     pagination=True
 )
-class ConfigContextType(SyncedDataMixin, ObjectType):
+class ConfigContextType(SyncedDataMixin, OwnerMixin, ObjectType):
     profile: ConfigContextProfileType | None
     roles: List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
     device_types: List[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]
@@ -84,7 +85,7 @@ class ConfigContextType(SyncedDataMixin, ObjectType):
     filters=ConfigTemplateFilter,
     pagination=True
 )
-class ConfigTemplateType(SyncedDataMixin, TagsMixin, ObjectType):
+class ConfigTemplateType(SyncedDataMixin, OwnerMixin, TagsMixin, ObjectType):
     virtualmachines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     platforms: List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
@@ -97,7 +98,7 @@ class ConfigTemplateType(SyncedDataMixin, TagsMixin, ObjectType):
     filters=CustomFieldFilter,
     pagination=True
 )
-class CustomFieldType(ObjectType):
+class CustomFieldType(OwnerMixin, ObjectType):
     related_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
     choice_set: Annotated["CustomFieldChoiceSetType", strawberry.lazy('extras.graphql.types')] | None
 
@@ -108,7 +109,7 @@ class CustomFieldType(ObjectType):
     filters=CustomFieldChoiceSetFilter,
     pagination=True
 )
-class CustomFieldChoiceSetType(ObjectType):
+class CustomFieldChoiceSetType(OwnerMixin, ObjectType):
 
     choices_for: List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]
     extra_choices: List[List[str]] | None
@@ -120,7 +121,7 @@ class CustomFieldChoiceSetType(ObjectType):
     filters=CustomLinkFilter,
     pagination=True
 )
-class CustomLinkType(ObjectType):
+class CustomLinkType(OwnerMixin, ObjectType):
     pass
 
 
@@ -130,7 +131,7 @@ class CustomLinkType(ObjectType):
     filters=ExportTemplateFilter,
     pagination=True
 )
-class ExportTemplateType(SyncedDataMixin, ObjectType):
+class ExportTemplateType(SyncedDataMixin, OwnerMixin, ObjectType):
     pass
 
 
@@ -180,7 +181,7 @@ class NotificationGroupType(ObjectType):
     filters=SavedFilterFilter,
     pagination=True
 )
-class SavedFilterType(ObjectType):
+class SavedFilterType(OwnerMixin, ObjectType):
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
 
@@ -209,7 +210,7 @@ class TableConfigType(ObjectType):
     filters=TagFilter,
     pagination=True
 )
-class TagType(ObjectType):
+class TagType(OwnerMixin, ObjectType):
     color: str
 
     object_types: List[ContentTypeType]
@@ -221,7 +222,7 @@ class TagType(ObjectType):
     filters=WebhookFilter,
     pagination=True
 )
-class WebhookType(OrganizationalObjectType):
+class WebhookType(OwnerMixin, CustomFieldsMixin, TagsMixin, ObjectType):
     pass
 
 
@@ -231,5 +232,5 @@ class WebhookType(OrganizationalObjectType):
     filters=EventRuleFilter,
     pagination=True
 )
-class EventRuleType(OrganizationalObjectType):
+class EventRuleType(OwnerMixin, CustomFieldsMixin, TagsMixin, ObjectType):
     action_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None

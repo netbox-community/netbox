@@ -6,7 +6,7 @@ from dcim.models import Location, Region, Site, SiteGroup
 from ipam.api.serializers_.asns import ASNSerializer
 from ipam.models import ASN
 from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
-from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
+from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from .nested import NestedLocationSerializer, NestedRegionSerializer, NestedSiteGroupSerializer
 
@@ -27,7 +27,7 @@ class RegionSerializer(NestedGroupModelSerializer):
         model = Region
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', 'prefix_count', 'comments', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', 'owner', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
@@ -41,12 +41,12 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
         model = SiteGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'site_count', 'prefix_count', 'comments', '_depth',
+            'created', 'last_updated', 'site_count', 'prefix_count', 'owner', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
 
-class SiteSerializer(NetBoxModelSerializer):
+class SiteSerializer(PrimaryModelSerializer):
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = RegionSerializer(nested=True, required=False, allow_null=True)
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
@@ -72,7 +72,7 @@ class SiteSerializer(NetBoxModelSerializer):
         model = Site
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'status', 'region', 'group', 'tenant', 'facility',
-            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude',
+            'time_zone', 'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'owner',
             'comments', 'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count', 'device_count',
             'prefix_count', 'rack_count', 'virtualmachine_count', 'vlan_count',
         ]
@@ -93,6 +93,6 @@ class LocationSerializer(NestedGroupModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'site', 'parent', 'status', 'tenant', 'facility',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count',
-            'prefix_count', 'comments', '_depth',
+            'prefix_count', 'owner', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')

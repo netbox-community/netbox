@@ -7,8 +7,24 @@ from utilities.conversion import to_grams, to_meters
 
 __all__ = (
     'DistanceMixin',
+    'OwnerMixin',
     'WeightMixin',
 )
+
+
+class OwnerMixin(models.Model):
+    """
+    Adds a ForeignKey to users.Owner to indicate an object's owner.
+    """
+    owner = models.ForeignKey(
+        to='users.Owner',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
 
 
 class WeightMixin(models.Model):

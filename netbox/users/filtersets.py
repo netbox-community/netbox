@@ -6,12 +6,14 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
-from users.models import Group, ObjectPermission, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.filters import ContentTypeFilter
 
 __all__ = (
     'GroupFilterSet',
     'ObjectPermissionFilterSet',
+    'OwnerFilterSet',
+    'OwnerGroupFilterSet',
     'TokenFilterSet',
     'UserFilterSet',
 )
@@ -26,6 +28,17 @@ class GroupFilterSet(BaseFilterSet):
         field_name='user',
         queryset=User.objects.all(),
         label=_('User (ID)'),
+    )
+    owner_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner',
+        queryset=Owner.objects.all(),
+        label=_('Owner (ID)'),
+    )
+    owner = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner__name',
+        queryset=Owner.objects.all(),
+        to_field_name='name',
+        label=_('Owner (name)'),
     )
     permission_id = django_filters.ModelMultipleChoiceFilter(
         field_name='object_permissions',
@@ -66,6 +79,17 @@ class UserFilterSet(BaseFilterSet):
         queryset=Group.objects.all(),
         to_field_name='name',
         label=_('Group (name)'),
+    )
+    owner_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner',
+        queryset=Owner.objects.all(),
+        label=_('Owner (ID)'),
+    )
+    owner = django_filters.ModelMultipleChoiceFilter(
+        field_name='owner__name',
+        queryset=Owner.objects.all(),
+        to_field_name='name',
+        label=_('Owner (name)'),
     )
     permission_id = django_filters.ModelMultipleChoiceFilter(
         field_name='object_permissions',
@@ -221,3 +245,73 @@ class ObjectPermissionFilterSet(BaseFilterSet):
             return queryset.filter(actions__contains=[action])
         else:
             return queryset.exclude(actions__contains=[action])
+
+
+class OwnerGroupFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = OwnerGroup
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class OwnerFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=OwnerGroup.objects.all(),
+        label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='group__name',
+        queryset=OwnerGroup.objects.all(),
+        to_field_name='name',
+        label=_('Group (name)'),
+    )
+    user_group_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='user_groups',
+        queryset=Group.objects.all(),
+        label=_('User group (ID)'),
+    )
+    user_group = django_filters.ModelMultipleChoiceFilter(
+        field_name='user_groups__name',
+        queryset=Group.objects.all(),
+        to_field_name='name',
+        label=_('User group (name)'),
+    )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='users',
+        queryset=User.objects.all(),
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='users__username',
+        queryset=User.objects.all(),
+        to_field_name='username',
+        label=_('User (username)'),
+    )
+
+    class Meta:
+        model = Owner
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )

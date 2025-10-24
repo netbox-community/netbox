@@ -5,7 +5,7 @@ from rest_framework import serializers
 from ipam.api.serializers_.vrfs import RouteTargetSerializer
 from ipam.models import RouteTarget
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from vpn.choices import *
@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class L2VPNSerializer(NetBoxModelSerializer):
+class L2VPNSerializer(PrimaryModelSerializer):
     type = ChoiceField(choices=L2VPNTypeChoices, required=False)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
@@ -40,7 +40,8 @@ class L2VPNSerializer(NetBoxModelSerializer):
         model = L2VPN
         fields = [
             'id', 'url', 'display_url', 'display', 'identifier', 'name', 'slug', 'type', 'status', 'import_targets',
-            'export_targets', 'description', 'comments', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
+            'export_targets', 'description', 'owner', 'comments', 'tenant', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'description')
 

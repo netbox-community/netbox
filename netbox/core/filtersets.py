@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, PrimaryModelFilterSet
 from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.filters import ContentTypeFilter
@@ -20,7 +20,7 @@ __all__ = (
 )
 
 
-class DataSourceFilterSet(NetBoxModelFilterSet):
+class DataSourceFilterSet(PrimaryModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=get_data_backend_choices,
         null_value=None

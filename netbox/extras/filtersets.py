@@ -5,8 +5,9 @@ from django.utils.translation import gettext as _
 
 from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
-from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
 from tenancy.models import Tenant, TenantGroup
+from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
@@ -61,7 +62,7 @@ class ScriptFilterSet(BaseFilterSet):
         )
 
 
-class WebhookFilterSet(NetBoxModelFilterSet):
+class WebhookFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -90,7 +91,7 @@ class WebhookFilterSet(NetBoxModelFilterSet):
         )
 
 
-class EventRuleFilterSet(NetBoxModelFilterSet):
+class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -130,7 +131,7 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(event_types__overlap=value)
 
 
-class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
+class CustomFieldFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -179,7 +180,7 @@ class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class CustomFieldChoiceSetFilterSet(ChangeLoggedModelFilterSet):
+class CustomFieldChoiceSetFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -207,7 +208,7 @@ class CustomFieldChoiceSetFilterSet(ChangeLoggedModelFilterSet):
         return queryset.filter(extra_choices__overlap=value)
 
 
-class CustomLinkFilterSet(ChangeLoggedModelFilterSet):
+class CustomLinkFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -237,7 +238,7 @@ class CustomLinkFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
+class ExportTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -275,7 +276,7 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class SavedFilterFilterSet(ChangeLoggedModelFilterSet):
+class SavedFilterFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -494,7 +495,7 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
         return queryset.filter(comments__icontains=value)
 
 
-class TagFilterSet(ChangeLoggedModelFilterSet):
+class TagFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -589,7 +590,7 @@ class TaggedItemFilterSet(BaseFilterSet):
         )
 
 
-class ConfigContextProfileFilterSet(NetBoxModelFilterSet):
+class ConfigContextProfileFilterSet(PrimaryModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -619,7 +620,7 @@ class ConfigContextProfileFilterSet(NetBoxModelFilterSet):
         )
 
 
-class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
+class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -788,7 +789,7 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
-class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
+class ConfigTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
