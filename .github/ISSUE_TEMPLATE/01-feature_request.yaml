@@ -2,7 +2,7 @@
 name: ✨ Feature Request
 type: Feature
 description: Propose a new NetBox feature or enhancement
-labels: ["type: feature", "status: needs triage"]
+labels: ["netbox", "type: feature", "status: needs triage"]
 body:
   - type: markdown
     attributes:

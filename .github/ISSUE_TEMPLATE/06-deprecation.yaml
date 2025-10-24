@@ -2,7 +2,7 @@
 name: 🗑️ Deprecation
 type: Deprecation
 description: The removal of an existing feature or resource
-labels: ["type: deprecation"]
+labels: ["netbox", "type: deprecation"]
 body:
   - type: textarea
     attributes:
