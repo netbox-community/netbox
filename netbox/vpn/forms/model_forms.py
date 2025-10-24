@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
@@ -29,9 +29,7 @@ __all__ = (
 )
 
 
-class TunnelGroupForm(NetBoxModelForm):
-    slug = SlugField()
-
+class TunnelGroupForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Tunnel Group')),
     )
@@ -39,11 +37,11 @@ class TunnelGroupForm(NetBoxModelForm):
     class Meta:
         model = TunnelGroup
         fields = [
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         ]
 
 
-class TunnelForm(TenancyForm, NetBoxModelForm):
+class TunnelForm(TenancyForm, PrimaryModelForm):
     group = DynamicModelChoiceField(
         queryset=TunnelGroup.objects.all(),
         label=_('Tunnel Group'),
@@ -55,7 +53,6 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
         label=_('IPSec Profile'),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags', name=_('Tunnel')),
@@ -67,7 +64,7 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
         model = Tunnel
         fields = [
             'name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tenant_group',
-            'tenant', 'comments', 'tags',
+            'tenant', 'owner', 'comments', 'tags',
         ]
 
 
@@ -293,7 +290,7 @@ class TunnelTerminationForm(NetBoxModelForm):
         self.instance.termination = self.cleaned_data.get('termination')
 
 
-class IKEProposalForm(NetBoxModelForm):
+class IKEProposalForm(PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Proposal')),
@@ -307,11 +304,11 @@ class IKEProposalForm(NetBoxModelForm):
         model = IKEProposal
         fields = [
             'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group',
-            'sa_lifetime', 'comments', 'tags',
+            'sa_lifetime', 'owner', 'comments', 'tags',
         ]
 
 
-class IKEPolicyForm(NetBoxModelForm):
+class IKEPolicyForm(PrimaryModelForm):
     proposals = DynamicModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
         label=_('Proposals'),
@@ -326,11 +323,11 @@ class IKEPolicyForm(NetBoxModelForm):
     class Meta:
         model = IKEPolicy
         fields = [
-            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments', 'tags',
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'owner', 'comments', 'tags',
         ]
 
 
-class IPSecProposalForm(NetBoxModelForm):
+class IPSecProposalForm(PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Proposal')),
@@ -344,11 +341,11 @@ class IPSecProposalForm(NetBoxModelForm):
         model = IPSecProposal
         fields = [
             'name', 'description', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
-            'sa_lifetime_data', 'comments', 'tags',
+            'sa_lifetime_data', 'owner', 'comments', 'tags',
         ]
 
 
-class IPSecPolicyForm(NetBoxModelForm):
+class IPSecPolicyForm(PrimaryModelForm):
     proposals = DynamicModelMultipleChoiceField(
         queryset=IPSecProposal.objects.all(),
         label=_('Proposals'),
@@ -363,11 +360,11 @@ class IPSecPolicyForm(NetBoxModelForm):
     class Meta:
         model = IPSecPolicy
         fields = [
-            'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
+            'name', 'description', 'proposals', 'pfs_group', 'owner', 'comments', 'tags',
         ]
 
 
-class IPSecProfileForm(NetBoxModelForm):
+class IPSecProfileForm(PrimaryModelForm):
     ike_policy = DynamicModelChoiceField(
         queryset=IKEPolicy.objects.all(),
         label=_('IKE policy')
@@ -376,7 +373,6 @@ class IPSecProfileForm(NetBoxModelForm):
         queryset=IPSecPolicy.objects.all(),
         label=_('IPSec policy')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'description', 'tags', name=_('Profile')),
@@ -386,7 +382,7 @@ class IPSecProfileForm(NetBoxModelForm):
     class Meta:
         model = IPSecProfile
         fields = [
-            'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
+            'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -394,7 +390,7 @@ class IPSecProfileForm(NetBoxModelForm):
 # L2VPN
 #
 
-class L2VPNForm(TenancyForm, NetBoxModelForm):
+class L2VPNForm(TenancyForm, PrimaryModelForm):
     slug = SlugField()
     import_targets = DynamicModelMultipleChoiceField(
         label=_('Import targets'),
@@ -406,7 +402,6 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'slug', 'type', 'status', 'identifier', 'description', 'tags', name=_('L2VPN')),
@@ -417,8 +412,8 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = L2VPN
         fields = (
-            'name', 'slug', 'type', 'status', 'identifier', 'import_targets', 'export_targets', 'tenant',
-            'description', 'comments', 'tags'
+            'name', 'slug', 'type', 'status', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
+            'owner', 'comments', 'tags'
         )
 
 

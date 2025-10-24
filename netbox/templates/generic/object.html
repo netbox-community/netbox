@@ -55,11 +55,23 @@ Context:
 
 {% block subtitle %}
   <div class="text-secondary fs-5">
-    {% trans "Created" %} {{ object.created|isodatetime:"minutes" }}
-    {% if object.last_updated %}
-      <span class="separator">&middot;</span>
-      {% trans "Updated" %} {{ object.last_updated|isodatetime:"minutes" }}
-    {% endif %}
+    <ul class="list-inline">
+      {% if object.owner %}
+        <li class="list-inline-item">
+          <i class="mdi mdi-account-outline" title="{% trans "Owner" %}"></i> {{ object.owner|linkify }}
+        </li>
+      {% endif %}
+      <li class="list-inline-item">
+        <i class="mdi mdi-calendar-plus" title="{% trans "Created" %}"></i>
+        {{ object.created|isodatetime:"minutes" }}
+      </li>
+      {% if object.last_updated %}
+        <li class="list-inline-item">
+          <i class="mdi mdi-calendar-edit" title="{% trans "Last updated" %}"></i>
+          {{ object.last_updated|isodatetime:"minutes" }}
+        </li>
+      {% endif %}
+    </ul>
   </div>
 {% endblock subtitle %}
 

@@ -1,8 +1,8 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Module, ModuleType, ModuleTypeProfile
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import PrimaryModelTable, columns
 from .template_code import MODULETYPEPROFILE_ATTRIBUTES, WEIGHT
 
 __all__ = (
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class ModuleTypeProfileTable(NetBoxTable):
+class ModuleTypeProfileTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -23,14 +23,11 @@ class ModuleTypeProfileTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Attributes')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:moduletypeprofile_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = ModuleTypeProfile
         fields = (
             'pk', 'id', 'name', 'description', 'comments', 'tags', 'created', 'last_updated',
@@ -40,7 +37,7 @@ class ModuleTypeProfileTable(NetBoxTable):
         )
 
 
-class ModuleTypeTable(NetBoxTable):
+class ModuleTypeTable(PrimaryModelTable):
     profile = tables.Column(
         verbose_name=_('Profile'),
         linkify=True
@@ -64,14 +61,11 @@ class ModuleTypeTable(NetBoxTable):
         url_params={'module_type_id': 'pk'},
         verbose_name=_('Instances')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = ModuleType
         fields = (
             'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'description',
@@ -82,7 +76,7 @@ class ModuleTypeTable(NetBoxTable):
         )
 
 
-class ModuleTable(NetBoxTable):
+class ModuleTable(PrimaryModelTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify=True
@@ -103,14 +97,11 @@ class ModuleTable(NetBoxTable):
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:module_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Module
         fields = (
             'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'status', 'serial', 'asset_tag',

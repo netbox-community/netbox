@@ -434,8 +434,8 @@ class VirtualChassisCreateForm(NetBoxModelForm):
     class Meta:
         model = VirtualChassis
         fields = [
-            'name', 'domain', 'description', 'region', 'site_group', 'site', 'rack', 'members', 'initial_position',
-            'tags',
+            'name', 'domain', 'description', 'region', 'site_group', 'site', 'rack', 'owner', 'members',
+            'initial_position', 'tags',
         ]
 
     def clean(self):

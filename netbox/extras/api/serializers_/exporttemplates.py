@@ -3,13 +3,14 @@ from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
+from users.api.serializers_.mixins import OwnerMixin
 
 __all__ = (
     'ExportTemplateSerializer',
 )
 
 
-class ExportTemplateSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
+class ExportTemplateSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedModelSerializer):
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         many=True
@@ -28,6 +29,6 @@ class ExportTemplateSerializer(ChangeLogMessageSerializer, ValidatedModelSeriali
         fields = [
             'id', 'url', 'display_url', 'display', 'object_types', 'name', 'description', 'environment_params',
             'template_code', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'data_source',
-            'data_path', 'data_file', 'data_synced', 'created', 'last_updated',
+            'data_path', 'data_file', 'data_synced', 'owner', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

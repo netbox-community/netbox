@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from vpn.choices import *
@@ -22,7 +22,7 @@ __all__ = (
 # Tunnels
 #
 
-class TunnelGroupSerializer(NetBoxModelSerializer):
+class TunnelGroupSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     tunnel_count = RelatedObjectCountField('tunnels')
@@ -30,13 +30,13 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = TunnelGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'tags', 'custom_fields',
             'created', 'last_updated', 'tunnel_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tunnel_count')
 
 
-class TunnelSerializer(NetBoxModelSerializer):
+class TunnelSerializer(PrimaryModelSerializer):
     status = ChoiceField(
         choices=TunnelStatusChoices
     )
@@ -67,8 +67,8 @@ class TunnelSerializer(NetBoxModelSerializer):
         model = Tunnel
         fields = (
             'id', 'url', 'display_url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile',
-            'tenant', 'tunnel_id', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'terminations_count',
+            'tenant', 'tunnel_id', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'terminations_count',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

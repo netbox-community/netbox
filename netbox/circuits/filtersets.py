@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from dcim.filtersets import CabledObjectFilterSet
 from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import ASN
-from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
@@ -29,7 +29,7 @@ __all__ = (
 )
 
 
-class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
+class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='circuits__terminations___region',
@@ -95,7 +95,7 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         )
 
 
-class ProviderAccountFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
+class ProviderAccountFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
@@ -122,7 +122,7 @@ class ProviderAccountFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         ).distinct()
 
 
-class ProviderNetworkFilterSet(NetBoxModelFilterSet):
+class ProviderNetworkFilterSet(PrimaryModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
@@ -156,7 +156,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
-class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
+class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
         label=_('Provider (ID)'),
@@ -475,7 +475,7 @@ class VirtualCircuitTypeFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
-class VirtualCircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_network__provider',
         queryset=Provider.objects.all(),

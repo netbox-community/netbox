@@ -77,6 +77,7 @@ nav:
         - Wireless: 'features/wireless.md'
         - Virtualization: 'features/virtualization.md'
         - VPN Tunnels: 'features/vpn-tunnels.md'
+        - Resource Ownership: 'features/resource-ownership.md'
         - Tenancy: 'features/tenancy.md'
         - Contacts: 'features/contacts.md'
         - Search: 'features/search.md'
@@ -273,6 +274,9 @@ nav:
             - ContactRole: 'models/tenancy/contactrole.md'
             - Tenant: 'models/tenancy/tenant.md'
             - TenantGroup: 'models/tenancy/tenantgroup.md'
+        - Users:
+            - Owner: 'models/users/owner.md'
+            - OwnerGroup: 'models/users/ownergroup.md'
         - Virtualization:
             - Cluster: 'models/virtualization/cluster.md'
             - ClusterGroup: 'models/virtualization/clustergroup.md'

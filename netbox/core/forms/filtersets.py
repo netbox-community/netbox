@@ -3,13 +3,13 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
 from core.models import *
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField,
+    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
@@ -23,10 +23,10 @@ __all__ = (
 )
 
 
-class DataSourceFilterForm(NetBoxModelFilterSetForm):
+class DataSourceFilterForm(PrimaryModelFilterSetForm):
     model = DataSource
     fieldsets = (
-        FieldSet('q', 'filter_id'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('type', 'status', 'enabled', 'sync_interval', name=_('Data Source')),
     )
     type = forms.MultipleChoiceField(
@@ -51,6 +51,7 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
         choices=JobIntervalChoices,
         required=False
     )
+    tag = TagFilterField(model)
 
 
 class DataFileFilterForm(NetBoxModelFilterSetForm):

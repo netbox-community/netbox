@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.models import Location, Region, Site, SiteGroup
 from netbox.choices import *
-from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms import NestedGroupModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
@@ -19,8 +19,12 @@ __all__ = (
 )
 
 
-class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
+class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
     model = WirelessLANGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('parent_id', name=_('Wireless LAN group')),
+    )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
@@ -29,10 +33,10 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('ssid', 'group_id', 'status', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -95,10 +99,10 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class WirelessLinkFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('ssid', 'status', 'distance', 'distance_unit', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),

@@ -15,7 +15,9 @@ from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
 from utilities.data import flatten_dict
-from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField
+from utilities.forms.fields import (
+    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
+)
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
@@ -23,11 +25,12 @@ from utilities.permissions import qs_filter_from_constraints
 __all__ = (
     'GroupForm',
     'ObjectPermissionForm',
+    'OwnerForm',
+    'OwnerGroupForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
     'UserTokenForm',
-    'TokenForm',
 )
 
 
@@ -431,3 +434,47 @@ class ObjectPermissionForm(forms.ModelForm):
         instance.groups.set(self.cleaned_data['groups'])
 
         return instance
+
+
+class OwnerGroupForm(forms.ModelForm):
+
+    fieldsets = (
+        FieldSet('name', 'description', name=_('Owner Group')),
+    )
+
+    class Meta:
+        model = OwnerGroup
+        fields = [
+            'name', 'description',
+        ]
+
+
+class OwnerForm(forms.ModelForm):
+    fieldsets = (
+        FieldSet('name', 'group', 'description', name=_('Owner')),
+        FieldSet('user_groups', name=_('Groups')),
+        FieldSet('users', name=_('Users')),
+    )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=OwnerGroup.objects.all(),
+        required=False,
+        selector=True,
+        quick_add=True
+    )
+    user_groups = DynamicModelMultipleChoiceField(
+        label=_('User groups'),
+        queryset=Group.objects.all(),
+        required=False
+    )
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        queryset=User.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Owner
+        fields = [
+            'name', 'group', 'description', 'user_groups', 'users',
+        ]

@@ -1,0 +1,46 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block subtitle %}{% endblock %}
+
+{% block extra_controls %}
+  {% if perms.users.add_owner %}
+    <a href="{% url 'users:owner_add' %}?group={{ object.pk }}" class="btn btn-primary">
+      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Owner" %}
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Group" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Members" %}</h2>
+        <div class="list-group list-group-flush">
+          {% for owner in object.members.all %}
+            <a href="{% url 'users:owner' pk=owner.pk %}" class="list-group-item list-group-item-action">{{ owner }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

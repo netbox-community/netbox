@@ -10,12 +10,11 @@ from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, 
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
-from netbox.forms import NetBoxModelForm
+from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
+from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import TenancyForm
 from utilities.forms import ConfirmationForm
-from utilities.forms.fields import (
-    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
-)
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import *
@@ -32,9 +31,7 @@ __all__ = (
 )
 
 
-class ClusterTypeForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ClusterTypeForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Cluster Type')),
     )
@@ -42,13 +39,11 @@ class ClusterTypeForm(NetBoxModelForm):
     class Meta:
         model = ClusterType
         fields = (
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         )
 
 
-class ClusterGroupForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ClusterGroupForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Cluster Group')),
     )
@@ -56,11 +51,11 @@ class ClusterGroupForm(NetBoxModelForm):
     class Meta:
         model = ClusterGroup
         fields = (
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'tags',
         )
 
 
-class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
+class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
     type = DynamicModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -72,7 +67,6 @@ class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
         required=False,
         quick_add=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
@@ -83,7 +77,7 @@ class ClusterForm(TenancyForm, ScopedForm, NetBoxModelForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -173,7 +167,7 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
-class VirtualMachineForm(TenancyForm, NetBoxModelForm):
+class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -221,7 +215,6 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('Config template')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'role', 'status', 'description', 'serial', 'tags', name=_('Virtual Machine')),
@@ -236,7 +229,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         model = VirtualMachine
         fields = [
             'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'comments', 'tags',
+            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'owner', 'comments', 'tags',
             'local_context_data', 'config_template',
         ]
 
@@ -288,7 +281,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 # Virtual machine components
 #
 
-class VMComponentForm(NetBoxModelForm):
+class VMComponentForm(OwnerMixin, NetBoxModelForm):
     virtual_machine = DynamicModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
@@ -387,7 +380,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         fields = [
             'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
-            'tags',
+            'owner', 'tags',
         ]
         labels = {
             'mode': _('802.1Q Mode'),
@@ -406,5 +399,5 @@ class VirtualDiskForm(VMComponentForm):
     class Meta:
         model = VirtualDisk
         fields = [
-            'virtual_machine', 'name', 'size', 'description', 'tags',
+            'virtual_machine', 'name', 'size', 'description', 'owner', 'tags',
         ]

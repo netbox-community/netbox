@@ -77,6 +77,13 @@
   {% render_field form.tenant %}
 </div>
 
+<div class="field-group mb-5">
+  <div class="row">
+    <h2 class="col-9 offset-3">{% trans "Owner" %}</h2>
+  </div>
+  {% render_field form.owner %}
+</div>
+
 {% if form.custom_fields %}
   <div class="field-group mb-5">
     <div class="row">
