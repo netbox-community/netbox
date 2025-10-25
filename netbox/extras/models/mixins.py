@@ -3,6 +3,7 @@ import importlib.util
 import os
 import sys
 
+from django.core.cache import cache
 from django.core.files.storage import storages
 from django.db import models
 from django.http import HttpResponse
@@ -30,7 +31,14 @@ class CustomStoragesLoader(importlib.abc.Loader):
         return None  # Use default module creation
 
     def exec_module(self, module):
-        storage = storages.create_storage(storages.backends["scripts"])
+        # Cache storage for 5 minutes (300 seconds)
+        cache_key = "storage_scripts"
+        storage = cache.get(cache_key)
+
+        if storage is None:
+            storage = storages['scripts']
+            cache.set(cache_key, storage, timeout=300)  # 5 minutes
+
         with storage.open(self.filename, 'rb') as f:
             code = f.read()
         exec(code, module.__dict__)
