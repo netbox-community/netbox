@@ -369,6 +369,20 @@ class IPAddressImportForm(NetBoxModelImportForm):
                     **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
                 )
 
+    def clean_is_primary(self):
+        # Make sure is_primary is None when it's not included in the uploaded data
+        if 'is_primary' not in self.data:
+            return None
+        else:
+            return self.cleaned_data['is_primary']
+
+    def clean_is_oob(self):
+        # Make sure is_oob is None when it's not included in the uploaded data
+        if 'is_oob' not in self.data:
+            return None
+        else:
+            return self.cleaned_data['is_oob']
+
     def clean(self):
         super().clean()
 
@@ -411,18 +425,18 @@ class IPAddressImportForm(NetBoxModelImportForm):
         ipaddress = super().save(*args, **kwargs)
 
         # Set as primary for device/VM
-        if self.cleaned_data.get('is_primary'):
+        if self.cleaned_data.get('is_primary') is not None:
             parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
             if self.instance.address.version == 4:
-                parent.primary_ip4 = ipaddress
+                parent.primary_ip4 = ipaddress if self.cleaned_data.get('is_primary') else None
             elif self.instance.address.version == 6:
-                parent.primary_ip6 = ipaddress
+                parent.primary_ip6 = ipaddress if self.cleaned_data.get('is_primary') else None
             parent.save()
 
         # Set as OOB for device
-        if self.cleaned_data.get('is_oob'):
+        if self.cleaned_data.get('is_oob') is not None:
             parent = self.cleaned_data.get('device')
-            parent.oob_ip = ipaddress
+            parent.oob_ip = ipaddress if self.cleaned_data.get('is_oob') else None
             parent.save()
 
         return ipaddress
