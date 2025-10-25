@@ -661,6 +661,10 @@ class TestVLANGroup(TestCase):
         vlangroup.full_clean()
         vlangroup.save()
 
+    def test_total_vlan_ids(self):
+        vlangroup = VLANGroup.objects.first()
+        self.assertEqual(vlangroup._total_vlan_ids, 100)
+
 
 class TestVLAN(TestCase):
 
