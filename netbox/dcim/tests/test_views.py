@@ -2885,6 +2885,43 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.client.post(self._get_url('bulk_delete'), data)
         self.assertEqual(device.interfaces.count(), 4)  # Child & parent were both deleted
 
+    def test_rename_select_all_spans_pages(self):
+        """
+        Tests the bulk rename functionality for interfaces spanning multiple pages in the UI.
+        """
+        device_name = 'DeviceRename'
+        device = create_test_device(device_name)
+        # Create > default page size (25) so selection spans multiple pages
+        for i in range(37):
+            Interface.objects.create(device=device, name=f'eth{i}')
+
+        self.add_permissions('dcim.change_interface')
+
+        # Filter to this device's interfaces to simulate a real list filter
+        get_qs = {'device_id': Device.objects.get(name=device_name).pk}
+        post_url = f'{self._get_url("bulk_rename")}?device_id={get_qs["device_id"]}'
+
+        # Preview step: ensure 37 selected (not just one page)
+        data = {'_preview': '1', '_all': '1', 'find': 'eth', 'replace': 'xe'}
+        response = self.client.post(post_url, data=data)
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['selected_objects']), 37)
+
+        # Extract pk[] just like the browser would submit on Apply
+        # (either from the form's initial, or from selected_objects)
+        pk_list = response.context['form'].initial.get('pk')
+        if not pk_list:
+            pk_list = [obj.pk for obj in response.context['selected_objects']]
+        pk_list = [str(pk) for pk in pk_list]
+
+        # Apply step: include pk[] in the POST
+        apply_data = {'_apply': '1', '_all': '1', 'find': 'eth', 'replace': 'xe', 'pk': pk_list}
+        response = self.client.post(post_url, data=apply_data)
+
+        # On success the view redirects back to the return URL
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Interface.objects.filter(device=device, name__startswith='xe').count(), 37)
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort

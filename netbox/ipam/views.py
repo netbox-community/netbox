@@ -108,6 +108,7 @@ class VRFBulkEditView(generic.BulkEditView):
 @register_model_view(VRF, 'bulk_rename', path='rename', detail=False)
 class VRFBulkRenameView(generic.BulkRenameView):
     queryset = VRF.objects.all()
+    filterset = filtersets.VRFFilterSet
 
 
 @register_model_view(VRF, 'bulk_delete', path='delete', detail=False)
@@ -163,6 +164,7 @@ class RouteTargetBulkEditView(generic.BulkEditView):
 @register_model_view(RouteTarget, 'bulk_rename', path='rename', detail=False)
 class RouteTargetBulkRenameView(generic.BulkRenameView):
     queryset = RouteTarget.objects.all()
+    filterset = filtersets.RouteTargetFilterSet
 
 
 @register_model_view(RouteTarget, 'bulk_delete', path='delete', detail=False)
@@ -227,6 +229,7 @@ class RIRBulkEditView(generic.BulkEditView):
 @register_model_view(RIR, 'bulk_rename', path='rename', detail=False)
 class RIRBulkRenameView(generic.BulkRenameView):
     queryset = RIR.objects.all()
+    filterset = filtersets.RIRFilterSet
 
 
 @register_model_view(RIR, 'bulk_delete', path='delete', detail=False)
@@ -305,6 +308,7 @@ class ASNRangeBulkEditView(generic.BulkEditView):
 @register_model_view(ASNRange, 'bulk_rename', path='rename', detail=False)
 class ASNRangeBulkRenameView(generic.BulkRenameView):
     queryset = ASNRange.objects.all()
+    filterset = filtersets.ASNRangeFilterSet
 
 
 @register_model_view(ASNRange, 'bulk_delete', path='delete', detail=False)
@@ -377,6 +381,7 @@ class ASNBulkEditView(generic.BulkEditView):
 @register_model_view(ASN, 'bulk_rename', path='rename', detail=False)
 class ASNBulkRenameView(generic.BulkRenameView):
     queryset = ASN.objects.all()
+    filterset = filtersets.ASNFilterSet
 
 
 @register_model_view(ASN, 'bulk_delete', path='delete', detail=False)
@@ -536,6 +541,7 @@ class RoleBulkEditView(generic.BulkEditView):
 @register_model_view(Role, 'bulk_rename', path='rename', detail=False)
 class RoleBulkRenameView(generic.BulkRenameView):
     queryset = Role.objects.all()
+    filterset = filtersets.RoleFilterSet
 
 
 @register_model_view(Role, 'bulk_delete', path='delete', detail=False)
@@ -820,6 +826,7 @@ class IPRangeBulkEditView(generic.BulkEditView):
 @register_model_view(IPRange, 'bulk_rename', path='rename', detail=False)
 class IPRangeBulkRenameView(generic.BulkRenameView):
     queryset = IPRange.objects.all()
+    filterset = filtersets.IPRangeFilterSet
 
 
 @register_model_view(IPRange, 'bulk_delete', path='delete', detail=False)
@@ -1066,6 +1073,7 @@ class VLANGroupBulkEditView(generic.BulkEditView):
 @register_model_view(VLANGroup, 'bulk_rename', path='rename', detail=False)
 class VLANGroupBulkRenameView(generic.BulkRenameView):
     queryset = VLANGroup.objects.all()
+    filterset = filtersets.VLANGroupFilterSet
 
 
 @register_model_view(VLANGroup, 'bulk_delete', path='delete', detail=False)
@@ -1160,6 +1168,7 @@ class VLANTranslationPolicyBulkEditView(generic.BulkEditView):
 @register_model_view(VLANTranslationPolicy, 'bulk_rename', path='rename', detail=False)
 class VLANTranslationPolicyBulkRenameView(generic.BulkRenameView):
     queryset = VLANTranslationPolicy.objects.all()
+    filterset = filtersets.VLANTranslationPolicyFilterSet
 
 
 @register_model_view(VLANTranslationPolicy, 'bulk_delete', path='delete', detail=False)
@@ -1315,6 +1324,7 @@ class FHRPGroupBulkEditView(generic.BulkEditView):
 @register_model_view(FHRPGroup, 'bulk_rename', path='rename', detail=False)
 class FHRPGroupBulkRenameView(generic.BulkRenameView):
     queryset = FHRPGroup.objects.all()
+    filterset = filtersets.FHRPGroupFilterSet
 
 
 @register_model_view(FHRPGroup, 'bulk_delete', path='delete', detail=False)
@@ -1447,6 +1457,7 @@ class VLANBulkEditView(generic.BulkEditView):
 @register_model_view(VLAN, 'bulk_rename', path='rename', detail=False)
 class VLANBulkRenameView(generic.BulkRenameView):
     queryset = VLAN.objects.all()
+    filterset = filtersets.VLANFilterSet
 
 
 @register_model_view(VLAN, 'bulk_delete', path='delete', detail=False)
@@ -1502,6 +1513,7 @@ class ServiceTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(ServiceTemplate, 'bulk_rename', path='rename', detail=False)
 class ServiceTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ServiceTemplate.objects.all()
+    filterset = filtersets.ServiceTemplateFilterSet
 
 
 @register_model_view(ServiceTemplate, 'bulk_delete', path='delete', detail=False)
@@ -1574,6 +1586,7 @@ class ServiceBulkEditView(generic.BulkEditView):
 @register_model_view(Service, 'bulk_rename', path='rename', detail=False)
 class ServiceBulkRenameView(generic.BulkRenameView):
     queryset = Service.objects.all()
+    filterset = filtersets.ServiceFilterSet
 
 
 @register_model_view(Service, 'bulk_delete', path='delete', detail=False)

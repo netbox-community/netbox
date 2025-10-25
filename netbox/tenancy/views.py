@@ -74,6 +74,7 @@ class TenantGroupBulkEditView(generic.BulkEditView):
 @register_model_view(TenantGroup, 'bulk_rename', path='rename', detail=False)
 class TenantGroupBulkRenameView(generic.BulkRenameView):
     queryset = TenantGroup.objects.all()
+    filterset = filtersets.TenantGroupFilterSet
 
 
 @register_model_view(TenantGroup, 'bulk_delete', path='delete', detail=False)
@@ -140,6 +141,7 @@ class TenantBulkEditView(generic.BulkEditView):
 @register_model_view(Tenant, 'bulk_rename', path='rename', detail=False)
 class TenantBulkRenameView(generic.BulkRenameView):
     queryset = Tenant.objects.all()
+    filterset = filtersets.TenantFilterSet
 
 
 @register_model_view(Tenant, 'bulk_delete', path='delete', detail=False)
@@ -220,6 +222,7 @@ class ContactGroupBulkEditView(generic.BulkEditView):
 @register_model_view(ContactGroup, 'bulk_rename', path='rename', detail=False)
 class ContactGroupBulkRenameView(generic.BulkRenameView):
     queryset = ContactGroup.objects.all()
+    filterset = filtersets.ContactGroupFilterSet
 
 
 @register_model_view(ContactGroup, 'bulk_delete', path='delete', detail=False)
@@ -286,6 +289,7 @@ class ContactRoleBulkEditView(generic.BulkEditView):
 @register_model_view(ContactRole, 'bulk_rename', path='rename', detail=False)
 class ContactRoleBulkRenameView(generic.BulkRenameView):
     queryset = ContactRole.objects.all()
+    filterset = filtersets.ContactRoleFilterSet
 
 
 @register_model_view(ContactRole, 'bulk_delete', path='delete', detail=False)
@@ -354,6 +358,7 @@ class ContactBulkEditView(generic.BulkEditView):
 @register_model_view(Contact, 'bulk_rename', path='rename', detail=False)
 class ContactBulkRenameView(generic.BulkRenameView):
     queryset = Contact.objects.all()
+    filterset = filtersets.ContactFilterSet
 
 
 @register_model_view(Contact, 'bulk_delete', path='delete', detail=False)

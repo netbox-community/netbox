@@ -71,6 +71,7 @@ class WirelessLANGroupBulkEditView(generic.BulkEditView):
 @register_model_view(WirelessLANGroup, 'bulk_rename', path='rename', detail=False)
 class WirelessLANGroupBulkRenameView(generic.BulkRenameView):
     queryset = WirelessLANGroup.objects.all()
+    filterset = filtersets.WirelessLANGroupFilterSet
 
 
 @register_model_view(WirelessLANGroup, 'bulk_delete', path='delete', detail=False)
@@ -146,6 +147,7 @@ class WirelessLANBulkEditView(generic.BulkEditView):
 class WirelessLANBulkRenameView(generic.BulkRenameView):
     queryset = WirelessLAN.objects.all()
     field_name = 'ssid'
+    filterset = filtersets.WirelessLANFilterSet
 
 
 @register_model_view(WirelessLAN, 'bulk_delete', path='delete', detail=False)
@@ -202,6 +204,7 @@ class WirelessLinkBulkEditView(generic.BulkEditView):
 class WirelessLinkBulkRenameView(generic.BulkRenameView):
     queryset = WirelessLink.objects.all()
     field_name = 'ssid'
+    filterset = filtersets.WirelessLinkFilterSet
 
 
 @register_model_view(WirelessLink, 'bulk_delete', path='delete', detail=False)
