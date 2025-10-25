@@ -8,7 +8,9 @@ from dcim.graphql.types_v1 import SiteTypeV1
 from extras.graphql.mixins_v1 import ContactsMixinV1
 from ipam import models
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types_v1 import BaseObjectTypeV1, NetBoxObjectTypeV1, OrganizationalObjectTypeV1
+from netbox.graphql.types_v1 import (
+    BaseObjectTypeV1, NetBoxObjectTypeV1, OrganizationalObjectTypeV1, PrimaryObjectTypeV1
+)
 from .filters_v1 import *
 from .mixins_v1 import IPAddressesMixinV1
 
@@ -76,7 +78,7 @@ class BaseIPAddressFamilyTypeV1:
     filters=ASNFilterV1,
     pagination=True
 )
-class ASNTypeV1(NetBoxObjectTypeV1, ContactsMixinV1):
+class ASNTypeV1(ContactsMixinV1, PrimaryObjectTypeV1):
     asn: BigInt
     rir: Annotated["RIRTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
@@ -91,7 +93,7 @@ class ASNTypeV1(NetBoxObjectTypeV1, ContactsMixinV1):
     filters=ASNRangeFilterV1,
     pagination=True
 )
-class ASNRangeTypeV1(NetBoxObjectTypeV1):
+class ASNRangeTypeV1(OrganizationalObjectTypeV1):
     start: BigInt
     end: BigInt
     rir: Annotated["RIRTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
@@ -104,7 +106,7 @@ class ASNRangeTypeV1(NetBoxObjectTypeV1):
     filters=AggregateFilterV1,
     pagination=True
 )
-class AggregateTypeV1(NetBoxObjectTypeV1, ContactsMixinV1, BaseIPAddressFamilyTypeV1):
+class AggregateTypeV1(ContactsMixinV1, BaseIPAddressFamilyTypeV1, PrimaryObjectTypeV1):
     prefix: str
     rir: Annotated["RIRTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
@@ -116,8 +118,7 @@ class AggregateTypeV1(NetBoxObjectTypeV1, ContactsMixinV1, BaseIPAddressFamilyTy
     filters=FHRPGroupFilterV1,
     pagination=True
 )
-class FHRPGroupTypeV1(NetBoxObjectTypeV1, IPAddressesMixinV1):
-
+class FHRPGroupTypeV1(IPAddressesMixinV1, PrimaryObjectTypeV1):
     fhrpgroupassignment_set: List[Annotated["FHRPGroupAssignmentTypeV1", strawberry.lazy('ipam.graphql.types_v1')]]
 
 
@@ -144,7 +145,7 @@ class FHRPGroupAssignmentTypeV1(BaseObjectTypeV1):
     filters=IPAddressFilterV1,
     pagination=True
 )
-class IPAddressTypeV1(NetBoxObjectTypeV1, ContactsMixinV1, BaseIPAddressFamilyTypeV1):
+class IPAddressTypeV1(ContactsMixinV1, BaseIPAddressFamilyTypeV1, PrimaryObjectTypeV1):
     address: str
     vrf: Annotated["VRFTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
@@ -169,7 +170,7 @@ class IPAddressTypeV1(NetBoxObjectTypeV1, ContactsMixinV1, BaseIPAddressFamilyTy
     filters=IPRangeFilterV1,
     pagination=True
 )
-class IPRangeTypeV1(NetBoxObjectTypeV1, ContactsMixinV1):
+class IPRangeTypeV1(ContactsMixinV1, PrimaryObjectTypeV1):
     start_address: str
     end_address: str
     vrf: Annotated["VRFTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
@@ -183,7 +184,7 @@ class IPRangeTypeV1(NetBoxObjectTypeV1, ContactsMixinV1):
     filters=PrefixFilterV1,
     pagination=True
 )
-class PrefixTypeV1(NetBoxObjectTypeV1, ContactsMixinV1, BaseIPAddressFamilyTypeV1):
+class PrefixTypeV1(ContactsMixinV1, BaseIPAddressFamilyTypeV1, PrimaryObjectTypeV1):
     prefix: str
     vrf: Annotated["VRFTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
@@ -232,7 +233,7 @@ class RoleTypeV1(OrganizationalObjectTypeV1):
     filters=RouteTargetFilterV1,
     pagination=True
 )
-class RouteTargetTypeV1(NetBoxObjectTypeV1):
+class RouteTargetTypeV1(PrimaryObjectTypeV1):
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
 
     importing_l2vpns: List[Annotated["L2VPNTypeV1", strawberry.lazy('vpn.graphql.types_v1')]]
@@ -247,7 +248,7 @@ class RouteTargetTypeV1(NetBoxObjectTypeV1):
     filters=ServiceFilterV1,
     pagination=True
 )
-class ServiceTypeV1(NetBoxObjectTypeV1, ContactsMixinV1):
+class ServiceTypeV1(ContactsMixinV1, PrimaryObjectTypeV1):
     ports: List[int]
     ipaddresses: List[Annotated["IPAddressTypeV1", strawberry.lazy('ipam.graphql.types_v1')]]
 
@@ -266,7 +267,7 @@ class ServiceTypeV1(NetBoxObjectTypeV1, ContactsMixinV1):
     filters=ServiceTemplateFilterV1,
     pagination=True
 )
-class ServiceTemplateTypeV1(NetBoxObjectTypeV1):
+class ServiceTemplateTypeV1(PrimaryObjectTypeV1):
     ports: List[int]
 
 
@@ -276,7 +277,7 @@ class ServiceTemplateTypeV1(NetBoxObjectTypeV1):
     filters=VLANFilterV1,
     pagination=True
 )
-class VLANTypeV1(NetBoxObjectTypeV1):
+class VLANTypeV1(PrimaryObjectTypeV1):
     site: Annotated["SiteTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
     group: Annotated["VLANGroupTypeV1", strawberry.lazy('ipam.graphql.types_v1')] | None
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
@@ -325,7 +326,7 @@ class VLANGroupTypeV1(OrganizationalObjectTypeV1):
     filters=VLANTranslationPolicyFilterV1,
     pagination=True
 )
-class VLANTranslationPolicyTypeV1(NetBoxObjectTypeV1):
+class VLANTranslationPolicyTypeV1(PrimaryObjectTypeV1):
     rules: List[Annotated["VLANTranslationRuleTypeV1", strawberry.lazy('ipam.graphql.types_v1')]]
 
 
@@ -348,7 +349,7 @@ class VLANTranslationRuleTypeV1(NetBoxObjectTypeV1):
     filters=VRFFilterV1,
     pagination=True
 )
-class VRFTypeV1(NetBoxObjectTypeV1):
+class VRFTypeV1(PrimaryObjectTypeV1):
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
 
     interfaces: List[Annotated["InterfaceTypeV1", strawberry.lazy('dcim.graphql.types_v1')]]

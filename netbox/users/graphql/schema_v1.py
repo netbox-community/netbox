@@ -13,3 +13,9 @@ class UsersQueryV1:
 
     user: UserTypeV1 = strawberry_django.field()
     user_list: List[UserTypeV1] = strawberry_django.field()
+
+    owner_group: OwnerGroupTypeV1 = strawberry_django.field()
+    owner_group_list: List[OwnerGroupTypeV1] = strawberry_django.field()
+
+    owner: OwnerTypeV1 = strawberry_django.field()
+    owner_list: List[OwnerTypeV1] = strawberry_django.field()
