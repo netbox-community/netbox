@@ -3,16 +3,19 @@ import strawberry_django
 from strawberry.types import Info
 from django.contrib.contenttypes.models import ContentType
 
-from core.graphql.mixins import ChangelogMixin
+from core.graphql.mixins_v1 import ChangelogMixinV1
 from core.models import ObjectType as ObjectType_
-from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
+from extras.graphql.mixins_v1 import CustomFieldsMixinV1, JournalEntriesMixinV1, TagsMixinV1
+from users.graphql.mixins_v1 import OwnerMixinV1
 
 __all__ = (
     'BaseObjectTypeV1',
     'ContentTypeTypeV1',
+    'NestedGroupObjectTypeV1',
+    'NetBoxObjectTypeV1',
     'ObjectTypeV1',
     'OrganizationalObjectTypeV1',
-    'NetBoxObjectTypeV1',
+    'PrimaryObjectTypeV1',
 )
 
 
@@ -44,7 +47,7 @@ class BaseObjectTypeV1:
 
 
 class ObjectTypeV1(
-    ChangelogMixin,
+    ChangelogMixinV1,
     BaseObjectTypeV1
 ):
     """
@@ -53,10 +56,26 @@ class ObjectTypeV1(
     pass
 
 
+class PrimaryObjectTypeV1(
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
+    OwnerMixinV1,
+    BaseObjectTypeV1
+):
+    """
+    Base GraphQL type for models which inherit from PrimaryModel.
+    """
+    pass
+
+
 class OrganizationalObjectTypeV1(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    TagsMixin,
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
+    OwnerMixinV1,
     BaseObjectTypeV1
 ):
     """
@@ -65,11 +84,25 @@ class OrganizationalObjectTypeV1(
     pass
 
 
+class NestedGroupObjectTypeV1(
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
+    OwnerMixinV1,
+    BaseObjectTypeV1
+):
+    """
+    Base GraphQL type for models which inherit from NestedGroupModel.
+    """
+    pass
+
+
 class NetBoxObjectTypeV1(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    JournalEntriesMixin,
-    TagsMixin,
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
     BaseObjectTypeV1
 ):
     """

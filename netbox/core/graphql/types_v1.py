@@ -5,7 +5,7 @@ import strawberry_django
 from django.contrib.contenttypes.models import ContentType as DjangoContentType
 
 from core import models
-from netbox.graphql.types_v1 import BaseObjectTypeV1, NetBoxObjectTypeV1
+from netbox.graphql.types_v1 import BaseObjectTypeV1, PrimaryObjectTypeV1
 from .filters_v1 import *
 
 __all__ = (
@@ -32,8 +32,7 @@ class DataFileTypeV1(BaseObjectTypeV1):
     filters=DataSourceFilterV1,
     pagination=True
 )
-class DataSourceTypeV1(NetBoxObjectTypeV1):
-
+class DataSourceTypeV1(PrimaryObjectTypeV1):
     datafiles: List[Annotated["DataFileTypeV1", strawberry.lazy('core.graphql.types_v1')]]
 
 

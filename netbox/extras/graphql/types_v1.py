@@ -7,8 +7,9 @@ from core.graphql.mixins_v1 import SyncedDataMixinV1
 from extras import models
 from extras.graphql.mixins_v1 import CustomFieldsMixinV1, TagsMixinV1
 from netbox.graphql.types_v1 import (
-    BaseObjectTypeV1, ContentTypeTypeV1, NetBoxObjectTypeV1, ObjectTypeV1, OrganizationalObjectTypeV1
+    BaseObjectTypeV1, ContentTypeTypeV1, ObjectTypeV1, OrganizationalObjectTypeV1, PrimaryObjectTypeV1
 )
+from users.graphql.mixins_v1 import OwnerMixinV1
 from .filters_v1 import *
 
 if TYPE_CHECKING:
@@ -55,7 +56,7 @@ __all__ = (
     filters=ConfigContextProfileFilterV1,
     pagination=True
 )
-class ConfigContextProfileTypeV1(SyncedDataMixinV1, NetBoxObjectTypeV1):
+class ConfigContextProfileTypeV1(SyncedDataMixinV1, PrimaryObjectTypeV1):
     pass
 
 
@@ -65,7 +66,7 @@ class ConfigContextProfileTypeV1(SyncedDataMixinV1, NetBoxObjectTypeV1):
     filters=ConfigContextFilterV1,
     pagination=True
 )
-class ConfigContextTypeV1(SyncedDataMixinV1, ObjectTypeV1):
+class ConfigContextTypeV1(SyncedDataMixinV1, OwnerMixinV1, ObjectTypeV1):
     profile: ConfigContextProfileTypeV1 | None
     roles: List[Annotated["DeviceRoleTypeV1", strawberry.lazy('dcim.graphql.types_v1')]]
     device_types: List[Annotated["DeviceTypeTypeV1", strawberry.lazy('dcim.graphql.types_v1')]]
@@ -88,7 +89,7 @@ class ConfigContextTypeV1(SyncedDataMixinV1, ObjectTypeV1):
     filters=ConfigTemplateFilterV1,
     pagination=True
 )
-class ConfigTemplateTypeV1(SyncedDataMixinV1, TagsMixinV1, ObjectTypeV1):
+class ConfigTemplateTypeV1(SyncedDataMixinV1, OwnerMixinV1, TagsMixinV1, ObjectTypeV1):
     virtualmachines: List[Annotated["VirtualMachineTypeV1", strawberry.lazy('virtualization.graphql.types_v1')]]
     devices: List[Annotated["DeviceTypeV1", strawberry.lazy('dcim.graphql.types_v1')]]
     platforms: List[Annotated["PlatformTypeV1", strawberry.lazy('dcim.graphql.types_v1')]]
@@ -101,7 +102,7 @@ class ConfigTemplateTypeV1(SyncedDataMixinV1, TagsMixinV1, ObjectTypeV1):
     filters=CustomFieldFilterV1,
     pagination=True
 )
-class CustomFieldTypeV1(ObjectTypeV1):
+class CustomFieldTypeV1(OwnerMixinV1, ObjectTypeV1):
     related_object_type: Annotated["ContentTypeTypeV1", strawberry.lazy('netbox.graphql.types_v1')] | None
     choice_set: Annotated["CustomFieldChoiceSetTypeV1", strawberry.lazy('extras.graphql.types_v1')] | None
 
@@ -112,7 +113,7 @@ class CustomFieldTypeV1(ObjectTypeV1):
     filters=CustomFieldChoiceSetFilterV1,
     pagination=True
 )
-class CustomFieldChoiceSetTypeV1(ObjectTypeV1):
+class CustomFieldChoiceSetTypeV1(OwnerMixinV1, ObjectTypeV1):
 
     choices_for: List[Annotated["CustomFieldTypeV1", strawberry.lazy('extras.graphql.types_v1')]]
     extra_choices: List[List[str]] | None
@@ -124,7 +125,7 @@ class CustomFieldChoiceSetTypeV1(ObjectTypeV1):
     filters=CustomLinkFilterV1,
     pagination=True
 )
-class CustomLinkTypeV1(ObjectTypeV1):
+class CustomLinkTypeV1(OwnerMixinV1, ObjectTypeV1):
     pass
 
 
@@ -134,7 +135,7 @@ class CustomLinkTypeV1(ObjectTypeV1):
     filters=ExportTemplateFilterV1,
     pagination=True
 )
-class ExportTemplateTypeV1(SyncedDataMixinV1, ObjectTypeV1):
+class ExportTemplateTypeV1(SyncedDataMixinV1, OwnerMixinV1, ObjectTypeV1):
     pass
 
 
@@ -184,7 +185,7 @@ class NotificationGroupTypeV1(ObjectTypeV1):
     filters=SavedFilterFilterV1,
     pagination=True
 )
-class SavedFilterTypeV1(ObjectTypeV1):
+class SavedFilterTypeV1(OwnerMixinV1, ObjectTypeV1):
     user: Annotated["UserTypeV1", strawberry.lazy('users.graphql.types_v1')] | None
 
 
@@ -213,7 +214,7 @@ class TableConfigTypeV1(ObjectTypeV1):
     filters=TagFilterV1,
     pagination=True
 )
-class TagTypeV1(ObjectTypeV1):
+class TagTypeV1(OwnerMixinV1, ObjectTypeV1):
     color: str
 
     object_types: List[ContentTypeTypeV1]

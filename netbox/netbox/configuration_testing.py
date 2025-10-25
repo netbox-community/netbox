@@ -51,3 +51,6 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': True
 }
+
+# TODO: Switch to 2
+GRAPHQL_DEFAULT_VERSION = 1
