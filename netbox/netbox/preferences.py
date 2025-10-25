@@ -49,6 +49,15 @@ PREFERENCES = {
             else ''
         )
     ),
+    'ui.copilot_enabled': UserPreference(
+        label=_('NetBox Copilot'),
+        choices=(
+            ('', _('Disabled')),
+            ('true', _('Enabled')),
+        ),
+        description=_('Enable the NetBox Copilot AI agent'),
+        default=False,
+    ),
     'pagination.per_page': UserPreference(
         label=_('Page length'),
         choices=get_page_lengths(),

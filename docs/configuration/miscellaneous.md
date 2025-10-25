@@ -53,6 +53,16 @@ Sets content for the top banner in the user interface.
 
 ---
 
+## COPILOT_ENABLED
+
+!!! tip "Dynamic Configuration Parameter"
+
+Default: `True`
+
+Enables or disables the [NetBox Copilot](https://netboxlabs.com/docs/copilot/) agent globally. When enabled, users can opt to toggle the agent individually.
+
+---
+
 ## CENSUS_REPORTING_ENABLED
 
 Default: `True`
