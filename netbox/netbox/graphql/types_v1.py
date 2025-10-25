@@ -6,13 +6,16 @@ from django.contrib.contenttypes.models import ContentType
 from core.graphql.mixins import ChangelogMixin
 from core.models import ObjectType as ObjectType_
 from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
+from users.graphql.mixins import OwnerMixin
 
 __all__ = (
     'BaseObjectTypeV1',
     'ContentTypeTypeV1',
+    'NestedGroupObjectTypeV1',
+    'NetBoxObjectTypeV1',
     'ObjectTypeV1',
     'OrganizationalObjectTypeV1',
-    'NetBoxObjectTypeV1',
+    'PrimaryObjectTypeV1',
 )
 
 
@@ -53,14 +56,44 @@ class ObjectTypeV1(
     pass
 
 
+class PrimaryObjectTypeV1(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    OwnerMixin,
+    BaseObjectTypeV1
+):
+    """
+    Base GraphQL type for models which inherit from PrimaryModel.
+    """
+    pass
+
+
 class OrganizationalObjectTypeV1(
     ChangelogMixin,
     CustomFieldsMixin,
+    JournalEntriesMixin,
     TagsMixin,
+    OwnerMixin,
     BaseObjectTypeV1
 ):
     """
     Base type for organizational models
+    """
+    pass
+
+
+class NestedGroupObjectTypeV1(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    OwnerMixin,
+    BaseObjectTypeV1
+):
+    """
+    Base GraphQL type for models which inherit from NestedGroupModel.
     """
     pass
 
