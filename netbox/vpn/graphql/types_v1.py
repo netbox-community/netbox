@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 
 from extras.graphql.mixins_v1 import ContactsMixinV1, CustomFieldsMixinV1, TagsMixinV1
-from netbox.graphql.types_v1 import ObjectTypeV1, OrganizationalObjectTypeV1, NetBoxObjectTypeV1
+from netbox.graphql.types_v1 import ObjectTypeV1, OrganizationalObjectTypeV1, NetBoxObjectTypeV1, PrimaryObjectTypeV1
 from vpn import models
 from .filters_v1 import *
 
@@ -58,7 +58,7 @@ class TunnelTerminationTypeV1(CustomFieldsMixinV1, TagsMixinV1, ObjectTypeV1):
     filters=TunnelFilterV1,
     pagination=True
 )
-class TunnelTypeV1(ContactsMixinV1, NetBoxObjectTypeV1):
+class TunnelTypeV1(ContactsMixinV1, PrimaryObjectTypeV1):
     group: Annotated["TunnelGroupTypeV1", strawberry.lazy('vpn.graphql.types_v1')] | None
     ipsec_profile: Annotated["IPSecProfileTypeV1", strawberry.lazy('vpn.graphql.types_v1')] | None
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
@@ -72,8 +72,7 @@ class TunnelTypeV1(ContactsMixinV1, NetBoxObjectTypeV1):
     filters=IKEProposalFilterV1,
     pagination=True
 )
-class IKEProposalTypeV1(OrganizationalObjectTypeV1):
-
+class IKEProposalTypeV1(PrimaryObjectTypeV1):
     ike_policies: List[Annotated["IKEPolicyTypeV1", strawberry.lazy('vpn.graphql.types_v1')]]
 
 
@@ -95,7 +94,7 @@ class IKEPolicyTypeV1(OrganizationalObjectTypeV1):
     filters=IPSecProposalFilterV1,
     pagination=True
 )
-class IPSecProposalTypeV1(OrganizationalObjectTypeV1):
+class IPSecProposalTypeV1(PrimaryObjectTypeV1):
 
     ipsec_policies: List[Annotated["IPSecPolicyTypeV1", strawberry.lazy('vpn.graphql.types_v1')]]
 
@@ -131,7 +130,7 @@ class IPSecProfileTypeV1(OrganizationalObjectTypeV1):
     filters=L2VPNFilterV1,
     pagination=True
 )
-class L2VPNTypeV1(ContactsMixinV1, NetBoxObjectTypeV1):
+class L2VPNTypeV1(ContactsMixinV1, PrimaryObjectTypeV1):
     tenant: Annotated["TenantTypeV1", strawberry.lazy('tenancy.graphql.types_v1')] | None
 
     export_targets: List[Annotated["RouteTargetTypeV1", strawberry.lazy('ipam.graphql.types_v1')]]

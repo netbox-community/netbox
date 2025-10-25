@@ -4,7 +4,9 @@ import strawberry
 import strawberry_django
 
 from extras.graphql.mixins_v1 import CustomFieldsMixinV1, TagsMixinV1, ContactsMixinV1
-from netbox.graphql.types_v1 import BaseObjectTypeV1, OrganizationalObjectTypeV1, NetBoxObjectTypeV1
+from netbox.graphql.types_v1 import (
+    BaseObjectTypeV1, OrganizationalObjectTypeV1, PrimaryObjectTypeV1
+)
 from tenancy import models
 from .filters_v1 import *
 from .mixins_v1 import ContactAssignmentsMixinV1
@@ -57,7 +59,7 @@ __all__ = (
     filters=TenantFilterV1,
     pagination=True
 )
-class TenantTypeV1(ContactsMixinV1, NetBoxObjectTypeV1):
+class TenantTypeV1(ContactsMixinV1, PrimaryObjectTypeV1):
     group: Annotated['TenantGroupTypeV1', strawberry.lazy('tenancy.graphql.types_v1')] | None
     asns: List[Annotated['ASNTypeV1', strawberry.lazy('ipam.graphql.types_v1')]]
     circuits: List[Annotated['CircuitTypeV1', strawberry.lazy('circuits.graphql.types_v1')]]
@@ -108,7 +110,7 @@ class TenantGroupTypeV1(OrganizationalObjectTypeV1):
     filters=ContactFilterV1,
     pagination=True
 )
-class ContactTypeV1(ContactAssignmentsMixinV1, NetBoxObjectTypeV1):
+class ContactTypeV1(ContactAssignmentsMixinV1, PrimaryObjectTypeV1):
     groups: List[Annotated['ContactGroupTypeV1', strawberry.lazy('tenancy.graphql.types_v1')]]
 
 

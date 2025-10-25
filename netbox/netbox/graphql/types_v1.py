@@ -3,10 +3,10 @@ import strawberry_django
 from strawberry.types import Info
 from django.contrib.contenttypes.models import ContentType
 
-from core.graphql.mixins import ChangelogMixin
+from core.graphql.mixins_v1 import ChangelogMixinV1
 from core.models import ObjectType as ObjectType_
-from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
-from users.graphql.mixins import OwnerMixin
+from extras.graphql.mixins_v1 import CustomFieldsMixinV1, JournalEntriesMixinV1, TagsMixinV1
+from users.graphql.mixins_v1 import OwnerMixinV1
 
 __all__ = (
     'BaseObjectTypeV1',
@@ -47,7 +47,7 @@ class BaseObjectTypeV1:
 
 
 class ObjectTypeV1(
-    ChangelogMixin,
+    ChangelogMixinV1,
     BaseObjectTypeV1
 ):
     """
@@ -57,11 +57,11 @@ class ObjectTypeV1(
 
 
 class PrimaryObjectTypeV1(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    JournalEntriesMixin,
-    TagsMixin,
-    OwnerMixin,
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
+    OwnerMixinV1,
     BaseObjectTypeV1
 ):
     """
@@ -71,11 +71,11 @@ class PrimaryObjectTypeV1(
 
 
 class OrganizationalObjectTypeV1(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    JournalEntriesMixin,
-    TagsMixin,
-    OwnerMixin,
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
+    OwnerMixinV1,
     BaseObjectTypeV1
 ):
     """
@@ -85,11 +85,11 @@ class OrganizationalObjectTypeV1(
 
 
 class NestedGroupObjectTypeV1(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    JournalEntriesMixin,
-    TagsMixin,
-    OwnerMixin,
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
+    OwnerMixinV1,
     BaseObjectTypeV1
 ):
     """
@@ -99,10 +99,10 @@ class NestedGroupObjectTypeV1(
 
 
 class NetBoxObjectTypeV1(
-    ChangelogMixin,
-    CustomFieldsMixin,
-    JournalEntriesMixin,
-    TagsMixin,
+    ChangelogMixinV1,
+    CustomFieldsMixinV1,
+    JournalEntriesMixinV1,
+    TagsMixinV1,
     BaseObjectTypeV1
 ):
     """
