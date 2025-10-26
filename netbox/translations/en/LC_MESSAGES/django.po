@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-24 05:02+0000\n"
+"POT-Creation-Date: 2025-10-26 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -231,7 +231,7 @@ msgstr ""
 #: netbox/dcim/tables/power.py:93 netbox/dcim/tables/racks.py:125
 #: netbox/dcim/tables/racks.py:215 netbox/dcim/tables/sites.py:151
 #: netbox/extras/filtersets.py:662 netbox/ipam/forms/bulk_edit.py:479
-#: netbox/ipam/forms/bulk_import.py:475 netbox/ipam/forms/filtersets.py:161
+#: netbox/ipam/forms/bulk_import.py:489 netbox/ipam/forms/filtersets.py:161
 #: netbox/ipam/forms/filtersets.py:236 netbox/ipam/forms/filtersets.py:457
 #: netbox/ipam/forms/filtersets.py:552 netbox/ipam/forms/model_forms.py:673
 #: netbox/ipam/tables/vlans.py:90 netbox/ipam/tables/vlans.py:200
@@ -785,7 +785,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:240 netbox/ipam/forms/bulk_edit.py:290
 #: netbox/ipam/forms/bulk_edit.py:343 netbox/ipam/forms/bulk_edit.py:501
 #: netbox/ipam/forms/bulk_import.py:195 netbox/ipam/forms/bulk_import.py:263
-#: netbox/ipam/forms/bulk_import.py:299 netbox/ipam/forms/bulk_import.py:496
+#: netbox/ipam/forms/bulk_import.py:299 netbox/ipam/forms/bulk_import.py:510
 #: netbox/ipam/forms/filtersets.py:219 netbox/ipam/forms/filtersets.py:297
 #: netbox/ipam/forms/filtersets.py:379 netbox/ipam/forms/filtersets.py:564
 #: netbox/ipam/forms/model_forms.py:512 netbox/ipam/tables/ip.py:184
@@ -866,8 +866,8 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:70 netbox/ipam/forms/bulk_import.py:98
 #: netbox/ipam/forms/bulk_import.py:118 netbox/ipam/forms/bulk_import.py:138
 #: netbox/ipam/forms/bulk_import.py:167 netbox/ipam/forms/bulk_import.py:256
-#: netbox/ipam/forms/bulk_import.py:292 netbox/ipam/forms/bulk_import.py:458
-#: netbox/ipam/forms/bulk_import.py:489 netbox/ipam/forms/filtersets.py:50
+#: netbox/ipam/forms/bulk_import.py:292 netbox/ipam/forms/bulk_import.py:472
+#: netbox/ipam/forms/bulk_import.py:503 netbox/ipam/forms/filtersets.py:50
 #: netbox/ipam/forms/filtersets.py:70 netbox/ipam/forms/filtersets.py:102
 #: netbox/ipam/forms/filtersets.py:123 netbox/ipam/forms/filtersets.py:146
 #: netbox/ipam/forms/filtersets.py:182 netbox/ipam/forms/filtersets.py:282
@@ -1106,7 +1106,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:295 netbox/ipam/forms/bulk_edit.py:348
 #: netbox/ipam/forms/bulk_edit.py:506 netbox/ipam/forms/bulk_import.py:200
 #: netbox/ipam/forms/bulk_import.py:268 netbox/ipam/forms/bulk_import.py:304
-#: netbox/ipam/forms/bulk_import.py:501 netbox/ipam/forms/filtersets.py:247
+#: netbox/ipam/forms/bulk_import.py:515 netbox/ipam/forms/filtersets.py:247
 #: netbox/ipam/forms/filtersets.py:305 netbox/ipam/forms/filtersets.py:384
 #: netbox/ipam/forms/filtersets.py:572 netbox/ipam/forms/model_forms.py:195
 #: netbox/ipam/forms/model_forms.py:221 netbox/ipam/forms/model_forms.py:260
@@ -1160,7 +1160,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_import.py:740 netbox/dcim/forms/bulk_import.py:1191
 #: netbox/dcim/forms/bulk_import.py:1622 netbox/ipam/forms/bulk_import.py:197
 #: netbox/ipam/forms/bulk_import.py:265 netbox/ipam/forms/bulk_import.py:301
-#: netbox/ipam/forms/bulk_import.py:498 netbox/ipam/forms/bulk_import.py:511
+#: netbox/ipam/forms/bulk_import.py:512 netbox/ipam/forms/bulk_import.py:525
 #: netbox/virtualization/forms/bulk_import.py:57
 #: netbox/virtualization/forms/bulk_import.py:88
 #: netbox/vpn/forms/bulk_import.py:39 netbox/vpn/forms/bulk_import.py:266
@@ -1178,8 +1178,8 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:74 netbox/ipam/forms/bulk_import.py:102
 #: netbox/ipam/forms/bulk_import.py:122 netbox/ipam/forms/bulk_import.py:142
 #: netbox/ipam/forms/bulk_import.py:171 netbox/ipam/forms/bulk_import.py:260
-#: netbox/ipam/forms/bulk_import.py:296 netbox/ipam/forms/bulk_import.py:462
-#: netbox/ipam/forms/bulk_import.py:493
+#: netbox/ipam/forms/bulk_import.py:296 netbox/ipam/forms/bulk_import.py:476
+#: netbox/ipam/forms/bulk_import.py:507
 #: netbox/virtualization/forms/bulk_import.py:71
 #: netbox/virtualization/forms/bulk_import.py:125
 #: netbox/vpn/forms/bulk_import.py:63 netbox/wireless/forms/bulk_import.py:61
@@ -1388,7 +1388,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_import.py:103 netbox/dcim/forms/model_forms.py:126
 #: netbox/dcim/tables/sites.py:103 netbox/extras/forms/filtersets.py:572
 #: netbox/ipam/filtersets.py:982 netbox/ipam/forms/bulk_edit.py:488
-#: netbox/ipam/forms/bulk_import.py:482 netbox/ipam/forms/model_forms.py:571
+#: netbox/ipam/forms/bulk_import.py:496 netbox/ipam/forms/model_forms.py:571
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:94
 #: netbox/ipam/tables/vlans.py:205
 #: netbox/templates/circuits/circuitgroupassignment.html:22
@@ -2669,7 +2669,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:283 netbox/dcim/models/cables.py:518
+#: netbox/core/models/data.py:283 netbox/dcim/models/cables.py:529
 msgid "path"
 msgstr ""
 
@@ -3182,7 +3182,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:719 netbox/dcim/tables/devices.py:929
 #: netbox/dcim/tables/devices.py:1016 netbox/dcim/tables/devices.py:1175
 #: netbox/dcim/tables/sites.py:28 netbox/dcim/tables/sites.py:62
-#: netbox/dcim/tables/sites.py:147 netbox/ipam/forms/bulk_import.py:568
+#: netbox/dcim/tables/sites.py:147 netbox/ipam/forms/bulk_import.py:582
 #: netbox/ipam/forms/model_forms.py:770 netbox/ipam/tables/fhrp.py:59
 #: netbox/ipam/tables/ip.py:336 netbox/ipam/tables/services.py:45
 #: netbox/templates/dcim/devicerole.html:34
@@ -4847,7 +4847,7 @@ msgid "available options"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:137 netbox/dcim/forms/bulk_import.py:616
-#: netbox/dcim/forms/bulk_import.py:1591 netbox/ipam/forms/bulk_import.py:479
+#: netbox/dcim/forms/bulk_import.py:1591 netbox/ipam/forms/bulk_import.py:493
 #: netbox/virtualization/forms/bulk_import.py:64
 #: netbox/virtualization/forms/bulk_import.py:95
 msgid "Assigned site"
@@ -5615,7 +5615,7 @@ msgstr ""
 msgid "Please select a {scope_type}."
 msgstr ""
 
-#: netbox/dcim/forms/mixins.py:117 netbox/ipam/forms/bulk_import.py:452
+#: netbox/dcim/forms/mixins.py:117 netbox/ipam/forms/bulk_import.py:466
 msgid "Scope type (app & model)"
 msgstr ""
 
@@ -5965,68 +5965,75 @@ msgstr ""
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:407
+#: netbox/dcim/models/cables.py:401
+#, python-brace-format
+msgid ""
+"Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
+"connected."
+msgstr ""
+
+#: netbox/dcim/models/cables.py:418
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:417
+#: netbox/dcim/models/cables.py:428
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:424
+#: netbox/dcim/models/cables.py:435
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:522 netbox/extras/models/configs.py:99
+#: netbox/dcim/models/cables.py:533 netbox/extras/models/configs.py:99
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:526
+#: netbox/dcim/models/cables.py:537
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:530
+#: netbox/dcim/models/cables.py:541
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:538
+#: netbox/dcim/models/cables.py:549
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:539
+#: netbox/dcim/models/cables.py:550
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:614
+#: netbox/dcim/models/cables.py:625
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:626
+#: netbox/dcim/models/cables.py:637
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:631
+#: netbox/dcim/models/cables.py:642
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:655
+#: netbox/dcim/models/cables.py:666
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:657
+#: netbox/dcim/models/cables.py:668
 msgid "All links must match first link type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:740
+#: netbox/dcim/models/cables.py:751
 msgid ""
 "All positions counts within the path on opposite ends of links must match"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:749
+#: netbox/dcim/models/cables.py:760
 msgid "Remote termination position filter is missing"
 msgstr ""
 
@@ -6358,7 +6365,7 @@ msgstr ""
 
 #: netbox/dcim/models/device_components.py:605
 #: netbox/dcim/tables/devices.py:631 netbox/ipam/forms/bulk_edit.py:521
-#: netbox/ipam/forms/bulk_import.py:514 netbox/ipam/forms/filtersets.py:587
+#: netbox/ipam/forms/bulk_import.py:528 netbox/ipam/forms/filtersets.py:587
 #: netbox/ipam/forms/model_forms.py:694 netbox/ipam/tables/vlans.py:109
 #: netbox/templates/dcim/interface.html:86 netbox/templates/ipam/vlan.html:77
 #: netbox/templates/virtualization/vminterface.html:60
@@ -7279,7 +7286,7 @@ msgstr ""
 
 #: netbox/dcim/models/racks.py:305 netbox/ipam/forms/bulk_import.py:204
 #: netbox/ipam/forms/bulk_import.py:272 netbox/ipam/forms/bulk_import.py:307
-#: netbox/ipam/forms/bulk_import.py:505
+#: netbox/ipam/forms/bulk_import.py:519
 #: netbox/virtualization/forms/bulk_import.py:118
 msgid "Functional role"
 msgstr ""
@@ -7530,7 +7537,7 @@ msgid "U Height"
 msgstr ""
 
 #: netbox/dcim/tables/devices.py:210 netbox/dcim/tables/devices.py:1128
-#: netbox/ipam/forms/bulk_import.py:587 netbox/ipam/forms/model_forms.py:317
+#: netbox/ipam/forms/bulk_import.py:601 netbox/ipam/forms/model_forms.py:317
 #: netbox/ipam/forms/model_forms.py:330 netbox/ipam/tables/ip.py:314
 #: netbox/ipam/tables/ip.py:381 netbox/ipam/tables/ip.py:391
 #: netbox/ipam/tables/ip.py:414 netbox/templates/ipam/ipaddress.html:11
@@ -10334,8 +10341,8 @@ msgid "DNS name"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:376 netbox/ipam/forms/bulk_edit.py:573
-#: netbox/ipam/forms/bulk_import.py:433 netbox/ipam/forms/bulk_import.py:551
-#: netbox/ipam/forms/bulk_import.py:579 netbox/ipam/forms/filtersets.py:414
+#: netbox/ipam/forms/bulk_import.py:447 netbox/ipam/forms/bulk_import.py:565
+#: netbox/ipam/forms/bulk_import.py:593 netbox/ipam/forms/filtersets.py:414
 #: netbox/ipam/forms/filtersets.py:604 netbox/templates/ipam/fhrpgroup.html:22
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:24
 #: netbox/templates/ipam/service.html:34
@@ -10379,7 +10386,7 @@ msgstr ""
 msgid "VLAN ID ranges"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:516 netbox/ipam/forms/bulk_import.py:508
+#: netbox/ipam/forms/bulk_edit.py:516 netbox/ipam/forms/bulk_import.py:522
 #: netbox/ipam/forms/filtersets.py:579 netbox/ipam/models/vlans.py:249
 #: netbox/ipam/tables/vlans.py:106
 msgid "Q-in-Q role"
@@ -10393,7 +10400,7 @@ msgstr ""
 msgid "Site & Group"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:557 netbox/ipam/forms/bulk_import.py:538
+#: netbox/ipam/forms/bulk_edit.py:557 netbox/ipam/forms/bulk_import.py:552
 #: netbox/ipam/forms/model_forms.py:726 netbox/ipam/tables/vlans.py:259
 #: netbox/templates/ipam/vlantranslationrule.html:14
 #: netbox/vpn/forms/model_forms.py:322 netbox/vpn/forms/model_forms.py:359
@@ -10460,64 +10467,64 @@ msgstr ""
 msgid "Designate this as the out-of-band IP address for the assigned device"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:384
+#: netbox/ipam/forms/bulk_import.py:398
 msgid "No device or virtual machine specified; cannot set as primary IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:388
+#: netbox/ipam/forms/bulk_import.py:402
 msgid "No device specified; cannot set as out-of-band IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:392
+#: netbox/ipam/forms/bulk_import.py:406
 msgid "Cannot set out-of-band IP for virtual machines"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:396
+#: netbox/ipam/forms/bulk_import.py:410
 msgid "No interface specified; cannot set as primary IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:400
+#: netbox/ipam/forms/bulk_import.py:414
 msgid "No interface specified; cannot set as out-of-band IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:437
+#: netbox/ipam/forms/bulk_import.py:451
 msgid "Auth type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:486
+#: netbox/ipam/forms/bulk_import.py:500
 msgid "Assigned VLAN group"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:518
+#: netbox/ipam/forms/bulk_import.py:532
 msgid "Service VLAN (for Q-in-Q/802.1ad customer VLANs)"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:541 netbox/ipam/models/vlans.py:368
+#: netbox/ipam/forms/bulk_import.py:555 netbox/ipam/models/vlans.py:368
 msgid "VLAN translation policy"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:553 netbox/ipam/forms/bulk_import.py:581
+#: netbox/ipam/forms/bulk_import.py:567 netbox/ipam/forms/bulk_import.py:595
 msgid "IP protocol"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:565
+#: netbox/ipam/forms/bulk_import.py:579
 msgid "Parent type (app & model)"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:572
+#: netbox/ipam/forms/bulk_import.py:586
 msgid "Parent object name"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:576
+#: netbox/ipam/forms/bulk_import.py:590
 msgid "Parent object ID"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:628
+#: netbox/ipam/forms/bulk_import.py:642
 msgid ""
 "One of parent or parent_object_id must be included with parent_object_type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:641
+#: netbox/ipam/forms/bulk_import.py:655
 #, python-brace-format
 msgid "{ip} is not assigned to this parent."
 msgstr ""
