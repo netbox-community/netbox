@@ -201,7 +201,8 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         model = InterfaceTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
-            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated', 'custom_fields',
+            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
+            'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
