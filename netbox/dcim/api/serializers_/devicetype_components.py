@@ -9,7 +9,7 @@ from dcim.models import (
     InventoryItemTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
+from netbox.api.serializers import ChangeLogMessageSerializer, CustomFieldModelSerializer, ValidatedModelSerializer
 from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
@@ -31,7 +31,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateSerializer(ChangeLogMessageSerializer, ValidatedModelSerializer):
+class ComponentTemplateSerializer(ChangeLogMessageSerializer, CustomFieldModelSerializer, ValidatedModelSerializer):
     pass
 
 
@@ -58,7 +58,7 @@ class ConsolePortTemplateSerializer(ComponentTemplateSerializer):
         model = ConsolePortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
-            'description', 'created', 'last_updated',
+            'description', 'created', 'custom_fields', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -86,7 +86,7 @@ class ConsoleServerPortTemplateSerializer(ComponentTemplateSerializer):
         model = ConsoleServerPortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
-            'description', 'created', 'last_updated',
+            'description', 'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -115,7 +115,7 @@ class PowerPortTemplateSerializer(ComponentTemplateSerializer):
         model = PowerPortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
-            'maximum_draw', 'allocated_draw', 'description', 'created', 'last_updated',
+            'maximum_draw', 'allocated_draw', 'description', 'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -155,7 +155,7 @@ class PowerOutletTemplateSerializer(ComponentTemplateSerializer):
         model = PowerOutletTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
-            'power_port', 'feed_leg', 'description', 'created', 'last_updated',
+            'power_port', 'feed_leg', 'description', 'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -201,7 +201,7 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         model = InterfaceTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled',
-            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
+            'mgmt_only', 'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -225,7 +225,7 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
         model = RearPortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
-            'positions', 'description', 'created', 'last_updated',
+            'positions', 'description', 'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -250,7 +250,7 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
         model = FrontPortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
-            'rear_port', 'rear_port_position', 'description', 'created', 'last_updated',
+            'rear_port', 'rear_port_position', 'description', 'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -273,7 +273,7 @@ class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
         model = ModuleBayTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'description',
-            'created', 'last_updated',
+            'created', 'last_updated', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -321,7 +321,7 @@ class InventoryItemTemplateSerializer(ComponentTemplateSerializer):
         fields = [
             'id', 'url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer',
             'part_id', 'description', 'component_type', 'component_id', 'component', 'created', 'last_updated',
-            '_depth',
+            '_depth', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', '_depth')
 
