@@ -9,6 +9,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import CustomFieldsMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -34,7 +35,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
+class ComponentTemplateModel(CustomFieldsMixin, ChangeLoggedModel, TrackingModelMixin):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
@@ -80,6 +81,19 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
         Instantiate a new component on the specified Device.
         """
         raise NotImplementedError()
+
+    def get_cloneable_custom_field_data(self):
+        """
+        Return a dictionary of cloneable custom field values from this template.
+        """
+        if not hasattr(self, 'custom_fields'):
+            return {}
+
+        cloneable_data = {}
+        for field in self.custom_fields:
+            if field.is_cloneable and field.name in self.custom_field_data:
+                cloneable_data[field.name] = self.custom_field_data[field.name]
+        return cloneable_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -211,12 +225,14 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('console port templates')
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
 
     def to_yaml(self):
         return {
@@ -246,12 +262,14 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('console server port templates')
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -296,7 +314,7 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('power port templates')
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
@@ -304,6 +322,9 @@ class PowerPortTemplate(ModularComponentTemplateModel):
             allocated_draw=self.allocated_draw,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def clean(self):
@@ -385,7 +406,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             power_port = PowerPort.objects.get(name=power_port_name, **kwargs)
         else:
             power_port = None
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
@@ -393,6 +414,9 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             feed_leg=self.feed_leg,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -484,7 +508,7 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
                 })
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
@@ -495,6 +519,9 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
             rf_role=self.rf_role,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -589,7 +616,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             rear_port = RearPort.objects.get(name=rear_port_name, **kwargs)
         else:
             rear_port = None
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
@@ -598,6 +625,9 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             rear_port_position=self.rear_port_position,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -641,7 +671,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('rear port templates')
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
@@ -649,6 +679,9 @@ class RearPortTemplate(ModularComponentTemplateModel):
             positions=self.positions,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -680,12 +713,15 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('module bay templates')
 
     def instantiate(self, **kwargs):
-        return self.component_model(
+        component = self.component_model(
             name=self.name,
             label=self.label,
             position=self.position,
             **kwargs
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
@@ -708,11 +744,14 @@ class DeviceBayTemplate(ComponentTemplateModel):
         verbose_name_plural = _('device bay templates')
 
     def instantiate(self, device):
-        return self.component_model(
+        component = self.component_model(
             device=device,
             name=self.name,
             label=self.label
         )
+        component.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component
+
     instantiate.do_not_call_in_templates = True
 
     def clean(self):
@@ -803,7 +842,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
             component = model.objects.get(name=self.component.name, **kwargs)
         else:
             component = None
-        return self.component_model(
+        component_item = self.component_model(
             parent=parent,
             name=self.name,
             label=self.label,
@@ -813,4 +852,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
             part_id=self.part_id,
             **kwargs
         )
+        component_item.custom_field_data.update(self.get_cloneable_custom_field_data())
+        return component_item
+
     instantiate.do_not_call_in_templates = True

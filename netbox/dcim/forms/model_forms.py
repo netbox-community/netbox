@@ -985,7 +985,7 @@ class VCMemberSelectForm(forms.Form):
 # Device component templates
 #
 
-class ComponentTemplateForm(ChangelogMessageMixin, forms.ModelForm):
+class ComponentTemplateForm(NetBoxModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
