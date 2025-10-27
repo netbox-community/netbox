@@ -69,6 +69,9 @@
     {% block layout %}{% endblock %}
 
     {# Additional Javascript #}
+    {% if copilot_enabled and request.user.is_authenticated %}
+      <script src="{{ settings.NETBOX_COPILOT_URL }}" defer></script>
+    {% endif %}
     {% block javascript %}{% endblock %}
 
     {# User messages #}

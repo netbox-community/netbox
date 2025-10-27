@@ -184,6 +184,15 @@ PARAMS = (
         field=forms.BooleanField
     ),
     ConfigParam(
+        name='COPILOT_ENABLED',
+        label=_('NetBox Copilot enabled'),
+        default=True,
+        description=_(
+            "Enable the NetBox Copilot AI agent globally. If enabled, users can toggle the agent individually."
+        ),
+        field=forms.BooleanField
+    ),
+    ConfigParam(
         name='GRAPHQL_ENABLED',
         label=_('GraphQL enabled'),
         default=True,
