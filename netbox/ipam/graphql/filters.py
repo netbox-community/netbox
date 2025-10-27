@@ -101,6 +101,7 @@ class AggregateFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
             q |= Q(**{f"{prefix}prefix__net_contains": query})
         return q
 
+    @strawberry_django.filter_field()
     def family(
         self,
         value: Annotated['IPAddressFamilyEnum', strawberry.lazy('ipam.graphql.enums')],
