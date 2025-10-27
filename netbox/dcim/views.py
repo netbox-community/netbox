@@ -295,6 +295,7 @@ class RegionBulkEditView(generic.BulkEditView):
 @register_model_view(Region, 'bulk_rename', path='rename', detail=False)
 class RegionBulkRenameView(generic.BulkRenameView):
     queryset = Region.objects.all()
+    filterset = filtersets.RegionFilterSet
 
 
 @register_model_view(Region, 'bulk_delete', path='delete', detail=False)
@@ -426,6 +427,7 @@ class SiteGroupBulkEditView(generic.BulkEditView):
 @register_model_view(SiteGroup, 'bulk_rename', path='rename', detail=False)
 class SiteGroupBulkRenameView(generic.BulkRenameView):
     queryset = SiteGroup.objects.all()
+    filterset = filtersets.SiteGroupFilterSet
 
 
 @register_model_view(SiteGroup, 'bulk_delete', path='delete', detail=False)
@@ -516,6 +518,7 @@ class SiteBulkEditView(generic.BulkEditView):
 @register_model_view(Site, 'bulk_rename', path='rename', detail=False)
 class SiteBulkRenameView(generic.BulkRenameView):
     queryset = Site.objects.all()
+    filterset = filtersets.SiteFilterSet
 
 
 @register_model_view(Site, 'bulk_delete', path='delete', detail=False)
@@ -625,6 +628,7 @@ class LocationBulkEditView(generic.BulkEditView):
 @register_model_view(Location, 'bulk_rename', path='rename', detail=False)
 class LocationBulkRenameView(generic.BulkRenameView):
     queryset = Location.objects.all()
+    filterset = filtersets.LocationFilterSet
 
 
 @register_model_view(Location, 'bulk_delete', path='delete', detail=False)
@@ -695,6 +699,7 @@ class RackRoleBulkEditView(generic.BulkEditView):
 @register_model_view(RackRole, 'bulk_rename', path='rename', detail=False)
 class RackRoleBulkRenameView(generic.BulkRenameView):
     queryset = RackRole.objects.all()
+    filterset = filtersets.RackRoleFilterSet
 
 
 @register_model_view(RackRole, 'bulk_delete', path='delete', detail=False)
@@ -760,6 +765,7 @@ class RackTypeBulkEditView(generic.BulkEditView):
 class RackTypeBulkRenameView(generic.BulkRenameView):
     queryset = RackType.objects.all()
     field_name = 'model'
+    filterset = filtersets.RackTypeFilterSet
 
 
 @register_model_view(RackType, 'bulk_delete', path='delete', detail=False)
@@ -944,6 +950,7 @@ class RackBulkEditView(generic.BulkEditView):
 @register_model_view(Rack, 'bulk_rename', path='rename', detail=False)
 class RackBulkRenameView(generic.BulkRenameView):
     queryset = Rack.objects.all()
+    filterset = filtersets.RackFilterSet
 
 
 @register_model_view(Rack, 'bulk_delete', path='delete', detail=False)
@@ -1083,6 +1090,7 @@ class ManufacturerBulkEditView(generic.BulkEditView):
 @register_model_view(Manufacturer, 'bulk_rename', path='rename', detail=False)
 class ManufacturerBulkRenameView(generic.BulkRenameView):
     queryset = Manufacturer.objects.all()
+    filterset = filtersets.ManufacturerFilterSet
 
 
 @register_model_view(Manufacturer, 'bulk_delete', path='delete', detail=False)
@@ -1336,6 +1344,7 @@ class DeviceTypeBulkEditView(generic.BulkEditView):
 class DeviceTypeBulkRenameView(generic.BulkRenameView):
     queryset = DeviceType.objects.all()
     field_name = 'model'
+    filterset = filtersets.DeviceTypeFilterSet
 
 
 @register_model_view(DeviceType, 'bulk_delete', path='delete', detail=False)
@@ -1397,6 +1406,7 @@ class ModuleTypeProfileBulkEditView(generic.BulkEditView):
 @register_model_view(ModuleTypeProfile, 'bulk_rename', path='rename', detail=False)
 class ModuleTypeProfileBulkRenameView(generic.BulkRenameView):
     queryset = ModuleTypeProfile.objects.all()
+    filterset = filtersets.ModuleTypeProfileFilterSet
 
 
 @register_model_view(ModuleTypeProfile, 'bulk_delete', path='delete', detail=False)
@@ -1612,6 +1622,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 @register_model_view(ModuleType, 'bulk_rename', path='rename', detail=False)
 class ModuleTypeBulkRenameView(generic.BulkRenameView):
     queryset = ModuleType.objects.all()
+    filterset = filtersets.ModuleTypeFilterSet
 
 
 @register_model_view(ModuleType, 'bulk_delete', path='delete', detail=False)
@@ -2100,6 +2111,7 @@ class DeviceRoleBulkEditView(generic.BulkEditView):
 @register_model_view(DeviceRole, 'bulk_rename', path='rename', detail=False)
 class DeviceRoleBulkRenameView(generic.BulkRenameView):
     queryset = DeviceRole.objects.all()
+    filterset = filtersets.DeviceRoleFilterSet
 
 
 @register_model_view(DeviceRole, 'bulk_delete', path='delete', detail=False)
@@ -2175,6 +2187,7 @@ class PlatformBulkEditView(generic.BulkEditView):
 @register_model_view(Platform, 'bulk_rename', path='rename', detail=False)
 class PlatformBulkRenameView(generic.BulkRenameView):
     queryset = Platform.objects.all()
+    filterset = filtersets.PlatformFilterSet
 
 
 @register_model_view(Platform, 'bulk_delete', path='delete', detail=False)
@@ -2582,6 +2595,7 @@ class ConsolePortBulkEditView(generic.BulkEditView):
 @register_model_view(ConsolePort, 'bulk_rename', path='rename', detail=False)
 class ConsolePortBulkRenameView(generic.BulkRenameView):
     queryset = ConsolePort.objects.all()
+    filterset = filtersets.ConsolePortFilterSet
 
 
 @register_model_view(ConsolePort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -2652,6 +2666,7 @@ class ConsoleServerPortBulkEditView(generic.BulkEditView):
 @register_model_view(ConsoleServerPort, 'bulk_rename', path='rename', detail=False)
 class ConsoleServerPortBulkRenameView(generic.BulkRenameView):
     queryset = ConsoleServerPort.objects.all()
+    filterset = filtersets.ConsoleServerPortFilterSet
 
 
 @register_model_view(ConsoleServerPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -2722,6 +2737,7 @@ class PowerPortBulkEditView(generic.BulkEditView):
 @register_model_view(PowerPort, 'bulk_rename', path='rename', detail=False)
 class PowerPortBulkRenameView(generic.BulkRenameView):
     queryset = PowerPort.objects.all()
+    filterset = filtersets.PowerPortFilterSet
 
 
 @register_model_view(PowerPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -2792,6 +2808,7 @@ class PowerOutletBulkEditView(generic.BulkEditView):
 @register_model_view(PowerOutlet, 'bulk_rename', path='rename', detail=False)
 class PowerOutletBulkRenameView(generic.BulkRenameView):
     queryset = PowerOutlet.objects.all()
+    filterset = filtersets.PowerOutletFilterSet
 
 
 @register_model_view(PowerOutlet, 'bulk_disconnect', path='disconnect', detail=False)
@@ -2934,6 +2951,7 @@ class InterfaceBulkEditView(generic.BulkEditView):
 @register_model_view(Interface, 'bulk_rename', path='rename', detail=False)
 class InterfaceBulkRenameView(generic.BulkRenameView):
     queryset = Interface.objects.all()
+    filterset = filtersets.InterfaceFilterSet
 
 
 @register_model_view(Interface, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3005,6 +3023,7 @@ class FrontPortBulkEditView(generic.BulkEditView):
 @register_model_view(FrontPort, 'bulk_rename', path='rename', detail=False)
 class FrontPortBulkRenameView(generic.BulkRenameView):
     queryset = FrontPort.objects.all()
+    filterset = filtersets.FrontPortFilterSet
 
 
 @register_model_view(FrontPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3080,6 +3099,7 @@ class RearPortBulkRenameView(generic.BulkRenameView):
 @register_model_view(RearPort, 'bulk_disconnect', path='disconnect', detail=False)
 class RearPortBulkDisconnectView(BulkDisconnectView):
     queryset = RearPort.objects.all()
+    filterset = filtersets.RearPortFilterSet
 
 
 @register_model_view(RearPort, 'bulk_delete', path='delete', detail=False)
@@ -3145,6 +3165,7 @@ class ModuleBayBulkEditView(generic.BulkEditView):
 @register_model_view(ModuleBay, 'bulk_rename', path='rename', detail=False)
 class ModuleBayBulkRenameView(generic.BulkRenameView):
     queryset = ModuleBay.objects.all()
+    filterset = filtersets.ModuleBayFilterSet
 
 
 @register_model_view(ModuleBay, 'bulk_delete', path='delete', detail=False)
@@ -3287,6 +3308,7 @@ class DeviceBayBulkEditView(generic.BulkEditView):
 @register_model_view(DeviceBay, 'bulk_rename', path='rename', detail=False)
 class DeviceBayBulkRenameView(generic.BulkRenameView):
     queryset = DeviceBay.objects.all()
+    filterset = filtersets.DeviceBayFilterSet
 
 
 @register_model_view(DeviceBay, 'bulk_delete', path='delete', detail=False)
@@ -3348,6 +3370,7 @@ class InventoryItemBulkEditView(generic.BulkEditView):
 @register_model_view(InventoryItem, 'bulk_rename', path='rename', detail=False)
 class InventoryItemBulkRenameView(generic.BulkRenameView):
     queryset = InventoryItem.objects.all()
+    filterset = filtersets.InventoryItemFilterSet
 
 
 @register_model_view(InventoryItem, 'bulk_delete', path='delete', detail=False)
@@ -3431,6 +3454,7 @@ class InventoryItemRoleBulkEditView(generic.BulkEditView):
 @register_model_view(InventoryItemRole, 'bulk_rename', path='rename', detail=False)
 class InventoryItemRoleBulkRenameView(generic.BulkRenameView):
     queryset = InventoryItemRole.objects.all()
+    filterset = filtersets.InventoryItemRoleFilterSet
 
 
 @register_model_view(InventoryItemRole, 'bulk_delete', path='delete', detail=False)
@@ -3634,6 +3658,7 @@ class CableBulkEditView(generic.BulkEditView):
 class CableBulkRenameView(generic.BulkRenameView):
     queryset = Cable.objects.all()
     field_name = 'label'
+    filterset = filtersets.CableFilterSet
 
 
 @register_model_view(Cable, 'bulk_delete', path='delete', detail=False)
@@ -3931,6 +3956,7 @@ class VirtualChassisBulkEditView(generic.BulkEditView):
 @register_model_view(VirtualChassis, 'bulk_rename', path='rename', detail=False)
 class VirtualChassisBulkRenameView(generic.BulkRenameView):
     queryset = VirtualChassis.objects.all()
+    filterset = filtersets.VirtualChassisFilterSet
 
 
 @register_model_view(VirtualChassis, 'bulk_delete', path='delete', detail=False)
@@ -3993,6 +4019,7 @@ class PowerPanelBulkEditView(generic.BulkEditView):
 @register_model_view(PowerPanel, 'bulk_rename', path='rename', detail=False)
 class PowerPanelBulkRenameView(generic.BulkRenameView):
     queryset = PowerPanel.objects.all()
+    filterset = filtersets.PowerPanelFilterSet
 
 
 @register_model_view(PowerPanel, 'bulk_delete', path='delete', detail=False)
@@ -4050,6 +4077,7 @@ class PowerFeedBulkEditView(generic.BulkEditView):
 @register_model_view(PowerFeed, 'bulk_rename', path='rename', detail=False)
 class PowerFeedBulkRenameView(generic.BulkRenameView):
     queryset = PowerFeed.objects.all()
+    filterset = filtersets.PowerFeedFilterSet
 
 
 @register_model_view(PowerFeed, 'bulk_disconnect', path='disconnect', detail=False)
@@ -4128,6 +4156,7 @@ class VirtualDeviceContextBulkEditView(generic.BulkEditView):
 @register_model_view(VirtualDeviceContext, 'bulk_rename', path='rename', detail=False)
 class VirtualDeviceContextBulkRenameView(generic.BulkRenameView):
     queryset = VirtualDeviceContext.objects.all()
+    filterset = filtersets.VirtualDeviceContextFilterSet
 
 
 @register_model_view(VirtualDeviceContext, 'bulk_delete', path='delete', detail=False)
