@@ -101,6 +101,14 @@ class AggregateFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter
             q |= Q(**{f"{prefix}prefix__net_contains": query})
         return q
 
+    @strawberry_django.filter_field()
+    def family(
+        self,
+        value: Annotated['IPAddressFamilyEnum', strawberry.lazy('ipam.graphql.enums')],
+        prefix,
+    ) -> Q:
+        return Q(**{f"{prefix}prefix__family": value.value})
+
 
 @strawberry_django.filter_type(models.FHRPGroup, lookups=True)
 class FHRPGroupFilter(PrimaryModelFilterMixin):
@@ -291,6 +299,14 @@ class PrefixFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, Pr
                 continue
             q |= Q(**{f"{prefix}prefix__net_contains": query})
         return q
+
+    @strawberry_django.filter_field()
+    def family(
+        self,
+        value: Annotated['IPAddressFamilyEnum', strawberry.lazy('ipam.graphql.enums')],
+        prefix,
+    ) -> Q:
+        return Q(**{f"{prefix}prefix__family": value.value})
 
 
 @strawberry_django.filter_type(models.RIR, lookups=True)
