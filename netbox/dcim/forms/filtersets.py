@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.filtersets import DeviceFilterSet, RackFilterSet, PowerOutletFilterSet
 from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
@@ -16,6 +17,8 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import Owner, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -330,7 +333,7 @@ class RackTypeFilterForm(RackBaseFilterForm):
     tag = TagFilterField(model)
 
 
-class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterForm):
+class RackFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, RackBaseFilterForm):
     model = Rack
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -778,6 +781,7 @@ class PlatformFilterForm(NestedGroupModelFilterSetForm):
 
 
 class DeviceFilterForm(
+    FilterModifierMixin,
     LocalConfigContextFilterForm,
     TenancyFilterForm,
     ContactModelFilterForm,
@@ -1420,7 +1424,7 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
+class PowerOutletFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerOutlet
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1830,3 +1834,9 @@ class InterfaceConnectionFilterForm(FilterForm):
         },
         label=_('Device')
     )
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[DeviceFilterForm] = DeviceFilterSet
+FILTERSET_MAPPINGS[RackFilterForm] = RackFilterSet
+FILTERSET_MAPPINGS[PowerOutletFilterForm] = PowerOutletFilterSet

@@ -13,8 +13,11 @@ from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetF
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
+from circuits.filtersets import CircuitFilterSet
 
 __all__ = (
     'CircuitFilterForm',
@@ -118,7 +121,7 @@ class CircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     )
 
 
-class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
+class CircuitFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -397,3 +400,7 @@ class VirtualCircuitTerminationFilterForm(NetBoxModelFilterSetForm):
         label=_('Provider')
     )
     tag = TagFilterField(model)
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[CircuitFilterForm] = CircuitFilterSet
