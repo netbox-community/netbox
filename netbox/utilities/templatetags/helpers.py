@@ -5,6 +5,7 @@ from urllib.parse import quote
 from django import template
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import conditional_escape
+from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
@@ -418,7 +419,20 @@ def applied_filters(context, model, form, query_params):
             continue
 
         querydict = query_params.copy()
-        if filter_name not in querydict:
+
+        # Check if this is a modifier-enhanced field
+        # Field may be in querydict as field__lookup instead of field
+        param_name = None
+        if filter_name in querydict:
+            param_name = filter_name
+        else:
+            # Check for modifier variants (field__ic, field__isw, etc.)
+            for key in querydict.keys():
+                if key.startswith(f'{filter_name}__'):
+                    param_name = key
+                    break
+
+        if param_name is None:
             continue
 
         # Skip saved filters, as they're displayed alongside the quick search widget
@@ -426,14 +440,48 @@ def applied_filters(context, model, form, query_params):
             continue
 
         bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
-        querydict.pop(filter_name)
+        querydict.pop(param_name)
+
+        # Extract modifier from parameter name (e.g., "serial__ic" → "ic")
+        if '__' in param_name:
+            modifier = param_name.split('__', 1)[1]
+        else:
+            modifier = 'exact'
+
+        # Get display value
         display_value = ', '.join([str(v) for v in get_selected_values(form, filter_name)])
 
+        # Special handling for empty lookup (boolean value)
+        if modifier == 'empty':
+            if display_value.lower() in ('true', '1'):
+                link_text = f'{bound_field.label} {_("is empty")}'
+            else:
+                link_text = f'{bound_field.label} {_("is not empty")}'
+        else:
+            # Add friendly lookup label for other modifier-enhanced fields
+            lookup_labels = {
+                'n': _('is not'),
+                'ic': _('contains'),
+                'isw': _('starts with'),
+                'iew': _('ends with'),
+                'ie': _('equals (case-insensitive)'),
+                'regex': _('matches pattern'),
+                'iregex': _('matches pattern (case-insensitive)'),
+                'gt': _('>'),
+                'gte': _('≥'),
+                'lt': _('<'),
+                'lte': _('≤'),
+            }
+            if modifier != 'exact' and modifier in lookup_labels:
+                link_text = f'{bound_field.label} {lookup_labels[modifier]}: {display_value}'
+            else:
+                link_text = f'{bound_field.label}: {display_value}'
+
         applied_filters.append({
-            'name': filter_name,
-            'value': form.cleaned_data[filter_name],
+            'name': param_name,  # Use actual param name for removal link
+            'value': form.cleaned_data.get(filter_name),
             'link_url': f'?{querydict.urlencode()}',
-            'link_text': f'{bound_field.label}: {display_value}',
+            'link_text': link_text,
         })
 
     save_link = None
