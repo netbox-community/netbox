@@ -5,7 +5,7 @@ from django_tables2.utils import Accessor
 
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin, TenantColumn
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin, TenantColumn
 from .template_code import *
 
 __all__ = (
@@ -308,7 +308,7 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 # IPAddresses
 #
 
-class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
+class IPAddressTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name=_('IP Address')
@@ -365,7 +365,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         model = IPAddress
         fields = (
             'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside',
-            'assigned', 'dns_name', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'assigned', 'dns_name', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
