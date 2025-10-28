@@ -109,11 +109,6 @@ class DeviceTypeTable(PrimaryModelTable):
         template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
-    instance_count = columns.LinkedCountColumn(
-        viewname='dcim:device_list',
-        url_params={'device_type_id': 'pk'},
-        verbose_name=_('Instances')
-    )
     console_port_template_count = tables.Column(
         verbose_name=_('Console Ports')
     )
@@ -144,16 +139,19 @@ class DeviceTypeTable(PrimaryModelTable):
     inventory_item_template_count = tables.Column(
         verbose_name=_('Inventory Items')
     )
+    device_count = tables.Column(
+        verbose_name=_('Device Count')
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = models.DeviceType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
             'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-            'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'description', 'comments', 'device_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',
+            'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'device_count',
         )
 
 
