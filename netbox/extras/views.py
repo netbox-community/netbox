@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -25,7 +25,7 @@ from netbox.object_actions import *
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
-from utilities.htmx import htmx_partial
+from utilities.htmx import htmx_partial, htmx_maybe_redirect_current_page
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
@@ -525,8 +525,9 @@ class NotificationsView(LoginRequiredMixin, View):
     """
     def get(self, request):
         return render(request, 'htmx/notifications.html', {
-            'notifications': request.user.notifications.unread(),
+            'notifications': request.user.notifications.unread()[:10],
             'total_count': request.user.notifications.count(),
+            'unread_count': request.user.notifications.unread().count(),
         })
 
 
@@ -535,6 +536,7 @@ class NotificationReadView(LoginRequiredMixin, View):
     """
     Mark the Notification read and redirect the user to its attached object.
     """
+
     def get(self, request, pk):
         # Mark the Notification as read
         notification = get_object_or_404(request.user.notifications, pk=pk)
@@ -548,18 +550,48 @@ class NotificationReadView(LoginRequiredMixin, View):
         return redirect('account:notifications')
 
 
+@register_model_view(Notification, name='dismiss_all', path='dismiss-all', detail=False)
+class NotificationDismissAllView(LoginRequiredMixin, View):
+    """
+    Convenience view to clear all *unread* notifications for the current user.
+    """
+
+    def get(self, request):
+        request.user.notifications.unread().delete()
+        if htmx_partial(request):
+            # If a user is currently on the notification page, redirect there (full repaint)
+            redirect_resp = htmx_maybe_redirect_current_page(request, 'account:notifications', preserve_query=True)
+            if redirect_resp:
+                return redirect_resp
+
+            return render(request, 'htmx/notifications.html', {
+                'notifications': request.user.notifications.unread()[:10],
+                'total_count': request.user.notifications.count(),
+                'unread_count': request.user.notifications.unread().count(),
+            })
+        return redirect('account:notifications')
+
+
 @register_model_view(Notification, 'dismiss')
 class NotificationDismissView(LoginRequiredMixin, View):
     """
     A convenience view which allows deleting notifications with one click.
     """
+
     def get(self, request, pk):
         notification = get_object_or_404(request.user.notifications, pk=pk)
         notification.delete()
 
         if htmx_partial(request):
+            # If a user is currently on the notification page, redirect there (full repaint)
+            redirect_resp = htmx_maybe_redirect_current_page(request, 'account:notifications', preserve_query=True)
+            if redirect_resp:
+                return redirect_resp
+
             return render(request, 'htmx/notifications.html', {
                 'notifications': request.user.notifications.unread()[:10],
+                'total_count': request.user.notifications.count(),
+                'unread_count': request.user.notifications.unread().count(),
             })
 
         return redirect('account:notifications')
