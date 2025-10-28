@@ -54,7 +54,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
         default=None
     )
     termination_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    termination = GFKSerializerField()
+    termination = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CircuitTermination
@@ -125,7 +125,7 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
         default=None
     )
     termination_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    termination = GFKSerializerField()
+    termination = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CircuitTermination
@@ -142,7 +142,7 @@ class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
     member_type = ContentTypeField(
         queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS)
     )
-    member = GFKSerializerField()
+    member = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CircuitGroupAssignment
