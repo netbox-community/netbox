@@ -3,6 +3,7 @@ from threading import local
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db.models import CASCADE
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import receiver, Signal
@@ -220,14 +221,8 @@ def handle_deleted_object(sender, instance, **kwargs):
             obj.snapshot()  # Ensure the change record includes the "before" state
             if type(relation) is ManyToManyRel:
                 getattr(obj, related_field_name).remove(instance)
-            elif type(relation) is ManyToOneRel and relation.field.null is True:
+            elif type(relation) is ManyToOneRel and relation.null and relation.on_delete is not CASCADE:
                 setattr(obj, related_field_name, None)
-                # make sure the object hasn't been deleted - in case of
-                # deletion chaining of related objects
-                try:
-                    obj.refresh_from_db()
-                except DoesNotExist:
-                    continue
                 obj.save()
 
     # Enqueue the object for event processing
