@@ -132,7 +132,8 @@ class VLANGroup(OrganizationalModel):
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0
         for vid_range in self.vid_ranges:
-            self._total_vlan_ids += vid_range.upper - vid_range.lower + 1
+            # VID range is inclusive on lower-bound, exclusive on upper-bound
+            self._total_vlan_ids += vid_range.upper - vid_range.lower
 
         super().save(*args, **kwargs)
 
