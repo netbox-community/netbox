@@ -1,6 +1,6 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
 from ipam.models import *
@@ -58,7 +58,7 @@ class RIRTable(NetBoxTable):
 # Aggregates
 #
 
-class AggregateTable(TenancyColumnsMixin, NetBoxTable):
+class AggregateTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     prefix = tables.Column(
         linkify=True,
         verbose_name=_('Aggregate'),
@@ -93,7 +93,7 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
         model = Aggregate
         fields = (
             'pk', 'id', 'prefix', 'rir', 'tenant', 'tenant_group', 'child_count', 'utilization', 'date_added',
-            'description', 'comments', 'tags', 'created', 'last_updated',
+            'description', 'contacts', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'prefix', 'rir', 'tenant', 'child_count', 'utilization', 'date_added', 'description')
 
@@ -154,7 +154,7 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
     """
 
 
-class PrefixTable(TenancyColumnsMixin, NetBoxTable):
+class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     prefix = columns.TemplateColumn(
         verbose_name=_('Prefix'),
         template_code=PREFIX_LINK_WITH_DEPTH,
@@ -237,8 +237,8 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         model = Prefix
         fields = (
             'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'comments',
-            'tags', 'created', 'last_updated',
+            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'contacts',
+            'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'scope', 'vlan', 'role',
@@ -252,7 +252,7 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
 #
 # IP ranges
 #
-class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
+class IPRangeTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     start_address = tables.Column(
         verbose_name=_('Start address'),
         linkify=True
@@ -293,8 +293,8 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
         model = IPRange
         fields = (
             'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
-            'mark_populated', 'mark_utilized', 'utilization', 'description', 'comments', 'tags', 'created',
-            'last_updated',
+            'mark_populated', 'mark_utilized', 'utilization', 'description', 'contacts', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',

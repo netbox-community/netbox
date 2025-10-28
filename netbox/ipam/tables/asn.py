@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ipam.models import *
 from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 __all__ = (
     'ASNTable',
@@ -36,7 +36,7 @@ class ASNRangeTable(TenancyColumnsMixin, NetBoxTable):
         default_columns = ('pk', 'name', 'rir', 'start', 'end', 'tenant', 'asn_count', 'description')
 
 
-class ASNTable(TenancyColumnsMixin, NetBoxTable):
+class ASNTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     asn = tables.Column(
         verbose_name=_('ASN'),
         linkify=True
@@ -76,7 +76,7 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
         model = ASN
         fields = (
             'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description',
-            'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
+            'contacts', 'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = (
             'pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant',
