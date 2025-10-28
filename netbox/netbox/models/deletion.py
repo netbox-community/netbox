@@ -2,14 +2,14 @@ import logging
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import router
-from django.db.models.deletion import Collector
+from django.db.models.deletion import CASCADE, Collector
 
 logger = logging.getLogger("netbox.models.deletion")
 
 
 class CustomCollector(Collector):
     """
-    Custom collector that handles GenericRelations correctly.
+    Override Django's stock Collector to handle GenericRelations and ensure proper ordering of cascading deletions.
     """
 
     def collect(
@@ -23,11 +23,15 @@ class CustomCollector(Collector):
         keep_parents=False,
         fail_on_restricted=True,
     ):
-        """
-        Override collect to first collect standard dependencies,
-        then add GenericRelations to the dependency graph.
-        """
-        # Call parent collect first to get all standard dependencies
+        # By default, Django will force the deletion of dependent objects before the parent only if the ForeignKey field
+        # is not nullable. We want to ensure proper ordering regardless, so if the ForeignKey has `on_delete=CASCADE`
+        # applied, we set `nullable` to False when calling `collect()`.
+        if objs and source and source_attr:
+            model = objs[0].__class__
+            field = model._meta.get_field(source_attr)
+            if field.remote_field.on_delete == CASCADE:
+                nullable = False
+
         super().collect(
             objs,
             source=source,
@@ -39,10 +43,8 @@ class CustomCollector(Collector):
             fail_on_restricted=fail_on_restricted,
         )
 
-        # Track which GenericRelations we've already processed to prevent infinite recursion
+        # Add GenericRelations to the dependency graph
         processed_relations = set()
-
-        # Now add GenericRelations to the dependency graph
         for _, instances in list(self.data.items()):
             for instance in instances:
                 # Get all GenericRelations for this model
