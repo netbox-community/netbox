@@ -62,6 +62,7 @@ class TunnelGroupBulkEditView(generic.BulkEditView):
 @register_model_view(TunnelGroup, 'bulk_rename', path='rename', detail=False)
 class TunnelGroupBulkRenameView(generic.BulkRenameView):
     queryset = TunnelGroup.objects.all()
+    filterset = filtersets.TunnelGroupFilterSet
 
 
 @register_model_view(TunnelGroup, 'bulk_delete', path='delete', detail=False)
@@ -131,6 +132,7 @@ class TunnelBulkEditView(generic.BulkEditView):
 @register_model_view(Tunnel, 'bulk_rename', path='rename', detail=False)
 class TunnelBulkRenameView(generic.BulkRenameView):
     queryset = Tunnel.objects.all()
+    filterset = filtersets.TunnelFilterSet
 
 
 @register_model_view(Tunnel, 'bulk_delete', path='delete', detail=False)
@@ -238,6 +240,7 @@ class IKEProposalBulkEditView(generic.BulkEditView):
 @register_model_view(IKEProposal, 'bulk_rename', path='rename', detail=False)
 class IKEProposalBulkRenameView(generic.BulkRenameView):
     queryset = IKEProposal.objects.all()
+    filterset = filtersets.IKEProposalFilterSet
 
 
 @register_model_view(IKEProposal, 'bulk_delete', path='delete', detail=False)
@@ -293,6 +296,7 @@ class IKEPolicyBulkEditView(generic.BulkEditView):
 @register_model_view(IKEPolicy, 'bulk_rename', path='rename', detail=False)
 class IKEPolicyBulkRenameView(generic.BulkRenameView):
     queryset = IKEPolicy.objects.all()
+    filterset = filtersets.IKEPolicyFilterSet
 
 
 @register_model_view(IKEPolicy, 'bulk_delete', path='delete', detail=False)
@@ -348,6 +352,7 @@ class IPSecProposalBulkEditView(generic.BulkEditView):
 @register_model_view(IPSecProposal, 'bulk_rename', path='rename', detail=False)
 class IPSecProposalBulkRenameView(generic.BulkRenameView):
     queryset = IPSecProposal.objects.all()
+    filterset = filtersets.IPSecProposalFilterSet
 
 
 @register_model_view(IPSecProposal, 'bulk_delete', path='delete', detail=False)
@@ -403,6 +408,7 @@ class IPSecPolicyBulkEditView(generic.BulkEditView):
 @register_model_view(IPSecPolicy, 'bulk_rename', path='rename', detail=False)
 class IPSecPolicyBulkRenameView(generic.BulkRenameView):
     queryset = IPSecPolicy.objects.all()
+    filterset = filtersets.IPSecPolicyFilterSet
 
 
 @register_model_view(IPSecPolicy, 'bulk_delete', path='delete', detail=False)
@@ -458,6 +464,7 @@ class IPSecProfileBulkEditView(generic.BulkEditView):
 @register_model_view(IPSecProfile, 'bulk_rename', path='rename', detail=False)
 class IPSecProfileBulkRenameView(generic.BulkRenameView):
     queryset = IPSecProfile.objects.all()
+    filterset = filtersets.IPSecProfileFilterSet
 
 
 @register_model_view(IPSecProfile, 'bulk_delete', path='delete', detail=False)
@@ -530,6 +537,7 @@ class L2VPNBulkEditView(generic.BulkEditView):
 @register_model_view(L2VPN, 'bulk_rename', path='rename', detail=False)
 class L2VPNBulkRenameView(generic.BulkRenameView):
     queryset = L2VPN.objects.all()
+    filterset = filtersets.L2VPNFilterSet
 
 
 @register_model_view(L2VPN, 'bulk_delete', path='delete', detail=False)

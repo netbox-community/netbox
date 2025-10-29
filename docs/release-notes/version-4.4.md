@@ -1,5 +1,35 @@
 # NetBox v4.4
 
+## v4.4.5 (2025-10-28)
+
+### Enhancements
+
+* [#19751](https://github.com/netbox-community/netbox/issues/19751) - Disable occupied module bays in form dropdowns when installing a new module
+* [#20301](https://github.com/netbox-community/netbox/issues/20301) - Add a "dismiss all" option to the notifications dropdown
+* [#20399](https://github.com/netbox-community/netbox/issues/20399) - Add `assigned` and `primary` boolean filters for MAC addresses
+* [#20567](https://github.com/netbox-community/netbox/issues/20567) - Add contacts column to services table
+* [#20675](https://github.com/netbox-community/netbox/issues/20675) - Enable [NetBox Copilot](https://netboxlabs.com/products/netbox-copilot/) integration
+* [#20692](https://github.com/netbox-community/netbox/issues/20692) - Add contacts column to IP addresses table
+* [#20700](https://github.com/netbox-community/netbox/issues/20700) - Add contacts table column for various additional models
+
+### Bug Fixes
+
+* [#19872](https://github.com/netbox-community/netbox/issues/19872) - Ensure custom script validation failures display error messages
+* [#20389](https://github.com/netbox-community/netbox/issues/20389) - Fix "select all" behavior for bulk rename views
+* [#20422](https://github.com/netbox-community/netbox/issues/20422) - Enable filtering of aggregates and prefixes by family in GraphQL API
+* [#20459](https://github.com/netbox-community/netbox/issues/20459) - Fix validation of `is_oob` & `is_primary` fields under IP address bulk import
+* [#20466](https://github.com/netbox-community/netbox/issues/20466) - Fix querying of devices with a primary IP assigned in GraphQL API
+* [#20498](https://github.com/netbox-community/netbox/issues/20498) - Enforce the validation regex (if set) for custom URL fields
+* [#20524](https://github.com/netbox-community/netbox/issues/20524) - Raise a validation error when attempting to schedule a custom script for a past date/time
+* [#20541](https://github.com/netbox-community/netbox/issues/20541) - Fix resolution of GraphQL object fields which rely on custom filters
+* [#20551](https://github.com/netbox-community/netbox/issues/20551) - Fix automatic slug generation in quick-add UI form
+* [#20606](https://github.com/netbox-community/netbox/issues/20606) - Enable copying of values from table columns rendered as badges
+* [#20641](https://github.com/netbox-community/netbox/issues/20641) - Fix `AttributeError` exception raised by the object changes REST API endpoint
+* [#20646](https://github.com/netbox-community/netbox/issues/20646) - Prevent cables from connecting to objects marked as connected
+* [#20655](https://github.com/netbox-community/netbox/issues/20655) - Fix `FieldError` exception when attempting to sort permissions list by actions
+
+---
+
 ## v4.4.4 (2025-10-15)
 
 ### Bug Fixes

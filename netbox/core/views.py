@@ -125,6 +125,7 @@ class DataSourceBulkEditView(generic.BulkEditView):
 @register_model_view(DataSource, 'bulk_rename', path='rename', detail=False)
 class DataSourceBulkRenameView(generic.BulkRenameView):
     queryset = DataSource.objects.all()
+    filterset = filtersets.DataSourceFilterSet
 
 
 @register_model_view(DataSource, 'bulk_delete', path='delete', detail=False)

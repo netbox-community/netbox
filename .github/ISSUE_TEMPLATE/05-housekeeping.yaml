@@ -2,7 +2,7 @@
 name: 🏡 Housekeeping
 type: Housekeeping
 description: A change pertaining to the codebase itself (developers only)
-labels: ["type: housekeeping"]
+labels: ["netbox", "type: housekeeping"]
 body:
   - type: markdown
     attributes:

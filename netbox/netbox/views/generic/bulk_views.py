@@ -799,6 +799,9 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     field_name = 'name'
     template_name = 'generic/bulk_rename.html'
+    # Match BulkEditView/BulkDeleteView behavior: allow passing a FilterSet
+    # so "Select all N matching query" can expand across the full queryset.
+    filterset = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -840,9 +843,16 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkRenameView')
 
+        # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = self.filterset(request.GET, self.queryset.values_list('pk', flat=True), request=request).qs
+        else:
+            pk_list = request.POST.getlist('pk')
+
+        selected_objects = self.queryset.filter(pk__in=pk_list)
+
         if '_preview' in request.POST or '_apply' in request.POST:
-            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+            form = self.form(request.POST, initial={'pk': pk_list})
 
             if form.is_valid():
                 try:
@@ -877,8 +887,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                     clear_events.send(sender=self)
 
         else:
-            form = self.form(initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+            form = self.form(initial={'pk': pk_list})
 
         return render(request, self.template_name, {
             'field_name': self.field_name,

@@ -78,6 +78,7 @@ class ProviderBulkEditView(generic.BulkEditView):
 @register_model_view(Provider, 'bulk_rename', path='rename', detail=False)
 class ProviderBulkRenameView(generic.BulkRenameView):
     queryset = Provider.objects.all()
+    filterset = filtersets.ProviderFilterSet
 
 
 @register_model_view(Provider, 'bulk_delete', path='delete', detail=False)
@@ -145,6 +146,7 @@ class ProviderAccountBulkEditView(generic.BulkEditView):
 @register_model_view(ProviderAccount, 'bulk_rename', path='rename', detail=False)
 class ProviderAccountBulkRenameView(generic.BulkRenameView):
     queryset = ProviderAccount.objects.all()
+    filterset = filtersets.ProviderAccountFilterSet
 
 
 @register_model_view(ProviderAccount, 'bulk_delete', path='delete', detail=False)
@@ -221,6 +223,7 @@ class ProviderNetworkBulkEditView(generic.BulkEditView):
 @register_model_view(ProviderNetwork, 'bulk_rename', path='rename', detail=False)
 class ProviderNetworkBulkRenameView(generic.BulkRenameView):
     queryset = ProviderNetwork.objects.all()
+    filterset = filtersets.ProviderNetworkFilterSet
 
 
 @register_model_view(ProviderNetwork, 'bulk_delete', path='delete', detail=False)
@@ -285,6 +288,7 @@ class CircuitTypeBulkEditView(generic.BulkEditView):
 @register_model_view(CircuitType, 'bulk_rename', path='rename', detail=False)
 class CircuitTypeBulkRenameView(generic.BulkRenameView):
     queryset = CircuitType.objects.all()
+    filterset = filtersets.CircuitTypeFilterSet
 
 
 @register_model_view(CircuitType, 'bulk_delete', path='delete', detail=False)
@@ -357,6 +361,7 @@ class CircuitBulkEditView(generic.BulkEditView):
 class CircuitBulkRenameView(generic.BulkRenameView):
     queryset = Circuit.objects.all()
     field_name = 'cid'
+    filterset = filtersets.CircuitFilterSet
 
 
 @register_model_view(Circuit, 'bulk_delete', path='delete', detail=False)
@@ -476,6 +481,7 @@ class CircuitGroupBulkEditView(generic.BulkEditView):
 @register_model_view(CircuitGroup, 'bulk_rename', path='rename', detail=False)
 class CircuitGroupBulkRenameView(generic.BulkRenameView):
     queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
 
 
 @register_model_view(CircuitGroup, 'bulk_delete', path='delete', detail=False)
@@ -591,6 +597,7 @@ class VirtualCircuitTypeBulkEditView(generic.BulkEditView):
 @register_model_view(VirtualCircuitType, 'bulk_rename', path='rename', detail=False)
 class VirtualCircuitTypeBulkRenameView(generic.BulkRenameView):
     queryset = VirtualCircuitType.objects.all()
+    filterset = filtersets.VirtualCircuitTypeFilterSet
 
 
 @register_model_view(VirtualCircuitType, 'bulk_delete', path='delete', detail=False)
@@ -663,6 +670,7 @@ class VirtualCircuitBulkEditView(generic.BulkEditView):
 class VirtualCircuitBulkRenameView(generic.BulkRenameView):
     queryset = VirtualCircuit.objects.all()
     field_name = 'cid'
+    filterset = filtersets.VirtualCircuitFilterSet
 
 
 @register_model_view(VirtualCircuit, 'bulk_delete', path='delete', detail=False)

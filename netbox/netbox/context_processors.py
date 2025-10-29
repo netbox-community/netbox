@@ -25,9 +25,14 @@ def preferences(request):
     Adds preferences for the current user (if authenticated) to the template context.
     Example: {{ preferences|get_key:"pagination.placement" }}
     """
+    config = get_config()
     user_preferences = request.user.config if request.user.is_authenticated else {}
     return {
         'preferences': user_preferences,
+        'copilot_enabled': (
+            config.COPILOT_ENABLED and not django_settings.ISOLATED_DEPLOYMENT and
+            user_preferences.get('ui.copilot_enabled', False) == 'true'
+        ),
     }
 
 

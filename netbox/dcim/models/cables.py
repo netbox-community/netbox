@@ -393,6 +393,17 @@ class CableTermination(ChangeLoggedModel):
     def clean(self):
         super().clean()
 
+        # Disallow connecting a cable to any termination object that is
+        # explicitly flagged as "mark connected".
+        termination = getattr(self, 'termination', None)
+        if termination is not None and getattr(termination, "mark_connected", False):
+            raise ValidationError(
+                _("Cannot connect a cable to {obj_parent} > {obj} because it is marked as connected.").format(
+                    obj_parent=termination.parent_object,
+                    obj=termination,
+                )
+            )
+
         # Check for existing termination
         qs = CableTermination.objects.filter(
             termination_type=self.termination_type,
@@ -404,14 +415,14 @@ class CableTermination(ChangeLoggedModel):
         existing_termination = qs.first()
         if existing_termination is not None:
             raise ValidationError(
-                _("Duplicate termination found for {app_label}.{model} {termination_id}: cable {cable_pk}".format(
+                _("Duplicate termination found for {app_label}.{model} {termination_id}: cable {cable_pk}").format(
                     app_label=self.termination_type.app_label,
                     model=self.termination_type.model,
                     termination_id=self.termination_id,
                     cable_pk=existing_termination.cable.pk
-                ))
+                )
             )
-        # Validate interface type (if applicable)
+        # Validate the interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
             raise ValidationError(
                 _("Cables cannot be terminated to {type_display} interfaces").format(

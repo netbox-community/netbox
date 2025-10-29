@@ -56,6 +56,14 @@ class SlugWidget(forms.TextInput):
     """
     template_name = 'widgets/sluginput.html'
 
+    def __init__(self, attrs=None):
+        local_attrs = {} if attrs is None else attrs.copy()
+        if 'class' in local_attrs:
+            local_attrs['class'] = f"{local_attrs['class']} slug-field"
+        else:
+            local_attrs['class'] = 'slug-field'
+        super().__init__(local_attrs)
+
 
 class ArrayWidget(forms.Textarea):
     """

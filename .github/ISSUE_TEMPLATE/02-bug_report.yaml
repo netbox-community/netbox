@@ -2,7 +2,7 @@
 name: 🐛 Bug Report
 type: Bug
 description: Report a reproducible bug in the current release of NetBox
-labels: ["type: bug", "status: needs triage"]
+labels: ["netbox", "type: bug", "status: needs triage"]
 body:
   - type: markdown
     attributes:
@@ -27,7 +27,7 @@ body:
     attributes:
       label: NetBox Version
       description: What version of NetBox are you currently running?
-      placeholder: v4.4.4
+      placeholder: v4.4.5
     validations:
       required: true
   - type: dropdown

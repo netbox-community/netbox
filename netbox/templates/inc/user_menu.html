@@ -35,23 +35,23 @@
     </a>
     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
       <a href="{% url 'account:profile' %}" class="dropdown-item">
-        <i class="mdi mdi-account"></i> {% trans "Profile" %}
+        <i class="dropdown-item-icon mdi mdi-account"></i> {% trans "Profile" %}
       </a>
       <a href="{% url 'account:bookmarks' %}" class="dropdown-item">
-        <i class="mdi mdi-bookmark"></i> {% trans "Bookmarks" %}
+        <i class="dropdown-item-icon mdi mdi-bookmark"></i> {% trans "Bookmarks" %}
       </a>
       <a href="{% url 'account:subscriptions' %}" class="dropdown-item">
-        <i class="mdi mdi-bell"></i> {% trans "Subscriptions" %}
+        <i class="dropdown-item-icon mdi mdi-bell"></i> {% trans "Subscriptions" %}
       </a>
       <a href="{% url 'account:preferences' %}" class="dropdown-item">
-        <i class="mdi mdi-wrench"></i> {% trans "Preferences" %}
+        <i class="dropdown-item-icon mdi mdi-wrench"></i> {% trans "Preferences" %}
       </a>
       <a href="{% url 'account:usertoken_list' %}" class="dropdown-item">
-        <i class="mdi mdi-key"></i> {% trans "API Tokens" %}
+        <i class="dropdown-item-icon mdi mdi-key"></i> {% trans "API Tokens" %}
       </a>
       <hr class="dropdown-divider" />
       <a href="{% url 'logout' %}" hx-disable="true" class="dropdown-item">
-        <i class="mdi mdi-logout-variant"></i> {% trans "Log Out" %}
+        <i class="dropdown-item-icon mdi mdi-logout-variant"></i> {% trans "Log Out" %}
       </a>
     </div>
   </div>

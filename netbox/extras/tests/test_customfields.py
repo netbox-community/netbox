@@ -1300,6 +1300,28 @@ class CustomFieldAPITest(APITestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
+    def test_url_regex_validation(self):
+        """
+        Test that validation_regex is applied to URL custom fields (fixes #20498).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        cf_url = CustomField.objects.get(name='url_field')
+        cf_url.validation_regex = r'^https://'  # Require HTTPS
+        cf_url.save()
+
+        # Test invalid URL (http instead of https)
+        data = {'custom_fields': {'url_field': 'http://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Test valid URL (https)
+        data = {'custom_fields': {'url_field': 'https://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
     def test_uniqueness_validation(self):
         # Create a unique custom field
         cf_text = CustomField.objects.get(name='text_field')

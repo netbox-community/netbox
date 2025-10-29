@@ -166,8 +166,8 @@ class ConfigRevisionForm(forms.ModelForm, metaclass=ConfigFormMetaclass):
         FieldSet('CUSTOM_VALIDATORS', 'PROTECTION_RULES', name=_('Validation')),
         FieldSet('DEFAULT_USER_PREFERENCES', name=_('User Preferences')),
         FieldSet(
-            'MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL',
-            name=_('Miscellaneous')
+            'MAINTENANCE_MODE', 'COPILOT_ENABLED', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION',
+            'MAPS_URL', name=_('Miscellaneous'),
         ),
         FieldSet('comment', name=_('Config Revision'))
     )
