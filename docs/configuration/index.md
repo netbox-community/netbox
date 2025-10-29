@@ -35,6 +35,7 @@ Some configuration parameters are primarily controlled via NetBox's admin interf
 * [`POWERFEED_DEFAULT_MAX_UTILIZATION`](./default-values.md#powerfeed_default_max_utilization)
 * [`POWERFEED_DEFAULT_VOLTAGE`](./default-values.md#powerfeed_default_voltage)
 * [`PREFER_IPV4`](./miscellaneous.md#prefer_ipv4)
+* [`PROTECTION_RULES`](./data-validation.md#protection_rules)
 * [`RACK_ELEVATION_DEFAULT_UNIT_HEIGHT`](./default-values.md#rack_elevation_default_unit_height)
 * [`RACK_ELEVATION_DEFAULT_UNIT_WIDTH`](./default-values.md#rack_elevation_default_unit_width)
 
