@@ -1,0 +1,26 @@
+{% if group %}
+  {# Display an object with its parent group #}
+  <ol class="breadcrumb" aria-label="breadcrumbs">
+    <li class="breadcrumb-item">
+      {% if group_url %}
+        <a href="{{ group_url }}">{{ group }}</a>
+      {% else %}
+        {{ object.group }}
+      {% endif %}
+    </li>
+    <li class="breadcrumb-item">
+      {% if object_url %}
+        <a href="{{ object_url }}">{{ object }}</a>
+      {% else %}
+        {{ object }}
+      {% endif %}
+    </li>
+  </ol>
+{% else %}
+  {# Display only the object #}
+  {% if object_url %}
+    <a href="{{ object_url }}">{{ object }}</a>
+  {% else %}
+    {{ object }}
+  {% endif %}
+{% endif %}

@@ -1,0 +1,8 @@
+{% load i18n %}
+{% load l10n %}
+<span>{{ latitude }}, {{ longitude }}</span>
+{% if map_url %}
+  <a href="{{ map_url }}{{ latitude|unlocalize }},{{ longitude|unlocalize }}" target="_blank" class="btn btn-primary btn-sm print-none">
+    <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
+  </a>
+{% endif %}

@@ -1,0 +1,18 @@
+{% load i18n %}
+{% if device.rack %}
+  <span>
+    {{ device.rack|linkify }}
+    {% if device.rack and device.position %}
+      (U{{ device.position|floatformat }} / {{ device.get_face_display }})
+    {% elif device.rack and device.device_type.u_height %}
+      <span class="badge text-bg-warning">{% trans "Not racked" %}</span>
+    {% endif %}
+  </span>
+  {% if device.rack and device.position %}
+    <a href="{{ device.rack.get_absolute_url }}?device={{ device.pk }}" class="btn btn-primary btn-sm d-print-none" title="{% trans "Highlight device in rack" %}">
+      <i class="mdi mdi-view-day-outline"></i>
+    </a>
+  {% endif %}
+{% else %}
+  {{ ''|placeholder }}
+{% endif %}

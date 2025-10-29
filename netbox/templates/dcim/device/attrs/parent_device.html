@@ -1,0 +1,8 @@
+{% if device.parent_bay %}
+  <ol class="breadcrumb" aria-label="breadcrumbs">
+    <li class="breadcrumb-item">{{ device.parent_bay.device|linkify }}</li>
+    <li class="breadcrumb-item">{{ device.parent_bay }}</li>
+  </ol>
+{% else %}
+  {{ ''|placeholder }}
+{% endif %}
