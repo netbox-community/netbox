@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-28 05:03+0000\n"
+"POT-Creation-Date: 2025-10-29 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -824,7 +824,7 @@ msgstr ""
 #: netbox/vpn/forms/bulk_edit.py:39 netbox/vpn/forms/bulk_edit.py:264
 #: netbox/vpn/forms/bulk_import.py:37 netbox/vpn/forms/bulk_import.py:264
 #: netbox/vpn/forms/filtersets.py:52 netbox/vpn/forms/filtersets.py:223
-#: netbox/vpn/tables/l2vpn.py:27 netbox/vpn/tables/tunnels.py:48
+#: netbox/vpn/tables/l2vpn.py:27 netbox/vpn/tables/tunnels.py:49
 #: netbox/wireless/forms/bulk_edit.py:46 netbox/wireless/forms/bulk_edit.py:109
 #: netbox/wireless/forms/bulk_import.py:45
 #: netbox/wireless/forms/bulk_import.py:132
@@ -1135,7 +1135,7 @@ msgstr ""
 #: netbox/virtualization/tables/virtualmachines.py:45
 #: netbox/vpn/forms/bulk_edit.py:87 netbox/vpn/forms/bulk_import.py:81
 #: netbox/vpn/forms/filtersets.py:90 netbox/vpn/forms/model_forms.py:79
-#: netbox/vpn/forms/model_forms.py:114 netbox/vpn/tables/tunnels.py:82
+#: netbox/vpn/forms/model_forms.py:114 netbox/vpn/tables/tunnels.py:84
 msgid "Role"
 msgstr ""
 
@@ -1413,7 +1413,7 @@ msgstr ""
 #: netbox/virtualization/tables/clusters.py:70
 #: netbox/vpn/forms/bulk_edit.py:112 netbox/vpn/forms/bulk_import.py:158
 #: netbox/vpn/forms/filtersets.py:121 netbox/vpn/tables/crypto.py:31
-#: netbox/vpn/tables/tunnels.py:44 netbox/wireless/forms/bulk_edit.py:51
+#: netbox/vpn/tables/tunnels.py:45 netbox/wireless/forms/bulk_edit.py:51
 #: netbox/wireless/forms/bulk_import.py:38
 #: netbox/wireless/forms/filtersets.py:49
 #: netbox/wireless/forms/model_forms.py:43
@@ -1474,7 +1474,7 @@ msgstr ""
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/racks.py:677
 #: netbox/dcim/models/sites.py:154 netbox/dcim/models/sites.py:270
 #: netbox/ipam/models/ip.py:243 netbox/ipam/models/ip.py:529
-#: netbox/ipam/models/ip.py:758 netbox/ipam/models/vlans.py:227
+#: netbox/ipam/models/ip.py:758 netbox/ipam/models/vlans.py:228
 #: netbox/virtualization/models/clusters.py:70
 #: netbox/virtualization/models/virtualmachines.py:79
 #: netbox/vpn/models/l2vpn.py:36 netbox/vpn/models/tunnels.py:38
@@ -1577,7 +1577,7 @@ msgstr ""
 #: netbox/extras/models/models.py:408 netbox/extras/models/models.py:479
 #: netbox/extras/models/models.py:558 netbox/extras/models/models.py:684
 #: netbox/extras/models/notifications.py:131 netbox/extras/models/tags.py:33
-#: netbox/ipam/models/vlans.py:383 netbox/netbox/models/__init__.py:115
+#: netbox/ipam/models/vlans.py:384 netbox/netbox/models/__init__.py:115
 #: netbox/netbox/models/__init__.py:150 netbox/netbox/models/__init__.py:200
 #: netbox/users/models/permissions.py:24 netbox/users/models/tokens.py:57
 #: netbox/users/models/users.py:33
@@ -1615,8 +1615,8 @@ msgstr ""
 #: netbox/extras/models/notifications.py:126 netbox/extras/models/scripts.py:30
 #: netbox/ipam/models/asns.py:18 netbox/ipam/models/fhrp.py:24
 #: netbox/ipam/models/services.py:51 netbox/ipam/models/services.py:80
-#: netbox/ipam/models/vlans.py:38 netbox/ipam/models/vlans.py:216
-#: netbox/ipam/models/vlans.py:362 netbox/ipam/models/vrfs.py:20
+#: netbox/ipam/models/vlans.py:38 netbox/ipam/models/vlans.py:217
+#: netbox/ipam/models/vlans.py:363 netbox/ipam/models/vrfs.py:20
 #: netbox/ipam/models/vrfs.py:75 netbox/netbox/models/__init__.py:142
 #: netbox/netbox/models/__init__.py:190 netbox/tenancy/models/contacts.py:56
 #: netbox/tenancy/models/tenants.py:19 netbox/tenancy/models/tenants.py:42
@@ -1829,7 +1829,7 @@ msgstr ""
 #: netbox/vpn/tables/crypto.py:18 netbox/vpn/tables/crypto.py:57
 #: netbox/vpn/tables/crypto.py:93 netbox/vpn/tables/crypto.py:129
 #: netbox/vpn/tables/crypto.py:158 netbox/vpn/tables/l2vpn.py:23
-#: netbox/vpn/tables/tunnels.py:18 netbox/vpn/tables/tunnels.py:40
+#: netbox/vpn/tables/tunnels.py:18 netbox/vpn/tables/tunnels.py:41
 #: netbox/wireless/tables/wirelesslan.py:18
 #: netbox/wireless/tables/wirelesslan.py:92
 msgid "Name"
@@ -1897,7 +1897,7 @@ msgstr ""
 #: netbox/vpn/tables/crypto.py:37 netbox/vpn/tables/crypto.py:74
 #: netbox/vpn/tables/crypto.py:109 netbox/vpn/tables/crypto.py:140
 #: netbox/vpn/tables/crypto.py:173 netbox/vpn/tables/l2vpn.py:40
-#: netbox/vpn/tables/tunnels.py:61 netbox/wireless/tables/wirelesslan.py:31
+#: netbox/vpn/tables/tunnels.py:62 netbox/wireless/tables/wirelesslan.py:31
 #: netbox/wireless/tables/wirelesslan.py:70
 msgid "Comments"
 msgstr ""
@@ -1949,7 +1949,7 @@ msgstr ""
 #: netbox/netbox/navigation/menu.py:235
 #: netbox/templates/circuits/virtualcircuit.html:87
 #: netbox/templates/vpn/l2vpn.html:60 netbox/templates/vpn/tunnel.html:72
-#: netbox/vpn/tables/tunnels.py:58
+#: netbox/vpn/tables/tunnels.py:59
 msgid "Terminations"
 msgstr ""
 
@@ -2940,7 +2940,7 @@ msgstr ""
 msgid "Workers"
 msgstr ""
 
-#: netbox/core/tables/tasks.py:47 netbox/vpn/tables/tunnels.py:88
+#: netbox/core/tables/tasks.py:47 netbox/vpn/tables/tunnels.py:90
 msgid "Host"
 msgstr ""
 
@@ -7675,7 +7675,7 @@ msgstr ""
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
 #: netbox/templates/ipam/service.html:42
 #: netbox/templates/virtualization/vminterface.html:107
-#: netbox/vpn/tables/tunnels.py:99
+#: netbox/vpn/tables/tunnels.py:101
 msgid "IP Addresses"
 msgstr ""
 
@@ -7691,7 +7691,7 @@ msgstr ""
 #: netbox/vpn/forms/bulk_edit.py:76 netbox/vpn/forms/bulk_import.py:76
 #: netbox/vpn/forms/filtersets.py:46 netbox/vpn/forms/filtersets.py:87
 #: netbox/vpn/forms/model_forms.py:61 netbox/vpn/forms/model_forms.py:146
-#: netbox/vpn/tables/tunnels.py:78
+#: netbox/vpn/tables/tunnels.py:80
 msgid "Tunnel"
 msgstr ""
 
@@ -9766,7 +9766,7 @@ msgid "load_json is deprecated and will be removed in v4.5"
 msgstr ""
 
 #: netbox/extras/tables/columns.py:12
-#: netbox/templates/htmx/notifications.html:18
+#: netbox/templates/htmx/notifications.html:29
 msgid "Dismiss"
 msgstr ""
 
@@ -9957,32 +9957,32 @@ msgstr ""
 msgid "Invalid attribute \"{name}\" for {model}"
 msgstr ""
 
-#: netbox/extras/views.py:1093
+#: netbox/extras/views.py:1125
 #, python-brace-format
 msgid "An error occurred while rendering the template: {error}"
 msgstr ""
 
-#: netbox/extras/views.py:1256
+#: netbox/extras/views.py:1288
 msgid "Your dashboard has been reset."
 msgstr ""
 
-#: netbox/extras/views.py:1302
+#: netbox/extras/views.py:1334
 msgid "Added widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1343
+#: netbox/extras/views.py:1375
 msgid "Updated widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1379
+#: netbox/extras/views.py:1411
 msgid "Deleted widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1381
+#: netbox/extras/views.py:1413
 msgid "Error deleting widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1486
+#: netbox/extras/views.py:1518
 msgid "Unable to run script: RQ worker process not running."
 msgstr ""
 
@@ -10300,7 +10300,7 @@ msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:218 netbox/ipam/forms/bulk_import.py:188
 #: netbox/ipam/forms/filtersets.py:271 netbox/ipam/forms/model_forms.py:218
-#: netbox/ipam/models/vlans.py:289 netbox/ipam/tables/ip.py:207
+#: netbox/ipam/models/vlans.py:290 netbox/ipam/tables/ip.py:207
 #: netbox/templates/ipam/prefix.html:56 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
 #: netbox/templates/ipam/vlan_edit.html:14
@@ -10388,7 +10388,7 @@ msgid "VLAN ID ranges"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:516 netbox/ipam/forms/bulk_import.py:522
-#: netbox/ipam/forms/filtersets.py:579 netbox/ipam/models/vlans.py:249
+#: netbox/ipam/forms/filtersets.py:579 netbox/ipam/models/vlans.py:250
 #: netbox/ipam/tables/vlans.py:106
 msgid "Q-in-Q role"
 msgstr ""
@@ -10500,7 +10500,7 @@ msgstr ""
 msgid "Service VLAN (for Q-in-Q/802.1ad customer VLANs)"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:555 netbox/ipam/models/vlans.py:368
+#: netbox/ipam/forms/bulk_import.py:555 netbox/ipam/models/vlans.py:369
 msgid "VLAN translation policy"
 msgstr ""
 
@@ -10595,7 +10595,7 @@ msgstr ""
 msgid "DNS Name"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:440 netbox/ipam/models/vlans.py:290
+#: netbox/ipam/forms/filtersets.py:440 netbox/ipam/models/vlans.py:291
 #: netbox/ipam/tables/ip.py:123 netbox/ipam/tables/vlans.py:52
 #: netbox/ipam/views.py:1094 netbox/netbox/navigation/menu.py:200
 #: netbox/netbox/navigation/menu.py:202
@@ -10606,11 +10606,11 @@ msgstr ""
 msgid "Contains VLAN ID"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:516 netbox/ipam/models/vlans.py:388
+#: netbox/ipam/forms/filtersets.py:516 netbox/ipam/models/vlans.py:389
 msgid "Local VLAN ID"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:521 netbox/ipam/models/vlans.py:396
+#: netbox/ipam/forms/filtersets.py:521 netbox/ipam/models/vlans.py:397
 msgid "Remote VLAN ID"
 msgstr ""
 
@@ -10618,7 +10618,7 @@ msgstr ""
 msgid "Q-in-Q/802.1ad"
 msgstr ""
 
-#: netbox/ipam/forms/filtersets.py:576 netbox/ipam/models/vlans.py:208
+#: netbox/ipam/forms/filtersets.py:576 netbox/ipam/models/vlans.py:209
 #: netbox/templates/ipam/vlan.html:31
 msgid "VLAN ID"
 msgstr ""
@@ -11091,63 +11091,63 @@ msgstr ""
 msgid "Ranges cannot overlap."
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:197
+#: netbox/ipam/models/vlans.py:198
 msgid "The specific site to which this VLAN is assigned (if any)"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:205
+#: netbox/ipam/models/vlans.py:206
 msgid "VLAN group (optional)"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:213 netbox/ipam/models/vlans.py:393
-#: netbox/ipam/models/vlans.py:401
+#: netbox/ipam/models/vlans.py:214 netbox/ipam/models/vlans.py:394
+#: netbox/ipam/models/vlans.py:402
 msgid "Numeric VLAN ID (1-4094)"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:231
+#: netbox/ipam/models/vlans.py:232
 msgid "Operational status of this VLAN"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:239
+#: netbox/ipam/models/vlans.py:240
 msgid "The primary function of this VLAN"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:254
+#: netbox/ipam/models/vlans.py:255
 msgid "Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:303
+#: netbox/ipam/models/vlans.py:304
 #, python-brace-format
 msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
 "site {site}."
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:310
+#: netbox/ipam/models/vlans.py:311
 #, python-brace-format
 msgid ""
 "The assigned site {site} is not a member of the assigned group {group} "
 "(scope: {scope})."
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:319
+#: netbox/ipam/models/vlans.py:320
 #, python-brace-format
 msgid "VID must be in ranges {ranges} for VLANs in group {group}"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:326
+#: netbox/ipam/models/vlans.py:327
 msgid "Only Q-in-Q customer VLANs maybe assigned to a service VLAN."
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:332
+#: netbox/ipam/models/vlans.py:333
 msgid "A Q-in-Q customer VLAN must be assigned to a service VLAN."
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:369
+#: netbox/ipam/models/vlans.py:370
 msgid "VLAN translation policies"
 msgstr ""
 
-#: netbox/ipam/models/vlans.py:410
+#: netbox/ipam/models/vlans.py:411
 msgid "VLAN translation rule"
 msgstr ""
 
@@ -14806,15 +14806,30 @@ msgstr ""
 msgid "The following objects will be deleted as a result of this action."
 msgstr ""
 
-#: netbox/templates/htmx/notifications.html:15
-msgid "ago"
+#: netbox/templates/htmx/notifications.html:6
+#, python-format
+msgid "Dismiss %(count)s unread notification?"
+msgid_plural "Dismiss %(count)s unread notifications?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: netbox/templates/htmx/notifications.html:7
+msgid "Dismiss all unread notifications"
+msgstr ""
+
+#: netbox/templates/htmx/notifications.html:9
+msgid "Dismiss all"
 msgstr ""
 
 #: netbox/templates/htmx/notifications.html:26
+msgid "ago"
+msgstr ""
+
+#: netbox/templates/htmx/notifications.html:37
 msgid "No unread notifications"
 msgstr ""
 
-#: netbox/templates/htmx/notifications.html:31
+#: netbox/templates/htmx/notifications.html:42
 msgid "All notifications"
 msgstr ""
 
@@ -15428,7 +15443,7 @@ msgstr ""
 
 #: netbox/templates/vpn/tunnel.html:41 netbox/vpn/forms/bulk_edit.py:55
 #: netbox/vpn/forms/bulk_import.py:53 netbox/vpn/forms/filtersets.py:69
-#: netbox/vpn/models/crypto.py:246 netbox/vpn/tables/tunnels.py:51
+#: netbox/vpn/models/crypto.py:246 netbox/vpn/tables/tunnels.py:52
 msgid "IPSec profile"
 msgstr ""
 
@@ -15453,7 +15468,7 @@ msgstr ""
 #: netbox/templates/vpn/tunneltermination.html:35
 #: netbox/vpn/forms/bulk_import.py:107 netbox/vpn/forms/model_forms.py:103
 #: netbox/vpn/forms/model_forms.py:139 netbox/vpn/forms/model_forms.py:248
-#: netbox/vpn/tables/tunnels.py:102
+#: netbox/vpn/tables/tunnels.py:104
 msgid "Outside IP"
 msgstr ""
 
@@ -16777,7 +16792,7 @@ msgid "Assigned Object Type"
 msgstr ""
 
 #: netbox/vpn/forms/model_forms.py:96 netbox/vpn/forms/model_forms.py:131
-#: netbox/vpn/forms/model_forms.py:241 netbox/vpn/tables/tunnels.py:91
+#: netbox/vpn/forms/model_forms.py:241 netbox/vpn/tables/tunnels.py:93
 msgid "Tunnel interface"
 msgstr ""
 
