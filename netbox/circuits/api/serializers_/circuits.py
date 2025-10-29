@@ -10,7 +10,7 @@ from circuits.models import (
 from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.api.serializers_.cables import CabledObjectSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
-from netbox.api.fields2 import GFKSerializerField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
     NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer,
 )

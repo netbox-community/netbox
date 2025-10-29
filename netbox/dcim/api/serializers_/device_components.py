@@ -1,6 +1,5 @@
 from django.utils.translation import gettext as _
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
@@ -13,8 +12,8 @@ from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
-from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
@@ -394,7 +393,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    component = GFKSerializerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
     status = ChoiceField(choices=InventoryItemStatusChoices, required=False)
 
@@ -406,11 +405,3 @@ class InventoryItemSerializer(NetBoxModelSerializer):
             'component_id', 'component', 'tags', 'custom_fields', 'created', 'last_updated', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', '_depth')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_component(self, obj):
-        if obj.component is None:
-            return None
-        serializer = get_serializer_for_model(obj.component)
-        context = {'request': self.context['request']}
-        return serializer(obj.component, nested=True, context=context).data

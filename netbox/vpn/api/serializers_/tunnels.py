@@ -1,12 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
 
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from vpn.choices import *
 from vpn.models import Tunnel, TunnelGroup, TunnelTermination
 from .crypto import IPSecProfileSerializer
@@ -83,9 +81,7 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
     termination_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    termination = serializers.SerializerMethodField(
-        read_only=True
-    )
+    termination = GFKSerializerField(read_only=True)
     outside_ip = IPAddressSerializer(
         nested=True,
         required=False,
@@ -99,11 +95,3 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
             'termination', 'outside_ip', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_termination(self, obj):
-        if not obj.termination:
-            return None
-        serializer = get_serializer_for_model(obj.termination)
-        context = {'request': self.context['request']}
-        return serializer(obj.termination, nested=True, context=context).data

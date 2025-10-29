@@ -1,13 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
 
 from ipam.api.serializers_.vrfs import RouteTargetSerializer
 from ipam.models import RouteTarget
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from vpn.choices import *
 from vpn.models import L2VPN, L2VPNTermination
 
@@ -53,7 +51,7 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
     assigned_object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    assigned_object = serializers.SerializerMethodField(read_only=True)
+    assigned_object = GFKSerializerField(read_only=True)
 
     class Meta:
         model = L2VPNTermination
@@ -62,9 +60,3 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
             'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
         brief_fields = ('id', 'url', 'display', 'l2vpn')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object)
-        context = {'request': self.context['request']}
-        return serializer(instance.assigned_object, nested=True, context=context).data

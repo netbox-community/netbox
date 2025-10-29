@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.constants import LOCATION_SCOPE_TYPES
@@ -7,9 +6,9 @@ from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from .asns import RIRSerializer
 from .nested import NestedIPAddressSerializer
 from .roles import RoleSerializer
@@ -55,7 +54,7 @@ class PrefixSerializer(PrimaryModelSerializer):
         default=None
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    scope = serializers.SerializerMethodField(read_only=True)
+    scope = GFKSerializerField(read_only=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     vlan = VLANSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=PrefixStatusChoices, required=False)
@@ -72,14 +71,6 @@ class PrefixSerializer(PrimaryModelSerializer):
             'custom_fields', 'created', 'last_updated', 'children', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_scope(self, obj):
-        if obj.scope_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.scope)
-        context = {'request': self.context['request']}
-        return serializer(obj.scope, nested=True, context=context).data
 
 
 class PrefixLengthSerializer(serializers.Serializer):
@@ -168,7 +159,7 @@ class IPAddressSerializer(PrimaryModelSerializer):
         required=False,
         allow_null=True
     )
-    assigned_object = serializers.SerializerMethodField(read_only=True)
+    assigned_object = GFKSerializerField(read_only=True)
     nat_inside = NestedIPAddressSerializer(required=False, allow_null=True)
     nat_outside = NestedIPAddressSerializer(many=True, read_only=True)
 
@@ -180,14 +171,6 @@ class IPAddressSerializer(PrimaryModelSerializer):
             'dns_name', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'address', 'description')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_assigned_object(self, obj):
-        if obj.assigned_object is None:
-            return None
-        serializer = get_serializer_for_model(obj.assigned_object)
-        context = {'request': self.context['request']}
-        return serializer(obj.assigned_object, nested=True, context=context).data
 
 
 class AvailableIPSerializer(serializers.Serializer):
