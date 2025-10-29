@@ -102,6 +102,9 @@ jobs:
     - name: Validate Static Asset Integrity
       run: scripts/verify-bundles.sh
 
+    - name: Check for changes to OpenAPI schema
+      run: scripts/verify-openapi.sh
+
     - name: Run tests
       run: coverage run --source="netbox/" netbox/manage.py test netbox/ --parallel
 
