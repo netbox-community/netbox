@@ -1,4 +1,4 @@
-from django.test import Client, TestCase, override_settings
+from django.test import Client, TestCase, override_settings, tag
 from django.urls import reverse
 from drf_spectacular.drainage import GENERATOR_STATS
 from rest_framework import status
@@ -9,6 +9,7 @@ from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
 from netbox.config import get_config
+from utilities.api import get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -267,3 +268,19 @@ class APIDocsTestCase(TestCase):
         with GENERATOR_STATS.silence():  # Suppress schema generator warnings
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+
+class GetViewNameTestCase(TestCase):
+
+    @tag('regression')
+    def test_get_view_name_with_none_queryset(self):
+        from rest_framework.viewsets import ReadOnlyModelViewSet
+
+        class MockViewSet(ReadOnlyModelViewSet):
+            queryset = None
+
+        view = MockViewSet()
+        view.suffix = 'List'
+
+        name = get_view_name(view)
+        self.assertEqual(name, 'Mock List')

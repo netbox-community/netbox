@@ -118,6 +118,7 @@ class UserBulkEditView(generic.BulkEditView):
 class UserBulkRenameView(generic.BulkRenameView):
     queryset = User.objects.all()
     field_name = 'username'
+    filterset = filtersets.UserFilterSet
 
 
 @register_model_view(User, 'bulk_delete', path='delete', detail=False)
@@ -174,6 +175,7 @@ class GroupBulkEditView(generic.BulkEditView):
 @register_model_view(Group, 'bulk_rename', path='rename', detail=False)
 class GroupBulkRenameView(generic.BulkRenameView):
     queryset = Group.objects.all()
+    filterset = filtersets.GroupFilterSet
 
 
 @register_model_view(Group, 'bulk_delete', path='delete', detail=False)
@@ -212,6 +214,7 @@ class ObjectPermissionEditView(generic.ObjectEditView):
 @register_model_view(ObjectPermission, 'delete')
 class ObjectPermissionDeleteView(generic.ObjectDeleteView):
     queryset = ObjectPermission.objects.all()
+    filterset = filtersets.ObjectPermissionFilterSet
 
 
 @register_model_view(ObjectPermission, 'bulk_edit', path='edit', detail=False)

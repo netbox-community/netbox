@@ -10,7 +10,7 @@ from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
-from virtualization.models import Cluster, ClusterType, ClusterGroup, VMInterface, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLink
 
@@ -7171,8 +7171,19 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
             MACAddress(mac_address='00-00-00-05-01-01', assigned_object=vm_interfaces[1]),
             MACAddress(mac_address='00-00-00-06-01-01', assigned_object=vm_interfaces[2]),
             MACAddress(mac_address='00-00-00-06-01-02', assigned_object=vm_interfaces[2]),
+            # unassigned
+            MACAddress(mac_address='00-00-00-07-01-01'),
         )
         MACAddress.objects.bulk_create(mac_addresses)
+
+        # Set MAC addresses as primary
+        for idx, interface in enumerate(interfaces):
+            interface.primary_mac_address = mac_addresses[idx]
+            interface.save()
+        for idx, vm_interface in enumerate(vm_interfaces):
+            # Offset by 4 for device MACs
+            vm_interface.primary_mac_address = mac_addresses[idx + 4]
+            vm_interface.save()
 
     def test_mac_address(self):
         params = {'mac_address': ['00-00-00-01-01-01', '00-00-00-02-01-01']}
@@ -7205,3 +7216,15 @@ class MACAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_assigned(self):
+        params = {'assigned': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'assigned': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_primary(self):
+        params = {'primary': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'primary': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)

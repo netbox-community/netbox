@@ -19,7 +19,7 @@
     {% if field|widget_type == 'slugwidget' %}
       <div class="input-group">
         {{ field }}
-        <button id="reslug" type="button" title="{% trans "Regenerate Slug" %}" class="btn">
+        <button type="button" title="{% trans "Regenerate Slug" %}" class="btn reslug">
           <i class="mdi mdi-reload"></i>
         </button>
       </div>

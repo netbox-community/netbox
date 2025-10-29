@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ipam.models import *
 from netbox.tables import PrimaryModelTable, columns
+from tenancy.tables import ContactsColumnMixin
 
 __all__ = (
     'ServiceTable',
@@ -32,7 +33,7 @@ class ServiceTemplateTable(PrimaryModelTable):
         default_columns = ('pk', 'name', 'protocol', 'ports', 'description')
 
 
-class ServiceTable(PrimaryModelTable):
+class ServiceTable(ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -54,7 +55,7 @@ class ServiceTable(PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Service
         fields = (
-            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'contacts', 'comments',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')

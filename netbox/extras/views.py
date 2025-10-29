@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -25,7 +25,7 @@ from netbox.object_actions import *
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
-from utilities.htmx import htmx_partial
+from utilities.htmx import htmx_partial, htmx_maybe_redirect_current_page
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
@@ -101,6 +101,7 @@ class CustomFieldBulkEditView(generic.BulkEditView):
 @register_model_view(CustomField, 'bulk_rename', path='rename', detail=False)
 class CustomFieldBulkRenameView(generic.BulkRenameView):
     queryset = CustomField.objects.all()
+    filterset = filtersets.CustomFieldFilterSet
 
 
 @register_model_view(CustomField, 'bulk_delete', path='delete', detail=False)
@@ -175,6 +176,7 @@ class CustomFieldChoiceSetBulkEditView(generic.BulkEditView):
 @register_model_view(CustomFieldChoiceSet, 'bulk_rename', path='rename', detail=False)
 class CustomFieldChoiceSetBulkRenameView(generic.BulkRenameView):
     queryset = CustomFieldChoiceSet.objects.all()
+    filterset = filtersets.CustomFieldChoiceSetFilterSet
 
 
 @register_model_view(CustomFieldChoiceSet, 'bulk_delete', path='delete', detail=False)
@@ -230,6 +232,7 @@ class CustomLinkBulkEditView(generic.BulkEditView):
 @register_model_view(CustomLink, 'bulk_rename', path='rename', detail=False)
 class CustomLinkBulkRenameView(generic.BulkRenameView):
     queryset = CustomLink.objects.all()
+    filterset = filtersets.CustomLinkFilterSet
 
 
 @register_model_view(CustomLink, 'bulk_delete', path='delete', detail=False)
@@ -286,6 +289,7 @@ class ExportTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(ExportTemplate, 'bulk_rename', path='rename', detail=False)
 class ExportTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ExportTemplate.objects.all()
+    filterset = filtersets.ExportTemplateFilterSet
 
 
 @register_model_view(ExportTemplate, 'bulk_delete', path='delete', detail=False)
@@ -351,6 +355,7 @@ class SavedFilterBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
 @register_model_view(SavedFilter, 'bulk_rename', path='rename', detail=False)
 class SavedFilterBulkRenameView(generic.BulkRenameView):
     queryset = SavedFilter.objects.all()
+    filterset = filtersets.SavedFilterFilterSet
 
 
 @register_model_view(SavedFilter, 'bulk_delete', path='delete', detail=False)
@@ -413,6 +418,7 @@ class TableConfigBulkEditView(SharedObjectViewMixin, generic.BulkEditView):
 @register_model_view(TableConfig, 'bulk_rename', path='rename', detail=False)
 class TableConfigBulkRenameView(generic.BulkRenameView):
     queryset = TableConfig.objects.all()
+    filterset = filtersets.TableConfigFilterSet
 
 
 @register_model_view(TableConfig, 'bulk_delete', path='delete', detail=False)
@@ -499,6 +505,7 @@ class NotificationGroupBulkEditView(generic.BulkEditView):
 @register_model_view(NotificationGroup, 'bulk_rename', path='rename', detail=False)
 class NotificationGroupBulkRenameView(generic.BulkRenameView):
     queryset = NotificationGroup.objects.all()
+    filterset = filtersets.NotificationGroupFilterSet
 
 
 @register_model_view(NotificationGroup, 'bulk_delete', path='delete', detail=False)
@@ -518,8 +525,9 @@ class NotificationsView(LoginRequiredMixin, View):
     """
     def get(self, request):
         return render(request, 'htmx/notifications.html', {
-            'notifications': request.user.notifications.unread(),
+            'notifications': request.user.notifications.unread()[:10],
             'total_count': request.user.notifications.count(),
+            'unread_count': request.user.notifications.unread().count(),
         })
 
 
@@ -528,6 +536,7 @@ class NotificationReadView(LoginRequiredMixin, View):
     """
     Mark the Notification read and redirect the user to its attached object.
     """
+
     def get(self, request, pk):
         # Mark the Notification as read
         notification = get_object_or_404(request.user.notifications, pk=pk)
@@ -541,18 +550,48 @@ class NotificationReadView(LoginRequiredMixin, View):
         return redirect('account:notifications')
 
 
+@register_model_view(Notification, name='dismiss_all', path='dismiss-all', detail=False)
+class NotificationDismissAllView(LoginRequiredMixin, View):
+    """
+    Convenience view to clear all *unread* notifications for the current user.
+    """
+
+    def get(self, request):
+        request.user.notifications.unread().delete()
+        if htmx_partial(request):
+            # If a user is currently on the notification page, redirect there (full repaint)
+            redirect_resp = htmx_maybe_redirect_current_page(request, 'account:notifications', preserve_query=True)
+            if redirect_resp:
+                return redirect_resp
+
+            return render(request, 'htmx/notifications.html', {
+                'notifications': request.user.notifications.unread()[:10],
+                'total_count': request.user.notifications.count(),
+                'unread_count': request.user.notifications.unread().count(),
+            })
+        return redirect('account:notifications')
+
+
 @register_model_view(Notification, 'dismiss')
 class NotificationDismissView(LoginRequiredMixin, View):
     """
     A convenience view which allows deleting notifications with one click.
     """
+
     def get(self, request, pk):
         notification = get_object_or_404(request.user.notifications, pk=pk)
         notification.delete()
 
         if htmx_partial(request):
+            # If a user is currently on the notification page, redirect there (full repaint)
+            redirect_resp = htmx_maybe_redirect_current_page(request, 'account:notifications', preserve_query=True)
+            if redirect_resp:
+                return redirect_resp
+
             return render(request, 'htmx/notifications.html', {
                 'notifications': request.user.notifications.unread()[:10],
+                'total_count': request.user.notifications.count(),
+                'unread_count': request.user.notifications.unread().count(),
             })
 
         return redirect('account:notifications')
@@ -650,6 +689,7 @@ class WebhookBulkEditView(generic.BulkEditView):
 @register_model_view(Webhook, 'bulk_rename', path='rename', detail=False)
 class WebhookBulkRenameView(generic.BulkRenameView):
     queryset = Webhook.objects.all()
+    filterset = filtersets.WebhookFilterSet
 
 
 @register_model_view(Webhook, 'bulk_delete', path='delete', detail=False)
@@ -705,6 +745,7 @@ class EventRuleBulkEditView(generic.BulkEditView):
 @register_model_view(EventRule, 'bulk_rename', path='rename', detail=False)
 class EventRuleBulkRenameView(generic.BulkRenameView):
     queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
 
 
 @register_model_view(EventRule, 'bulk_delete', path='delete', detail=False)
@@ -841,6 +882,7 @@ class ConfigContextProfileBulkEditView(generic.BulkEditView):
 @register_model_view(ConfigContextProfile, 'bulk_rename', path='rename', detail=False)
 class ConfigContextProfileBulkRenameView(generic.BulkRenameView):
     queryset = ConfigContextProfile.objects.all()
+    filterset = filtersets.ConfigContextProfileFilterSet
 
 
 @register_model_view(ConfigContextProfile, 'bulk_delete', path='delete', detail=False)
@@ -929,6 +971,7 @@ class ConfigContextBulkEditView(generic.BulkEditView):
 @register_model_view(ConfigContext, 'bulk_rename', path='rename', detail=False)
 class ConfigContextBulkRenameView(generic.BulkRenameView):
     queryset = ConfigContext.objects.all()
+    filterset = filtersets.ConfigContextFilterSet
 
 
 @register_model_view(ConfigContext, 'bulk_delete', path='delete', detail=False)
@@ -1020,6 +1063,7 @@ class ConfigTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(ConfigTemplate, 'bulk_rename', path='rename', detail=False)
 class ConfigTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ConfigTemplate.objects.all()
+    filterset = filtersets.ConfigTemplateFilterSet
 
 
 @register_model_view(ConfigTemplate, 'bulk_delete', path='delete', detail=False)
@@ -1143,6 +1187,7 @@ class ImageAttachmentBulkEditView(generic.BulkEditView):
 @register_model_view(ImageAttachment, 'bulk_rename', path='rename', detail=False)
 class ImageAttachmentBulkRenameView(generic.BulkRenameView):
     queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
 
 
 @register_model_view(ImageAttachment, 'bulk_delete', path='delete', detail=False)
@@ -1485,6 +1530,15 @@ class ScriptView(BaseScriptView):
             )
 
             return redirect('extras:script_result', job_pk=job.pk)
+        else:
+            fieldset_fields = {field for _, fields in script_class.get_fieldsets() for field in fields}
+            hidden_errors = {
+                field: errors for field, errors in form.errors.items()
+                if field not in fieldset_fields
+            }
+            if hidden_errors:
+                error_msg = '; '.join(f"{field}: {', '.join(errors)}" for field, errors in hidden_errors.items())
+                messages.error(request, error_msg)
 
         return render(request, 'extras/script.html', {
             'object': script,

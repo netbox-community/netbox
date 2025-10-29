@@ -14,7 +14,7 @@ from netbox.filtersets import (
     AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
     OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
 )
-from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
@@ -22,9 +22,9 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
-from virtualization.models import Cluster, ClusterGroup, VMInterface, VirtualMachine
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from vpn.models import L2VPN
-from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
+from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLAN, WirelessLink
 from .choices import *
 from .constants import *
@@ -1289,7 +1289,6 @@ class DeviceFilterSet(
             Q(name__icontains=value) |
             Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
-            Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(description__icontains=value.strip()) |
             Q(comments__icontains=value) |
@@ -1788,6 +1787,14 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('VM interface (ID)'),
     )
+    assigned = django_filters.BooleanFilter(
+        method='filter_assigned',
+        label=_('Is assigned'),
+    )
+    primary = django_filters.BooleanFilter(
+        method='filter_primary',
+        label=_('Is primary'),
+    )
 
     class Meta:
         model = MACAddress
@@ -1823,6 +1830,29 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         return queryset.filter(
             vminterface__in=interface_ids
         )
+
+    def filter_assigned(self, queryset, name, value):
+        params = {
+            'assigned_object_type__isnull': True,
+            'assigned_object_id__isnull': True,
+        }
+        if value:
+            return queryset.exclude(**params)
+        else:
+            return queryset.filter(**params)
+
+    def filter_primary(self, queryset, name, value):
+        interface_mac_ids = Interface.objects.filter(primary_mac_address_id__isnull=False).values_list(
+            'primary_mac_address_id', flat=True
+        )
+        vminterface_mac_ids = VMInterface.objects.filter(primary_mac_address_id__isnull=False).values_list(
+            'primary_mac_address_id', flat=True
+        )
+        query = Q(pk__in=interface_mac_ids) | Q(pk__in=vminterface_mac_ids)
+        if value:
+            return queryset.filter(query)
+        else:
+            return queryset.exclude(query)
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):
