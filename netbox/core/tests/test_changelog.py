@@ -5,14 +5,16 @@ from rest_framework import status
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
-from dcim.choices import SiteStatusChoices
-from dcim.models import Site, CableTermination, Device, DeviceType, DeviceRole, Interface, Cable
+from dcim.choices import InterfaceTypeChoices, ModuleStatusChoices, SiteStatusChoices
+from dcim.models import (
+    Cable, CableTermination, Device, DeviceRole, DeviceType, Manufacturer, Module, ModuleBay, ModuleType, Interface,
+    Site,
+)
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet, Tag
 from utilities.testing import APITestCase
-from utilities.testing.utils import create_tags, post_data
+from utilities.testing.utils import create_tags, create_test_device, post_data
 from utilities.testing.views import ModelViewTestCase
-from dcim.models import Manufacturer
 
 
 class ChangeLogViewTest(ModelViewTestCase):
@@ -622,3 +624,64 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(objectchange.prechange_data['name'], 'Site 1')
         self.assertEqual(objectchange.prechange_data['slug'], 'site-1')
         self.assertEqual(objectchange.postchange_data, None)
+
+    def test_deletion_ordering(self):
+        """
+        Check that the cascading deletion of dependent objects is recorded in the correct order.
+        """
+        device = create_test_device('device1')
+        module_bay = ModuleBay.objects.create(device=device, name='Module Bay 1')
+        module_type = ModuleType.objects.create(manufacturer=Manufacturer.objects.first(), model='Module Type 1')
+        self.add_permissions('dcim.add_module', 'dcim.add_interface', 'dcim.delete_module')
+        self.assertEqual(ObjectChange.objects.count(), 0)  # Sanity check
+
+        # Create a new Module
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'status': ModuleStatusChoices.STATUS_ACTIVE,
+        }
+        url = reverse('dcim-api:module-list')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        module = device.modules.first()
+
+        # Create an Interface on the Module
+        data = {
+            'device': device.pk,
+            'module': module.pk,
+            'name': 'Interface 1',
+            'type': InterfaceTypeChoices.TYPE_1GE_FIXED,
+        }
+        url = reverse('dcim-api:interface-list')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        interface = device.interfaces.first()
+
+        # Delete the Module
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        response = self.client.delete(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Module.objects.count(), 0)
+        self.assertEqual(Interface.objects.count(), 0)
+
+        # Verify the creation of the expected ObjectChange records. We should see four total records, in this order:
+        #  1. Module created
+        #  2. Interface created
+        #  3. Interface deleted
+        #  4. Module deleted
+        changes = ObjectChange.objects.order_by('time')
+        self.assertEqual(len(changes), 4)
+        self.assertEqual(changes[0].changed_object_type, ContentType.objects.get_for_model(Module))
+        self.assertEqual(changes[0].changed_object_id, module.pk)
+        self.assertEqual(changes[0].action, ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(changes[1].changed_object_type, ContentType.objects.get_for_model(Interface))
+        self.assertEqual(changes[1].changed_object_id, interface.pk)
+        self.assertEqual(changes[1].action, ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(changes[2].changed_object_type, ContentType.objects.get_for_model(Interface))
+        self.assertEqual(changes[2].changed_object_id, interface.pk)
+        self.assertEqual(changes[2].action, ObjectChangeActionChoices.ACTION_DELETE)
+        self.assertEqual(changes[3].changed_object_type, ContentType.objects.get_for_model(Module))
+        self.assertEqual(changes[3].changed_object_id, module.pk)
+        self.assertEqual(changes[3].action, ObjectChangeActionChoices.ACTION_DELETE)
