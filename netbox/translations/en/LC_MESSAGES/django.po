@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-29 05:01+0000\n"
+"POT-Creation-Date: 2025-10-30 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2806,7 +2806,7 @@ msgstr ""
 msgid "Sync Data"
 msgstr ""
 
-#: netbox/core/signals.py:175
+#: netbox/core/signals.py:176
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
