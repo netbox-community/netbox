@@ -382,7 +382,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         for field_name, related_object_form in self.related_object_forms.items():
 
             related_obj_pks = []
-            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
+            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list()), start=1):
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
