@@ -1036,8 +1036,7 @@ module-bays:
 
         response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
         self.assertHttpStatus(response, 200)
-        # TODO record index should be 2
-        self.assertContains(response, "Record 3 module-bays[3].name: This field is required.")
+        self.assertContains(response, "Record 2 module-bays[3].name: This field is required.")
 
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')

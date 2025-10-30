@@ -368,7 +368,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 error_messages.append(f"Record {index} {prefix}{field_name}: {err}")
         return error_messages
 
-    def _save_object(self, model_form, request):
+    def _save_object(self, model_form, request, parent_idx):
         _action = 'Updated' if model_form.instance.pk else 'Created'
 
         # Save the primary object
@@ -396,7 +396,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 else:
                     # Replicate errors on the related object form to the import form for display and abort
                     raise ValidationError(
-                        self._compile_form_errors(f.errors, index=i, prefix=f'{field_name}[{i}]')
+                        self._compile_form_errors(f.errors, index=parent_idx, prefix=f'{field_name}[{i}]')
                     )
 
             # Enforce object-level permissions on related objects
@@ -481,7 +481,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                obj = self._save_object(model_form, request)
+                obj = self._save_object(model_form, request, i)
                 saved_objects.append(obj)
             else:
                 # Raise model form errors
