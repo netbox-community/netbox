@@ -381,8 +381,17 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         # Iterate through the related object forms (if any), validating and saving each instance.
         for field_name, related_object_form in self.related_object_forms.items():
 
+            related_objects = model_form.data.get(field_name, list())
+            if not isinstance(related_objects, list):
+                raise ValidationError(
+                    self._compile_form_errors(
+                        {field_name: [_("Must be a list.")]},
+                        index=parent_idx
+                    )
+                )
+
             related_obj_pks = []
-            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list()), start=1):
+            for i, rel_obj_data in enumerate(related_objects, start=1):
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
