@@ -210,3 +210,15 @@ class TemplatedAttr(Attr):
                 'value': value,
             }
         )
+
+
+class UtilizationAttr(Attr):
+    template_name = 'components/attrs/utilization.html'
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+        })

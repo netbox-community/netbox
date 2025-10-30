@@ -868,6 +868,7 @@ class RackView(GetRelatedModelsMixin, generic.ObjectView):
         ])
 
         return {
+            'rack_panel': panels.RackPanel(instance, _('Rack')),
             'related_models': self.get_related_models(
                 request,
                 instance,
