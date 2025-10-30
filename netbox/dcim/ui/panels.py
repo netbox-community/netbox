@@ -1,10 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 
-from netbox.ui import attrs
-from netbox.ui.components import ObjectPanel
+from netbox.ui import attrs, components
 
 
-class DevicePanel(ObjectPanel):
+class LocationPanel(components.NestedGroupObjectPanel):
+    site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
+    status = attrs.ChoiceAttr('status', label=_('Status'))
+    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
+    facility = attrs.TextAttr('facility', label=_('Facility'))
+
+
+class DevicePanel(components.ObjectPanel):
     region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
     site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
@@ -25,7 +31,7 @@ class DevicePanel(ObjectPanel):
     config_template = attrs.ObjectAttr('config_template', label=_('Config template'), linkify=True)
 
 
-class DeviceManagementPanel(ObjectPanel):
+class DeviceManagementPanel(components.ObjectPanel):
     status = attrs.ChoiceAttr('status', label=_('Status'))
     role = attrs.NestedObjectAttr('role', label=_('Role'), linkify=True, max_depth=3)
     platform = attrs.NestedObjectAttr('platform', label=_('Platform'), linkify=True, max_depth=3)
@@ -46,7 +52,7 @@ class DeviceManagementPanel(ObjectPanel):
     )
 
 
-class SitePanel(ObjectPanel):
+class SitePanel(components.ObjectPanel):
     region = attrs.NestedObjectAttr('region', label=_('Region'), linkify=True)
     group = attrs.NestedObjectAttr('group', label=_('Group'), linkify=True)
     status = attrs.ChoiceAttr('status', label=_('Status'))

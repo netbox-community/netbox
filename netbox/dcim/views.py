@@ -571,6 +571,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
         locations = instance.get_descendants(include_self=True)
         location_content_type = ContentType.objects.get_for_model(instance)
         return {
+            'location_panel': panels.LocationPanel(instance, _('Location')),
             'related_models': self.get_related_models(
                 request,
                 locations,
