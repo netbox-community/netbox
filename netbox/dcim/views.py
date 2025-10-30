@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
-from dcim.template_components.object_panels import DevicePanel
+from dcim.ui.panels import DevicePanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
