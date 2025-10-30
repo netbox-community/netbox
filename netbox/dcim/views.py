@@ -12,13 +12,11 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
+from dcim.template_components.object_panels import DevicePanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
-from netbox.templates.components import (
-    AttributesPanel, EmbeddedTemplate, GPSCoordinatesAttr, NestedObjectAttr, ObjectAttr, TextAttr,
-)
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -2226,28 +2224,10 @@ class DeviceView(generic.ObjectView):
         else:
             vc_members = []
 
-        device_attrs = AttributesPanel(_('Device'), {
-            _('Region'): NestedObjectAttr(instance.site.region, linkify=True),
-            _('Site'): ObjectAttr(instance.site, linkify=True, grouped_by='group'),
-            _('Location'): ObjectAttr(instance.location, linkify=True),
-            # TODO: Include position & face of parent device (if applicable)
-            _('Rack'): EmbeddedTemplate('dcim/device/attrs/rack.html', {'device': instance}),
-            _('Virtual Chassis'): ObjectAttr(instance.virtual_chassis, linkify=True),
-            _('Parent Device'): EmbeddedTemplate('dcim/device/attrs/parent_device.html', {'device': instance}),
-            _('GPS Coordinates'): GPSCoordinatesAttr(instance.latitude, instance.longitude),
-            _('Tenant'): ObjectAttr(instance.tenant, linkify=True, grouped_by='group'),
-            _('Device Type'): ObjectAttr(instance.device_type, linkify=True, grouped_by='manufacturer'),
-            _('Description'): TextAttr(instance.description),
-            _('Airflow'): TextAttr(instance.get_airflow_display()),
-            _('Serial Number'): TextAttr(instance.serial, style='font-monospace'),
-            _('Asset Tag'): TextAttr(instance.asset_tag, style='font-monospace'),
-            _('Config Template'): ObjectAttr(instance.config_template, linkify=True),
-        })
-
         return {
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}',
-            'device_attrs': device_attrs,
+            'device_panel': DevicePanel(instance, _('Device')),
         }
 
 

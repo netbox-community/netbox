@@ -1,11 +1,11 @@
 <div class="card">
   <h2 class="card-header">{{ title }}</h2>
   <table class="table table-hover attr-table">
-    {% for label, attr in attrs.items %}
+    {% for attr in attrs %}
       <tr>
-        <th scope="row">{{ label }}</th>
+        <th scope="row">{{ attr.label }}</th>
         <td>
-          <div class="d-flex justify-content-between align-items-start">{{ attr }}</div>
+          <div class="d-flex justify-content-between align-items-start">{{ attr.value }}</div>
         </td>
       </tr>
     {% endfor %}
