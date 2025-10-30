@@ -12920,8 +12920,8 @@ msgstr ""
 
 #: netbox/netbox/views/generic/bulk_views.py:442
 #, python-brace-format
-msgid "Row {i}: Object with ID {id} does not exist"
-msgstr "Ряд {i}: Об'єкт з ідентифікатором {id} не існує"
+msgid "Object with ID {id} does not exist"
+msgstr "Об'єкт з ідентифікатором {id} не існує"
 
 #: netbox/netbox/views/generic/bulk_views.py:525
 #, python-brace-format

@@ -323,7 +323,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
 class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     """
-    Import objects in bulk (CSV format).
+    Import objects in bulk (CSV/JSON/YAML format).
 
     Attributes:
         model_form: The form used to create each imported object
@@ -456,8 +456,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     instance = prefetched_objects[object_id]
                 except KeyError:
-                    form.add_error('data', _("Row {i}: Object with ID {id} does not exist").format(i=i, id=object_id))
-                    raise ValidationError('')
+                    raise ValidationError(
+                        self._compile_form_errors(
+                            {'id': [_("Object with ID {id} does not exist").format(id=object_id)]},
+                            index=i
+                        )
+                    )
 
                 # Take a snapshot for change logging
                 if instance.pk and hasattr(instance, 'snapshot'):

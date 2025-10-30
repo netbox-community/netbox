@@ -12835,8 +12835,8 @@ msgstr ""
 
 #: netbox/netbox/views/generic/bulk_views.py:442
 #, python-brace-format
-msgid "Row {i}: Object with ID {id} does not exist"
-msgstr "Satır {i}: Kimliği olan nesne {id} mevcut değil"
+msgid "Object with ID {id} does not exist"
+msgstr "Kimliği olan nesne {id} mevcut değil"
 
 #: netbox/netbox/views/generic/bulk_views.py:525
 #, python-brace-format
