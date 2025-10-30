@@ -627,6 +627,7 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
             'device_bay_template_count',
             'module_bay_template_count',
             'inventory_item_template_count',
+            'device_count',
         )
 
     def search(self, queryset, name, value):
@@ -747,7 +748,12 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ('id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description')
+        fields = (
+            'id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
+
+            # Counters
+            'module_count',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():

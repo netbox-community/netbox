@@ -87,13 +87,17 @@ def post_delete_receiver(sender, instance, origin, **kwargs):
 
 def connect_counters(*models):
     """
-    Register counter fields and connect post_save & post_delete signal handlers for the affected models.
+    Register counter fields and connect signal handlers for their child models.
+    Ensures exactly one receiver per child (sender), even when multiple counters
+    reference the same sender (e.g., Device).
     """
+    connected = set()  # child models we've already connected
+
     for model in models:
 
         # Find all CounterCacheFields on the model
         counter_fields = [
-            field for field in model._meta.get_fields() if type(field) is CounterCacheField
+            field for field in model._meta.get_fields() if isinstance(field, CounterCacheField)
         ]
 
         for field in counter_fields:
@@ -103,22 +107,31 @@ def connect_counters(*models):
             change_tracking_fields = registry['counter_fields'][to_model]
             change_tracking_fields[f"{field.to_field_name}_id"] = field.name
 
+            # Connect signals once per child model
+            if to_model in connected:
+                continue
+
+            # Ensure dispatch_uid is unique per model (sender), not per field
+            uid_base = f"countercache.{to_model._meta.label_lower}"
+
             # Connect the post_save and post_delete handlers
             post_save.connect(
                 post_save_receiver,
                 sender=to_model,
                 weak=False,
-                dispatch_uid=f'{model._meta.label}.{field.name}'
+                dispatch_uid=f'{uid_base}.post_save'
             )
             pre_delete.connect(
                 pre_delete_receiver,
                 sender=to_model,
                 weak=False,
-                dispatch_uid=f'{model._meta.label}.{field.name}'
+                dispatch_uid=f'{uid_base}.pre_delete'
             )
             post_delete.connect(
                 post_delete_receiver,
                 sender=to_model,
                 weak=False,
-                dispatch_uid=f'{model._meta.label}.{field.name}'
+                dispatch_uid=f'{uid_base}.post_delete'
             )
+
+            connected.add(to_model)

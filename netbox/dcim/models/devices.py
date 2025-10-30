@@ -185,6 +185,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_model='dcim.InventoryItemTemplate',
         to_field='device_type'
     )
+    device_count = CounterCacheField(
+        to_model='dcim.Device',
+        to_field='device_type'
+    )
 
     clone_fields = (
         'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
