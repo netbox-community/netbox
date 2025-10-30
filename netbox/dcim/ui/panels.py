@@ -44,3 +44,16 @@ class DeviceManagementPanel(ObjectPanel):
         label=_('Out-of-band IP'),
         template_name='dcim/device/attrs/ipaddress.html',
     )
+
+
+class SitePanel(ObjectPanel):
+    region = attrs.NestedObjectAttr('region', label=_('Region'), linkify=True)
+    group = attrs.NestedObjectAttr('group', label=_('Group'), linkify=True)
+    status = attrs.ChoiceAttr('status', label=_('Status'))
+    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
+    facility = attrs.TextAttr('facility', label=_('Facility'))
+    description = attrs.TextAttr('description', label=_('Description'))
+    timezone = attrs.TimezoneAttr('time_zone', label=_('Timezone'))
+    physical_address = attrs.AddressAttr('physical_address', label=_('Physical address'), map_url=True)
+    shipping_address = attrs.AddressAttr('shipping_address', label=_('Shipping address'), map_url=True)
+    gps_coordinates = attrs.GPSCoordinatesAttr()

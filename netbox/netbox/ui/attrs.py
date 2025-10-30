@@ -123,6 +123,30 @@ class NestedObjectAttr(Attr):
         })
 
 
+class AddressAttr(Attr):
+    template_name = 'components/attrs/address.html'
+
+    def __init__(self, *args, map_url=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        if map_url is True:
+            self.map_url = get_config().MAPS_URL
+        elif map_url:
+            self.map_url = map_url
+        else:
+            self.map_url = None
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        if value in (None, ''):
+            return self.placeholder
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+            'map_url': self.map_url,
+        })
+
+
 class GPSCoordinatesAttr(Attr):
     template_name = 'components/attrs/gps_coordinates.html'
 
@@ -149,6 +173,20 @@ class GPSCoordinatesAttr(Attr):
             'latitude': latitude,
             'longitude': longitude,
             'map_url': self.map_url,
+        })
+
+
+class TimezoneAttr(Attr):
+    template_name = 'components/attrs/timezone.html'
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        if value in (None, ''):
+            return self.placeholder
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
         })
 
 

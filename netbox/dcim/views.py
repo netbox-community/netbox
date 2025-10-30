@@ -465,6 +465,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
+            'site_panel': panels.SitePanel(instance, _('Site')),
             'related_models': self.get_related_models(
                 request,
                 instance,
