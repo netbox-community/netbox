@@ -1074,6 +1074,43 @@ console-ports: {value}
                 self.assertHttpStatus(response, 200)
                 self.assertContains(response, "Record 1 console-ports: Must be a list.")
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_import_nodict(self):
+        # Add all required permissions to the test user
+        self.add_permissions(
+            'dcim.view_devicetype',
+            'dcim.add_devicetype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+            'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
+        )
+
+        for value in ('', 'null', '3', '"My console port"', '["My other console port"]'):
+            with self.subTest(value=value):
+                import_data = f'''
+manufacturer: Manufacturer 1
+model: TEST-4000
+slug: test-4000
+u_height: 1
+console-ports:
+  - {value}
+'''
+                form_data = {
+                    'data': import_data,
+                    'format': 'yaml'
+                }
+
+                response = self.client.post(reverse('dcim:devicetype_bulk_import'), data=form_data, follow=True)
+                self.assertHttpStatus(response, 200)
+                self.assertContains(response, "Record 1 console-ports[1]: Must be a dictionary.")
+
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')
         self.add_permissions('dcim.view_devicetype')

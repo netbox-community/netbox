@@ -392,6 +392,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
             related_obj_pks = []
             for i, rel_obj_data in enumerate(related_objects, start=1):
+                if not isinstance(rel_obj_data, dict):
+                    raise ValidationError(
+                        self._compile_form_errors(
+                            {f'{field_name}[{i}]': [_("Must be a dictionary.")]},
+                            index=parent_idx,
+                        )
+                    )
+
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
