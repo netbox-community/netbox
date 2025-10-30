@@ -1,5 +1,6 @@
+from abc import ABC, abstractmethod
+
 from django.template.loader import render_to_string
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -10,7 +11,7 @@ from netbox.config import get_config
 # Attributes
 #
 
-class Attr:
+class Attr(ABC):
     template_name = None
     placeholder = mark_safe('<span class="text-muted">&mdash;</span>')
 
@@ -18,6 +19,10 @@ class Attr:
         self.accessor = accessor
         self.label = label
         self.template_name = template_name or self.template_name
+
+    @abstractmethod
+    def render(self, obj, context=None):
+        pass
 
     @staticmethod
     def _resolve_attr(obj, path):
@@ -30,35 +35,65 @@ class Attr:
 
 
 class TextAttr(Attr):
+    template_name = 'components/attrs/text.html'
 
-    def __init__(self, *args, style=None, **kwargs):
+    def __init__(self, *args, style=None, copy_button=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.style = style
+        self.copy_button = copy_button
 
-    def render(self, obj):
+    def render(self, obj, context=None):
+        context = context or {}
         value = self._resolve_attr(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
-        if self.style:
-            return mark_safe(f'<span class="{self.style}">{escape(value)}</span>')
-        return value
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+            'style': self.style,
+            'copy_button': self.copy_button,
+        })
+
+
+class ChoiceAttr(Attr):
+    template_name = 'components/attrs/choice.html'
+
+    def render(self, obj, context=None):
+        context = context or {}
+        try:
+            value = getattr(obj, f'get_{self.accessor}_display')()
+        except AttributeError:
+            value = self._resolve_attr(obj, self.accessor)
+        if value in (None, ''):
+            return self.placeholder
+        try:
+            bg_color = getattr(obj, f'get_{self.accessor}_color')()
+        except AttributeError:
+            bg_color = None
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+            'bg_color': bg_color,
+        })
 
 
 class ObjectAttr(Attr):
-    template_name = 'components/object.html'
+    template_name = 'components/attrs/object.html'
 
     def __init__(self, *args, linkify=None, grouped_by=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.linkify = linkify
         self.grouped_by = grouped_by
 
-    def render(self, obj):
+    def render(self, obj, context=None):
+        context = context or {}
         value = self._resolve_attr(obj, self.accessor)
         if value is None:
             return self.placeholder
         group = getattr(value, self.grouped_by, None) if self.grouped_by else None
 
         return render_to_string(self.template_name, {
+            **context,
             'object': value,
             'group': group,
             'linkify': self.linkify,
@@ -66,24 +101,30 @@ class ObjectAttr(Attr):
 
 
 class NestedObjectAttr(Attr):
-    template_name = 'components/nested_object.html'
+    template_name = 'components/attrs/nested_object.html'
 
-    def __init__(self, *args, linkify=None, **kwargs):
+    def __init__(self, *args, linkify=None, max_depth=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.linkify = linkify
+        self.max_depth = max_depth
 
-    def render(self, obj):
+    def render(self, obj, context=None):
+        context = context or {}
         value = self._resolve_attr(obj, self.accessor)
         if value is None:
             return self.placeholder
+        nodes = value.get_ancestors(include_self=True)
+        if self.max_depth:
+            nodes = list(nodes)[-self.max_depth:]
         return render_to_string(self.template_name, {
-            'nodes': value.get_ancestors(include_self=True),
+            **context,
+            'nodes': nodes,
             'linkify': self.linkify,
         })
 
 
 class GPSCoordinatesAttr(Attr):
-    template_name = 'components/gps_coordinates.html'
+    template_name = 'components/attrs/gps_coordinates.html'
 
     def __init__(self, latitude_attr='latitude', longitude_attr='longitude', map_url=True, **kwargs):
         kwargs.setdefault('label', _('GPS Coordinates'))
@@ -97,12 +138,14 @@ class GPSCoordinatesAttr(Attr):
         else:
             self.map_url = None
 
-    def render(self, obj):
+    def render(self, obj, context=None):
+        context = context or {}
         latitude = self._resolve_attr(obj, self.latitude_attr)
         longitude = self._resolve_attr(obj, self.longitude_attr)
         if latitude is None or longitude is None:
             return self.placeholder
         return render_to_string(self.template_name, {
+            **context,
             'latitude': latitude,
             'longitude': longitude,
             'map_url': self.map_url,
@@ -115,12 +158,17 @@ class TemplatedAttr(Attr):
         super().__init__(*args, **kwargs)
         self.context = context or {}
 
-    def render(self, obj):
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        if value is None:
+            return self.placeholder
         return render_to_string(
             self.template_name,
             {
+                **context,
                 **self.context,
                 'object': obj,
-                'value': self._resolve_attr(obj, self.accessor),
+                'value': value,
             }
         )

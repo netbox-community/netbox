@@ -5,21 +5,42 @@ from netbox.ui.components import ObjectPanel
 
 
 class DevicePanel(ObjectPanel):
-    region = attrs.NestedObjectAttr('site.region', linkify=True)
-    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
-    location = attrs.NestedObjectAttr('location', linkify=True)
-    rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
-    virtual_chassis = attrs.NestedObjectAttr('virtual_chassis', linkify=True)
+    region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
+    site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
+    location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
+    rack = attrs.TemplatedAttr('rack', label=_('Rack'), template_name='dcim/device/attrs/rack.html')
+    virtual_chassis = attrs.NestedObjectAttr('virtual_chassis', label=_('Virtual chassis'), linkify=True)
     parent_device = attrs.TemplatedAttr(
         'parent_bay',
+        label=_('Parent device'),
         template_name='dcim/device/attrs/parent_device.html',
-        label=_('Parent Device'),
     )
     gps_coordinates = attrs.GPSCoordinatesAttr()
-    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
-    device_type = attrs.ObjectAttr('device_type', linkify=True, grouped_by='manufacturer')
-    description = attrs.TextAttr('description')
-    airflow = attrs.TextAttr('get_airflow_display')
-    serial = attrs.TextAttr('serial', style='font-monospace')
-    asset_tag = attrs.TextAttr('asset_tag', style='font-monospace')
-    config_template = attrs.ObjectAttr('config_template', linkify=True)
+    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
+    device_type = attrs.ObjectAttr('device_type', label=_('Device type'), linkify=True, grouped_by='manufacturer')
+    description = attrs.TextAttr('description', label=_('Description'))
+    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
+    serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
+    asset_tag = attrs.TextAttr('asset_tag', label=_('Asset tag'), style='font-monospace', copy_button=True)
+    config_template = attrs.ObjectAttr('config_template', label=_('Config template'), linkify=True)
+
+
+class DeviceManagementPanel(ObjectPanel):
+    status = attrs.ChoiceAttr('status', label=_('Status'))
+    role = attrs.NestedObjectAttr('role', label=_('Role'), linkify=True, max_depth=3)
+    platform = attrs.NestedObjectAttr('platform', label=_('Platform'), linkify=True, max_depth=3)
+    primary_ip4 = attrs.TemplatedAttr(
+        'primary_ip4',
+        label=_('Primary IPv4'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )
+    primary_ip6 = attrs.TemplatedAttr(
+        'primary_ip6',
+        label=_('Primary IPv6'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )
+    oob_ip = attrs.TemplatedAttr(
+        'oob_ip',
+        label=_('Out-of-band IP'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )

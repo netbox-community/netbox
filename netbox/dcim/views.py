@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
-from dcim.ui.panels import DevicePanel
+from dcim.ui import panels
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
@@ -2227,7 +2227,8 @@ class DeviceView(generic.ObjectView):
         return {
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}',
-            'device_panel': DevicePanel(instance, _('Device')),
+            'device_panel': panels.DevicePanel(instance, _('Device')),
+            'management_panel': panels.DeviceManagementPanel(instance, _('Management')),
         }
 
 

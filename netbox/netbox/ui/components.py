@@ -40,7 +40,7 @@ class ObjectPanel(Component, metaclass=ObjectDetailsPanelMeta):
         return [
             {
                 'label': attr.label or title(name),
-                'value': attr.render(self.object),
+                'value': attr.render(self.object, {'name': name}),
             } for name, attr in self._attrs.items()
         ]
 
