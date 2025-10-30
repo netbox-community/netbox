@@ -2,7 +2,9 @@ from abc import ABC, ABCMeta, abstractmethod
 from functools import cached_property
 
 from django.template.loader import render_to_string
+from django.utils.translation import gettext_lazy as _
 
+from netbox.ui import attrs
 from netbox.ui.attrs import Attr
 from utilities.string import title
 
@@ -52,3 +54,9 @@ class ObjectPanel(Component, metaclass=ObjectDetailsPanelMeta):
 
     def __str__(self):
         return self.render()
+
+
+class NestedGroupObjectPanel(ObjectPanel):
+    name = attrs.TextAttr('name', label=_('Name'))
+    description = attrs.TextAttr('description', label=_('Description'))
+    parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)

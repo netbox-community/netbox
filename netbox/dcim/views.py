@@ -17,6 +17,7 @@ from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
+from netbox.ui.components import NestedGroupObjectPanel
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -227,6 +228,7 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
         regions = instance.get_descendants(include_self=True)
 
         return {
+            'region_panel': NestedGroupObjectPanel(instance, _('Region')),
             'related_models': self.get_related_models(
                 request,
                 regions,
@@ -338,6 +340,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
         groups = instance.get_descendants(include_self=True)
 
         return {
+            'sitegroup_panel': NestedGroupObjectPanel(instance, _('Site Group')),
             'related_models': self.get_related_models(
                 request,
                 groups,
