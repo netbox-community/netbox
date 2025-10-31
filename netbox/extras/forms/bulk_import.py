@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
-
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
@@ -14,8 +13,9 @@ from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
-    CSVMultipleContentTypeField, SlugField,
+    CSVMultipleContentTypeField, SlugField, DynamicModelMultipleChoiceField
 )
+from core.models import DataSource, DataFile
 
 __all__ = (
     'ConfigContextProfileImportForm',
@@ -160,14 +160,53 @@ class ConfigContextProfileImportForm(NetBoxModelImportForm):
 
 
 class ConfigTemplateImportForm(CSVModelForm):
+    data_source = CSVModelChoiceField(
+        label=_('DataSource'),
+        queryset=DataSource.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('data_source of the config template')
+    )
+
+    data_file = CSVModelChoiceField(
+        label=_('DataFile'),
+        queryset=DataFile.objects.all(),
+        required=False,
+        to_field_name='path',
+        help_text=_('DataFile containing the template code')
+    )
+
+    template_code = forms.CharField(
+        label=_('Template code'),
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'font-monospace'})
+    )
+
+    auto_sync_enabled = forms.BooleanField(
+        required=False,
+        label=_('auto sync enabled'),
+        help_text=_("Enable automatic synchronization of data when the data file is updated")
+    )
 
     class Meta:
         model = ConfigTemplate
         fields = (
-            'name', 'description', 'template_code', 'environment_params', 'mime_type', 'file_name', 'file_extension',
+            'name', 'description', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled', 'environment_params', 'mime_type', 'file_name', 'file_extension',
             'as_attachment', 'tags',
         )
 
+    def clean_template_code(self):
+        # Make sure template_code is None when it's not included in the uploaded data
+        if not self.data.get('template_code') and not self.data.get('data_file'):
+            raise forms.ValidationError(_("Must specify either local content or a data file"))
+
+        return self.cleaned_data['template_code']
+
+    def clean_auto_sync_enabled(self):
+        # Make sure is_primary is None when it's not included in the uploaded data
+        if not self.data.get('auto_sync_enabled'):
+            self.cleaned_data['auto_sync_enabled'] = False
+        return self.cleaned_data['auto_sync_enabled']
 
 class SavedFilterImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
