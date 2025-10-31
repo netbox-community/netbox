@@ -18,6 +18,7 @@ from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import layout
+from netbox.ui.panels import CommentsPanel, CustomFieldsPanel, ImageAttachmentsPanel, RelatedObjectsPanel, TagsPanel
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -468,14 +469,20 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.Layout(
         layout.Row(
             layout.Column(
-                panels.SitePanel(_('Site'))
+                panels.SitePanel(_('Site')),
+                CustomFieldsPanel(),
+                TagsPanel(),
+                CommentsPanel(),
+            ),
+            layout.Column(
+                RelatedObjectsPanel(),
+                ImageAttachmentsPanel(),
             ),
         )
     )
 
     def get_extra_context(self, request, instance):
         return {
-            # 'site_panel': panels.SitePanel(instance, _('Site')),
             'related_models': self.get_related_models(
                 request,
                 instance,

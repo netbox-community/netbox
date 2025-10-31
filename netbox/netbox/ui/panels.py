@@ -8,13 +8,22 @@ from netbox.ui.attrs import Attr
 from utilities.string import title
 
 __all__ = (
+    'CommentsPanel',
+    'CustomFieldsPanel',
+    'ImageAttachmentsPanel',
     'NestedGroupObjectPanel',
     'ObjectPanel',
+    'RelatedObjectsPanel',
     'Panel',
+    'TagsPanel',
 )
 
 
 class Panel(ABC):
+
+    def __init__(self, title=None):
+        if title is not None:
+            self.title = title
 
     @abstractmethod
     def render(self, obj):
@@ -51,9 +60,6 @@ class ObjectPanelMeta(ABCMeta):
 class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
     template_name = 'ui/panels/object.html'
 
-    def __init__(self, title=None):
-        self.title = title
-
     def get_attributes(self, obj):
         return [
             {
@@ -74,3 +80,65 @@ class NestedGroupObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
     name = attrs.TextAttr('name', label=_('Name'))
     description = attrs.TextAttr('description', label=_('Description'))
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
+
+
+class CustomFieldsPanel(Panel):
+    template_name = 'ui/panels/custom_fields.html'
+    title = _('Custom Fields')
+
+    def render(self, context):
+        obj = context.get('object')
+        custom_fields = obj.get_custom_fields_by_group()
+        if not custom_fields:
+            return ''
+        return render_to_string(self.template_name, {
+            'title': self.title,
+            'custom_fields': custom_fields,
+        })
+
+
+class TagsPanel(Panel):
+    template_name = 'ui/panels/tags.html'
+    title = _('Tags')
+
+    def render(self, context):
+        return render_to_string(self.template_name, {
+            'title': self.title,
+            'object': context.get('object'),
+        })
+
+
+class CommentsPanel(Panel):
+    template_name = 'ui/panels/comments.html'
+    title = _('Comments')
+
+    def render(self, context):
+        obj = context.get('object')
+        return render_to_string(self.template_name, {
+            'title': self.title,
+            'comments': obj.comments,
+        })
+
+
+class RelatedObjectsPanel(Panel):
+    template_name = 'ui/panels/related_objects.html'
+    title = _('Related Objects')
+
+    def render(self, context):
+        return render_to_string(self.template_name, {
+            'title': self.title,
+            'object': context.get('object'),
+            'related_models': context.get('related_models'),
+        })
+
+
+class ImageAttachmentsPanel(Panel):
+    template_name = 'ui/panels/image_attachments.html'
+    title = _('Image Attachments')
+
+    def render(self, context):
+        return render_to_string(self.template_name, {
+            'title': self.title,
+            'request': context.get('request'),
+            'object': context.get('object'),
+        })
