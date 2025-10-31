@@ -2834,10 +2834,19 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name,type,vrf.pk,poe_mode,poe_type",
-            f"Device 1,Interface 4,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
-            f"Device 1,Interface 5,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
-            f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af",
+            "device,name,type,vrf.pk,poe_mode,poe_type,mode,untagged_vlan,tagged_vlans",
+            (
+                f"Device 1,Interface 4,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af,"
+                f"tagged,{vlans[0].vid},'{','.join([str(v.vid) for v in vlans[1:4]])}'"
+            ),
+            (
+                f"Device 1,Interface 5,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af,"
+                f"tagged,{vlans[0].vid},'{','.join([str(v.vid) for v in vlans[1:4]])}'"
+            ),
+            (
+                f"Device 1,Interface 6,1000base-t,{vrfs[0].pk},pse,type1-ieee802.3af,"
+                f"tagged,{vlans[0].vid},'{','.join([str(v.vid) for v in vlans[1:4]])}'"
+            ),
         )
 
         cls.csv_update_data = (

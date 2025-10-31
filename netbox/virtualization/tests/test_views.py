@@ -395,10 +395,19 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "virtual_machine,name,vrf.pk",
-            f"Virtual Machine 2,Interface 4,{vrfs[0].pk}",
-            f"Virtual Machine 2,Interface 5,{vrfs[0].pk}",
-            f"Virtual Machine 2,Interface 6,{vrfs[0].pk}",
+            "virtual_machine,name,vrf.pk,mode,untagged_vlan,tagged_vlans",
+            (
+                f"Virtual Machine 2,Interface 4,{vrfs[0].pk},"
+                f"tagged,{vlans[0].vid},'{','.join([str(v.vid) for v in vlans[1:4]])}'"
+            ),
+            (
+                f"Virtual Machine 2,Interface 5,{vrfs[0].pk},"
+                f"tagged,{vlans[0].vid},'{','.join([str(v.vid) for v in vlans[1:4]])}'"
+            ),
+            (
+                f"Virtual Machine 2,Interface 6,{vrfs[0].pk},"
+                f"tagged,{vlans[0].vid},'{','.join([str(v.vid) for v in vlans[1:4]])}'"
+            ),
         )
 
         cls.csv_update_data = (
