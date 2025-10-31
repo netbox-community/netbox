@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.ui import attrs
 from netbox.ui.attrs import Attr
 from utilities.string import title
+from utilities.templatetags.plugins import _get_registered_content
 
 __all__ = (
     'CommentsPanel',
@@ -15,6 +16,7 @@ __all__ = (
     'ObjectPanel',
     'RelatedObjectsPanel',
     'Panel',
+    'PluginContentPanel',
     'TagsPanel',
 )
 
@@ -142,3 +144,14 @@ class ImageAttachmentsPanel(Panel):
             'request': context.get('request'),
             'object': context.get('object'),
         })
+
+
+class PluginContentPanel(Panel):
+
+    def __init__(self, method, **kwargs):
+        super().__init__(**kwargs)
+        self.method = method
+
+    def render(self, context):
+        obj = context.get('object')
+        return _get_registered_content(obj, self.method, context)
