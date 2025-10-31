@@ -1,5 +1,4 @@
 from abc import ABC, ABCMeta, abstractmethod
-from functools import cached_property
 
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
@@ -8,18 +7,21 @@ from netbox.ui import attrs
 from netbox.ui.attrs import Attr
 from utilities.string import title
 
+__all__ = (
+    'NestedGroupObjectPanel',
+    'ObjectPanel',
+    'Panel',
+)
 
-class Component(ABC):
+
+class Panel(ABC):
 
     @abstractmethod
-    def render(self):
+    def render(self, obj):
         pass
 
-    def __str__(self):
-        return self.render()
 
-
-class ObjectDetailsPanelMeta(ABCMeta):
+class ObjectPanelMeta(ABCMeta):
 
     def __new__(mcls, name, bases, namespace, **kwargs):
         declared = {}
@@ -46,33 +48,29 @@ class ObjectDetailsPanelMeta(ABCMeta):
         return cls
 
 
-class ObjectPanel(Component, metaclass=ObjectDetailsPanelMeta):
-    template_name = 'components/object_details_panel.html'
+class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
+    template_name = 'ui/panels/object.html'
 
-    def __init__(self, obj, title=None):
-        self.object = obj
-        self.title = title or obj._meta.verbose_name
+    def __init__(self, title=None):
+        self.title = title
 
-    @cached_property
-    def attributes(self):
+    def get_attributes(self, obj):
         return [
             {
                 'label': attr.label or title(name),
-                'value': attr.render(self.object, {'name': name}),
+                'value': attr.render(obj, {'name': name}),
             } for name, attr in self._attrs.items()
         ]
 
-    def render(self):
+    def render(self, context):
+        obj = context.get('object')
         return render_to_string(self.template_name, {
             'title': self.title,
-            'attrs': self.attributes,
+            'attrs': self.get_attributes(obj),
         })
 
-    def __str__(self):
-        return self.render()
 
-
-class NestedGroupObjectPanel(ObjectPanel, metaclass=ObjectDetailsPanelMeta):
+class NestedGroupObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
     name = attrs.TextAttr('name', label=_('Name'))
     description = attrs.TextAttr('description', label=_('Description'))
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)

@@ -1,9 +1,9 @@
 from django.utils.translation import gettext_lazy as _
 
-from netbox.ui import attrs, components
+from netbox.ui import attrs, panels
 
 
-class SitePanel(components.ObjectPanel):
+class SitePanel(panels.ObjectPanel):
     region = attrs.NestedObjectAttr('region', label=_('Region'), linkify=True)
     group = attrs.NestedObjectAttr('group', label=_('Group'), linkify=True)
     status = attrs.ChoiceAttr('status', label=_('Status'))
@@ -16,14 +16,14 @@ class SitePanel(components.ObjectPanel):
     gps_coordinates = attrs.GPSCoordinatesAttr()
 
 
-class LocationPanel(components.NestedGroupObjectPanel):
+class LocationPanel(panels.NestedGroupObjectPanel):
     site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
     status = attrs.ChoiceAttr('status', label=_('Status'))
     tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
     facility = attrs.TextAttr('facility', label=_('Facility'))
 
 
-class RackPanel(components.ObjectPanel):
+class RackPanel(panels.ObjectPanel):
     region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
     site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
@@ -40,7 +40,7 @@ class RackPanel(components.ObjectPanel):
     power_utilization = attrs.UtilizationAttr('get_power_utilization', label=_('Power utilization'))
 
 
-class DevicePanel(components.ObjectPanel):
+class DevicePanel(panels.ObjectPanel):
     region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
     site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
@@ -61,7 +61,7 @@ class DevicePanel(components.ObjectPanel):
     config_template = attrs.ObjectAttr('config_template', label=_('Config template'), linkify=True)
 
 
-class DeviceManagementPanel(components.ObjectPanel):
+class DeviceManagementPanel(panels.ObjectPanel):
     status = attrs.ChoiceAttr('status', label=_('Status'))
     role = attrs.NestedObjectAttr('role', label=_('Role'), linkify=True, max_depth=3)
     platform = attrs.NestedObjectAttr('platform', label=_('Platform'), linkify=True, max_depth=3)

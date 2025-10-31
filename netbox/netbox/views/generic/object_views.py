@@ -47,6 +47,7 @@ class ObjectView(ActionsMixin, BaseObjectView):
         tab: A ViewTab instance for the view
         actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
+    layout = None
     tab = None
     actions = (CloneObject, EditObject, DeleteObject)
 
@@ -58,6 +59,9 @@ class ObjectView(ActionsMixin, BaseObjectView):
         Return self.template_name if defined. Otherwise, dynamically resolve the template name using the queryset
         model's `app_label` and `model_name`.
         """
+        # TODO: Temporarily allow layout to override template_name
+        if self.layout is not None:
+            return 'generic/object.html'
         if self.template_name is not None:
             return self.template_name
         model_opts = self.queryset.model._meta
@@ -81,6 +85,7 @@ class ObjectView(ActionsMixin, BaseObjectView):
             'object': instance,
             'actions': actions,
             'tab': self.tab,
+            'layout': self.layout,
             **self.get_extra_context(request, instance),
         })
 

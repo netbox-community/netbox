@@ -35,7 +35,7 @@ class Attr(ABC):
 
 
 class TextAttr(Attr):
-    template_name = 'components/attrs/text.html'
+    template_name = 'ui/attrs/text.html'
 
     def __init__(self, *args, style=None, copy_button=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,7 +56,7 @@ class TextAttr(Attr):
 
 
 class ChoiceAttr(Attr):
-    template_name = 'components/attrs/choice.html'
+    template_name = 'ui/attrs/choice.html'
 
     def render(self, obj, context=None):
         context = context or {}
@@ -78,7 +78,7 @@ class ChoiceAttr(Attr):
 
 
 class ObjectAttr(Attr):
-    template_name = 'components/attrs/object.html'
+    template_name = 'ui/attrs/object.html'
 
     def __init__(self, *args, linkify=None, grouped_by=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -101,7 +101,7 @@ class ObjectAttr(Attr):
 
 
 class NestedObjectAttr(Attr):
-    template_name = 'components/attrs/nested_object.html'
+    template_name = 'ui/attrs/nested_object.html'
 
     def __init__(self, *args, linkify=None, max_depth=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,7 +124,7 @@ class NestedObjectAttr(Attr):
 
 
 class AddressAttr(Attr):
-    template_name = 'components/attrs/address.html'
+    template_name = 'ui/attrs/address.html'
 
     def __init__(self, *args, map_url=True, **kwargs):
         super().__init__(*args, **kwargs)
@@ -148,7 +148,7 @@ class AddressAttr(Attr):
 
 
 class GPSCoordinatesAttr(Attr):
-    template_name = 'components/attrs/gps_coordinates.html'
+    template_name = 'ui/attrs/gps_coordinates.html'
 
     def __init__(self, latitude_attr='latitude', longitude_attr='longitude', map_url=True, **kwargs):
         kwargs.setdefault('label', _('GPS Coordinates'))
@@ -177,7 +177,7 @@ class GPSCoordinatesAttr(Attr):
 
 
 class TimezoneAttr(Attr):
-    template_name = 'components/attrs/timezone.html'
+    template_name = 'ui/attrs/timezone.html'
 
     def render(self, obj, context=None):
         context = context or {}
@@ -213,7 +213,7 @@ class TemplatedAttr(Attr):
 
 
 class UtilizationAttr(Attr):
-    template_name = 'components/attrs/utilization.html'
+    template_name = 'ui/attrs/utilization.html'
 
     def render(self, obj, context=None):
         context = context or {}
