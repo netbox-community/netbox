@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-30 05:02+0000\n"
+"POT-Creation-Date: 2025-10-31 05:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -352,7 +352,7 @@ msgstr ""
 #: netbox/extras/filtersets.py:560 netbox/extras/filtersets.py:595
 #: netbox/extras/filtersets.py:625 netbox/extras/filtersets.py:794
 #: netbox/ipam/forms/model_forms.py:493 netbox/netbox/filtersets.py:296
-#: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:166
+#: netbox/netbox/forms/__init__.py:22 netbox/netbox/forms/base.py:196
 #: netbox/templates/htmx/object_selector.html:28
 #: netbox/templates/inc/filter_list.html:42
 #: netbox/templates/ipam/ipaddress_assign.html:29
@@ -4158,7 +4158,7 @@ msgstr ""
 #: netbox/dcim/forms/bulk_create.py:40 netbox/extras/forms/filtersets.py:471
 #: netbox/extras/forms/model_forms.py:596
 #: netbox/extras/forms/model_forms.py:680
-#: netbox/extras/forms/model_forms.py:732 netbox/netbox/forms/base.py:86
+#: netbox/extras/forms/model_forms.py:732 netbox/netbox/forms/base.py:87
 #: netbox/netbox/forms/mixins.py:111 netbox/netbox/tables/columns.py:490
 #: netbox/templates/circuits/inc/circuit_termination.html:32
 #: netbox/templates/generic/bulk_edit.html:65
@@ -7963,17 +7963,17 @@ msgstr ""
 msgid "Children"
 msgstr ""
 
-#: netbox/dcim/views.py:3865
+#: netbox/dcim/views.py:3864
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr ""
 
-#: netbox/dcim/views.py:3914
+#: netbox/dcim/views.py:3909
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
 
-#: netbox/dcim/views.py:3927
+#: netbox/dcim/views.py:3920
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr ""
@@ -11744,17 +11744,17 @@ msgstr ""
 msgid "Lookup"
 msgstr ""
 
-#: netbox/netbox/forms/base.py:90
+#: netbox/netbox/forms/base.py:91
 msgid ""
 "Tag slugs separated by commas, encased with double quotes (e.g. \"tag1,tag2,"
 "tag3\")"
 msgstr ""
 
-#: netbox/netbox/forms/base.py:119
+#: netbox/netbox/forms/base.py:149
 msgid "Add tags"
 msgstr ""
 
-#: netbox/netbox/forms/base.py:124
+#: netbox/netbox/forms/base.py:154
 msgid "Remove tags"
 msgstr ""
 
