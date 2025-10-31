@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -19,7 +20,8 @@ from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import layout
 from netbox.ui.panels import (
-    CommentsPanel, CustomFieldsPanel, ImageAttachmentsPanel, PluginContentPanel, RelatedObjectsPanel, TagsPanel,
+    CommentsPanel, CustomFieldsPanel, EmbeddedTablePanel, ImageAttachmentsPanel, PluginContentPanel,
+    RelatedObjectsPanel, TagsPanel,
 )
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -485,6 +487,20 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
         ),
         layout.Row(
             layout.Column(
+                EmbeddedTablePanel(
+                    'dcim:location_list',
+                    url_params={'site_id': lambda x: x.pk},
+                    title=_('Locations')
+                ),
+                EmbeddedTablePanel(
+                    'dcim:device_list',
+                    url_params={
+                        'site_id': lambda x: x.pk,
+                        'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
+                        'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
+                    },
+                    title=_('Non-Racked Devices')
+                ),
                 PluginContentPanel('full_width_page'),
             ),
         ),

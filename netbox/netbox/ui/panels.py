@@ -5,12 +5,14 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs
 from netbox.ui.attrs import Attr
+from utilities.querydict import dict_to_querydict
 from utilities.string import title
 from utilities.templatetags.plugins import _get_registered_content
 
 __all__ = (
     'CommentsPanel',
     'CustomFieldsPanel',
+    'EmbeddedTablePanel',
     'ImageAttachmentsPanel',
     'NestedGroupObjectPanel',
     'ObjectPanel',
@@ -143,6 +145,28 @@ class ImageAttachmentsPanel(Panel):
             'title': self.title,
             'request': context.get('request'),
             'object': context.get('object'),
+        })
+
+
+class EmbeddedTablePanel(Panel):
+    template_name = 'ui/panels/embedded_table.html'
+    title = None
+
+    def __init__(self, viewname, url_params=None, **kwargs):
+        super().__init__(**kwargs)
+        self.viewname = viewname
+        self.url_params = url_params or {}
+
+    def render(self, context):
+        obj = context.get('object')
+        url_params = {
+            k: v(obj) if callable(v) else v for k, v in self.url_params.items()
+        }
+        # url_params['return_url'] = return_url or context['request'].path
+        return render_to_string(self.template_name, {
+            'title': self.title,
+            'viewname': self.viewname,
+            'url_params': dict_to_querydict(url_params),
         })
 
 
