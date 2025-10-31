@@ -233,7 +233,6 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
         regions = instance.get_descendants(include_self=True)
 
         return {
-            'region_panel': panels.NestedGroupObjectPanel(instance, _('Region')),
             'related_models': self.get_related_models(
                 request,
                 regions,
@@ -345,7 +344,6 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
         groups = instance.get_descendants(include_self=True)
 
         return {
-            'sitegroup_panel': panels.NestedGroupObjectPanel(instance, _('Site Group')),
             'related_models': self.get_related_models(
                 request,
                 groups,
@@ -610,7 +608,6 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
         locations = instance.get_descendants(include_self=True)
         location_content_type = ContentType.objects.get_for_model(instance)
         return {
-            'location_panel': panels.LocationPanel(instance, _('Location')),
             'related_models': self.get_related_models(
                 request,
                 locations,
@@ -907,7 +904,6 @@ class RackView(GetRelatedModelsMixin, generic.ObjectView):
         ])
 
         return {
-            'rack_panel': panels.RackPanel(instance, _('Rack')),
             'related_models': self.get_related_models(
                 request,
                 instance,
@@ -2272,8 +2268,6 @@ class DeviceView(generic.ObjectView):
         return {
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}',
-            'device_panel': panels.DevicePanel(instance, _('Device')),
-            'management_panel': panels.DeviceManagementPanel(instance, _('Management')),
         }
 
 
