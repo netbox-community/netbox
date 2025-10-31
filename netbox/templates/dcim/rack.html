@@ -9,72 +9,7 @@
 {% block content %}
   <div class="row">
 	  <div class="col col-12 col-xl-5">
-      <div class="card">
-        <h2 class="card-header">{% trans "Rack" %}</h2>
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Region" %}</th>
-            <td>{% nested_tree object.site.region %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Site" %}</th>
-            <td>{{ object.site|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Location" %}</th>
-            <td>{% nested_tree object.location %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Facility ID" %}</th>
-            <td>{{ object.facility_id|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Tenant" %}</th>
-            <td>
-              {% if object.tenant.group %}
-                {{ object.tenant.group|linkify }} /
-              {% endif %}
-              {{ object.tenant|linkify|placeholder }}
-            </td>
-          </tr>
-           <tr>
-            <th scope="row">{% trans "Status" %}</th>
-            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Rack Type" %}</th>
-            <td>{{ object.rack_type|linkify:"full_name"|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Role" %}</th>
-            <td>{{ object.role|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Serial Number" %}</th>
-            <td class="font-monospace">{{ object.serial|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Asset Tag" %}</th>
-            <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Airflow" %}</th>
-            <td>{{ object.get_airflow_display|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Space Utilization" %}</th>
-            <td>{% utilization_graph object.get_utilization %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Power Utilization" %}</th>
-            <td>{% utilization_graph object.get_power_utilization %}</td>
-          </tr>
-        </table>
-      </div>
+      {{ rack_panel }}
       {% include 'dcim/inc/panels/racktype_dimensions.html' %}
       {% include 'dcim/inc/panels/racktype_numbering.html' %}
       <div class="card">
@@ -120,7 +55,6 @@
       {% plugin_left_page object %}
 	  </div>
     <div class="col col-12 col-xl-7">
-      {{ rack_panel }}
       <div class="text-end mb-4">
         <select class="btn btn-outline-secondary no-ts rack-view">
           <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
