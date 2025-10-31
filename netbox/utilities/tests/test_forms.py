@@ -4,6 +4,7 @@ from django.test import TestCase
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import get_field_value, expand_alphanumeric_pattern, expand_ipaddress_pattern
 
@@ -448,3 +449,35 @@ class GetFieldValueTest(TestCase):
             get_field_value(form, 'site'),
             None
         )
+
+
+class CSVSelectWidgetTest(TestCase):
+    """
+    Validate that CSVSelectWidget treats blank values as omitted.
+    This allows model defaults to be applied when CSV fields are present but empty.
+    Related to issue #20645.
+    """
+
+    def test_blank_value_treated_as_omitted(self):
+        """Test that blank string values are treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {'test_field': ''}
+        self.assertTrue(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+    def test_none_value_treated_as_omitted(self):
+        """Test that None values are treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {'test_field': None}
+        self.assertTrue(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+    def test_missing_field_treated_as_omitted(self):
+        """Test that missing fields are treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {}
+        self.assertTrue(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+    def test_valid_value_not_omitted(self):
+        """Test that valid values are not treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {'test_field': 'valid_value'}
+        self.assertFalse(widget.value_omitted_from_data(data, {}, 'test_field'))

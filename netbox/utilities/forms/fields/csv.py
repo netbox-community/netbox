@@ -18,6 +18,20 @@ __all__ = (
 )
 
 
+class CSVSelectWidget(forms.Select):
+    """
+    Custom Select widget for CSV imports that treats blank values as omitted.
+    This allows model defaults to be applied when a CSV field is present but empty.
+    """
+    def value_omitted_from_data(self, data, files, name):
+        # Check if value is omitted using parent behavior
+        if super().value_omitted_from_data(data, files, name):
+            return True
+        # Treat blank/empty strings as omitted to allow model defaults
+        value = data.get(name)
+        return value == '' or value is None
+
+
 class CSVChoicesMixin:
     STATIC_CHOICES = True
 
@@ -29,8 +43,9 @@ class CSVChoicesMixin:
 class CSVChoiceField(CSVChoicesMixin, forms.ChoiceField):
     """
     A CSV field which accepts a single selection value.
+    Treats blank CSV values as omitted to allow model defaults.
     """
-    pass
+    widget = CSVSelectWidget
 
 
 class CSVMultipleChoiceField(CSVChoicesMixin, forms.MultipleChoiceField):
@@ -46,7 +61,12 @@ class CSVMultipleChoiceField(CSVChoicesMixin, forms.MultipleChoiceField):
 
 
 class CSVTypedChoiceField(forms.TypedChoiceField):
+    """
+    A CSV field for typed choice values.
+    Treats blank CSV values as omitted to allow model defaults.
+    """
     STATIC_CHOICES = True
+    widget = CSVSelectWidget
 
 
 class CSVModelChoiceField(forms.ModelChoiceField):
