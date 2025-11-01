@@ -12622,8 +12622,8 @@ msgstr "渲染所选导出模板时出错 ({template}): {error}"
 
 #: netbox/netbox/views/generic/bulk_views.py:442
 #, python-brace-format
-msgid "Row {i}: Object with ID {id} does not exist"
-msgstr "第{i}行: ID为{id}的对象不存在"
+msgid "Object with ID {id} does not exist"
+msgstr "ID为{id}的对象不存在"
 
 #: netbox/netbox/views/generic/bulk_views.py:525
 #, python-brace-format

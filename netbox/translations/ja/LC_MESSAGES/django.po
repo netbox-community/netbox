@@ -12645,8 +12645,8 @@ msgstr "選択したエクスポートテンプレートをレンダリング中
 
 #: netbox/netbox/views/generic/bulk_views.py:442
 #, python-brace-format
-msgid "Row {i}: Object with ID {id} does not exist"
-msgstr "行 {i}: ID {id}のオブジェクトは存在しません"
+msgid "Object with ID {id} does not exist"
+msgstr "ID {id}のオブジェクトは存在しません"
 
 #: netbox/netbox/views/generic/bulk_views.py:525
 #, python-brace-format
