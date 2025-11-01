@@ -11,9 +11,9 @@ from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceCont
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from virtualization.api.serializers_.clusters import ClusterSerializer
 from .devicetypes import *
 from .nested import NestedDeviceBaySerializer, NestedDeviceSerializer, NestedModuleBaySerializer
@@ -165,7 +165,7 @@ class MACAddressSerializer(PrimaryModelSerializer):
         required=False,
         allow_null=True
     )
-    assigned_object = serializers.SerializerMethodField(read_only=True)
+    assigned_object = GFKSerializerField(read_only=True)
 
     class Meta:
         model = MACAddress
@@ -174,11 +174,3 @@ class MACAddressSerializer(PrimaryModelSerializer):
             'assigned_object', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'mac_address', 'description')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_assigned_object(self, obj):
-        if obj.assigned_object is None:
-            return None
-        serializer = get_serializer_for_model(obj.assigned_object)
-        context = {'request': self.context['request']}
-        return serializer(obj.assigned_object, nested=True, context=context).data

@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.api.serializers_.sites import SiteSerializer
@@ -7,9 +6,9 @@ from ipam.choices import *
 from ipam.constants import VLANGROUP_SCOPE_TYPES
 from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VLANTranslationRule
 from netbox.api.fields import ChoiceField, ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from .nested import NestedVLANSerializer
 from .roles import RoleSerializer
@@ -34,7 +33,7 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
         default=None
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    scope = serializers.SerializerMethodField(read_only=True)
+    scope = GFKSerializerField(read_only=True)
     vid_ranges = IntegerRangeSerializer(many=True, required=False)
     utilization = serializers.CharField(read_only=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -51,14 +50,6 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
         validators = []
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_scope(self, obj):
-        if obj.scope_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.scope)
-        context = {'request': self.context['request']}
-        return serializer(obj.scope, nested=True, context=context).data
 
 
 class VLANSerializer(PrimaryModelSerializer):

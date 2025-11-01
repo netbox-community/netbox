@@ -1,14 +1,13 @@
 from django.core.exceptions import ObjectDoesNotExist
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import JournalEntry
 from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer
 from users.models import User
-from utilities.api import get_serializer_for_model
 
 __all__ = (
     'JournalEntrySerializer',
@@ -19,7 +18,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     assigned_object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
-    assigned_object = serializers.SerializerMethodField(read_only=True)
+    assigned_object = GFKSerializerField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
         allow_null=True,
         queryset=User.objects.all(),
@@ -51,9 +50,3 @@ class JournalEntrySerializer(NetBoxModelSerializer):
                 )
 
         return super().validate(data)
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object_type.model_class())
-        context = {'request': self.context['request']}
-        return serializer(instance.assigned_object, nested=True, context=context).data

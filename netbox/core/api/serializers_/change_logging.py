@@ -1,13 +1,11 @@
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.choices import *
 from core.models import ObjectChange
-from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import BaseModelSerializer
 from users.api.serializers_.users import UserSerializer
-from utilities.api import get_serializer_for_model
 
 __all__ = (
     'ObjectChangeSerializer',
@@ -26,7 +24,10 @@ class ObjectChangeSerializer(BaseModelSerializer):
     changed_object_type = ContentTypeField(
         read_only=True
     )
-    changed_object = serializers.SerializerMethodField(
+    changed_object = GFKSerializerField(
+        read_only=True
+    )
+    object_repr = serializers.CharField(
         read_only=True
     )
     prechange_data = serializers.JSONField(
@@ -44,22 +45,6 @@ class ObjectChangeSerializer(BaseModelSerializer):
         model = ObjectChange
         fields = [
             'id', 'url', 'display_url', 'display', 'time', 'user', 'user_name', 'request_id', 'action',
-            'changed_object_type', 'changed_object_id', 'changed_object', 'message', 'prechange_data',
-            'postchange_data',
+            'changed_object_type', 'changed_object_id', 'changed_object', 'object_repr', 'message',
+            'prechange_data', 'postchange_data',
         ]
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_changed_object(self, obj):
-        """
-        Serialize a nested representation of the changed object.
-        """
-        if obj.changed_object is None:
-            return None
-
-        try:
-            serializer = get_serializer_for_model(obj.changed_object)
-        except SerializerNotFound:
-            return obj.object_repr
-        data = serializer(obj.changed_object, nested=True, context={'request': self.context['request']}).data
-
-        return data
