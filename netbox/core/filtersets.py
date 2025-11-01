@@ -80,6 +80,10 @@ class JobFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.with_feature('jobs'),
+        field_name='object_type_id',
+    )
     object_type = ContentTypeFilter()
     created = django_filters.DateTimeFilter()
     created__before = django_filters.DateTimeFilter(
@@ -124,7 +128,7 @@ class JobFilterSet(BaseFilterSet):
 
     class Meta:
         model = Job
-        fields = ('id', 'object_type', 'object_id', 'name', 'interval', 'status', 'user', 'job_id')
+        fields = ('id', 'object_type', 'object_type_id', 'object_id', 'name', 'interval', 'status', 'user', 'job_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
