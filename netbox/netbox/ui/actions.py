@@ -26,20 +26,20 @@ class PanelAction:
         if label is not None:
             self.label = label
 
-    def get_url(self, obj):
+    def get_url(self, context):
         url = reverse(self.view_name, kwargs=self.view_kwargs or {})
         if self.url_params:
             url_params = {
-                k: v(obj) if callable(v) else v for k, v in self.url_params.items()
+                k: v(context) if callable(v) else v for k, v in self.url_params.items()
             }
-            if 'return_url' not in url_params:
-                url_params['return_url'] = obj.get_absolute_url()
+            if 'return_url' not in url_params and 'object' in context:
+                url_params['return_url'] = context['object'].get_absolute_url()
             url = f'{url}?{urlencode(url_params)}'
         return url
 
-    def get_context(self, obj):
+    def get_context(self, context):
         return {
-            'url': self.get_url(obj),
+            'url': self.get_url(context),
             'label': self.label,
             'button_class': self.button_class,
             'button_icon': self.button_icon,

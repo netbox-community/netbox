@@ -34,18 +34,15 @@ class Panel(ABC):
         if actions is not None:
             self.actions = actions
 
-    def get_context(self, obj):
-        return {}
+    def get_context(self, context):
+        return {
+            'request': context.get('request'),
+            'title': self.title,
+            'actions': [action.get_context(context) for action in self.actions],
+        }
 
     def render(self, context):
-        obj = context.get('object')
-        return render_to_string(self.template_name, {
-            'request': context.get('request'),
-            'object': obj,
-            'title': self.title or title(obj._meta.verbose_name),
-            'actions': [action.get_context(obj) for action in self.actions],
-            **self.get_context(obj),
-        })
+        return render_to_string(self.template_name, self.get_context(context))
 
 
 class ObjectPanelMeta(ABCMeta):
@@ -76,17 +73,39 @@ class ObjectPanelMeta(ABCMeta):
 
 
 class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
+    accessor = None
     template_name = 'ui/panels/object.html'
 
-    def get_context(self, obj):
-        attrs = [
-            {
-                'label': attr.label or title(name),
-                'value': attr.render(obj, {'name': name}),
-            } for name, attr in self._attrs.items()
-        ]
+    def __init__(self, accessor=None, only=None, exclude=None, **kwargs):
+        super().__init__(**kwargs)
+        if accessor is not None:
+            self.accessor = accessor
+
+        # Set included/excluded attributes
+        if only is not None and exclude is not None:
+            raise ValueError("attrs and exclude cannot both be specified.")
+        self.only = only or []
+        self.exclude = exclude or []
+
+    def get_context(self, context):
+        # Determine which attributes to display in the panel based on only/exclude args
+        attr_names = set(self._attrs.keys())
+        if self.only:
+            attr_names &= set(self.only)
+        elif self.exclude:
+            attr_names -= set(self.exclude)
+
+        obj = getattr(context['object'], self.accessor) if self.accessor else context['object']
+
         return {
-            'attrs': attrs,
+            **super().get_context(context),
+            'object': obj,
+            'attrs': [
+                {
+                    'label': attr.label or title(name),
+                    'value': attr.render(obj, {'name': name}),
+                } for name, attr in self._attrs.items() if name in attr_names
+            ],
         }
 
 
@@ -108,13 +127,11 @@ class RelatedObjectsPanel(Panel):
     template_name = 'ui/panels/related_objects.html'
     title = _('Related Objects')
 
-    # TODO: Handle related_models from context
-    def render(self, context):
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'object': context.get('object'),
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
             'related_models': context.get('related_models'),
-        })
+        }
 
 
 class ObjectsTablePanel(Panel):
@@ -131,13 +148,14 @@ class ObjectsTablePanel(Panel):
         if self.title is None:
             self.title = title(self.model._meta.verbose_name_plural)
 
-    def get_context(self, obj):
+    def get_context(self, context):
         url_params = {
-            k: v(obj) if callable(v) else v for k, v in self.filters.items()
+            k: v(context) if callable(v) else v for k, v in self.filters.items()
         }
-        if 'return_url' not in url_params:
-            url_params['return_url'] = obj.get_absolute_url()
+        if 'return_url' not in url_params and 'object' in context:
+            url_params['return_url'] = context['object'].get_absolute_url()
         return {
+            **super().get_context(context),
             'viewname': get_viewname(self.model, 'list'),
             'url_params': dict_to_querydict(url_params),
         }
@@ -148,6 +166,10 @@ class TemplatePanel(Panel):
     def __init__(self, template_name, **kwargs):
         super().__init__(**kwargs)
         self.template_name = template_name
+
+    def render(self, context):
+        # Pass the entire context to the template
+        return render_to_string(self.template_name, context.flatten())
 
 
 class PluginContentPanel(Panel):

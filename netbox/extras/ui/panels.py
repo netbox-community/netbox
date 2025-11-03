@@ -14,8 +14,10 @@ class CustomFieldsPanel(panels.Panel):
     template_name = 'ui/panels/custom_fields.html'
     title = _('Custom Fields')
 
-    def get_context(self, obj):
+    def get_context(self, context):
+        obj = context['object']
         return {
+            **super().get_context(context),
             'custom_fields': obj.get_custom_fields_by_group(),
         }
 
@@ -25,9 +27,9 @@ class ImageAttachmentsPanel(panels.ObjectsTablePanel):
         actions.AddObject(
             'extras.imageattachment',
             url_params={
-                'object_type': lambda obj: ContentType.objects.get_for_model(obj).pk,
-                'object_id': lambda obj: obj.pk,
-                'return_url': lambda obj: obj.get_absolute_url(),
+                'object_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                'object_id': lambda ctx: ctx['object'].pk,
+                'return_url': lambda ctx: ctx['object'].get_absolute_url(),
             },
             label=_('Attach an image'),
         ),
@@ -40,3 +42,9 @@ class ImageAttachmentsPanel(panels.ObjectsTablePanel):
 class TagsPanel(panels.Panel):
     template_name = 'ui/panels/tags.html'
     title = _('Tags')
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'object': context['object'],
+        }
