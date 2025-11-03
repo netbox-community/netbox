@@ -1,12 +1,10 @@
 from abc import ABC, ABCMeta
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from netbox.ui import actions, attrs
-from netbox.ui.attrs import Attr
+from netbox.ui import attrs
 from utilities.querydict import dict_to_querydict
 from utilities.string import title
 from utilities.templatetags.plugins import _get_registered_content
@@ -14,8 +12,6 @@ from utilities.views import get_viewname
 
 __all__ = (
     'CommentsPanel',
-    'CustomFieldsPanel',
-    'ImageAttachmentsPanel',
     'NestedGroupObjectPanel',
     'ObjectPanel',
     'ObjectsTablePanel',
@@ -23,7 +19,6 @@ __all__ = (
     'RelatedObjectsPanel',
     'Panel',
     'PluginContentPanel',
-    'TagsPanel',
 )
 
 
@@ -65,13 +60,13 @@ class ObjectPanelMeta(ABCMeta):
 
         # Add local declarations in the order they appear in the class body
         for key, attr in namespace.items():
-            if isinstance(attr, Attr):
+            if isinstance(attr, attrs.Attr):
                 declared[key] = attr
 
         namespace['_attrs'] = declared
 
         # Remove Attrs from the class namespace to keep things tidy
-        local_items = [key for key, attr in namespace.items() if isinstance(attr, Attr)]
+        local_items = [key for key, attr in namespace.items() if isinstance(attr, attrs.Attr)]
         for key in local_items:
             namespace.pop(key)
 
@@ -101,21 +96,6 @@ class OrganizationalObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
 
 class NestedGroupObjectPanel(OrganizationalObjectPanel, metaclass=ObjectPanelMeta):
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
-
-
-class CustomFieldsPanel(Panel):
-    template_name = 'ui/panels/custom_fields.html'
-    title = _('Custom Fields')
-
-    def get_context(self, obj):
-        return {
-            'custom_fields': obj.get_custom_fields_by_group(),
-        }
-
-
-class TagsPanel(Panel):
-    template_name = 'ui/panels/tags.html'
-    title = _('Tags')
 
 
 class CommentsPanel(Panel):
@@ -160,23 +140,6 @@ class ObjectsTablePanel(Panel):
             'viewname': get_viewname(self.model, 'list'),
             'url_params': dict_to_querydict(url_params),
         }
-
-
-class ImageAttachmentsPanel(ObjectsTablePanel):
-    actions = [
-        actions.AddObject(
-            'extras.imageattachment',
-            url_params={
-                'object_type': lambda obj: ContentType.objects.get_for_model(obj).pk,
-                'object_id': lambda obj: obj.pk,
-                'return_url': lambda obj: obj.get_absolute_url(),
-            },
-            label=_('Attach an image'),
-        ),
-    ]
-
-    def __init__(self, **kwargs):
-        super().__init__('extras.imageattachment', **kwargs)
 
 
 class PluginContentPanel(Panel):
