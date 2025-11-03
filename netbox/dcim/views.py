@@ -21,7 +21,7 @@ from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
-    CommentsPanel, NestedGroupObjectPanel, ObjectsTablePanel, PluginContentPanel, RelatedObjectsPanel,
+    CommentsPanel, NestedGroupObjectPanel, ObjectsTablePanel, PluginContentPanel, RelatedObjectsPanel, TemplatePanel,
 )
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -1043,6 +1043,31 @@ class RackElevationListView(generic.ObjectListView):
 @register_model_view(Rack)
 class RackView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.RackPanel(),
+                panels.RackDimensionsPanel(_('Dimensions')),
+                panels.RackNumberingPanel(_('Numbering')),
+                panels.RackWeightPanel(_('Weight')),
+                CustomFieldsPanel(),
+                TagsPanel(),
+                CommentsPanel(),
+                ImageAttachmentsPanel(),
+                PluginContentPanel('left_page'),
+            ),
+            layout.Column(
+                TemplatePanel('dcim/panels/rack_elevations.html'),
+                RelatedObjectsPanel(),
+                PluginContentPanel('right_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)

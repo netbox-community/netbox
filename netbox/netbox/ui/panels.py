@@ -19,6 +19,7 @@ __all__ = (
     'RelatedObjectsPanel',
     'Panel',
     'PluginContentPanel',
+    'TemplatePanel',
 )
 
 
@@ -140,6 +141,13 @@ class ObjectsTablePanel(Panel):
             'viewname': get_viewname(self.model, 'list'),
             'url_params': dict_to_querydict(url_params),
         }
+
+
+class TemplatePanel(Panel):
+
+    def __init__(self, template_name, **kwargs):
+        super().__init__(**kwargs)
+        self.template_name = template_name
 
 
 class PluginContentPanel(Panel):

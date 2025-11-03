@@ -38,16 +38,11 @@ class RackNumberingPanel(panels.ObjectPanel):
     desc_units = attrs.BooleanAttr('desc_units', label=_('Descending units'))
 
 
-class RackWeightPanel(panels.ObjectPanel):
-    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display', label=_('Weight'))
-    max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
-
-
 class RackPanel(panels.ObjectPanel):
     region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
     site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
-    facility = attrs.TextAttr('facility', label=_('Facility'))
+    facility = attrs.TextAttr('facility', label=_('Facility ID'))
     tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
     status = attrs.ChoiceAttr('status', label=_('Status'))
     rack_type = attrs.ObjectAttr('rack_type', label=_('Rack type'), linkify=True, grouped_by='manufacturer')
@@ -58,6 +53,12 @@ class RackPanel(panels.ObjectPanel):
     airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
     space_utilization = attrs.UtilizationAttr('get_utilization', label=_('Space utilization'))
     power_utilization = attrs.UtilizationAttr('get_power_utilization', label=_('Power utilization'))
+
+
+class RackWeightPanel(panels.ObjectPanel):
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display', label=_('Weight'))
+    max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
+    total_weight = attrs.NumericAttr('total_weight', unit_accessor='get_weight_unit_display', label=_('Total weight'))
 
 
 class RackRolePanel(panels.OrganizationalObjectPanel):
