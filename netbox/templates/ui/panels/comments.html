@@ -3,8 +3,8 @@
 
 {% block panel_content %}
   <div class="card-body">
-    {% if comments %}
-      {{ comments|markdown }}
+    {% if object.comments %}
+      {{ object.comments|markdown }}
     {% else %}
       <span class="text-muted">{% trans "None" %}</span>
     {% endif %}

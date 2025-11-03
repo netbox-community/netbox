@@ -1,9 +1,10 @@
-from abc import ABC, ABCMeta, abstractmethod
+from abc import ABC, ABCMeta
 
+from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from netbox.ui import attrs
+from netbox.ui import actions, attrs
 from netbox.ui.attrs import Attr
 from utilities.querydict import dict_to_querydict
 from utilities.string import title
@@ -24,14 +25,28 @@ __all__ = (
 
 
 class Panel(ABC):
+    template_name = None
+    title = None
+    actions = []
 
-    def __init__(self, title=None):
+    def __init__(self, title=None, actions=None):
         if title is not None:
             self.title = title
+        if actions is not None:
+            self.actions = actions
 
-    @abstractmethod
-    def render(self, obj):
-        pass
+    def get_context(self, obj):
+        return {}
+
+    def render(self, context):
+        obj = context.get('object')
+        return render_to_string(self.template_name, {
+            'request': context.get('request'),
+            'object': obj,
+            'title': self.title,
+            'actions': [action.get_context(obj) for action in self.actions],
+            **self.get_context(obj),
+        })
 
 
 class ObjectPanelMeta(ABCMeta):
@@ -64,20 +79,16 @@ class ObjectPanelMeta(ABCMeta):
 class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
     template_name = 'ui/panels/object.html'
 
-    def get_attributes(self, obj):
-        return [
+    def get_context(self, obj):
+        attrs = [
             {
                 'label': attr.label or title(name),
                 'value': attr.render(obj, {'name': name}),
             } for name, attr in self._attrs.items()
         ]
-
-    def render(self, context):
-        obj = context.get('object')
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'attrs': self.get_attributes(obj),
-        })
+        return {
+            'attrs': attrs,
+        }
 
 
 class NestedGroupObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
@@ -90,44 +101,27 @@ class CustomFieldsPanel(Panel):
     template_name = 'ui/panels/custom_fields.html'
     title = _('Custom Fields')
 
-    def render(self, context):
-        obj = context.get('object')
-        custom_fields = obj.get_custom_fields_by_group()
-        if not custom_fields:
-            return ''
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'custom_fields': custom_fields,
-        })
+    def get_context(self, obj):
+        return {
+            'custom_fields': obj.get_custom_fields_by_group(),
+        }
 
 
 class TagsPanel(Panel):
     template_name = 'ui/panels/tags.html'
     title = _('Tags')
 
-    def render(self, context):
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'object': context.get('object'),
-        })
-
 
 class CommentsPanel(Panel):
     template_name = 'ui/panels/comments.html'
     title = _('Comments')
-
-    def render(self, context):
-        obj = context.get('object')
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'comments': obj.comments,
-        })
 
 
 class RelatedObjectsPanel(Panel):
     template_name = 'ui/panels/related_objects.html'
     title = _('Related Objects')
 
+    # TODO: Handle related_models from context
     def render(self, context):
         return render_to_string(self.template_name, {
             'title': self.title,
@@ -139,35 +133,37 @@ class RelatedObjectsPanel(Panel):
 class ImageAttachmentsPanel(Panel):
     template_name = 'ui/panels/image_attachments.html'
     title = _('Image Attachments')
-
-    def render(self, context):
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'request': context.get('request'),
-            'object': context.get('object'),
-        })
+    actions = [
+        actions.AddObject(
+            'extras.imageattachment',
+            url_params={
+                'object_type': lambda obj: ContentType.objects.get_for_model(obj).pk,
+                'object_id': lambda obj: obj.pk,
+                'return_url': lambda obj: obj.get_absolute_url(),
+            },
+            label=_('Attach an image'),
+        ),
+    ]
 
 
 class EmbeddedTablePanel(Panel):
     template_name = 'ui/panels/embedded_table.html'
     title = None
 
-    def __init__(self, viewname, url_params=None, **kwargs):
+    def __init__(self, view_name, url_params=None, **kwargs):
         super().__init__(**kwargs)
-        self.viewname = viewname
+        self.view_name = view_name
         self.url_params = url_params or {}
 
-    def render(self, context):
-        obj = context.get('object')
+    def get_context(self, obj):
         url_params = {
             k: v(obj) if callable(v) else v for k, v in self.url_params.items()
         }
         # url_params['return_url'] = return_url or context['request'].path
-        return render_to_string(self.template_name, {
-            'title': self.title,
-            'viewname': self.viewname,
+        return {
+            'viewname': self.view_name,
             'url_params': dict_to_querydict(url_params),
-        })
+        }
 
 
 class PluginContentPanel(Panel):

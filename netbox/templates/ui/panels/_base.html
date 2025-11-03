@@ -1,4 +1,18 @@
 <div class="card">
-  <h2 class="card-header">{{ title }}</h2>
+  <h2 class="card-header">
+    {{ title }}
+    {% if actions %}
+      <div class="card-actions">
+        {% for action in actions %}
+          <a href="{{ action.url }}" class="btn btn-ghost-{{ action.button_class|default:"primary" }} btn-sm">
+            {% if action.button_icon %}
+              <i class="mdi mdi-{{ action.button_icon }}" aria-hidden="true"></i>
+            {% endif %}
+            {{ action.label }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </h2>
   {% block panel_content %}{% endblock %}
 </div>
