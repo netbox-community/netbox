@@ -1154,7 +1154,6 @@ class VirtualChassis(PrimaryModel):
             })
 
     def delete(self, *args, **kwargs):
-
         # Check for LAG interfaces split across member chassis
         interfaces = Interface.objects.filter(
             device__in=self.members.all(),
@@ -1167,6 +1166,13 @@ class VirtualChassis(PrimaryModel):
                 "Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG "
                 "interfaces."
             ).format(self=self, interfaces=InterfaceSpeedChoices))
+
+        # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
+        # This must be done here because on_delete=SET_NULL executes before pre_delete signal
+        for device in members_list:
+            device.vc_position = None
+            device.vc_priority = None
+            device.save()
 
         return super().delete(*args, **kwargs)
 
