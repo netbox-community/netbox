@@ -18,9 +18,9 @@ from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
-from netbox.ui import layout
+from netbox.ui import actions, layout
 from netbox.ui.panels import (
-    CommentsPanel, CustomFieldsPanel, EmbeddedTablePanel, ImageAttachmentsPanel, PluginContentPanel,
+    CommentsPanel, CustomFieldsPanel, ImageAttachmentsPanel, ObjectsTablePanel, PluginContentPanel,
     RelatedObjectsPanel, TagsPanel,
 )
 from netbox.views import generic
@@ -485,19 +485,24 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
         ),
         layout.Row(
             layout.Column(
-                EmbeddedTablePanel(
-                    'dcim:location_list',
-                    url_params={'site_id': lambda x: x.pk},
-                    title=_('Locations')
+                ObjectsTablePanel(
+                    model='dcim.Location',
+                    filters={'site_id': lambda obj: obj.pk},
+                    actions=[
+                        actions.AddObject('dcim.Location', url_params={'site': lambda obj: obj.pk}),
+                    ],
                 ),
-                EmbeddedTablePanel(
-                    'dcim:device_list',
-                    url_params={
-                        'site_id': lambda x: x.pk,
+                ObjectsTablePanel(
+                    model='dcim.Device',
+                    title=_('Non-Racked Devices'),
+                    filters={
+                        'site_id': lambda obj: obj.pk,
                         'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
                         'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
                     },
-                    title=_('Non-Racked Devices')
+                    actions=[
+                        actions.AddObject('dcim.Device', url_params={'site': lambda obj: obj.pk}),
+                    ],
                 ),
                 PluginContentPanel('full_width_page'),
             ),

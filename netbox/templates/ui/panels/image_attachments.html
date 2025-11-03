@@ -1,7 +1,0 @@
-{% extends "ui/panels/_base.html" %}
-{% load i18n %}
-
-{# TODO: Add "attach an image" button in panel header #}
-{% block panel_content %}
-  {% htmx_table 'extras:imageattachment_list' object_type_id=object|content_type_id object_id=object.pk %}
-{% endblock panel_content %}

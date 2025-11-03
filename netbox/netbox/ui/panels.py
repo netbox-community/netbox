@@ -1,5 +1,6 @@
 from abc import ABC, ABCMeta
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
@@ -9,14 +10,15 @@ from netbox.ui.attrs import Attr
 from utilities.querydict import dict_to_querydict
 from utilities.string import title
 from utilities.templatetags.plugins import _get_registered_content
+from utilities.views import get_viewname
 
 __all__ = (
     'CommentsPanel',
     'CustomFieldsPanel',
-    'EmbeddedTablePanel',
     'ImageAttachmentsPanel',
     'NestedGroupObjectPanel',
     'ObjectPanel',
+    'ObjectsTablePanel',
     'RelatedObjectsPanel',
     'Panel',
     'PluginContentPanel',
@@ -130,9 +132,33 @@ class RelatedObjectsPanel(Panel):
         })
 
 
-class ImageAttachmentsPanel(Panel):
-    template_name = 'ui/panels/image_attachments.html'
-    title = _('Image Attachments')
+class ObjectsTablePanel(Panel):
+    template_name = 'ui/panels/objects_table.html'
+    title = None
+
+    def __init__(self, model, filters=None, **kwargs):
+        super().__init__(**kwargs)
+
+        # Resolve the model class from its app.name label
+        app_label, model_name = model.split('.')
+        self.model = apps.get_model(app_label, model_name)
+        self.filters = filters or {}
+        if self.title is None:
+            self.title = title(self.model._meta.verbose_name_plural)
+
+    def get_context(self, obj):
+        url_params = {
+            k: v(obj) if callable(v) else v for k, v in self.filters.items()
+        }
+        if 'return_url' not in url_params:
+            url_params['return_url'] = obj.get_absolute_url()
+        return {
+            'viewname': get_viewname(self.model, 'list'),
+            'url_params': dict_to_querydict(url_params),
+        }
+
+
+class ImageAttachmentsPanel(ObjectsTablePanel):
     actions = [
         actions.AddObject(
             'extras.imageattachment',
@@ -145,25 +171,8 @@ class ImageAttachmentsPanel(Panel):
         ),
     ]
 
-
-class EmbeddedTablePanel(Panel):
-    template_name = 'ui/panels/embedded_table.html'
-    title = None
-
-    def __init__(self, view_name, url_params=None, **kwargs):
-        super().__init__(**kwargs)
-        self.view_name = view_name
-        self.url_params = url_params or {}
-
-    def get_context(self, obj):
-        url_params = {
-            k: v(obj) if callable(v) else v for k, v in self.url_params.items()
-        }
-        # url_params['return_url'] = return_url or context['request'].path
-        return {
-            'viewname': self.view_name,
-            'url_params': dict_to_querydict(url_params),
-        }
+    def __init__(self, **kwargs):
+        super().__init__('extras.imageattachment', **kwargs)
 
 
 class PluginContentPanel(Panel):
