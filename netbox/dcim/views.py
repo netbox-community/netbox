@@ -20,8 +20,8 @@ from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
-    CommentsPanel, CustomFieldsPanel, ImageAttachmentsPanel, ObjectsTablePanel, PluginContentPanel,
-    RelatedObjectsPanel, TagsPanel,
+    CommentsPanel, CustomFieldsPanel, ImageAttachmentsPanel, NestedGroupObjectPanel, ObjectsTablePanel,
+    PluginContentPanel, RelatedObjectsPanel, TagsPanel,
 )
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -228,6 +228,34 @@ class RegionListView(generic.ObjectListView):
 @register_model_view(Region)
 class RegionView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Region.objects.all()
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                NestedGroupObjectPanel(),
+                TagsPanel(),
+                CustomFieldsPanel(),
+                CommentsPanel(),
+                PluginContentPanel('left_page'),
+            ),
+            layout.Column(
+                RelatedObjectsPanel(),
+                PluginContentPanel('right_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                ObjectsTablePanel(
+                    model='dcim.Region',
+                    title=_('Child Regions'),
+                    filters={'parent_id': lambda obj: obj.pk},
+                    actions=[
+                        actions.AddObject('dcim.Region', url_params={'parent': lambda obj: obj.pk}),
+                    ],
+                ),
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         regions = instance.get_descendants(include_self=True)
@@ -339,6 +367,34 @@ class SiteGroupListView(generic.ObjectListView):
 @register_model_view(SiteGroup)
 class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = SiteGroup.objects.all()
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                NestedGroupObjectPanel(),
+                TagsPanel(),
+                CustomFieldsPanel(),
+                CommentsPanel(),
+                PluginContentPanel('left_page'),
+            ),
+            layout.Column(
+                RelatedObjectsPanel(),
+                PluginContentPanel('right_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                ObjectsTablePanel(
+                    model='dcim.SiteGroup',
+                    title=_('Child Groups'),
+                    filters={'parent_id': lambda obj: obj.pk},
+                    actions=[
+                        actions.AddObject('dcim.Region', url_params={'parent': lambda obj: obj.pk}),
+                    ],
+                ),
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
@@ -608,6 +664,59 @@ class LocationListView(generic.ObjectListView):
 @register_model_view(Location)
 class LocationView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Location.objects.all()
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.LocationPanel(),
+                TagsPanel(),
+                CustomFieldsPanel(),
+                CommentsPanel(),
+                PluginContentPanel('left_page'),
+            ),
+            layout.Column(
+                RelatedObjectsPanel(),
+                ImageAttachmentsPanel(),
+                PluginContentPanel('right_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                ObjectsTablePanel(
+                    model='dcim.Location',
+                    title=_('Child Locations'),
+                    filters={'parent_id': lambda obj: obj.pk},
+                    actions=[
+                        actions.AddObject(
+                            'dcim.Location',
+                            url_params={
+                                'site': lambda obj: obj.site.pk if obj.site else None,
+                                'parent': lambda obj: obj.pk,
+                            }
+                        ),
+                    ],
+                ),
+                ObjectsTablePanel(
+                    model='dcim.Device',
+                    title=_('Non-Racked Devices'),
+                    filters={
+                        'location_id': lambda obj: obj.pk,
+                        'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
+                        'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
+                    },
+                    actions=[
+                        actions.AddObject(
+                            'dcim.Device',
+                            url_params={
+                                'site': lambda obj: obj.site.pk if obj.site else None,
+                                'parent': lambda obj: obj.pk,
+                            }
+                        ),
+                    ],
+                ),
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
