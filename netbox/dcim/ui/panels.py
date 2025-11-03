@@ -23,6 +23,26 @@ class LocationPanel(panels.NestedGroupObjectPanel):
     facility = attrs.TextAttr('facility', label=_('Facility'))
 
 
+class RackDimensionsPanel(panels.ObjectPanel):
+    form_factor = attrs.ChoiceAttr('form_factor', label=_('Form factor'))
+    width = attrs.ChoiceAttr('width', label=_('Width'))
+    u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
+    outer_width = attrs.NumericAttr('outer_width', unit_accessor='get_outer_unit_display', label=_('Outer width'))
+    outer_height = attrs.NumericAttr('outer_height', unit_accessor='get_outer_unit_display', label=_('Outer height'))
+    outer_depth = attrs.NumericAttr('outer_depth', unit_accessor='get_outer_unit_display', label=_('Outer depth'))
+    mounting_depth = attrs.TextAttr('mounting_depth', format_string='{}mm', label=_('Mounting depth'))
+
+
+class RackNumberingPanel(panels.ObjectPanel):
+    starting_unit = attrs.TextAttr('starting_unit', label=_('Starting unit'))
+    desc_units = attrs.BooleanAttr('desc_units', label=_('Descending units'))
+
+
+class RackWeightPanel(panels.ObjectPanel):
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display', label=_('Weight'))
+    max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
+
+
 class RackPanel(panels.ObjectPanel):
     region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
     site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
@@ -38,6 +58,17 @@ class RackPanel(panels.ObjectPanel):
     airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
     space_utilization = attrs.UtilizationAttr('get_utilization', label=_('Space utilization'))
     power_utilization = attrs.UtilizationAttr('get_power_utilization', label=_('Power utilization'))
+
+
+class RackRolePanel(panels.OrganizationalObjectPanel):
+    color = attrs.ColorAttr('color')
+
+
+class RackTypePanel(panels.ObjectPanel):
+    manufacturer = attrs.ObjectAttr('manufacturer', label=_('Manufacturer'), linkify=True)
+    model = attrs.TextAttr('model', label=_('Model'))
+    description = attrs.TextAttr('description', label=_('Description'))
+    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
 
 
 class DevicePanel(panels.ObjectPanel):

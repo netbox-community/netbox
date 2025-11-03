@@ -19,6 +19,7 @@ __all__ = (
     'NestedGroupObjectPanel',
     'ObjectPanel',
     'ObjectsTablePanel',
+    'OrganizationalObjectPanel',
     'RelatedObjectsPanel',
     'Panel',
     'PluginContentPanel',
@@ -45,7 +46,7 @@ class Panel(ABC):
         return render_to_string(self.template_name, {
             'request': context.get('request'),
             'object': obj,
-            'title': self.title,
+            'title': self.title or title(obj._meta.verbose_name),
             'actions': [action.get_context(obj) for action in self.actions],
             **self.get_context(obj),
         })
@@ -93,9 +94,12 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
         }
 
 
-class NestedGroupObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
+class OrganizationalObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
     name = attrs.TextAttr('name', label=_('Name'))
     description = attrs.TextAttr('description', label=_('Description'))
+
+
+class NestedGroupObjectPanel(OrganizationalObjectPanel, metaclass=ObjectPanelMeta):
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
 
 

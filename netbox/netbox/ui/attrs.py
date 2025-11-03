@@ -13,12 +13,14 @@ from netbox.config import get_config
 
 class Attr(ABC):
     template_name = None
+    label = None
     placeholder = mark_safe('<span class="text-muted">&mdash;</span>')
 
     def __init__(self, accessor, label=None, template_name=None):
         self.accessor = accessor
-        self.label = label
         self.template_name = template_name or self.template_name
+        if label is not None:
+            self.label = label
 
     @abstractmethod
     def render(self, obj, context=None):
@@ -37,9 +39,10 @@ class Attr(ABC):
 class TextAttr(Attr):
     template_name = 'ui/attrs/text.html'
 
-    def __init__(self, *args, style=None, copy_button=False, **kwargs):
+    def __init__(self, *args, style=None, format_string=None, copy_button=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.style = style
+        self.format_string = format_string
         self.copy_button = copy_button
 
     def render(self, obj, context=None):
@@ -47,10 +50,34 @@ class TextAttr(Attr):
         value = self._resolve_attr(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
+        if self.format_string:
+            value = self.format_string.format(value)
         return render_to_string(self.template_name, {
             **context,
             'value': value,
             'style': self.style,
+            'copy_button': self.copy_button,
+        })
+
+
+class NumericAttr(Attr):
+    template_name = 'ui/attrs/numeric.html'
+
+    def __init__(self, *args, unit_accessor=None, copy_button=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unit_accessor = unit_accessor
+        self.copy_button = copy_button
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        if value in (None, ''):
+            return self.placeholder
+        unit = self._resolve_attr(obj, self.unit_accessor) if self.unit_accessor else None
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+            'unit': unit,
             'copy_button': self.copy_button,
         })
 
@@ -74,6 +101,37 @@ class ChoiceAttr(Attr):
             **context,
             'value': value,
             'bg_color': bg_color,
+        })
+
+
+class BooleanAttr(Attr):
+    template_name = 'ui/attrs/boolean.html'
+
+    def __init__(self, *args, display_false=True, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.display_false = display_false
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        if value in (None, '') and not self.display_false:
+            return self.placeholder
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+        })
+
+
+class ColorAttr(Attr):
+    template_name = 'ui/attrs/color.html'
+    label = _('Color')
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        return render_to_string(self.template_name, {
+            **context,
+            'color': value,
         })
 
 
@@ -149,9 +207,9 @@ class AddressAttr(Attr):
 
 class GPSCoordinatesAttr(Attr):
     template_name = 'ui/attrs/gps_coordinates.html'
+    label = _('GPS Coordinates')
 
     def __init__(self, latitude_attr='latitude', longitude_attr='longitude', map_url=True, **kwargs):
-        kwargs.setdefault('label', _('GPS Coordinates'))
         super().__init__(accessor=None, **kwargs)
         self.latitude_attr = latitude_attr
         self.longitude_attr = longitude_attr

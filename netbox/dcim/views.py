@@ -527,7 +527,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.Layout(
         layout.Row(
             layout.Column(
-                panels.SitePanel(_('Site')),
+                panels.SitePanel(),
                 CustomFieldsPanel(),
                 TagsPanel(),
                 CommentsPanel(),
@@ -817,6 +817,25 @@ class RackRoleListView(generic.ObjectListView):
 @register_model_view(RackRole)
 class RackRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = RackRole.objects.all()
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.RackRolePanel(),
+                TagsPanel(),
+                PluginContentPanel('left_page'),
+            ),
+            layout.Column(
+                RelatedObjectsPanel(),
+                CustomFieldsPanel(),
+                PluginContentPanel('right_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -884,6 +903,29 @@ class RackTypeListView(generic.ObjectListView):
 @register_model_view(RackType)
 class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = RackType.objects.all()
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.RackTypePanel(),
+                panels.RackDimensionsPanel(_('Dimensions')),
+                TagsPanel(),
+                CommentsPanel(),
+                PluginContentPanel('left_page'),
+            ),
+            layout.Column(
+                panels.RackNumberingPanel(_('Numbering')),
+                panels.RackWeightPanel(_('Weight')),
+                CustomFieldsPanel(),
+                RelatedObjectsPanel(),
+                PluginContentPanel('right_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         return {
