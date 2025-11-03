@@ -11,7 +11,115 @@
 {% block content %}
     <div class="row">
         <div class="col col-12 col-xl-6">
-            {{ device_panel }}
+            <div class="card">
+                <h2 class="card-header">{% trans "Device" %}</h2>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Region" %}</th>
+                        <td>{% nested_tree object.site.region %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Site" %}</th>
+                        <td>{{ object.site|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Location" %}</th>
+                        <td>{% nested_tree object.location %}</td>
+                    </tr>
+                    {% if object.virtual_chassis %}
+                      <tr>
+                        <th scope="row">{% trans "Virtual Chassis" %}</th>
+                        <td>{{ object.virtual_chassis|linkify }}</td>
+                      </tr>
+                    {% endif %}
+                    <tr>
+                        <th scope="row">{% trans "Rack" %}</th>
+                        <td class="d-flex justify-content-between align-items-start">
+                            {% if object.rack %}
+                                {{ object.rack|linkify }}
+                                <a href="{{ object.rack.get_absolute_url }}?device={% firstof object.parent_bay.device.pk object.pk %}" class="btn btn-primary btn-sm d-print-none" title="{% trans "Highlight device in rack" %}">
+                                  <i class="mdi mdi-view-day-outline"></i>
+                                </a>
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Position" %}</th>
+                        <td>
+                            {% if object.parent_bay %}
+                                {% with object.parent_bay.device as parent %}
+                                    {{ parent|linkify }} / {{ object.parent_bay }}
+                                    {% if parent.position %}
+                                        (U{{ parent.position|floatformat }} / {{ parent.get_face_display }})
+                                    {% endif %}
+                                {% endwith %}
+                            {% elif object.rack and object.position %}
+                                <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
+                            {% elif object.rack and object.device_type.u_height %}
+                                <span class="badge text-bg-warning">{% trans "Not racked" %}</span>
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">{% trans "GPS Coordinates" %}</th>
+                      <td class="position-relative">
+                        {% if object.latitude and object.longitude %}
+                          {% if config.MAPS_URL %}
+                            <div class="position-absolute top-50 end-0 me-2 translate-middle-y d-print-none">
+                              <a href="{{ config.MAPS_URL }}{{ object.latitude|unlocalize }},{{ object.longitude|unlocalize }}" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
+                              </a>
+                            </div>
+                            {% endif %}
+                          <span>{{ object.latitude }}, {{ object.longitude }}</span>
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Tenant" %}</th>
+                        <td>
+                            {% if object.tenant.group %}
+                                {{ object.tenant.group|linkify }} /
+                            {% endif %}
+                            {{ object.tenant|linkify|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Device Type" %}</th>
+                        <td>
+                            {{ object.device_type|linkify:"full_name" }} ({{ object.device_type.u_height|floatformat }}U)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Airflow" %}</th>
+                        <td>
+                            {{ object.get_airflow_display|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Serial Number" %}</th>
+                        <td class="font-monospace">{{ object.serial|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Asset Tag" %}</th>
+                        <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Config Template" %}</th>
+                        <td>{{ object.config_template|linkify|placeholder }}</td>
+                    </tr>
+                </table>
+            </div>
             {% if vc_members %}
                 <div class="card">
                     <h2 class="card-header">
@@ -69,7 +177,82 @@
             {% plugin_left_page object %}
         </div>
         <div class="col col-12 col-xl-6">
-            {{ management_panel }}
+            <div class="card">
+                <h2 class="card-header">{% trans "Management" %}</h2>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Status" %}</th>
+                        <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Role" %}</th>
+                        <td>{{ object.role|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Platform" %}</th>
+                        <td>{{ object.platform|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Primary IPv4" %}</th>
+                        <td>
+                          {% if object.primary_ip4 %}
+                            <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4.address.ip }}</a>
+                            {% if object.primary_ip4.nat_inside %}
+                              ({% trans "NAT for" %} <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
+                            {% elif object.primary_ip4.nat_outside.exists %}
+                              ({% trans "NAT" %}: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            {% copy_content "primary_ip4" %}
+                          {% else %}
+                            {{ ''|placeholder }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Primary IPv6" %}</th>
+                        <td>
+                          {% if object.primary_ip6 %}
+                            <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6.address.ip }}</a>
+                            {% if object.primary_ip6.nat_inside %}
+                              ({% trans "NAT for" %} <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
+                            {% elif object.primary_ip6.nat_outside.exists %}
+                              ({% trans "NAT" %}: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            {% copy_content "primary_ip6" %}
+                          {% else %}
+                            {{ ''|placeholder }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Out-of-band IP</th>
+                        <td>
+                          {% if object.oob_ip %}
+                            <a href="{{ object.oob_ip.get_absolute_url }}" id="oob_ip">{{ object.oob_ip.address.ip }}</a>
+                            {% if object.oob_ip.nat_inside %}
+                              ({% trans "NAT for" %} <a href="{{ object.oob_ip.nat_inside.get_absolute_url }}">{{ object.oob_ip.nat_inside.address.ip }}</a>)
+                            {% elif object.oob_ip.nat_outside.exists %}
+                              ({% trans "NAT" %}: {% for nat in object.oob_ip.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            {% copy_content "oob_ip" %}
+                          {% else %}
+                            {{ ''|placeholder }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                    {% if object.cluster %}
+                        <tr>
+                            <th>{% trans "Cluster" %}</th>
+                            <td>
+                                {% if object.cluster.group %}
+                                    {{ object.cluster.group|linkify }} /
+                                {% endif %}
+                                {{ object.cluster|linkify }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
             {% if object.powerports.exists and object.poweroutlets.exists %}
                 <div class="card">
                     <h2 class="card-header">{% trans "Power Utilization" %}</h2>
