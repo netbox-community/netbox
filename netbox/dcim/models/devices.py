@@ -1169,7 +1169,7 @@ class VirtualChassis(PrimaryModel):
 
         # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
         # This must be done here because on_delete=SET_NULL executes before pre_delete signal
-        for device in members_list:
+        for device in self.members.all():
             device.vc_position = None
             device.vc_priority = None
             device.save()
