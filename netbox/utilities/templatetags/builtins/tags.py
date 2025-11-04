@@ -183,5 +183,5 @@ def static_with_params(path, **params):
 
 
 @register.simple_tag(takes_context=True)
-def render_panel(context, panel):
-    return mark_safe(panel.render(context))
+def render(context, component):
+    return mark_safe(component.render(context))

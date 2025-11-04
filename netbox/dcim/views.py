@@ -1202,7 +1202,7 @@ class RackReservationView(generic.ObjectView):
     layout = layout.Layout(
         layout.Row(
             layout.Column(
-                panels.RackPanel(accessor='rack', only=['region', 'site', 'location']),
+                panels.RackPanel(title=_('Rack'), accessor='rack', only=['region', 'site', 'location']),
                 CustomFieldsPanel(),
                 TagsPanel(),
                 CommentsPanel(),
