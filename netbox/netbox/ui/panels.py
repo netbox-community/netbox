@@ -149,6 +149,7 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
 
         return {
             **super().get_context(context),
+            'title': self.title or title(obj._meta.verbose_name),
             'attrs': [
                 {
                     'label': attr.label or title(name),

@@ -1,11 +1,16 @@
-from netbox.ui.panels import Panel
+from netbox.ui.panels import Panel, PluginContentPanel
 
 __all__ = (
     'Column',
     'Layout',
     'Row',
+    'SimpleLayout',
 )
 
+
+#
+# Base classes
+#
 
 class Layout:
 
@@ -32,3 +37,27 @@ class Column:
             if not isinstance(panel, Panel):
                 raise TypeError(f"Panel {i} must be an instance of a Panel, not {type(panel)}.")
         self.panels = panels
+
+
+#
+# Standard layouts
+#
+
+class SimpleLayout(Layout):
+    """
+    A layout with one row of two columns and a second row with one column. Includes registered plugin content.
+    """
+    def __init__(self, left_panels=None, right_panels=None, bottom_panels=None):
+        left_panels = left_panels or []
+        right_panels = right_panels or []
+        bottom_panels = bottom_panels or []
+        rows = [
+            Row(
+                Column(*left_panels, PluginContentPanel('left_page')),
+                Column(*right_panels, PluginContentPanel('right_page')),
+            ),
+            Row(
+                Column(*bottom_panels, PluginContentPanel('full_width_page'))
+            )
+        ]
+        super().__init__(*rows)
