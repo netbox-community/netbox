@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
@@ -9,8 +8,8 @@ from dcim.models import (
     InventoryItemTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
-from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
@@ -313,7 +312,7 @@ class InventoryItemTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    component = GFKSerializerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
@@ -324,11 +323,3 @@ class InventoryItemTemplateSerializer(ComponentTemplateSerializer):
             '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', '_depth')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_component(self, obj):
-        if obj.component is None:
-            return None
-        serializer = get_serializer_for_model(obj.component)
-        context = {'request': self.context['request']}
-        return serializer(obj.component, nested=True, context=context).data

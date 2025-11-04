@@ -1,13 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.constants import LOCATION_SCOPE_TYPES
 from ipam.api.serializers_.vlans import VLANSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from wireless.models import WirelessLAN, WirelessLANGroup
 from .nested import NestedWirelessLANGroupSerializer
@@ -47,7 +46,7 @@ class WirelessLANSerializer(PrimaryModelSerializer):
         default=None
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    scope = serializers.SerializerMethodField(read_only=True)
+    scope = GFKSerializerField(read_only=True)
 
     class Meta:
         model = WirelessLAN
@@ -57,11 +56,3 @@ class WirelessLANSerializer(PrimaryModelSerializer):
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'ssid', 'description')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_scope(self, obj):
-        if obj.scope_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.scope)
-        context = {'request': self.context['request']}
-        return serializer(obj.scope, nested=True, context=context).data

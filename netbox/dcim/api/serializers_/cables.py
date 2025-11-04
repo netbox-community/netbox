@@ -5,6 +5,7 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
     BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer, PrimaryModelSerializer,
 )
@@ -53,9 +54,7 @@ class CableTerminationSerializer(NetBoxModelSerializer):
     termination_type = ContentTypeField(
         read_only=True,
     )
-    termination = serializers.SerializerMethodField(
-        read_only=True,
-    )
+    termination = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CableTermination
@@ -65,12 +64,6 @@ class CableTerminationSerializer(NetBoxModelSerializer):
         ]
         read_only_fields = fields
         brief_fields = ('id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_termination(self, obj):
-        serializer = get_serializer_for_model(obj.termination)
-        context = {'request': self.context['request']}
-        return serializer(obj.termination, nested=True, context=context).data
 
 
 class CablePathSerializer(serializers.ModelSerializer):

@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
@@ -11,12 +10,12 @@ from circuits.models import (
 from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.api.serializers_.cables import CabledObjectSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
+from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
     NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer,
 )
 from netbox.choices import DistanceUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, ProviderSerializer
 
 __all__ = (
@@ -55,7 +54,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
         default=None
     )
     termination_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    termination = serializers.SerializerMethodField(read_only=True)
+    termination = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CircuitTermination
@@ -63,14 +62,6 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
             'id', 'url', 'display_url', 'display', 'termination_type', 'termination_id', 'termination', 'port_speed',
             'upstream_speed', 'xconnect_id', 'description',
         ]
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_termination(self, obj):
-        if obj.termination_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.termination)
-        context = {'request': self.context['request']}
-        return serializer(obj.termination, nested=True, context=context).data
 
 
 class CircuitGroupSerializer(OrganizationalModelSerializer):
@@ -134,7 +125,7 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
         default=None
     )
     termination_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    termination = serializers.SerializerMethodField(read_only=True)
+    termination = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CircuitTermination
@@ -146,20 +137,12 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
         ]
         brief_fields = ('id', 'url', 'display', 'circuit', 'term_side', 'description', 'cable', '_occupied')
 
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_termination(self, obj):
-        if obj.termination_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.termination)
-        context = {'request': self.context['request']}
-        return serializer(obj.termination, nested=True, context=context).data
-
 
 class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
     member_type = ContentTypeField(
         queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS)
     )
-    member = serializers.SerializerMethodField(read_only=True)
+    member = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CircuitGroupAssignment
@@ -168,14 +151,6 @@ class CircuitGroupAssignmentSerializer(CircuitGroupAssignmentSerializer_):
             'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'group', 'member_type', 'member_id', 'member', 'priority')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_member(self, obj):
-        if obj.member_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.member)
-        context = {'request': self.context['request']}
-        return serializer(obj.member, nested=True, context=context).data
 
 
 class VirtualCircuitTypeSerializer(OrganizationalModelSerializer):
