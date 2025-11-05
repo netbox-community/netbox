@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import get_config
+from utilities.data import resolve_attr_path
 
 
 #
@@ -26,15 +27,6 @@ class Attr(ABC):
     def render(self, obj, context=None):
         pass
 
-    @staticmethod
-    def _resolve_attr(obj, path):
-        cur = obj
-        for part in path.split('.'):
-            if cur is None:
-                return None
-            cur = getattr(cur, part) if hasattr(cur, part) else cur.get(part) if isinstance(cur, dict) else None
-        return cur
-
 
 class TextAttr(Attr):
     template_name = 'ui/attrs/text.html'
@@ -47,7 +39,7 @@ class TextAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
         if self.format_string:
@@ -70,10 +62,10 @@ class NumericAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
-        unit = self._resolve_attr(obj, self.unit_accessor) if self.unit_accessor else None
+        unit = resolve_attr_path(obj, self.unit_accessor) if self.unit_accessor else None
         return render_to_string(self.template_name, {
             **context,
             'value': value,
@@ -90,7 +82,7 @@ class ChoiceAttr(Attr):
         try:
             value = getattr(obj, f'get_{self.accessor}_display')()
         except AttributeError:
-            value = self._resolve_attr(obj, self.accessor)
+            value = resolve_attr_path(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
         try:
@@ -113,7 +105,7 @@ class BooleanAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value in (None, '') and not self.display_false:
             return self.placeholder
         return render_to_string(self.template_name, {
@@ -128,7 +120,7 @@ class ColorAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         return render_to_string(self.template_name, {
             **context,
             'color': value,
@@ -140,7 +132,7 @@ class ImageAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
         return render_to_string(self.template_name, {
@@ -159,7 +151,7 @@ class ObjectAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value is None:
             return self.placeholder
         group = getattr(value, self.grouped_by, None) if self.grouped_by else None
@@ -182,7 +174,7 @@ class NestedObjectAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value is None:
             return self.placeholder
         nodes = value.get_ancestors(include_self=True)
@@ -209,7 +201,7 @@ class AddressAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
         return render_to_string(self.template_name, {
@@ -236,8 +228,8 @@ class GPSCoordinatesAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        latitude = self._resolve_attr(obj, self.latitude_attr)
-        longitude = self._resolve_attr(obj, self.longitude_attr)
+        latitude = resolve_attr_path(obj, self.latitude_attr)
+        longitude = resolve_attr_path(obj, self.longitude_attr)
         if latitude is None or longitude is None:
             return self.placeholder
         return render_to_string(self.template_name, {
@@ -253,7 +245,7 @@ class TimezoneAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value in (None, ''):
             return self.placeholder
         return render_to_string(self.template_name, {
@@ -270,7 +262,7 @@ class TemplatedAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         if value is None:
             return self.placeholder
         return render_to_string(
@@ -289,7 +281,7 @@ class UtilizationAttr(Attr):
 
     def render(self, obj, context=None):
         context = context or {}
-        value = self._resolve_attr(obj, self.accessor)
+        value = resolve_attr_path(obj, self.accessor)
         return render_to_string(self.template_name, {
             **context,
             'value': value,

@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs
 from netbox.ui.actions import CopyContent
+from utilities.data import resolve_attr_path
 from utilities.querydict import dict_to_querydict
 from utilities.string import title
 from utilities.templatetags.plugins import _get_registered_content
@@ -15,6 +16,7 @@ __all__ = (
     'CommentsPanel',
     'JSONPanel',
     'NestedGroupObjectPanel',
+    'ObjectAttributesPanel',
     'ObjectPanel',
     'ObjectsTablePanel',
     'OrganizationalObjectPanel',
@@ -24,6 +26,10 @@ __all__ = (
     'TemplatePanel',
 )
 
+
+#
+# Base classes
+#
 
 class Panel(ABC):
     """
@@ -74,7 +80,44 @@ class Panel(ABC):
         return render_to_string(self.template_name, self.get_context(context))
 
 
-class ObjectPanelMeta(ABCMeta):
+#
+# Object-specific panels
+#
+
+class ObjectPanel(Panel):
+    """
+    Base class for object-specific panels.
+    """
+    accessor = 'object'
+
+    def __init__(self, accessor=None, **kwargs):
+        """
+        Instantiate a new ObjectPanel.
+
+        Parameters:
+            accessor: The name of the attribute on the object (default: "object")
+        """
+        super().__init__(**kwargs)
+
+        if accessor is not None:
+            self.accessor = accessor
+
+    def get_context(self, context):
+        """
+        Return the context data to be used when rendering the panel.
+
+        Parameters:
+            context: The template context
+        """
+        obj = resolve_attr_path(context, self.accessor)
+        return {
+            **super().get_context(context),
+            'title': self.title or title(obj._meta.verbose_name),
+            'object': obj,
+        }
+
+
+class ObjectAttributesPanelMeta(ABCMeta):
 
     def __new__(mcls, name, bases, namespace, **kwargs):
         declared = {}
@@ -101,7 +144,7 @@ class ObjectPanelMeta(ABCMeta):
         return cls
 
 
-class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
+class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
     """
     A panel which displays selected attributes of an object.
 
@@ -109,10 +152,9 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
         template_name: The name of the template to render
         accessor: The name of the attribute on the object
     """
-    template_name = 'ui/panels/object.html'
-    accessor = None
+    template_name = 'ui/panels/object_attributes.html'
 
-    def __init__(self, accessor=None, only=None, exclude=None, **kwargs):
+    def __init__(self, only=None, exclude=None, **kwargs):
         """
         Instantiate a new ObjectPanel.
 
@@ -122,9 +164,6 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
             exclude: If specified, attributes in this list will be excluded from display
         """
         super().__init__(**kwargs)
-
-        if accessor is not None:
-            self.accessor = accessor
 
         # Set included/excluded attributes
         if only is not None and exclude is not None:
@@ -155,21 +194,20 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
         elif self.exclude:
             attr_names -= set(self.exclude)
 
-        obj = getattr(context['object'], self.accessor) if self.accessor else context['object']
+        ctx = super().get_context(context)
 
         return {
-            **super().get_context(context),
-            'title': self.title or title(obj._meta.verbose_name),
+            **ctx,
             'attrs': [
                 {
                     'label': attr.label or self._name_to_label(name),
-                    'value': attr.render(obj, {'name': name}),
+                    'value': attr.render(ctx['object'], {'name': name}),
                 } for name, attr in self._attrs.items() if name in attr_names
             ],
         }
 
 
-class OrganizationalObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
+class OrganizationalObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPanelMeta):
     """
     An ObjectPanel with attributes common to OrganizationalModels.
     """
@@ -177,20 +215,82 @@ class OrganizationalObjectPanel(ObjectPanel, metaclass=ObjectPanelMeta):
     description = attrs.TextAttr('description', label=_('Description'))
 
 
-class NestedGroupObjectPanel(OrganizationalObjectPanel, metaclass=ObjectPanelMeta):
+class NestedGroupObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPanelMeta):
     """
     An ObjectPanel with attributes common to NestedGroupObjects.
     """
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
 
 
-class CommentsPanel(Panel):
+class CommentsPanel(ObjectPanel):
     """
     A panel which displays comments associated with an object.
     """
     template_name = 'ui/panels/comments.html'
     title = _('Comments')
 
+    def __init__(self, field_name='comments', **kwargs):
+        """
+        Instantiate a new CommentsPanel.
+
+        Parameters:
+            field_name: The name of the comment field on the object
+        """
+        super().__init__(**kwargs)
+        self.field_name = field_name
+
+    def get_context(self, context):
+        """
+        Return the context data to be used when rendering the panel.
+
+        Parameters:
+            context: The template context
+        """
+        return {
+            **super().get_context(context),
+            'comments': getattr(context['object'], self.field_name),
+        }
+
+
+class JSONPanel(ObjectPanel):
+    """
+    A panel which renders formatted JSON data from an object's JSONField.
+    """
+    template_name = 'ui/panels/json.html'
+
+    def __init__(self, field_name, copy_button=True, **kwargs):
+        """
+        Instantiate a new JSONPanel.
+
+        Parameters:
+            field_name: The name of the JSON field on the object
+            copy_button: Set to True (default) to include a copy-to-clipboard button
+        """
+        super().__init__(**kwargs)
+        self.field_name = field_name
+
+        if copy_button:
+            self.actions.append(
+                CopyContent(f'panel_{field_name}'),
+            )
+
+    def get_context(self, context):
+        """
+        Return the context data to be used when rendering the panel.
+
+        Parameters:
+            context: The template context
+        """
+        return {
+            **super().get_context(context),
+            'data': getattr(context['object'], self.field_name),
+            'field_name': self.field_name,
+        }
+
+
+#
+# Miscellaneous panels
+#
 
 class RelatedObjectsPanel(Panel):
     """
@@ -258,42 +358,6 @@ class ObjectsTablePanel(Panel):
             **super().get_context(context),
             'viewname': get_viewname(self.model, 'list'),
             'url_params': dict_to_querydict(url_params),
-        }
-
-
-class JSONPanel(Panel):
-    """
-    A panel which renders formatted JSON data.
-    """
-    template_name = 'ui/panels/json.html'
-
-    def __init__(self, field_name, copy_button=True, **kwargs):
-        """
-        Instantiate a new JSONPanel.
-
-        Parameters:
-            field_name: The name of the JSON field on the object
-            copy_button: Set to True (default) to include a copy-to-clipboard button
-        """
-        super().__init__(**kwargs)
-        self.field_name = field_name
-
-        if copy_button:
-            self.actions.append(
-                CopyContent(f'panel_{field_name}'),
-            )
-
-    def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
-        return {
-            **super().get_context(context),
-            'data': getattr(context['object'], self.field_name),
-            'field_name': self.field_name,
         }
 
 

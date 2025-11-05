@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.ui import attrs, panels
 
 
-class SitePanel(panels.ObjectPanel):
+class SitePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('region', linkify=True)
     group = attrs.NestedObjectAttr('group', linkify=True)
     status = attrs.ChoiceAttr('status')
@@ -23,7 +23,7 @@ class LocationPanel(panels.NestedGroupObjectPanel):
     facility = attrs.TextAttr('facility')
 
 
-class RackDimensionsPanel(panels.ObjectPanel):
+class RackDimensionsPanel(panels.ObjectAttributesPanel):
     form_factor = attrs.ChoiceAttr('form_factor')
     width = attrs.ChoiceAttr('width')
     u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
@@ -33,12 +33,12 @@ class RackDimensionsPanel(panels.ObjectPanel):
     mounting_depth = attrs.TextAttr('mounting_depth', format_string='{}mm')
 
 
-class RackNumberingPanel(panels.ObjectPanel):
+class RackNumberingPanel(panels.ObjectAttributesPanel):
     starting_unit = attrs.TextAttr('starting_unit')
     desc_units = attrs.BooleanAttr('desc_units', label=_('Descending units'))
 
 
-class RackPanel(panels.ObjectPanel):
+class RackPanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
     site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
@@ -55,7 +55,7 @@ class RackPanel(panels.ObjectPanel):
     power_utilization = attrs.UtilizationAttr('get_power_utilization')
 
 
-class RackWeightPanel(panels.ObjectPanel):
+class RackWeightPanel(panels.ObjectAttributesPanel):
     weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
     max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
     total_weight = attrs.NumericAttr('total_weight', unit_accessor='get_weight_unit_display')
@@ -65,14 +65,14 @@ class RackRolePanel(panels.OrganizationalObjectPanel):
     color = attrs.ColorAttr('color')
 
 
-class RackTypePanel(panels.ObjectPanel):
+class RackTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
 
 
-class DevicePanel(panels.ObjectPanel):
+class DevicePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
     site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
@@ -89,7 +89,7 @@ class DevicePanel(panels.ObjectPanel):
     config_template = attrs.ObjectAttr('config_template', linkify=True)
 
 
-class DeviceManagementPanel(panels.ObjectPanel):
+class DeviceManagementPanel(panels.ObjectAttributesPanel):
     status = attrs.ChoiceAttr('status')
     role = attrs.NestedObjectAttr('role', linkify=True, max_depth=3)
     platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
@@ -110,7 +110,7 @@ class DeviceManagementPanel(panels.ObjectPanel):
     )
 
 
-class DeviceTypePanel(panels.ObjectPanel):
+class DeviceTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     part_number = attrs.TextAttr('part_number')
@@ -126,6 +126,6 @@ class DeviceTypePanel(panels.ObjectPanel):
     rear_image = attrs.ImageAttr('rear_image')
 
 
-class ModuleTypeProfilePanel(panels.ObjectPanel):
+class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')

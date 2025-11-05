@@ -12,6 +12,7 @@ __all__ = (
     'flatten_dict',
     'ranges_to_string',
     'ranges_to_string_list',
+    'resolve_attr_path',
     'shallow_compare_dict',
     'string_to_ranges',
 )
@@ -213,3 +214,23 @@ def string_to_ranges(value):
             return None
         values.append(NumericRange(int(lower), int(upper) + 1, bounds='[)'))
     return values
+
+
+#
+# Attribute resolution
+#
+
+def resolve_attr_path(obj, path):
+    """
+    Follow a dotted path across attributes and/or dictionary keys and return the final value.
+
+    Parameters:
+        obj: The starting object
+        path: The dotted path to follow (e.g. "foo.bar.baz")
+    """
+    cur = obj
+    for part in path.split('.'):
+        if cur is None:
+            return None
+        cur = getattr(cur, part) if hasattr(cur, part) else cur.get(part)
+    return cur
