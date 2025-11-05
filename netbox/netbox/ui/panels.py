@@ -54,7 +54,7 @@ class Panel(ABC):
         """
         if title is not None:
             self.title = title
-        self.actions = actions or []
+        self.actions = actions or self.actions or []
 
     def get_context(self, context):
         """

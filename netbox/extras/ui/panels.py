@@ -10,7 +10,7 @@ __all__ = (
 )
 
 
-class CustomFieldsPanel(panels.Panel):
+class CustomFieldsPanel(panels.ObjectPanel):
     template_name = 'ui/panels/custom_fields.html'
     title = _('Custom Fields')
 
@@ -39,7 +39,7 @@ class ImageAttachmentsPanel(panels.ObjectsTablePanel):
         super().__init__('extras.imageattachment', **kwargs)
 
 
-class TagsPanel(panels.Panel):
+class TagsPanel(panels.ObjectPanel):
     template_name = 'ui/panels/tags.html'
     title = _('Tags')
 
