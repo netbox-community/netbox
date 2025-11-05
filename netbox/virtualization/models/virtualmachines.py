@@ -255,7 +255,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)
 
-
     @property
     def primary_ip(self):
         if get_config().PREFER_IPV4 and self.primary_ip4:

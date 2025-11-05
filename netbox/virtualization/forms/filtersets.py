@@ -26,7 +26,6 @@ __all__ = (
 )
 
 
-
 class ClusterTypeFilterForm(OrganizationalModelFilterSetForm):
     model = ClusterType
     fieldsets = (

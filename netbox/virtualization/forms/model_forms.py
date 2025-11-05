@@ -228,9 +228,9 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'owner', 'comments', 'tags',
-            'local_context_data', 'config_template',
+            'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant',
+            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'owner',
+            'comments', 'tags', 'local_context_data', 'config_template',
         ]
 
     def __init__(self, *args, **kwargs):

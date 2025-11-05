@@ -149,8 +149,8 @@ class VirtualMachineImportForm(PrimaryModelImportForm):
     class Meta:
         model = VirtualMachine
         fields = (
-            'name', 'status', 'start_on_boot', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'serial', 'config_template', 'comments', 'owner', 'tags',
+            'name', 'status', 'start_on_boot', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus',
+            'memory', 'disk', 'description', 'serial', 'config_template', 'comments', 'owner', 'tags',
         )
 
 

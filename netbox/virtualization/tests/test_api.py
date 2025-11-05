@@ -21,7 +21,6 @@ from virtualization.choices import *
 from virtualization.models import *
 
 
-
 class AppTest(APITestCase):
 
     def test_root(self):
