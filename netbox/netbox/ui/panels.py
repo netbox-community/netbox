@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs
+from netbox.ui.actions import CopyContent
 from utilities.querydict import dict_to_querydict
 from utilities.string import title
 from utilities.templatetags.plugins import _get_registered_content
@@ -12,6 +13,7 @@ from utilities.views import get_viewname
 
 __all__ = (
     'CommentsPanel',
+    'JSONPanel',
     'NestedGroupObjectPanel',
     'ObjectPanel',
     'ObjectsTablePanel',
@@ -34,7 +36,7 @@ class Panel(ABC):
     """
     template_name = None
     title = None
-    actions = []
+    actions = None
 
     def __init__(self, title=None, actions=None):
         """
@@ -46,8 +48,7 @@ class Panel(ABC):
         """
         if title is not None:
             self.title = title
-        if actions is not None:
-            self.actions = actions
+        self.actions = actions or []
 
     def get_context(self, context):
         """
@@ -248,6 +249,42 @@ class ObjectsTablePanel(Panel):
             **super().get_context(context),
             'viewname': get_viewname(self.model, 'list'),
             'url_params': dict_to_querydict(url_params),
+        }
+
+
+class JSONPanel(Panel):
+    """
+    A panel which renders formatted JSON data.
+    """
+    template_name = 'ui/panels/json.html'
+
+    def __init__(self, field_name, copy_button=True, **kwargs):
+        """
+        Instantiate a new JSONPanel.
+
+        Parameters:
+            field_name: The name of the JSON field on the object
+            copy_button: Set to True (default) to include a copy-to-clipboard button
+        """
+        super().__init__(**kwargs)
+        self.field_name = field_name
+
+        if copy_button:
+            self.actions.append(
+                CopyContent(f'panel_{field_name}'),
+            )
+
+    def get_context(self, context):
+        """
+        Return the context data to be used when rendering the panel.
+
+        Parameters:
+            context: The template context
+        """
+        return {
+            **super().get_context(context),
+            'data': getattr(context['object'], self.field_name),
+            'field_name': self.field_name,
         }
 
 

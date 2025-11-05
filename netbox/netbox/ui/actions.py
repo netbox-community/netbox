@@ -24,11 +24,12 @@ class PanelAction:
         button_class: Bootstrap CSS class for the button
         button_icon: Name of the button's MDI icon
     """
-    template_name = 'ui/action.html'
+    template_name = 'ui/actions/link.html'
     label = None
     button_class = 'primary'
     button_icon = None
 
+    # TODO: Refactor URL parameters to AddObject
     def __init__(self, view_name, view_kwargs=None, url_params=None, permissions=None, label=None):
         """
         Initialize a new PanelAction.
@@ -114,3 +115,30 @@ class AddObject(PanelAction):
 
         # Require "add" permission on the model
         self.permissions = [get_permission_for_model(model, 'add')]
+
+
+class CopyContent:
+    """
+    An action to copy the contents of a panel to the clipboard.
+    """
+    template_name = 'ui/actions/copy_content.html'
+    label = _('Copy')
+    button_class = 'primary'
+    button_icon = 'content-copy'
+
+    def __init__(self, target_id):
+        self.target_id = target_id
+
+    def render(self, context):
+        """
+        Render the action as HTML.
+
+        Parameters:
+            context: The template context
+        """
+        return render_to_string(self.template_name, {
+            'target_id': self.target_id,
+            'label': self.label,
+            'button_class': self.button_class,
+            'button_icon': self.button_icon,
+        })

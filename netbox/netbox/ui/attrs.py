@@ -135,6 +135,20 @@ class ColorAttr(Attr):
         })
 
 
+class ImageAttr(Attr):
+    template_name = 'ui/attrs/image.html'
+
+    def render(self, obj, context=None):
+        context = context or {}
+        value = self._resolve_attr(obj, self.accessor)
+        if value in (None, ''):
+            return self.placeholder
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+        })
+
+
 class ObjectAttr(Attr):
     template_name = 'ui/attrs/object.html'
 

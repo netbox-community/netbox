@@ -21,7 +21,7 @@ from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
-    CommentsPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, RelatedObjectsPanel,
+    CommentsPanel, JSONPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, RelatedObjectsPanel,
     TemplatePanel,
 )
 from netbox.views import generic
@@ -1308,6 +1308,18 @@ class DeviceTypeListView(generic.ObjectListView):
 @register_model_view(DeviceType)
 class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.DeviceTypePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+            ImageAttachmentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -1559,6 +1571,34 @@ class ModuleTypeProfileListView(generic.ObjectListView):
 @register_model_view(ModuleTypeProfile)
 class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleTypeProfile.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleTypeProfilePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            JSONPanel(field_name='schema', title=_('Schema')),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.ModuleType',
+                title=_('Module Types'),
+                filters={
+                    'profile_id': lambda ctx: ctx['object'].pk,
+                },
+                actions=[
+                    actions.AddObject(
+                        'dcim.ModuleType',
+                        url_params={
+                            'profile': lambda ctx: ctx['object'].pk,
+                        }
+                    ),
+                ],
+            ),
+        ]
+    )
 
 
 @register_model_view(ModuleTypeProfile, 'add', detail=False)

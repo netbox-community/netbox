@@ -112,3 +112,24 @@ class DeviceManagementPanel(panels.ObjectPanel):
         label=_('Out-of-band IP'),
         template_name='dcim/device/attrs/ipaddress.html',
     )
+
+
+class DeviceTypePanel(panels.ObjectPanel):
+    manufacturer = attrs.ObjectAttr('manufacturer', label=_('Manufacturer'), linkify=True)
+    model = attrs.TextAttr('model', label=_('Model'))
+    part_number = attrs.TextAttr('part_number', label=_('Part number'))
+    default_platform = attrs.ObjectAttr('default_platform', label=_('Default platform'), linkify=True)
+    description = attrs.TextAttr('description', label=_('Description'))
+    u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
+    exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization', label=_('Exclude from utilization'))
+    full_depth = attrs.BooleanAttr('is_full_depth', label=_('Full depth'))
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display', label=_('Weight'))
+    subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
+    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
+    front_image = attrs.ImageAttr('front_image', label=_('Front image'))
+    rear_image = attrs.ImageAttr('rear_image', label=_('Rear image'))
+
+
+class ModuleTypeProfilePanel(panels.ObjectPanel):
+    name = attrs.TextAttr('name', label=_('Name'))
+    description = attrs.TextAttr('description', label=_('Description'))
