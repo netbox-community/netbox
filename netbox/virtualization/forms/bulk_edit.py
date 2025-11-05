@@ -85,6 +85,12 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial='',
     )
+    start_on_boot = forms.ChoiceField(
+        label=_('Start on boot'),
+        choices=add_blank_choice(VirtualMachineStartOnBootChoices),
+        required=False,
+        initial='',
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -145,7 +151,7 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        FieldSet('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('site', 'cluster', 'device', 'status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
         FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
         FieldSet('config_template', name=_('Configuration')),
     )

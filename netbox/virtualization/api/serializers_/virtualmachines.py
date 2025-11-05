@@ -29,8 +29,10 @@ __all__ = (
 )
 
 
+
 class VirtualMachineSerializer(PrimaryModelSerializer):
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
+    start_on_boot = ChoiceField(choices=VirtualMachineStartOnBootChoices, required=False)
     site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True, default=None)
     device = DeviceSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -49,7 +51,7 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'serial', 'role',
             'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
             'owner', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created',
             'last_updated', 'interface_count', 'virtual_disk_count',
@@ -62,7 +64,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'serial', 'role',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'serial', 'role',
             'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
             'last_updated', 'interface_count', 'virtual_disk_count',

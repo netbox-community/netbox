@@ -349,7 +349,8 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
                 memory=2,
                 disk=2,
                 description='foobar2',
-                serial='222-bbb'
+                serial='222-bbb',
+                start_on_boot=VirtualMachineStartOnBootChoices.STATUS_OFF,
             ),
             VirtualMachine(
                 name='Virtual Machine 3',
@@ -363,7 +364,8 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
                 vcpus=3,
                 memory=3,
                 disk=3,
-                description='foobar3'
+                description='foobar3',
+                start_on_boot=VirtualMachineStartOnBootChoices.STATUS_ON,
             ),
         )
         VirtualMachine.objects.bulk_create(vms)
@@ -429,6 +431,10 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_status(self):
         params = {'status': [VirtualMachineStatusChoices.STATUS_ACTIVE, VirtualMachineStatusChoices.STATUS_STAGED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_start_on_boot(self):
+        params = {'start_on_boot': [VirtualMachineStartOnBootChoices.STATUS_ON]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_cluster_group(self):
         groups = ClusterGroup.objects.all()[:2]

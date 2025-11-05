@@ -88,6 +88,12 @@ class VirtualMachineImportForm(PrimaryModelImportForm):
         choices=VirtualMachineStatusChoices,
         help_text=_('Operational status')
     )
+    start_on_boot = CSVChoiceField(
+        label=_('Start on boot'),
+        choices=VirtualMachineStartOnBootChoices,
+        help_text=_('Start on boot in hypervisor'),
+        required=False,
+    )
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -143,7 +149,7 @@ class VirtualMachineImportForm(PrimaryModelImportForm):
     class Meta:
         model = VirtualMachine
         fields = (
-            'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
+            'name', 'status', 'start_on_boot', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
             'description', 'serial', 'config_template', 'comments', 'owner', 'tags',
         )
 

@@ -21,6 +21,7 @@ from virtualization.choices import *
 from virtualization.models import *
 
 
+
 class AppTest(APITestCase):
 
     def test_root(self):
@@ -211,7 +212,8 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
                 name='Virtual Machine 3',
                 site=sites[0],
                 cluster=clusters[0],
-                local_context_data={'C': 3}
+                local_context_data={'C': 3},
+                start_on_boot=VirtualMachineStartOnBootChoices.STATUS_ON,
             ),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
@@ -235,6 +237,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Virtual Machine 7',
                 'cluster': clusters[2].pk,
+                'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_ON,
             },
         ]
 
