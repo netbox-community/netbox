@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, panels
@@ -11,6 +12,9 @@ __all__ = (
 
 
 class CustomFieldsPanel(panels.ObjectPanel):
+    """
+    Render a panel showing the value of all custom fields defined on the object.
+    """
     template_name = 'ui/panels/custom_fields.html'
     title = _('Custom Fields')
 
@@ -21,8 +25,18 @@ class CustomFieldsPanel(panels.ObjectPanel):
             'custom_fields': obj.get_custom_fields_by_group(),
         }
 
+    def render(self, context):
+        ctx = self.get_context(context)
+        # Hide the panel if no custom fields exist
+        if not ctx['custom_fields']:
+            return ''
+        return render_to_string(self.template_name, self.get_context(context))
+
 
 class ImageAttachmentsPanel(panels.ObjectsTablePanel):
+    """
+    Render a table listing all images attached to the object.
+    """
     actions = [
         actions.AddObject(
             'extras.imageattachment',
@@ -40,6 +54,9 @@ class ImageAttachmentsPanel(panels.ObjectsTablePanel):
 
 
 class TagsPanel(panels.ObjectPanel):
+    """
+    Render a panel showing the tags assigned to the object.
+    """
     template_name = 'ui/panels/tags.html'
     title = _('Tags')
 
