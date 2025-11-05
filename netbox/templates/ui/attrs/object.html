@@ -5,10 +5,10 @@
       {% if linkify %}{{ group|linkify }}{% else %}{{ group }}{% endif %}
     </li>
     <li class="breadcrumb-item">
-      {% if linkify %}{{ object|linkify }}{% else %}{{ object }}{% endif %}
+      {% if linkify %}{{ value|linkify }}{% else %}{{ value }}{% endif %}
     </li>
   </ol>
 {% else %}
   {# Display only the object #}
-  {% if linkify %}{{ object|linkify }}{% else %}{{ object }}{% endif %}
+  {% if linkify %}{{ value|linkify }}{% else %}{{ value }}{% endif %}
 {% endif %}

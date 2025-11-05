@@ -1,5 +1,3 @@
-from abc import ABC, abstractmethod
-
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -12,23 +10,65 @@ from utilities.data import resolve_attr_path
 # Attributes
 #
 
-class Attr(ABC):
+class ObjectAttribute:
+    """
+    Base class for representing an attribute of an object.
+
+    Attributes:
+        template_name: The name of the template to render
+        label: Human-friendly label for the rendered attribute
+        placeholder: HTML to render for empty/null values
+    """
     template_name = None
     label = None
     placeholder = mark_safe('<span class="text-muted">&mdash;</span>')
 
     def __init__(self, accessor, label=None, template_name=None):
+        """
+        Instantiate a new ObjectAttribute.
+
+        Parameters:
+             accessor: The dotted path to the attribute being rendered (e.g. "site.region.name")
+             label: Human-friendly label for the rendered attribute
+             template_name: The name of the template to render
+        """
         self.accessor = accessor
-        self.template_name = template_name or self.template_name
+        if template_name is not None:
+            self.template_name = template_name
         if label is not None:
             self.label = label
 
-    @abstractmethod
-    def render(self, obj, context=None):
-        pass
+    def get_value(self, obj):
+        """
+        Return the value of the attribute.
+
+        Parameters:
+            obj: The object for which the attribute is being rendered
+        """
+        return resolve_attr_path(obj, self.accessor)
+
+    def get_context(self, obj, context):
+        """
+        Return any additional template context used to render the attribute value.
+
+        Parameters:
+            obj: The object for which the attribute is being rendered
+            context: The template context
+        """
+        return {}
+
+    def render(self, obj, context):
+        value = self.get_value(obj)
+        if value in (None, ''):
+            return self.placeholder
+        context = self.get_context(obj, context)
+        return render_to_string(self.template_name, {
+            **context,
+            'value': value,
+        })
 
 
-class TextAttr(Attr):
+class TextAttr(ObjectAttribute):
     template_name = 'ui/attrs/text.html'
 
     def __init__(self, *args, style=None, format_string=None, copy_button=False, **kwargs):
@@ -37,22 +77,21 @@ class TextAttr(Attr):
         self.format_string = format_string
         self.copy_button = copy_button
 
-    def render(self, obj, context=None):
-        context = context or {}
+    def get_value(self, obj):
         value = resolve_attr_path(obj, self.accessor)
-        if value in (None, ''):
-            return self.placeholder
-        if self.format_string:
+        # Apply format string (if any)
+        if value and self.format_string:
             value = self.format_string.format(value)
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
+        return value
+
+    def get_context(self, obj, context):
+        return {
             'style': self.style,
             'copy_button': self.copy_button,
-        })
+        }
 
 
-class NumericAttr(Attr):
+class NumericAttr(ObjectAttribute):
     template_name = 'ui/attrs/numeric.html'
 
     def __init__(self, *args, unit_accessor=None, copy_button=False, **kwargs):
@@ -60,88 +99,57 @@ class NumericAttr(Attr):
         self.unit_accessor = unit_accessor
         self.copy_button = copy_button
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value in (None, ''):
-            return self.placeholder
+    def get_context(self, obj, context):
         unit = resolve_attr_path(obj, self.unit_accessor) if self.unit_accessor else None
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
+        return {
             'unit': unit,
             'copy_button': self.copy_button,
-        })
+        }
 
 
-class ChoiceAttr(Attr):
+class ChoiceAttr(ObjectAttribute):
     template_name = 'ui/attrs/choice.html'
 
-    def render(self, obj, context=None):
-        context = context or {}
+    def get_value(self, obj):
         try:
-            value = getattr(obj, f'get_{self.accessor}_display')()
+            return getattr(obj, f'get_{self.accessor}_display')()
         except AttributeError:
-            value = resolve_attr_path(obj, self.accessor)
-        if value in (None, ''):
-            return self.placeholder
+            return resolve_attr_path(obj, self.accessor)
+
+    def get_context(self, obj, context):
         try:
             bg_color = getattr(obj, f'get_{self.accessor}_color')()
         except AttributeError:
             bg_color = None
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
+        return {
             'bg_color': bg_color,
-        })
+        }
 
 
-class BooleanAttr(Attr):
+class BooleanAttr(ObjectAttribute):
     template_name = 'ui/attrs/boolean.html'
 
     def __init__(self, *args, display_false=True, **kwargs):
         super().__init__(*args, **kwargs)
         self.display_false = display_false
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value in (None, '') and not self.display_false:
-            return self.placeholder
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
-        })
+    def get_value(self, obj):
+        value = super().get_value(obj)
+        if value is False and self.display_false is False:
+            return None
+        return value
 
 
-class ColorAttr(Attr):
+class ColorAttr(ObjectAttribute):
     template_name = 'ui/attrs/color.html'
     label = _('Color')
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        return render_to_string(self.template_name, {
-            **context,
-            'color': value,
-        })
 
-
-class ImageAttr(Attr):
+class ImageAttr(ObjectAttribute):
     template_name = 'ui/attrs/image.html'
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value in (None, ''):
-            return self.placeholder
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
-        })
 
-
-class ObjectAttr(Attr):
+class ObjectAttr(ObjectAttribute):
     template_name = 'ui/attrs/object.html'
 
     def __init__(self, *args, linkify=None, grouped_by=None, **kwargs):
@@ -149,22 +157,16 @@ class ObjectAttr(Attr):
         self.linkify = linkify
         self.grouped_by = grouped_by
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value is None:
-            return self.placeholder
+    def get_context(self, obj, context):
+        value = self.get_value(obj)
         group = getattr(value, self.grouped_by, None) if self.grouped_by else None
-
-        return render_to_string(self.template_name, {
-            **context,
-            'object': value,
-            'group': group,
+        return {
             'linkify': self.linkify,
-        })
+            'group': group,
+        }
 
 
-class NestedObjectAttr(Attr):
+class NestedObjectAttr(ObjectAttribute):
     template_name = 'ui/attrs/nested_object.html'
 
     def __init__(self, *args, linkify=None, max_depth=None, **kwargs):
@@ -172,22 +174,18 @@ class NestedObjectAttr(Attr):
         self.linkify = linkify
         self.max_depth = max_depth
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value is None:
-            return self.placeholder
+    def get_context(self, obj, context):
+        value = self.get_value(obj)
         nodes = value.get_ancestors(include_self=True)
         if self.max_depth:
             nodes = list(nodes)[-self.max_depth:]
-        return render_to_string(self.template_name, {
-            **context,
+        return {
             'nodes': nodes,
             'linkify': self.linkify,
-        })
+        }
 
 
-class AddressAttr(Attr):
+class AddressAttr(ObjectAttribute):
     template_name = 'ui/attrs/address.html'
 
     def __init__(self, *args, map_url=True, **kwargs):
@@ -199,19 +197,13 @@ class AddressAttr(Attr):
         else:
             self.map_url = None
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value in (None, ''):
-            return self.placeholder
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
+    def get_context(self, obj, context):
+        return {
             'map_url': self.map_url,
-        })
+        }
 
 
-class GPSCoordinatesAttr(Attr):
+class GPSCoordinatesAttr(ObjectAttribute):
     template_name = 'ui/attrs/gps_coordinates.html'
     label = _('GPS coordinates')
 
@@ -240,49 +232,22 @@ class GPSCoordinatesAttr(Attr):
         })
 
 
-class TimezoneAttr(Attr):
+class TimezoneAttr(ObjectAttribute):
     template_name = 'ui/attrs/timezone.html'
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value in (None, ''):
-            return self.placeholder
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
-        })
 
-
-class TemplatedAttr(Attr):
+class TemplatedAttr(ObjectAttribute):
 
     def __init__(self, *args, context=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.context = context or {}
 
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        if value is None:
-            return self.placeholder
-        return render_to_string(
-            self.template_name,
-            {
-                **context,
-                **self.context,
-                'object': obj,
-                'value': value,
-            }
-        )
+    def get_context(self, obj, context):
+        return {
+            **self.context,
+            'object': obj,
+        }
 
 
-class UtilizationAttr(Attr):
+class UtilizationAttr(ObjectAttribute):
     template_name = 'ui/attrs/utilization.html'
-
-    def render(self, obj, context=None):
-        context = context or {}
-        value = resolve_attr_path(obj, self.accessor)
-        return render_to_string(self.template_name, {
-            **context,
-            'value': value,
-        })
