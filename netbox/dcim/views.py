@@ -2439,6 +2439,44 @@ class DeviceListView(generic.ObjectListView):
 @register_model_view(Device)
 class DeviceView(generic.ObjectView):
     queryset = Device.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.DevicePanel(),
+            panels.VirtualChassisMembersPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+            ObjectsTablePanel(
+                model='dcim.VirtualDeviceContext',
+                filters={'device_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.VirtualDeviceContext', url_params={'device': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ],
+        right_panels=[
+            panels.DeviceManagementPanel(),
+            # TODO: Power utilization
+            ObjectsTablePanel(
+                model='ipam.Service',
+                title=_('Application Services'),
+                filters={'device_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'ipam.Service',
+                        url_params={
+                            'parent_object_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                            'parent': lambda ctx: ctx['object'].pk
+                        }
+                    ),
+                ],
+            ),
+            ImageAttachmentsPanel(),
+            panels.DeviceDimensionsPanel(title=_('Dimensions')),
+            # TODO: Rack elevations
+            # TemplatePanel('dcim/panels/rack_elevations.html'),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         # VirtualChassis members

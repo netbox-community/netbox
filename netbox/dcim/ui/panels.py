@@ -26,7 +26,7 @@ class LocationPanel(panels.NestedGroupObjectPanel):
 class RackDimensionsPanel(panels.ObjectAttributesPanel):
     form_factor = attrs.ChoiceAttr('form_factor')
     width = attrs.ChoiceAttr('width')
-    u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
+    height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
     outer_width = attrs.NumericAttr('outer_width', unit_accessor='get_outer_unit_display')
     outer_height = attrs.NumericAttr('outer_height', unit_accessor='get_outer_unit_display')
     outer_depth = attrs.NumericAttr('outer_depth', unit_accessor='get_outer_unit_display')
@@ -76,7 +76,7 @@ class DevicePanel(panels.ObjectAttributesPanel):
     site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
     rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
-    virtual_chassis = attrs.NestedObjectAttr('virtual_chassis', linkify=True)
+    virtual_chassis = attrs.ObjectAttr('virtual_chassis', linkify=True)
     parent_device = attrs.TemplatedAttr('parent_bay', template_name='dcim/device/attrs/parent_device.html')
     gps_coordinates = attrs.GPSCoordinatesAttr()
     tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
@@ -107,6 +107,12 @@ class DeviceManagementPanel(panels.ObjectAttributesPanel):
         label=_('Out-of-band IP'),
         template_name='dcim/device/attrs/ipaddress.html',
     )
+    cluster = attrs.ObjectAttr('cluster', linkify=True)
+
+
+class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
+    height = attrs.TextAttr('device_type.u_height', format_string='{}U')
+    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
 
 
 class DeviceTypePanel(panels.ObjectAttributesPanel):
@@ -115,7 +121,7 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     part_number = attrs.TextAttr('part_number')
     default_platform = attrs.ObjectAttr('default_platform', linkify=True)
     description = attrs.TextAttr('description')
-    u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
+    height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
     exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization')
     full_depth = attrs.BooleanAttr('is_full_depth')
     weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
@@ -128,3 +134,23 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
+
+
+class VirtualChassisMembersPanel(panels.ObjectPanel):
+    """
+    A panel which lists all members of a virtual chassis.
+    """
+    template_name = 'dcim/panels/virtual_chassis_members.html'
+    title = _('Virtual Chassis Members')
+
+    def get_context(self, context):
+        """
+        Return the context data to be used when rendering the panel.
+
+        Parameters:
+            context: The template context
+        """
+        return {
+            **super().get_context(context),
+            'vc_members': context.get('vc_members'),
+        }
