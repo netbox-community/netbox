@@ -10,6 +10,7 @@ from utilities.views import get_viewname
 
 __all__ = (
     'AddObject',
+    'CopyContent',
     'PanelAction',
 )
 

@@ -221,7 +221,7 @@ class AddressAttr(Attr):
 
 class GPSCoordinatesAttr(Attr):
     template_name = 'ui/attrs/gps_coordinates.html'
-    label = _('GPS Coordinates')
+    label = _('GPS coordinates')
 
     def __init__(self, latitude_attr='latitude', longitude_attr='longitude', map_url=True, **kwargs):
         super().__init__(accessor=None, **kwargs)

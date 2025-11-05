@@ -132,6 +132,15 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
         self.only = only or []
         self.exclude = exclude or []
 
+    @staticmethod
+    def _name_to_label(name):
+        """
+        Format an attribute's name to be presented as a human-friendly label.
+        """
+        label = name[:1].upper() + name[1:]
+        label = label.replace('_', ' ')
+        return label
+
     def get_context(self, context):
         """
         Return the context data to be used when rendering the panel.
@@ -153,7 +162,7 @@ class ObjectPanel(Panel, metaclass=ObjectPanelMeta):
             'title': self.title or title(obj._meta.verbose_name),
             'attrs': [
                 {
-                    'label': attr.label or title(name),
+                    'label': attr.label or self._name_to_label(name),
                     'value': attr.render(obj, {'name': name}),
                 } for name, attr in self._attrs.items() if name in attr_names
             ],

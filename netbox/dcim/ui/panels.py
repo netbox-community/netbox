@@ -4,61 +4,61 @@ from netbox.ui import attrs, panels
 
 
 class SitePanel(panels.ObjectPanel):
-    region = attrs.NestedObjectAttr('region', label=_('Region'), linkify=True)
-    group = attrs.NestedObjectAttr('group', label=_('Group'), linkify=True)
-    status = attrs.ChoiceAttr('status', label=_('Status'))
-    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
-    facility = attrs.TextAttr('facility', label=_('Facility'))
-    description = attrs.TextAttr('description', label=_('Description'))
-    timezone = attrs.TimezoneAttr('time_zone', label=_('Timezone'))
-    physical_address = attrs.AddressAttr('physical_address', label=_('Physical address'), map_url=True)
-    shipping_address = attrs.AddressAttr('shipping_address', label=_('Shipping address'), map_url=True)
+    region = attrs.NestedObjectAttr('region', linkify=True)
+    group = attrs.NestedObjectAttr('group', linkify=True)
+    status = attrs.ChoiceAttr('status')
+    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    facility = attrs.TextAttr('facility')
+    description = attrs.TextAttr('description')
+    timezone = attrs.TimezoneAttr('time_zone')
+    physical_address = attrs.AddressAttr('physical_address', map_url=True)
+    shipping_address = attrs.AddressAttr('shipping_address', map_url=True)
     gps_coordinates = attrs.GPSCoordinatesAttr()
 
 
 class LocationPanel(panels.NestedGroupObjectPanel):
-    site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
-    status = attrs.ChoiceAttr('status', label=_('Status'))
-    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
-    facility = attrs.TextAttr('facility', label=_('Facility'))
+    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
+    status = attrs.ChoiceAttr('status')
+    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    facility = attrs.TextAttr('facility')
 
 
 class RackDimensionsPanel(panels.ObjectPanel):
-    form_factor = attrs.ChoiceAttr('form_factor', label=_('Form factor'))
-    width = attrs.ChoiceAttr('width', label=_('Width'))
+    form_factor = attrs.ChoiceAttr('form_factor')
+    width = attrs.ChoiceAttr('width')
     u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
-    outer_width = attrs.NumericAttr('outer_width', unit_accessor='get_outer_unit_display', label=_('Outer width'))
-    outer_height = attrs.NumericAttr('outer_height', unit_accessor='get_outer_unit_display', label=_('Outer height'))
-    outer_depth = attrs.NumericAttr('outer_depth', unit_accessor='get_outer_unit_display', label=_('Outer depth'))
-    mounting_depth = attrs.TextAttr('mounting_depth', format_string='{}mm', label=_('Mounting depth'))
+    outer_width = attrs.NumericAttr('outer_width', unit_accessor='get_outer_unit_display')
+    outer_height = attrs.NumericAttr('outer_height', unit_accessor='get_outer_unit_display')
+    outer_depth = attrs.NumericAttr('outer_depth', unit_accessor='get_outer_unit_display')
+    mounting_depth = attrs.TextAttr('mounting_depth', format_string='{}mm')
 
 
 class RackNumberingPanel(panels.ObjectPanel):
-    starting_unit = attrs.TextAttr('starting_unit', label=_('Starting unit'))
+    starting_unit = attrs.TextAttr('starting_unit')
     desc_units = attrs.BooleanAttr('desc_units', label=_('Descending units'))
 
 
 class RackPanel(panels.ObjectPanel):
-    region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
-    site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
-    location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
-    facility = attrs.TextAttr('facility', label=_('Facility ID'))
-    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
-    status = attrs.ChoiceAttr('status', label=_('Status'))
-    rack_type = attrs.ObjectAttr('rack_type', label=_('Rack type'), linkify=True, grouped_by='manufacturer')
-    role = attrs.ObjectAttr('role', label=_('Role'), linkify=True)
-    description = attrs.TextAttr('description', label=_('Description'))
+    region = attrs.NestedObjectAttr('site.region', linkify=True)
+    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    facility = attrs.TextAttr('facility')
+    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    status = attrs.ChoiceAttr('status')
+    rack_type = attrs.ObjectAttr('rack_type', linkify=True, grouped_by='manufacturer')
+    role = attrs.ObjectAttr('role', linkify=True)
+    description = attrs.TextAttr('description')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
-    asset_tag = attrs.TextAttr('asset_tag', label=_('Asset tag'), style='font-monospace', copy_button=True)
-    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
-    space_utilization = attrs.UtilizationAttr('get_utilization', label=_('Space utilization'))
-    power_utilization = attrs.UtilizationAttr('get_power_utilization', label=_('Power utilization'))
+    asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
+    airflow = attrs.ChoiceAttr('airflow')
+    space_utilization = attrs.UtilizationAttr('get_utilization')
+    power_utilization = attrs.UtilizationAttr('get_power_utilization')
 
 
 class RackWeightPanel(panels.ObjectPanel):
-    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display', label=_('Weight'))
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
     max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
-    total_weight = attrs.NumericAttr('total_weight', unit_accessor='get_weight_unit_display', label=_('Total weight'))
+    total_weight = attrs.NumericAttr('total_weight', unit_accessor='get_weight_unit_display')
 
 
 class RackRolePanel(panels.OrganizationalObjectPanel):
@@ -66,37 +66,33 @@ class RackRolePanel(panels.OrganizationalObjectPanel):
 
 
 class RackTypePanel(panels.ObjectPanel):
-    manufacturer = attrs.ObjectAttr('manufacturer', label=_('Manufacturer'), linkify=True)
-    model = attrs.TextAttr('model', label=_('Model'))
-    description = attrs.TextAttr('description', label=_('Description'))
-    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
+    manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
+    model = attrs.TextAttr('model')
+    description = attrs.TextAttr('description')
+    airflow = attrs.ChoiceAttr('airflow')
 
 
 class DevicePanel(panels.ObjectPanel):
-    region = attrs.NestedObjectAttr('site.region', label=_('Region'), linkify=True)
-    site = attrs.ObjectAttr('site', label=_('Site'), linkify=True, grouped_by='group')
-    location = attrs.NestedObjectAttr('location', label=_('Location'), linkify=True)
-    rack = attrs.TemplatedAttr('rack', label=_('Rack'), template_name='dcim/device/attrs/rack.html')
-    virtual_chassis = attrs.NestedObjectAttr('virtual_chassis', label=_('Virtual chassis'), linkify=True)
-    parent_device = attrs.TemplatedAttr(
-        'parent_bay',
-        label=_('Parent device'),
-        template_name='dcim/device/attrs/parent_device.html',
-    )
+    region = attrs.NestedObjectAttr('site.region', linkify=True)
+    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
+    virtual_chassis = attrs.NestedObjectAttr('virtual_chassis', linkify=True)
+    parent_device = attrs.TemplatedAttr('parent_bay', template_name='dcim/device/attrs/parent_device.html')
     gps_coordinates = attrs.GPSCoordinatesAttr()
-    tenant = attrs.ObjectAttr('tenant', label=_('Tenant'), linkify=True, grouped_by='group')
-    device_type = attrs.ObjectAttr('device_type', label=_('Device type'), linkify=True, grouped_by='manufacturer')
-    description = attrs.TextAttr('description', label=_('Description'))
-    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
+    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    device_type = attrs.ObjectAttr('device_type', linkify=True, grouped_by='manufacturer')
+    description = attrs.TextAttr('description')
+    airflow = attrs.ChoiceAttr('airflow')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
-    asset_tag = attrs.TextAttr('asset_tag', label=_('Asset tag'), style='font-monospace', copy_button=True)
-    config_template = attrs.ObjectAttr('config_template', label=_('Config template'), linkify=True)
+    asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
+    config_template = attrs.ObjectAttr('config_template', linkify=True)
 
 
 class DeviceManagementPanel(panels.ObjectPanel):
-    status = attrs.ChoiceAttr('status', label=_('Status'))
-    role = attrs.NestedObjectAttr('role', label=_('Role'), linkify=True, max_depth=3)
-    platform = attrs.NestedObjectAttr('platform', label=_('Platform'), linkify=True, max_depth=3)
+    status = attrs.ChoiceAttr('status')
+    role = attrs.NestedObjectAttr('role', linkify=True, max_depth=3)
+    platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
     primary_ip4 = attrs.TemplatedAttr(
         'primary_ip4',
         label=_('Primary IPv4'),
@@ -115,21 +111,21 @@ class DeviceManagementPanel(panels.ObjectPanel):
 
 
 class DeviceTypePanel(panels.ObjectPanel):
-    manufacturer = attrs.ObjectAttr('manufacturer', label=_('Manufacturer'), linkify=True)
-    model = attrs.TextAttr('model', label=_('Model'))
-    part_number = attrs.TextAttr('part_number', label=_('Part number'))
-    default_platform = attrs.ObjectAttr('default_platform', label=_('Default platform'), linkify=True)
-    description = attrs.TextAttr('description', label=_('Description'))
+    manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
+    model = attrs.TextAttr('model')
+    part_number = attrs.TextAttr('part_number')
+    default_platform = attrs.ObjectAttr('default_platform', linkify=True)
+    description = attrs.TextAttr('description')
     u_height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
-    exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization', label=_('Exclude from utilization'))
-    full_depth = attrs.BooleanAttr('is_full_depth', label=_('Full depth'))
-    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display', label=_('Weight'))
+    exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization')
+    full_depth = attrs.BooleanAttr('is_full_depth')
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
     subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
-    airflow = attrs.ChoiceAttr('airflow', label=_('Airflow'))
-    front_image = attrs.ImageAttr('front_image', label=_('Front image'))
-    rear_image = attrs.ImageAttr('rear_image', label=_('Rear image'))
+    airflow = attrs.ChoiceAttr('airflow')
+    front_image = attrs.ImageAttr('front_image')
+    rear_image = attrs.ImageAttr('rear_image')
 
 
 class ModuleTypeProfilePanel(panels.ObjectPanel):
-    name = attrs.TextAttr('name', label=_('Name'))
-    description = attrs.TextAttr('description', label=_('Description'))
+    name = attrs.TextAttr('name')
+    description = attrs.TextAttr('description')
