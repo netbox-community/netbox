@@ -232,5 +232,8 @@ def resolve_attr_path(obj, path):
     for part in path.split('.'):
         if cur is None:
             return None
-        cur = getattr(cur, part) if hasattr(cur, part) else cur.get(part)
+        try:
+            cur = getattr(cur, part) if hasattr(cur, part) else cur.get(part)
+        except AttributeError:
+            cur = None
     return cur

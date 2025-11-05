@@ -69,7 +69,6 @@ class RackTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     description = attrs.TextAttr('description')
-    airflow = attrs.ChoiceAttr('airflow')
 
 
 class DevicePanel(panels.ObjectAttributesPanel):
