@@ -15,7 +15,7 @@ class CustomFieldsPanel(panels.ObjectPanel):
     """
     Render a panel showing the value of all custom fields defined on the object.
     """
-    template_name = 'ui/panels/custom_fields.html'
+    template_name = 'extras/panels/custom_fields.html'
     title = _('Custom Fields')
 
     def get_context(self, context):
@@ -57,7 +57,7 @@ class TagsPanel(panels.ObjectPanel):
     """
     Render a panel showing the tags assigned to the object.
     """
-    template_name = 'ui/panels/tags.html'
+    template_name = 'extras/panels/tags.html'
     title = _('Tags')
 
     def get_context(self, context):
