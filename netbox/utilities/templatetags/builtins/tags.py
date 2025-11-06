@@ -184,4 +184,7 @@ def static_with_params(path, **params):
 
 @register.simple_tag(takes_context=True)
 def render(context, component):
+    """
+    Render a UI component (e.g. a Panel) by calling its render() method and passing the current template context.
+    """
     return mark_safe(component.render(context))

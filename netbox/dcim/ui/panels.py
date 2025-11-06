@@ -7,7 +7,7 @@ class SitePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('region', linkify=True)
     group = attrs.NestedObjectAttr('group', linkify=True)
     status = attrs.ChoiceAttr('status')
-    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     facility = attrs.TextAttr('facility')
     description = attrs.TextAttr('description')
     timezone = attrs.TimezoneAttr('time_zone')
@@ -17,9 +17,9 @@ class SitePanel(panels.ObjectAttributesPanel):
 
 
 class LocationPanel(panels.NestedGroupObjectPanel):
-    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
+    site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     status = attrs.ChoiceAttr('status')
-    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     facility = attrs.TextAttr('facility')
 
 
@@ -40,13 +40,13 @@ class RackNumberingPanel(panels.ObjectAttributesPanel):
 
 class RackPanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
-    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
+    site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
     facility = attrs.TextAttr('facility')
-    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     status = attrs.ChoiceAttr('status')
-    rack_type = attrs.ObjectAttr('rack_type', linkify=True, grouped_by='manufacturer')
-    role = attrs.ObjectAttr('role', linkify=True)
+    rack_type = attrs.RelatedObjectAttr('rack_type', linkify=True, grouped_by='manufacturer')
+    role = attrs.RelatedObjectAttr('role', linkify=True)
     description = attrs.TextAttr('description')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
@@ -66,26 +66,26 @@ class RackRolePanel(panels.OrganizationalObjectPanel):
 
 
 class RackTypePanel(panels.ObjectAttributesPanel):
-    manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     description = attrs.TextAttr('description')
 
 
 class DevicePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
-    site = attrs.ObjectAttr('site', linkify=True, grouped_by='group')
+    site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
     rack = attrs.TemplatedAttr('rack', template_name='dcim/device/attrs/rack.html')
-    virtual_chassis = attrs.ObjectAttr('virtual_chassis', linkify=True)
+    virtual_chassis = attrs.RelatedObjectAttr('virtual_chassis', linkify=True)
     parent_device = attrs.TemplatedAttr('parent_bay', template_name='dcim/device/attrs/parent_device.html')
     gps_coordinates = attrs.GPSCoordinatesAttr()
-    tenant = attrs.ObjectAttr('tenant', linkify=True, grouped_by='group')
-    device_type = attrs.ObjectAttr('device_type', linkify=True, grouped_by='manufacturer')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    device_type = attrs.RelatedObjectAttr('device_type', linkify=True, grouped_by='manufacturer')
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
-    config_template = attrs.ObjectAttr('config_template', linkify=True)
+    config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
 
 
 class DeviceManagementPanel(panels.ObjectAttributesPanel):
@@ -109,7 +109,7 @@ class DeviceManagementPanel(panels.ObjectAttributesPanel):
         label=_('Out-of-band IP'),
         template_name='dcim/device/attrs/ipaddress.html',
     )
-    cluster = attrs.ObjectAttr('cluster', linkify=True)
+    cluster = attrs.RelatedObjectAttr('cluster', linkify=True)
 
 
 class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
@@ -120,10 +120,10 @@ class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
 
 
 class DeviceTypePanel(panels.ObjectAttributesPanel):
-    manufacturer = attrs.ObjectAttr('manufacturer', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     part_number = attrs.TextAttr('part_number')
-    default_platform = attrs.ObjectAttr('default_platform', linkify=True)
+    default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
     description = attrs.TextAttr('description')
     height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
     exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization')

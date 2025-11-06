@@ -1,5 +1,3 @@
-from abc import ABC, ABCMeta
-
 from django.apps import apps
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
@@ -20,9 +18,9 @@ __all__ = (
     'ObjectPanel',
     'ObjectsTablePanel',
     'OrganizationalObjectPanel',
-    'RelatedObjectsPanel',
     'Panel',
     'PluginContentPanel',
+    'RelatedObjectsPanel',
     'TemplatePanel',
 )
 
@@ -31,14 +29,13 @@ __all__ = (
 # Base classes
 #
 
-class Panel(ABC):
+class Panel:
     """
     A block of content rendered within an HTML template.
 
-    Attributes:
-        template_name: The name of the template to render
-        title: The human-friendly title of the panel
-        actions: A list of PanelActions to include in the panel header
+    Panels are arranged within rows and columns, (generally) render as discrete "cards" within the user interface. Each
+    panel has a title and may have one or more actions associated with it, which will be rendered as hyperlinks in the
+    top right corner of the card.
     """
     template_name = None
     title = None
@@ -50,7 +47,7 @@ class Panel(ABC):
 
         Parameters:
             title: The human-friendly title of the panel
-            actions: A list of PanelActions to include in the panel header
+            actions: An iterable of PanelActions to include in the panel header
         """
         if title is not None:
             self.title = title
@@ -95,7 +92,7 @@ class ObjectPanel(Panel):
         Instantiate a new ObjectPanel.
 
         Parameters:
-            accessor: The name of the attribute on the object (default: "object")
+            accessor: The dotted path in context data to the object being rendered (default: "object")
         """
         super().__init__(**kwargs)
 
@@ -103,12 +100,6 @@ class ObjectPanel(Panel):
             self.accessor = accessor
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         obj = resolve_attr_path(context, self.accessor)
         return {
             **super().get_context(context),
@@ -117,7 +108,7 @@ class ObjectPanel(Panel):
         }
 
 
-class ObjectAttributesPanelMeta(ABCMeta):
+class ObjectAttributesPanelMeta(type):
 
     def __new__(mcls, name, bases, namespace, **kwargs):
         declared = {}
@@ -148,9 +139,8 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
     """
     A panel which displays selected attributes of an object.
 
-    Attributes:
-        template_name: The name of the template to render
-        accessor: The name of the attribute on the object
+    Attributes are added to the panel by declaring ObjectAttribute instances in the class body (similar to fields on
+    a Django form). Attributes are displayed in the order they are declared.
     """
     template_name = 'ui/panels/object_attributes.html'
 
@@ -159,7 +149,6 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
         Instantiate a new ObjectPanel.
 
         Parameters:
-            accessor: The name of the attribute on the object
             only: If specified, only attributes in this list will be displayed
             exclude: If specified, attributes in this list will be excluded from display
         """
@@ -181,12 +170,6 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
         return label
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         # Determine which attributes to display in the panel based on only/exclude args
         attr_names = set(self._attrs.keys())
         if self.only:
@@ -209,7 +192,7 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
 
 class OrganizationalObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPanelMeta):
     """
-    An ObjectPanel with attributes common to OrganizationalModels.
+    An ObjectPanel with attributes common to OrganizationalModels. Includes name and description.
     """
     name = attrs.TextAttr('name', label=_('Name'))
     description = attrs.TextAttr('description', label=_('Description'))
@@ -217,7 +200,7 @@ class OrganizationalObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttribute
 
 class NestedGroupObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPanelMeta):
     """
-    An ObjectPanel with attributes common to NestedGroupObjects.
+    An ObjectPanel with attributes common to NestedGroupObjects. Includes the parent object.
     """
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
 
@@ -234,18 +217,12 @@ class CommentsPanel(ObjectPanel):
         Instantiate a new CommentsPanel.
 
         Parameters:
-            field_name: The name of the comment field on the object
+            field_name: The name of the comment field on the object (default: "comments")
         """
         super().__init__(**kwargs)
         self.field_name = field_name
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         return {
             **super().get_context(context),
             'comments': getattr(context['object'], self.field_name),
@@ -270,17 +247,9 @@ class JSONPanel(ObjectPanel):
         self.field_name = field_name
 
         if copy_button:
-            self.actions.append(
-                CopyContent(f'panel_{field_name}'),
-            )
+            self.actions.append(CopyContent(f'panel_{field_name}'))
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         return {
             **super().get_context(context),
             'data': getattr(context['object'], self.field_name),
@@ -300,12 +269,6 @@ class RelatedObjectsPanel(Panel):
     title = _('Related Objects')
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         return {
             **super().get_context(context),
             'related_models': context.get('related_models'),
@@ -343,12 +306,6 @@ class ObjectsTablePanel(Panel):
             self.title = title(self.model._meta.verbose_name_plural)
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         url_params = {
             k: v(context) if callable(v) else v for k, v in self.filters.items()
         }
@@ -363,7 +320,7 @@ class ObjectsTablePanel(Panel):
 
 class TemplatePanel(Panel):
     """
-    A panel which renders content using an HTML template.
+    A panel which renders custom content using an HTML template.
     """
     def __init__(self, template_name, **kwargs):
         """
@@ -385,7 +342,7 @@ class PluginContentPanel(Panel):
     A panel which displays embedded plugin content.
 
     Parameters:
-        method: The name of the plugin method to render (e.g. left_page)
+        method: The name of the plugin method to render (e.g. "left_page")
     """
     def __init__(self, method, **kwargs):
         super().__init__(**kwargs)

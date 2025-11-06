@@ -1,4 +1,3 @@
-{# TODO: Add copy-to-clipboard button #}
 {% load i18n %}
 <a href="{{ value.get_absolute_url }}"{% if name %} id="attr_{{ name }}"{% endif %}>{{ value.address.ip }}</a>
 {% if value.nat_inside %}

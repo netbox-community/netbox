@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, panels
+from utilities.data import resolve_attr_path
 
 __all__ = (
     'CustomFieldsPanel',
@@ -13,13 +14,13 @@ __all__ = (
 
 class CustomFieldsPanel(panels.ObjectPanel):
     """
-    Render a panel showing the value of all custom fields defined on the object.
+    A panel showing the value of all custom fields defined on an object.
     """
     template_name = 'extras/panels/custom_fields.html'
     title = _('Custom Fields')
 
     def get_context(self, context):
-        obj = context['object']
+        obj = resolve_attr_path(context, self.accessor)
         return {
             **super().get_context(context),
             'custom_fields': obj.get_custom_fields_by_group(),
@@ -35,7 +36,7 @@ class CustomFieldsPanel(panels.ObjectPanel):
 
 class ImageAttachmentsPanel(panels.ObjectsTablePanel):
     """
-    Render a table listing all images attached to the object.
+    A panel showing all images attached to the object.
     """
     actions = [
         actions.AddObject(
@@ -55,7 +56,7 @@ class ImageAttachmentsPanel(panels.ObjectsTablePanel):
 
 class TagsPanel(panels.ObjectPanel):
     """
-    Render a panel showing the tags assigned to the object.
+    A panel showing the tags assigned to the object.
     """
     template_name = 'extras/panels/tags.html'
     title = _('Tags')
@@ -63,5 +64,5 @@ class TagsPanel(panels.ObjectPanel):
     def get_context(self, context):
         return {
             **super().get_context(context),
-            'object': context['object'],
+            'object': resolve_attr_path(context, self.accessor),
         }

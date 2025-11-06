@@ -13,7 +13,9 @@ __all__ = (
 #
 
 class Layout:
-
+    """
+    A collection of rows and columns comprising the layout of content within the user interface.
+    """
     def __init__(self, *rows):
         for i, row in enumerate(rows):
             if type(row) is not Row:
@@ -22,7 +24,9 @@ class Layout:
 
 
 class Row:
-
+    """
+    A collection of columns arranged horizontally.
+    """
     def __init__(self, *columns):
         for i, column in enumerate(columns):
             if type(column) is not Column:
@@ -31,7 +35,9 @@ class Row:
 
 
 class Column:
-
+    """
+    A collection of panels arranged vertically.
+    """
     def __init__(self, *panels):
         for i, panel in enumerate(panels):
             if not isinstance(panel, Panel):
@@ -40,12 +46,18 @@ class Column:
 
 
 #
-# Standard layouts
+# Common layouts
 #
 
 class SimpleLayout(Layout):
     """
     A layout with one row of two columns and a second row with one column. Includes registered plugin content.
+
+    +------+------+
+    | col1 | col2 |
+    +------+------+
+    |    col3     |
+    +-------------+
     """
     def __init__(self, left_panels=None, right_panels=None, bottom_panels=None):
         left_panels = left_panels or []
