@@ -2456,7 +2456,7 @@ class DeviceView(generic.ObjectView):
         ],
         right_panels=[
             panels.DeviceManagementPanel(),
-            # TODO: Power utilization
+            panels.PowerUtilizationPanel(),
             ObjectsTablePanel(
                 model='ipam.Service',
                 title=_('Application Services'),
@@ -2472,9 +2472,8 @@ class DeviceView(generic.ObjectView):
                 ],
             ),
             ImageAttachmentsPanel(),
-            panels.DeviceDimensionsPanel(title=_('Dimensions')),
-            # TODO: Rack elevations
-            # TemplatePanel('dcim/panels/rack_elevations.html'),
+            panels.DeviceDimensionsPanel(),
+            TemplatePanel('dcim/panels/device_rack_elevations.html'),
         ],
     )
 

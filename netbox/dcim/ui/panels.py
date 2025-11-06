@@ -89,6 +89,8 @@ class DevicePanel(panels.ObjectAttributesPanel):
 
 
 class DeviceManagementPanel(panels.ObjectAttributesPanel):
+    title = _('Management')
+
     status = attrs.ChoiceAttr('status')
     role = attrs.NestedObjectAttr('role', linkify=True, max_depth=3)
     platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
@@ -111,6 +113,8 @@ class DeviceManagementPanel(panels.ObjectAttributesPanel):
 
 
 class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
+    title = _('Dimensions')
+
     height = attrs.TextAttr('device_type.u_height', format_string='{}U')
     total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
 
@@ -144,13 +148,32 @@ class VirtualChassisMembersPanel(panels.ObjectPanel):
     title = _('Virtual Chassis Members')
 
     def get_context(self, context):
-        """
-        Return the context data to be used when rendering the panel.
-
-        Parameters:
-            context: The template context
-        """
         return {
             **super().get_context(context),
             'vc_members': context.get('vc_members'),
         }
+
+    def render(self, context):
+        if not context.get('vc_members'):
+            return ''
+        return super().render(context)
+
+
+class PowerUtilizationPanel(panels.ObjectPanel):
+    """
+    A panel which displays the power utilization statistics for a device.
+    """
+    template_name = 'dcim/panels/power_utilization.html'
+    title = _('Power Utilization')
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'vc_members': context.get('vc_members'),
+        }
+
+    def render(self, context):
+        obj = context['object']
+        if not obj.powerports.exists() or not obj.poweroutlets.exists():
+            return ''
+        return super().render(context)
