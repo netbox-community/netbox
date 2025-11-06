@@ -372,6 +372,9 @@ class ObjectPermissionForm(forms.ModelForm):
         elif self.initial:
             # Handle cloned objects - actions come from initial data (URL parameters)
             if 'actions' in self.initial:
+                # Normalize actions to a list of strings
+                if isinstance(self.initial['actions'], str):
+                    self.initial['actions'] = [self.initial['actions']]
                 if cloned_actions := self.initial['actions']:
                     for action in ['view', 'add', 'change', 'delete']:
                         if action in cloned_actions:
