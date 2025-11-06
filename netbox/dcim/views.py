@@ -1147,7 +1147,7 @@ class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.RackPanel(accessor='rack', only=['region', 'site', 'location']),
+            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location']),
             CustomFieldsPanel(),
             TagsPanel(),
             CommentsPanel(),
