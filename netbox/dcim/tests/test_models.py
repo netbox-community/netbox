@@ -1031,3 +1031,92 @@ class VirtualDeviceContextTestCase(TestCase):
         vdc2 = VirtualDeviceContext(device=device, name="VDC 2", identifier=1, status='active')
         with self.assertRaises(ValidationError):
             vdc2.full_clean()
+
+
+class VirtualChassisTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        role = DeviceRole.objects.create(
+            name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
+        )
+        Device.objects.create(
+            device_type=devicetype, role=role, name='TestDevice1', site=site
+        )
+        Device.objects.create(
+            device_type=devicetype, role=role, name='TestDevice2', site=site
+        )
+
+    def test_virtualchassis_deletion_clears_vc_position(self):
+        """
+        Test that when a VirtualChassis is deleted, member devices have their
+        vc_position and vc_priority fields set to None.
+        """
+        devices = Device.objects.all()
+        device1 = devices[0]
+        device2 = devices[1]
+
+        # Create a VirtualChassis with two member devices
+        vc = VirtualChassis.objects.create(name='Test VC', master=device1)
+
+        device1.virtual_chassis = vc
+        device1.vc_position = 1
+        device1.vc_priority = 10
+        device1.save()
+
+        device2.virtual_chassis = vc
+        device2.vc_position = 2
+        device2.vc_priority = 20
+        device2.save()
+
+        # Verify devices are members of the VC with positions set
+        device1.refresh_from_db()
+        device2.refresh_from_db()
+        self.assertEqual(device1.virtual_chassis, vc)
+        self.assertEqual(device1.vc_position, 1)
+        self.assertEqual(device1.vc_priority, 10)
+        self.assertEqual(device2.virtual_chassis, vc)
+        self.assertEqual(device2.vc_position, 2)
+        self.assertEqual(device2.vc_priority, 20)
+
+        # Delete the VirtualChassis
+        vc.delete()
+
+        # Verify devices have vc_position and vc_priority set to None
+        device1.refresh_from_db()
+        device2.refresh_from_db()
+        self.assertIsNone(device1.virtual_chassis)
+        self.assertIsNone(device1.vc_position)
+        self.assertIsNone(device1.vc_priority)
+        self.assertIsNone(device2.virtual_chassis)
+        self.assertIsNone(device2.vc_position)
+        self.assertIsNone(device2.vc_priority)
+
+    def test_virtualchassis_duplicate_vc_position(self):
+        """
+        Test that two devices cannot be assigned to the same vc_position
+        within the same VirtualChassis.
+        """
+        devices = Device.objects.all()
+        device1 = devices[0]
+        device2 = devices[1]
+
+        # Create a VirtualChassis
+        vc = VirtualChassis.objects.create(name='Test VC')
+
+        # Assign first device to vc_position 1
+        device1.virtual_chassis = vc
+        device1.vc_position = 1
+        device1.full_clean()
+        device1.save()
+
+        # Try to assign second device to the same vc_position
+        device2.virtual_chassis = vc
+        device2.vc_position = 1
+        with self.assertRaises(ValidationError):
+            device2.full_clean()
