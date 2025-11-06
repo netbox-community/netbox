@@ -121,7 +121,7 @@ class CircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     )
 
 
-class CircuitFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
+class CircuitFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Circuit
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
