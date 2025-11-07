@@ -11,8 +11,11 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
+from core.filtersets import *
 
 __all__ = (
     'ConfigRevisionFilterForm',
@@ -23,7 +26,7 @@ __all__ = (
 )
 
 
-class DataSourceFilterForm(PrimaryModelFilterSetForm):
+class DataSourceFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = DataSource
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -54,7 +57,7 @@ class DataSourceFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class DataFileFilterForm(NetBoxModelFilterSetForm):
+class DataFileFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -67,7 +70,7 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class JobFilterForm(SavedFiltersMixin, FilterForm):
+class JobFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -134,7 +137,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
+class ObjectChangeFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -168,8 +171,16 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigRevisionFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ConfigRevision
     fieldsets = (
         FieldSet('q', 'filter_id'),
     )
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[DataSourceFilterForm] = DataSourceFilterSet
+FILTERSET_MAPPINGS[DataFileFilterForm] = DataFileFilterSet
+FILTERSET_MAPPINGS[JobFilterForm] = JobFilterSet
+FILTERSET_MAPPINGS[ObjectChangeFilterForm] = ObjectChangeFilterSet
+FILTERSET_MAPPINGS[ConfigRevisionFilterForm] = ConfigRevisionFilterSet
