@@ -151,6 +151,12 @@ class FilterModifierMixin:
             (MODIFIER_EMPTY_TRUE, _('Is Empty')),
             (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
         ],
+        forms.ChoiceField: [
+            ('exact', _('Is')),
+            ('n', _('Is Not')),
+            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+        ],
         forms.MultipleChoiceField: [
             ('exact', _('Is')),
             ('n', _('Is Not')),
