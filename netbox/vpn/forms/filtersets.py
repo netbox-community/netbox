@@ -9,11 +9,14 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
 from virtualization.models import VirtualMachine
 from vpn.choices import *
 from vpn.constants import L2VPN_ASSIGNMENT_MODELS
+from vpn.filtersets import *
 from vpn.models import *
 
 __all__ = (
@@ -30,7 +33,7 @@ __all__ = (
 )
 
 
-class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
+class TunnelGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -39,7 +42,7 @@ class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSet
     tag = TagFilterField(model)
 
 
-class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class TunnelFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Tunnel
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -75,7 +78,7 @@ class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
     tag = TagFilterField(model)
 
 
-class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
+class TunnelTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = TunnelTermination
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -94,7 +97,7 @@ class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IKEProposalFilterForm(PrimaryModelFilterSetForm):
+class IKEProposalFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IKEProposal
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -125,7 +128,7 @@ class IKEProposalFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
+class IKEPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IKEPolicy
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -149,7 +152,7 @@ class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
+class IPSecProposalFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IPSecProposal
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -168,7 +171,7 @@ class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
+class IPSecPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -187,7 +190,7 @@ class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
+class IPSecProfileFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -211,7 +214,7 @@ class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class L2VPNFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = L2VPN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -242,10 +245,10 @@ class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFil
     tag = TagFilterField(model)
 
 
-class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
+class L2VPNTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (
-        FieldSet('filter_id', 'l2vpn_id'),
+        FieldSet('filter_id', 'tag', 'l2vpn_id'),
         FieldSet(
             'assigned_object_type_id', 'region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id',
             name=_('Assigned Object')
@@ -303,3 +306,17 @@ class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
         },
         label=_('Virtual Machine')
     )
+    tag = TagFilterField(model)
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[IKEPolicyFilterForm] = IKEPolicyFilterSet
+FILTERSET_MAPPINGS[IKEProposalFilterForm] = IKEProposalFilterSet
+FILTERSET_MAPPINGS[IPSecPolicyFilterForm] = IPSecPolicyFilterSet
+FILTERSET_MAPPINGS[IPSecProfileFilterForm] = IPSecProfileFilterSet
+FILTERSET_MAPPINGS[IPSecProposalFilterForm] = IPSecProposalFilterSet
+FILTERSET_MAPPINGS[L2VPNFilterForm] = L2VPNFilterSet
+FILTERSET_MAPPINGS[L2VPNTerminationFilterForm] = L2VPNTerminationFilterSet
+FILTERSET_MAPPINGS[TunnelFilterForm] = TunnelFilterSet
+FILTERSET_MAPPINGS[TunnelGroupFilterForm] = TunnelGroupFilterSet
+FILTERSET_MAPPINGS[TunnelTerminationFilterForm] = TunnelTerminationFilterSet
