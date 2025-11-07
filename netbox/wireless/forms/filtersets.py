@@ -8,8 +8,11 @@ from netbox.forms import NestedGroupModelFilterSetForm, PrimaryModelFilterSetFor
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from wireless.choices import *
+from wireless.filtersets import *
 from wireless.models import *
 
 __all__ = (
@@ -19,7 +22,7 @@ __all__ = (
 )
 
 
-class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
+class WirelessLANGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
     model = WirelessLANGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -33,7 +36,7 @@ class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+class WirelessLANFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -99,7 +102,7 @@ class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class WirelessLinkFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+class WirelessLinkFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -140,3 +143,9 @@ class WirelessLinkFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[WirelessLANFilterForm] = WirelessLANFilterSet
+FILTERSET_MAPPINGS[WirelessLANGroupFilterForm] = WirelessLANGroupFilterSet
+FILTERSET_MAPPINGS[WirelessLinkFilterForm] = WirelessLinkFilterSet
