@@ -15,9 +15,12 @@ from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     TagFilterField,
 )
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+from extras.filtersets import *
 
 __all__ = (
     'ConfigContextFilterForm',
@@ -39,7 +42,7 @@ __all__ = (
 )
 
 
-class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
+class CustomFieldFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -126,7 +129,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
+class CustomFieldChoiceSetFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = CustomFieldChoiceSet
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -146,7 +149,7 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
+class CustomLinkFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = CustomLink
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -182,7 +185,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
+class ExportTemplateFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ExportTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'object_type_id'),
@@ -233,7 +236,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
+class ImageAttachmentFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ImageAttachment
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -250,7 +253,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
+class SavedFilterFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = SavedFilter
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -286,7 +289,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
+class TableConfigFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),
@@ -316,7 +319,7 @@ class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class WebhookFilterForm(NetBoxModelFilterSetForm):
+class WebhookFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -343,7 +346,7 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class EventRuleFilterForm(NetBoxModelFilterSetForm):
+class EventRuleFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = EventRule
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -379,7 +382,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class TagFilterForm(SavedFiltersMixin, FilterForm):
+class TagFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = Tag
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('tags'),
@@ -398,7 +401,7 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
+class ConfigContextProfileFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = ConfigContextProfile
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -419,7 +422,7 @@ class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
     )
 
 
-class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigContextFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ConfigContext
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag_id'),
@@ -520,7 +523,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigTemplateFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ConfigTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -584,7 +587,7 @@ class LocalConfigContextFilterForm(forms.Form):
     )
 
 
-class JournalEntryFilterForm(NetBoxModelFilterSetForm):
+class JournalEntryFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -619,7 +622,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class NotificationGroupFilterForm(SavedFiltersMixin, FilterForm):
+class NotificationGroupFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = NotificationGroup
     user_id = DynamicModelMultipleChoiceField(
         queryset=User.objects.all(),
@@ -631,3 +634,21 @@ class NotificationGroupFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Group')
     )
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[CustomFieldFilterForm] = CustomFieldFilterSet
+FILTERSET_MAPPINGS[CustomFieldChoiceSetFilterForm] = CustomFieldChoiceSetFilterSet
+FILTERSET_MAPPINGS[CustomLinkFilterForm] = CustomLinkFilterSet
+FILTERSET_MAPPINGS[ExportTemplateFilterForm] = ExportTemplateFilterSet
+FILTERSET_MAPPINGS[ImageAttachmentFilterForm] = ImageAttachmentFilterSet
+FILTERSET_MAPPINGS[SavedFilterFilterForm] = SavedFilterFilterSet
+FILTERSET_MAPPINGS[TableConfigFilterForm] = TableConfigFilterSet
+FILTERSET_MAPPINGS[WebhookFilterForm] = WebhookFilterSet
+FILTERSET_MAPPINGS[EventRuleFilterForm] = EventRuleFilterSet
+FILTERSET_MAPPINGS[TagFilterForm] = TagFilterSet
+FILTERSET_MAPPINGS[ConfigContextProfileFilterForm] = ConfigContextProfileFilterSet
+FILTERSET_MAPPINGS[ConfigContextFilterForm] = ConfigContextFilterSet
+FILTERSET_MAPPINGS[ConfigTemplateFilterForm] = ConfigTemplateFilterSet
+FILTERSET_MAPPINGS[JournalEntryFilterForm] = JournalEntryFilterSet
+FILTERSET_MAPPINGS[NotificationGroupFilterForm] = NotificationGroupFilterSet
