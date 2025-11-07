@@ -65,6 +65,7 @@ class Panel:
             'object': context.get('object'),
             'title': self.title,
             'actions': self.actions,
+            'panel_class': self.__class__.__name__,
         }
 
     def render(self, context):
