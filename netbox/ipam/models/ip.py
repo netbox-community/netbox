@@ -1,4 +1,5 @@
 import netaddr
+import pgtrigger
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.indexes import GistIndex
@@ -17,6 +18,7 @@ from ipam.fields import IPNetworkField, IPAddressField
 from ipam.lookups import Host
 from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
+from ipam.triggers import ipam_prefix_delete_adjust_prefix_parent, ipam_prefix_insert_adjust_prefix_parent
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -186,25 +188,6 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
         return min(utilization, 100)
 
 
-class Role(OrganizationalModel):
-    """
-    A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
-    "Management."
-    """
-    weight = models.PositiveSmallIntegerField(
-        verbose_name=_('weight'),
-        default=1000
-    )
-
-    class Meta:
-        ordering = ('weight', 'name')
-        verbose_name = _('role')
-        verbose_name_plural = _('roles')
-
-    def __str__(self):
-        return self.name
-
-
 class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, PrimaryModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be scoped to certain
@@ -304,6 +287,20 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                 fields=['prefix'],
                 name='ipam_prefix_gist_idx',
                 opclasses=['inet_ops'],
+            ),
+        ]
+        triggers = [
+            pgtrigger.Trigger(
+                name='ipam_prefix_delete',
+                operation=pgtrigger.Delete,
+                when=pgtrigger.Before,
+                func=ipam_prefix_delete_adjust_prefix_parent,
+            ),
+            pgtrigger.Trigger(
+                name='ipam_prefix_insert',
+                operation=pgtrigger.Insert,
+                when=pgtrigger.After,
+                func=ipam_prefix_insert_adjust_prefix_parent,
             ),
         ]
 
@@ -544,6 +541,25 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             )
         )
         return prefixes.last()
+
+
+class Role(OrganizationalModel):
+    """
+    A Role represents the functional role of a Prefix or VLAN; for example, "Customer," "Infrastructure," or
+    "Management."
+    """
+    weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
+        default=1000
+    )
+
+    class Meta:
+        ordering = ('weight', 'name')
+        verbose_name = _('role')
+        verbose_name_plural = _('roles')
+
+    def __str__(self):
+        return self.name
 
 
 class IPRange(ContactsMixin, PrimaryModel):

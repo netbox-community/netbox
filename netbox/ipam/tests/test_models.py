@@ -1,3 +1,5 @@
+from time import sleep
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
@@ -651,6 +653,120 @@ class TestPrefixHierarchy(TestCase):
         self.assertEqual(prefixes[3].parent.prefix, IPNetwork('2001:db8::/40'))
         self.assertEqual(prefixes[3]._depth, 2)
         self.assertEqual(prefixes[3]._children, 0)
+
+
+class TestTriggers(TestCase):
+    """
+    Test the automatic updating of depth and child count in response to changes made within
+    the prefix hierarchy.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+
+        prefixes = (
+            # IPv4
+            Prefix(prefix='10.0.0.0/8'),
+            Prefix(prefix='10.0.0.0/16'),
+            Prefix(prefix='10.0.0.0/24'),
+            Prefix(prefix='192.168.0.0/16'),
+            # IPv6
+            Prefix(prefix='2001:db8::/32'),
+            Prefix(prefix='2001:db8::/40'),
+            Prefix(prefix='2001:db8::/48'),
+        )
+
+        for prefix in prefixes:
+            prefix.clean()
+            prefix.save()
+
+        vrfs = (
+            VRF(name='VRF A'),
+            VRF(name='VRF B'),
+        )
+
+        for prefix in prefixes:
+            prefix.clean()
+            prefix.save()
+
+        for vrf in vrfs:
+            vrf.clean()
+            vrf.save()
+
+    def test_current_hierarchy(self):
+        self.assertIsNone(Prefix.objects.get(prefix='10.0.0.0/8').parent)
+        self.assertIsNone(Prefix.objects.get(prefix='192.168.0.0/16').parent)
+        self.assertIsNone(Prefix.objects.get(prefix='2001:db8::/32').parent)
+
+        self.assertIsNotNone(Prefix.objects.get(prefix='10.0.0.0/16').parent)
+        self.assertIsNotNone(Prefix.objects.get(prefix='10.0.0.0/24').parent)
+
+        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/40').parent)
+        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/48').parent)
+
+    def test_basic_insert(self):
+        pfx = Prefix.objects.create(prefix='2001:db8::/44')
+        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/48').parent)
+        self.assertEqual(Prefix.objects.get(prefix='2001:db8::/48').parent, pfx)
+
+    def test_vrf_insert(self):
+        vrf = VRF.objects.get(name='VRF A')
+        pfx = Prefix.objects.create(prefix='2001:db8::/44', vrf=vrf)
+        parent = Prefix.objects.get(prefix='2001:db8::/40')
+        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/48').parent)
+        self.assertNotEqual(Prefix.objects.get(prefix='2001:db8::/48').parent, pfx)
+        self.assertEqual(Prefix.objects.get(prefix='2001:db8::/48').parent, parent)
+
+        prefixes = (
+            Prefix(prefix='10.2.0.0/16', vrf=vrf),
+            Prefix(prefix='10.2.0.0/24', vrf=vrf),
+        )
+
+        for prefix in prefixes:
+            prefix.clean()
+            prefix.save()
+
+        self.assertIsNone(Prefix.objects.get(pk=prefixes[0].pk).parent)
+        self.assertEqual(Prefix.objects.get(pk=prefixes[1].pk).parent, prefixes[0])
+
+        new_pfx = Prefix.objects.create(prefix='10.2.0.0/23', vrf=vrf)
+
+        self.assertIsNone(Prefix.objects.get(pk=prefixes[0].pk).parent)
+        self.assertEqual(new_pfx.parent, prefixes[0])
+        self.assertEqual(Prefix.objects.get(pk=prefixes[1].pk).parent, new_pfx)
+
+    def test_basic_delete(self):
+        prefixes = (
+            Prefix(prefix='10.2.0.0/16'),
+            Prefix(prefix='10.2.0.0/23'),
+            Prefix(prefix='10.2.0.0/24'),
+        )
+        for prefix in prefixes:
+            prefix.clean()
+            prefix.save()
+
+    def test_vrf_delete(self):
+        vrf = VRF.objects.get(name='VRF A')
+
+        prefixes = (
+            Prefix(prefix='10.2.0.0/16', vrf=vrf),
+            Prefix(prefix='10.2.0.0/23', vrf=vrf),
+            Prefix(prefix='10.2.0.0/24', vrf=vrf),
+        )
+
+        for prefix in prefixes:
+            prefix.clean()
+            prefix.save()
+
+        self.assertIsNone(prefixes[0].parent)
+        self.assertEqual(prefixes[1].parent, prefixes[0])
+        self.assertEqual(prefixes[2].parent, prefixes[1])
+
+        prefixes[1].delete()
+        prefixes[2].refresh_from_db()
+
+        self.assertIsNone(prefixes[0].parent)
+        self.assertEqual(prefixes[2].parent, prefixes[0])
 
 
 class TestIPAddress(TestCase):
