@@ -6,6 +6,7 @@ from netbox.ui import attrs, panels
 class SitePanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('region', linkify=True)
     group = attrs.NestedObjectAttr('group', linkify=True)
+    name = attrs.TextAttr('name')
     status = attrs.ChoiceAttr('status')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     facility = attrs.TextAttr('facility')
@@ -42,7 +43,8 @@ class RackPanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
     site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
-    facility = attrs.TextAttr('facility')
+    name = attrs.TextAttr('name')
+    facility = attrs.TextAttr('facility', label=_('Facility ID'))
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     status = attrs.ChoiceAttr('status')
     rack_type = attrs.RelatedObjectAttr('rack_type', linkify=True, grouped_by='manufacturer')
@@ -58,11 +60,19 @@ class RackPanel(panels.ObjectAttributesPanel):
 class RackWeightPanel(panels.ObjectAttributesPanel):
     weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
     max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
-    total_weight = attrs.NumericAttr('total_weight', unit_accessor='get_weight_unit_display')
+    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/rack/attrs/total_weight.html')
 
 
 class RackRolePanel(panels.OrganizationalObjectPanel):
     color = attrs.ColorAttr('color')
+
+
+class RackReservationPanel(panels.ObjectAttributesPanel):
+    units = attrs.TextAttr('unit_list')
+    status = attrs.ChoiceAttr('status')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    user = attrs.RelatedObjectAttr('user')
+    description = attrs.TextAttr('description')
 
 
 class RackTypePanel(panels.ObjectAttributesPanel):

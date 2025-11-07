@@ -198,8 +198,8 @@ class NestedGroupObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPa
     """
     An ObjectPanel with attributes common to NestedGroupObjects. Includes the `parent` attribute.
     """
-    name = attrs.TextAttr('name', label=_('Name'))
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
+    name = attrs.TextAttr('name', label=_('Name'))
     description = attrs.TextAttr('description', label=_('Description'))
 
 

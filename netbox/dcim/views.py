@@ -866,6 +866,7 @@ class RackTypeListView(generic.ObjectListView):
 
 @register_model_view(RackType)
 class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = RackType.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -1147,14 +1148,14 @@ class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location']),
+            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location', 'name']),
+            panels.RackReservationPanel(title=_('Reservation')),
             CustomFieldsPanel(),
             TagsPanel(),
             CommentsPanel(),
-            ImageAttachmentsPanel(),
         ],
         right_panels=[
-            TemplatePanel('dcim/panels/rack_elevations.html'),
+            TemplatePanel(template_name='dcim/panels/rack_reservation_elevations.html'),
             RelatedObjectsPanel(),
         ],
     )
@@ -1570,6 +1571,7 @@ class ModuleTypeProfileListView(generic.ObjectListView):
 
 @register_model_view(ModuleTypeProfile)
 class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ModuleTypeProfile.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
