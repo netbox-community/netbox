@@ -36,19 +36,19 @@ class Panel:
     Panels are arranged within rows and columns, (generally) render as discrete "cards" within the user interface. Each
     panel has a title and may have one or more actions associated with it, which will be rendered as hyperlinks in the
     top right corner of the card.
+
+    Attributes:
+        template_name (str): The name of the template used to render the panel
+
+    Parameters:
+        title (str): The human-friendly title of the panel
+        actions (list): An iterable of PanelActions to include in the panel header
     """
     template_name = None
     title = None
     actions = None
 
     def __init__(self, title=None, actions=None):
-        """
-        Instantiate a new Panel.
-
-        Parameters:
-            title: The human-friendly title of the panel
-            actions: An iterable of PanelActions to include in the panel header
-        """
         if title is not None:
             self.title = title
         self.actions = actions or self.actions or []
@@ -58,7 +58,7 @@ class Panel:
         Return the context data to be used when rendering the panel.
 
         Parameters:
-            context: The template context
+            context (dict): The template context
         """
         return {
             'request': context.get('request'),
@@ -72,7 +72,7 @@ class Panel:
         Render the panel as HTML.
 
         Parameters:
-            context: The template context
+            context (dict): The template context
         """
         return render_to_string(self.template_name, self.get_context(context))
 
@@ -84,16 +84,13 @@ class Panel:
 class ObjectPanel(Panel):
     """
     Base class for object-specific panels.
+
+    Parameters:
+        accessor (str): The dotted path in context data to the object being rendered (default: "object")
     """
     accessor = 'object'
 
     def __init__(self, accessor=None, **kwargs):
-        """
-        Instantiate a new ObjectPanel.
-
-        Parameters:
-            accessor: The dotted path in context data to the object being rendered (default: "object")
-        """
         super().__init__(**kwargs)
 
         if accessor is not None:
@@ -141,17 +138,16 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
 
     Attributes are added to the panel by declaring ObjectAttribute instances in the class body (similar to fields on
     a Django form). Attributes are displayed in the order they are declared.
+
+    Note that the `only` and `exclude` parameters are mutually exclusive.
+
+    Parameters:
+            only (list): If specified, only attributes in this list will be displayed
+            exclude (list): If specified, attributes in this list will be excluded from display
     """
     template_name = 'ui/panels/object_attributes.html'
 
     def __init__(self, only=None, exclude=None, **kwargs):
-        """
-        Instantiate a new ObjectPanel.
-
-        Parameters:
-            only: If specified, only attributes in this list will be displayed
-            exclude: If specified, attributes in this list will be excluded from display
-        """
         super().__init__(**kwargs)
 
         # Set included/excluded attributes
@@ -192,7 +188,7 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
 
 class OrganizationalObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPanelMeta):
     """
-    An ObjectPanel with attributes common to OrganizationalModels. Includes name and description.
+    An ObjectPanel with attributes common to OrganizationalModels. Includes `name` and `description` attributes.
     """
     name = attrs.TextAttr('name', label=_('Name'))
     description = attrs.TextAttr('description', label=_('Description'))
@@ -200,25 +196,24 @@ class OrganizationalObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttribute
 
 class NestedGroupObjectPanel(ObjectAttributesPanel, metaclass=ObjectAttributesPanelMeta):
     """
-    An ObjectPanel with attributes common to NestedGroupObjects. Includes the parent object.
+    An ObjectPanel with attributes common to NestedGroupObjects. Includes the `parent` attribute.
     """
+    name = attrs.TextAttr('name', label=_('Name'))
     parent = attrs.NestedObjectAttr('parent', label=_('Parent'), linkify=True)
+    description = attrs.TextAttr('description', label=_('Description'))
 
 
 class CommentsPanel(ObjectPanel):
     """
     A panel which displays comments associated with an object.
+
+    Parameters:
+        field_name (str): The name of the comment field on the object (default: "comments")
     """
     template_name = 'ui/panels/comments.html'
     title = _('Comments')
 
     def __init__(self, field_name='comments', **kwargs):
-        """
-        Instantiate a new CommentsPanel.
-
-        Parameters:
-            field_name: The name of the comment field on the object (default: "comments")
-        """
         super().__init__(**kwargs)
         self.field_name = field_name
 
@@ -232,17 +227,14 @@ class CommentsPanel(ObjectPanel):
 class JSONPanel(ObjectPanel):
     """
     A panel which renders formatted JSON data from an object's JSONField.
+
+    Parameters:
+        field_name (str): The name of the JSON field on the object
+        copy_button (bool): Set to True (default) to include a copy-to-clipboard button
     """
     template_name = 'ui/panels/json.html'
 
     def __init__(self, field_name, copy_button=True, **kwargs):
-        """
-        Instantiate a new JSONPanel.
-
-        Parameters:
-            field_name: The name of the JSON field on the object
-            copy_button: Set to True (default) to include a copy-to-clipboard button
-        """
         super().__init__(**kwargs)
         self.field_name = field_name
 
@@ -278,18 +270,16 @@ class RelatedObjectsPanel(Panel):
 class ObjectsTablePanel(Panel):
     """
     A panel which displays a table of objects (rendered via HTMX).
+
+    Parameters:
+        model (str): The dotted label of the model to be added (e.g. "dcim.site")
+        filters (dict): A dictionary of arbitrary URL parameters to append to the table's URL. If the value of a key is
+            a callable, it will be passed the current template context.
     """
     template_name = 'ui/panels/objects_table.html'
     title = None
 
     def __init__(self, model, filters=None, **kwargs):
-        """
-        Instantiate a new ObjectsTablePanel.
-
-        Parameters:
-            model: The dotted label of the model to be added (e.g. "dcim.site")
-            filters: A dictionary of arbitrary URL parameters to append to the table's URL
-        """
         super().__init__(**kwargs)
 
         # Resolve the model class from its app.name label
@@ -321,14 +311,11 @@ class ObjectsTablePanel(Panel):
 class TemplatePanel(Panel):
     """
     A panel which renders custom content using an HTML template.
+
+    Parameters:
+        template_name (str): The name of the template to render
     """
     def __init__(self, template_name, **kwargs):
-        """
-        Instantiate a new TemplatePanel.
-
-        Parameters:
-            template_name: The name of the template to render
-        """
         super().__init__(**kwargs)
         self.template_name = template_name
 
@@ -342,7 +329,7 @@ class PluginContentPanel(Panel):
     A panel which displays embedded plugin content.
 
     Parameters:
-        method: The name of the plugin method to render (e.g. "left_page")
+        method (str): The name of the plugin method to render (e.g. "left_page")
     """
     def __init__(self, method, **kwargs):
         super().__init__(**kwargs)

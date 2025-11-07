@@ -143,6 +143,7 @@ nav:
             - Getting Started: 'plugins/development/index.md'
             - Models: 'plugins/development/models.md'
             - Views: 'plugins/development/views.md'
+            - UI Components: 'plugins/development/ui-components.md'
             - Navigation: 'plugins/development/navigation.md'
             - Templates: 'plugins/development/templates.md'
             - Tables: 'plugins/development/tables.md'

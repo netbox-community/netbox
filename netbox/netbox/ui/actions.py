@@ -11,6 +11,7 @@ from utilities.views import get_viewname
 __all__ = (
     'AddObject',
     'CopyContent',
+    'LinkAction',
     'PanelAction',
 )
 
@@ -20,34 +21,28 @@ class PanelAction:
     A link (typically a button) within a panel to perform some associated action, such as adding an object.
 
     Attributes:
-        template_name: The name of the template to render
-        label: The default human-friendly button text
-        button_class: Bootstrap CSS class for the button
-        button_icon: Name of the button's MDI icon
+        template_name (str): The name of the template to render
+
+    Parameters:
+        label (str): The human-friendly button text
+        permissions (list): An iterable of permissions required to display the action
+        button_class (str): Bootstrap CSS class for the button
+        button_icon (str): Name of the button's MDI icon
     """
     template_name = None
-    label = None
-    button_class = 'primary'
-    button_icon = None
 
-    def __init__(self, label=None, permissions=None):
-        """
-        Initialize a new PanelAction.
-
-        Parameters:
-            label: The human-friendly button text
-            permissions: A list of permissions required to display the action
-        """
-        if label is not None:
-            self.label = label
+    def __init__(self, label, permissions=None, button_class='primary', button_icon=None):
+        self.label = label
         self.permissions = permissions
+        self.button_class = button_class
+        self.button_icon = button_icon
 
     def get_context(self, context):
         """
         Return the template context used to render the action element.
 
         Parameters:
-            context: The template context
+            context (dict): The template context
         """
         return {
             'label': self.label,
@@ -60,7 +55,7 @@ class PanelAction:
         Render the action as HTML.
 
         Parameters:
-            context: The template context
+            context (dict): The template context
         """
         # Enforce permissions
         user = context['request'].user
@@ -74,26 +69,16 @@ class LinkAction(PanelAction):
     """
     A hyperlink (typically a button) within a panel to perform some associated action, such as adding an object.
 
-    Attributes:
-        label: The default human-friendly button text
-        button_class: Bootstrap CSS class for the button
-        button_icon: Name of the button's MDI icon
+    Parameters:
+        view_name (str): Name of the view to which the action will link
+        view_kwargs (dict): Additional keyword arguments to pass to `reverse()` when resolving the URL
+        url_params (dict): A dictionary of arbitrary URL parameters to append to the action's URL. If the value of a key
+            is a callable, it will be passed the current template context.
     """
     template_name = 'ui/actions/link.html'
 
     def __init__(self, view_name, view_kwargs=None, url_params=None, **kwargs):
-        """
-        Initialize a new PanelAction.
-
-        Parameters:
-            view_name: Name of the view to which the action will link
-            view_kwargs: Additional keyword arguments to pass to the view when resolving its URL
-            url_params: A dictionary of arbitrary URL parameters to append to the action's URL
-            permissions: A list of permissions required to display the action
-            label: The human-friendly button text
-        """
         super().__init__(**kwargs)
-
         self.view_name = view_name
         self.view_kwargs = view_kwargs or {}
         self.url_params = url_params or {}
@@ -103,7 +88,7 @@ class LinkAction(PanelAction):
         Resolve the URL for the action from its view name and kwargs. Append any additional URL parameters.
 
         Parameters:
-            context: The template context
+            context (dict): The template context
         """
         url = reverse(self.view_name, kwargs=self.view_kwargs)
         if self.url_params:
@@ -127,19 +112,12 @@ class LinkAction(PanelAction):
 class AddObject(LinkAction):
     """
     An action to add a new object.
+
+    Parameters:
+        model (str): The dotted label of the model to be added (e.g. "dcim.site")
+        url_params (dict): A dictionary of arbitrary URL parameters to append to the resolved URL
     """
-    label = _('Add')
-    button_icon = 'plus-thick'
-
-    def __init__(self, model, url_params=None, label=None):
-        """
-        Initialize a new AddObject action.
-
-        Parameters:
-            model: The dotted label of the model to be added (e.g. "dcim.site")
-            url_params: A dictionary of arbitrary URL parameters to append to the resolved URL
-            label: The human-friendly button text
-        """
+    def __init__(self, model, url_params=None, **kwargs):
         # Resolve the model class from its app.name label
         try:
             app_label, model_name = model.split('.')
@@ -148,37 +126,29 @@ class AddObject(LinkAction):
             raise ValueError(f"Invalid model label: {model}")
         view_name = get_viewname(model, 'add')
 
-        super().__init__(view_name=view_name, url_params=url_params, label=label)
+        kwargs.setdefault('label', _('Add'))
+        kwargs.setdefault('button_icon', 'plus-thick')
+        kwargs.setdefault('permissions', [get_permission_for_model(model, 'add')])
 
-        # Require "add" permission on the model
-        self.permissions = [get_permission_for_model(model, 'add')]
+        super().__init__(view_name=view_name, url_params=url_params, **kwargs)
 
 
 class CopyContent(PanelAction):
     """
     An action to copy the contents of a panel to the clipboard.
+
+    Parameters:
+        target_id (str): The ID of the target element containing the content to be copied
     """
     template_name = 'ui/actions/copy_content.html'
-    label = _('Copy')
-    button_icon = 'content-copy'
 
     def __init__(self, target_id, **kwargs):
-        """
-        Instantiate a new CopyContent action.
-
-        Parameters:
-            target_id: The ID of the target element containing the content to be copied
-        """
+        kwargs.setdefault('label', _('Copy'))
+        kwargs.setdefault('button_icon', 'content-copy')
         super().__init__(**kwargs)
         self.target_id = target_id
 
     def render(self, context):
-        """
-        Render the action as HTML.
-
-        Parameters:
-            context: The template context
-        """
         return render_to_string(self.template_name, {
             'target_id': self.target_id,
             'label': self.label,

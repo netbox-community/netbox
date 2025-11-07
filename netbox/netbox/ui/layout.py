@@ -15,6 +15,9 @@ __all__ = (
 class Layout:
     """
     A collection of rows and columns comprising the layout of content within the user interface.
+
+    Parameters:
+        *rows: One or more Row instances
     """
     def __init__(self, *rows):
         for i, row in enumerate(rows):
@@ -26,6 +29,9 @@ class Layout:
 class Row:
     """
     A collection of columns arranged horizontally.
+
+    Parameters:
+        *columns: One or more Column instances
     """
     def __init__(self, *columns):
         for i, column in enumerate(columns):
@@ -37,6 +43,9 @@ class Row:
 class Column:
     """
     A collection of panels arranged vertically.
+
+    Parameters:
+        *panels: One or more Panel instances
     """
     def __init__(self, *panels):
         for i, panel in enumerate(panels):
@@ -51,13 +60,23 @@ class Column:
 
 class SimpleLayout(Layout):
     """
-    A layout with one row of two columns and a second row with one column. Includes registered plugin content.
+    A layout with one row of two columns and a second row with one column.
 
-    +------+------+
-    | col1 | col2 |
-    +------+------+
-    |    col3     |
-    +-------------+
+    Plugin content registered for `left_page`, `right_page`, or `full_width_path` is included automatically. Most object
+    views in NetBox utilize this layout.
+
+    ```
+    +-------+-------+
+    | Col 1 | Col 2 |
+    +-------+-------+
+    |     Col 3     |
+    +---------------+
+    ```
+
+    Parameters:
+        left_panels: Panel instances to be rendered in the top lefthand column
+        right_panels: Panel instances to be rendered in the top righthand column
+        bottom_panels: Panel instances to be rendered in the bottom row
     """
     def __init__(self, left_panels=None, right_panels=None, bottom_panels=None):
         left_panels = left_panels or []
