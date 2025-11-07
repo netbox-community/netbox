@@ -4,11 +4,14 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
 from ipam.choices import *
 from ipam.constants import *
+from ipam.filtersets import *
 from ipam.models import *
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from virtualization.models import VirtualMachine, ClusterGroup, Cluster
 from vpn.models import L2VPN
@@ -42,7 +45,7 @@ IPADDRESS_MASK_LENGTH_CHOICES = add_blank_choice([
 ])
 
 
-class VRFFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+class VRFFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VRF
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -62,7 +65,7 @@ class VRFFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RouteTargetFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+class RouteTargetFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = RouteTarget
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -82,7 +85,7 @@ class RouteTargetFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RIRFilterForm(OrganizationalModelFilterSetForm):
+class RIRFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
     model = RIR
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -98,7 +101,7 @@ class RIRFilterForm(OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class AggregateFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class AggregateFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Aggregate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -119,7 +122,7 @@ class AggregateFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
     tag = TagFilterField(model)
 
 
-class ASNRangeFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
+class ASNRangeFilterForm(FilterModifierMixin, TenancyFilterForm, OrganizationalModelFilterSetForm):
     model = ASNRange
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -142,7 +145,7 @@ class ASNRangeFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ASNFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+class ASNFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = ASN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -167,7 +170,7 @@ class ASNFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class RoleFilterForm(OrganizationalModelFilterSetForm):
+class RoleFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
     model = Role
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -175,7 +178,7 @@ class RoleFilterForm(OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class PrefixFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Prefix
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -281,7 +284,7 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
     tag = TagFilterField(model)
 
 
-class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class IPRangeFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = IPRange
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -328,7 +331,7 @@ class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelF
     tag = TagFilterField(model)
 
 
-class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class IPAddressFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = IPAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -406,7 +409,7 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
     tag = TagFilterField(model)
 
 
-class FHRPGroupFilterForm(PrimaryModelFilterSetForm):
+class FHRPGroupFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = FHRPGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -439,7 +442,7 @@ class FHRPGroupFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
+class VLANGroupFilterForm(FilterModifierMixin, TenancyFilterForm, OrganizationalModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('region', 'site_group', 'site', 'location', 'rack', name=_('Location')),
@@ -492,7 +495,7 @@ class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class VLANTranslationPolicyFilterForm(PrimaryModelFilterSetForm):
+class VLANTranslationPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = VLANTranslationPolicy
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -505,7 +508,7 @@ class VLANTranslationPolicyFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class VLANTranslationRuleFilterForm(NetBoxModelFilterSetForm):
+class VLANTranslationRuleFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = VLANTranslationRule
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -529,7 +532,7 @@ class VLANTranslationRuleFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class VLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+class VLANFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VLAN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -601,7 +604,7 @@ class VLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ServiceTemplateFilterForm(PrimaryModelFilterSetForm):
+class ServiceTemplateFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = ServiceTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -643,3 +646,23 @@ class ServiceFilterForm(ContactModelFilterForm, ServiceTemplateFilterForm):
         label=_('FHRP Group'),
     )
     tag = TagFilterField(model)
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[AggregateFilterForm] = AggregateFilterSet
+FILTERSET_MAPPINGS[ASNFilterForm] = ASNFilterSet
+FILTERSET_MAPPINGS[ASNRangeFilterForm] = ASNRangeFilterSet
+FILTERSET_MAPPINGS[FHRPGroupFilterForm] = FHRPGroupFilterSet
+FILTERSET_MAPPINGS[IPAddressFilterForm] = IPAddressFilterSet
+FILTERSET_MAPPINGS[IPRangeFilterForm] = IPRangeFilterSet
+FILTERSET_MAPPINGS[PrefixFilterForm] = PrefixFilterSet
+FILTERSET_MAPPINGS[RIRFilterForm] = RIRFilterSet
+FILTERSET_MAPPINGS[RoleFilterForm] = RoleFilterSet
+FILTERSET_MAPPINGS[RouteTargetFilterForm] = RouteTargetFilterSet
+FILTERSET_MAPPINGS[ServiceFilterForm] = ServiceFilterSet
+FILTERSET_MAPPINGS[ServiceTemplateFilterForm] = ServiceTemplateFilterSet
+FILTERSET_MAPPINGS[VLANFilterForm] = VLANFilterSet
+FILTERSET_MAPPINGS[VLANGroupFilterForm] = VLANGroupFilterSet
+FILTERSET_MAPPINGS[VLANTranslationPolicyFilterForm] = VLANTranslationPolicyFilterSet
+FILTERSET_MAPPINGS[VLANTranslationRuleFilterForm] = VLANTranslationRuleFilterSet
+FILTERSET_MAPPINGS[VRFFilterForm] = VRFFilterSet
