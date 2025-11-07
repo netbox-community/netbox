@@ -272,6 +272,10 @@ class JournalEntryImportForm(NetBoxModelImportForm):
         choices=JournalEntryKindChoices,
         help_text=_('The classification of entry')
     )
+    comments = forms.CharField(
+        label=_('Comments'),
+        required=True
+    )
 
     class Meta:
         model = JournalEntry
