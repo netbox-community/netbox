@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-05 05:01+0000\n"
+"POT-Creation-Date: 2025-11-07 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1469,7 +1469,7 @@ msgstr ""
 #: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:52
 #: netbox/dcim/models/device_components.py:488
 #: netbox/dcim/models/device_components.py:1319
-#: netbox/dcim/models/devices.py:580 netbox/dcim/models/devices.py:1188
+#: netbox/dcim/models/devices.py:580 netbox/dcim/models/devices.py:1194
 #: netbox/dcim/models/modules.py:210 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/racks.py:677
 #: netbox/dcim/models/sites.py:154 netbox/dcim/models/sites.py:270
@@ -1603,7 +1603,7 @@ msgstr ""
 #: netbox/core/models/jobs.py:56
 #: netbox/dcim/models/device_component_templates.py:44
 #: netbox/dcim/models/device_components.py:53 netbox/dcim/models/devices.py:524
-#: netbox/dcim/models/devices.py:1120 netbox/dcim/models/devices.py:1183
+#: netbox/dcim/models/devices.py:1120 netbox/dcim/models/devices.py:1189
 #: netbox/dcim/models/modules.py:32 netbox/dcim/models/power.py:38
 #: netbox/dcim/models/power.py:89 netbox/dcim/models/racks.py:263
 #: netbox/dcim/models/sites.py:142 netbox/extras/models/configs.py:36
@@ -2550,7 +2550,7 @@ msgid "Change logging is not supported for this object type ({type})."
 msgstr ""
 
 #: netbox/core/models/config.py:21 netbox/core/models/data.py:269
-#: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
+#: netbox/core/models/files.py:29 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:839 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
 #: netbox/netbox/models/features.py:61 netbox/users/models/tokens.py:32
@@ -2665,7 +2665,7 @@ msgid ""
 "installed: "
 msgstr ""
 
-#: netbox/core/models/data.py:273 netbox/core/models/files.py:34
+#: netbox/core/models/data.py:273 netbox/core/models/files.py:33
 #: netbox/netbox/models/features.py:67
 msgid "last updated"
 msgstr ""
@@ -2710,27 +2710,27 @@ msgstr ""
 msgid "auto sync records"
 msgstr ""
 
-#: netbox/core/models/files.py:40
+#: netbox/core/models/files.py:39
 msgid "file root"
 msgstr ""
 
-#: netbox/core/models/files.py:45
+#: netbox/core/models/files.py:44
 msgid "file path"
 msgstr ""
 
-#: netbox/core/models/files.py:47
+#: netbox/core/models/files.py:46
 msgid "File path relative to the designated root path"
 msgstr ""
 
-#: netbox/core/models/files.py:61
+#: netbox/core/models/files.py:60
 msgid "managed file"
 msgstr ""
 
-#: netbox/core/models/files.py:62
+#: netbox/core/models/files.py:61
 msgid "managed files"
 msgstr ""
 
-#: netbox/core/models/files.py:112
+#: netbox/core/models/files.py:108
 #, python-brace-format
 msgid "A {model} with this file path already exists ({path})."
 msgstr ""
@@ -3815,8 +3815,8 @@ msgstr ""
 
 #: netbox/dcim/filtersets.py:1197 netbox/dcim/forms/filtersets.py:848
 #: netbox/dcim/forms/filtersets.py:1473 netbox/dcim/forms/filtersets.py:1688
-#: netbox/dcim/forms/model_forms.py:1899 netbox/dcim/models/devices.py:1284
-#: netbox/dcim/models/devices.py:1304 netbox/virtualization/filtersets.py:201
+#: netbox/dcim/forms/model_forms.py:1899 netbox/dcim/models/devices.py:1290
+#: netbox/dcim/models/devices.py:1310 netbox/virtualization/filtersets.py:201
 #: netbox/virtualization/filtersets.py:273
 #: netbox/virtualization/forms/filtersets.py:178
 #: netbox/virtualization/forms/filtersets.py:231
@@ -6857,12 +6857,12 @@ msgstr ""
 msgid "rack face"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:598 netbox/dcim/models/devices.py:1204
+#: netbox/dcim/models/devices.py:598 netbox/dcim/models/devices.py:1210
 #: netbox/virtualization/models/virtualmachines.py:94
 msgid "primary IPv4"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:606 netbox/dcim/models/devices.py:1212
+#: netbox/dcim/models/devices.py:606 netbox/dcim/models/devices.py:1218
 #: netbox/virtualization/models/virtualmachines.py:102
 msgid "primary IPv6"
 msgstr ""
@@ -7023,55 +7023,55 @@ msgstr ""
 msgid "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1167
+#: netbox/dcim/models/devices.py:1166
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {self}. There are member interfaces which "
 "form a cross-chassis LAG interfaces."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1193 netbox/vpn/models/l2vpn.py:42
+#: netbox/dcim/models/devices.py:1199 netbox/vpn/models/l2vpn.py:42
 msgid "identifier"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1194
+#: netbox/dcim/models/devices.py:1200
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1222 netbox/extras/models/customfields.py:231
+#: netbox/dcim/models/devices.py:1228 netbox/extras/models/customfields.py:231
 #: netbox/extras/models/models.py:111 netbox/extras/models/models.py:800
 #: netbox/netbox/models/__init__.py:120 netbox/netbox/models/__init__.py:155
 msgid "comments"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1238
+#: netbox/dcim/models/devices.py:1244
 msgid "virtual device context"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1239
+#: netbox/dcim/models/devices.py:1245
 msgid "virtual device contexts"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1268
+#: netbox/dcim/models/devices.py:1274
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1274
+#: netbox/dcim/models/devices.py:1280
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1305
+#: netbox/dcim/models/devices.py:1311
 msgid "MAC addresses"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1337
+#: netbox/dcim/models/devices.py:1343
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an "
 "object"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1341
+#: netbox/dcim/models/devices.py:1347
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an "
 "object"
@@ -12539,54 +12539,62 @@ msgid ""
 "{error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:442
+#: netbox/netbox/views/generic/bulk_views.py:388
+msgid "Must be a list."
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:398
+msgid "Must be a dictionary."
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:461
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:525
+#: netbox/netbox/views/generic/bulk_views.py:546
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:541
+#: netbox/netbox/views/generic/bulk_views.py:562
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:731
+#: netbox/netbox/views/generic/bulk_views.py:752
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:747
+#: netbox/netbox/views/generic/bulk_views.py:768
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:780
-#: netbox/netbox/views/generic/bulk_views.py:1015
-#: netbox/netbox/views/generic/bulk_views.py:1063
+#: netbox/netbox/views/generic/bulk_views.py:801
+#: netbox/netbox/views/generic/bulk_views.py:1036
+#: netbox/netbox/views/generic/bulk_views.py:1084
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:873
+#: netbox/netbox/views/generic/bulk_views.py:894
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:943
+#: netbox/netbox/views/generic/bulk_views.py:964
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:970
+#: netbox/netbox/views/generic/bulk_views.py:991
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:987
+#: netbox/netbox/views/generic/bulk_views.py:1008
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 
@@ -16049,33 +16057,33 @@ msgid ""
 "Invalid ranges ({value}). Must be a range of integers in ascending order."
 msgstr ""
 
-#: netbox/utilities/forms/fields/csv.py:44
+#: netbox/utilities/forms/fields/csv.py:59
 #, python-brace-format
 msgid "Invalid value for a multiple choice field: {value}"
 msgstr ""
 
-#: netbox/utilities/forms/fields/csv.py:57
-#: netbox/utilities/forms/fields/csv.py:78
+#: netbox/utilities/forms/fields/csv.py:77
+#: netbox/utilities/forms/fields/csv.py:98
 #, python-format
 msgid "Object not found: %(value)s"
 msgstr ""
 
-#: netbox/utilities/forms/fields/csv.py:65
+#: netbox/utilities/forms/fields/csv.py:85
 #, python-brace-format
 msgid ""
 "\"{value}\" is not a unique value for this field; multiple objects were found"
 msgstr ""
 
-#: netbox/utilities/forms/fields/csv.py:69
+#: netbox/utilities/forms/fields/csv.py:89
 #, python-brace-format
 msgid "\"{field_name}\" is an invalid accessor field name."
 msgstr ""
 
-#: netbox/utilities/forms/fields/csv.py:102
+#: netbox/utilities/forms/fields/csv.py:122
 msgid "Object type must be specified as \"<app>.<model>\""
 msgstr ""
 
-#: netbox/utilities/forms/fields/csv.py:106
+#: netbox/utilities/forms/fields/csv.py:126
 msgid "Invalid object type"
 msgstr ""
 
