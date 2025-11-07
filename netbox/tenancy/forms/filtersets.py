@@ -7,11 +7,14 @@ from netbox.forms import (
     PrimaryModelFilterSetForm,
 )
 from tenancy.choices import *
+from tenancy.filtersets import *
 from tenancy.models import *
 from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
+from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 
 __all__ = (
@@ -28,7 +31,7 @@ __all__ = (
 # Tenants
 #
 
-class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
+class TenantGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
     model = TenantGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -42,7 +45,7 @@ class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
+class TenantFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Tenant
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -62,7 +65,7 @@ class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
 # Contacts
 #
 
-class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
+class ContactGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
     model = ContactGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -76,7 +79,7 @@ class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
+class ContactRoleFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
     model = ContactRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -84,7 +87,7 @@ class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ContactFilterForm(PrimaryModelFilterSetForm):
+class ContactFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = Contact
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -99,7 +102,7 @@ class ContactFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
+class ContactAssignmentFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = ContactAssignment
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
@@ -131,3 +134,12 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+# Register FilterSet mappings for FilterModifierMixin lookup verification
+FILTERSET_MAPPINGS[ContactAssignmentFilterForm] = ContactAssignmentFilterSet
+FILTERSET_MAPPINGS[ContactFilterForm] = ContactFilterSet
+FILTERSET_MAPPINGS[ContactGroupFilterForm] = ContactGroupFilterSet
+FILTERSET_MAPPINGS[ContactRoleFilterForm] = ContactRoleFilterSet
+FILTERSET_MAPPINGS[TenantFilterForm] = TenantFilterSet
+FILTERSET_MAPPINGS[TenantGroupFilterForm] = TenantGroupFilterSet
