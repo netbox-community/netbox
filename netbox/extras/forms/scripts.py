@@ -79,8 +79,8 @@ class ScriptFileForm(ManagedFileForm):
                     pass
 
             # Save the new file and capture the actual filename
-            actual_filename = storage.save(filename, data)
-            self.instance.file_path = actual_filename
+            self.instance.file_path = filename
+            storage.save(filename, data)
 
         # need to skip ManagedFileForm save method
         return super(ManagedFileForm, self).save(*args, **kwargs)
