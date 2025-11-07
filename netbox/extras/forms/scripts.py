@@ -69,9 +69,18 @@ class ScriptFileForm(ManagedFileForm):
             storage = storages.create_storage(storages.backends["scripts"])
 
             filename = self.cleaned_data['upload_file'].name
-            self.instance.file_path = filename
             data = self.cleaned_data['upload_file']
-            storage.save(filename, data)
+
+            # If editing an existing file, delete the old one first to avoid random suffix
+            if self.instance.pk and self.instance.file_path:
+                try:
+                    storage.delete(self.instance.file_path)
+                except FileNotFoundError:
+                    pass
+
+            # Save the new file and capture the actual filename
+            actual_filename = storage.save(filename, data)
+            self.instance.file_path = actual_filename
 
         # need to skip ManagedFileForm save method
         return super(ManagedFileForm, self).save(*args, **kwargs)
