@@ -798,6 +798,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
     )
     comments = models.TextField(
         verbose_name=_('comments'),
+        blank=True,
     )
 
     class Meta:
