@@ -26,7 +26,7 @@ The VM's operational status.
 The start on boot setting from the hypervisor.
 
 !!! tip
-    Additional status may be defined by setting `VirtualMachine.start_on_boot` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+    Additional statuses may be defined by setting `VirtualMachine.start_on_boot` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
 ### Site & Cluster
 

@@ -21,7 +21,7 @@
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Start on boot" %}</th>
-                    <td>{{ object.get_start_on_boot_display|placeholder }}</td>
+                    <td>{% badge object.get_start_on_boot_display bg_color=object.get_start_on_boot_color %}</td>
                 </tr>
                 <tr>
                     <th scope="row">{% trans "Role" %}</th>

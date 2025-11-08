@@ -84,8 +84,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         choices=VirtualMachineStartOnBootChoices,
         default=VirtualMachineStartOnBootChoices.STATUS_OFF,
         verbose_name=_('start on boot'),
-        blank=True,
-        null=True,
     )
     role = models.ForeignKey(
         to='dcim.DeviceRole',
@@ -254,6 +252,9 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)
+
+    def get_start_on_boot_color(self):
+        return VirtualMachineStartOnBootChoices.colors.get(self.start_on_boot)
 
     @property
     def primary_ip(self):
