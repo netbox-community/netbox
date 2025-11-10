@@ -44,9 +44,11 @@ class ObjectView(ActionsMixin, BaseObjectView):
     Note: If `template_name` is not specified, it will be determined automatically based on the queryset model.
 
     Attributes:
+        layout: An instance of `netbox.ui.layout.Layout` which defines the page layout (overrides HTML template)
         tab: A ViewTab instance for the view
         actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
+    layout = None
     tab = None
     actions = (CloneObject, EditObject, DeleteObject)
 
@@ -81,6 +83,7 @@ class ObjectView(ActionsMixin, BaseObjectView):
             'object': instance,
             'actions': actions,
             'tab': self.tab,
+            'layout': self.layout,
             **self.get_extra_context(request, instance),
         })
 

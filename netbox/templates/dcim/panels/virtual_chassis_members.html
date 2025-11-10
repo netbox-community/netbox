@@ -1,0 +1,31 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    <thead>
+      <tr class="border-bottom">
+        <th>{% trans "Device" %}</th>
+        <th>{% trans "Position" %}</th>
+        <th>{% trans "Master" %}</th>
+        <th>{% trans "Priority" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for vc_member in vc_members %}
+        <tr{% if vc_member == object %} class="table-primary"{% endif %}>
+          <td>{{ vc_member|linkify }}</td>
+          <td>{% badge vc_member.vc_position show_empty=True %}</td>
+          <td>
+            {% if object.virtual_chassis.master == vc_member %}
+              {% checkmark True %}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+          <td>{{ vc_member.vc_priority|placeholder }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock panel_content %}

@@ -1,0 +1,3 @@
+{% load helpers i18n %}
+{{ value|floatformat }} {% trans "Kilograms" %}
+({{ value|kg_to_pounds|floatformat }} {% trans "Pounds" %})

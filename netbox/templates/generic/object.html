@@ -122,7 +122,20 @@ Context:
   {% plugin_alerts object %}
 {% endblock alerts %}
 
-{% block content %}{% endblock %}
+{% block content %}
+  {# Render panel layout declared on view class #}
+  {% for row in layout.rows %}
+    <div class="row">
+      {% for column in row.columns %}
+        <div class="col">
+          {% for panel in column.panels %}
+            {% render panel %}
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+{% endblock %}
 
 {% block modals %}
   {% include 'inc/htmx_modal.html' %}

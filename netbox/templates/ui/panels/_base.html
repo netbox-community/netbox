@@ -1,0 +1,15 @@
+<!-- begin {{ panel_class|default:"panel" }} -->
+<div class="card">
+  <h2 class="card-header">
+    {{ title }}
+    {% if actions %}
+      <div class="card-actions">
+        {% for action in actions %}
+          {% render action %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </h2>
+  {% block panel_content %}{% endblock %}
+</div>
+<!-- end {{ panel_class|default:"panel" }} -->
