@@ -1,6 +1,6 @@
 from django.template import loader
 from django.urls.exceptions import NoReverseMatch
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from extras.models import ExportTemplate
