@@ -453,6 +453,7 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         if instance.pk and self.cleaned_data['members']:
             initial_position = self.cleaned_data.get('initial_position', 1)
             for i, member in enumerate(self.cleaned_data['members'], start=initial_position):
+                member.snapshot()
                 member.virtual_chassis = instance
                 member.vc_position = i
                 member.save()

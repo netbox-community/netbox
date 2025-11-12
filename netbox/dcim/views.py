@@ -4044,6 +4044,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
     def post(self, request, pk):
 
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
+        virtual_chassis.snapshot()
         VCMemberFormSet = modelformset_factory(
             model=Device,
             form=forms.DeviceVCMembershipForm,
@@ -4096,9 +4097,7 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
         return 'dcim.change_virtualchassis'
 
     def get(self, request, pk):
-
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
-
         initial_data = {k: request.GET[k] for k in request.GET}
         member_select_form = forms.VCMemberSelectForm(initial=initial_data)
         membership_form = forms.DeviceVCMembershipForm(initial=initial_data)
@@ -4111,20 +4110,20 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
         })
 
     def post(self, request, pk):
-
         virtual_chassis = get_object_or_404(self.queryset, pk=pk)
-
         member_select_form = forms.VCMemberSelectForm(request.POST)
 
         if member_select_form.is_valid():
-
             device = member_select_form.cleaned_data['device']
+            device.snapshot()
             device.virtual_chassis = virtual_chassis
-            data = {k: request.POST[k] for k in ['vc_position', 'vc_priority']}
+            data = {
+                'vc_position': request.POST['vc_position'],
+                'vc_priority': request.POST['vc_priority'],
+            }
             membership_form = forms.DeviceVCMembershipForm(data=data, validate_vc_position=True, instance=device)
 
             if membership_form.is_valid():
-
                 membership_form.save()
                 messages.success(request, mark_safe(
                     _('Added member <a href="{url}">{device}</a>').format(
@@ -4134,11 +4133,9 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
 
                 if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
                     return redirect(request.get_full_path())
-
                 return redirect(self.get_return_url(request, device))
 
         else:
-
             membership_form = forms.DeviceVCMembershipForm(data=request.POST)
 
         return render(request, 'dcim/virtualchassis_add_member.html', {
@@ -4156,7 +4153,6 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         return 'dcim.change_device'
 
     def get(self, request, pk):
-
         device = get_object_or_404(self.queryset, pk=pk, virtual_chassis__isnull=False)
         form = ConfirmationForm(initial=request.GET)
 
@@ -4167,7 +4163,6 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
         })
 
     def post(self, request, pk):
-
         device = get_object_or_404(self.queryset, pk=pk, virtual_chassis__isnull=False)
         form = ConfirmationForm(request.POST)
 
@@ -4181,13 +4176,11 @@ class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURL
             return redirect(device.get_absolute_url())
 
         if form.is_valid():
-
-            devices = Device.objects.filter(pk=device.pk)
-            for device in devices:
-                device.virtual_chassis = None
-                device.vc_position = None
-                device.vc_priority = None
-                device.save()
+            device.snapshot()
+            device.virtual_chassis = None
+            device.vc_position = None
+            device.vc_priority = None
+            device.save()
 
             msg = _('Removed {device} from virtual chassis {chassis}').format(
                 device=device,

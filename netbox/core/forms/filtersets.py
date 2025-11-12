@@ -71,13 +71,13 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'status', name=_('Attributes')),
+        FieldSet('object_type_id', 'status', name=_('Attributes')),
         FieldSet(
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
             'started__after', 'completed__before', 'completed__after', 'user', name=_('Creation')
         ),
     )
-    object_type = ContentTypeChoiceField(
+    object_type_id = ContentTypeChoiceField(
         label=_('Object Type'),
         queryset=ObjectType.objects.with_feature('jobs'),
         required=False,
