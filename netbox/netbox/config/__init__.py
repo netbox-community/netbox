@@ -82,7 +82,7 @@ class Config:
             revision = ConfigRevision.objects.get(active=True)
             logger.debug(f"Loaded active configuration revision #{revision.pk}")
         except (ConfigRevision.DoesNotExist, ConfigRevision.MultipleObjectsReturned):
-            logger.warning("No active configuration revision found - falling back to most recent")
+            logger.debug("No active configuration revision found - falling back to most recent")
             revision = ConfigRevision.objects.order_by('-created').first()
             if revision is None:
                 logger.debug("No previous configuration found in database; proceeding with default values")

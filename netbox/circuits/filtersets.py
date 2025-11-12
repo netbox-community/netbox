@@ -89,8 +89,6 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(description__icontains=value) |
-            Q(accounts__account__icontains=value) |
-            Q(accounts__name__icontains=value) |
             Q(comments__icontains=value)
         )
 
