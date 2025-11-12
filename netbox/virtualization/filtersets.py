@@ -92,6 +92,10 @@ class VirtualMachineFilterSet(
         choices=VirtualMachineStatusChoices,
         null_value=None
     )
+    start_on_boot = django_filters.MultipleChoiceFilter(
+        choices=VirtualMachineStartOnBootChoices,
+        null_value=None
+    )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group',
         queryset=ClusterGroup.objects.all(),

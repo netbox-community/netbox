@@ -109,7 +109,7 @@ class VirtualMachineFilterForm(
         FieldSet('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id', name=_('Cluster')),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet(
-            'status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id',
+            'status', 'start_on_boot', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id',
             'local_context_data', 'serial', name=_('Attributes')
         ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -169,6 +169,11 @@ class VirtualMachineFilterForm(
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=VirtualMachineStatusChoices,
+        required=False
+    )
+    start_on_boot = forms.MultipleChoiceField(
+        label=_('Start on boot'),
+        choices=VirtualMachineStartOnBootChoices,
         required=False
     )
     platform_id = DynamicModelMultipleChoiceField(

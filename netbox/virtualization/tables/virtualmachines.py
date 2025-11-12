@@ -29,6 +29,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
+    start_on_boot = columns.ChoiceFieldColumn(
+        verbose_name=_('Start on boot'),
+    )
     site = tables.Column(
         verbose_name=_('Site'),
         linkify=True
@@ -81,9 +84,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
     class Meta(PrimaryModelTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'vcpus',
-            'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments', 'config_template',
-            'serial', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'role', 'tenant',
+            'tenant_group', 'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description',
+            'comments', 'config_template', 'serial', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

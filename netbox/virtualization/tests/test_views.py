@@ -271,6 +271,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'platform': platforms[1].pk,
             'name': 'Virtual Machine X',
             'status': VirtualMachineStatusChoices.STATUS_STAGED,
+            'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_ON,
             'role': roles[1].pk,
             'primary_ip4': None,
             'primary_ip6': None,
@@ -309,6 +310,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'memory': 65535,
             'disk': 8000,
             'comments': 'New comments',
+            'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_OFF,
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
