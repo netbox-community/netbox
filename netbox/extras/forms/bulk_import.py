@@ -13,7 +13,7 @@ from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
-    CSVMultipleContentTypeField, SlugField, DynamicModelMultipleChoiceField
+    CSVMultipleContentTypeField, SlugField
 )
 from core.models import DataSource, DataFile
 
@@ -145,7 +145,8 @@ class ExportTemplateImportForm(CSVModelForm):
     class Meta:
         model = ExportTemplate
         fields = (
-            'name', 'object_types', 'description', 'environment_params', 'mime_type', 'file_name', 'file_extension',
+            'name', 'object_types', 'description', 'environment_params',
+            'mime_type', 'file_name', 'file_extension',
             'as_attachment', 'template_code',
         )
 
@@ -191,8 +192,9 @@ class ConfigTemplateImportForm(CSVModelForm):
     class Meta:
         model = ConfigTemplate
         fields = (
-            'name', 'description', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled', 'environment_params', 'mime_type', 'file_name', 'file_extension',
-            'as_attachment', 'tags',
+            'name', 'description', 'template_code', 'data_source', 'data_file',
+            'auto_sync_enabled', 'environment_params', 'mime_type', 'file_name',
+            'file_extension', 'as_attachment', 'tags',
         )
 
     def clean_template_code(self):
@@ -207,6 +209,7 @@ class ConfigTemplateImportForm(CSVModelForm):
         if not self.data.get('auto_sync_enabled'):
             self.cleaned_data['auto_sync_enabled'] = False
         return self.cleaned_data['auto_sync_enabled']
+
 
 class SavedFilterImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
