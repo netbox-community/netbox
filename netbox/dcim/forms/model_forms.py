@@ -807,8 +807,8 @@ class CableForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = Cable
         fields = [
-            'a_terminations_type', 'b_terminations_type', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
+            'a_terminations_type', 'b_terminations_type', 'type', 'status', 'profile', 'tenant_group', 'tenant',
+            'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 

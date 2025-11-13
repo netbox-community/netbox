@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
@@ -31,17 +33,22 @@ def path_node_to_object(repr):
     return ct.model_class().objects.filter(pk=object_id).first()
 
 
-def create_cablepath(terminations):
+def create_cablepaths(objects):
     """
     Create CablePaths for all paths originating from the specified set of nodes.
 
-    :param terminations: Iterable of CableTermination objects
+    :param objects: Iterable of cabled objects (e.g. Interfaces)
     """
     from dcim.models import CablePath
 
-    cp = CablePath.from_origin(terminations)
-    if cp:
-        cp.save()
+    # Arrange objects by cable position. All objects with a null position are grouped together.
+    origins = defaultdict(list)
+    for obj in objects:
+        origins[obj.cable_position].append(obj)
+
+    for position, objects in origins.items():
+        if cp := CablePath.from_origin(objects):
+            cp.save()
 
 
 def rebuild_paths(terminations):
@@ -56,7 +63,7 @@ def rebuild_paths(terminations):
         with transaction.atomic(using=router.db_for_write(CablePath)):
             for cp in cable_paths:
                 cp.delete()
-                create_cablepath(cp.origins)
+                create_cablepaths(cp.origins)
 
 
 def update_interface_bridges(device, interface_templates, module=None):
