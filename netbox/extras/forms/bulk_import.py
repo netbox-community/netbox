@@ -14,7 +14,7 @@ from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
-    CSVMultipleContentTypeField, SlugField
+    CSVMultipleContentTypeField, SlugField,
 )
 from core.models import DataSource, DataFile
 
