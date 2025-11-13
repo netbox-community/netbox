@@ -174,11 +174,6 @@ class ConfigTemplateImportForm(CSVModelForm):
         to_field_name='path',
         help_text=_('Data file containing the template code')
     )
-    template_code = forms.CharField(
-        label=_('Template code'),
-        required=False,
-        widget=forms.Textarea(attrs={'class': 'font-monospace'})
-    )
     auto_sync_enabled = forms.BooleanField(
         required=False,
         label=_('auto sync enabled'),
