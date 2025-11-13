@@ -167,7 +167,6 @@ class ConfigTemplateImportForm(CSVModelForm):
         to_field_name='name',
         help_text=_('Data source which provides the data file')
     )
-
     data_file = CSVModelChoiceField(
         label=_('DataFile'),
         queryset=DataFile.objects.all(),
@@ -175,13 +174,11 @@ class ConfigTemplateImportForm(CSVModelForm):
         to_field_name='path',
         help_text=_('DataFile containing the template code')
     )
-
     template_code = forms.CharField(
         label=_('Template code'),
         required=False,
         widget=forms.Textarea(attrs={'class': 'font-monospace'})
     )
-
     auto_sync_enabled = forms.BooleanField(
         required=False,
         label=_('auto sync enabled'),
