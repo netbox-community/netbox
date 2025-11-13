@@ -168,7 +168,7 @@ class ConfigTemplateImportForm(CSVModelForm):
         help_text=_('Data source which provides the data file')
     )
     data_file = CSVModelChoiceField(
-        label=_('DataFile'),
+        label=_('Data file'),
         queryset=DataFile.objects.all(),
         required=False,
         to_field_name='path',
