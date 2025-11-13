@@ -5,7 +5,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType
+from core.models import ObjectType, DataSource, DataFile
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
@@ -16,7 +16,6 @@ from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
     CSVMultipleContentTypeField, SlugField,
 )
-from core.models import DataSource, DataFile
 
 __all__ = (
     'ConfigContextProfileImportForm',
