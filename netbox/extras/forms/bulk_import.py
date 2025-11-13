@@ -145,8 +145,7 @@ class ExportTemplateImportForm(CSVModelForm):
     class Meta:
         model = ExportTemplate
         fields = (
-            'name', 'object_types', 'description', 'environment_params',
-            'mime_type', 'file_name', 'file_extension',
+            'name', 'object_types', 'description', 'environment_params', 'mime_type', 'file_name', 'file_extension',
             'as_attachment', 'template_code',
         )
 
