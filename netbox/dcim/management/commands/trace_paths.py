@@ -4,7 +4,7 @@ from django.db import connection
 from django.db.models import Q
 
 from dcim.models import CablePath, ConsolePort, ConsoleServerPort, Interface, PowerFeed, PowerOutlet, PowerPort
-from dcim.signals import create_cablepath
+from dcim.signals import create_cablepaths
 
 ENDPOINT_MODELS = (
     ConsolePort,
@@ -81,7 +81,7 @@ class Command(BaseCommand):
             self.stdout.write(f'Retracing {origins_count} cabled {model._meta.verbose_name_plural}...')
             i = 0
             for i, obj in enumerate(origins, start=1):
-                create_cablepath([obj])
+                create_cablepaths([obj])
                 if not i % 100:
                     self.draw_progress_bar(i * 100 / origins_count)
             self.draw_progress_bar(100)

@@ -1717,6 +1717,40 @@ class PortTypeChoices(ChoiceSet):
 # Cables/links
 #
 
+class CableProfileChoices(ChoiceSet):
+    STRAIGHT_SINGLE = 'straight-single'
+    STRAIGHT_MULTI = 'straight-multi'
+    A_TO_MANY = 'a-to-many'
+    B_TO_MANY = 'b-to-many'
+    SHUFFLE_4X4 = 'shuffle-4x4'
+    SHUFFLE_8X8 = 'shuffle-8x8'
+
+    CHOICES = (
+        (STRAIGHT_SINGLE, _('Straight (single position)')),
+        (STRAIGHT_MULTI, _('Straight (multi-position)')),
+        # TODO: Better names for many-to-one profiles?
+        (A_TO_MANY, _('A to many')),
+        (B_TO_MANY, _('B to many')),
+        (SHUFFLE_4X4, _('Shuffle (4x4)')),
+        (SHUFFLE_8X8, _('Shuffle (8x8)')),
+    )
+
+    # TODO: Move these designations into the profiles
+    A_SIDE_NUMBERED = (
+        STRAIGHT_SINGLE,
+        STRAIGHT_MULTI,
+        B_TO_MANY,
+        SHUFFLE_4X4,
+        SHUFFLE_8X8,
+    )
+    B_SIDE_NUMBERED = (
+        STRAIGHT_SINGLE,
+        STRAIGHT_MULTI,
+        A_TO_MANY,
+        SHUFFLE_4X4,
+        SHUFFLE_8X8,
+    )
+
 
 class CableTypeChoices(ChoiceSet):
     # Copper - Twisted Pair (UTP/STP)

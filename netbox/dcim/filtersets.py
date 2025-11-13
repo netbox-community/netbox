@@ -2307,6 +2307,9 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=LinkStatusChoices
     )
+    profile = django_filters.MultipleChoiceFilter(
+        choices=CableProfileChoices
+    )
     color = django_filters.MultipleChoiceFilter(
         choices=ColorChoices
     )

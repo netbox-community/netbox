@@ -1461,6 +1461,12 @@ class CableImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Connection status')
     )
+    profile = CSVChoiceField(
+        label=_('Profile'),
+        choices=CableProfileChoices,
+        required=False,
+        help_text=_('Cable connection profile')
+    )
     type = CSVChoiceField(
         label=_('Type'),
         choices=CableTypeChoices,
@@ -1491,8 +1497,8 @@ class CableImportForm(PrimaryModelImportForm):
         model = Cable
         fields = [
             'side_a_site', 'side_a_device', 'side_a_type', 'side_a_name', 'side_b_site', 'side_b_device', 'side_b_type',
-            'side_b_name', 'type', 'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description',
-            'owner', 'comments', 'tags',
+            'side_b_name', 'type', 'status', 'profile', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):

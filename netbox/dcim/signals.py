@@ -11,7 +11,7 @@ from .models import (
     VirtualChassis,
 )
 from .models.cables import trace_paths
-from .utils import create_cablepath, rebuild_paths
+from .utils import create_cablepaths, rebuild_paths
 
 COMPONENT_MODELS = (
     ConsolePort,
@@ -114,7 +114,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             if not nodes:
                 continue
             if isinstance(nodes[0], PathEndpoint):
-                create_cablepath(nodes)
+                create_cablepaths(nodes)
             else:
                 rebuild_paths(nodes)
 
