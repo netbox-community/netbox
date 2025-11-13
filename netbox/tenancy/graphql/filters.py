@@ -3,7 +3,7 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import FilterLookup
+from strawberry_django import BaseFilterLookup, FilterLookup
 
 from core.graphql.filter_mixins import ChangeLogFilterMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
@@ -191,6 +191,6 @@ class ContactAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLo
         strawberry_django.filter_field()
     )
     role_id: ID | None = strawberry_django.filter_field()
-    priority: Annotated['ContactPriorityEnum', strawberry.lazy('tenancy.graphql.enums')] | None = (
+    priority: BaseFilterLookup[Annotated['ContactPriorityEnum', strawberry.lazy('tenancy.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
