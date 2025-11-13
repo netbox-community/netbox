@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
+
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
