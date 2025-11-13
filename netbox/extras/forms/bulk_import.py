@@ -172,7 +172,7 @@ class ConfigTemplateImportForm(CSVModelForm):
         queryset=DataFile.objects.all(),
         required=False,
         to_field_name='path',
-        help_text=_('DataFile containing the template code')
+        help_text=_('Data file containing the template code')
     )
     template_code = forms.CharField(
         label=_('Template code'),
