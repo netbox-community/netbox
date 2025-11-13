@@ -317,7 +317,7 @@ class RackTypeFilterForm(RackBaseFilterForm):
     model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
-        FieldSet('manufacturer_id', 'form_factor', 'width', 'u_height', name=_('Rack Type')),
+        FieldSet('manufacturer_id', 'form_factor', 'width', 'u_height', 'rack_count', name=_('Rack Type')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
@@ -326,6 +326,11 @@ class RackTypeFilterForm(RackBaseFilterForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         label=_('Manufacturer')
+    )
+    rack_count = forms.IntegerField(
+        label=_('Rack count'),
+        required=False,
+        min_value=0,
     )
     tag = TagFilterField(model)
 
@@ -498,7 +503,8 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet(
-            'manufacturer_id', 'default_platform_id', 'part_number', 'subdevice_role', 'airflow', name=_('Hardware')
+            'manufacturer_id', 'default_platform_id', 'part_number', 'device_count',
+            'subdevice_role', 'airflow', name=_('Hardware')
         ),
         FieldSet('has_front_image', 'has_rear_image', name=_('Images')),
         FieldSet(
@@ -521,6 +527,11 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
     part_number = forms.CharField(
         label=_('Part number'),
         required=False
+    )
+    device_count = forms.IntegerField(
+        label=_('Device count'),
+        required=False,
+        min_value=0,
     )
     subdevice_role = forms.MultipleChoiceField(
         label=_('Subdevice role'),
@@ -633,7 +644,10 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
-        FieldSet('profile_id', 'manufacturer_id', 'part_number', 'airflow', name=_('Hardware')),
+        FieldSet(
+            'profile_id', 'manufacturer_id', 'part_number', 'module_count',
+            'airflow', name=_('Hardware')
+        ),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
             'pass_through_ports', name=_('Components')
@@ -654,6 +668,11 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
     part_number = forms.CharField(
         label=_('Part number'),
         required=False
+    )
+    module_count = forms.IntegerField(
+        label=_('Module count'),
+        required=False,
+        min_value=0,
     )
     console_ports = forms.NullBooleanField(
         required=False,
