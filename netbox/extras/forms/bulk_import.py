@@ -165,7 +165,7 @@ class ConfigTemplateImportForm(CSVModelForm):
         queryset=DataSource.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('data_source of the config template')
+        help_text=_('Data source which provides the data file')
     )
 
     data_file = CSVModelChoiceField(
