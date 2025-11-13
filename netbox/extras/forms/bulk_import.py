@@ -161,7 +161,7 @@ class ConfigContextProfileImportForm(NetBoxModelImportForm):
 
 class ConfigTemplateImportForm(CSVModelForm):
     data_source = CSVModelChoiceField(
-        label=_('DataSource'),
+        label=_('Data source'),
         queryset=DataSource.objects.all(),
         required=False,
         to_field_name='name',
