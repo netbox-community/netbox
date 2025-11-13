@@ -76,10 +76,10 @@ class RackTypeTable(PrimaryModelTable):
         template_code=WEIGHT,
         order_by=('_abs_max_weight', 'weight_unit')
     )
-    instance_count = columns.LinkedCountColumn(
+    rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'rack_type_id': 'pk'},
-        verbose_name=_('Instances')
+        verbose_name=_('Rack Count'),
     )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
@@ -90,10 +90,10 @@ class RackTypeTable(PrimaryModelTable):
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
             'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description',
-            'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'comments', 'rack_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'instance_count',
+            'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'rack_count',
         )
 
 

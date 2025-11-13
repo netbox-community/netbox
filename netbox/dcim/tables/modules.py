@@ -56,10 +56,10 @@ class ModuleTypeTable(PrimaryModelTable):
         order_by=('_abs_weight', 'weight_unit')
     )
     attributes = columns.DictColumn()
-    instance_count = columns.LinkedCountColumn(
+    module_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},
-        verbose_name=_('Instances')
+        verbose_name=_('Module Count'),
     )
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
@@ -69,10 +69,10 @@ class ModuleTypeTable(PrimaryModelTable):
         model = ModuleType
         fields = (
             'pk', 'id', 'model', 'profile', 'manufacturer', 'part_number', 'airflow', 'weight', 'description',
-            'attributes', 'comments', 'tags', 'created', 'last_updated',
+            'attributes', 'module_count', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'model', 'profile', 'manufacturer', 'part_number',
+            'pk', 'model', 'profile', 'manufacturer', 'part_number', 'module_count',
         )
 
 

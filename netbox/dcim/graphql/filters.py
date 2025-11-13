@@ -4,7 +4,7 @@ from django.db.models import Q
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import FilterLookup
+from strawberry_django import ComparisonFilterLookup, FilterLookup
 
 from core.graphql.filter_mixins import ChangeLogFilterMixin
 from dcim import models
@@ -328,6 +328,9 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     )
     default_platform_id: ID | None = strawberry_django.filter_field()
     part_number: FilterLookup[str] | None = strawberry_django.filter_field()
+    instances: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     u_height: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -385,6 +388,7 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     device_bay_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
     module_bay_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
     inventory_item_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
+    device_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.FrontPort, lookups=True)
@@ -685,6 +689,9 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     profile_id: ID | None = strawberry_django.filter_field()
     model: FilterLookup[str] | None = strawberry_django.filter_field()
     part_number: FilterLookup[str] | None = strawberry_django.filter_field()
+    instances: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     airflow: Annotated['ModuleAirflowEnum', strawberry.lazy('dcim.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
@@ -718,6 +725,7 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
     inventory_item_templates: (
         Annotated['InventoryItemTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
     ) = strawberry_django.filter_field()
+    module_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.Platform, lookups=True)
@@ -846,6 +854,8 @@ class RackTypeFilter(RackBaseFilterMixin):
     manufacturer_id: ID | None = strawberry_django.filter_field()
     model: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
+    racks: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
+    rack_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.Rack, lookups=True)

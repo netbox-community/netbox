@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.models import DeviceType, ModuleType, ModuleTypeProfile
-from netbox.api.fields import AttributesField, ChoiceField, RelatedObjectCountField
+from netbox.api.fields import AttributesField, ChoiceField
 from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
 from .manufacturers import ManufacturerSerializer
@@ -45,9 +45,7 @@ class DeviceTypeSerializer(PrimaryModelSerializer):
     device_bay_template_count = serializers.IntegerField(read_only=True)
     module_bay_template_count = serializers.IntegerField(read_only=True)
     inventory_item_template_count = serializers.IntegerField(read_only=True)
-
-    # Related object counts
-    device_count = RelatedObjectCountField('instances')
+    device_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = DeviceType
@@ -100,12 +98,13 @@ class ModuleTypeSerializer(PrimaryModelSerializer):
         required=False,
         allow_null=True
     )
+    module_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
             'weight', 'weight_unit', 'description', 'attributes', 'owner', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'created', 'last_updated', 'module_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description')
+        brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description', 'module_count')

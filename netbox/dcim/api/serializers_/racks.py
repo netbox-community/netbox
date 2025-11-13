@@ -62,9 +62,8 @@ class RackBaseSerializer(PrimaryModelSerializer):
 
 
 class RackTypeSerializer(RackBaseSerializer):
-    manufacturer = ManufacturerSerializer(
-        nested=True
-    )
+    manufacturer = ManufacturerSerializer(nested=True)
+    rack_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = RackType
@@ -72,9 +71,9 @@ class RackTypeSerializer(RackBaseSerializer):
             'id', 'url', 'display_url', 'display', 'manufacturer', 'model', 'slug', 'description', 'form_factor',
             'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
             'outer_unit', 'weight', 'max_weight', 'weight_unit', 'mounting_depth', 'description', 'owner', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'tags', 'custom_fields', 'created', 'last_updated', 'rack_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description', 'rack_count')
 
 
 class RackSerializer(RackBaseSerializer):
