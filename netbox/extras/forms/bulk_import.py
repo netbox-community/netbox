@@ -176,7 +176,7 @@ class ConfigTemplateImportForm(CSVModelForm):
     )
     auto_sync_enabled = forms.BooleanField(
         required=False,
-        label=_('auto sync enabled'),
+        label=_('Auto sync enabled'),
         help_text=_("Enable automatic synchronization of data when the data file is updated")
     )
 
