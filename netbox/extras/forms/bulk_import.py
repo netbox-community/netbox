@@ -195,12 +195,6 @@ class ConfigTemplateImportForm(CSVModelForm):
             raise forms.ValidationError(_("Must specify either local content or a data file"))
         return self.cleaned_data['template_code']
 
-    def clean_auto_sync_enabled(self):
-        # Make sure is_primary is None when it's not included in the uploaded data
-        if not self.data.get('auto_sync_enabled'):
-            self.cleaned_data['auto_sync_enabled'] = False
-        return self.cleaned_data['auto_sync_enabled']
-
 
 class SavedFilterImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
