@@ -856,9 +856,7 @@ class RackRoleBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(RackType, 'list', path='', detail=False)
 class RackTypeListView(generic.ObjectListView):
-    queryset = RackType.objects.annotate(
-        instance_count=count_related(Rack, 'rack_type')
-    )
+    queryset = RackType.objects.all()
     filterset = filtersets.RackTypeFilterSet
     filterset_form = forms.RackTypeFilterForm
     table = tables.RackTypeTable
@@ -1298,9 +1296,7 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(DeviceType, 'list', path='', detail=False)
 class DeviceTypeListView(generic.ObjectListView):
-    queryset = DeviceType.objects.annotate(
-        instance_count=count_related(Device, 'device_type')
-    )
+    queryset = DeviceType.objects.all()
     filterset = filtersets.DeviceTypeFilterSet
     filterset_form = forms.DeviceTypeFilterForm
     table = tables.DeviceTypeTable
@@ -1531,9 +1527,7 @@ class DeviceTypeImportView(generic.BulkImportView):
 
 @register_model_view(DeviceType, 'bulk_edit', path='edit', detail=False)
 class DeviceTypeBulkEditView(generic.BulkEditView):
-    queryset = DeviceType.objects.annotate(
-        instance_count=count_related(Device, 'device_type')
-    )
+    queryset = DeviceType.objects.all()
     filterset = filtersets.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
     form = forms.DeviceTypeBulkEditForm
@@ -1548,9 +1542,7 @@ class DeviceTypeBulkRenameView(generic.BulkRenameView):
 
 @register_model_view(DeviceType, 'bulk_delete', path='delete', detail=False)
 class DeviceTypeBulkDeleteView(generic.BulkDeleteView):
-    queryset = DeviceType.objects.annotate(
-        instance_count=count_related(Device, 'device_type')
-    )
+    queryset = DeviceType.objects.all()
     filterset = filtersets.DeviceTypeFilterSet
     table = tables.DeviceTypeTable
 
@@ -1652,9 +1644,7 @@ class ModuleTypeProfileBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(ModuleType, 'list', path='', detail=False)
 class ModuleTypeListView(generic.ObjectListView):
-    queryset = ModuleType.objects.annotate(
-        instance_count=count_related(Module, 'module_type')
-    )
+    queryset = ModuleType.objects.all()
     filterset = filtersets.ModuleTypeFilterSet
     filterset_form = forms.ModuleTypeFilterForm
     table = tables.ModuleTypeTable

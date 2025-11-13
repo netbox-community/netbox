@@ -317,7 +317,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
     model = RackType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'rack_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
     }
@@ -610,7 +610,7 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
     model = ModuleType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'profile', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'module_count', 'profile', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }
