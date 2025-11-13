@@ -187,11 +187,12 @@ class ConfigTemplateImportForm(CSVModelForm):
             'environment_params', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'tags', 
         )
 
-    def clean_template_code(self):
+    def clean(self):
+        super().clean()
+
         # Make sure template_code is None when it's not included in the uploaded data
         if not self.data.get('template_code') and not self.data.get('data_file'):
             raise forms.ValidationError(_("Must specify either local content or a data file"))
-
         return self.cleaned_data['template_code']
 
     def clean_auto_sync_enabled(self):
