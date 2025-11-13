@@ -126,7 +126,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         ordered.extend(script_objects.values())
         return ordered
 
-    @property
+    @cached_property
     def module_scripts(self):
 
         def _get_name(cls):

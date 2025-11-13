@@ -1,5 +1,33 @@
 # NetBox v4.4
 
+## v4.4.6 (2025-11-11)
+
+### Enhancements
+
+* [#14171](https://github.com/netbox-community/netbox/issues/14171) - Support VLAN assignment for device & VM interfaces being bulk imported
+* [#20297](https://github.com/netbox-community/netbox/issues/20297) - Introduce additional coaxial cable types
+
+### Bug Fixes
+
+* [#20378](https://github.com/netbox-community/netbox/issues/20378) - Prevent exception when attempting to delete a data source utilized by a custom script
+* [#20645](https://github.com/netbox-community/netbox/issues/20645) - CSVChoiceField should defer to model field's default value when CSV field is empty
+* [#20647](https://github.com/netbox-community/netbox/issues/20647) - Improve handling of empty strings during bulk imports
+* [#20653](https://github.com/netbox-community/netbox/issues/20653) - Fix filtering of jobs by object type ID
+* [#20660](https://github.com/netbox-community/netbox/issues/20660) - Optimize loading of custom script modules from remote storage
+* [#20670](https://github.com/netbox-community/netbox/issues/20670) - Improve validation of related objects during bulk import
+* [#20688](https://github.com/netbox-community/netbox/issues/20688) - Suppress non-harmful "No active configuration revision found" warning message
+* [#20697](https://github.com/netbox-community/netbox/issues/20697) - Prevent duplication of signals which increment/decrement related object counts
+* [#20699](https://github.com/netbox-community/netbox/issues/20699) - Ensure proper ordering of changelog entries resulting from cascading deletions
+* [#20713](https://github.com/netbox-community/netbox/issues/20713) - Ensure a pre-change snapshot is recorded on virtual chassis members being added/removed
+* [#20721](https://github.com/netbox-community/netbox/issues/20721) - Fix breadcrumb navigation links in UI for background tasks
+* [#20738](https://github.com/netbox-community/netbox/issues/20738) - Deleting a virtual chassis should nullify the `vc_position` of all former members
+* [#20750](https://github.com/netbox-community/netbox/issues/20750) - Fix cloning of permissions when only one action is enabled
+* [#20755](https://github.com/netbox-community/netbox/issues/20755) - Prevent duplicate results under certain conditions when filtering providers
+* [#20771](https://github.com/netbox-community/netbox/issues/20771) - Comments are required when creating a new journal entry
+* [#20774](https://github.com/netbox-community/netbox/issues/20774) - Bulk action button labels should be translated
+
+---
+
 ## v4.4.5 (2025-10-28)
 
 ### Enhancements
