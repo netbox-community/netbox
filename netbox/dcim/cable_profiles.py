@@ -53,7 +53,12 @@ class BaseCableProfile:
 
         # Pop the position stack if necessary
         if (local_end == 'A' and self.pop_stack_a_side) or (local_end == 'B' and self.pop_stack_b_side):
-            position = position_stack.pop()[0]
+            try:
+                position = position_stack.pop()[0]
+            except IndexError:
+                # TODO: Should this raise an error?
+                # Bottomed out of stack
+                pass
 
         qs = CableTermination.objects.filter(
             cable=terminations[0].cable,
@@ -78,14 +83,14 @@ class AToManyCableProfile(BaseCableProfile):
     a_max_connections = 1
     b_max_connections = None
     symmetrical = False
-    pop_stack_a_side = False
+    pop_stack_b_side = False
 
 
 class BToManyCableProfile(BaseCableProfile):
     a_max_connections = None
     b_max_connections = 1
     symmetrical = False
-    pop_stack_b_side = False
+    pop_stack_a_side = False
 
 
 class Shuffle2x2MPOCableProfile(BaseCableProfile):
