@@ -2427,7 +2427,7 @@ class CableTerminationTest(
     APIViewTestCases.ListObjectsViewTestCase,
 ):
     model = CableTermination
-    brief_fields = ['cable', 'cable_end', 'display', 'id', 'termination_id', 'termination_type', 'url']
+    brief_fields = ['cable', 'cable_end', 'display', 'id', 'position', 'termination_id', 'termination_type', 'url']
 
     @classmethod
     def setUpTestData(cls):
