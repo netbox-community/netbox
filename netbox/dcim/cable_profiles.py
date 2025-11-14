@@ -88,20 +88,7 @@ class BToManyCableProfile(BaseCableProfile):
     pop_stack_b_side = False
 
 
-class Shuffle4x4CableProfile(BaseCableProfile):
-    a_max_connections = 4
-    b_max_connections = 4
-
-    def get_mapped_position(self, position):
-        return {
-            1: 1,
-            2: 3,
-            3: 2,
-            4: 4,
-        }.get(position)
-
-
-class Shuffle8x8CableProfile(BaseCableProfile):
+class Shuffle2x2MPOCableProfile(BaseCableProfile):
     a_max_connections = 8
     b_max_connections = 8
 

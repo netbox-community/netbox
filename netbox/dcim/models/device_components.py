@@ -180,8 +180,8 @@ class CabledObjectModel(models.Model):
         blank=True,
         null=True,
         validators=(
-            MinValueValidator(CABLETERMINATION_POSITION_MIN),
-            MaxValueValidator(CABLETERMINATION_POSITION_MAX)
+            MinValueValidator(CABLE_POSITION_MIN),
+            MaxValueValidator(CABLE_POSITION_MAX)
         ),
     )
     mark_connected = models.BooleanField(
