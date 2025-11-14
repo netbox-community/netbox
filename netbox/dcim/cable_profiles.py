@@ -12,9 +12,9 @@ class BaseCableProfile:
     # Number of A & B terminations must match
     symmetrical = True
 
-    # Whether to pop the position stack when tracing a cable from this end
-    pop_stack_a_side = True
-    pop_stack_b_side = True
+    # Whether terminations on either side of the cable have a numeric position
+    a_side_numbered = True
+    b_side_numbered = True
 
     def clean(self, cable):
         if self.a_max_connections and len(cable.a_terminations) > self.a_max_connections:
@@ -52,7 +52,7 @@ class BaseCableProfile:
         position = None
 
         # Pop the position stack if necessary
-        if (local_end == 'A' and self.pop_stack_a_side) or (local_end == 'B' and self.pop_stack_b_side):
+        if (local_end == 'A' and self.b_side_numbered) or (local_end == 'B' and self.a_side_numbered):
             try:
                 position = position_stack.pop()[0]
             except IndexError:
@@ -83,14 +83,14 @@ class AToManyCableProfile(BaseCableProfile):
     a_max_connections = 1
     b_max_connections = None
     symmetrical = False
-    pop_stack_b_side = False
+    a_side_numbered = False
 
 
 class BToManyCableProfile(BaseCableProfile):
     a_max_connections = None
     b_max_connections = 1
     symmetrical = False
-    pop_stack_a_side = False
+    b_side_numbered = False
 
 
 class Shuffle2x2MPOCableProfile(BaseCableProfile):

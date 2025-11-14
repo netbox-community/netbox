@@ -1733,20 +1733,6 @@ class CableProfileChoices(ChoiceSet):
         (SHUFFLE_2X2_MPO, _('Shuffle (2x2 MPO)')),
     )
 
-    # TODO: Move these designations into the profiles
-    A_SIDE_NUMBERED = (
-        STRAIGHT_SINGLE,
-        STRAIGHT_MULTI,
-        B_TO_MANY,
-        SHUFFLE_2X2_MPO,
-    )
-    B_SIDE_NUMBERED = (
-        STRAIGHT_SINGLE,
-        STRAIGHT_MULTI,
-        A_TO_MANY,
-        SHUFFLE_2X2_MPO,
-    )
-
 
 class CableTypeChoices(ChoiceSet):
     # Copper - Twisted Pair (UTP/STP)

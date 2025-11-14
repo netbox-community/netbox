@@ -327,6 +327,7 @@ class Cable(PrimaryModel):
         Create/delete CableTerminations for this Cable to reflect its current state.
         """
         a_terminations, b_terminations = self.get_terminations()
+        profile = self.profile_class if self.profile else None
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
@@ -339,11 +340,11 @@ class Cable(PrimaryModel):
         # Save any new CableTerminations
         for i, termination in enumerate(self.a_terminations, start=1):
             if not termination.pk or termination not in a_terminations:
-                position = i if self.profile in CableProfileChoices.A_SIDE_NUMBERED else None
+                position = i if profile and profile.a_side_numbered else None
                 CableTermination(cable=self, cable_end='A', position=position, termination=termination).save()
         for i, termination in enumerate(self.b_terminations, start=1):
             if not termination.pk or termination not in b_terminations:
-                position = i if self.profile in CableProfileChoices.B_SIDE_NUMBERED else None
+                position = i if profile and profile.b_side_numbered else None
                 CableTermination(cable=self, cable_end='B', position=position, termination=termination).save()
 
 
