@@ -65,7 +65,7 @@ class CableTerminationSerializer(NetBoxModelSerializer):
         ]
         read_only_fields = fields
         brief_fields = (
-            'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id', 'position',
+            'id', 'url', 'display', 'cable', 'cable_end', 'position', 'termination_type', 'termination_id',
         )
 
 
