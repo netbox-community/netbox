@@ -32,7 +32,7 @@ class BaseCableProfile:
                     'Maximum B side connections for profile {profile}: {max}'
                 ).format(
                     profile=cable.get_profile_display(),
-                    max=self.a_max_connections,
+                    max=self.b_max_connections,
                 )
             })
         if self.symmetrical and len(cable.a_terminations) != len(cable.b_terminations):
