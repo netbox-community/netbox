@@ -138,8 +138,7 @@ class Cable(PrimaryModel):
             CableProfileChoices.STRAIGHT_MULTI: cable_profiles.StraightMultiCableProfile,
             CableProfileChoices.A_TO_MANY: cable_profiles.AToManyCableProfile,
             CableProfileChoices.B_TO_MANY: cable_profiles.BToManyCableProfile,
-            CableProfileChoices.SHUFFLE_4X4: cable_profiles.Shuffle4x4CableProfile,
-            CableProfileChoices.SHUFFLE_8X8: cable_profiles.Shuffle8x8CableProfile,
+            CableProfileChoices.SHUFFLE_2X2_MPO: cable_profiles.Shuffle2x2MPOCableProfile,
         }.get(self.profile)
 
     def _get_x_terminations(self, side):
@@ -376,8 +375,8 @@ class CableTermination(ChangeLoggedModel):
         blank=True,
         null=True,
         validators=(
-            MinValueValidator(CABLETERMINATION_POSITION_MIN),
-            MaxValueValidator(CABLETERMINATION_POSITION_MAX)
+            MinValueValidator(CABLE_POSITION_MIN),
+            MaxValueValidator(CABLE_POSITION_MAX)
         )
     )
 
