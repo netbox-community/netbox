@@ -138,7 +138,8 @@ class Cable(PrimaryModel):
             CableProfileChoices.STRAIGHT_MULTI: cable_profiles.StraightMultiCableProfile,
             CableProfileChoices.A_TO_MANY: cable_profiles.AToManyCableProfile,
             CableProfileChoices.B_TO_MANY: cable_profiles.BToManyCableProfile,
-            CableProfileChoices.SHUFFLE_2X2_MPO: cable_profiles.Shuffle2x2MPOCableProfile,
+            CableProfileChoices.SHUFFLE_2X2_MPO8: cable_profiles.Shuffle2x2MPO8CableProfile,
+            CableProfileChoices.SHUFFLE_4X4_MPO8: cable_profiles.Shuffle4x4MPO8CableProfile,
         }.get(self.profile)
 
     def _get_x_terminations(self, side):
