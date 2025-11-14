@@ -780,6 +780,12 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
+    profile = forms.ChoiceField(
+        label=_('Profile'),
+        choices=add_blank_choice(CableProfileChoices),
+        required=False,
+        initial=''
+    )
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -808,11 +814,11 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
 
     model = Cable
     fieldsets = (
-        FieldSet('type', 'status', 'tenant', 'label', 'description'),
+        FieldSet('type', 'status', 'profile', 'tenant', 'label', 'description'),
         FieldSet('color', 'length', 'length_unit', name=_('Attributes')),
     )
     nullable_fields = (
-        'type', 'status', 'tenant', 'label', 'color', 'length', 'description', 'comments',
+        'type', 'status', 'profile', 'tenant', 'label', 'color', 'length', 'description', 'comments',
     )
 
 

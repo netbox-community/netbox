@@ -5,7 +5,7 @@ from django.dispatch import receiver
 
 from dcim.exceptions import UnsupportedCablePath
 from dcim.models import CablePath, Interface
-from dcim.utils import create_cablepath
+from dcim.utils import create_cablepaths
 from utilities.exceptions import AbortRequest
 from .models import WirelessLink
 
@@ -37,7 +37,7 @@ def update_connected_interfaces(instance, created, raw=False, **kwargs):
     if created:
         for interface in (instance.interface_a, instance.interface_b):
             try:
-                create_cablepath([interface])
+                create_cablepaths([interface])
             except UnsupportedCablePath as e:
                 raise AbortRequest(e)
 

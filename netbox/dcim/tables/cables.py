@@ -108,6 +108,7 @@ class CableTable(TenancyColumnsMixin, PrimaryModelTable):
         verbose_name=_('Site B')
     )
     status = columns.ChoiceFieldColumn()
+    profile = columns.ChoiceFieldColumn()
     length = columns.TemplateColumn(
         template_code=CABLE_LENGTH,
         order_by=('_abs_length')
@@ -125,8 +126,8 @@ class CableTable(TenancyColumnsMixin, PrimaryModelTable):
         model = Cable
         fields = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'device_a', 'device_b', 'rack_a', 'rack_b',
-            'location_a', 'location_b', 'site_a', 'site_b', 'status', 'type', 'tenant', 'tenant_group', 'color',
-            'color_name', 'length', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'location_a', 'location_b', 'site_a', 'site_b', 'status', 'profile', 'type', 'tenant', 'tenant_group',
+            'color', 'color_name', 'length', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type',

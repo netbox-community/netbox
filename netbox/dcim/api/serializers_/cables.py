@@ -25,15 +25,16 @@ class CableSerializer(PrimaryModelSerializer):
     a_terminations = GenericObjectSerializer(many=True, required=False)
     b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
+    profile = ChoiceField(choices=CableProfileChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant',
-            'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'profile',
+            'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'label', 'description')
 
@@ -60,10 +61,12 @@ class CableTerminationSerializer(NetBoxModelSerializer):
         model = CableTermination
         fields = [
             'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id',
-            'termination', 'created', 'last_updated',
+            'termination', 'position', 'created', 'last_updated',
         ]
         read_only_fields = fields
-        brief_fields = ('id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id')
+        brief_fields = (
+            'id', 'url', 'display', 'cable', 'cable_end', 'position', 'termination_type', 'termination_id',
+        )
 
 
 class CablePathSerializer(serializers.ModelSerializer):
