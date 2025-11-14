@@ -44,7 +44,12 @@ class BaseCableProfile:
                 )
             })
 
-    def get_mapped_position(self, position):
+    def get_mapped_position(self, side, position):
+        """
+        Return the mapped position for a given cable end and position.
+
+        By default, assume all positions are symmetrical.
+        """
         return position
 
     def get_peer_terminations(self, terminations, position_stack):
@@ -65,7 +70,7 @@ class BaseCableProfile:
             cable_end=terminations[0].opposite_cable_end
         )
         if position is not None:
-            qs = qs.filter(position=self.get_mapped_position(position))
+            qs = qs.filter(position=self.get_mapped_position(local_end, position))
         return qs
 
 
@@ -93,11 +98,11 @@ class BToManyCableProfile(BaseCableProfile):
     b_side_numbered = False
 
 
-class Shuffle2x2MPOCableProfile(BaseCableProfile):
+class Shuffle2x2MPO8CableProfile(BaseCableProfile):
     a_max_connections = 8
     b_max_connections = 8
 
-    def get_mapped_position(self, position):
+    def get_mapped_position(self, side, position):
         return {
             1: 1,
             2: 2,
@@ -108,3 +113,26 @@ class Shuffle2x2MPOCableProfile(BaseCableProfile):
             7: 7,
             8: 8,
         }.get(position)
+
+
+class Shuffle4x4MPO8CableProfile(BaseCableProfile):
+    a_max_connections = 8
+    b_max_connections = 8
+    # A side to B side position mapping
+    _a_mapping = {
+        1: 1,
+        2: 3,
+        3: 5,
+        4: 7,
+        5: 2,
+        6: 4,
+        7: 6,
+        8: 8,
+    }
+    # B side to A side position mapping
+    _b_mapping = {v: k for k, v in _a_mapping.items()}
+
+    def get_mapped_position(self, side, position):
+        if side.lower() == 'b':
+            return self._b_mapping.get(position)
+        return self._a_mapping.get(position)

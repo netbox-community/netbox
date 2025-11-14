@@ -1722,7 +1722,8 @@ class CableProfileChoices(ChoiceSet):
     STRAIGHT_MULTI = 'straight-multi'
     A_TO_MANY = 'a-to-many'
     B_TO_MANY = 'b-to-many'
-    SHUFFLE_2X2_MPO = 'shuffle-2x2-mpo'
+    SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
+    SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
 
     CHOICES = (
         (STRAIGHT_SINGLE, _('Straight (single position)')),
@@ -1730,7 +1731,8 @@ class CableProfileChoices(ChoiceSet):
         # TODO: Better names for many-to-one profiles?
         (A_TO_MANY, _('A to many')),
         (B_TO_MANY, _('B to many')),
-        (SHUFFLE_2X2_MPO, _('Shuffle (2x2 MPO)')),
+        (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
+        (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
     )
 
 

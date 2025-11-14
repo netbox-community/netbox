@@ -262,7 +262,7 @@ class CablePathTests(CablePathTestCase):
         # Check that all CablePaths have been deleted
         self.assertEqual(CablePath.objects.count(), 0)
 
-    def test_105_cable_profile_2x2_mpo(self):
+    def test_105_cable_profile_2x2_mpo8(self):
         """
         [IF1:1] --C1-- [IF3:1]
         [IF1:2]        [IF3:2]
@@ -273,9 +273,10 @@ class CablePathTests(CablePathTestCase):
         [IF2:3]        [IF4:3]
         [IF2:4]        [IF4:4]
 
-        Cable profile: Shuffle (2x2 MPO)
+        Cable profile: Shuffle (2x2 MPO8)
         """
         interfaces = [
+            # A side
             Interface.objects.create(device=self.device, name='Interface 1:1'),
             Interface.objects.create(device=self.device, name='Interface 1:2'),
             Interface.objects.create(device=self.device, name='Interface 1:3'),
@@ -284,6 +285,7 @@ class CablePathTests(CablePathTestCase):
             Interface.objects.create(device=self.device, name='Interface 2:2'),
             Interface.objects.create(device=self.device, name='Interface 2:3'),
             Interface.objects.create(device=self.device, name='Interface 2:4'),
+            # B side
             Interface.objects.create(device=self.device, name='Interface 3:1'),
             Interface.objects.create(device=self.device, name='Interface 3:2'),
             Interface.objects.create(device=self.device, name='Interface 3:3'),
@@ -296,7 +298,7 @@ class CablePathTests(CablePathTestCase):
 
         # Create cable 1
         cable1 = Cable(
-            profile=CableProfileChoices.SHUFFLE_2X2_MPO,
+            profile=CableProfileChoices.SHUFFLE_2X2_MPO8,
             a_terminations=interfaces[0:8],
             b_terminations=interfaces[8:16],
         )
@@ -350,6 +352,118 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (interfaces[14], cable1, interfaces[6]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[15], cable1, interfaces[7]), is_complete=True, is_active=True
+            ),
+        ]
+        self.assertEqual(CablePath.objects.count(), len(paths))
+
+        for i, (interface, path) in enumerate(zip(interfaces, paths)):
+            interface.refresh_from_db()
+            self.assertPathIsSet(interface, path)
+            self.assertEqual(interface.cable_end, 'A' if i < 8 else 'B')
+            self.assertEqual(interface.cable_position, (i % 8) + 1)
+
+        # Test SVG generation
+        CableTraceSVG(interfaces[0]).render()
+
+        # Delete cable 1
+        cable1.delete()
+
+        # Check that all CablePaths have been deleted
+        self.assertEqual(CablePath.objects.count(), 0)
+
+    def test_106_cable_profile_4x4_mpo8(self):
+        """
+        [IF1:1] --C1-- [IF3:1]
+        [IF1:2]        [IF3:2]
+        [IF1:3]        [IF3:3]
+        [IF1:4]        [IF3:4]
+        [IF2:1]        [IF4:1]
+        [IF2:2]        [IF4:2]
+        [IF2:3]        [IF4:3]
+        [IF2:4]        [IF4:4]
+
+        Cable profile: Shuffle (4x4 MPO8)
+        """
+        interfaces = [
+            # A side
+            Interface.objects.create(device=self.device, name='Interface 1:1'),
+            Interface.objects.create(device=self.device, name='Interface 1:2'),
+            Interface.objects.create(device=self.device, name='Interface 2:1'),
+            Interface.objects.create(device=self.device, name='Interface 2:2'),
+            Interface.objects.create(device=self.device, name='Interface 3:1'),
+            Interface.objects.create(device=self.device, name='Interface 3:2'),
+            Interface.objects.create(device=self.device, name='Interface 4:1'),
+            Interface.objects.create(device=self.device, name='Interface 4:2'),
+            # B side
+            Interface.objects.create(device=self.device, name='Interface 5:1'),
+            Interface.objects.create(device=self.device, name='Interface 5:2'),
+            Interface.objects.create(device=self.device, name='Interface 6:1'),
+            Interface.objects.create(device=self.device, name='Interface 6:2'),
+            Interface.objects.create(device=self.device, name='Interface 7:1'),
+            Interface.objects.create(device=self.device, name='Interface 7:2'),
+            Interface.objects.create(device=self.device, name='Interface 8:1'),
+            Interface.objects.create(device=self.device, name='Interface 8:2'),
+        ]
+
+        # Create cable 1
+        cable1 = Cable(
+            profile=CableProfileChoices.SHUFFLE_4X4_MPO8,
+            a_terminations=interfaces[0:8],
+            b_terminations=interfaces[8:16],
+        )
+        cable1.clean()
+        cable1.save()
+
+        paths = [
+            # A-to-B paths
+            self.assertPathExists(
+                (interfaces[0], cable1, interfaces[8]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[1], cable1, interfaces[10]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[2], cable1, interfaces[12]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[3], cable1, interfaces[14]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[4], cable1, interfaces[9]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[5], cable1, interfaces[11]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[6], cable1, interfaces[13]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[7], cable1, interfaces[15]), is_complete=True, is_active=True
+            ),
+            # B-to-A paths
+            self.assertPathExists(
+                (interfaces[8], cable1, interfaces[0]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[9], cable1, interfaces[4]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[10], cable1, interfaces[1]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[11], cable1, interfaces[5]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[12], cable1, interfaces[2]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[13], cable1, interfaces[6]), is_complete=True, is_active=True
+            ),
+            self.assertPathExists(
+                (interfaces[14], cable1, interfaces[3]), is_complete=True, is_active=True
             ),
             self.assertPathExists(
                 (interfaces[15], cable1, interfaces[7]), is_complete=True, is_active=True
