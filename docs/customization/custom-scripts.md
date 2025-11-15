@@ -95,7 +95,7 @@ An example fieldset definition is provided below:
 
 ```python
 class MyScript(Script):
-    class Meta:
+    class Meta(Script.Meta):
         fieldsets = (
             ('First group', ('field1', 'field2', 'field3')),
             ('Second group', ('field4', 'field5')),
@@ -510,7 +510,7 @@ from extras.scripts import *
 
 class NewBranchScript(Script):
 
-    class Meta:
+    class Meta(Script.Meta):
         name = "New Branch"
         description = "Provision a new branch site"
         field_order = ['site_name', 'switch_count', 'switch_model']
