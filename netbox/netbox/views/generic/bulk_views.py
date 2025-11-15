@@ -851,12 +851,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, ''))
+                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, '') or '')
                 # Catch regex group reference errors
                 except re.error:
                     obj.new_name = getattr(obj, self.field_name)
             else:
-                obj.new_name = getattr(obj, self.field_name, '').replace(find, replace)
+                obj.new_name = (getattr(obj, self.field_name, '') or '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
