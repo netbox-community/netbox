@@ -291,6 +291,9 @@ DEFAULT_STORAGES = {
     },
     "scripts": {
         "BACKEND": "extras.storage.ScriptFileSystemStorage",
+        "OPTIONS": {
+            "allow_overwrite": True,
+        },
     },
 }
 STORAGES = DEFAULT_STORAGES | STORAGES
