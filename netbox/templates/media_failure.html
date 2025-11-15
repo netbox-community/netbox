@@ -26,8 +26,8 @@
         <p>{% trans "Check the following" %}:</p>
         <ul>
             <li class="tip">
-              {% blocktrans trimmed %}
-                <code>manage.py collectstatic</code> was run during the most recent upgrade. This installs the most
+              {% blocktrans trimmed with command="manage.py collectstatic" %}
+                <code>{{ command }}</code> was run during the most recent upgrade. This installs the most
                 recent iteration of each static file into the static root path.
               {% endblocktrans %}
             </li>
