@@ -1720,17 +1720,12 @@ class PortTypeChoices(ChoiceSet):
 class CableProfileChoices(ChoiceSet):
     STRAIGHT_SINGLE = 'straight-single'
     STRAIGHT_MULTI = 'straight-multi'
-    A_TO_MANY = 'a-to-many'
-    B_TO_MANY = 'b-to-many'
     SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
     SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
 
     CHOICES = (
         (STRAIGHT_SINGLE, _('Straight (single position)')),
         (STRAIGHT_MULTI, _('Straight (multi-position)')),
-        # TODO: Better names for many-to-one profiles?
-        (A_TO_MANY, _('A to many')),
-        (B_TO_MANY, _('B to many')),
         (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
         (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
     )

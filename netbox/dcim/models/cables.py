@@ -21,7 +21,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
-from .device_components import FrontPort, RearPort, PathEndpoint
+from .device_components import FrontPort, PathEndpoint, RearPort
 
 __all__ = (
     'Cable',
@@ -136,8 +136,6 @@ class Cable(PrimaryModel):
         return {
             CableProfileChoices.STRAIGHT_SINGLE: cable_profiles.StraightSingleCableProfile,
             CableProfileChoices.STRAIGHT_MULTI: cable_profiles.StraightMultiCableProfile,
-            CableProfileChoices.A_TO_MANY: cable_profiles.AToManyCableProfile,
-            CableProfileChoices.B_TO_MANY: cable_profiles.BToManyCableProfile,
             CableProfileChoices.SHUFFLE_2X2_MPO8: cable_profiles.Shuffle2x2MPO8CableProfile,
             CableProfileChoices.SHUFFLE_4X4_MPO8: cable_profiles.Shuffle4x4MPO8CableProfile,
         }.get(self.profile)
@@ -328,7 +326,6 @@ class Cable(PrimaryModel):
         Create/delete CableTerminations for this Cable to reflect its current state.
         """
         a_terminations, b_terminations = self.get_terminations()
-        profile = self.profile_class if self.profile else None
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
@@ -341,11 +338,11 @@ class Cable(PrimaryModel):
         # Save any new CableTerminations
         for i, termination in enumerate(self.a_terminations, start=1):
             if not termination.pk or termination not in a_terminations:
-                position = i if profile and profile.a_side_numbered else None
+                position = i if self.profile and isinstance(termination, PathEndpoint) else None
                 CableTermination(cable=self, cable_end='A', position=position, termination=termination).save()
         for i, termination in enumerate(self.b_terminations, start=1):
             if not termination.pk or termination not in b_terminations:
-                position = i if profile and profile.b_side_numbered else None
+                position = i if self.profile and isinstance(termination, PathEndpoint) else None
                 CableTermination(cable=self, cable_end='B', position=position, termination=termination).save()
 
 

@@ -2191,6 +2191,55 @@ class LegacyCablePathTests(CablePathTestCase):
         CableTraceSVG(interface1).render()
         CableTraceSVG(interface2).render()
 
+    def test_223_single_path_via_multiple_pass_throughs_with_breakouts(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
+        [IF2]        [FP2] [RP2]        [IF4]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        interface4 = Interface.objects.create(device=self.device, name='Interface 4')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
+        frontport1 = FrontPort.objects.create(
+            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        )
+        frontport2 = FrontPort.objects.create(
+            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
+        )
+
+        # Create cables
+        cable1 = Cable(
+            a_terminations=[interface1, interface2],
+            b_terminations=[frontport1, frontport2]
+        )
+        cable1.save()
+        cable2 = Cable(
+            a_terminations=[rearport1, rearport2],
+            b_terminations=[interface3, interface4]
+        )
+        cable2.save()
+
+        # Validate paths
+        self.assertPathExists(
+            (
+                [interface1, interface2], cable1, [frontport1, frontport2],
+                [rearport1, rearport2], cable2, [interface3, interface4],
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (
+                [interface3, interface4], cable2, [rearport1, rearport2],
+                [frontport1, frontport2], cable1, [interface1, interface2],
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
     def test_301_create_path_via_existing_cable(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]

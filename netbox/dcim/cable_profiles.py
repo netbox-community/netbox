@@ -12,10 +12,6 @@ class BaseCableProfile:
     # Number of A & B terminations must match
     symmetrical = True
 
-    # Whether terminations on either side of the cable have a numeric position
-    a_side_numbered = True
-    b_side_numbered = True
-
     def clean(self, cable):
         if self.a_max_connections and len(cable.a_terminations) > self.a_max_connections:
             raise ValidationError({
@@ -54,24 +50,21 @@ class BaseCableProfile:
 
     def get_peer_terminations(self, terminations, position_stack):
         local_end = terminations[0].cable_end
-        position = None
-
-        # Pop the position stack if necessary
-        if (local_end == 'A' and self.b_side_numbered) or (local_end == 'B' and self.a_side_numbered):
-            try:
-                position = position_stack.pop()[0]
-            except IndexError:
-                # TODO: Should this raise an error?
-                # Bottomed out of stack
-                pass
-
         qs = CableTermination.objects.filter(
             cable=terminations[0].cable,
             cable_end=terminations[0].opposite_cable_end
         )
-        if position is not None:
-            qs = qs.filter(position=self.get_mapped_position(local_end, position))
-        return qs
+
+        # TODO: Optimize this to use a single query under any condition
+        if position_stack:
+            # Attempt to find a peer termination at the same position currently in the stack. Pop the stack only if
+            # we find one. Otherwise, return any peer terminations with a null position.
+            position = self.get_mapped_position(local_end, position_stack[-1][0])
+            if peers := qs.filter(position=position):
+                position_stack.pop()
+                return peers
+
+        return qs.filter(position=None)
 
 
 class StraightSingleCableProfile(BaseCableProfile):
@@ -82,20 +75,6 @@ class StraightSingleCableProfile(BaseCableProfile):
 class StraightMultiCableProfile(BaseCableProfile):
     a_max_connections = None
     b_max_connections = None
-
-
-class AToManyCableProfile(BaseCableProfile):
-    a_max_connections = 1
-    b_max_connections = None
-    symmetrical = False
-    a_side_numbered = False
-
-
-class BToManyCableProfile(BaseCableProfile):
-    a_max_connections = None
-    b_max_connections = 1
-    symmetrical = False
-    b_side_numbered = False
 
 
 class Shuffle2x2MPO8CableProfile(BaseCableProfile):
@@ -129,7 +108,7 @@ class Shuffle4x4MPO8CableProfile(BaseCableProfile):
         7: 6,
         8: 8,
     }
-    # B side to A side position mapping
+    # B side to A side position mapping (reverse of _a_mapping)
     _b_mapping = {v: k for k, v in _a_mapping.items()}
 
     def get_mapped_position(self, side, position):
