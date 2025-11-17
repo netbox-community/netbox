@@ -182,9 +182,9 @@ class ConfigTemplateImportForm(CSVModelForm):
 
     class Meta:
         model = ConfigTemplate
-        fields = ( 
-            'name', 'description', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled', 
-            'environment_params', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'tags', 
+        fields = (
+            'name', 'description', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled',
+            'environment_params', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'tags',
         )
 
     def clean(self):
