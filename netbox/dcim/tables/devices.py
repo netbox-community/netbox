@@ -763,12 +763,12 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.FrontPort
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'rear_port',
-            'rear_port_position', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'description',
+            'mark_connected', 'cable', 'cable_color', 'link_peer',
             'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'pk', 'name', 'device', 'label', 'type', 'color', 'positions', 'description',
         )
 
 

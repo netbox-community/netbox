@@ -1120,26 +1120,18 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name=_('color'),
         blank=True
     )
-    rear_ports = models.ManyToManyField(
-        to='dcim.RearPort',
-        through='dcim.PortAssignment',
-        related_name='front_ports',
-    )
-
-    # Legacy fields
-    rear_port = models.ForeignKey(
-        to='dcim.RearPort',
-        on_delete=models.CASCADE,
-        related_name='frontports'
-    )
-    rear_port_position = models.PositiveSmallIntegerField(
-        verbose_name=_('rear port position'),
+    positions = models.PositiveSmallIntegerField(
+        verbose_name=_('positions'),
         default=1,
         validators=[
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX)
         ],
-        help_text=_('Mapped position on corresponding rear port')
+    )
+    rear_ports = models.ManyToManyField(
+        to='dcim.RearPort',
+        through='dcim.PortAssignment',
+        related_name='front_ports',
     )
 
     clone_fields = ('device', 'type', 'color')
@@ -1205,7 +1197,6 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX)
         ],
-        help_text=_('Number of front ports which may be mapped')
     )
     clone_fields = ('device', 'type', 'color', 'positions')
 

@@ -1090,8 +1090,7 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = FrontPort
         fields = (
-            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
-            'description', 'owner', 'tags'
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'owner', 'tags'
         )
 
     def __init__(self, *args, **kwargs):

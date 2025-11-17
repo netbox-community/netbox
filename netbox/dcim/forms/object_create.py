@@ -284,7 +284,7 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
     )
 
     class Meta(model_forms.FrontPortForm.Meta):
-        exclude = ('name', 'label', 'rear_port', 'rear_port_position')
+        exclude = ('name', 'label', 'positions')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

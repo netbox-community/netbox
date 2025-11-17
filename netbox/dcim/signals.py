@@ -156,9 +156,9 @@ def extend_rearport_cable_paths(instance, created, raw, **kwargs):
     When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
     """
     if created and not raw:
-        rearport = instance.rear_port
-        for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
-            cablepath.retrace()
+        for rear_port in instance.rear_ports.all():
+            for cablepath in CablePath.objects.filter(_nodes__contains=rear_port):
+                cablepath.retrace()
 
 
 @receiver(post_save, sender=Interface)

@@ -395,11 +395,7 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilterMixin, Weig
 class FrontPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMixin):
     type: Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()
-    rear_port: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    rear_port_id: ID | None = strawberry_django.filter_field()
-    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    rear_ports: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 

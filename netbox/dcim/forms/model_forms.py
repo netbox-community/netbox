@@ -1595,8 +1595,8 @@ class FrontPortForm(ModularDeviceComponentForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
-            'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner',
+            'tags',
         ]
 
 
