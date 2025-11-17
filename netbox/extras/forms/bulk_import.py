@@ -5,7 +5,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType, DataSource, DataFile
+from core.models import DataFile, DataSource, ObjectType
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
