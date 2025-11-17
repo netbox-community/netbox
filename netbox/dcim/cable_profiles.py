@@ -9,10 +9,8 @@ class BaseCableProfile:
     a_max_connections = None
     b_max_connections = None
 
-    # Number of A & B terminations must match
-    symmetrical = True
-
     def clean(self, cable):
+        # Enforce maximum connection limits
         if self.a_max_connections and len(cable.a_terminations) > self.a_max_connections:
             raise ValidationError({
                 'a_terminations': _(
@@ -29,14 +27,6 @@ class BaseCableProfile:
                 ).format(
                     profile=cable.get_profile_display(),
                     max=self.b_max_connections,
-                )
-            })
-        if self.symmetrical and len(cable.a_terminations) != len(cable.b_terminations):
-            raise ValidationError({
-                'b_terminations': _(
-                    'Number of A and B terminations must be equal for profile {profile}'
-                ).format(
-                    profile=cable.get_profile_display(),
                 )
             })
 
@@ -80,18 +70,19 @@ class StraightMultiCableProfile(BaseCableProfile):
 class Shuffle2x2MPO8CableProfile(BaseCableProfile):
     a_max_connections = 8
     b_max_connections = 8
+    _mapping = {
+        1: 1,
+        2: 2,
+        3: 5,
+        4: 6,
+        5: 3,
+        6: 4,
+        7: 7,
+        8: 8,
+    }
 
     def get_mapped_position(self, side, position):
-        return {
-            1: 1,
-            2: 2,
-            3: 5,
-            4: 6,
-            5: 3,
-            6: 4,
-            7: 7,
-            8: 8,
-        }.get(position)
+        return self._mapping.get(position)
 
 
 class Shuffle4x4MPO8CableProfile(BaseCableProfile):

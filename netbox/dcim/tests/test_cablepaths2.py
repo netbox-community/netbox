@@ -377,12 +377,14 @@ class CablePathTests(CablePathTestCase):
             a_terminations=[interfaces[0], interfaces[1]],
             b_terminations=[frontport1],
         )
+        cable1.clean()
         cable1.save()
         cable2 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[rearport1],
             b_terminations=[interfaces[2], interfaces[3]]
         )
+        cable2.clean()
         cable2.save()
 
         paths = [
@@ -456,30 +458,35 @@ class CablePathTests(CablePathTestCase):
             a_terminations=[interfaces[0], interfaces[1]],
             b_terminations=[frontport1_1]
         )
+        cable1.clean()
         cable1.save()
         cable2 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[interfaces[2], interfaces[3]],
             b_terminations=[frontport1_2]
         )
+        cable2.clean()
         cable2.save()
         cable3 = Cable(
             profile=CableProfileChoices.STRAIGHT_SINGLE,
             a_terminations=[rearport1],
             b_terminations=[rearport2]
         )
+        cable3.clean()
         cable3.save()
         cable4 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[frontport2_1],
             b_terminations=[interfaces[4], interfaces[5]]
         )
+        cable4.clean()
         cable4.save()
         cable5 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[frontport2_2],
             b_terminations=[interfaces[6], interfaces[7]]
         )
+        cable5.clean()
         cable5.save()
 
         paths = [
@@ -592,12 +599,14 @@ class CablePathTests(CablePathTestCase):
             a_terminations=[interfaces[0], interfaces[1]],
             b_terminations=[circuittermination1]
         )
+        cable1.clean()
         cable1.save()
         cable2 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[circuittermination2],
             b_terminations=[interfaces[2], interfaces[3]]
         )
+        cable2.clean()
         cable2.save()
 
         # Check for two complete paths in either direction
@@ -671,17 +680,20 @@ class CablePathTests(CablePathTestCase):
             a_terminations=[interfaces[0]],
             b_terminations=[front_ports[0], front_ports[1]]
         )
+        cable1.clean()
         cable1.save()
         cable2 = Cable(
             a_terminations=[rear_ports[0], rear_ports[1]],
             b_terminations=[rear_ports[2], rear_ports[3]]
         )
+        cable2.clean()
         cable2.save()
         cable3 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[interfaces[1]],
             b_terminations=[front_ports[2], front_ports[3]]
         )
+        cable3.clean()
         cable3.save()
 
         # Check for one complete path in either direction
@@ -739,12 +751,14 @@ class CablePathTests(CablePathTestCase):
             a_terminations=[interfaces[0], interfaces[1]],
             b_terminations=[frontport1, frontport2]
         )
+        cable1.clean()
         cable1.save()
         cable2 = Cable(
             profile=CableProfileChoices.STRAIGHT_MULTI,
             a_terminations=[rearport1, rearport2],
             b_terminations=[interfaces[2], interfaces[3]]
         )
+        cable2.clean()
         cable2.save()
 
         for path in CablePath.objects.all():
