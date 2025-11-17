@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0218_cable_positions'),
+        ('dcim', '0219_cable_profile'),
     ]
 
     operations = [

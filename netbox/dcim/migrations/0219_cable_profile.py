@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0217_owner'),
+        ('dcim', '0218_devicetype_device_count'),
     ]
 
     operations = [
