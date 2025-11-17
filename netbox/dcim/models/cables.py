@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
+from dcim.exceptions import UnsupportedCablePath
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.choices import ColorChoices
@@ -27,8 +28,6 @@ __all__ = (
     'CablePath',
     'CableTermination',
 )
-
-from ..exceptions import UnsupportedCablePath
 
 trace_paths = Signal()
 
@@ -615,7 +614,7 @@ class CablePath(models.Model):
         Cable or WirelessLink connects (interfaces, console ports, circuit termination, etc.). All terminations must be
         of the same type and must belong to the same parent object.
         """
-        from circuits.models import CircuitTermination
+        from circuits.models import CircuitTermination, Circuit
 
         if not terminations:
             return None
@@ -637,8 +636,11 @@ class CablePath(models.Model):
                 raise UnsupportedCablePath(_("All mid-span terminations must have the same termination type"))
 
             # All mid-span terminations must all be attached to the same device
-            if (not isinstance(terminations[0], PathEndpoint) and not
-                    all(t.parent_object == terminations[0].parent_object for t in terminations[1:])):
+            if (
+                not isinstance(terminations[0], PathEndpoint) and
+                not isinstance(terminations[0].parent_object, Circuit) and
+                not all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
+            ):
                 raise UnsupportedCablePath(_("All mid-span terminations must have the same parent object"))
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
@@ -782,32 +784,39 @@ class CablePath(models.Model):
 
             elif isinstance(remote_terminations[0], CircuitTermination):
                 # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
-                if len(remote_terminations) > 1:
-                    is_split = True
+                qs = Q()
+                for remote_termination in remote_terminations:
+                    qs |= Q(
+                        circuit=remote_termination.circuit,
+                        term_side='Z' if remote_termination.term_side == 'A' else 'A'
+                    )
+
+                # Get all circuit terminations
+                circuit_terminations = CircuitTermination.objects.filter(qs)
+
+                if not circuit_terminations.exists():
                     break
-                circuit_termination = CircuitTermination.objects.filter(
-                    circuit=remote_terminations[0].circuit,
-                    term_side='Z' if remote_terminations[0].term_side == 'A' else 'A'
-                ).first()
-                if circuit_termination is None:
-                    break
-                elif circuit_termination._provider_network:
+                elif all([ct._provider_network for ct in circuit_terminations]):
                     # Circuit terminates to a ProviderNetwork
                     path.extend([
-                        [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination._provider_network)],
+                        [object_to_path_node(ct) for ct in circuit_terminations],
+                        [object_to_path_node(ct._provider_network) for ct in circuit_terminations],
                     ])
                     is_complete = True
                     break
-                elif circuit_termination.termination and not circuit_termination.cable:
+                elif all([ct.termination and not ct.cable for ct in circuit_terminations]):
                     # Circuit terminates to a Region/Site/etc.
                     path.extend([
-                        [object_to_path_node(circuit_termination)],
-                        [object_to_path_node(circuit_termination.termination)],
+                        [object_to_path_node(ct) for ct in circuit_terminations],
+                        [object_to_path_node(ct.termination) for ct in circuit_terminations],
                     ])
                     break
+                elif any([ct.cable in links for ct in circuit_terminations]):
+                    # No valid path
+                    is_split = True
+                    break
 
-                terminations = [circuit_termination]
+                terminations = circuit_terminations
 
             else:
                 # Check for non-symmetric path
