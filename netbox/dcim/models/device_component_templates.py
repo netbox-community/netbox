@@ -540,8 +540,8 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('rear port position'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
         ]
     )
 
@@ -635,8 +635,8 @@ class RearPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('positions'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
         ]
     )
 

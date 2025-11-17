@@ -1069,6 +1069,44 @@ class Interface(
 # Pass-through ports
 #
 
+class PortAssignment(models.Model):
+    """
+    Maps a FrontPort & position to a RearPort & position.
+    """
+    front_port = models.ForeignKey(
+        to='dcim.FrontPort',
+        on_delete=models.CASCADE,
+    )
+    front_port_position = models.PositiveSmallIntegerField(
+        validators=(
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX),
+        )
+    )
+    rear_port = models.ForeignKey(
+        to='dcim.RearPort',
+        on_delete=models.CASCADE,
+    )
+    rear_port_position = models.PositiveSmallIntegerField(
+        validators=(
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX),
+        )
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('front_port', 'front_port_position'),
+                name='%(app_label)s_%(class)s_unique_front_port_position'
+            ),
+            models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'),
+                name='%(app_label)s_%(class)s_unique_rear_port_position'
+            ),
+        )
+
+
 class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
     A pass-through port on the front of a Device.
@@ -1082,6 +1120,13 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name=_('color'),
         blank=True
     )
+    rear_ports = models.ManyToManyField(
+        to='dcim.RearPort',
+        through='dcim.PortAssignment',
+        related_name='front_ports',
+    )
+
+    # Legacy fields
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
         on_delete=models.CASCADE,
@@ -1091,8 +1136,8 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name=_('rear port position'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
         ],
         help_text=_('Mapped position on corresponding rear port')
     )
@@ -1157,8 +1202,8 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name=_('positions'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
         ],
         help_text=_('Number of front ports which may be mapped')
     )
