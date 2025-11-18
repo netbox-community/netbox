@@ -1601,19 +1601,13 @@ class FrontPortForm(ModularDeviceComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if device_id := (self.data.get('device') or self.initial.get('device')):
+        if device_id := self.data.get('device') or self.initial.get('device'):
             device = Device.objects.get(pk=device_id)
         else:
             return
 
         # Populate rear port choices
-        choices = []
-        for rear_port in RearPort.objects.filter(device=device):
-            for i in range(1, rear_port.positions + 1):
-                choices.append(
-                    ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
-                )
-        self.fields['rear_ports'].choices = choices
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(device, self.instance)
 
         # Set initial rear port assignments
         if self.instance.pk:
@@ -1650,6 +1644,27 @@ class FrontPortForm(ModularDeviceComponentForm):
                 )
             )
         PortAssignment.objects.bulk_create(assignments)
+
+    def _get_rear_port_choices(self, device, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the device, excluding those
+        assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{assignment.rear_port_id}:{assignment.rear_port_position}'
+            for assignment in PortAssignment.objects.filter(front_port__device=device).exclude(front_port=front_port)
+        ]
+
+        choices = []
+        for rear_port in RearPort.objects.filter(device=device):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append(
+                        (pair_id, pair_label)
+                    )
+        return choices
 
 
 class RearPortForm(ModularDeviceComponentForm):
