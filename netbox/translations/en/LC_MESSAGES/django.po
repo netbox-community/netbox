@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-15 05:01+0000\n"
+"POT-Creation-Date: 2025-11-18 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1880,7 +1880,7 @@ msgstr ""
 #: netbox/dcim/tables/racks.py:148 netbox/dcim/tables/racks.py:236
 #: netbox/dcim/tables/sites.py:40 netbox/dcim/tables/sites.py:74
 #: netbox/dcim/tables/sites.py:121 netbox/dcim/tables/sites.py:179
-#: netbox/extras/forms/bulk_import.py:276 netbox/extras/tables/tables.py:702
+#: netbox/extras/forms/bulk_import.py:303 netbox/extras/tables/tables.py:702
 #: netbox/ipam/tables/asn.py:69 netbox/ipam/tables/fhrp.py:34
 #: netbox/ipam/tables/ip.py:83 netbox/ipam/tables/ip.py:227
 #: netbox/ipam/tables/ip.py:286 netbox/ipam/tables/ip.py:355
@@ -2318,8 +2318,9 @@ msgid "File"
 msgstr ""
 
 #: netbox/core/forms/filtersets.py:65 netbox/core/forms/mixins.py:16
-#: netbox/extras/forms/filtersets.py:176 netbox/extras/forms/filtersets.py:367
-#: netbox/extras/forms/filtersets.py:398 netbox/extras/forms/filtersets.py:485
+#: netbox/extras/forms/bulk_import.py:164 netbox/extras/forms/filtersets.py:176
+#: netbox/extras/forms/filtersets.py:367 netbox/extras/forms/filtersets.py:398
+#: netbox/extras/forms/filtersets.py:485
 msgid "Data source"
 msgstr ""
 
@@ -4298,7 +4299,7 @@ msgstr ""
 #: netbox/extras/forms/bulk_edit.py:57 netbox/extras/forms/bulk_edit.py:137
 #: netbox/extras/forms/bulk_edit.py:191 netbox/extras/forms/bulk_edit.py:219
 #: netbox/extras/forms/bulk_edit.py:315 netbox/extras/forms/bulk_edit.py:347
-#: netbox/extras/forms/bulk_import.py:248 netbox/extras/forms/filtersets.py:67
+#: netbox/extras/forms/bulk_import.py:275 netbox/extras/forms/filtersets.py:67
 #: netbox/extras/forms/filtersets.py:161 netbox/extras/forms/filtersets.py:255
 #: netbox/extras/forms/filtersets.py:285 netbox/extras/forms/model_forms.py:574
 #: netbox/ipam/forms/bulk_edit.py:193 netbox/templates/dcim/device.html:330
@@ -5541,7 +5542,7 @@ msgid "Connection"
 msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:1436 netbox/extras/forms/bulk_edit.py:423
-#: netbox/extras/forms/bulk_import.py:271 netbox/extras/forms/filtersets.py:555
+#: netbox/extras/forms/bulk_import.py:298 netbox/extras/forms/filtersets.py:555
 #: netbox/extras/forms/model_forms.py:793 netbox/extras/tables/tables.py:699
 #: netbox/templates/extras/journalentry.html:30
 msgid "Kind"
@@ -8503,7 +8504,7 @@ msgstr ""
 msgid "CA file path"
 msgstr ""
 
-#: netbox/extras/forms/bulk_edit.py:289 netbox/extras/forms/bulk_import.py:204
+#: netbox/extras/forms/bulk_edit.py:289 netbox/extras/forms/bulk_import.py:231
 #: netbox/extras/forms/model_forms.py:457
 msgid "Event types"
 msgstr ""
@@ -8514,9 +8515,9 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_import.py:38 netbox/extras/forms/bulk_import.py:119
 #: netbox/extras/forms/bulk_import.py:140
-#: netbox/extras/forms/bulk_import.py:174
-#: netbox/extras/forms/bulk_import.py:198
-#: netbox/extras/forms/bulk_import.py:252 netbox/extras/forms/filtersets.py:142
+#: netbox/extras/forms/bulk_import.py:201
+#: netbox/extras/forms/bulk_import.py:225
+#: netbox/extras/forms/bulk_import.py:279 netbox/extras/forms/filtersets.py:142
 #: netbox/extras/forms/filtersets.py:236 netbox/extras/forms/filtersets.py:266
 #: netbox/extras/forms/model_forms.py:52 netbox/extras/forms/model_forms.py:224
 #: netbox/extras/forms/model_forms.py:256
@@ -8528,9 +8529,9 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_import.py:40 netbox/extras/forms/bulk_import.py:121
 #: netbox/extras/forms/bulk_import.py:142
-#: netbox/extras/forms/bulk_import.py:176
-#: netbox/extras/forms/bulk_import.py:200
-#: netbox/extras/forms/bulk_import.py:254
+#: netbox/extras/forms/bulk_import.py:203
+#: netbox/extras/forms/bulk_import.py:227
+#: netbox/extras/forms/bulk_import.py:281
 #: netbox/tenancy/forms/bulk_import.py:101
 msgid "One or more assigned object types"
 msgstr ""
@@ -8585,37 +8586,68 @@ msgid ""
 "The class of the first link in a group will be used for the dropdown button"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:205
+#: netbox/extras/forms/bulk_import.py:168
+msgid "Data source which provides the data file"
+msgstr ""
+
+#: netbox/extras/forms/bulk_import.py:171 netbox/extras/forms/filtersets.py:181
+#: netbox/extras/forms/filtersets.py:372 netbox/extras/forms/filtersets.py:403
+#: netbox/extras/forms/filtersets.py:490 netbox/netbox/choices.py:132
+#: netbox/utilities/forms/bulk_import.py:28
+msgid "Data file"
+msgstr ""
+
+#: netbox/extras/forms/bulk_import.py:175
+msgid "Data file containing the template code"
+msgstr ""
+
+#: netbox/extras/forms/bulk_import.py:179
+msgid "Auto sync enabled"
+msgstr ""
+
+#: netbox/extras/forms/bulk_import.py:180
+msgid ""
+"Enable automatic synchronization of template content when the data file is "
+"updated"
+msgstr ""
+
+#: netbox/extras/forms/bulk_import.py:195
+#: netbox/extras/forms/model_forms.py:291
+#: netbox/extras/forms/model_forms.py:771
+msgid "Must specify either local content or a data file"
+msgstr ""
+
+#: netbox/extras/forms/bulk_import.py:232
 msgid "The event type(s) which will trigger this rule"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:208
+#: netbox/extras/forms/bulk_import.py:235
 msgid "Action object"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:210
+#: netbox/extras/forms/bulk_import.py:237
 msgid "Webhook name or script as dotted path module.Class"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:231
+#: netbox/extras/forms/bulk_import.py:258
 #, python-brace-format
 msgid "Webhook {name} not found"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:240
+#: netbox/extras/forms/bulk_import.py:267
 #, python-brace-format
 msgid "Script {name} not found"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:268
+#: netbox/extras/forms/bulk_import.py:295
 msgid "Assigned object type"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:273
+#: netbox/extras/forms/bulk_import.py:300
 msgid "The classification of entry"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:289
+#: netbox/extras/forms/bulk_import.py:316
 #: netbox/extras/forms/model_forms.py:400 netbox/netbox/navigation/menu.py:414
 #: netbox/templates/extras/notificationgroup.html:41
 #: netbox/templates/users/group.html:29 netbox/users/forms/model_forms.py:247
@@ -8624,11 +8656,11 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:293
+#: netbox/extras/forms/bulk_import.py:320
 msgid "User names separated by commas, encased with double quotes"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:296
+#: netbox/extras/forms/bulk_import.py:323
 #: netbox/extras/forms/model_forms.py:395 netbox/netbox/navigation/menu.py:295
 #: netbox/netbox/navigation/menu.py:434
 #: netbox/templates/extras/notificationgroup.html:31
@@ -8641,7 +8673,7 @@ msgstr ""
 msgid "Groups"
 msgstr ""
 
-#: netbox/extras/forms/bulk_import.py:300
+#: netbox/extras/forms/bulk_import.py:327
 msgid "Group names separated by commas, encased with double quotes"
 msgstr ""
 
@@ -8670,12 +8702,6 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:269
 #: netbox/extras/forms/model_forms.py:746
 msgid "Rendering"
-msgstr ""
-
-#: netbox/extras/forms/filtersets.py:181 netbox/extras/forms/filtersets.py:372
-#: netbox/extras/forms/filtersets.py:403 netbox/extras/forms/filtersets.py:490
-#: netbox/netbox/choices.py:132 netbox/utilities/forms/bulk_import.py:28
-msgid "Data file"
 msgstr ""
 
 #: netbox/extras/forms/filtersets.py:189
@@ -8827,11 +8853,6 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:284
 #: netbox/extras/forms/model_forms.py:764
 msgid "Template content is populated from the remote source selected below."
-msgstr ""
-
-#: netbox/extras/forms/model_forms.py:291
-#: netbox/extras/forms/model_forms.py:771
-msgid "Must specify either local content or a data file"
 msgstr ""
 
 #: netbox/extras/forms/model_forms.py:305 netbox/netbox/forms/mixins.py:90
@@ -12441,63 +12462,63 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:819
+#: netbox/netbox/settings.py:822
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:820
+#: netbox/netbox/settings.py:823
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:821
+#: netbox/netbox/settings.py:824
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:822
+#: netbox/netbox/settings.py:825
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:823
+#: netbox/netbox/settings.py:826
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:824
+#: netbox/netbox/settings.py:827
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:825
+#: netbox/netbox/settings.py:828
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:826
+#: netbox/netbox/settings.py:829
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:827
+#: netbox/netbox/settings.py:830
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:828
+#: netbox/netbox/settings.py:831
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:829
+#: netbox/netbox/settings.py:832
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:830
+#: netbox/netbox/settings.py:833
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:831
+#: netbox/netbox/settings.py:834
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:832
+#: netbox/netbox/settings.py:835
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:833
+#: netbox/netbox/settings.py:836
 msgid "Chinese"
 msgstr ""
 
