@@ -1578,16 +1578,15 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
 
 
 class FrontPortForm(ModularDeviceComponentForm):
-    rear_port = DynamicModelChoiceField(
-        queryset=RearPort.objects.all(),
-        query_params={
-            'device_id': '$device',
-        }
+    rear_ports = forms.MultipleChoiceField(
+        choices=[],
+        label=_('Rear ports'),
+        widget=forms.SelectMultiple(attrs={'size': 6})
     )
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
             'description', 'tags',
         ),
     )
@@ -1598,6 +1597,59 @@ class FrontPortForm(ModularDeviceComponentForm):
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner',
             'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if device_id := (self.data.get('device') or self.initial.get('device')):
+            device = Device.objects.get(pk=device_id)
+        else:
+            return
+
+        # Populate rear port choices
+        choices = []
+        for rear_port in RearPort.objects.filter(device=device):
+            for i in range(1, rear_port.positions + 1):
+                choices.append(
+                    ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
+                )
+        self.fields['rear_ports'].choices = choices
+
+        # Set initial rear port assignments
+        if self.instance.pk:
+            self.initial['rear_ports'] = [
+                f'{assignment.rear_port_id}:{assignment.rear_port_position}'
+                for assignment in PortAssignment.objects.filter(front_port_id=self.instance.pk)
+            ]
+
+    def clean(self):
+
+        # Count of selected rear port & position pairs much match the assigned number of positions
+        if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:
+            raise forms.ValidationError(
+                _("The number of rear port/position pairs selected must match the number of positions assigned.")
+            )
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        # TODO: Can this be made more efficient?
+        # Delete existing rear port assignments
+        PortAssignment.objects.filter(front_port_id=self.instance.pk).delete()
+
+        # Create new rear port assignments
+        assignments = []
+        for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
+            rear_port_id, rear_port_position = rp_position.split(':')
+            assignments.append(
+                PortAssignment(
+                    front_port_id=self.instance.pk,
+                    front_port_position=i,
+                    rear_port_id=rear_port_id,
+                    rear_port_position=rear_port_position,
+                )
+            )
+        PortAssignment.objects.bulk_create(assignments)
 
 
 class RearPortForm(ModularDeviceComponentForm):

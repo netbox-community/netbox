@@ -62,6 +62,18 @@
         </div>
         <div class="col col-12 col-md-6">
             <div class="card">
+                <h2 class="card-header">{% trans "Rear Ports" %}</h2>
+                <table class="table table-hover">
+                  {% for assignment in front_port_assignments %}
+                    <tr>
+                      <td>{{ assignment.rear_port_position }}</td>
+                      <td>{{ assignment.front_port|linkify }}</td>
+                      <td>{{ assignment.front_port_position }}</td>
+                    </tr>
+                  {% endfor %}
+                </table>
+            </div>
+            <div class="card">
                 <h2 class="card-header">{% trans "Connection" %}</h2>
                 {% if object.mark_connected %}
                     <div class="card-body text-muted">

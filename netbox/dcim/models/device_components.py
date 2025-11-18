@@ -35,6 +35,7 @@ __all__ = (
     'InventoryItemRole',
     'ModuleBay',
     'PathEndpoint',
+    'PortAssignment',
     'PowerOutlet',
     'PowerPort',
     'RearPort',
@@ -1106,6 +1107,29 @@ class PortAssignment(models.Model):
             ),
         )
 
+    def clean(self):
+
+        # Validate rear port assignment
+        if self.front_port.device_id != self.rear_port.device_id:
+            raise ValidationError({
+                "rear_port": _("Rear port ({rear_port}) must belong to the same device").format(
+                    rear_port=self.rear_port
+                )
+            })
+
+        # Validate rear port position assignment
+        if self.rear_port_position > self.rear_port.positions:
+            raise ValidationError({
+                "rear_port_position": _(
+                    "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
+                    "positions."
+                ).format(
+                    rear_port_position=self.rear_port_position,
+                    name=self.rear_port.name,
+                    positions=self.rear_port.positions
+                )
+            })
+
 
 class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
@@ -1142,39 +1166,9 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
                 fields=('device', 'name'),
                 name='%(app_label)s_%(class)s_unique_device_name'
             ),
-            models.UniqueConstraint(
-                fields=('rear_port', 'rear_port_position'),
-                name='%(app_label)s_%(class)s_unique_rear_port_position'
-            ),
         )
         verbose_name = _('front port')
         verbose_name_plural = _('front ports')
-
-    def clean(self):
-        super().clean()
-
-        if hasattr(self, 'rear_port'):
-
-            # Validate rear port assignment
-            if self.rear_port.device != self.device:
-                raise ValidationError({
-                    "rear_port": _(
-                        "Rear port ({rear_port}) must belong to the same device"
-                    ).format(rear_port=self.rear_port)
-                })
-
-            # Validate rear port position assignment
-            if self.rear_port_position > self.rear_port.positions:
-                raise ValidationError({
-                    "rear_port_position": _(
-                        "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
-                        "positions."
-                    ).format(
-                        rear_port_position=self.rear_port_position,
-                        name=self.rear_port.name,
-                        positions=self.rear_port.positions
-                    )
-                })
 
 
 class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):

@@ -333,14 +333,14 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_port = FrontPortRearPortSerializer()
+    rear_ports = FrontPortRearPortSerializer(many=True)
 
     class Meta:
         model = FrontPort
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions',
-            'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'tags',
-            'custom_fields', 'created', 'last_updated', '_occupied',
+            'rear_ports', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 

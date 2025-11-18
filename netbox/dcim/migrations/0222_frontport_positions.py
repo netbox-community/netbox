@@ -9,6 +9,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveConstraint(
+            model_name='frontport',
+            name='dcim_frontport_unique_rear_port_position',
+        ),
         migrations.RemoveField(
             model_name='frontport',
             name='rear_port',
