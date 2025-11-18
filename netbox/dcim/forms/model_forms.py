@@ -1617,6 +1617,7 @@ class FrontPortForm(ModularDeviceComponentForm):
             ]
 
     def clean(self):
+        super().clean()
 
         # Count of selected rear port & position pairs much match the assigned number of positions
         if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:
@@ -1652,7 +1653,7 @@ class FrontPortForm(ModularDeviceComponentForm):
         """
         occupied_rear_port_positions = [
             f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-            for assignment in PortAssignment.objects.filter(front_port__device=device).exclude(front_port=front_port)
+            for assignment in PortAssignment.objects.filter(front_port__device=device).exclude(front_port=front_port.pk)
         ]
 
         choices = []
