@@ -21,7 +21,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
-from .device_components import FrontPort, PathEndpoint, RearPort
+from .device_components import FrontPort, PathEndpoint, RearPort, PortAssignment
 
 __all__ = (
     'Cable',
@@ -775,58 +775,83 @@ class CablePath(models.Model):
 
             if isinstance(remote_terminations[0], FrontPort):
                 # Follow FrontPorts to their corresponding RearPorts
-                rear_ports = RearPort.objects.filter(
-                    pk__in=[t.rear_port_id for t in remote_terminations]
-                )
-                if len(rear_ports) > 1 or rear_ports[0].positions > 1:
-                    position_stack.append([fp.rear_port_position for fp in remote_terminations])
-
-                terminations = rear_ports
-
-            elif isinstance(remote_terminations[0], RearPort):
-                if len(remote_terminations) == 1 and remote_terminations[0].positions == 1:
-                    front_ports = FrontPort.objects.filter(
-                        rear_port_id__in=[rp.pk for rp in remote_terminations],
-                        rear_port_position=1
-                    )
-                # Obtain the individual front ports based on the termination and all positions
-                elif len(remote_terminations) > 1 and position_stack:
+                if position_stack:
                     positions = position_stack.pop()
-
-                    # Ensure we have a number of positions equal to the amount of remote terminations
-                    if len(remote_terminations) != len(positions):
-                        raise UnsupportedCablePath(
-                            _("All positions counts within the path on opposite ends of links must match")
-                        )
-
-                    # Get our front ports
                     q_filter = Q()
                     for rt in remote_terminations:
                         position = positions.pop()
-                        q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
-                    if q_filter is Q():
-                        raise UnsupportedCablePath(_("Remote termination position filter is missing"))
-                    front_ports = FrontPort.objects.filter(q_filter)
-                # Obtain the individual front ports based on the termination and position
-                elif position_stack:
-                    front_ports = FrontPort.objects.filter(
-                        rear_port_id=remote_terminations[0].pk,
-                        rear_port_position__in=position_stack.pop()
-                    )
-                # If all rear ports have a single position, we can just get the front ports
-                elif all([rp.positions == 1 for rp in remote_terminations]):
-                    front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
-
-                    if len(front_ports) != len(remote_terminations):
-                        # Some rear ports does not have a front port
-                        is_split = True
-                        break
+                        q_filter |= Q(front_port=rt, front_port_position=position)
+                    port_assignments = PortAssignment.objects.filter(q_filter)
                 else:
-                    # No position indicated: path has split, so we stop at the RearPorts
-                    is_split = True
-                    break
+                    port_assignments = PortAssignment.objects.filter(front_port__in=remote_terminations)
 
-                terminations = front_ports
+                if not port_assignments:
+                    print('No front-to-rear port assignments found')
+                    break
+                position_stack.append([assignment.rear_port_position for assignment in port_assignments])
+                terminations = [assignment.rear_port for assignment in port_assignments]
+
+            elif isinstance(remote_terminations[0], RearPort):
+                # Follow RearPorts to their corresponding FrontPorts
+                if position_stack:
+                    positions = position_stack.pop()
+                    q_filter = Q()
+                    for rt in remote_terminations:
+                        position = positions.pop()
+                        q_filter |= Q(rear_port=rt, rear_port_position=position)
+                    port_assignments = PortAssignment.objects.filter(q_filter)
+                else:
+                    port_assignments = PortAssignment.objects.filter(rear_port__in=remote_terminations)
+
+                if not port_assignments:
+                    print('No rear-to-front port assignments found')
+                    break
+                position_stack.append([assignment.front_port_position for assignment in port_assignments])
+                terminations = [assignment.front_port for assignment in port_assignments]
+
+                # if len(remote_terminations) == 1 and remote_terminations[0].positions == 1:
+                #     front_ports = FrontPort.objects.filter(
+                #         rear_port_id__in=[rp.pk for rp in remote_terminations],
+                #         rear_port_position=1
+                #     )
+                # # Obtain the individual front ports based on the termination and all positions
+                # elif len(remote_terminations) > 1 and position_stack:
+                #     positions = position_stack.pop()
+                #
+                #     # Ensure we have a number of positions equal to the amount of remote terminations
+                #     if len(remote_terminations) != len(positions):
+                #         raise UnsupportedCablePath(
+                #             _("All positions counts within the path on opposite ends of links must match")
+                #         )
+                #
+                #     # Get our front ports
+                #     q_filter = Q()
+                #     for rt in remote_terminations:
+                #         position = positions.pop()
+                #         q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
+                #     if q_filter is Q():
+                #         raise UnsupportedCablePath(_("Remote termination position filter is missing"))
+                #     front_ports = FrontPort.objects.filter(q_filter)
+                # # Obtain the individual front ports based on the termination and position
+                # elif position_stack:
+                #     front_ports = FrontPort.objects.filter(
+                #         rear_port_id=remote_terminations[0].pk,
+                #         rear_port_position__in=position_stack.pop()
+                #     )
+                # # If all rear ports have a single position, we can just get the front ports
+                # elif all([rp.positions == 1 for rp in remote_terminations]):
+                #     front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
+                #
+                #     if len(front_ports) != len(remote_terminations):
+                #         # Some rear ports does not have a front port
+                #         is_split = True
+                #         break
+                # else:
+                #     # No position indicated: path has split, so we stop at the RearPorts
+                #     is_split = True
+                #     break
+                #
+                # terminations = front_ports
 
             elif isinstance(remote_terminations[0], CircuitTermination):
                 # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
