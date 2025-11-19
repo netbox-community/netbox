@@ -42,17 +42,20 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet(
-            'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'unique', 'choice_set_id',
-            name=_('Attributes')
-        ),
+        FieldSet('object_type_id', 'type', 'group_name', 'weight', 'required', 'unique', name=_('Attributes')),
+        FieldSet('choice_set_id', 'related_object_type_id', name=_('Type Options')),
         FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
         FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
     )
-    related_object_type_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
-        label=_('Related object type')
+        label=_('Object types'),
+    )
+    related_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.public(),
+        required=False,
+        label=_('Related object type'),
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
