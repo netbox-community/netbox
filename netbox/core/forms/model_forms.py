@@ -95,6 +95,11 @@ class DataSourceForm(NetBoxModelForm):
                 parameters[name[8:]] = self.cleaned_data[name]
         self.instance.parameters = parameters
 
+        self.instance.status = self.cleaned_data['status']
+        # we need to save the instance here, due to the broken super.save method not saving the status field
+        # correctly & would require to posts on the data-source object
+        self.instance.save()
+
         return super().save(*args, **kwargs)
 
 
