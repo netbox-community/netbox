@@ -290,10 +290,12 @@ class ScriptViewSet(ModelViewSet):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
-        if not request.user.has_perm('extras.run_script'):
-            raise PermissionDenied("This user does not have permission to run scripts.")
 
         script = self._get_script(pk)
+
+        if not request.user.has_perm('extras.run_script', obj=script):
+            raise PermissionDenied("This user does not have permission to run this script.")
+
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
             context={'script': script}
