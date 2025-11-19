@@ -53,7 +53,7 @@ class DataSource(JobsMixin, PrimaryModel):
         max_length=50,
         choices=DataSourceStatusChoices,
         default=DataSourceStatusChoices.NEW,
-        editable=False
+        editable=True
     )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),
