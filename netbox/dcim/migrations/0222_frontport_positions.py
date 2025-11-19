@@ -25,7 +25,8 @@ class Migration(migrations.Migration):
             model_name='frontport',
             name='positions',
             field=models.PositiveSmallIntegerField(
-                default=1,
+                blank=True,
+                null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
                     django.core.validators.MaxValueValidator(1024)

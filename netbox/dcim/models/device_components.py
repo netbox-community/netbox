@@ -1079,10 +1079,12 @@ class PortAssignment(models.Model):
         on_delete=models.CASCADE,
     )
     front_port_position = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
         validators=(
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX),
-        )
+        ),
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
@@ -1092,7 +1094,7 @@ class PortAssignment(models.Model):
         validators=(
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX),
-        )
+        ),
     )
 
     class Meta:
@@ -1146,7 +1148,8 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     )
     positions = models.PositiveSmallIntegerField(
         verbose_name=_('positions'),
-        default=1,
+        blank=True,
+        null=True,
         validators=[
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX)

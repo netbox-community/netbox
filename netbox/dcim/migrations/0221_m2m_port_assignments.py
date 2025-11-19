@@ -22,7 +22,7 @@ def populate_port_assignments(apps, schema_editor):
         for front_port in front_ports:
             yield PortAssignment(
                 front_port_id=front_port.pk,
-                front_port_position=1,
+                front_port_position=None,
                 rear_port_id=front_port.rear_port_id,
                 rear_port_position=front_port.rear_port_position,
             )
@@ -45,9 +45,11 @@ class Migration(migrations.Migration):
                 (
                     'front_port_position',
                     models.PositiveSmallIntegerField(
+                        blank=True,
+                        null=True,
                         validators=[
                             django.core.validators.MinValueValidator(1),
-                            django.core.validators.MaxValueValidator(1024),
+                            django.core.validators.MaxValueValidator(1024)
                         ]
                     ),
                 ),

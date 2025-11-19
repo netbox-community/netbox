@@ -786,7 +786,7 @@ class CablePath(models.Model):
                     port_assignments = PortAssignment.objects.filter(front_port__in=remote_terminations)
 
                 if not port_assignments:
-                    print('No front-to-rear port assignments found')
+                    print(f'No front-to-rear port assignments found for {remote_terminations}')
                     break
                 position_stack.append([assignment.rear_port_position for assignment in port_assignments])
                 terminations = [assignment.rear_port for assignment in port_assignments]
@@ -804,7 +804,7 @@ class CablePath(models.Model):
                     port_assignments = PortAssignment.objects.filter(rear_port__in=remote_terminations)
 
                 if not port_assignments:
-                    print('No rear-to-front port assignments found')
+                    print(f'No rear-to-front port assignments found for {remote_terminations}')
                     break
                 position_stack.append([assignment.front_port_position for assignment in port_assignments])
                 terminations = [assignment.front_port for assignment in port_assignments]

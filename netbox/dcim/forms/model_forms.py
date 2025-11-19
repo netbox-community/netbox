@@ -1619,11 +1619,19 @@ class FrontPortForm(ModularDeviceComponentForm):
     def clean(self):
         super().clean()
 
+        # FrontPort with no positions cannot be mapped to more than one RearPort
+        if not self.cleaned_data['positions'] and len(self.cleaned_data['rear_ports']) > 1:
+            raise forms.ValidationError({
+                'positions': _("A front port with no positions cannot be mapped to multiple rear ports.")
+            })
+
         # Count of selected rear port & position pairs much match the assigned number of positions
         if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:
-            raise forms.ValidationError(
-                _("The number of rear port/position pairs selected must match the number of positions assigned.")
-            )
+            raise forms.ValidationError({
+                'rear_ports': _(
+                    "The number of rear port/position pairs selected must match the number of positions assigned."
+                )
+            })
 
     def _save_m2m(self):
         super()._save_m2m()
