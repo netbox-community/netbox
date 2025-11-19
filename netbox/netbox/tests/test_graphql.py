@@ -96,11 +96,25 @@ class GraphQLAPITestCase(APITestCase):
         self.assertEqual(len(data['data']['location_list']), 1)
         self.assertIsNotNone(data['data']['location_list'][0]['site'])
 
-        # Test OR logic
+        # Test OR and exact logic
         query = """{
             location_list( filters: {
-                status: STATUS_PLANNED,
-                OR: {status: STATUS_STAGING}
+                status: {exact: STATUS_PLANNED},
+                OR: {status: {exact: STATUS_STAGING}}
+            }) {
+                id site {id}
+            }
+        }"""
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['location_list']), 2)
+
+        # Test in_list logic
+        query = """{
+            location_list( filters: {
+                status: {in_list: [STATUS_PLANNED, STATUS_STAGING]}
             }) {
                 id site {id}
             }
