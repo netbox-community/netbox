@@ -136,12 +136,12 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomLink
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'new_window', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
-        required=False
+        required=False,
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -230,12 +230,12 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     model = SavedFilter
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.public(),
-        required=False
+        required=False,
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
