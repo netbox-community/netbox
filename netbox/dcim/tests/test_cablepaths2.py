@@ -1,5 +1,3 @@
-from unittest import skipIf
-
 from circuits.models import CircuitTermination
 from dcim.choices import CableProfileChoices
 from dcim.models import *
@@ -363,13 +361,13 @@ class CablePathTests(CablePathTestCase):
             Interface.objects.create(device=self.device, name='Interface 3'),
             Interface.objects.create(device=self.device, name='Interface 4'),
         ]
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device,
-            name='Front Port 1',
-            rear_port=rearport1,
-            rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortAssignment.objects.bulk_create([
+            PortAssignment(
+                front_port=frontport1, front_port_position=None, rear_port=rearport1, rear_port_position=1,
+            ),
+        ])
 
         # Create cables
         cable1 = Cable(
@@ -439,18 +437,24 @@ class CablePathTests(CablePathTestCase):
         ]
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport2, rear_port_position=1
-        )
-        frontport2_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
+        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        PortAssignment.objects.bulk_create([
+            PortAssignment(
+                front_port=frontport1_1, front_port_position=None, rear_port=rearport1, rear_port_position=1,
+            ),
+            PortAssignment(
+                front_port=frontport1_2, front_port_position=None, rear_port=rearport1, rear_port_position=2,
+            ),
+            PortAssignment(
+                front_port=frontport2_1, front_port_position=None, rear_port=rearport2, rear_port_position=1,
+            ),
+            PortAssignment(
+                front_port=frontport2_2, front_port_position=None, rear_port=rearport2, rear_port_position=2,
+            ),
+        ])
 
         # Create cables
         cable1 = Cable(
@@ -654,25 +658,31 @@ class CablePathTests(CablePathTestCase):
             Interface.objects.create(device=self.device, name='Interface 2'),
         ]
         rear_ports = [
-            RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1),
-            RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1),
-            RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1),
-            RearPort.objects.create(device=self.device, name='Rear Port 4', positions=1),
+            RearPort.objects.create(device=self.device, name='Rear Port 1'),
+            RearPort.objects.create(device=self.device, name='Rear Port 2'),
+            RearPort.objects.create(device=self.device, name='Rear Port 3'),
+            RearPort.objects.create(device=self.device, name='Rear Port 4'),
         ]
         front_ports = [
-            FrontPort.objects.create(
-                device=self.device, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
-            ),
-            FrontPort.objects.create(
-                device=self.device, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
-            ),
-            FrontPort.objects.create(
-                device=self.device, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
-            ),
-            FrontPort.objects.create(
-                device=self.device, name='Front Port 4', rear_port=rear_ports[3], rear_port_position=1
-            ),
+            FrontPort.objects.create(device=self.device, name='Front Port 1'),
+            FrontPort.objects.create(device=self.device, name='Front Port 2'),
+            FrontPort.objects.create(device=self.device, name='Front Port 3'),
+            FrontPort.objects.create(device=self.device, name='Front Port 4'),
         ]
+        PortAssignment.objects.bulk_create([
+            PortAssignment(
+                front_port=front_ports[0], front_port_position=None, rear_port=rear_ports[0], rear_port_position=1,
+            ),
+            PortAssignment(
+                front_port=front_ports[1], front_port_position=None, rear_port=rear_ports[1], rear_port_position=1,
+            ),
+            PortAssignment(
+                front_port=front_ports[2], front_port_position=None, rear_port=rear_ports[2], rear_port_position=1,
+            ),
+            PortAssignment(
+                front_port=front_ports[3], front_port_position=None, rear_port=rear_ports[3], rear_port_position=1,
+            ),
+        ])
 
         # Create cables
         cable1 = Cable(
@@ -723,8 +733,6 @@ class CablePathTests(CablePathTestCase):
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
 
-    # TODO: Revisit this test under FR #20564
-    @skipIf(True, "Waiting for FR #20564")
     def test_223_single_path_via_multiple_pass_throughs_with_breakouts(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
@@ -736,14 +744,18 @@ class CablePathTests(CablePathTestCase):
             Interface.objects.create(device=self.device, name='Interface 3'),
             Interface.objects.create(device=self.device, name='Interface 4'),
         ]
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        PortAssignment.objects.bulk_create([
+            PortAssignment(
+                front_port=frontport1, front_port_position=None, rear_port=rearport1, rear_port_position=1,
+            ),
+            PortAssignment(
+                front_port=frontport2, front_port_position=None, rear_port=rearport2, rear_port_position=1,
+            ),
+        ])
 
         # Create cables
         cable1 = Cable(
@@ -760,9 +772,6 @@ class CablePathTests(CablePathTestCase):
         )
         cable2.clean()
         cable2.save()
-
-        for path in CablePath.objects.all():
-            print(f'{path}: {path.path_objects}')
 
         # Validate paths
         self.assertPathExists(

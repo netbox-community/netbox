@@ -1025,8 +1025,6 @@ class LegacyCablePathTests(CablePathTestCase):
             b_terminations=[rearport3]
         )
         cable4.save()
-        for path in CablePath.objects.all():
-            print(path.path_objects)
         self.assertPathExists(
             (
                 interface1, cable1, frontport1_1, rearport1, cable3, frontport2, rearport2,
@@ -1079,7 +1077,7 @@ class LegacyCablePathTests(CablePathTestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2)
         frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
         PortAssignment.objects.bulk_create([

@@ -695,7 +695,9 @@ class CablePath(models.Model):
                 position_stack.append([terminations[0].cable_position])
 
             # Step 2: Determine the attached links (Cable or WirelessLink), if any
-            links = [termination.link for termination in terminations if termination.link is not None]
+            links = list(dict.fromkeys(
+                termination.link for termination in terminations if termination.link is not None
+            ))
             if len(links) == 0:
                 if len(path) == 1:
                     # If this is the start of the path and no link exists, return None
@@ -775,83 +777,39 @@ class CablePath(models.Model):
 
             if isinstance(remote_terminations[0], FrontPort):
                 # Follow FrontPorts to their corresponding RearPorts
-                if position_stack:
-                    positions = position_stack.pop()
+                if any(rt.positions for rt in remote_terminations):
                     q_filter = Q()
                     for rt in remote_terminations:
-                        position = positions.pop()
-                        q_filter |= Q(front_port=rt, front_port_position=position)
+                        q_filter |= Q(front_port=rt, front_port_position__in=rt.positions)
                     port_assignments = PortAssignment.objects.filter(q_filter)
                 else:
                     port_assignments = PortAssignment.objects.filter(front_port__in=remote_terminations)
-
                 if not port_assignments:
-                    print(f'No front-to-rear port assignments found for {remote_terminations}')
                     break
-                position_stack.append([assignment.rear_port_position for assignment in port_assignments])
-                terminations = [assignment.rear_port for assignment in port_assignments]
+
+                # Compile the list of RearPorts without duplication or altering their ordering
+                terminations = list(dict.fromkeys(assignment.rear_port for assignment in port_assignments))
+                # if not(len(terminations) == 1 and terminations[0].positions == 1):
+                if any(t.positions > 1 for t in terminations):
+                    position_stack.append([assignment.rear_port_position for assignment in port_assignments])
 
             elif isinstance(remote_terminations[0], RearPort):
                 # Follow RearPorts to their corresponding FrontPorts
-                if position_stack:
+                if remote_terminations[0].positions > 1 and position_stack:
                     positions = position_stack.pop()
                     q_filter = Q()
                     for rt in remote_terminations:
-                        position = positions.pop()
-                        q_filter |= Q(rear_port=rt, rear_port_position=position)
+                        q_filter |= Q(rear_port=rt, rear_port_position__in=positions)
                     port_assignments = PortAssignment.objects.filter(q_filter)
+                elif remote_terminations[0].positions > 1:
+                    is_split = True
+                    break
                 else:
                     port_assignments = PortAssignment.objects.filter(rear_port__in=remote_terminations)
-
                 if not port_assignments:
-                    print(f'No rear-to-front port assignments found for {remote_terminations}')
                     break
-                position_stack.append([assignment.front_port_position for assignment in port_assignments])
-                terminations = [assignment.front_port for assignment in port_assignments]
 
-                # if len(remote_terminations) == 1 and remote_terminations[0].positions == 1:
-                #     front_ports = FrontPort.objects.filter(
-                #         rear_port_id__in=[rp.pk for rp in remote_terminations],
-                #         rear_port_position=1
-                #     )
-                # # Obtain the individual front ports based on the termination and all positions
-                # elif len(remote_terminations) > 1 and position_stack:
-                #     positions = position_stack.pop()
-                #
-                #     # Ensure we have a number of positions equal to the amount of remote terminations
-                #     if len(remote_terminations) != len(positions):
-                #         raise UnsupportedCablePath(
-                #             _("All positions counts within the path on opposite ends of links must match")
-                #         )
-                #
-                #     # Get our front ports
-                #     q_filter = Q()
-                #     for rt in remote_terminations:
-                #         position = positions.pop()
-                #         q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
-                #     if q_filter is Q():
-                #         raise UnsupportedCablePath(_("Remote termination position filter is missing"))
-                #     front_ports = FrontPort.objects.filter(q_filter)
-                # # Obtain the individual front ports based on the termination and position
-                # elif position_stack:
-                #     front_ports = FrontPort.objects.filter(
-                #         rear_port_id=remote_terminations[0].pk,
-                #         rear_port_position__in=position_stack.pop()
-                #     )
-                # # If all rear ports have a single position, we can just get the front ports
-                # elif all([rp.positions == 1 for rp in remote_terminations]):
-                #     front_ports = FrontPort.objects.filter(rear_port_id__in=[rp.pk for rp in remote_terminations])
-                #
-                #     if len(front_ports) != len(remote_terminations):
-                #         # Some rear ports does not have a front port
-                #         is_split = True
-                #         break
-                # else:
-                #     # No position indicated: path has split, so we stop at the RearPorts
-                #     is_split = True
-                #     break
-                #
-                # terminations = front_ports
+                terminations = [assignment.front_port for assignment in port_assignments]
 
             elif isinstance(remote_terminations[0], CircuitTermination):
                 # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
