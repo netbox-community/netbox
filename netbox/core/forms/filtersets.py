@@ -7,7 +7,7 @@ from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
 from users.models import User
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice, register_filterset
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
@@ -24,7 +24,6 @@ __all__ = (
 )
 
 
-@register_filterset(DataSourceFilterSet)
 class DataSourceFilterForm(PrimaryModelFilterSetForm):
     model = DataSource
     fieldsets = (
@@ -56,7 +55,6 @@ class DataSourceFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(DataFileFilterSet)
 class DataFileFilterForm(NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
@@ -70,7 +68,6 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-@register_filterset(JobFilterSet)
 class JobFilterForm(SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
@@ -138,7 +135,6 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(ObjectChangeFilterSet)
 class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
@@ -173,7 +169,6 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(ConfigRevisionFilterSet)
 class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigRevision
     fieldsets = (

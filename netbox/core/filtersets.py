@@ -7,6 +7,7 @@ from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, Primary
 from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.filters import ContentTypeFilter
+from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 
@@ -20,6 +21,7 @@ __all__ = (
 )
 
 
+@register_filterset
 class DataSourceFilterSet(PrimaryModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=get_data_backend_choices,
@@ -48,6 +50,7 @@ class DataSourceFilterSet(PrimaryModelFilterSet):
         )
 
 
+@register_filterset
 class DataFileFilterSet(ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search'
@@ -75,6 +78,7 @@ class DataFileFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
+@register_filterset
 class JobFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -139,6 +143,7 @@ class JobFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class ObjectTypeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -164,6 +169,7 @@ class ObjectTypeFilterSet(BaseFilterSet):
         return queryset.filter(features__icontains=value)
 
 
+@register_filterset
 class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -203,6 +209,7 @@ class ObjectChangeFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class ConfigRevisionFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',

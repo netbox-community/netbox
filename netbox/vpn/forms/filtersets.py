@@ -9,7 +9,6 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
-from utilities.forms import register_filterset
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
 from virtualization.models import VirtualMachine
@@ -32,7 +31,6 @@ __all__ = (
 )
 
 
-@register_filterset(TunnelGroupFilterSet)
 class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
@@ -42,7 +40,6 @@ class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSet
     tag = TagFilterField(model)
 
 
-@register_filterset(TunnelFilterSet)
 class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Tunnel
     fieldsets = (
@@ -79,7 +76,6 @@ class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
     tag = TagFilterField(model)
 
 
-@register_filterset(TunnelTerminationFilterSet)
 class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
     model = TunnelTermination
     fieldsets = (
@@ -99,7 +95,6 @@ class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(IKEProposalFilterSet)
 class IKEProposalFilterForm(PrimaryModelFilterSetForm):
     model = IKEProposal
     fieldsets = (
@@ -131,7 +126,6 @@ class IKEProposalFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(IKEPolicyFilterSet)
 class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
     model = IKEPolicy
     fieldsets = (
@@ -156,7 +150,6 @@ class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(IPSecProposalFilterSet)
 class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
     model = IPSecProposal
     fieldsets = (
@@ -176,7 +169,6 @@ class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(IPSecPolicyFilterSet)
 class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
@@ -196,7 +188,6 @@ class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(IPSecProfileFilterSet)
 class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
@@ -221,7 +212,6 @@ class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(L2VPNFilterSet)
 class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = L2VPN
     fieldsets = (
@@ -253,7 +243,6 @@ class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFil
     tag = TagFilterField(model)
 
 
-@register_filterset(L2VPNTerminationFilterSet)
 class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (

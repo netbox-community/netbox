@@ -11,6 +11,7 @@ from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 
@@ -29,6 +30,7 @@ __all__ = (
 )
 
 
+@register_filterset
 class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -93,6 +95,7 @@ class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         )
 
 
+@register_filterset
 class ProviderAccountFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
@@ -120,6 +123,7 @@ class ProviderAccountFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         ).distinct()
 
 
+@register_filterset
 class ProviderNetworkFilterSet(PrimaryModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
@@ -147,6 +151,7 @@ class ProviderNetworkFilterSet(PrimaryModelFilterSet):
         ).distinct()
 
 
+@register_filterset
 class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -154,6 +159,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
+@register_filterset
 class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
@@ -265,6 +271,7 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
         ).distinct()
 
 
+@register_filterset
 class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -360,6 +367,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         ).distinct()
 
 
+@register_filterset
 class CircuitGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
@@ -367,6 +375,7 @@ class CircuitGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -466,6 +475,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         )
 
 
+@register_filterset
 class VirtualCircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -473,6 +483,7 @@ class VirtualCircuitTypeFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
+@register_filterset
 class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_network__provider',
@@ -529,6 +540,7 @@ class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         ).distinct()
 
 
+@register_filterset
 class VirtualCircuitTerminationFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
