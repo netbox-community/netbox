@@ -37,7 +37,9 @@ export function initFilterModifiers(): void {
         }
       }
 
-      window.location.href = `${form.action}?${params.toString()}`;
+      // Use getAttribute to avoid collision with form fields named 'action'
+      const actionUrl = form.getAttribute('action') || form.action;
+      window.location.href = `${actionUrl}?${params.toString()}`;
     });
   }
 }
