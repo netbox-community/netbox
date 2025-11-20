@@ -5,7 +5,7 @@ from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from users.choices import TokenVersionChoices
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, register_filterset
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
@@ -22,7 +22,6 @@ __all__ = (
 )
 
 
-@register_filterset(GroupFilterSet)
 class GroupFilterForm(NetBoxModelFilterSetForm):
     model = Group
     fieldsets = (
@@ -30,7 +29,6 @@ class GroupFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-@register_filterset(UserFilterSet)
 class UserFilterForm(NetBoxModelFilterSetForm):
     model = User
     fieldsets = (
@@ -59,7 +57,6 @@ class UserFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-@register_filterset(ObjectPermissionFilterSet)
 class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
     model = ObjectPermission
     fieldsets = (
@@ -114,7 +111,6 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-@register_filterset(TokenFilterSet)
 class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
@@ -156,7 +152,6 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(OwnerGroupFilterSet)
 class OwnerGroupFilterForm(NetBoxModelFilterSetForm):
     model = OwnerGroup
     fieldsets = (
@@ -164,7 +159,6 @@ class OwnerGroupFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-@register_filterset(OwnerFilterSet)
 class OwnerFilterForm(NetBoxModelFilterSetForm):
     model = Owner
     fieldsets = (

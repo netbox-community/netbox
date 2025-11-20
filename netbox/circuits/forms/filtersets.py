@@ -11,7 +11,7 @@ from ipam.models import ASN
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms import add_blank_choice, register_filterset
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
@@ -32,7 +32,6 @@ __all__ = (
 )
 
 
-@register_filterset(ProviderFilterSet)
 class ProviderFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Provider
     fieldsets = (
@@ -68,7 +67,6 @@ class ProviderFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(ProviderAccountFilterSet)
 class ProviderAccountFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
@@ -88,7 +86,6 @@ class ProviderAccountFilterForm(ContactModelFilterForm, PrimaryModelFilterSetFor
     tag = TagFilterField(model)
 
 
-@register_filterset(ProviderNetworkFilterSet)
 class ProviderNetworkFilterForm(PrimaryModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
@@ -108,7 +105,6 @@ class ProviderNetworkFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(CircuitTypeFilterSet)
 class CircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     model = CircuitType
     fieldsets = (
@@ -123,7 +119,6 @@ class CircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     )
 
 
-@register_filterset(CircuitFilterSet)
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Circuit
     fieldsets = (
@@ -223,7 +218,6 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelF
     tag = TagFilterField(model)
 
 
-@register_filterset(CircuitTerminationFilterSet)
 class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
     model = CircuitTermination
     fieldsets = (
@@ -278,7 +272,6 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(CircuitGroupFilterSet)
 class CircuitGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
     model = CircuitGroup
     fieldsets = (
@@ -288,7 +281,6 @@ class CircuitGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm
     tag = TagFilterField(model)
 
 
-@register_filterset(CircuitGroupAssignmentFilterSet)
 class CircuitGroupAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = CircuitGroupAssignment
     fieldsets = (
@@ -318,7 +310,6 @@ class CircuitGroupAssignmentFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(VirtualCircuitTypeFilterSet)
 class VirtualCircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     model = VirtualCircuitType
     fieldsets = (
@@ -333,7 +324,6 @@ class VirtualCircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     )
 
 
-@register_filterset(VirtualCircuitFilterSet)
 class VirtualCircuitFilterForm(
     TenancyFilterForm,
     ContactModelFilterForm,
@@ -381,7 +371,6 @@ class VirtualCircuitFilterForm(
     tag = TagFilterField(model)
 
 
-@register_filterset(VirtualCircuitTerminationFilterSet)
 class VirtualCircuitTerminationFilterForm(NetBoxModelFilterSetForm):
     model = VirtualCircuitTermination
     fieldsets = (

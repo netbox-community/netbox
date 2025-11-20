@@ -5,7 +5,9 @@ from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
+from netbox.registry import registry
 from utilities.forms.fields import ColorField, QueryField, TagFilterField
+from utilities.forms.widgets import FilterModifierWidget
 from utilities.forms.widgets.apiselect import APISelect
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
@@ -174,8 +176,6 @@ class FilterModifierMixin:
 
     def _enhance_fields_with_modifiers(self):
         """Wrap compatible field widgets with FilterModifierWidget."""
-        from utilities.forms.widgets import FilterModifierWidget
-        from netbox.registry import registry
 
         model = getattr(self, 'model', None)
         if model is None and hasattr(self, '_meta'):
@@ -237,7 +237,7 @@ class FilterModifierMixin:
 
     def _is_api_widget_field(self, field):
         """Check if a field uses an API-based widget."""
-        if field.widget is APISelect:
+        if isinstance(field.widget, APISelect):
             return True
 
         if hasattr(field.widget, 'attrs') and field.widget.attrs:

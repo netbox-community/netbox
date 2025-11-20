@@ -10,7 +10,7 @@ from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
 from users.models import Group, Owner, User
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice, register_filterset
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
     TagFilterField,
@@ -40,7 +40,6 @@ __all__ = (
 )
 
 
-@register_filterset(CustomFieldFilterSet)
 class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomField
     fieldsets = (
@@ -128,7 +127,6 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(CustomFieldChoiceSetFilterSet)
 class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomFieldChoiceSet
     fieldsets = (
@@ -149,7 +147,6 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(CustomLinkFilterSet)
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomLink
     fieldsets = (
@@ -186,7 +183,6 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(ExportTemplateFilterSet)
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     model = ExportTemplate
     fieldsets = (
@@ -238,7 +234,6 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(ImageAttachmentFilterSet)
 class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     model = ImageAttachment
     fieldsets = (
@@ -256,7 +251,6 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(SavedFilterFilterSet)
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     model = SavedFilter
     fieldsets = (
@@ -293,7 +287,6 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(TableConfigFilterSet)
 class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
     model = TableConfig
     fieldsets = (
@@ -325,7 +318,6 @@ class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(WebhookFilterSet)
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
@@ -353,7 +345,6 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(EventRuleFilterSet)
 class EventRuleFilterForm(NetBoxModelFilterSetForm):
     model = EventRule
     fieldsets = (
@@ -390,7 +381,6 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(TagFilterSet)
 class TagFilterForm(SavedFiltersMixin, FilterForm):
     model = Tag
     content_type_id = ContentTypeMultipleChoiceField(
@@ -410,7 +400,6 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(ConfigContextProfileFilterSet)
 class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
     model = ConfigContextProfile
     fieldsets = (
@@ -432,7 +421,6 @@ class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
     )
 
 
-@register_filterset(ConfigContextFilterSet)
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigContext
     fieldsets = (
@@ -534,7 +522,6 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-@register_filterset(ConfigTemplateFilterSet)
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigTemplate
     fieldsets = (
@@ -599,7 +586,6 @@ class LocalConfigContextFilterForm(forms.Form):
     )
 
 
-@register_filterset(JournalEntryFilterSet)
 class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
@@ -635,7 +621,6 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(NotificationGroupFilterSet)
 class NotificationGroupFilterForm(SavedFiltersMixin, FilterForm):
     model = NotificationGroup
     user_id = DynamicModelMultipleChoiceField(

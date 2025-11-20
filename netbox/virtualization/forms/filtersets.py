@@ -9,7 +9,7 @@ from ipam.models import VRF, VLANTranslationPolicy
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import Owner
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, register_filterset
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from virtualization.choices import *
@@ -27,7 +27,6 @@ __all__ = (
 )
 
 
-@register_filterset(ClusterTypeFilterSet)
 class ClusterTypeFilterForm(OrganizationalModelFilterSetForm):
     model = ClusterType
     fieldsets = (
@@ -36,7 +35,6 @@ class ClusterTypeFilterForm(OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(ClusterGroupFilterSet)
 class ClusterGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
@@ -46,7 +44,6 @@ class ClusterGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSe
     )
 
 
-@register_filterset(ClusterFilterSet)
 class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Cluster
     fieldsets = (
@@ -101,7 +98,6 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelF
     tag = TagFilterField(model)
 
 
-@register_filterset(VirtualMachineFilterSet)
 class VirtualMachineFilterForm(
     LocalConfigContextFilterForm,
     TenancyFilterForm,
@@ -210,7 +206,6 @@ class VirtualMachineFilterForm(
     tag = TagFilterField(model)
 
 
-@register_filterset(VMInterfaceFilterSet)
 class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
@@ -273,7 +268,6 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(VirtualDiskFilterSet)
 class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
     model = VirtualDisk
     fieldsets = (

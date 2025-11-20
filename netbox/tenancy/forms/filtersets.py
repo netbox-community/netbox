@@ -13,7 +13,6 @@ from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
-from utilities.forms import register_filterset
 from utilities.forms.rendering import FieldSet
 
 __all__ = (
@@ -30,7 +29,6 @@ __all__ = (
 # Tenants
 #
 
-@register_filterset(TenantGroupFilterSet)
 class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
     model = TenantGroup
     fieldsets = (
@@ -45,7 +43,6 @@ class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(TenantFilterSet)
 class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Tenant
     fieldsets = (
@@ -66,7 +63,6 @@ class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
 # Contacts
 #
 
-@register_filterset(ContactGroupFilterSet)
 class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
     model = ContactGroup
     fieldsets = (
@@ -81,7 +77,6 @@ class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(ContactRoleFilterSet)
 class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
     model = ContactRole
     fieldsets = (
@@ -90,7 +85,6 @@ class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(ContactFilterSet)
 class ContactFilterForm(PrimaryModelFilterSetForm):
     model = Contact
     fieldsets = (
@@ -106,7 +100,6 @@ class ContactFilterForm(PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-@register_filterset(ContactAssignmentFilterSet)
 class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = ContactAssignment
     fieldsets = (
