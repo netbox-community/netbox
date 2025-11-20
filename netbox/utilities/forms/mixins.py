@@ -5,7 +5,7 @@ from django import forms
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
-from utilities.forms.fields import ColorField, TagFilterField
+from utilities.forms.fields import ColorField, QueryField, TagFilterField
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
@@ -181,10 +181,7 @@ class FilterModifierMixin:
         filterset = filterset_class() if filterset_class else None
 
         for field_name, field in self.fields.items():
-            if self._should_skip_field(field_name, field):
-                continue
-
-            lookups = self._get_lookup_choices(field, field_name)
+            lookups = self._get_lookup_choices(field)
 
             # Verify lookups against FilterSet if available
             if filterset:
@@ -196,34 +193,30 @@ class FilterModifierMixin:
                     lookups=lookups
                 )
 
-    def _should_skip_field(self, field_name, field):
-        """Determine if a field should be skipped for enhancement."""
-        # Skip the global search field
-        if field_name == 'q':
-            return True
+    def _get_lookup_choices(self, field):
+        """Determine the available lookup choices for a given field.
+
+        Returns an empty list for fields that should not be enhanced.
+        """
+        # Skip query/search fields
+        if isinstance(field, QueryField):
+            return []
 
         # Skip boolean fields (no benefit from modifiers)
         if isinstance(field, (forms.BooleanField, forms.NullBooleanField)):
-            return True
-
-        # MultipleChoiceField and TagFilterField are now supported
-        # (no longer skipped)
+            return []
 
         # Skip API widget fields
         if self._is_api_widget_field(field):
-            return True
+            return []
 
-        return False
-
-    def _get_lookup_choices(self, field, field_name=None):
-        """Determine the available lookup choices for a given field."""
         # Walk up the MRO to find a known field type
         for field_class in field.__class__.__mro__:
             if field_class in FORM_FIELD_LOOKUPS:
                 return FORM_FIELD_LOOKUPS[field_class]
 
-        # Unknown field type - return single exact option (no enhancement)
-        return [('exact', _('Is'))]
+        # Unknown field type - return empty list (no enhancement)
+        return []
 
     def _verify_lookups_with_filterset(self, field_name, lookups, filterset):
         """Verify which lookups are actually supported by the FilterSet."""

@@ -4,6 +4,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from netbox.models.features import ChangeLoggingMixin
+from utilities.forms.fields import QueryField
 from utilities.forms.mixins import BackgroundJobMixin, FilterModifierMixin
 
 __all__ = (
@@ -144,7 +145,7 @@ class FilterForm(FilterModifierMixin, forms.Form):
     """
     Base Form class for FilterSet forms.
     """
-    q = forms.CharField(
+    q = QueryField(
         required=False,
         label=_('Search')
     )

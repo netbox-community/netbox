@@ -17,9 +17,18 @@ __all__ = (
     'JSONField',
     'LaxURLField',
     'MACAddressField',
+    'QueryField',
     'SlugField',
     'TagFilterField',
 )
+
+
+class QueryField(forms.CharField):
+    """
+    A CharField subclass used for global search/query fields in filter forms.
+    This field type signals to FilterModifierMixin to skip enhancement with lookup modifiers.
+    """
+    pass
 
 
 class CommentField(forms.CharField):
