@@ -6,9 +6,8 @@ from dcim.models import Location, Region, Site, SiteGroup
 from netbox.choices import *
 from netbox.forms import NestedGroupModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
-from utilities.forms import add_blank_choice
+from utilities.forms import add_blank_choice, register_filterset
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from wireless.choices import *
@@ -22,6 +21,7 @@ __all__ = (
 )
 
 
+@register_filterset(WirelessLANGroupFilterSet)
 class WirelessLANGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
     model = WirelessLANGroup
     fieldsets = (
@@ -36,6 +36,7 @@ class WirelessLANGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetF
     tag = TagFilterField(model)
 
 
+@register_filterset(WirelessLANFilterSet)
 class WirelessLANFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
@@ -102,6 +103,7 @@ class WirelessLANFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModel
     tag = TagFilterField(model)
 
 
+@register_filterset(WirelessLinkFilterSet)
 class WirelessLinkFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
@@ -143,9 +145,3 @@ class WirelessLinkFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryMode
         required=False
     )
     tag = TagFilterField(model)
-
-
-# Register FilterSet mappings for FilterModifierMixin lookup verification
-FILTERSET_MAPPINGS[WirelessLANFilterForm] = WirelessLANFilterSet
-FILTERSET_MAPPINGS[WirelessLANGroupFilterForm] = WirelessLANGroupFilterSet
-FILTERSET_MAPPINGS[WirelessLinkFilterForm] = WirelessLinkFilterSet

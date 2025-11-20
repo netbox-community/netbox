@@ -9,7 +9,7 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
-from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+from utilities.forms import register_filterset
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
@@ -33,6 +33,7 @@ __all__ = (
 )
 
 
+@register_filterset(TunnelGroupFilterSet)
 class TunnelGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
@@ -42,6 +43,7 @@ class TunnelGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, Organiz
     tag = TagFilterField(model)
 
 
+@register_filterset(TunnelFilterSet)
 class TunnelFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Tunnel
     fieldsets = (
@@ -78,6 +80,7 @@ class TunnelFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilte
     tag = TagFilterField(model)
 
 
+@register_filterset(TunnelTerminationFilterSet)
 class TunnelTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = TunnelTermination
     fieldsets = (
@@ -97,6 +100,7 @@ class TunnelTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm)
     tag = TagFilterField(model)
 
 
+@register_filterset(IKEProposalFilterSet)
 class IKEProposalFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IKEProposal
     fieldsets = (
@@ -128,6 +132,7 @@ class IKEProposalFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(IKEPolicyFilterSet)
 class IKEPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IKEPolicy
     fieldsets = (
@@ -152,6 +157,7 @@ class IKEPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(IPSecProposalFilterSet)
 class IPSecProposalFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IPSecProposal
     fieldsets = (
@@ -171,6 +177,7 @@ class IPSecProposalFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(IPSecPolicyFilterSet)
 class IPSecPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
@@ -190,6 +197,7 @@ class IPSecPolicyFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(IPSecProfileFilterSet)
 class IPSecProfileFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
@@ -214,6 +222,7 @@ class IPSecProfileFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(L2VPNFilterSet)
 class L2VPNFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = L2VPN
     fieldsets = (
@@ -245,6 +254,7 @@ class L2VPNFilterForm(FilterModifierMixin, ContactModelFilterForm, TenancyFilter
     tag = TagFilterField(model)
 
 
+@register_filterset(L2VPNTerminationFilterSet)
 class L2VPNTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (
@@ -307,16 +317,3 @@ class L2VPNTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
         label=_('Virtual Machine')
     )
     tag = TagFilterField(model)
-
-
-# Register FilterSet mappings for FilterModifierMixin lookup verification
-FILTERSET_MAPPINGS[IKEPolicyFilterForm] = IKEPolicyFilterSet
-FILTERSET_MAPPINGS[IKEProposalFilterForm] = IKEProposalFilterSet
-FILTERSET_MAPPINGS[IPSecPolicyFilterForm] = IPSecPolicyFilterSet
-FILTERSET_MAPPINGS[IPSecProfileFilterForm] = IPSecProfileFilterSet
-FILTERSET_MAPPINGS[IPSecProposalFilterForm] = IPSecProposalFilterSet
-FILTERSET_MAPPINGS[L2VPNFilterForm] = L2VPNFilterSet
-FILTERSET_MAPPINGS[L2VPNTerminationFilterForm] = L2VPNTerminationFilterSet
-FILTERSET_MAPPINGS[TunnelFilterForm] = TunnelFilterSet
-FILTERSET_MAPPINGS[TunnelGroupFilterForm] = TunnelGroupFilterSet
-FILTERSET_MAPPINGS[TunnelTerminationFilterForm] = TunnelTerminationFilterSet

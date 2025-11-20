@@ -11,9 +11,8 @@ from ipam.models import ASN
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms import add_blank_choice
+from utilities.forms import add_blank_choice, register_filterset
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
@@ -34,6 +33,7 @@ __all__ = (
 )
 
 
+@register_filterset(ProviderFilterSet)
 class ProviderFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Provider
     fieldsets = (
@@ -69,6 +69,7 @@ class ProviderFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryMod
     tag = TagFilterField(model)
 
 
+@register_filterset(ProviderAccountFilterSet)
 class ProviderAccountFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
@@ -88,6 +89,7 @@ class ProviderAccountFilterForm(FilterModifierMixin, ContactModelFilterForm, Pri
     tag = TagFilterField(model)
 
 
+@register_filterset(ProviderNetworkFilterSet)
 class ProviderNetworkFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
@@ -107,6 +109,7 @@ class ProviderNetworkFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(CircuitTypeFilterSet)
 class CircuitTypeFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
     model = CircuitType
     fieldsets = (
@@ -121,6 +124,7 @@ class CircuitTypeFilterForm(FilterModifierMixin, OrganizationalModelFilterSetFor
     )
 
 
+@register_filterset(CircuitFilterSet)
 class CircuitFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Circuit
     fieldsets = (
@@ -220,6 +224,7 @@ class CircuitFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilt
     tag = TagFilterField(model)
 
 
+@register_filterset(CircuitTerminationFilterSet)
 class CircuitTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = CircuitTermination
     fieldsets = (
@@ -274,6 +279,7 @@ class CircuitTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm
     tag = TagFilterField(model)
 
 
+@register_filterset(CircuitGroupFilterSet)
 class CircuitGroupFilterForm(FilterModifierMixin, TenancyFilterForm, OrganizationalModelFilterSetForm):
     model = CircuitGroup
     fieldsets = (
@@ -283,6 +289,7 @@ class CircuitGroupFilterForm(FilterModifierMixin, TenancyFilterForm, Organizatio
     tag = TagFilterField(model)
 
 
+@register_filterset(CircuitGroupAssignmentFilterSet)
 class CircuitGroupAssignmentFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = CircuitGroupAssignment
     fieldsets = (
@@ -312,6 +319,7 @@ class CircuitGroupAssignmentFilterForm(FilterModifierMixin, NetBoxModelFilterSet
     tag = TagFilterField(model)
 
 
+@register_filterset(VirtualCircuitTypeFilterSet)
 class VirtualCircuitTypeFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
     model = VirtualCircuitType
     fieldsets = (
@@ -326,6 +334,7 @@ class VirtualCircuitTypeFilterForm(FilterModifierMixin, OrganizationalModelFilte
     )
 
 
+@register_filterset(VirtualCircuitFilterSet)
 class VirtualCircuitFilterForm(
     FilterModifierMixin,
     TenancyFilterForm,
@@ -374,6 +383,7 @@ class VirtualCircuitFilterForm(
     tag = TagFilterField(model)
 
 
+@register_filterset(VirtualCircuitTerminationFilterSet)
 class VirtualCircuitTerminationFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = VirtualCircuitTermination
     fieldsets = (
@@ -405,17 +415,3 @@ class VirtualCircuitTerminationFilterForm(FilterModifierMixin, NetBoxModelFilter
         label=_('Provider')
     )
     tag = TagFilterField(model)
-
-
-# Register FilterSet mappings for FilterModifierMixin lookup verification
-FILTERSET_MAPPINGS[ProviderFilterForm] = ProviderFilterSet
-FILTERSET_MAPPINGS[ProviderAccountFilterForm] = ProviderAccountFilterSet
-FILTERSET_MAPPINGS[ProviderNetworkFilterForm] = ProviderNetworkFilterSet
-FILTERSET_MAPPINGS[CircuitTypeFilterForm] = CircuitTypeFilterSet
-FILTERSET_MAPPINGS[CircuitFilterForm] = CircuitFilterSet
-FILTERSET_MAPPINGS[CircuitTerminationFilterForm] = CircuitTerminationFilterSet
-FILTERSET_MAPPINGS[CircuitGroupFilterForm] = CircuitGroupFilterSet
-FILTERSET_MAPPINGS[CircuitGroupAssignmentFilterForm] = CircuitGroupAssignmentFilterSet
-FILTERSET_MAPPINGS[VirtualCircuitTypeFilterForm] = VirtualCircuitTypeFilterSet
-FILTERSET_MAPPINGS[VirtualCircuitFilterForm] = VirtualCircuitFilterSet
-FILTERSET_MAPPINGS[VirtualCircuitTerminationFilterForm] = VirtualCircuitTerminationFilterSet

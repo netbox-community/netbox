@@ -7,11 +7,10 @@ from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
 from users.models import User
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice, register_filterset
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
-from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
@@ -26,6 +25,7 @@ __all__ = (
 )
 
 
+@register_filterset(DataSourceFilterSet)
 class DataSourceFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     model = DataSource
     fieldsets = (
@@ -57,6 +57,7 @@ class DataSourceFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(DataFileFilterSet)
 class DataFileFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
@@ -70,6 +71,7 @@ class DataFileFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     )
 
 
+@register_filterset(JobFilterSet)
 class JobFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
@@ -137,6 +139,7 @@ class JobFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     )
 
 
+@register_filterset(ObjectChangeFilterSet)
 class ObjectChangeFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
@@ -171,16 +174,9 @@ class ObjectChangeFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm)
     )
 
 
+@register_filterset(ConfigRevisionFilterSet)
 class ConfigRevisionFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = ConfigRevision
     fieldsets = (
         FieldSet('q', 'filter_id'),
     )
-
-
-# Register FilterSet mappings for FilterModifierMixin lookup verification
-FILTERSET_MAPPINGS[DataSourceFilterForm] = DataSourceFilterSet
-FILTERSET_MAPPINGS[DataFileFilterForm] = DataFileFilterSet
-FILTERSET_MAPPINGS[JobFilterForm] = JobFilterSet
-FILTERSET_MAPPINGS[ObjectChangeFilterForm] = ObjectChangeFilterSet
-FILTERSET_MAPPINGS[ConfigRevisionFilterForm] = ConfigRevisionFilterSet

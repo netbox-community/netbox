@@ -172,10 +172,10 @@ class FilterModifierMixin:
     def _enhance_fields_with_modifiers(self):
         """Wrap compatible field widgets with FilterModifierWidget."""
         from utilities.forms.widgets import FilterModifierWidget
-        from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
+        from netbox.registry import registry
 
         # Get the corresponding FilterSet if registered
-        filterset_class = FILTERSET_MAPPINGS.get(self.__class__)
+        filterset_class = registry['filtersets'].get(self.__class__)
         filterset = filterset_class() if filterset_class else None
 
         for field_name, field in self.fields.items():

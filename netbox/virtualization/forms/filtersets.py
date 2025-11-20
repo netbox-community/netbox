@@ -9,9 +9,8 @@ from ipam.models import VRF, VLANTranslationPolicy
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import Owner
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, register_filterset
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from virtualization.choices import *
@@ -29,6 +28,7 @@ __all__ = (
 )
 
 
+@register_filterset(ClusterTypeFilterSet)
 class ClusterTypeFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
     model = ClusterType
     fieldsets = (
@@ -37,6 +37,7 @@ class ClusterTypeFilterForm(FilterModifierMixin, OrganizationalModelFilterSetFor
     tag = TagFilterField(model)
 
 
+@register_filterset(ClusterGroupFilterSet)
 class ClusterGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
@@ -46,6 +47,7 @@ class ClusterGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, Organi
     )
 
 
+@register_filterset(ClusterFilterSet)
 class ClusterFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Cluster
     fieldsets = (
@@ -100,6 +102,7 @@ class ClusterFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilt
     tag = TagFilterField(model)
 
 
+@register_filterset(VirtualMachineFilterSet)
 class VirtualMachineFilterForm(
     FilterModifierMixin,
     LocalConfigContextFilterForm,
@@ -209,6 +212,7 @@ class VirtualMachineFilterForm(
     tag = TagFilterField(model)
 
 
+@register_filterset(VMInterfaceFilterSet)
 class VMInterfaceFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
@@ -271,6 +275,7 @@ class VMInterfaceFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+@register_filterset(VirtualDiskFilterSet)
 class VirtualDiskFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = VirtualDisk
     fieldsets = (
@@ -294,12 +299,3 @@ class VirtualDiskFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
         label=_('Owner'),
     )
     tag = TagFilterField(model)
-
-
-# Register FilterSet mappings for FilterModifierMixin lookup verification
-FILTERSET_MAPPINGS[ClusterFilterForm] = ClusterFilterSet
-FILTERSET_MAPPINGS[ClusterGroupFilterForm] = ClusterGroupFilterSet
-FILTERSET_MAPPINGS[ClusterTypeFilterForm] = ClusterTypeFilterSet
-FILTERSET_MAPPINGS[VirtualDiskFilterForm] = VirtualDiskFilterSet
-FILTERSET_MAPPINGS[VirtualMachineFilterForm] = VirtualMachineFilterSet
-FILTERSET_MAPPINGS[VMInterfaceFilterForm] = VMInterfaceFilterSet
