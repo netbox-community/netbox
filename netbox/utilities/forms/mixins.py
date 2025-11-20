@@ -176,14 +176,20 @@ class FilterModifierMixin:
         from utilities.forms.widgets import FilterModifierWidget
         from netbox.registry import registry
 
-        # Get the corresponding FilterSet if registered
-        filterset_class = registry['filtersets'].get(self.__class__)
+        model = getattr(self, 'model', None)
+        if model is None and hasattr(self, '_meta'):
+            model = getattr(self._meta, 'model', None)
+
+        filterset_class = None
+        if model:
+            key = f'{model._meta.app_label}.{model._meta.model_name}'
+            filterset_class = registry['filtersets'].get(key)
+
         filterset = filterset_class() if filterset_class else None
 
         for field_name, field in self.fields.items():
             lookups = self._get_lookup_choices(field)
 
-            # Verify lookups against FilterSet if available
             if filterset:
                 lookups = self._verify_lookups_with_filterset(field_name, lookups, filterset)
 
@@ -198,24 +204,19 @@ class FilterModifierMixin:
 
         Returns an empty list for fields that should not be enhanced.
         """
-        # Skip query/search fields
         if isinstance(field, QueryField):
             return []
 
-        # Skip boolean fields (no benefit from modifiers)
         if isinstance(field, (forms.BooleanField, forms.NullBooleanField)):
             return []
 
-        # Skip API widget fields
         if self._is_api_widget_field(field):
             return []
 
-        # Walk up the MRO to find a known field type
         for field_class in field.__class__.__mro__:
             if field_class in FORM_FIELD_LOOKUPS:
                 return FORM_FIELD_LOOKUPS[field_class]
 
-        # Unknown field type - return empty list (no enhancement)
         return []
 
     def _verify_lookups_with_filterset(self, field_name, lookups, filterset):
@@ -223,13 +224,11 @@ class FilterModifierMixin:
         verified_lookups = []
 
         for lookup_code, lookup_label in lookups:
-            # Handle special empty_true/false codes that map to __empty
             if lookup_code in (MODIFIER_EMPTY_TRUE, MODIFIER_EMPTY_FALSE):
                 filter_key = f'{field_name}__empty'
             else:
                 filter_key = f'{field_name}__{lookup_code}' if lookup_code != 'exact' else field_name
 
-            # Check if this filter exists in the FilterSet
             if filter_key in filterset.filters:
                 verified_lookups.append((lookup_code, lookup_label))
 
@@ -237,11 +236,9 @@ class FilterModifierMixin:
 
     def _is_api_widget_field(self, field):
         """Check if a field uses an API-based widget."""
-        # Check field class name
         if 'Dynamic' in field.__class__.__name__:
             return True
 
-        # Check widget attributes for API-related data
         if hasattr(field.widget, 'attrs') and field.widget.attrs:
             api_attrs = ['data-url', 'data-api-url', 'data-static-params']
             if any(attr in field.widget.attrs for attr in api_attrs):
