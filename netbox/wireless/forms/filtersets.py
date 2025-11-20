@@ -8,7 +8,6 @@ from netbox.forms import NestedGroupModelFilterSetForm, PrimaryModelFilterSetFor
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice, register_filterset
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from wireless.choices import *
 from wireless.filtersets import *
@@ -22,7 +21,7 @@ __all__ = (
 
 
 @register_filterset(WirelessLANGroupFilterSet)
-class WirelessLANGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
+class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
     model = WirelessLANGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -37,7 +36,7 @@ class WirelessLANGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetF
 
 
 @register_filterset(WirelessLANFilterSet)
-class WirelessLANFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -104,7 +103,7 @@ class WirelessLANFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModel
 
 
 @register_filterset(WirelessLinkFilterSet)
-class WirelessLinkFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class WirelessLinkFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

@@ -7,7 +7,6 @@ from users.choices import TokenVersionChoices
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, register_filterset
 from utilities.forms.fields import DynamicModelMultipleChoiceField
-from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import DateTimePicker
@@ -24,7 +23,7 @@ __all__ = (
 
 
 @register_filterset(GroupFilterSet)
-class GroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class GroupFilterForm(NetBoxModelFilterSetForm):
     model = Group
     fieldsets = (
         FieldSet('q', 'filter_id',),
@@ -32,7 +31,7 @@ class GroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
 
 
 @register_filterset(UserFilterSet)
-class UserFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class UserFilterForm(NetBoxModelFilterSetForm):
     model = User
     fieldsets = (
         FieldSet('q', 'filter_id',),
@@ -61,7 +60,7 @@ class UserFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
 
 
 @register_filterset(ObjectPermissionFilterSet)
-class ObjectPermissionFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
     model = ObjectPermission
     fieldsets = (
         FieldSet('q', 'filter_id',),
@@ -116,7 +115,7 @@ class ObjectPermissionFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
 
 
 @register_filterset(TokenFilterSet)
-class TokenFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
+class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
         FieldSet('q', 'filter_id',),
@@ -158,7 +157,7 @@ class TokenFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
 
 
 @register_filterset(OwnerGroupFilterSet)
-class OwnerGroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class OwnerGroupFilterForm(NetBoxModelFilterSetForm):
     model = OwnerGroup
     fieldsets = (
         FieldSet('q', 'filter_id',),
@@ -166,7 +165,7 @@ class OwnerGroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
 
 
 @register_filterset(OwnerFilterSet)
-class OwnerFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class OwnerFilterForm(NetBoxModelFilterSetForm):
     model = Owner
     fieldsets = (
         FieldSet('q', 'filter_id',),

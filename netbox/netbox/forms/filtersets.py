@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.choices import *
 from users.models import Owner
 from utilities.forms.fields import DynamicModelChoiceField
+from utilities.forms.mixins import FilterModifierMixin
 from .mixins import CustomFieldsMixin, SavedFiltersMixin
 
 __all__ = (
@@ -15,7 +16,7 @@ __all__ = (
 )
 
 
-class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form):
+class NetBoxModelFilterSetForm(FilterModifierMixin, CustomFieldsMixin, SavedFiltersMixin, forms.Form):
     """
     Base form for FilerSet forms. These are used to filter object lists in the NetBox UI. Note that the
     corresponding FilterSet *must* provide a `q` filter.

@@ -14,7 +14,6 @@ from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 from utilities.forms import register_filterset
-from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 
 __all__ = (
@@ -32,7 +31,7 @@ __all__ = (
 #
 
 @register_filterset(TenantGroupFilterSet)
-class TenantGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
+class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
     model = TenantGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -47,7 +46,7 @@ class TenantGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
 
 
 @register_filterset(TenantFilterSet)
-class TenantFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryModelFilterSetForm):
+class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Tenant
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -68,7 +67,7 @@ class TenantFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryModel
 #
 
 @register_filterset(ContactGroupFilterSet)
-class ContactGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
+class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
     model = ContactGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -83,7 +82,7 @@ class ContactGroupFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm)
 
 
 @register_filterset(ContactRoleFilterSet)
-class ContactRoleFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
+class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
     model = ContactRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -92,7 +91,7 @@ class ContactRoleFilterForm(FilterModifierMixin, OrganizationalModelFilterSetFor
 
 
 @register_filterset(ContactFilterSet)
-class ContactFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
+class ContactFilterForm(PrimaryModelFilterSetForm):
     model = Contact
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -108,7 +107,7 @@ class ContactFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
 
 
 @register_filterset(ContactAssignmentFilterSet)
-class ContactAssignmentFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = ContactAssignment
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
