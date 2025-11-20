@@ -12,6 +12,7 @@ from drf_spectacular.utils import Direction
 
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import WritableNestedSerializer
+from netbox.api.viewsets import NetBoxModelViewSet
 
 # see netbox.api.routers.NetBoxRouter
 BULK_ACTIONS = ("bulk_destroy", "bulk_partial_update", "bulk_update")
@@ -50,15 +51,8 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
 
 
 def viewset_handles_bulk_create(view):
-    """
-    Check if viewset explicitly declares bulk create support.
-
-    Viewsets opt-in to bulk create by setting bulk_create_enabled = True.
-    This allows POST operations to accept either single objects or arrays.
-
-    Refs: #20638
-    """
-    return getattr(view, 'bulk_create_enabled', False)
+    """Check if view automatically provides list-based bulk create"""
+    return isinstance(view, NetBoxModelViewSet)
 
 
 class NetBoxAutoSchema(AutoSchema):
@@ -118,35 +112,16 @@ class NetBoxAutoSchema(AutoSchema):
         if self.is_bulk_action:
             return type(serializer)(many=True)
 
-        # For create operations (POST to list endpoints) on viewsets that support
-        # bulk create, mark the serializer so we can generate oneOf schema.
-        # The 'create' action is only used for POST to collection endpoints.
-        # Refs: #20638
-        if (
-            getattr(self.view, 'action', None) == 'create' and
-            viewset_handles_bulk_create(self.view)
-        ):
-            # Mark this serializer as supporting array input
-            # This will be used in _get_request_for_media_type()
-            if serializer is not None:
-                serializer._netbox_supports_array = True
-
         # handle mapping for Writable serializers - adapted from dansheps original code
         # for drf-yasg
         if serializer is not None and self.method in WRITABLE_ACTIONS:
             writable_class = self.get_writable_class(serializer)
             if writable_class is not None:
-                # Preserve the array support marker when creating writable serializer
-                supports_array = getattr(serializer, '_netbox_supports_array', False)
-
                 if hasattr(serializer, "child"):
                     child_serializer = self.get_writable_class(serializer.child)
                     serializer = writable_class(context=serializer.context, child=child_serializer)
                 else:
                     serializer = writable_class(context=serializer.context)
-
-                if supports_array:
-                    serializer._netbox_supports_array = True
 
         return serializer
 
@@ -159,7 +134,7 @@ class NetBoxAutoSchema(AutoSchema):
 
         return response_serializers
 
-    def _get_request_for_media_type(self, serializer, direction):
+    def _get_request_for_media_type(self, serializer, direction='request'):
         """
         Override to generate oneOf schema for serializers that support both
         single object and array input (NetBoxModelViewSet POST operations).
@@ -174,7 +149,8 @@ class NetBoxAutoSchema(AutoSchema):
         if (
             direction == 'request' and
             schema is not None and
-            getattr(serializer, '_netbox_supports_array', False)
+            getattr(self.view, 'action', None) == 'create' and
+            viewset_handles_bulk_create(self.view)
         ):
             return {
                 'oneOf': [
