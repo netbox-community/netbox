@@ -19,7 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from dcim.utils import update_interface_bridges
+from dcim.utils import create_port_assignments, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
@@ -30,6 +30,7 @@ from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
+from . import PortAssignmentTemplate
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module
@@ -1008,6 +1009,10 @@ class Device(
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
             # Interface bridges have to be set after interface instantiation
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
+            # Replicate any front/rear port assignments from the DeviceType
+            create_port_assignments(self, PortAssignmentTemplate.objects.filter(
+                front_port__device_type=self.device_type
+            ))
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)

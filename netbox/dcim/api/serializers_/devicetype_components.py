@@ -243,13 +243,13 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_port = RearPortTemplateSerializer(nested=True)
+    rear_ports = RearPortTemplateSerializer(nested=True, many=True)
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
-            'rear_port', 'rear_port_position', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
+            'rear_ports', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

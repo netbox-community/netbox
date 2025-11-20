@@ -6,6 +6,7 @@ from timezone_field import TimeZoneFormField
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.forms.mixins import FrontPortFormMixin
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
@@ -1111,28 +1112,66 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
         ]
 
 
-class FrontPortTemplateForm(ModularComponentTemplateForm):
-    rear_ports = forms.MultipleChoiceField(
-        choices=[],
-        label=_('Rear ports'),
-        widget=forms.SelectMultiple(attrs={'size': 8})
-    )
-
+class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
     fieldsets = (
         FieldSet(
             TabbedGroups(
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'description',
+            'name', 'label', 'positions', 'rear_ports', 'description',
         ),
     )
+
+    port_assignment_model = PortAssignmentTemplate
+    parent_field = 'device_type'
 
     class Meta:
         model = FrontPortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if device_type_id := self.data.get('device_type') or self.initial.get('device_type'):
+            device_type = DeviceType.objects.get(pk=device_type_id)
+        else:
+            return
+
+        # Populate rear port choices
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(device_type, self.instance)
+
+        # Set initial rear port assignments
+        if self.instance.pk:
+            self.initial['rear_ports'] = [
+                f'{assignment.rear_port_id}:{assignment.rear_port_position}'
+                for assignment in PortAssignmentTemplate.objects.filter(front_port_id=self.instance.pk)
+            ]
+
+    def _get_rear_port_choices(self, device_type, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the device type, excluding
+        those assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{assignment.rear_port_id}:{assignment.rear_port_position}'
+            for assignment in PortAssignmentTemplate.objects.filter(
+                front_port__device_type=device_type
+            ).exclude(front_port=front_port.pk)
+        ]
+
+        choices = []
+        for rear_port in RearPortTemplate.objects.filter(device_type=device_type):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append(
+                        (pair_id, pair_label)
+                    )
+        return choices
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
@@ -1572,19 +1611,15 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         }
 
 
-class FrontPortForm(ModularDeviceComponentForm):
-    rear_ports = forms.MultipleChoiceField(
-        choices=[],
-        label=_('Rear ports'),
-        widget=forms.SelectMultiple(attrs={'size': 8})
-    )
-
+class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
             'description', 'tags',
         ),
     )
+
+    port_assignment_model = PortAssignment
 
     class Meta:
         model = FrontPort
@@ -1610,44 +1645,6 @@ class FrontPortForm(ModularDeviceComponentForm):
                 f'{assignment.rear_port_id}:{assignment.rear_port_position}'
                 for assignment in PortAssignment.objects.filter(front_port_id=self.instance.pk)
             ]
-
-    def clean(self):
-        super().clean()
-
-        # FrontPort with no positions cannot be mapped to more than one RearPort
-        if not self.cleaned_data['positions'] and len(self.cleaned_data['rear_ports']) > 1:
-            raise forms.ValidationError({
-                'positions': _("A front port with no positions cannot be mapped to multiple rear ports.")
-            })
-
-        # Count of selected rear port & position pairs much match the assigned number of positions
-        if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:
-            raise forms.ValidationError({
-                'rear_ports': _(
-                    "The number of rear port/position pairs selected must match the number of positions assigned."
-                )
-            })
-
-    def _save_m2m(self):
-        super()._save_m2m()
-
-        # TODO: Can this be made more efficient?
-        # Delete existing rear port assignments
-        PortAssignment.objects.filter(front_port_id=self.instance.pk).delete()
-
-        # Create new rear port assignments
-        assignments = []
-        for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
-            rear_port_id, rear_port_position = rp_position.split(':')
-            assignments.append(
-                PortAssignment(
-                    front_port_id=self.instance.pk,
-                    front_port_position=i,
-                    rear_port_id=rear_port_id,
-                    rear_port_position=rear_port_position,
-                )
-            )
-        PortAssignment.objects.bulk_create(assignments)
 
     def _get_rear_port_choices(self, device, front_port):
         """

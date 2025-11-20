@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import Site
+from dcim.models import PortAssignmentTemplate, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
@@ -13,6 +13,7 @@ from utilities.templatetags.builtins.filters import bettertitle
 from utilities.forms.widgets import HTMXSelect
 
 __all__ = (
+    'FrontPortFormMixin',
     'ScopedBulkEditForm',
     'ScopedForm',
     'ScopedImportForm',
@@ -128,3 +129,51 @@ class ScopedImportForm(forms.Form):
                     "Please select a {scope_type}."
                 ).format(scope_type=scope_type.model_class()._meta.model_name)
             })
+
+
+class FrontPortFormMixin(forms.Form):
+    rear_ports = forms.MultipleChoiceField(
+        choices=[],
+        label=_('Rear ports'),
+        widget=forms.SelectMultiple(attrs={'size': 8})
+    )
+
+    port_assignment_model = PortAssignmentTemplate
+
+    def clean(self):
+        super().clean()
+
+        # FrontPort with no positions cannot be mapped to more than one RearPort
+        if not self.cleaned_data['positions'] and len(self.cleaned_data['rear_ports']) > 1:
+            raise forms.ValidationError({
+                'positions': _("A front port with no positions cannot be mapped to multiple rear ports.")
+            })
+
+        # Count of selected rear port & position pairs much match the assigned number of positions
+        if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:
+            raise forms.ValidationError({
+                'rear_ports': _(
+                    "The number of rear port/position pairs selected must match the number of positions assigned."
+                )
+            })
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        # TODO: Can this be made more efficient?
+        # Delete existing rear port assignments
+        self.port_assignment_model.objects.filter(front_port_id=self.instance.pk).delete()
+
+        # Create new rear port assignments
+        assignments = []
+        for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
+            rear_port_id, rear_port_position = rp_position.split(':')
+            assignments.append(
+                self.port_assignment_model(
+                    front_port_id=self.instance.pk,
+                    front_port_position=i,
+                    rear_port_id=rear_port_id,
+                    rear_port_position=rear_port_position,
+                )
+            )
+        self.port_assignment_model.objects.bulk_create(assignments)
