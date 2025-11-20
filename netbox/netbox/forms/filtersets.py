@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from users.models import Owner
-from utilities.forms.fields import DynamicModelChoiceField
+from utilities.forms.fields import DynamicModelChoiceField, QueryField
 from utilities.forms.mixins import FilterModifierMixin
 from .mixins import CustomFieldsMixin, SavedFiltersMixin
 
@@ -28,7 +28,7 @@ class NetBoxModelFilterSetForm(FilterModifierMixin, CustomFieldsMixin, SavedFilt
         selector_fields: An iterable of names of fields to display by default when rendering the form as
             a selector widget
     """
-    q = forms.CharField(
+    q = QueryField(
         required=False,
         label=_('Search')
     )
