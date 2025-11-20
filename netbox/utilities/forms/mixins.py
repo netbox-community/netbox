@@ -13,7 +13,85 @@ __all__ = (
     'CheckLastUpdatedMixin',
     'DistanceValidationMixin',
     'FilterModifierMixin',
+    'FORM_FIELD_LOOKUPS',
 )
+
+
+# Mapping of form field types to their supported lookups
+FORM_FIELD_LOOKUPS = {
+    forms.CharField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        ('ic', _('Contains')),
+        ('isw', _('Starts With')),
+        ('iew', _('Ends With')),
+        ('ie', _('Equals (case-insensitive)')),
+        ('regex', _('Matches Pattern')),
+        ('iregex', _('Matches Pattern (case-insensitive)')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    forms.IntegerField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        ('gt', _('Greater Than (>)')),
+        ('gte', _('At Least (≥)')),
+        ('lt', _('Less Than (<)')),
+        ('lte', _('At Most (≤)')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    forms.DecimalField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        ('gt', _('Greater Than (>)')),
+        ('gte', _('At Least (≥)')),
+        ('lt', _('Less Than (<)')),
+        ('lte', _('At Most (≤)')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    forms.DateField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        ('gt', _('After')),
+        ('gte', _('On or After')),
+        ('lt', _('Before')),
+        ('lte', _('On or Before')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    forms.ModelChoiceField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    ColorField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    TagFilterField: [
+        ('exact', _('Has These Tags')),
+        ('n', _('Does Not Have These Tags')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    forms.ChoiceField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+    forms.MultipleChoiceField: [
+        ('exact', _('Is')),
+        ('n', _('Is Not')),
+        (MODIFIER_EMPTY_TRUE, _('Is Empty')),
+        (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
+    ],
+}
 
 
 class BackgroundJobMixin(forms.Form):
@@ -89,82 +167,6 @@ class FilterModifierMixin:
     and wraps their widgets with FilterModifierWidget.
     """
 
-    # Mapping of form field types to their supported lookups
-    FORM_FIELD_LOOKUPS = {
-        forms.CharField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            ('ic', _('Contains')),
-            ('isw', _('Starts With')),
-            ('iew', _('Ends With')),
-            ('ie', _('Equals (case-insensitive)')),
-            ('regex', _('Matches Pattern')),
-            ('iregex', _('Matches Pattern (case-insensitive)')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        forms.IntegerField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            ('gt', _('Greater Than (>)')),
-            ('gte', _('At Least (≥)')),
-            ('lt', _('Less Than (<)')),
-            ('lte', _('At Most (≤)')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        forms.DecimalField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            ('gt', _('Greater Than (>)')),
-            ('gte', _('At Least (≥)')),
-            ('lt', _('Less Than (<)')),
-            ('lte', _('At Most (≤)')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        forms.DateField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            ('gt', _('After')),
-            ('gte', _('On or After')),
-            ('lt', _('Before')),
-            ('lte', _('On or Before')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        forms.ModelChoiceField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        ColorField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        TagFilterField: [
-            ('exact', _('Has These Tags')),
-            ('n', _('Does Not Have These Tags')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        forms.ChoiceField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-        forms.MultipleChoiceField: [
-            ('exact', _('Is')),
-            ('n', _('Is Not')),
-            (MODIFIER_EMPTY_TRUE, _('Is Empty')),
-            (MODIFIER_EMPTY_FALSE, _('Is Not Empty')),
-        ],
-    }
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._enhance_fields_with_modifiers()
@@ -217,8 +219,8 @@ class FilterModifierMixin:
         """Determine the available lookup choices for a given field."""
         # Walk up the MRO to find a known field type
         for field_class in field.__class__.__mro__:
-            if field_class in self.FORM_FIELD_LOOKUPS:
-                return self.FORM_FIELD_LOOKUPS[field_class]
+            if field_class in FORM_FIELD_LOOKUPS:
+                return FORM_FIELD_LOOKUPS[field_class]
 
         # Unknown field type - return single exact option (no enhancement)
         return [('exact', _('Is'))]
