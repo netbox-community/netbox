@@ -11,6 +11,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
@@ -3495,7 +3496,7 @@ class CableTestCase(
             Interface(device=devices[4], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[4], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
 
-            # Device 1, Site 2
+            # Device 5, Site 2
             Interface(device=devices[5], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[5], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[5], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
@@ -3506,6 +3507,22 @@ class CableTestCase(
             Interface(device=devices[4], name='Interface 5', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
+
+        ConsolePort.objects.create(device=devices[0], name='Console 1')
+        ConsoleServerPort.objects.create(device=devices[1], name='Console Server 1')
+
+        power_panel = PowerPanel.objects.create(site=sites[0], name='Power Panel 1')
+        PowerFeed.objects.create(power_panel=power_panel, name='Feed 1')
+        PowerPort.objects.create(device=devices[0], name='PSU1')
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        circuit = Circuit.objects.create(provider=provider, type=circuit_type, cid='CIRCUIT-001')
+        circuit_terminations = (
+            CircuitTermination(circuit=circuit, term_side='A'),
+            CircuitTermination(circuit=circuit, term_side='Z'),
+        )
+        CircuitTermination.objects.bulk_create(circuit_terminations)
 
         cable1 = Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]], type=CableTypeChoices.TYPE_CAT6)
         cable1.save()
@@ -3532,7 +3549,7 @@ class CableTestCase(
 
         cls.csv_data = {
             'default': (
-                "side_a_device,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
+                "side_a_parent,side_a_type,side_a_name,side_b_parent,side_b_type,side_b_name",
                 "Device 4,dcim.interface,Interface 1,Device 5,dcim.interface,Interface 1",
                 "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
                 "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
@@ -3545,12 +3562,28 @@ class CableTestCase(
             'site-filtering': (
                 # Ensure that CSV bulk import supports assigning terminations from parent devices
                 # that share the same device name, provided those devices belong to different sites.
-                "side_a_site,side_a_device,side_a_type,side_a_name,side_b_site,side_b_device,side_b_type,side_b_name",
+                "side_a_site,side_a_parent,side_a_type,side_a_name,side_b_site,side_b_parent,side_b_type,side_b_name",
                 "Site 1,Device 3,dcim.interface,Interface 1,Site 2,Device 1,dcim.interface,Interface 1",
                 "Site 1,Device 3,dcim.interface,Interface 2,Site 2,Device 1,dcim.interface,Interface 2",
                 "Site 1,Device 3,dcim.interface,Interface 3,Site 2,Device 1,dcim.interface,Interface 3",
                 "Site 1,Device 1,dcim.interface,Device 2 Interface,Site 2,Device 1,dcim.interface,Interface 4",
                 "Site 1,Device 1,dcim.interface,Device 3 Interface,Site 2,Device 1,dcim.interface,Interface 5",
+            ),
+            'circuits': (
+                # Test circuit termination to interface cables
+                "side_a_parent,side_a_type,side_a_name,side_b_site,side_b_parent,side_b_type,side_b_name",
+                "CIRCUIT-001,circuits.circuittermination,A,Site 1,Device 4,dcim.interface,Interface 2",
+                "CIRCUIT-001,circuits.circuittermination,z,Site 2,Device 5,dcim.interface,Interface 2",
+            ),
+            'power': (
+                # Test power feed to power port cables
+                "side_a_site,side_a_parent,side_a_type,side_a_name,side_b_site,side_b_parent,side_b_type,side_b_name",
+                "Site 1,Power Panel 1,dcim.powerfeed,Feed 1,Site 1,Device 1,dcim.powerport,PSU1",
+            ),
+            'console': (
+                # Test console port to console server port cables
+                "side_a_site,side_a_parent,side_a_type,side_a_name,side_b_site,side_b_parent,side_b_type,side_b_name",
+                "Site 1,Device 1,dcim.consoleport,Console 1,Site 1,Device 2,dcim.consoleserverport,Console Server 1",
             )
         }
 
