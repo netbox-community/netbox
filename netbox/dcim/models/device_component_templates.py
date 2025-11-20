@@ -7,6 +7,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.models.base import PortAssignmentBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -28,6 +29,7 @@ __all__ = (
     'InterfaceTemplate',
     'InventoryItemTemplate',
     'ModuleBayTemplate',
+    'PortAssignmentTemplate',
     'PowerOutletTemplate',
     'PowerPortTemplate',
     'RearPortTemplate',
@@ -518,7 +520,7 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         }
 
 
-class PortAssignmentTemplate(models.Model):
+class PortAssignmentTemplate(PortAssignmentBase):
     """
     Maps a FrontPortTemplate & position to a RearPortTemplate & position.
     """
@@ -526,57 +528,19 @@ class PortAssignmentTemplate(models.Model):
         to='dcim.FrontPortTemplate',
         on_delete=models.CASCADE,
     )
-    front_port_position = models.PositiveSmallIntegerField(
-        blank=True,
-        null=True,
-        validators=(
-            MinValueValidator(PORT_POSITION_MIN),
-            MaxValueValidator(PORT_POSITION_MAX),
-        ),
-    )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
     )
-    rear_port_position = models.PositiveSmallIntegerField(
-        validators=(
-            MinValueValidator(PORT_POSITION_MIN),
-            MaxValueValidator(PORT_POSITION_MAX),
-        ),
-    )
-
-    class Meta:
-        constraints = (
-            models.UniqueConstraint(
-                fields=('front_port', 'front_port_position'),
-                name='%(app_label)s_%(class)s_unique_front_port_position'
-            ),
-            models.UniqueConstraint(
-                fields=('rear_port', 'rear_port_position'),
-                name='%(app_label)s_%(class)s_unique_rear_port_position'
-            ),
-        )
 
     def clean(self):
+        super().clean()
 
         # Validate rear port assignment
         if self.front_port.device_type_id != self.rear_port.device_type_id:
             raise ValidationError({
                 "rear_port": _("Rear port ({rear_port}) must belong to the same device type").format(
                     rear_port=self.rear_port
-                )
-            })
-
-        # Validate rear port position assignment
-        if self.rear_port_position > self.rear_port.positions:
-            raise ValidationError({
-                "rear_port_position": _(
-                    "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
-                    "positions."
-                ).format(
-                    rear_port_position=self.rear_port_position,
-                    name=self.rear_port.name,
-                    positions=self.rear_port.positions
                 )
             })
 

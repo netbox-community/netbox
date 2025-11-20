@@ -68,8 +68,6 @@ class Migration(migrations.Migration):
                 (
                     'front_port_position',
                     models.PositiveSmallIntegerField(
-                        blank=True,
-                        null=True,
                         validators=[
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024)
@@ -129,8 +127,6 @@ class Migration(migrations.Migration):
                 (
                     'front_port_position',
                     models.PositiveSmallIntegerField(
-                        blank=True,
-                        null=True,
                         validators=[
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024)
