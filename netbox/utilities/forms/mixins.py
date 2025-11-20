@@ -189,7 +189,7 @@ class FilterModifierMixin:
 
             if len(lookups) > 1:
                 field.widget = FilterModifierWidget(
-                    original_widget=field.widget,
+                    widget=field.widget,
                     lookups=lookups
                 )
 

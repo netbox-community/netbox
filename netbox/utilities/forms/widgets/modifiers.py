@@ -18,16 +18,16 @@ class FilterModifierWidget(forms.Widget):
     """
     template_name = 'widgets/filter_modifier.html'
 
-    def __init__(self, original_widget, lookups, attrs=None):
+    def __init__(self, widget, lookups, attrs=None):
         """
         Args:
-            original_widget: The widget being wrapped (e.g., TextInput, NumberInput)
+            widget: The widget being wrapped (e.g., TextInput, NumberInput)
             lookups: List of (lookup_code, label) tuples (e.g., [('exact', 'Is'), ('ic', 'Contains')])
             attrs: Additional widget attributes
         """
-        self.original_widget = original_widget
+        self.original_widget = widget
         self.lookups = lookups
-        super().__init__(attrs or getattr(original_widget, 'attrs', {}))
+        super().__init__(attrs or getattr(widget, 'attrs', {}))
 
     def value_from_datadict(self, data, files, name):
         """

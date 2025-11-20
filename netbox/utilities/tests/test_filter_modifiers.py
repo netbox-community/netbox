@@ -21,7 +21,7 @@ class FilterModifierWidgetTest(TestCase):
         This is critical for form redisplay after validation errors.
         """
         widget = FilterModifierWidget(
-            original_widget=forms.TextInput(),
+            widget=forms.TextInput(),
             lookups=[('exact', 'Is'), ('ic', 'Contains'), ('isw', 'Starts With')]
         )
         data = QueryDict('serial__ic=test123')
@@ -33,7 +33,7 @@ class FilterModifierWidgetTest(TestCase):
     def test_value_from_datadict_handles_exact_match(self):
         """Widget should detect exact match when field name has no modifier."""
         widget = FilterModifierWidget(
-            original_widget=forms.TextInput(),
+            widget=forms.TextInput(),
             lookups=[('exact', 'Is'), ('ic', 'Contains')]
         )
         data = QueryDict('serial=test456')
@@ -45,7 +45,7 @@ class FilterModifierWidgetTest(TestCase):
     def test_value_from_datadict_returns_none_when_no_value(self):
         """Widget should return None when no data present to avoid appearing in changed_data."""
         widget = FilterModifierWidget(
-            original_widget=forms.TextInput(),
+            widget=forms.TextInput(),
             lookups=[('exact', 'Is'), ('ic', 'Contains')]
         )
         data = QueryDict('')
@@ -57,7 +57,7 @@ class FilterModifierWidgetTest(TestCase):
     def test_get_context_includes_original_widget_and_lookups(self):
         """Widget context should include original widget context and lookup choices."""
         widget = FilterModifierWidget(
-            original_widget=forms.TextInput(),
+            widget=forms.TextInput(),
             lookups=[('exact', 'Is'), ('ic', 'Contains'), ('isw', 'Starts With')]
         )
         value = 'test'
@@ -76,7 +76,7 @@ class FilterModifierWidgetTest(TestCase):
     def test_widget_renders_modifier_dropdown_and_input(self):
         """Widget should render modifier dropdown alongside original input."""
         widget = FilterModifierWidget(
-            original_widget=forms.TextInput(),
+            widget=forms.TextInput(),
             lookups=[('exact', 'Is'), ('ic', 'Contains')]
         )
 
