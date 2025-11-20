@@ -269,7 +269,8 @@ class RackForm(TenancyForm, NetBoxModelForm):
         label=_('Rack Type'),
         queryset=RackType.objects.all(),
         required=False,
-        help_text=_("Select a pre-defined rack type, or set physical characteristics below.")
+        selector=True,
+        help_text=_("Select a pre-defined rack type, or set physical characteristics below."),
     )
     comments = CommentField()
 
