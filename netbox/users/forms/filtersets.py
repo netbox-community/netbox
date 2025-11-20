@@ -5,9 +5,8 @@ from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from users.choices import TokenVersionChoices
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, register_filterset
 from utilities.forms.fields import DynamicModelMultipleChoiceField
-from utilities.forms.filterset_mappings import FILTERSET_MAPPINGS
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
@@ -24,6 +23,7 @@ __all__ = (
 )
 
 
+@register_filterset(GroupFilterSet)
 class GroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = Group
     fieldsets = (
@@ -31,6 +31,7 @@ class GroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     )
 
 
+@register_filterset(UserFilterSet)
 class UserFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = User
     fieldsets = (
@@ -59,6 +60,7 @@ class UserFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     )
 
 
+@register_filterset(ObjectPermissionFilterSet)
 class ObjectPermissionFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = ObjectPermission
     fieldsets = (
@@ -113,6 +115,7 @@ class ObjectPermissionFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     )
 
 
+@register_filterset(TokenFilterSet)
 class TokenFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
@@ -154,6 +157,7 @@ class TokenFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
     )
 
 
+@register_filterset(OwnerGroupFilterSet)
 class OwnerGroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = OwnerGroup
     fieldsets = (
@@ -161,6 +165,7 @@ class OwnerGroupFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     )
 
 
+@register_filterset(OwnerFilterSet)
 class OwnerFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
     model = Owner
     fieldsets = (
@@ -183,12 +188,3 @@ class OwnerFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
         required=False,
         label=_('Users')
     )
-
-
-# Register FilterSet mappings for FilterModifierMixin lookup verification
-FILTERSET_MAPPINGS[GroupFilterForm] = GroupFilterSet
-FILTERSET_MAPPINGS[UserFilterForm] = UserFilterSet
-FILTERSET_MAPPINGS[ObjectPermissionFilterForm] = ObjectPermissionFilterSet
-FILTERSET_MAPPINGS[TokenFilterForm] = TokenFilterSet
-FILTERSET_MAPPINGS[OwnerGroupFilterForm] = OwnerGroupFilterSet
-FILTERSET_MAPPINGS[OwnerFilterForm] = OwnerFilterSet
