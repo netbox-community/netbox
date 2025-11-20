@@ -1148,8 +1148,7 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     )
     positions = models.PositiveSmallIntegerField(
         verbose_name=_('positions'),
-        blank=True,
-        null=True,
+        default=1,
         validators=[
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX)

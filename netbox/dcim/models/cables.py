@@ -667,7 +667,14 @@ class CablePath(models.Model):
         is_active = True
         is_split = False
 
+        DEBUG = False
+
+        segment = 0
         while terminations:
+            segment += 1
+            if DEBUG:
+                print(f'[#{segment}] Position stack: {position_stack}')
+                print(f'[#{segment}] Local terminations: {terminations}')
 
             # Terminations must all be of the same type
             if not all(isinstance(t, type(terminations[0])) for t in terminations[1:]):
@@ -698,6 +705,8 @@ class CablePath(models.Model):
             links = list(dict.fromkeys(
                 termination.link for termination in terminations if termination.link is not None
             ))
+            if DEBUG:
+                print(f'[#{segment}] Links: {links}')
             if len(links) == 0:
                 if len(path) == 1:
                     # If this is the start of the path and no link exists, return None
@@ -760,6 +769,8 @@ class CablePath(models.Model):
                     link.interface_b if link.interface_a is terminations[0] else link.interface_a for link in links
                 ]
 
+            if DEBUG:
+                print(f'[#{segment}] Remote terminations: {remote_terminations}')
             # Remote Terminations must all be of the same type, otherwise return a split path
             if not all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                 is_complete = False
@@ -777,11 +788,15 @@ class CablePath(models.Model):
 
             if isinstance(remote_terminations[0], FrontPort):
                 # Follow FrontPorts to their corresponding RearPorts
-                if any(rt.positions for rt in remote_terminations):
+                if remote_terminations[0].positions > 1 and position_stack:
+                    positions = position_stack.pop()
                     q_filter = Q()
                     for rt in remote_terminations:
-                        q_filter |= Q(front_port=rt, front_port_position__in=rt.positions)
+                        q_filter |= Q(front_port=rt, front_port_position__in=positions)
                     port_assignments = PortAssignment.objects.filter(q_filter)
+                elif remote_terminations[0].positions > 1:
+                    is_split = True
+                    break
                 else:
                     port_assignments = PortAssignment.objects.filter(front_port__in=remote_terminations)
                 if not port_assignments:
@@ -789,7 +804,6 @@ class CablePath(models.Model):
 
                 # Compile the list of RearPorts without duplication or altering their ordering
                 terminations = list(dict.fromkeys(assignment.rear_port for assignment in port_assignments))
-                # if not(len(terminations) == 1 and terminations[0].positions == 1):
                 if any(t.positions > 1 for t in terminations):
                     position_stack.append([assignment.rear_port_position for assignment in port_assignments])
 
@@ -809,7 +823,10 @@ class CablePath(models.Model):
                 if not port_assignments:
                     break
 
-                terminations = [assignment.front_port for assignment in port_assignments]
+                # Compile the list of FrontPorts without duplication or altering their ordering
+                terminations = list(dict.fromkeys(assignment.front_port for assignment in port_assignments))
+                if any(t.positions > 1 for t in terminations):
+                    position_stack.append([assignment.front_port_position for assignment in port_assignments])
 
             elif isinstance(remote_terminations[0], CircuitTermination):
                 # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)
