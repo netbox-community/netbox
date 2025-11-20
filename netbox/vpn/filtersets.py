@@ -2,6 +2,7 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from core.models import ObjectType
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
@@ -428,6 +429,10 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='vlan',
         queryset=VLAN.objects.all(),
         label=_('VLAN (ID)'),
+    )
+    assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='assigned_object_type'
     )
     assigned_object_type = ContentTypeFilter()
 
