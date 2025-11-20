@@ -6,18 +6,14 @@ from .utils import *
 
 def register_filterset(filterset_class):
     """
-    Decorator for registering a FilterForm -> FilterSet mapping.
+    Decorator for registering a FilterSet with the application registry.
 
-    Usage:
-        @register_filterset(DeviceFilterSet)
-        class DeviceFilterForm(NetBoxModelFilterSetForm):
-            ...
-
-    Args:
-        filterset_class: The corresponding filterset class
+    Uses model identifier as key to match search index pattern.
     """
     def decorator(form_class):
         from netbox.registry import registry
-        registry['filtersets'][form_class] = filterset_class
+        model = filterset_class._meta.model
+        key = f'{model._meta.app_label}.{model._meta.model_name}'
+        registry['filtersets'][key] = filterset_class
         return form_class
     return decorator
