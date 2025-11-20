@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 from utilities.forms.fields import ColorField, QueryField, TagFilterField
+from utilities.forms.widgets.apiselect import APISelect
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
@@ -236,7 +237,7 @@ class FilterModifierMixin:
 
     def _is_api_widget_field(self, field):
         """Check if a field uses an API-based widget."""
-        if 'Dynamic' in field.__class__.__name__:
+        if field.widget is APISelect:
             return True
 
         if hasattr(field.widget, 'attrs') and field.widget.attrs:
