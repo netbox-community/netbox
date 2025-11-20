@@ -15,7 +15,6 @@ from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
-from circuits.filtersets import *
 
 __all__ = (
     'CircuitFilterForm',
@@ -324,11 +323,7 @@ class VirtualCircuitTypeFilterForm(OrganizationalModelFilterSetForm):
     )
 
 
-class VirtualCircuitFilterForm(
-    TenancyFilterForm,
-    ContactModelFilterForm,
-    PrimaryModelFilterSetForm
-):
+class VirtualCircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = VirtualCircuit
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

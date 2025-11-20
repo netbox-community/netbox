@@ -14,7 +14,6 @@ from utilities.forms.utils import add_blank_choice
 from virtualization.models import VirtualMachine
 from vpn.choices import *
 from vpn.constants import L2VPN_ASSIGNMENT_MODELS
-from vpn.filtersets import *
 from vpn.models import *
 
 __all__ = (

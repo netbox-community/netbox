@@ -10,7 +10,6 @@ from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import DateTimePicker
-from users.filtersets import *
 
 __all__ = (
     'GroupFilterForm',

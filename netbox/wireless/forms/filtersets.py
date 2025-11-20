@@ -10,7 +10,6 @@ from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from wireless.choices import *
-from wireless.filtersets import *
 from wireless.models import *
 
 __all__ = (
