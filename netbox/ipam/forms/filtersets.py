@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
 from ipam.choices import *
 from ipam.constants import *
-from ipam.filtersets import *
 from ipam.models import *
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm

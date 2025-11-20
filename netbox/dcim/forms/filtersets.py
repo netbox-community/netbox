@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.filtersets import *
 from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate

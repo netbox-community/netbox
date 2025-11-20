@@ -13,7 +13,6 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
-from core.filtersets import *
 
 __all__ = (
     'ConfigRevisionFilterForm',

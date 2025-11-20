@@ -7,7 +7,6 @@ from netbox.forms import (
     PrimaryModelFilterSetForm,
 )
 from tenancy.choices import *
-from tenancy.filtersets import *
 from tenancy.models import *
 from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (

@@ -13,7 +13,6 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from virtualization.choices import *
-from virtualization.filtersets import *
 from virtualization.models import *
 from vpn.models import L2VPN
 
