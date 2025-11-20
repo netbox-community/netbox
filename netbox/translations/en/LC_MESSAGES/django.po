@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-11-18 05:01+0000\n"
+"POT-Creation-Date: 2025-11-20 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14216,12 +14216,13 @@ msgid "Missing required packages"
 msgstr ""
 
 #: netbox/templates/exceptions/import_error.html:11
+#, python-format
 msgid ""
 "This installation of NetBox might be missing one or more required Python "
-"packages. These packages are listed in <code>requirements.txt</code> and "
-"<code>local_requirements.txt</code>, and are normally installed as part of "
-"the installation or upgrade process. To verify installed packages, run "
-"<code>pip freeze</code> from the console and compare the output to the list "
+"packages. These packages are listed in <code>%(req_file)s</code> and "
+"<code>%(local_req_file)s</code>, and are normally installed as part of the "
+"installation or upgrade process. To verify installed packages, run "
+"<code>%(pip_cmd)s</code> from the console and compare the output to the list "
 "of required packages."
 msgstr ""
 
@@ -14265,10 +14266,11 @@ msgid "Database migrations missing"
 msgstr ""
 
 #: netbox/templates/exceptions/programming_error.html:11
+#, python-format
 msgid ""
 "When upgrading to a new NetBox release, the upgrade script must be run to "
 "apply any new database migrations. You can run migrations manually by "
-"executing <code>python3 manage.py migrate</code> from the command line."
+"executing <code>%(command)s</code> from the command line."
 msgstr ""
 
 #: netbox/templates/exceptions/programming_error.html:18
@@ -14276,10 +14278,11 @@ msgid "Unsupported PostgreSQL version"
 msgstr ""
 
 #: netbox/templates/exceptions/programming_error.html:19
+#, python-format
 msgid ""
 "Ensure that PostgreSQL version 14 or later is in use. You can check this by "
 "connecting to the database using NetBox's credentials and issuing a query "
-"for <code>SELECT VERSION()</code>."
+"for <code>%(sql_query)s</code>."
 msgstr ""
 
 #: netbox/templates/extras/configcontextprofile.html:30
@@ -15216,10 +15219,11 @@ msgid "Check the following"
 msgstr ""
 
 #: netbox/templates/media_failure.html:29
+#, python-format
 msgid ""
-"<code>manage.py collectstatic</code> was run during the most recent upgrade. "
-"This installs the most recent iteration of each static file into the static "
-"root path."
+"<code>%(command)s</code> was run during the most recent upgrade. This "
+"installs the most recent iteration of each static file into the static root "
+"path."
 msgstr ""
 
 #: netbox/templates/media_failure.html:35
