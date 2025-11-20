@@ -31,7 +31,6 @@ class SyncDataSourceJob(JobRunner):
 
         # Update the DataSource's synchronization status to queued
         if datasource := job.object:
-            datasource.status = DataSourceStatusChoices.QUEUED
             DataSource.objects.filter(pk=datasource.pk).update(status=datasource.status)
 
         return job
