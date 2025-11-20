@@ -17,7 +17,6 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from users.models import Owner, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice, register_filterset
 from utilities.forms.fields import ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -150,7 +149,7 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
 
 
 @register_filterset(RegionFilterSet)
-class RegionFilterForm(FilterModifierMixin, ContactModelFilterForm, NestedGroupModelFilterSetForm):
+class RegionFilterForm(ContactModelFilterForm, NestedGroupModelFilterSetForm):
     model = Region
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -166,7 +165,7 @@ class RegionFilterForm(FilterModifierMixin, ContactModelFilterForm, NestedGroupM
 
 
 @register_filterset(SiteGroupFilterSet)
-class SiteGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, NestedGroupModelFilterSetForm):
+class SiteGroupFilterForm(ContactModelFilterForm, NestedGroupModelFilterSetForm):
     model = SiteGroup
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -182,7 +181,7 @@ class SiteGroupFilterForm(FilterModifierMixin, ContactModelFilterForm, NestedGro
 
 
 @register_filterset(SiteFilterSet)
-class SiteFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
+class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Site
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -215,7 +214,7 @@ class SiteFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterF
 
 
 @register_filterset(LocationFilterSet)
-class LocationFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, NestedGroupModelFilterSetForm):
+class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NestedGroupModelFilterSetForm):
     model = Location
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -264,7 +263,7 @@ class LocationFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFil
 
 
 @register_filterset(RackRoleFilterSet)
-class RackRoleFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
+class RackRoleFilterForm(OrganizationalModelFilterSetForm):
     model = RackRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -316,7 +315,7 @@ class RackBaseFilterForm(PrimaryModelFilterSetForm):
 
 
 @register_filterset(RackTypeFilterSet)
-class RackTypeFilterForm(FilterModifierMixin, RackBaseFilterForm):
+class RackTypeFilterForm(RackBaseFilterForm):
     model = RackType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -339,7 +338,7 @@ class RackTypeFilterForm(FilterModifierMixin, RackBaseFilterForm):
 
 
 @register_filterset(RackFilterSet)
-class RackFilterForm(FilterModifierMixin, TenancyFilterForm, ContactModelFilterForm, RackBaseFilterForm):
+class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterForm):
     model = Rack
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -441,7 +440,7 @@ class RackElevationFilterForm(RackFilterForm):
 
 
 @register_filterset(RackReservationFilterSet)
-class RackReservationFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class RackReservationFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = RackReservation
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -500,7 +499,7 @@ class RackReservationFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryM
 
 
 @register_filterset(ManufacturerFilterSet)
-class ManufacturerFilterForm(FilterModifierMixin, ContactModelFilterForm, OrganizationalModelFilterSetForm):
+class ManufacturerFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = Manufacturer
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -510,7 +509,7 @@ class ManufacturerFilterForm(FilterModifierMixin, ContactModelFilterForm, Organi
 
 
 @register_filterset(DeviceTypeFilterSet)
-class DeviceTypeFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
+class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
     model = DeviceType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -645,7 +644,7 @@ class DeviceTypeFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
 
 
 @register_filterset(ModuleTypeProfileFilterSet)
-class ModuleTypeProfileFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
+class ModuleTypeProfileFilterForm(PrimaryModelFilterSetForm):
     model = ModuleTypeProfile
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -655,7 +654,7 @@ class ModuleTypeProfileFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm
 
 
 @register_filterset(ModuleTypeFilterSet)
-class ModuleTypeFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
+class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
     model = ModuleType
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -749,7 +748,7 @@ class ModuleTypeFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
 
 
 @register_filterset(DeviceRoleFilterSet)
-class DeviceRoleFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
+class DeviceRoleFilterForm(NestedGroupModelFilterSetForm):
     model = DeviceRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -769,7 +768,7 @@ class DeviceRoleFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
 
 
 @register_filterset(PlatformFilterSet)
-class PlatformFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
+class PlatformFilterForm(NestedGroupModelFilterSetForm):
     model = Platform
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -796,7 +795,6 @@ class PlatformFilterForm(FilterModifierMixin, NestedGroupModelFilterSetForm):
 
 @register_filterset(DeviceFilterSet)
 class DeviceFilterForm(
-    FilterModifierMixin,
     LocalConfigContextFilterForm,
     TenancyFilterForm,
     ContactModelFilterForm,
@@ -995,7 +993,7 @@ class DeviceFilterForm(
 
 
 @register_filterset(VirtualDeviceContextFilterSet)
-class VirtualDeviceContextFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class VirtualDeviceContextFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VirtualDeviceContext
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1023,7 +1021,7 @@ class VirtualDeviceContextFilterForm(FilterModifierMixin, TenancyFilterForm, Pri
 
 
 @register_filterset(ModuleFilterSet)
-class ModuleFilterForm(FilterModifierMixin, LocalConfigContextFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
+class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Module
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1107,7 +1105,7 @@ class ModuleFilterForm(FilterModifierMixin, LocalConfigContextFilterForm, Tenanc
 
 
 @register_filterset(VirtualChassisFilterSet)
-class VirtualChassisFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class VirtualChassisFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = VirtualChassis
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1137,7 +1135,7 @@ class VirtualChassisFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryMo
 
 
 @register_filterset(CableFilterSet)
-class CableFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Cable
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1227,7 +1225,7 @@ class CableFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilter
 
 
 @register_filterset(PowerPanelFilterSet)
-class PowerPanelFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryModelFilterSetForm):
+class PowerPanelFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = PowerPanel
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1267,7 +1265,7 @@ class PowerPanelFilterForm(FilterModifierMixin, ContactModelFilterForm, PrimaryM
 
 
 @register_filterset(PowerFeedFilterSet)
-class PowerFeedFilterForm(FilterModifierMixin, TenancyFilterForm, PrimaryModelFilterSetForm):
+class PowerFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = PowerFeed
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1378,7 +1376,7 @@ class PathEndpointFilterForm(CabledFilterForm):
 
 
 @register_filterset(ConsolePortFilterSet)
-class ConsolePortFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceComponentFilterForm):
+class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsolePort
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1403,7 +1401,7 @@ class ConsolePortFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceC
 
 
 @register_filterset(ConsoleServerPortFilterSet)
-class ConsoleServerPortFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceComponentFilterForm):
+class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsoleServerPort
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1429,7 +1427,7 @@ class ConsoleServerPortFilterForm(FilterModifierMixin, PathEndpointFilterForm, D
 
 
 @register_filterset(PowerPortFilterSet)
-class PowerPortFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceComponentFilterForm):
+class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerPort
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1449,7 +1447,7 @@ class PowerPortFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceCom
 
 
 @register_filterset(PowerOutletFilterSet)
-class PowerOutletFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceComponentFilterForm):
+class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerOutlet
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1479,7 +1477,7 @@ class PowerOutletFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceC
 
 
 @register_filterset(InterfaceFilterSet)
-class InterfaceFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceComponentFilterForm):
+class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = Interface
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1606,7 +1604,7 @@ class InterfaceFilterForm(FilterModifierMixin, PathEndpointFilterForm, DeviceCom
 
 
 @register_filterset(FrontPortFilterSet)
-class FrontPortFilterForm(FilterModifierMixin, CabledFilterForm, DeviceComponentFilterForm):
+class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
@@ -1630,7 +1628,7 @@ class FrontPortFilterForm(FilterModifierMixin, CabledFilterForm, DeviceComponent
 
 
 @register_filterset(RearPortFilterSet)
-class RearPortFilterForm(FilterModifierMixin, CabledFilterForm, DeviceComponentFilterForm):
+class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     model = RearPort
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1655,7 +1653,7 @@ class RearPortFilterForm(FilterModifierMixin, CabledFilterForm, DeviceComponentF
 
 
 @register_filterset(ModuleBayFilterSet)
-class ModuleBayFilterForm(FilterModifierMixin, DeviceComponentFilterForm):
+class ModuleBayFilterForm(DeviceComponentFilterForm):
     model = ModuleBay
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1674,7 +1672,7 @@ class ModuleBayFilterForm(FilterModifierMixin, DeviceComponentFilterForm):
 
 
 @register_filterset(DeviceBayFilterSet)
-class DeviceBayFilterForm(FilterModifierMixin, DeviceComponentFilterForm):
+class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1689,7 +1687,7 @@ class DeviceBayFilterForm(FilterModifierMixin, DeviceComponentFilterForm):
 
 
 @register_filterset(InventoryItemFilterSet)
-class InventoryItemFilterForm(FilterModifierMixin, DeviceComponentFilterForm):
+class InventoryItemFilterForm(DeviceComponentFilterForm):
     model = InventoryItem
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1741,7 +1739,7 @@ class InventoryItemFilterForm(FilterModifierMixin, DeviceComponentFilterForm):
 #
 
 @register_filterset(InventoryItemRoleFilterSet)
-class InventoryItemRoleFilterForm(FilterModifierMixin, OrganizationalModelFilterSetForm):
+class InventoryItemRoleFilterForm(OrganizationalModelFilterSetForm):
     model = InventoryItemRole
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1754,7 +1752,7 @@ class InventoryItemRoleFilterForm(FilterModifierMixin, OrganizationalModelFilter
 #
 
 @register_filterset(MACAddressFilterSet)
-class MACAddressFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
+class MACAddressFilterForm(PrimaryModelFilterSetForm):
     model = MACAddress
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),

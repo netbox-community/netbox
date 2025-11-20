@@ -11,7 +11,6 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
-from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 from core.filtersets import *
@@ -26,7 +25,7 @@ __all__ = (
 
 
 @register_filterset(DataSourceFilterSet)
-class DataSourceFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
+class DataSourceFilterForm(PrimaryModelFilterSetForm):
     model = DataSource
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -58,7 +57,7 @@ class DataSourceFilterForm(FilterModifierMixin, PrimaryModelFilterSetForm):
 
 
 @register_filterset(DataFileFilterSet)
-class DataFileFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
+class DataFileFilterForm(NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -72,7 +71,7 @@ class DataFileFilterForm(FilterModifierMixin, NetBoxModelFilterSetForm):
 
 
 @register_filterset(JobFilterSet)
-class JobFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
+class JobFilterForm(SavedFiltersMixin, FilterForm):
     model = Job
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -140,7 +139,7 @@ class JobFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
 
 
 @register_filterset(ObjectChangeFilterSet)
-class ObjectChangeFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
+class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -175,7 +174,7 @@ class ObjectChangeFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm)
 
 
 @register_filterset(ConfigRevisionFilterSet)
-class ConfigRevisionFilterForm(FilterModifierMixin, SavedFiltersMixin, FilterForm):
+class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigRevision
     fieldsets = (
         FieldSet('q', 'filter_id'),
