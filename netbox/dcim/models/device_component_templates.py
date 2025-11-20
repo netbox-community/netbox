@@ -518,6 +518,69 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         }
 
 
+class PortAssignmentTemplate(models.Model):
+    """
+    Maps a FrontPortTemplate & position to a RearPortTemplate & position.
+    """
+    front_port = models.ForeignKey(
+        to='dcim.FrontPortTemplate',
+        on_delete=models.CASCADE,
+    )
+    front_port_position = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX),
+        ),
+    )
+    rear_port = models.ForeignKey(
+        to='dcim.RearPortTemplate',
+        on_delete=models.CASCADE,
+    )
+    rear_port_position = models.PositiveSmallIntegerField(
+        validators=(
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX),
+        ),
+    )
+
+    class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('front_port', 'front_port_position'),
+                name='%(app_label)s_%(class)s_unique_front_port_position'
+            ),
+            models.UniqueConstraint(
+                fields=('rear_port', 'rear_port_position'),
+                name='%(app_label)s_%(class)s_unique_rear_port_position'
+            ),
+        )
+
+    def clean(self):
+
+        # Validate rear port assignment
+        if self.front_port.device_type_id != self.rear_port.device_type_id:
+            raise ValidationError({
+                "rear_port": _("Rear port ({rear_port}) must belong to the same device type").format(
+                    rear_port=self.rear_port
+                )
+            })
+
+        # Validate rear port position assignment
+        if self.rear_port_position > self.rear_port.positions:
+            raise ValidationError({
+                "rear_port_position": _(
+                    "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
+                    "positions."
+                ).format(
+                    rear_port_position=self.rear_port_position,
+                    name=self.rear_port.name,
+                    positions=self.rear_port.positions
+                )
+            })
+
+
 class FrontPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
@@ -531,18 +594,18 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('color'),
         blank=True
     )
-    rear_port = models.ForeignKey(
-        to='dcim.RearPortTemplate',
-        on_delete=models.CASCADE,
-        related_name='frontport_templates'
-    )
-    rear_port_position = models.PositiveSmallIntegerField(
-        verbose_name=_('rear port position'),
+    positions = models.PositiveSmallIntegerField(
+        verbose_name=_('positions'),
         default=1,
         validators=[
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX)
-        ]
+        ],
+    )
+    rear_ports = models.ManyToManyField(
+        to='dcim.RearPortTemplate',
+        through='dcim.PortAssignmentTemplate',
+        related_name='front_ports',
     )
 
     component_model = FrontPort
@@ -557,51 +620,17 @@ class FrontPortTemplate(ModularComponentTemplateModel):
                 fields=('module_type', 'name'),
                 name='%(app_label)s_%(class)s_unique_module_type_name'
             ),
-            models.UniqueConstraint(
-                fields=('rear_port', 'rear_port_position'),
-                name='%(app_label)s_%(class)s_unique_rear_port_position'
-            ),
         )
         verbose_name = _('front port template')
         verbose_name_plural = _('front port templates')
 
-    def clean(self):
-        super().clean()
-
-        try:
-
-            # Validate rear port assignment
-            if self.rear_port.device_type != self.device_type:
-                raise ValidationError(
-                    _("Rear port ({name}) must belong to the same device type").format(name=self.rear_port)
-                )
-
-            # Validate rear port position assignment
-            if self.rear_port_position > self.rear_port.positions:
-                raise ValidationError(
-                    _("Invalid rear port position ({position}); rear port {name} has only {count} positions").format(
-                        position=self.rear_port_position,
-                        name=self.rear_port.name,
-                        count=self.rear_port.positions
-                    )
-                )
-
-        except RearPortTemplate.DoesNotExist:
-            pass
-
     def instantiate(self, **kwargs):
-        if self.rear_port:
-            rear_port_name = self.rear_port.resolve_name(kwargs.get('module'))
-            rear_port = RearPort.objects.get(name=rear_port_name, **kwargs)
-        else:
-            rear_port = None
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             color=self.color,
-            rear_port=rear_port,
-            rear_port_position=self.rear_port_position,
+            positions=self.positions,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -611,8 +640,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             'name': self.name,
             'type': self.type,
             'color': self.color,
-            'rear_port': self.rear_port.name,
-            'rear_port_position': self.rear_port_position,
+            'positions': self.positions,
             'label': self.label,
             'description': self.description,
         }
@@ -637,7 +665,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
         validators=[
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX)
-        ]
+        ],
     )
 
     component_model = RearPort

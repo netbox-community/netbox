@@ -884,13 +884,14 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         choices=PortTypeChoices,
         null_value=None
     )
-    rear_port_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=RearPort.objects.all()
-    )
+    # TODO
+    # rear_port_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=RearPortTemplate.objects.all()
+    # )
 
     class Meta:
         model = FrontPortTemplate
-        fields = ('id', 'name', 'label', 'type', 'color', 'rear_port_position', 'description')
+        fields = ('id', 'name', 'label', 'type', 'color', 'positions', 'description')
 
 
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
@@ -898,6 +899,10 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
         choices=PortTypeChoices,
         null_value=None
     )
+    # TODO
+    # front_port_id = django_filters.ModelMultipleChoiceFilter(
+    #     queryset=FrontPortTemplate.objects.all()
+    # )
 
     class Meta:
         model = RearPortTemplate

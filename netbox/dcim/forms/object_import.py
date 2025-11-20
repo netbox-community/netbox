@@ -113,31 +113,11 @@ class FrontPortTemplateImportForm(forms.ModelForm):
         label=_('Type'),
         choices=PortTypeChoices.CHOICES
     )
-    rear_port = forms.ModelChoiceField(
-        label=_('Rear port'),
-        queryset=RearPortTemplate.objects.all(),
-        to_field_name='name'
-    )
-
-    def clean_device_type(self):
-        if device_type := self.cleaned_data['device_type']:
-            rear_port = self.fields['rear_port']
-            rear_port.queryset = rear_port.queryset.filter(device_type=device_type)
-
-        return device_type
-
-    def clean_module_type(self):
-        if module_type := self.cleaned_data['module_type']:
-            rear_port = self.fields['rear_port']
-            rear_port.queryset = rear_port.queryset.filter(module_type=module_type)
-
-        return module_type
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'type', 'color', 'rear_port', 'rear_port_position', 'label',
-            'description',
+            'device_type', 'module_type', 'name', 'type', 'color', 'positions', 'label', 'description',
         ]
 
 

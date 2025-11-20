@@ -1112,14 +1112,10 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
 
 
 class FrontPortTemplateForm(ModularComponentTemplateForm):
-    rear_port = DynamicModelChoiceField(
-        label=_('Rear port'),
-        queryset=RearPortTemplate.objects.all(),
-        required=False,
-        query_params={
-            'device_type_id': '$device_type',
-            'module_type_id': '$module_type',
-        }
+    rear_ports = forms.MultipleChoiceField(
+        choices=[],
+        label=_('Rear ports'),
+        widget=forms.SelectMultiple(attrs={'size': 8})
     )
 
     fieldsets = (
@@ -1128,15 +1124,14 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'description',
         ),
     )
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
-            'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
 
 
@@ -1581,7 +1576,7 @@ class FrontPortForm(ModularDeviceComponentForm):
     rear_ports = forms.MultipleChoiceField(
         choices=[],
         label=_('Rear ports'),
-        widget=forms.SelectMultiple(attrs={'size': 6})
+        widget=forms.SelectMultiple(attrs={'size': 8})
     )
 
     fieldsets = (
