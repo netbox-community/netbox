@@ -82,23 +82,21 @@ class DataSourceForm(NetBoxModelForm):
 
     def clean(self):
         super().clean()
-        if not self.data.get('sync_interval'):
-            self.cleaned_data['status'] = DataSourceStatusChoices.READY
+        if not self.instance.pk:
+            self.cleaned_data['status'] = DataSourceStatusChoices.NEW
         else:
-            self.cleaned_data['status'] = DataSourceStatusChoices.SCHEDULED
+            if not self.data.get('sync_interval'):
+                self.cleaned_data['status'] = DataSourceStatusChoices.READY
 
     def save(self, *args, **kwargs):
-
         parameters = {}
         for name in self.fields:
             if name.startswith('backend_'):
                 parameters[name[8:]] = self.cleaned_data[name]
         self.instance.parameters = parameters
 
-        self.instance.status = self.cleaned_data['status']
-        # we need to save the instance here, due to the broken super.save method not saving the status field
-        # correctly & would require to posts on the data-source object
-        self.instance.save()
+        # update status
+        self.instance.status = self.cleaned_data.get('status', self.instance.status)
 
         return super().save(*args, **kwargs)
 
