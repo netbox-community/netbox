@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
+from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_viewname, get_action_url
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
 
@@ -413,6 +414,13 @@ def applied_filters(context, model, form, query_params):
     user = context['request'].user
     form.is_valid()  # Ensure cleaned_data has been set
 
+    # Build lookup labels from FORM_FIELD_LOOKUPS
+    lookup_labels = {}
+    for field_lookups in FORM_FIELD_LOOKUPS.values():
+        for lookup_code, lookup_label in field_lookups:
+            if lookup_code not in ('exact', 'empty_true', 'empty_false'):
+                lookup_labels[lookup_code] = lookup_label
+
     applied_filters = []
     for filter_name in form.changed_data:
         if filter_name not in form.cleaned_data:
@@ -457,25 +465,10 @@ def applied_filters(context, model, form, query_params):
                 link_text = f'{bound_field.label} {_("is empty")}'
             else:
                 link_text = f'{bound_field.label} {_("is not empty")}'
+        elif modifier != 'exact' and (label := lookup_labels.get(modifier)):
+            link_text = f'{bound_field.label} {label}: {display_value}'
         else:
-            # Add friendly lookup label for other modifier-enhanced fields
-            lookup_labels = {
-                'n': _('is not'),
-                'ic': _('contains'),
-                'isw': _('starts with'),
-                'iew': _('ends with'),
-                'ie': _('equals (case-insensitive)'),
-                'regex': _('matches pattern'),
-                'iregex': _('matches pattern (case-insensitive)'),
-                'gt': _('>'),
-                'gte': _('≥'),
-                'lt': _('<'),
-                'lte': _('≤'),
-            }
-            if modifier != 'exact' and modifier in lookup_labels:
-                link_text = f'{bound_field.label} {lookup_labels[modifier]}: {display_value}'
-            else:
-                link_text = f'{bound_field.label}: {display_value}'
+            link_text = f'{bound_field.label}: {display_value}'
 
         applied_filters.append({
             'name': param_name,  # Use actual param name for removal link
