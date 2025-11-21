@@ -130,6 +130,11 @@ class VirtualMachineFilter(
     virtual_disks: Annotated['VirtualDiskFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+    start_on_boot: (
+        BaseFilterLookup[Annotated['VirtualMachineStartOnBootEnum', strawberry.lazy('virtualization.graphql.enums')]
+    ] | None) = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter_type(models.VMInterface, lookups=True)

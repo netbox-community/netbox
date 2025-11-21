@@ -29,6 +29,7 @@ class BaseObjectTypeFilterMixin(BaseFilterMixin):
 @dataclass
 class ChangeLogFilterMixin(BaseFilterMixin):
     id: FilterLookup[ID] | None = strawberry_django.filter_field()
+    # TODO: "changelog" is not a valid field name; needs to be updated for ObjectChange
     changelog: Annotated['ObjectChangeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

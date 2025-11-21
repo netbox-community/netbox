@@ -200,6 +200,9 @@ class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixi
     terminations: Annotated['L2VPNTerminationFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+    status: BaseFilterLookup[Annotated['L2VPNStatusEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter_type(models.L2VPNTermination, lookups=True)

@@ -1,6 +1,5 @@
 from typing import Annotated, TYPE_CHECKING
 
-from django.db.models import Q
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
@@ -810,6 +809,9 @@ class PowerOutletFilter(ModularComponentModelFilterMixin, CabledObjectModelFilte
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+    status: BaseFilterLookup[Annotated['PowerOutletStatusEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter_type(models.PowerOutletTemplate, lookups=True)
@@ -924,6 +926,9 @@ class RackReservationFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
     user_id: ID | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
+    status: BaseFilterLookup[Annotated['RackReservationStatusEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+        strawberry_django.filter_field()
+    )
 
 
 @strawberry_django.filter_type(models.RackRole, lookups=True)
