@@ -999,29 +999,49 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 3',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[2].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_port_templates[2].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 4',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[3].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_port_templates[3].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'module_type': moduletype.pk,
                 'name': 'Front Port Template 7',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[6].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_port_templates[6].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'module_type': moduletype.pk,
                 'name': 'Front Port Template 8',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[7].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_port_templates[7].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
         ]
 

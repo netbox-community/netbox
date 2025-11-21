@@ -118,17 +118,6 @@ class Migration(migrations.Migration):
             ),
         ),
 
-        # Add rear_ports ManyToManyField on FrontPortTemplate
-        migrations.AddField(
-            model_name='frontporttemplate',
-            name='rear_ports',
-            field=models.ManyToManyField(
-                related_name='front_ports',
-                through='dcim.PortAssignmentTemplate',
-                to='dcim.rearporttemplate'
-            ),
-        ),
-
         # Create PortAssignment model (for Devices)
         migrations.CreateModel(
             name='PortAssignment',
@@ -184,17 +173,6 @@ class Migration(migrations.Migration):
             constraint=models.UniqueConstraint(
                 fields=('rear_port', 'rear_port_position'),
                 name='dcim_portassignment_unique_rear_port_position'
-            ),
-        ),
-
-        # Add rear_ports ManyToManyField on FrontPort
-        migrations.AddField(
-            model_name='frontport',
-            name='rear_ports',
-            field=models.ManyToManyField(
-                related_name='front_ports',
-                through='dcim.PortAssignment',
-                to='dcim.rearport'
             ),
         ),
 

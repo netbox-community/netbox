@@ -568,11 +568,6 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             MaxValueValidator(PORT_POSITION_MAX)
         ],
     )
-    rear_ports = models.ManyToManyField(
-        to='dcim.RearPortTemplate',
-        through='dcim.PortAssignmentTemplate',
-        related_name='front_ports',
-    )
 
     component_model = FrontPort
 

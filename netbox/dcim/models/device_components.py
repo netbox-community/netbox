@@ -1119,13 +1119,8 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
             MaxValueValidator(PORT_POSITION_MAX)
         ],
     )
-    rear_ports = models.ManyToManyField(
-        to='dcim.RearPort',
-        through='dcim.PortAssignment',
-        related_name='front_ports',
-    )
 
-    clone_fields = ('device', 'type', 'color')
+    clone_fields = ('device', 'type', 'color', 'positions')
 
     class Meta(ModularComponentModel.Meta):
         constraints = (
@@ -1159,6 +1154,7 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
             MaxValueValidator(PORT_POSITION_MAX)
         ],
     )
+
     clone_fields = ('device', 'type', 'color', 'positions')
 
     class Meta(ModularComponentModel.Meta):
@@ -1170,13 +1166,13 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
         if not self._state.adding:
-            frontport_count = self.front_ports.count()
-            if self.positions < frontport_count:
+            assignment_count = self.assignments.count()
+            if self.positions < assignment_count:
                 raise ValidationError({
                     "positions": _(
                         "The number of positions cannot be less than the number of mapped front ports "
-                        "({frontport_count})"
-                    ).format(frontport_count=frontport_count)
+                        "({count})"
+                    ).format(count=assignment_count)
                 })
 
 

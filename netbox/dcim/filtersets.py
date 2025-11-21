@@ -884,10 +884,11 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         choices=PortTypeChoices,
         null_value=None
     )
-    rear_port_template_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='rear_ports',
-        queryset=FrontPortTemplate.objects.all(),
-        label=_('Rear port template (ID)'),
+    rear_port_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='assignments__rear_port',
+        queryset=RearPort.objects.all(),
+        to_field_name='rear_port',
+        label=_('Rear port (ID)'),
     )
 
     class Meta:
@@ -900,10 +901,11 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
         choices=PortTypeChoices,
         null_value=None
     )
-    front_port_template_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='front_ports',
-        queryset=FrontPortTemplate.objects.all(),
-        label=_('Front port template (ID)'),
+    front_port_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='assignments__front_port',
+        queryset=FrontPort.objects.all(),
+        to_field_name='front_port',
+        label=_('Front port (ID)'),
     )
 
     class Meta:
@@ -2109,8 +2111,9 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='rear_ports',
+        field_name='assignments__rear_port',
         queryset=RearPort.objects.all(),
+        to_field_name='rear_port',
         label=_('Rear port (ID)'),
     )
 
@@ -2128,8 +2131,9 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
         null_value=None
     )
     front_port_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='front_ports',
+        field_name='assignments__front_port',
         queryset=FrontPort.objects.all(),
+        to_field_name='front_port',
         label=_('Front port (ID)'),
     )
 

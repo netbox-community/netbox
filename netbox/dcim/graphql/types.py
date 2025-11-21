@@ -385,7 +385,8 @@ class DeviceTypeType(PrimaryObjectType):
 )
 class FrontPortType(ModularComponentType, CabledObjectMixin):
     color: str
-    # rear_port: Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]
+
+    assignments: List[Annotated["PortAssignmentType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -396,7 +397,8 @@ class FrontPortType(ModularComponentType, CabledObjectMixin):
 )
 class FrontPortTemplateType(ModularComponentTemplateType):
     color: str
-    # rear_port: Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]
+
+    assignments: List[Annotated["PortAssignmentTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -637,6 +639,28 @@ class PlatformType(NestedGroupObjectType):
 
 
 @strawberry_django.type(
+    models.PortAssignment,
+    fields='__all__',
+    # filters=PortAssignmentFilter,
+    pagination=True
+)
+class PortAssignmentType(ModularComponentTemplateType):
+    front_port: Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]
+    rear_port: Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]
+
+
+@strawberry_django.type(
+    models.PortAssignmentTemplate,
+    fields='__all__',
+    # filters=PortAssignmentTemplateFilter,
+    pagination=True
+)
+class PortAssignmentTemplateType(ModularComponentTemplateType):
+    front_port_template: Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]
+    rear_port_template: Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]
+
+
+@strawberry_django.type(
     models.PowerFeed,
     exclude=['_path'],
     filters=PowerFeedFilter,
@@ -768,7 +792,7 @@ class RackRoleType(OrganizationalObjectType):
 class RearPortType(ModularComponentType, CabledObjectMixin):
     color: str
 
-    front_ports: List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
+    assignments: List[Annotated["PortAssignmentType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -780,7 +804,7 @@ class RearPortType(ModularComponentType, CabledObjectMixin):
 class RearPortTemplateType(ModularComponentTemplateType):
     color: str
 
-    front_ports: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    assignments: List[Annotated["PortAssignmentTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

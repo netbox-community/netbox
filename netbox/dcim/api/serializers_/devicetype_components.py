@@ -5,7 +5,8 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
-    InventoryItemTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
+    InventoryItemTemplate, ModuleBayTemplate, PortAssignmentTemplate, PowerOutletTemplate, PowerPortTemplate,
+    RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
@@ -205,6 +206,16 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
+class RearPortTemplateAssignmentSerializer(serializers.ModelSerializer):
+    front_port = serializers.PrimaryKeyRelatedField(
+        queryset=FrontPortTemplate.objects.all(),
+    )
+
+    class Meta:
+        model = PortAssignmentTemplate
+        fields = ('id', 'rear_port_position', 'front_port', 'front_port_position')
+
+
 class RearPortTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         required=False,
@@ -219,14 +230,51 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
+    front_ports = RearPortTemplateAssignmentSerializer(
+        source='assignments',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
-            'positions', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
+            'front_ports', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+    def create(self, validated_data):
+        assignments = validated_data.pop('assignments', [])
+        instance = super().create(validated_data)
+
+        # Create FrontPort assignments
+        for assignment_data in assignments:
+            PortAssignmentTemplate.objects.create(rear_port=instance, **assignment_data)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        assignments = validated_data.pop('assignments', None)
+        instance = super().update(instance, validated_data)
+
+        if assignments is not None:
+            # Update FrontPort assignments
+            PortAssignmentTemplate.objects.filter(rear_port=instance).delete()
+            for assignment_data in assignments:
+                PortAssignmentTemplate.objects.create(rear_port=instance, **assignment_data)
+
+        return instance
+
+
+class FrontPortTemplateAssignmentSerializer(serializers.ModelSerializer):
+    rear_port = serializers.PrimaryKeyRelatedField(
+        queryset=RearPortTemplate.objects.all(),
+    )
+
+    class Meta:
+        model = PortAssignmentTemplate
+        fields = ('id', 'front_port_position', 'rear_port', 'rear_port_position')
 
 
 class FrontPortTemplateSerializer(ComponentTemplateSerializer):
@@ -243,7 +291,11 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_ports = RearPortTemplateSerializer(nested=True, many=True)
+    rear_ports = FrontPortTemplateAssignmentSerializer(
+        source='assignments',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = FrontPortTemplate
@@ -252,6 +304,28 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
             'rear_ports', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+    def create(self, validated_data):
+        assignments = validated_data.pop('assignments', [])
+        instance = super().create(validated_data)
+
+        # Create RearPort assignments
+        for assignment_data in assignments:
+            PortAssignmentTemplate.objects.create(front_port=instance, **assignment_data)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        assignments = validated_data.pop('assignments', None)
+        instance = super().update(instance, validated_data)
+
+        if assignments is not None:
+            # Update RearPort assignments
+            PortAssignmentTemplate.objects.filter(front_port=instance).delete()
+            for assignment_data in assignments:
+                PortAssignmentTemplate.objects.create(front_port=instance, **assignment_data)
+
+        return instance
 
 
 class ModuleBayTemplateSerializer(ComponentTemplateSerializer):

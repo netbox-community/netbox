@@ -133,8 +133,6 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
 
         # Check that the number of FrontPortTemplates to be created matches the selected number of RearPortTemplate
         # positions
-        print(f"name: {self.cleaned_data['name']}")
-        print(f"rear_ports: {self.cleaned_data['rear_ports']}")
         frontport_count = len(self.cleaned_data['name'])
         rearport_count = len(self.cleaned_data['rear_ports'])
         if frontport_count != rearport_count:
