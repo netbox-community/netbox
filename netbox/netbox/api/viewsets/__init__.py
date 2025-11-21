@@ -128,10 +128,6 @@ class NetBoxModelViewSet(
         qs = super().get_queryset()
         return reapply_model_ordering(qs)
 
-    # Declare that this viewset accepts either single objects or arrays for creation
-    # Refs: #20638
-    bulk_create_enabled = True
-
     def get_serializer(self, *args, **kwargs):
         # If a list of objects has been provided, initialize the serializer with many=True
         if isinstance(kwargs.get('data', {}), list):
