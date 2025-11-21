@@ -15,12 +15,14 @@ class PortAssignmentBase(models.Model):
     Base class for PortAssignment and PortAssignment Template
     """
     front_port_position = models.PositiveSmallIntegerField(
+        default=1,
         validators=(
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX),
         ),
     )
     rear_port_position = models.PositiveSmallIntegerField(
+        default=1,
         validators=(
             MinValueValidator(PORT_POSITION_MIN),
             MaxValueValidator(PORT_POSITION_MAX),

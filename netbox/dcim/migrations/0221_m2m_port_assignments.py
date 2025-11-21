@@ -68,6 +68,7 @@ class Migration(migrations.Migration):
                 (
                     'front_port_position',
                     models.PositiveSmallIntegerField(
+                        default=1,
                         validators=[
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024)
@@ -77,6 +78,7 @@ class Migration(migrations.Migration):
                 (
                     'rear_port_position',
                     models.PositiveSmallIntegerField(
+                        default=1,
                         validators=[
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024)
@@ -127,6 +129,7 @@ class Migration(migrations.Migration):
                 (
                     'front_port_position',
                     models.PositiveSmallIntegerField(
+                        default=1,
                         validators=[
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024)
@@ -136,6 +139,7 @@ class Migration(migrations.Migration):
                 (
                     'rear_port_position',
                     models.PositiveSmallIntegerField(
+                        default=1,
                         validators=[
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024),

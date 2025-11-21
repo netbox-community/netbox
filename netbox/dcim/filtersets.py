@@ -884,10 +884,11 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         choices=PortTypeChoices,
         null_value=None
     )
-    # TODO
-    # rear_port_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=RearPortTemplate.objects.all()
-    # )
+    rear_port_template_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rear_ports',
+        queryset=FrontPortTemplate.objects.all(),
+        label=_('Rear port template (ID)'),
+    )
 
     class Meta:
         model = FrontPortTemplate
@@ -899,10 +900,11 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
         choices=PortTypeChoices,
         null_value=None
     )
-    # TODO
-    # front_port_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=FrontPortTemplate.objects.all()
-    # )
+    front_port_template_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='front_ports',
+        queryset=FrontPortTemplate.objects.all(),
+        label=_('Front port template (ID)'),
+    )
 
     class Meta:
         model = RearPortTemplate
@@ -2106,10 +2108,11 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
         choices=PortTypeChoices,
         null_value=None
     )
-    # TODO
-    # rear_port_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=RearPort.objects.all()
-    # )
+    rear_port_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='rear_ports',
+        queryset=RearPort.objects.all(),
+        label=_('Rear port (ID)'),
+    )
 
     class Meta:
         model = FrontPort
@@ -2124,10 +2127,11 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
         choices=PortTypeChoices,
         null_value=None
     )
-    # TODO
-    # front_port_id = django_filters.ModelMultipleChoiceFilter(
-    #     queryset=FrontPort.objects.all()
-    # )
+    front_port_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='front_ports',
+        queryset=FrontPort.objects.all(),
+        label=_('Front port (ID)'),
+    )
 
     class Meta:
         model = RearPort
