@@ -1119,7 +1119,7 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'positions', 'rear_ports', 'description',
+            'name', 'label', 'type', 'positions', 'rear_ports', 'description',
         ),
     )
 

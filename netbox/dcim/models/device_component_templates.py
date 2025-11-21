@@ -635,6 +635,20 @@ class RearPortTemplate(ModularComponentTemplateModel):
         verbose_name = _('rear port template')
         verbose_name_plural = _('rear port templates')
 
+    def clean(self):
+        super().clean()
+
+        # Check that positions count is greater than or equal to the number of associated FrontPortTemplates
+        if not self._state.adding:
+            assignment_count = self.assignments.count()
+            if self.positions < assignment_count:
+                raise ValidationError({
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped front port templates "
+                        "({count})"
+                    ).format(count=assignment_count)
+                })
+
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),

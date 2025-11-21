@@ -133,9 +133,10 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
 
         # Check that the number of FrontPortTemplates to be created matches the selected number of RearPortTemplate
         # positions
+        positions = self.cleaned_data['positions']
         frontport_count = len(self.cleaned_data['name'])
         rearport_count = len(self.cleaned_data['rear_ports'])
-        if frontport_count != rearport_count:
+        if frontport_count * positions != rearport_count:
             raise forms.ValidationError({
                 'rear_ports': _(
                     "The number of front port templates to be created ({frontport_count}) must match the selected "
@@ -251,10 +252,11 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
     def clean(self):
         super(NetBoxModelForm, self).clean()
 
-        # Check that the number of FrontPorts to be created matches the selected number of RearPort positions
+        # Check that the number of FrontPorts to be created matches the selected number of RearPorts
+        positions = self.cleaned_data['positions']
         frontport_count = len(self.cleaned_data['name'])
         rearport_count = len(self.cleaned_data['rear_ports'])
-        if frontport_count != rearport_count:
+        if frontport_count * positions != rearport_count:
             raise forms.ValidationError({
                 'rear_ports': _(
                     "The number of front ports to be created ({frontport_count}) must match the selected number of "
