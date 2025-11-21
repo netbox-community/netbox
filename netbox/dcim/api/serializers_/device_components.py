@@ -295,13 +295,16 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
 
 
 class RearPortAssignmentSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='rear_port_position'
+    )
     front_port = serializers.PrimaryKeyRelatedField(
         queryset=FrontPort.objects.all(),
     )
 
     class Meta:
         model = PortAssignment
-        fields = ('id', 'rear_port_position', 'front_port', 'front_port_position')
+        fields = ('position', 'front_port', 'front_port_position')
 
 
 class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
@@ -352,13 +355,16 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
 
 
 class FrontPortAssignmentSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='front_port_position'
+    )
     rear_port = serializers.PrimaryKeyRelatedField(
         queryset=RearPort.objects.all(),
     )
 
     class Meta:
         model = PortAssignment
-        fields = ('id', 'front_port_position', 'rear_port', 'rear_port_position')
+        fields = ('position', 'rear_port', 'rear_port_position')
 
 
 class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):

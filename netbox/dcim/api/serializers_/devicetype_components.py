@@ -207,13 +207,16 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
 
 
 class RearPortTemplateAssignmentSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='rear_port_position'
+    )
     front_port = serializers.PrimaryKeyRelatedField(
         queryset=FrontPortTemplate.objects.all(),
     )
 
     class Meta:
         model = PortAssignmentTemplate
-        fields = ('id', 'rear_port_position', 'front_port', 'front_port_position')
+        fields = ('position', 'front_port', 'front_port_position')
 
 
 class RearPortTemplateSerializer(ComponentTemplateSerializer):
@@ -268,13 +271,16 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
 
 
 class FrontPortTemplateAssignmentSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='front_port_position'
+    )
     rear_port = serializers.PrimaryKeyRelatedField(
         queryset=RearPortTemplate.objects.all(),
     )
 
     class Meta:
         model = PortAssignmentTemplate
-        fields = ('id', 'front_port_position', 'rear_port', 'rear_port_position')
+        fields = ('position', 'rear_port', 'rear_port_position')
 
 
 class FrontPortTemplateSerializer(ComponentTemplateSerializer):
