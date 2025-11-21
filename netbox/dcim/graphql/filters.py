@@ -404,11 +404,7 @@ class FrontPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterM
 class FrontPortTemplateFilter(ModularComponentTemplateFilterMixin):
     type: Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')] | None = strawberry_django.filter_field()
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()
-    rear_port: Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    rear_port_id: ID | None = strawberry_django.filter_field()
-    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    rear_ports: Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
