@@ -24,7 +24,7 @@ def populate_port_template_assignments(apps, schema_editor):
         for front_port in front_ports:
             yield PortAssignmentTemplate(
                 front_port_id=front_port.pk,
-                front_port_position=None,
+                front_port_position=1,
                 rear_port_id=front_port.rear_port_id,
                 rear_port_position=front_port.rear_port_position,
             )
@@ -44,7 +44,7 @@ def populate_port_assignments(apps, schema_editor):
         for front_port in front_ports:
             yield PortAssignment(
                 front_port_id=front_port.pk,
-                front_port_position=None,
+                front_port_position=1,
                 rear_port_id=front_port.rear_port_id,
                 rear_port_position=front_port.rear_port_position,
             )
