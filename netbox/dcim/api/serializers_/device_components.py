@@ -5,15 +5,15 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
-    RearPort, VirtualDeviceContext,
+    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PortAssignment,
+    PowerOutlet, PowerPort, RearPort, VirtualDeviceContext,
 )
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
-from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import NetBoxModelSerializer
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
@@ -294,6 +294,16 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         return super().validate(data)
 
 
+class RearPortAssignmentSerializer(serializers.ModelSerializer):
+    front_port = serializers.PrimaryKeyRelatedField(
+        queryset=FrontPort.objects.all(),
+    )
+
+    class Meta:
+        model = PortAssignment
+        fields = ('id', 'rear_port_position', 'front_port', 'front_port_position')
+
+
 class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
@@ -303,25 +313,52 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
+    front_ports = RearPortAssignmentSerializer(
+        source='assignments',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = RearPort
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions',
-            'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'tags',
-            'custom_fields', 'created', 'last_updated', '_occupied',
+            'front_ports', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
+    def create(self, validated_data):
+        assignments = validated_data.pop('assignments', [])
+        instance = super().create(validated_data)
 
-class FrontPortRearPortSerializer(WritableNestedSerializer):
-    """
-    NestedRearPortSerializer but with parent device omitted (since front and rear ports must belong to same device)
-    """
+        # Create FrontPort assignments
+        for assignment_data in assignments:
+            PortAssignment.objects.create(rear_port=instance, **assignment_data)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        assignments = validated_data.pop('assignments', None)
+        instance = super().update(instance, validated_data)
+
+        if assignments is not None:
+            # Update FrontPort assignments
+            PortAssignment.objects.filter(rear_port=instance).delete()
+            for assignment_data in assignments:
+                PortAssignment.objects.create(rear_port=instance, **assignment_data)
+
+        return instance
+
+
+class FrontPortAssignmentSerializer(serializers.ModelSerializer):
+    rear_port = serializers.PrimaryKeyRelatedField(
+        queryset=RearPort.objects.all(),
+    )
 
     class Meta:
-        model = RearPort
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'label', 'description']
+        model = PortAssignment
+        fields = ('id', 'front_port_position', 'rear_port', 'rear_port_position')
 
 
 class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
@@ -333,7 +370,11 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_ports = FrontPortRearPortSerializer(many=True)
+    rear_ports = FrontPortAssignmentSerializer(
+        source='assignments',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = FrontPort
@@ -343,6 +384,28 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
             'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
+
+    def create(self, validated_data):
+        assignments = validated_data.pop('assignments', [])
+        instance = super().create(validated_data)
+
+        # Create RearPort assignments
+        for assignment_data in assignments:
+            PortAssignment.objects.create(front_port=instance, **assignment_data)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        assignments = validated_data.pop('assignments', None)
+        instance = super().update(instance, validated_data)
+
+        if assignments is not None:
+            # Update RearPort assignments
+            PortAssignment.objects.filter(front_port=instance).delete()
+            for assignment_data in assignments:
+                PortAssignment.objects.create(front_port=instance, **assignment_data)
+
+        return instance
 
 
 class ModuleBaySerializer(NetBoxModelSerializer):

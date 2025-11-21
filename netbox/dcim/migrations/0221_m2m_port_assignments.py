@@ -87,11 +87,19 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'front_port',
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcim.frontporttemplate')
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.frontporttemplate',
+                        related_name='assignments'
+                    )
                 ),
                 (
                     'rear_port',
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcim.rearporttemplate')
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.rearporttemplate',
+                        related_name='assignments'
+                    )
                 ),
             ],
         ),
@@ -146,8 +154,22 @@ class Migration(migrations.Migration):
                         ]
                     ),
                 ),
-                ('front_port', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcim.frontport')),
-                ('rear_port', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dcim.rearport')),
+                (
+                    'front_port',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.frontport',
+                        related_name='assignments'
+                    )
+                ),
+                (
+                    'rear_port',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.rearport',
+                        related_name='assignments'
+                    )
+                ),
             ],
         ),
         migrations.AddConstraint(

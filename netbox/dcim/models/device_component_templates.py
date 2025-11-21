@@ -527,10 +527,12 @@ class PortAssignmentTemplate(PortAssignmentBase):
     front_port = models.ForeignKey(
         to='dcim.FrontPortTemplate',
         on_delete=models.CASCADE,
+        related_name='assignments',
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
+        related_name='assignments',
     )
 
     def clean(self):

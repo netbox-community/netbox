@@ -981,32 +981,18 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
         RearPortTemplate.objects.bulk_create(rear_port_templates)
 
         front_port_templates = (
-            FrontPortTemplate(
-                device_type=devicetype,
-                name='Front Port Template 1',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[0]
-            ),
-            FrontPortTemplate(
-                device_type=devicetype,
-                name='Front Port Template 2',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[1]
-            ),
-            FrontPortTemplate(
-                module_type=moduletype,
-                name='Front Port Template 5',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[4]
-            ),
-            FrontPortTemplate(
-                module_type=moduletype,
-                name='Front Port Template 6',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[5]
-            ),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 5', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 6', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPortTemplate.objects.bulk_create(front_port_templates)
+        PortAssignmentTemplate.objects.bulk_create([
+            PortAssignmentTemplate(front_port=front_port_templates[0], rear_port=rear_port_templates[0]),
+            PortAssignmentTemplate(front_port=front_port_templates[1], rear_port=rear_port_templates[1]),
+            PortAssignmentTemplate(front_port=front_port_templates[2], rear_port=rear_port_templates[4]),
+            PortAssignmentTemplate(front_port=front_port_templates[3], rear_port=rear_port_templates[5]),
+        ])
 
         cls.create_data = [
             {
@@ -2017,49 +2003,63 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
         RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPort(device=device, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
-            FrontPort(device=device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[2]),
+            FrontPort(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortAssignment.objects.bulk_create([
+            PortAssignment(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortAssignment(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortAssignment(front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         cls.create_data = [
             {
                 'device': device.pk,
                 'name': 'Front Port 4',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_ports[3].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_ports[3].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'device': device.pk,
                 'name': 'Front Port 5',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_ports[4].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_ports[4].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'device': device.pk,
                 'name': 'Front Port 6',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_ports[5].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'front_port_position': 1,
+                        'rear_port': rear_ports[5].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
         ]
 
     @tag('regression')  # Issue #18991
     def test_front_port_paths(self):
         device = Device.objects.first()
-        rear_port = RearPort.objects.create(
-            device=device, name='Rear Port 10', type=PortTypeChoices.TYPE_8P8C
-        )
         interface1 = Interface.objects.create(device=device, name='Interface 1')
-        front_port = FrontPort.objects.create(
-            device=device,
-            name='Rear Port 10',
-            type=PortTypeChoices.TYPE_8P8C,
-            rear_port=rear_port,
-        )
+        rear_port = RearPort.objects.create(device=device, name='Rear Port 10', type=PortTypeChoices.TYPE_8P8C)
+        front_port = FrontPort.objects.create(device=device, name='Front Port 10', type=PortTypeChoices.TYPE_8P8C)
+        PortAssignment.objects.create(front_port=front_port, rear_port=rear_port)
         Cable.objects.create(a_terminations=[interface1], b_terminations=[front_port])
 
         self.add_permissions(f'dcim.view_{self.model._meta.model_name}')

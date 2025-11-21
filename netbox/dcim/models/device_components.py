@@ -1078,10 +1078,12 @@ class PortAssignment(PortAssignmentBase):
     front_port = models.ForeignKey(
         to='dcim.FrontPort',
         on_delete=models.CASCADE,
+        related_name='assignments',
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
         on_delete=models.CASCADE,
+        related_name='assignments',
     )
 
     def clean(self):
@@ -1168,7 +1170,7 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
         if not self._state.adding:
-            frontport_count = self.frontports.count()
+            frontport_count = self.front_ports.count()
             if self.positions < frontport_count:
                 raise ValidationError({
                     "positions": _(
