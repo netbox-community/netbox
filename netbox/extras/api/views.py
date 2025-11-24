@@ -267,6 +267,14 @@ class ScriptViewSet(ModelViewSet):
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
 
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+
+        # Restrict the view's QuerySet to allow only the permitted objects
+        if request.user.is_authenticated:
+            action = 'run' if request.method == 'POST' else 'view'
+            self.queryset = self.queryset.restrict(request.user, action)
+
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
         if pk.isnumeric():
