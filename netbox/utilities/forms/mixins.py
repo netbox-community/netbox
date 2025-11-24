@@ -21,6 +21,9 @@ __all__ = (
 
 # Mapping of form field types to their supported lookups
 FORM_FIELD_LOOKUPS = {
+    QueryField: [],
+    forms.BooleanField: [],
+    forms.NullBooleanField: [],
     forms.CharField: [
         ('exact', _('Is')),
         ('n', _('Is Not')),
@@ -204,12 +207,6 @@ class FilterModifierMixin:
 
         Returns an empty list for fields that should not be enhanced.
         """
-        if isinstance(field, QueryField):
-            return []
-
-        if isinstance(field, (forms.BooleanField, forms.NullBooleanField)):
-            return []
-
         for field_class in field.__class__.__mro__:
             if field_class in FORM_FIELD_LOOKUPS:
                 return FORM_FIELD_LOOKUPS[field_class]
