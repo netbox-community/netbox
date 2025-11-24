@@ -208,8 +208,8 @@ class FilterModifierMixin:
         Returns an empty list for fields that should not be enhanced.
         """
         for field_class in field.__class__.__mro__:
-            if field_class in FORM_FIELD_LOOKUPS:
-                return FORM_FIELD_LOOKUPS[field_class]
+            if field_lookups := FORM_FIELD_LOOKUPS.get(field_class):
+                return field_lookups
 
         return []
 
