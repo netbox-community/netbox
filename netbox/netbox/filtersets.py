@@ -152,6 +152,7 @@ class BaseFilterSet(django_filters.FilterSet):
 
         elif isinstance(existing_filter, (
             django_filters.filters.CharFilter,
+            django_filters.ChoiceFilter,
             django_filters.MultipleChoiceFilter,
             filters.MultiValueCharFilter,
             filters.MultiValueMACAddressFilter
