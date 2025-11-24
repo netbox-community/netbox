@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from netbox.registry import registry
 from utilities.forms.fields import ColorField, QueryField, TagFilterField
 from utilities.forms.widgets import FilterModifierWidget
-from utilities.forms.widgets.apiselect import APISelect
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
@@ -211,9 +210,6 @@ class FilterModifierMixin:
         if isinstance(field, (forms.BooleanField, forms.NullBooleanField)):
             return []
 
-        if self._is_api_widget_field(field):
-            return []
-
         for field_class in field.__class__.__mro__:
             if field_class in FORM_FIELD_LOOKUPS:
                 return FORM_FIELD_LOOKUPS[field_class]
@@ -234,15 +230,3 @@ class FilterModifierMixin:
                 verified_lookups.append((lookup_code, lookup_label))
 
         return verified_lookups
-
-    def _is_api_widget_field(self, field):
-        """Check if a field uses an API-based widget."""
-        if isinstance(field.widget, APISelect):
-            return True
-
-        if hasattr(field.widget, 'attrs') and field.widget.attrs:
-            api_attrs = ['data-url', 'data-api-url', 'data-static-params']
-            if any(attr in field.widget.attrs for attr in api_attrs):
-                return True
-
-        return False

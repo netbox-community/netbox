@@ -86,6 +86,10 @@ class FilterModifierWidget(forms.Widget):
         The JavaScript initializeFromURL() will set the correct modifier dropdown
         value based on URL parameters.
         """
+        # Propagate any attrs set on the wrapper (like data-url from get_bound_field)
+        # to the original widget before rendering
+        self.original_widget.attrs.update(self.attrs)
+
         # Get context from the original widget
         original_context = self.original_widget.get_context(name, value, attrs)
 
