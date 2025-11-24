@@ -414,13 +414,6 @@ def applied_filters(context, model, form, query_params):
     user = context['request'].user
     form.is_valid()  # Ensure cleaned_data has been set
 
-    # Build lookup labels from FORM_FIELD_LOOKUPS
-    lookup_labels = {}
-    for field_lookups in FORM_FIELD_LOOKUPS.values():
-        for lookup_code, lookup_label in field_lookups:
-            if lookup_code not in ('exact', 'empty_true', 'empty_false'):
-                lookup_labels[lookup_code] = lookup_label
-
     applied_filters = []
     for filter_name in form.changed_data:
         if filter_name not in form.cleaned_data:
@@ -459,14 +452,27 @@ def applied_filters(context, model, form, query_params):
         # Get display value
         display_value = ', '.join([str(v) for v in get_selected_values(form, filter_name)])
 
+        # Get the correct lookup label for this field's type
+        lookup_label = None
+        if modifier != 'exact':
+            field = form.fields[filter_name]
+            for field_class in field.__class__.__mro__:
+                if field_lookups := FORM_FIELD_LOOKUPS.get(field_class):
+                    for lookup_code, label in field_lookups:
+                        if lookup_code == modifier:
+                            lookup_label = label
+                            break
+                    if lookup_label:
+                        break
+
         # Special handling for empty lookup (boolean value)
         if modifier == 'empty':
             if display_value.lower() in ('true', '1'):
                 link_text = f'{bound_field.label} {_("is empty")}'
             else:
                 link_text = f'{bound_field.label} {_("is not empty")}'
-        elif modifier != 'exact' and (label := lookup_labels.get(modifier)):
-            link_text = f'{bound_field.label} {label}: {display_value}'
+        elif lookup_label:
+            link_text = f'{bound_field.label} {lookup_label}: {display_value}'
         else:
             link_text = f'{bound_field.label}: {display_value}'
 
