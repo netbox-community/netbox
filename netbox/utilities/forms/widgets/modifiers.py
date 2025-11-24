@@ -1,7 +1,11 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-__all__ = ('FilterModifierWidget',)
+__all__ = (
+    'FilterModifierWidget',
+    'MODIFIER_EMPTY_FALSE',
+    'MODIFIER_EMPTY_TRUE',
+)
 
 # Modifier codes for empty/null checking
 # These map to Django's 'empty' lookup: field__empty=true/false
