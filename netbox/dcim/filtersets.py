@@ -2690,7 +2690,6 @@ class ConnectionFilterSet(BaseFilterSet):
         return queryset.filter(qs_filter)
 
 
-@register_filterset
 class ConsoleConnectionFilterSet(ConnectionFilterSet):
 
     class Meta:
@@ -2698,7 +2697,6 @@ class ConsoleConnectionFilterSet(ConnectionFilterSet):
         fields = ('name',)
 
 
-@register_filterset
 class PowerConnectionFilterSet(ConnectionFilterSet):
 
     class Meta:
@@ -2706,7 +2704,6 @@ class PowerConnectionFilterSet(ConnectionFilterSet):
         fields = ('name',)
 
 
-@register_filterset
 class InterfaceConnectionFilterSet(ConnectionFilterSet):
 
     class Meta:
