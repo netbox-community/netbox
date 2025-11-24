@@ -18,7 +18,6 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-from extras.filtersets import *
 
 __all__ = (
     'ConfigContextFilterForm',
