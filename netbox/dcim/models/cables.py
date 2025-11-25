@@ -21,7 +21,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
-from .device_components import FrontPort, PathEndpoint, RearPort, PortAssignment
+from .device_components import FrontPort, PathEndpoint, PortAssignment, RearPort
 
 __all__ = (
     'Cable',

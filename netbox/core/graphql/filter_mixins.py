@@ -5,7 +5,7 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 import strawberry_django
 from strawberry import ID
-from strawberry_django import DatetimeFilterLookup
+from strawberry_django import FilterLookup, DatetimeFilterLookup
 
 if TYPE_CHECKING:
     from .filters import *
@@ -23,12 +23,13 @@ class BaseFilterMixin: ...
 
 @dataclass
 class BaseObjectTypeFilterMixin(BaseFilterMixin):
-    id: ID | None = strawberry.UNSET
+    id: FilterLookup[ID] | None = strawberry_django.filter_field()
 
 
 @dataclass
 class ChangeLogFilterMixin(BaseFilterMixin):
-    id: ID | None = strawberry.UNSET
+    id: FilterLookup[ID] | None = strawberry_django.filter_field()
+    # TODO: "changelog" is not a valid field name; needs to be updated for ObjectChange
     changelog: Annotated['ObjectChangeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

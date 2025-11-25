@@ -2458,6 +2458,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[14].pk,
                 }],
                 'label': 'Cable 4',
+                'profile': CableProfileChoices.STRAIGHT_SINGLE,
             },
             {
                 'a_terminations': [{
@@ -2469,6 +2470,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[15].pk,
                 }],
                 'label': 'Cable 5',
+                'profile': CableProfileChoices.STRAIGHT_SINGLE,
             },
             {
                 'a_terminations': [{
@@ -2480,6 +2482,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[16].pk,
                 }],
                 'label': 'Cable 6',
+                # No profile (legacy behavior)
             },
         ]
 
