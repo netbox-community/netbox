@@ -4,8 +4,6 @@ import pgtrigger.compiler
 import pgtrigger.migrations
 from django.db import migrations
 
-from development.utilities import disconnect_signals
-
 
 class Migration(migrations.Migration):
 
@@ -14,7 +12,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(disconnect_signals, reverse_code=migrations.RunPython.noop),
         pgtrigger.migrations.AddTrigger(
             model_name='prefix',
             trigger=pgtrigger.compiler.Trigger(
@@ -43,5 +40,4 @@ class Migration(migrations.Migration):
                 ),
             ),
         ),
-        migrations.RunPython(migrations.RunPython.noop, reverse_code=disconnect_signals),
     ]
