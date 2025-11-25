@@ -26,7 +26,7 @@ __all__ = (
 
 @strawberry_django.filter_type(models.DataFile, lookups=True)
 class DataFileFilter(BaseFilterMixin):
-    id: ID | None = strawberry_django.filter_field()
+    id: FilterLookup[ID] | None = strawberry_django.filter_field()
     created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     last_updated: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     source: Annotated['DataSourceFilter', strawberry.lazy('core.graphql.filters')] | None = (
@@ -61,7 +61,7 @@ class DataSourceFilter(PrimaryModelFilterMixin):
 
 @strawberry_django.filter_type(models.ObjectChange, lookups=True)
 class ObjectChangeFilter(BaseFilterMixin):
-    id: ID | None = strawberry_django.filter_field()
+    id: FilterLookup[ID] | None = strawberry_django.filter_field()
     time: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
     user_name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -89,6 +89,6 @@ class ObjectChangeFilter(BaseFilterMixin):
 
 @strawberry_django.filter_type(DjangoContentType, lookups=True)
 class ContentTypeFilter(BaseFilterMixin):
-    id: ID | None = strawberry_django.filter_field()
+    id: FilterLookup[ID] | None = strawberry_django.filter_field()
     app_label: FilterLookup[str] | None = strawberry_django.filter_field()
     model: FilterLookup[str] | None = strawberry_django.filter_field()
