@@ -1717,6 +1717,19 @@ class PortTypeChoices(ChoiceSet):
 # Cables/links
 #
 
+class CableProfileChoices(ChoiceSet):
+    STRAIGHT_SINGLE = 'straight-single'
+    STRAIGHT_MULTI = 'straight-multi'
+    SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
+    SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
+
+    CHOICES = (
+        (STRAIGHT_SINGLE, _('Straight (single position)')),
+        (STRAIGHT_MULTI, _('Straight (multi-position)')),
+        (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
+        (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
+    )
+
 
 class CableTypeChoices(ChoiceSet):
     # Copper - Twisted Pair (UTP/STP)

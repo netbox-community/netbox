@@ -3,6 +3,7 @@ import itertools
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
@@ -20,7 +21,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
-from .device_components import FrontPort, RearPort, PathEndpoint
+from .device_components import FrontPort, PathEndpoint, RearPort
 
 __all__ = (
     'Cable',
@@ -53,6 +54,12 @@ class Cable(PrimaryModel):
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
+    )
+    profile = models.CharField(
+        verbose_name=_('profile'),
+        max_length=50,
+        choices=CableProfileChoices,
+        blank=True,
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -92,7 +99,7 @@ class Cable(PrimaryModel):
         null=True
     )
 
-    clone_fields = ('tenant', 'type',)
+    clone_fields = ('tenant', 'type', 'profile')
 
     class Meta:
         ordering = ('pk',)
@@ -122,6 +129,16 @@ class Cable(PrimaryModel):
 
     def get_status_color(self):
         return LinkStatusChoices.colors.get(self.status)
+
+    @property
+    def profile_class(self):
+        from dcim import cable_profiles
+        return {
+            CableProfileChoices.STRAIGHT_SINGLE: cable_profiles.StraightSingleCableProfile,
+            CableProfileChoices.STRAIGHT_MULTI: cable_profiles.StraightMultiCableProfile,
+            CableProfileChoices.SHUFFLE_2X2_MPO8: cable_profiles.Shuffle2x2MPO8CableProfile,
+            CableProfileChoices.SHUFFLE_4X4_MPO8: cable_profiles.Shuffle4x4MPO8CableProfile,
+        }.get(self.profile)
 
     def _get_x_terminations(self, side):
         """
@@ -194,6 +211,10 @@ class Cable(PrimaryModel):
 
         if self._state.adding and self.pk is None and (not self.a_terminations or not self.b_terminations):
             raise ValidationError(_("Must define A and B terminations when creating a new cable."))
+
+        # Validate terminations against the assigned cable profile (if any)
+        if self.profile:
+            self.profile_class().clean(self)
 
         if self._terminations_modified:
 
@@ -315,12 +336,14 @@ class Cable(PrimaryModel):
                 ct.delete()
 
         # Save any new CableTerminations
-        for termination in self.a_terminations:
+        for i, termination in enumerate(self.a_terminations, start=1):
             if not termination.pk or termination not in a_terminations:
-                CableTermination(cable=self, cable_end='A', termination=termination).save()
-        for termination in self.b_terminations:
+                position = i if self.profile and isinstance(termination, PathEndpoint) else None
+                CableTermination(cable=self, cable_end='A', position=position, termination=termination).save()
+        for i, termination in enumerate(self.b_terminations, start=1):
             if not termination.pk or termination not in b_terminations:
-                CableTermination(cable=self, cable_end='B', termination=termination).save()
+                position = i if self.profile and isinstance(termination, PathEndpoint) else None
+                CableTermination(cable=self, cable_end='B', position=position, termination=termination).save()
 
 
 class CableTermination(ChangeLoggedModel):
@@ -346,6 +369,14 @@ class CableTermination(ChangeLoggedModel):
     termination = GenericForeignKey(
         ct_field='termination_type',
         fk_field='termination_id'
+    )
+    position = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(CABLE_POSITION_MIN),
+            MaxValueValidator(CABLE_POSITION_MAX)
+        )
     )
 
     # Cached associations to enable efficient filtering
@@ -377,11 +408,15 @@ class CableTermination(ChangeLoggedModel):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ('cable', 'cable_end', 'pk')
+        ordering = ('cable', 'cable_end', 'position', 'pk')
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
                 name='%(app_label)s_%(class)s_unique_termination'
+            ),
+            models.UniqueConstraint(
+                fields=('cable', 'cable_end', 'position'),
+                name='%(app_label)s_%(class)s_unique_position'
             ),
         )
         verbose_name = _('cable termination')
@@ -446,6 +481,7 @@ class CableTermination(ChangeLoggedModel):
         termination.snapshot()
         termination.cable = self.cable
         termination.cable_end = self.cable_end
+        termination.cable_position = self.position
         termination.save()
 
     def delete(self, *args, **kwargs):
@@ -455,6 +491,7 @@ class CableTermination(ChangeLoggedModel):
         termination.snapshot()
         termination.cable = None
         termination.cable_end = None
+        termination.cable_position = None
         termination.save()
 
         super().delete(*args, **kwargs)
@@ -653,6 +690,9 @@ class CablePath(models.Model):
             path.append([
                 object_to_path_node(t) for t in terminations
             ])
+            # If not null, push cable_position onto the stack
+            if terminations[0].cable_position is not None:
+                position_stack.append([terminations[0].cable_position])
 
             # Step 2: Determine the attached links (Cable or WirelessLink), if any
             links = [termination.link for termination in terminations if termination.link is not None]
@@ -687,23 +727,31 @@ class CablePath(models.Model):
 
             # Step 6: Determine the far-end terminations
             if isinstance(links[0], Cable):
-                termination_type = ObjectType.objects.get_for_model(terminations[0])
-                local_cable_terminations = CableTermination.objects.filter(
-                    termination_type=termination_type,
-                    termination_id__in=[t.pk for t in terminations]
-                )
+                # Profile-based tracing
+                if links[0].profile:
+                    cable_profile = links[0].profile_class()
+                    peer_cable_terminations = cable_profile.get_peer_terminations(terminations, position_stack)
+                    remote_terminations = [ct.termination for ct in peer_cable_terminations]
 
-                q_filter = Q()
-                for lct in local_cable_terminations:
-                    cable_end = 'A' if lct.cable_end == 'B' else 'B'
-                    q_filter |= Q(cable=lct.cable, cable_end=cable_end)
+                # Legacy (positionless) behavior
+                else:
+                    termination_type = ObjectType.objects.get_for_model(terminations[0])
+                    local_cable_terminations = CableTermination.objects.filter(
+                        termination_type=termination_type,
+                        termination_id__in=[t.pk for t in terminations]
+                    )
 
-                # Make sure this filter has been populated; if not, we have probably been given invalid data
-                if not q_filter:
-                    break
+                    q_filter = Q()
+                    for lct in local_cable_terminations:
+                        cable_end = 'A' if lct.cable_end == 'B' else 'B'
+                        q_filter |= Q(cable=lct.cable, cable_end=cable_end)
 
-                remote_cable_terminations = CableTermination.objects.filter(q_filter)
-                remote_terminations = [ct.termination for ct in remote_cable_terminations]
+                    # Make sure this filter has been populated; if not, we have probably been given invalid data
+                    if not q_filter:
+                        break
+
+                    remote_cable_terminations = CableTermination.objects.filter(q_filter)
+                    remote_terminations = [ct.termination for ct in remote_cable_terminations]
             else:
                 # WirelessLink
                 remote_terminations = [

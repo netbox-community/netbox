@@ -175,6 +175,15 @@ class CabledObjectModel(models.Model):
         blank=True,
         null=True
     )
+    cable_position = models.PositiveIntegerField(
+        verbose_name=_('cable position'),
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(CABLE_POSITION_MIN),
+            MaxValueValidator(CABLE_POSITION_MAX)
+        ),
+    )
     mark_connected = models.BooleanField(
         verbose_name=_('mark connected'),
         default=False,
@@ -194,13 +203,22 @@ class CabledObjectModel(models.Model):
     def clean(self):
         super().clean()
 
-        if self.cable and not self.cable_end:
-            raise ValidationError({
-                "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
-            })
+        if self.cable:
+            if not self.cable_end:
+                raise ValidationError({
+                    "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
+                })
+            if not self.cable_position:
+                raise ValidationError({
+                    "cable_position": _("Must specify cable termination position when attaching a cable.")
+                })
         if self.cable_end and not self.cable:
             raise ValidationError({
                 "cable_end": _("Cable end must not be set without a cable.")
+            })
+        if self.cable_position and not self.cable:
+            raise ValidationError({
+                "cable_position": _("Cable termination position must not be set without a cable.")
             })
         if self.mark_connected and self.cable:
             raise ValidationError({

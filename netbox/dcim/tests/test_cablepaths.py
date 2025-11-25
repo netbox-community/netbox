@@ -1,100 +1,21 @@
-from django.test import TestCase
-
 from circuits.models import *
 from dcim.choices import LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from dcim.utils import object_to_path_node
+from dcim.tests.utils import CablePathTestCase
 from utilities.exceptions import AbortRequest
 
 
-class CablePathTestCase(TestCase):
+class LegacyCablePathTests(CablePathTestCase):
     """
-    Test NetBox's ability to trace and retrace CablePaths in response to data model changes. Tests are numbered
-    as follows:
+    Test NetBox's ability to trace and retrace CablePaths in response to data model changes, without cable profiles.
 
+    Tests are numbered as follows:
         1XX: Test direct connections between different endpoint types
         2XX: Test different cable topologies
         3XX: Test responses to changes in existing objects
         4XX: Test to exclude specific cable topologies
     """
-    @classmethod
-    def setUpTestData(cls):
-
-        # Create a single device that will hold all components
-        cls.site = Site.objects.create(name='Site', slug='site')
-
-        manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
-        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        cls.device = Device.objects.create(site=cls.site, device_type=device_type, role=role, name='Test Device')
-
-        cls.powerpanel = PowerPanel.objects.create(site=cls.site, name='Power Panel')
-
-        provider = Provider.objects.create(name='Provider', slug='provider')
-        circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
-        cls.circuit = Circuit.objects.create(provider=provider, type=circuit_type, cid='Circuit 1')
-
-    def _get_cablepath(self, nodes, **kwargs):
-        """
-        Return a given cable path
-
-        :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
-
-        :return: The matching CablePath (if any)
-        """
-        path = []
-        for step in nodes:
-            if type(step) in (list, tuple):
-                path.append([object_to_path_node(node) for node in step])
-            else:
-                path.append([object_to_path_node(step)])
-        return CablePath.objects.filter(path=path, **kwargs).first()
-
-    def assertPathExists(self, nodes, **kwargs):
-        """
-        Assert that a CablePath from origin to destination with a specific intermediate path exists. Returns the
-        first matching CablePath, if found.
-
-        :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
-        """
-        cablepath = self._get_cablepath(nodes, **kwargs)
-        self.assertIsNotNone(cablepath, msg='CablePath not found')
-
-        return cablepath
-
-    def assertPathDoesNotExist(self, nodes, **kwargs):
-        """
-        Assert that a specific CablePath does *not* exist.
-
-        :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
-        """
-        cablepath = self._get_cablepath(nodes, **kwargs)
-        self.assertIsNone(cablepath, msg='Unexpected CablePath found')
-
-    def assertPathIsSet(self, origin, cablepath, msg=None):
-        """
-        Assert that a specific CablePath instance is set as the path on the origin.
-
-        :param origin: The originating path endpoint
-        :param cablepath: The CablePath instance originating from this endpoint
-        :param msg: Custom failure message (optional)
-        """
-        if msg is None:
-            msg = f"Path #{cablepath.pk} not set on originating endpoint {origin}"
-        self.assertEqual(origin._path_id, cablepath.pk, msg=msg)
-
-    def assertPathIsNotSet(self, origin, msg=None):
-        """
-        Assert that a specific CablePath instance is set as the path on the origin.
-
-        :param origin: The originating path endpoint
-        :param msg: Custom failure message (optional)
-        """
-        if msg is None:
-            msg = f"Path #{origin._path_id} set as origin on {origin}; should be None!"
-        self.assertIsNone(origin._path_id, msg=msg)
-
     def test_101_interface_to_interface(self):
         """
         [IF1] --C1-- [IF2]
@@ -2269,6 +2190,55 @@ class CablePathTestCase(TestCase):
         # Test SVG generation both directions
         CableTraceSVG(interface1).render()
         CableTraceSVG(interface2).render()
+
+    def test_223_single_path_via_multiple_pass_throughs_with_breakouts(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
+        [IF2]        [FP2] [RP2]        [IF4]
+        """
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
+        interface4 = Interface.objects.create(device=self.device, name='Interface 4')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
+        frontport1 = FrontPort.objects.create(
+            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        )
+        frontport2 = FrontPort.objects.create(
+            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
+        )
+
+        # Create cables
+        cable1 = Cable(
+            a_terminations=[interface1, interface2],
+            b_terminations=[frontport1, frontport2]
+        )
+        cable1.save()
+        cable2 = Cable(
+            a_terminations=[rearport1, rearport2],
+            b_terminations=[interface3, interface4]
+        )
+        cable2.save()
+
+        # Validate paths
+        self.assertPathExists(
+            (
+                [interface1, interface2], cable1, [frontport1, frontport2],
+                [rearport1, rearport2], cable2, [interface3, interface4],
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathExists(
+            (
+                [interface3, interface4], cable2, [rearport1, rearport2],
+                [frontport1, frontport2], cable1, [interface1, interface2],
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
 
     def test_301_create_path_via_existing_cable(self):
         """

@@ -21,6 +21,14 @@ RACK_STARTING_UNIT_DEFAULT = 1
 
 
 #
+# Cables
+#
+
+CABLE_POSITION_MIN = 1
+CABLE_POSITION_MAX = 1024
+
+
+#
 # RearPorts
 #
 

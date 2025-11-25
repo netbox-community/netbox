@@ -1119,7 +1119,7 @@ class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('site_id', 'location_id', 'rack_id', 'device_id', name=_('Location')),
-        FieldSet('type', 'status', 'color', 'length', 'length_unit', 'unterminated', name=_('Attributes')),
+        FieldSet('type', 'status', 'profile', 'color', 'length', 'length_unit', 'unterminated', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -1174,6 +1174,11 @@ class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         label=_('Status'),
         required=False,
         choices=add_blank_choice(LinkStatusChoices)
+    )
+    profile = forms.MultipleChoiceField(
+        label=_('Profile'),
+        required=False,
+        choices=add_blank_choice(CableProfileChoices)
     )
     color = ColorField(
         label=_('Color'),
