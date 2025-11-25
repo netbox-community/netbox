@@ -134,11 +134,18 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
 
             # Enqueue a Job to record the script's execution
             from extras.jobs import ScriptJob
+            params = {
+                "instance": event_rule.action_object,
+                "name": script.name,
+                "user": user,
+                "data": event_data
+            }
+            if snapshots:
+                params["snapshots"] = snapshots
+            if request:
+                params["request"] = copy_safe_request(request)
             ScriptJob.enqueue(
-                instance=event_rule.action_object,
-                name=script.name,
-                user=user,
-                data=event_data
+                **params
             )
 
         # Notification groups

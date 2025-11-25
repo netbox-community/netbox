@@ -291,11 +291,6 @@ class RackBaseFilterForm(PrimaryModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    airflow = forms.MultipleChoiceField(
-        label=_('Airflow'),
-        choices=add_blank_choice(RackAirflowChoices),
-        required=False
-    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -398,6 +393,11 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
             'manufacturer_id': '$manufacturer_id'
         },
         label=_('Rack type')
+    )
+    airflow = forms.MultipleChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(RackAirflowChoices),
+        required=False
     )
     serial = forms.CharField(
         label=_('Serial'),

@@ -2191,7 +2191,81 @@ class LegacyCablePathTests(CablePathTestCase):
         CableTraceSVG(interface1).render()
         CableTraceSVG(interface2).render()
 
-    def test_223_single_path_via_multiple_pass_throughs_with_breakouts(self):
+    def test_223_interface_to_interface_via_multiple_circuit_terminations(self):
+        provider = Provider.objects.first()
+        circuit_type = CircuitType.objects.first()
+        circuit1 = self.circuit
+        circuit2 = Circuit.objects.create(provider=provider, type=circuit_type, cid='Circuit 2')
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        circuittermination1_A = CircuitTermination.objects.create(
+            circuit=circuit1,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination1_Z = CircuitTermination.objects.create(
+            circuit=circuit1,
+            termination=self.site,
+            term_side='Z'
+        )
+        circuittermination2_A = CircuitTermination.objects.create(
+            circuit=circuit2,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2_Z = CircuitTermination.objects.create(
+            circuit=circuit2,
+            termination=self.site,
+            term_side='Z'
+        )
+
+        # Create cables
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[circuittermination1_A, circuittermination2_A]
+        )
+        cable2 = Cable(
+            a_terminations=[interface2],
+            b_terminations=[circuittermination1_Z, circuittermination2_Z]
+        )
+        cable1.save()
+        cable2.save()
+
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        path1 = self.assertPathExists(
+            (
+                interface1,
+                cable1,
+                (circuittermination1_A, circuittermination2_A),
+                (circuittermination1_Z, circuittermination2_Z),
+                cable2,
+                interface2
+
+            ),
+            is_active=True,
+            is_complete=True,
+        )
+        interface1.refresh_from_db()
+        self.assertPathIsSet(interface1, path1)
+
+        path2 = self.assertPathExists(
+            (
+                interface2,
+                cable2,
+                (circuittermination1_Z, circuittermination2_Z),
+                (circuittermination1_A, circuittermination2_A),
+                cable1,
+                interface1
+
+            ),
+            is_active=True,
+            is_complete=True,
+        )
+        interface2.refresh_from_db()
+        self.assertPathIsSet(interface2, path2)
+
+    def test_224_single_path_via_multiple_pass_throughs_with_breakouts(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
         [IF2]        [FP2] [RP2]        [IF4]
@@ -2480,3 +2554,33 @@ class LegacyCablePathTests(CablePathTestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 0)
+
+    def test_402_exclude_circuit_loopback(self):
+        interface = Interface.objects.create(device=self.device, name='Interface 1')
+        circuittermination1 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='A'
+        )
+        circuittermination2 = CircuitTermination.objects.create(
+            circuit=self.circuit,
+            termination=self.site,
+            term_side='Z'
+        )
+
+        # Create cables
+        cable = Cable(
+            a_terminations=[interface],
+            b_terminations=[circuittermination1, circuittermination2]
+        )
+        cable.save()
+
+        path = self.assertPathExists(
+            (interface, cable, (circuittermination1, circuittermination2)),
+            is_active=True,
+            is_complete=False,
+            is_split=True
+        )
+        self.assertEqual(CablePath.objects.count(), 1)
+        interface.refresh_from_db()
+        self.assertPathIsSet(interface, path)

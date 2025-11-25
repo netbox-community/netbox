@@ -29,6 +29,6 @@ class ConfigTemplateSerializer(
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'environment_params', 'template_code',
             'mime_type', 'file_name', 'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file',
-            'data_synced', 'owner', 'tags', 'created', 'last_updated',
+            'auto_sync_enabled', 'data_synced', 'owner', 'tags', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

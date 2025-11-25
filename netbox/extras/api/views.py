@@ -276,6 +276,14 @@ class ScriptViewSet(ModelViewSet):
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
 
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+
+        # Restrict the view's QuerySet to allow only the permitted objects
+        if request.user.is_authenticated:
+            action = 'run' if request.method == 'POST' else 'view'
+            self.queryset = self.queryset.restrict(request.user, action)
+
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
         if pk.isnumeric():
@@ -299,10 +307,12 @@ class ScriptViewSet(ModelViewSet):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
-        if not request.user.has_perm('extras.run_script'):
-            raise PermissionDenied("This user does not have permission to run scripts.")
 
         script = self._get_script(pk)
+
+        if not request.user.has_perm('extras.run_script', obj=script):
+            raise PermissionDenied("This user does not have permission to run this script.")
+
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
             context={'script': script}

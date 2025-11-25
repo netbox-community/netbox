@@ -250,6 +250,9 @@ SESSION_FILE_PATH = None
 #     },
 #     "scripts": {
 #         "BACKEND": "extras.storage.ScriptFileSystemStorage",
+#         "OPTIONS": {
+#             "allow_overwrite": True,
+#         },
 #     },
 # }
 

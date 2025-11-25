@@ -89,8 +89,8 @@ class RackTypeTable(PrimaryModelTable):
         model = RackType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description',
-            'comments', 'rack_count', 'tags', 'created', 'last_updated',
+            'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description', 'comments',
+            'rack_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'rack_count',

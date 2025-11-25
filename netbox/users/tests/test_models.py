@@ -1,6 +1,72 @@
-from django.test import TestCase
+from datetime import timedelta
 
-from users.models import User
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+from django.utils import timezone
+
+from users.models import User, Token
+from utilities.testing import create_test_user
+
+
+class TokenTest(TestCase):
+    """
+    Test class for testing the functionality of the Token model.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        """
+        Set up test data for the Token model.
+        """
+        cls.user = create_test_user('User 1')
+
+    def test_is_expired(self):
+        """
+        Test the is_expired property.
+        """
+        # Token with no expiration
+        token = Token(user=self.user, expires=None)
+        self.assertFalse(token.is_expired)
+
+        # Token with future expiration
+        token.expires = timezone.now() + timedelta(days=1)
+        self.assertFalse(token.is_expired)
+
+        # Token with past expiration
+        token.expires = timezone.now() - timedelta(days=1)
+        self.assertTrue(token.is_expired)
+
+    def test_cannot_create_token_with_past_expiration(self):
+        """
+        Test that creating a token with an expiration date in the past raises a ValidationError.
+        """
+        past_date = timezone.now() - timedelta(days=1)
+        token = Token(user=self.user, expires=past_date)
+
+        with self.assertRaises(ValidationError) as cm:
+            token.clean()
+        self.assertIn('expires', cm.exception.error_dict)
+
+    def test_can_update_existing_expired_token(self):
+        """
+        Test that updating an already expired token does NOT raise a ValidationError.
+        """
+        # Create a valid token first with an expiration date in the past
+        # bypasses the clean() method
+        token = Token.objects.create(user=self.user)
+        token.expires = timezone.now() - timedelta(days=1)
+        token.save()
+
+        # Try to update the description
+        token.description = 'New Description'
+        try:
+            token.clean()
+            token.save()
+        except ValidationError:
+            self.fail('Updating an expired token should not raise ValidationError')
+
+        token.refresh_from_db()
+        self.assertEqual(token.description, 'New Description')
 
 
 class UserConfigTest(TestCase):

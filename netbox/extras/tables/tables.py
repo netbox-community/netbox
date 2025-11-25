@@ -668,6 +668,10 @@ class ConfigTemplateTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Synced')
     )
+    auto_sync_enabled = columns.BooleanColumn(
+        verbose_name=_('Auto Sync Enabled'),
+        orderable=False,
+    )
     mime_type = tables.Column(
         verbose_name=_('MIME Type')
     )
