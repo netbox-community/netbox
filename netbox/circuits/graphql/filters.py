@@ -4,7 +4,7 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import FilterLookup, DateFilterLookup
+from strawberry_django import BaseFilterLookup, FilterLookup, DateFilterLookup
 
 from circuits import models
 from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
@@ -52,7 +52,9 @@ class CircuitTerminationFilter(
     circuit: Annotated['CircuitFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    term_side: Annotated['CircuitTerminationSideEnum', strawberry.lazy('circuits.graphql.enums')] | None = (
+    term_side: (
+        BaseFilterLookup[Annotated['CircuitTerminationSideEnum', strawberry.lazy('circuits.graphql.enums')]] | None
+    ) = (
         strawberry_django.filter_field()
     )
     termination_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
@@ -108,7 +110,7 @@ class CircuitFilter(
         strawberry_django.filter_field()
     )
     type_id: ID | None = strawberry_django.filter_field()
-    status: Annotated['CircuitStatusEnum', strawberry.lazy('circuits.graphql.enums')] | None = (
+    status: BaseFilterLookup[Annotated['CircuitStatusEnum', strawberry.lazy('circuits.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     install_date: DateFilterLookup[date] | None = strawberry_django.filter_field()
@@ -143,7 +145,7 @@ class CircuitGroupAssignmentFilter(
         strawberry_django.filter_field()
     )
     group_id: ID | None = strawberry_django.filter_field()
-    priority: Annotated['CircuitPriorityEnum', strawberry.lazy('circuits.graphql.enums')] | None = (
+    priority: BaseFilterLookup[Annotated['CircuitPriorityEnum', strawberry.lazy('circuits.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
 
@@ -198,7 +200,7 @@ class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
         strawberry_django.filter_field()
     )
     type_id: ID | None = strawberry_django.filter_field()
-    status: Annotated['CircuitStatusEnum', strawberry.lazy('circuits.graphql.enums')] | None = (
+    status: BaseFilterLookup[Annotated['CircuitStatusEnum', strawberry.lazy('circuits.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     group_assignments: Annotated['CircuitGroupAssignmentFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
@@ -214,7 +216,11 @@ class VirtualCircuitTerminationFilter(
         strawberry_django.filter_field()
     )
     virtual_circuit_id: ID | None = strawberry_django.filter_field()
-    role: Annotated['VirtualCircuitTerminationRoleEnum', strawberry.lazy('circuits.graphql.enums')] | None = (
+    role: (
+        BaseFilterLookup[
+            Annotated['VirtualCircuitTerminationRoleEnum', strawberry.lazy('circuits.graphql.enums')]
+        ] | None
+    ) = (
         strawberry_django.filter_field()
     )
     interface: Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
