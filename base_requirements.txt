@@ -36,6 +36,11 @@ django-mptt
 # https://github.com/Xof/django-pglocks/blob/master/CHANGES.txt
 django-pglocks
 
+
+# Manager for managing PostgreSQL triggers
+# https://github.com/AmbitionEng/django-pgtrigger/blob/main/CHANGELOG.md
+django-pgtrigger
+
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus/blob/master/CHANGELOG.md
 django-prometheus
