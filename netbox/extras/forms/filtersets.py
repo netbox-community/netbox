@@ -43,17 +43,20 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet(
-            'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'unique', 'choice_set_id',
-            name=_('Attributes')
-        ),
+        FieldSet('object_type_id', 'type', 'group_name', 'weight', 'required', 'unique', name=_('Attributes')),
+        FieldSet('choice_set_id', 'related_object_type_id', name=_('Type Options')),
         FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
         FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
     )
-    related_object_type_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
-        label=_('Related object type')
+        label=_('Object types'),
+    )
+    related_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.public(),
+        required=False,
+        label=_('Related object type'),
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
@@ -147,12 +150,12 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomLink
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'new_window', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
-        required=False
+        required=False,
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -251,12 +254,12 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     model = SavedFilter
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.public(),
-        required=False
+        required=False,
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -521,7 +524,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+        FieldSet('data_source_id', 'data_file_id', 'auto_sync_enabled', name=_('Data')),
         FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
@@ -536,6 +539,13 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
         query_params={
             'source_id': '$data_source_id'
         }
+    )
+    auto_sync_enabled = forms.NullBooleanField(
+        label=_('Auto sync enabled'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     tag = TagFilterField(ConfigTemplate)
     mime_type = forms.CharField(

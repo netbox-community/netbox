@@ -232,6 +232,9 @@ STORAGES = {
     },
     "scripts": {
         "BACKEND": "extras.storage.ScriptFileSystemStorage",
+        "OPTIONS": {
+            "allow_overwrite": True,
+        },
     },
 }
 ```
@@ -247,6 +250,7 @@ STORAGES = {
         "OPTIONS": { 
             'access_key': 'access key', 
             'secret_key': 'secret key',
+            "allow_overwrite": True,
         }
     }, 
 }

@@ -5,7 +5,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType
+from core.models import DataFile, DataSource, ObjectType
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
@@ -160,13 +160,40 @@ class ConfigContextProfileImportForm(PrimaryModelImportForm):
 
 
 class ConfigTemplateImportForm(OwnerCSVMixin, CSVModelForm):
+    data_source = CSVModelChoiceField(
+        label=_('Data source'),
+        queryset=DataSource.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Data source which provides the data file')
+    )
+    data_file = CSVModelChoiceField(
+        label=_('Data file'),
+        queryset=DataFile.objects.all(),
+        required=False,
+        to_field_name='path',
+        help_text=_('Data file containing the template code')
+    )
+    auto_sync_enabled = forms.BooleanField(
+        required=False,
+        label=_('Auto sync enabled'),
+        help_text=_("Enable automatic synchronization of template content when the data file is updated")
+    )
 
     class Meta:
         model = ConfigTemplate
         fields = (
-            'name', 'description', 'template_code', 'environment_params', 'mime_type', 'file_name', 'file_extension',
-            'as_attachment', 'owner', 'tags',
+            'name', 'description', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled',
+            'environment_params', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'owner', 'tags',
         )
+
+    def clean(self):
+        super().clean()
+
+        # Make sure template_code is None when it's not included in the uploaded data
+        if not self.data.get('template_code') and not self.data.get('data_file'):
+            raise forms.ValidationError(_("Must specify either local content or a data file"))
+        return self.cleaned_data['template_code']
 
 
 class SavedFilterImportForm(OwnerCSVMixin, CSVModelForm):

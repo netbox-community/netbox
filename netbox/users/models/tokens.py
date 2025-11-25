@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import random
+import zoneinfo
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -180,11 +181,28 @@ class Token(models.Model):
                 self.update_digest()
 
     def clean(self):
+        super().clean()
+
         if self._state.adding:
             if self.pepper_id is not None and self.pepper_id not in settings.API_TOKEN_PEPPERS:
                 raise ValidationError(_(
                     "Invalid pepper ID: {id}. Check configured API_TOKEN_PEPPERS."
                 ).format(id=self.pepper_id))
+
+        # Prevent creating a token with a past expiration date
+        # while allowing updates to existing tokens.
+        if self.pk is None and self.is_expired:
+            current_tz = zoneinfo.ZoneInfo(settings.TIME_ZONE)
+            now = timezone.now().astimezone(current_tz)
+            current_time_str = f'{now.date().isoformat()} {now.time().isoformat(timespec="seconds")}'
+
+            # Translators: {current_time} is the current server date and time in ISO format,
+            # {timezone} is the configured server time zone (for example, "UTC" or "Europe/Berlin").
+            message = _(
+                'Expiration time must be in the future. Current server time is {current_time} ({timezone}).'
+            ).format(current_time=current_time_str, timezone=current_tz.key)
+
+            raise ValidationError({'expires': message})
 
     def save(self, *args, **kwargs):
         # If creating a new Token and no token value has been specified, generate one

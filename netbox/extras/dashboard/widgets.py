@@ -209,7 +209,10 @@ class ObjectCountsWidget(DashboardWidget):
                     url = get_action_url(model, action='list')
                 except NoReverseMatch:
                     url = None
-                qs = model.objects.restrict(request.user, 'view')
+                try:
+                    qs = model.objects.restrict(request.user, 'view')
+                except AttributeError:
+                    qs = model.objects.all()
                 # Apply any specified filters
                 if url and (filters := self.config.get('filters')):
                     params = dict_to_querydict(filters)
