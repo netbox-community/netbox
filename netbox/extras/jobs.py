@@ -2,10 +2,11 @@ import logging
 import traceback
 from contextlib import ExitStack
 
-from django.db import transaction
+from django.db import router, transaction
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from dcim.models import Device
 from extras.models import Script as ScriptModel
 from netbox.jobs import JobRunner
 from netbox.registry import registry
@@ -42,7 +43,7 @@ class ScriptJob(JobRunner):
                 # A script can modify multiple models so need to do an atomic lock on
                 # both the default database (for non ChangeLogged models) and potentially
                 # any other database (for ChangeLogged models)
-                with transaction.atomic():
+                with transaction.atomic(using=router.db_for_write(Device)):
                     script.output = script.run(data, commit)
                     if not commit:
                         raise AbortTransaction()
@@ -108,14 +109,15 @@ class ScriptJob(JobRunner):
         script.request = request
         self.logger.debug(f"Request ID: {request.id if request else None}")
 
-        # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
-        # change logging, event rules, etc.
+        # Execute the script. Always use request processors to set up the execution context (e.g. branch activation).
+        # The event_tracking context manager is one of the request processors and will be activated regardless of
+        # the commit flag, but it only records changes when commit=True.
         if commit:
             self.logger.info("Executing script (commit enabled)")
-            with ExitStack() as stack:
-                for request_processor in registry['request_processors']:
-                    stack.enter_context(request_processor(request))
-                self.run_script(script, request, data, commit)
         else:
             self.logger.warning("Executing script (commit disabled)")
+
+        with ExitStack() as stack:
+            for request_processor in registry['request_processors']:
+                stack.enter_context(request_processor(request))
             self.run_script(script, request, data, commit)
