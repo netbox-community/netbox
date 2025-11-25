@@ -479,7 +479,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+        FieldSet('data_source_id', 'data_file_id', 'auto_sync_enabled', name=_('Data')),
         FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
@@ -494,6 +494,13 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
         query_params={
             'source_id': '$data_source_id'
         }
+    )
+    auto_sync_enabled = forms.NullBooleanField(
+        label=_('Auto sync enabled'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     tag = TagFilterField(ConfigTemplate)
     mime_type = forms.CharField(
