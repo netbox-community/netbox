@@ -18,7 +18,8 @@ from ipam.fields import IPNetworkField, IPAddressField
 from ipam.lookups import Host
 from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
-from ipam.triggers import ipam_prefix_delete_adjust_prefix_parent, ipam_prefix_insert_adjust_prefix_parent
+from ipam.triggers import ipam_prefix_delete_adjust_prefix_parent, ipam_prefix_insert_adjust_prefix_parent, \
+    ipam_prefix_update_adjust_prefix_parent
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -196,7 +197,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     """
     aggregate = models.ForeignKey(
         to='ipam.Aggregate',
-        on_delete=models.SET_NULL,
+        on_delete=models.SET_NULL,  # This is handled by triggers
         related_name='prefixes',
         blank=True,
         null=True,
@@ -204,7 +205,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     )
     parent = models.ForeignKey(
         to='ipam.Prefix',
-        on_delete=models.SET_NULL,
+        on_delete=models.DO_NOTHING,
         related_name='children',
         blank=True,
         null=True,
@@ -301,6 +302,12 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                 operation=pgtrigger.Insert,
                 when=pgtrigger.After,
                 func=ipam_prefix_insert_adjust_prefix_parent,
+            ),
+            pgtrigger.Trigger(
+                name='ipam_prefix_update',
+                operation=pgtrigger.Update,
+                when=pgtrigger.After,
+                func=ipam_prefix_update_adjust_prefix_parent,
             ),
         ]
 
@@ -533,11 +540,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         prefixes = Prefix.objects.filter(
             models.Q(
                 vrf=network.vrf,
-                prefix__net_contains=str(network)
+                prefix__net_contains=str(network.prefix)
             ) | models.Q(
                 vrf=None,
                 status=PrefixStatusChoices.STATUS_CONTAINER,
-                prefix__net_contains=str(network),
+                prefix__net_contains=str(network.prefix),
             )
         )
         return prefixes.last()

@@ -6,7 +6,6 @@ import time
 from django.db import migrations, models
 
 from ipam.choices import PrefixStatusChoices
-from ipam.models import Prefix
 
 
 def draw_progress(count, total, length=20):

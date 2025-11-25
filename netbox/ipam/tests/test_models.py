@@ -1,5 +1,3 @@
-from time import sleep
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
@@ -664,109 +662,105 @@ class TestTriggers(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        prefixes = (
-            # IPv4
-            Prefix(prefix='10.0.0.0/8'),
-            Prefix(prefix='10.0.0.0/16'),
-            Prefix(prefix='10.0.0.0/24'),
-            Prefix(prefix='192.168.0.0/16'),
-            # IPv6
-            Prefix(prefix='2001:db8::/32'),
-            Prefix(prefix='2001:db8::/40'),
-            Prefix(prefix='2001:db8::/48'),
-        )
-
-        for prefix in prefixes:
-            prefix.clean()
-            prefix.save()
-
         vrfs = (
             VRF(name='VRF A'),
             VRF(name='VRF B'),
         )
 
-        for prefix in prefixes:
-            prefix.clean()
-            prefix.save()
-
         for vrf in vrfs:
             vrf.clean()
             vrf.save()
 
+        cls.prefixes = (
+            # IPv4
+            Prefix(prefix='10.0.0.0/8'),
+            Prefix(prefix='10.0.0.0/16'),
+            Prefix(prefix='10.0.0.0/22'),
+            Prefix(prefix='10.0.0.0/23'),
+            Prefix(prefix='10.0.2.0/23'),
+            Prefix(prefix='10.0.0.0/24'),
+            Prefix(prefix='10.0.1.0/24'),
+            Prefix(prefix='10.0.2.0/24'),
+            Prefix(prefix='10.0.3.0/24'),
+            Prefix(prefix='10.1.0.0/16', status='container'),
+            Prefix(prefix='10.1.0.0/22', vrf=vrfs[0]),
+            Prefix(prefix='10.1.0.0/23', vrf=vrfs[0]),
+            Prefix(prefix='10.1.2.0/23', vrf=vrfs[0]),
+            Prefix(prefix='10.1.0.0/24', vrf=vrfs[0]),
+            Prefix(prefix='10.1.1.0/24', vrf=vrfs[0]),
+            Prefix(prefix='10.1.2.0/24', vrf=vrfs[0]),
+            Prefix(prefix='10.1.3.0/24', vrf=vrfs[0]),
+        )
+
+        for prefix in cls.prefixes:
+            prefix.clean()
+            prefix.save()
+
     def test_current_hierarchy(self):
         self.assertIsNone(Prefix.objects.get(prefix='10.0.0.0/8').parent)
-        self.assertIsNone(Prefix.objects.get(prefix='192.168.0.0/16').parent)
-        self.assertIsNone(Prefix.objects.get(prefix='2001:db8::/32').parent)
-
-        self.assertIsNotNone(Prefix.objects.get(prefix='10.0.0.0/16').parent)
-        self.assertIsNotNone(Prefix.objects.get(prefix='10.0.0.0/24').parent)
-
-        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/40').parent)
-        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/48').parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/16').parent, Prefix.objects.get(prefix='10.0.0.0/8'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/22').parent, Prefix.objects.get(prefix='10.0.0.0/16'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/23').parent, Prefix.objects.get(prefix='10.0.0.0/22'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.2.0/23').parent, Prefix.objects.get(prefix='10.0.0.0/22'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/24').parent, Prefix.objects.get(prefix='10.0.0.0/23'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.1.0/24').parent, Prefix.objects.get(prefix='10.0.0.0/23'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.2.0/24').parent, Prefix.objects.get(prefix='10.0.2.0/23'))
+        self.assertEqual(Prefix.objects.get(prefix='10.0.3.0/24').parent, Prefix.objects.get(prefix='10.0.2.0/23'))
 
     def test_basic_insert(self):
-        pfx = Prefix.objects.create(prefix='2001:db8::/44')
-        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/48').parent)
-        self.assertEqual(Prefix.objects.get(prefix='2001:db8::/48').parent, pfx)
+        pfx = Prefix.objects.create(prefix='10.0.0.0/21')
+        self.assertIsNotNone(Prefix.objects.get(prefix='10.0.0.0/22').parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/22').parent, pfx)
 
     def test_vrf_insert(self):
         vrf = VRF.objects.get(name='VRF A')
-        pfx = Prefix.objects.create(prefix='2001:db8::/44', vrf=vrf)
-        parent = Prefix.objects.get(prefix='2001:db8::/40')
-        self.assertIsNotNone(Prefix.objects.get(prefix='2001:db8::/48').parent)
-        self.assertNotEqual(Prefix.objects.get(prefix='2001:db8::/48').parent, pfx)
-        self.assertEqual(Prefix.objects.get(prefix='2001:db8::/48').parent, parent)
+        pfx = Prefix.objects.create(prefix='10.1.0.0/21', vrf=vrf)
+        parent = Prefix.objects.get(prefix='10.1.0.0/16')
 
-        prefixes = (
-            Prefix(prefix='10.2.0.0/16', vrf=vrf),
-            Prefix(prefix='10.2.0.0/24', vrf=vrf),
-        )
-
-        for prefix in prefixes:
-            prefix.clean()
-            prefix.save()
-
-        self.assertIsNone(Prefix.objects.get(pk=prefixes[0].pk).parent)
-        self.assertEqual(Prefix.objects.get(pk=prefixes[1].pk).parent, prefixes[0])
-
-        new_pfx = Prefix.objects.create(prefix='10.2.0.0/23', vrf=vrf)
-
-        self.assertIsNone(Prefix.objects.get(pk=prefixes[0].pk).parent)
-        self.assertEqual(new_pfx.parent, prefixes[0])
-        self.assertEqual(Prefix.objects.get(pk=prefixes[1].pk).parent, new_pfx)
+        self.assertIsNotNone(Prefix.objects.get(prefix='10.1.0.0/21').parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.1.0.0/21').parent, parent)
+        self.assertIsNotNone(Prefix.objects.get(prefix='10.1.0.0/22').parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.1.0.0/22').parent, pfx)
 
     def test_basic_delete(self):
-        prefixes = (
-            Prefix(prefix='10.2.0.0/16'),
-            Prefix(prefix='10.2.0.0/23'),
-            Prefix(prefix='10.2.0.0/24'),
-        )
-        for prefix in prefixes:
-            prefix.clean()
-            prefix.save()
+        Prefix.objects.get(prefix='10.0.0.0/23').delete()
+        parent = Prefix.objects.get(prefix='10.0.0.0/22')
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.0.1.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.0.2.0/24').parent, Prefix.objects.get(prefix='10.0.2.0/23'))
 
     def test_vrf_delete(self):
-        vrf = VRF.objects.get(name='VRF A')
+        Prefix.objects.get(prefix='10.1.0.0/23').delete()
+        parent = Prefix.objects.get(prefix='10.1.0.0/22')
+        self.assertEqual(Prefix.objects.get(prefix='10.1.0.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.1.1.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.1.2.0/24').parent, Prefix.objects.get(prefix='10.1.2.0/23'))
 
-        prefixes = (
-            Prefix(prefix='10.2.0.0/16', vrf=vrf),
-            Prefix(prefix='10.2.0.0/23', vrf=vrf),
-            Prefix(prefix='10.2.0.0/24', vrf=vrf),
-        )
+    def test_basic_update(self):
+        pfx = Prefix.objects.get(prefix='10.0.0.0/23')
+        parent = Prefix.objects.get(prefix='10.0.0.0/22')
+        pfx.prefix = '10.3.0.0/23'
+        pfx.parent = Prefix.objects.get(prefix='10.0.0.0/8')
+        pfx.clean()
+        pfx.save()
 
-        for prefix in prefixes:
-            prefix.clean()
-            prefix.save()
+        self.assertEqual(Prefix.objects.get(prefix='10.0.0.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.0.1.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.0.2.0/24').parent, Prefix.objects.get(prefix='10.0.2.0/23'))
 
-        self.assertIsNone(prefixes[0].parent)
-        self.assertEqual(prefixes[1].parent, prefixes[0])
-        self.assertEqual(prefixes[2].parent, prefixes[1])
+    def test_vrf_update(self):
+        pfx = Prefix.objects.get(prefix='10.1.0.0/23')
+        parent = Prefix.objects.get(prefix='10.1.0.0/22')
+        pfx.prefix = '10.3.0.0/23'
+        pfx.parent = None
+        pfx.clean()
+        pfx.save()
 
-        prefixes[1].delete()
-        prefixes[2].refresh_from_db()
+        self.assertEqual(Prefix.objects.get(prefix='10.1.0.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.1.1.0/24').parent, parent)
+        self.assertEqual(Prefix.objects.get(prefix='10.1.2.0/24').parent, Prefix.objects.get(prefix='10.1.2.0/23'))
 
-        self.assertIsNone(prefixes[0].parent)
-        self.assertEqual(prefixes[2].parent, prefixes[0])
+        # TODO: Test VRF Changes
 
 
 class TestIPAddress(TestCase):

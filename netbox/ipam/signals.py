@@ -1,12 +1,9 @@
-from django.db.models import Q
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
-from netaddr.ip import IPNetwork
 
 from dcim.models import Device
 from virtualization.models import VirtualMachine
-from .choices import PrefixStatusChoices
-from .models import IPAddress, Prefix, IPRange
+from .models import IPAddress, Prefix
 
 
 def update_parents_children(prefix):
