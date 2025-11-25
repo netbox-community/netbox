@@ -109,9 +109,6 @@ class ScriptJob(JobRunner):
         script.request = request
         self.logger.debug(f"Request ID: {request.id if request else None}")
 
-        # Execute the script. Always use request processors to set up the execution context (e.g. branch activation).
-        # The event_tracking context manager is one of the request processors and will be activated regardless of
-        # the commit flag, but it only records changes when commit=True.
         if commit:
             self.logger.info("Executing script (commit enabled)")
         else:
