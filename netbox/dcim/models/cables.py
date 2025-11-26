@@ -954,16 +954,23 @@ class CablePath(models.Model):
 
         # RearPort splitting to multiple FrontPorts with no stack position
         if type(nodes[0]) is RearPort:
-            return FrontPort.objects.filter(rear_port__in=nodes)
+            return [
+                mapping.front_port for mapping in
+                PortMapping.objects.filter(rear_port__in=nodes).prefetch_related('front_port')
+            ]
         # Cable terminating to multiple FrontPorts mapped to different
         # RearPorts connected to different cables
-        elif type(nodes[0]) is FrontPort:
-            return RearPort.objects.filter(pk__in=[fp.rear_port_id for fp in nodes])
+        if type(nodes[0]) is FrontPort:
+            return [
+                mapping.rear_port for mapping in
+                PortMapping.objects.filter(front_port__in=nodes).prefetch_related('rear_port')
+            ]
         # Cable terminating to multiple CircuitTerminations
-        elif type(nodes[0]) is CircuitTermination:
+        if type(nodes[0]) is CircuitTermination:
             return [
                 ct.get_peer_termination() for ct in nodes
             ]
+        return []
 
     def get_asymmetric_nodes(self):
         """
