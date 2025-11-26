@@ -13,6 +13,7 @@ __all__ = (
     'InterfaceTemplateImportForm',
     'InventoryItemTemplateImportForm',
     'ModuleBayTemplateImportForm',
+    'PortTemplateMappingImportForm',
     'PowerOutletTemplateImportForm',
     'PowerPortTemplateImportForm',
     'RearPortTemplateImportForm',
@@ -131,6 +132,25 @@ class RearPortTemplateImportForm(forms.ModelForm):
         model = RearPortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'type', 'color', 'positions', 'label', 'description',
+        ]
+
+
+class PortTemplateMappingImportForm(forms.ModelForm):
+    front_port = forms.ModelChoiceField(
+        label=_('Front port'),
+        queryset=FrontPortTemplate.objects.all(),
+        to_field_name='name',
+    )
+    rear_port = forms.ModelChoiceField(
+        label=_('Rear port'),
+        queryset=RearPortTemplate.objects.all(),
+        to_field_name='name',
+    )
+
+    class Meta:
+        model = PortTemplateMapping
+        fields = [
+            'front_port', 'front_port_position', 'rear_port', 'rear_port_position',
         ]
 
 

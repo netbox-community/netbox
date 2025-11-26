@@ -865,12 +865,16 @@ rear-ports:
 front-ports:
   - name: Front Port 1
     type: 8p8c
-    rear_port: Rear Port 1
   - name: Front Port 2
     type: 8p8c
-    rear_port: Rear Port 2
   - name: Front Port 3
     type: 8p8c
+port-mappings:
+  - front_port: Front Port 1
+    rear_port: Rear Port 1
+  - front_port: Front Port 2
+    rear_port: Rear Port 2
+  - front_port: Front Port 3
     rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
@@ -970,6 +974,12 @@ inventory-items:
         self.assertEqual(device_type.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
+
+        self.assertEqual(device_type.port_mappings.count(), 3)
+        mapping1 = PortTemplateMapping.objects.first()
+        self.assertEqual(mapping1.device_type, device_type)
+        self.assertEqual(mapping1.front_port, fp1)
+        self.assertEqual(mapping1.rear_port, rp1)
 
         self.assertEqual(device_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()
@@ -1394,6 +1404,13 @@ front-ports:
     type: 8p8c
   - name: Front Port 3
     type: 8p8c
+port-mappings:
+  - front_port: Front Port 1
+    rear_port: Rear Port 1
+  - front_port: Front Port 2
+    rear_port: Rear Port 2
+  - front_port: Front Port 3
+    rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
     position: 1
@@ -1470,6 +1487,12 @@ module-bays:
         self.assertEqual(module_type.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
+
+        self.assertEqual(module_type.port_mappings.count(), 3)
+        mapping1 = PortTemplateMapping.objects.first()
+        self.assertEqual(mapping1.module_type, module_type)
+        self.assertEqual(mapping1.front_port, fp1)
+        self.assertEqual(mapping1.rear_port, rp1)
 
         self.assertEqual(module_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()

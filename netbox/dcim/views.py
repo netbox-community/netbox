@@ -1516,6 +1516,7 @@ class DeviceTypeImportView(generic.BulkImportView):
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
+        'port-mappings': forms.PortTemplateMappingImportForm,
         'module-bays': forms.ModuleBayTemplateImportForm,
         'device-bays': forms.DeviceBayTemplateImportForm,
         'inventory-items': forms.InventoryItemTemplateImportForm,
@@ -1820,6 +1821,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
+        'port-mappings': forms.PortTemplateMappingImportForm,
         'module-bays': forms.ModuleBayTemplateImportForm,
     }
 
