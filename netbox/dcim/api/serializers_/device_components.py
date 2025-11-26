@@ -19,7 +19,7 @@ from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
-from .base import ConnectedEndpointsSerializer
+from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
@@ -307,7 +307,7 @@ class RearPortMappingSerializer(serializers.ModelSerializer):
         fields = ('position', 'front_port', 'front_port_position')
 
 
-class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, PortSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -331,28 +331,6 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
-    def create(self, validated_data):
-        mappings = validated_data.pop('mappings', [])
-        instance = super().create(validated_data)
-
-        # Create FrontPort mappings
-        for attrs in mappings:
-            PortMapping.objects.create(rear_port=instance, **attrs)
-
-        return instance
-
-    def update(self, instance, validated_data):
-        mappings = validated_data.pop('mappings', None)
-        instance = super().update(instance, validated_data)
-
-        if mappings is not None:
-            # Update FrontPort mappings
-            PortMapping.objects.filter(rear_port=instance).delete()
-            for attrs in mappings:
-                PortMapping.objects.create(rear_port=instance, **attrs)
-
-        return instance
-
 
 class FrontPortMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
@@ -367,7 +345,7 @@ class FrontPortMappingSerializer(serializers.ModelSerializer):
         fields = ('position', 'rear_port', 'rear_port_position')
 
 
-class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, PortSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -390,28 +368,6 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
             'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
-
-    def create(self, validated_data):
-        mappings = validated_data.pop('mappings', [])
-        instance = super().create(validated_data)
-
-        # Create RearPort mappings
-        for attrs in mappings:
-            PortMapping.objects.create(front_port=instance, **attrs)
-
-        return instance
-
-    def update(self, instance, validated_data):
-        mappings = validated_data.pop('mappings', None)
-        instance = super().update(instance, validated_data)
-
-        if mappings is not None:
-            # Update RearPort mappings
-            PortMapping.objects.filter(front_port=instance).delete()
-            for attrs in mappings:
-                PortMapping.objects.create(front_port=instance, **attrs)
-
-        return instance
 
 
 class ModuleBaySerializer(NetBoxModelSerializer):

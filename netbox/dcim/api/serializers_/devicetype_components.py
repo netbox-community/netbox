@@ -12,6 +12,7 @@ from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from wireless.choices import *
+from .base import PortSerializer
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceTemplateSerializer
@@ -219,7 +220,7 @@ class RearPortTemplateMappingSerializer(serializers.ModelSerializer):
         fields = ('position', 'front_port', 'front_port_position')
 
 
-class RearPortTemplateSerializer(ComponentTemplateSerializer):
+class RearPortTemplateSerializer(ComponentTemplateSerializer, PortSerializer):
     device_type = DeviceTypeSerializer(
         required=False,
         nested=True,
@@ -247,28 +248,6 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
-    def create(self, validated_data):
-        mappings = validated_data.pop('mappings', [])
-        instance = super().create(validated_data)
-
-        # Create FrontPort mappings
-        for attrs in mappings:
-            PortTemplateMapping.objects.create(rear_port=instance, **attrs)
-
-        return instance
-
-    def update(self, instance, validated_data):
-        mappings = validated_data.pop('mappings', None)
-        instance = super().update(instance, validated_data)
-
-        if mappings is not None:
-            # Update FrontPort mappings
-            PortTemplateMapping.objects.filter(rear_port=instance).delete()
-            for attrs in mappings:
-                PortTemplateMapping.objects.create(rear_port=instance, **attrs)
-
-        return instance
-
 
 class FrontPortTemplateMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
@@ -283,7 +262,7 @@ class FrontPortTemplateMappingSerializer(serializers.ModelSerializer):
         fields = ('position', 'rear_port', 'rear_port_position')
 
 
-class FrontPortTemplateSerializer(ComponentTemplateSerializer):
+class FrontPortTemplateSerializer(ComponentTemplateSerializer, PortSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -310,28 +289,6 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
             'rear_ports', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
-
-    def create(self, validated_data):
-        mappings = validated_data.pop('mappings', [])
-        instance = super().create(validated_data)
-
-        # Create RearPort mappings
-        for attrs in mappings:
-            PortTemplateMapping.objects.create(front_port=instance, **attrs)
-
-        return instance
-
-    def update(self, instance, validated_data):
-        mappings = validated_data.pop('mappings', None)
-        instance = super().update(instance, validated_data)
-
-        if mappings is not None:
-            # Update RearPort assignments
-            PortTemplateMapping.objects.filter(front_port=instance).delete()
-            for attrs in mappings:
-                PortTemplateMapping.objects.create(front_port=instance, **attrs)
-
-        return instance
 
 
 class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
