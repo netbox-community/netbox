@@ -12,6 +12,7 @@ from drf_spectacular.utils import Direction
 
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import WritableNestedSerializer
+from netbox.api.viewsets import NetBoxModelViewSet
 
 # see netbox.api.routers.NetBoxRouter
 BULK_ACTIONS = ("bulk_destroy", "bulk_partial_update", "bulk_update")
@@ -47,6 +48,11 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
                     "label": label
                 }
             )
+
+
+def viewset_handles_bulk_create(view):
+    """Check if view automatically provides list-based bulk create"""
+    return isinstance(view, NetBoxModelViewSet)
 
 
 class NetBoxAutoSchema(AutoSchema):
@@ -127,6 +133,36 @@ class NetBoxAutoSchema(AutoSchema):
             return type(response_serializers)(many=True)
 
         return response_serializers
+
+    def _get_request_for_media_type(self, serializer, direction='request'):
+        """
+        Override to generate oneOf schema for serializers that support both
+        single object and array input (NetBoxModelViewSet POST operations).
+
+        Refs: #20638
+        """
+        # Get the standard schema first
+        schema, required = super()._get_request_for_media_type(serializer, direction)
+
+        # If this serializer supports arrays (marked in get_request_serializer),
+        # wrap the schema in oneOf to allow single object OR array
+        if (
+            direction == 'request' and
+            schema is not None and
+            getattr(self.view, 'action', None) == 'create' and
+            viewset_handles_bulk_create(self.view)
+        ):
+            return {
+                'oneOf': [
+                    schema,  # Single object
+                    {
+                        'type': 'array',
+                        'items': schema,  # Array of objects
+                    }
+                ]
+            }, required
+
+        return schema, required
 
     def _get_serializer_name(self, serializer, direction, bypass_extensions=False) -> str:
         name = super()._get_serializer_name(serializer, direction, bypass_extensions)

@@ -1,8 +1,10 @@
 import binascii
 import os
+import zoneinfo
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.urls import reverse
@@ -85,6 +87,24 @@ class Token(models.Model):
     @property
     def partial(self):
         return f'**********************************{self.key[-6:]}' if self.key else ''
+
+    def clean(self):
+        super().clean()
+
+        # Prevent creating a token with a past expiration date
+        # while allowing updates to existing tokens.
+        if self.pk is None and self.is_expired:
+            current_tz = zoneinfo.ZoneInfo(settings.TIME_ZONE)
+            now = timezone.now().astimezone(current_tz)
+            current_time_str = f'{now.date().isoformat()} {now.time().isoformat(timespec="seconds")}'
+
+            # Translators: {current_time} is the current server date and time in ISO format,
+            # {timezone} is the configured server time zone (for example, "UTC" or "Europe/Berlin").
+            message = _('Expiration time must be in the future. '
+                        'Current server time is {current_time} ({timezone}).'
+                        ).format(current_time=current_time_str, timezone=current_tz.key)
+
+            raise ValidationError({'expires': message})
 
     def save(self, *args, **kwargs):
         if not self.key:

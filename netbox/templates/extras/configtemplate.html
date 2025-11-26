@@ -62,6 +62,10 @@
             <th scope="row">{% trans "Data Synced" %}</th>
             <td>{{ object.data_synced|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Auto Sync Enabled" %}</th>
+            <td>{% checkmark object.auto_sync_enabled %}</td>
+          </tr>
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}

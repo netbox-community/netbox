@@ -894,18 +894,13 @@ class ScriptTest(APITestCase):
 
     def setUp(self):
         super().setUp()
+        self.add_permissions('extras.view_script')
 
         # Monkey-patch the Script model to return our TestScriptClass above
         Script.python_class = self.python_class
 
     def test_get_script(self):
-        module = ScriptModule.objects.get(
-            file_root=ManagedFileRootPathChoices.SCRIPTS,
-            file_path='script.py',
-        )
-        script = module.scripts.all().first()
-        url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
-        response = self.client.get(url, **self.header)
+        response = self.client.get(self.url, **self.header)
 
         self.assertEqual(response.data['name'], self.TestScriptClass.Meta.name)
         self.assertEqual(response.data['vars']['var1'], 'StringVar')

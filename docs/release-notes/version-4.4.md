@@ -1,5 +1,36 @@
 # NetBox v4.4
 
+## v4.4.7 (2025-11-25)
+
+### Enhancements
+
+* [#20371](https://github.com/netbox-community/netbox/issues/20371) - Add Molex Micro-Fit 2x3 for power ports & power outlets
+* [#20731](https://github.com/netbox-community/netbox/issues/20731) - Enable specifying `data_source` & `data_file` when bulk import config templates
+* [#20820](https://github.com/netbox-community/netbox/issues/20820) - Enable filtering of custom fields by object type
+* [#20823](https://github.com/netbox-community/netbox/issues/20823) - Disallow creation of API tokens with an expiration date in the past
+* [#20841](https://github.com/netbox-community/netbox/issues/20841) - Support advanced filtering for available rack types when creating/editing a rack
+
+### Bug Fixes
+
+* [#20134](https://github.com/netbox-community/netbox/issues/20134) - Prevent out-of-band HTMX content swaps in embedded tables
+* [#20432](https://github.com/netbox-community/netbox/issues/20432) - Fix tracing of cables across multiple circuits in parallel
+* [#20465](https://github.com/netbox-community/netbox/issues/20465) - Ensure that scripts are updated immediately when a new file is uploaded
+* [#20638](https://github.com/netbox-community/netbox/issues/20638) - Correct OpenAPI schema for bulk create operations
+* [#20649](https://github.com/netbox-community/netbox/issues/20649) - Enforce view permissions on REST API endpoint for custom scripts
+* [#20740](https://github.com/netbox-community/netbox/issues/20740) - Ensure permissions constraints are enforced when executing custom scripts via the REST API
+* [#20743](https://github.com/netbox-community/netbox/issues/20743) - Pass request context to custom script when triggered by an event rule
+* [#20766](https://github.com/netbox-community/netbox/issues/20766) - Fix inadvertent translations on server error page
+* [#20775](https://github.com/netbox-community/netbox/issues/20775) - Fix `TypeError` exception when bulk renaming unnamed devices
+* [#20822](https://github.com/netbox-community/netbox/issues/20822) - Add missing `auto_sync_enabled` field in bulk edit forms
+* [#20827](https://github.com/netbox-community/netbox/issues/20827) - Fix UI styling issue when toggling between light and dark mode
+* [#20839](https://github.com/netbox-community/netbox/issues/20839) - Fix filtering by object type in UI for custom links and saved filters
+* [#20840](https://github.com/netbox-community/netbox/issues/20840) - Remove extraneous references to airflow for RackType model
+* [#20844](https://github.com/netbox-community/netbox/issues/20844) - Fix object type filter for L2VPN terminations
+* [#20859](https://github.com/netbox-community/netbox/issues/20859) - Prevent dashboard crash due to exception raised by a widget
+* [#20865](https://github.com/netbox-community/netbox/issues/20865) - Enforce proper min/max values for latitude & longitude fields
+
+---
+
 ## v4.4.6 (2025-11-11)
 
 ### Enhancements
