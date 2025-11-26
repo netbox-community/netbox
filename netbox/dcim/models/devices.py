@@ -1,8 +1,7 @@
 import decimal
-import yaml
-
 from functools import cached_property
 
+import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -25,16 +24,14 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
-from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import WeightMixin
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
-from . import PortTemplateMapping
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module
-
 
 __all__ = (
     'Device',
@@ -1004,6 +1001,8 @@ class Device(
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())
+            # Replicate any front/rear port mappings from the DeviceType
+            create_port_mappings(self, self.device_type)
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.modulebaytemplates.all(), bulk_create=False)
             self._instantiate_components(self.device_type.devicebaytemplates.all())
@@ -1011,10 +1010,6 @@ class Device(
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
             # Interface bridges have to be set after interface instantiation
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
-            # Replicate any front/rear port mappings from the DeviceType
-            create_port_mappings(self, PortTemplateMapping.objects.filter(
-                front_port__device_type=self.device_type
-            ))
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)

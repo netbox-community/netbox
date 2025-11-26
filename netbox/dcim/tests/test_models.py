@@ -537,6 +537,8 @@ class DeviceTestCase(TestCase):
         )
         self.assertEqual(frontport.cf['cf1'], 'foo')
 
+        self.assertTrue(PortMapping.objects.filter(front_port=frontport, rear_port=rearport).exists())
+
         modulebay = ModuleBay.objects.get(
             device=device,
             name='Module Bay 1'
