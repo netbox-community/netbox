@@ -85,10 +85,10 @@ class TokenAuthenticationTestCase(APITestCase):
         token1.save()
         token2.enabled = False
         token2.save()
-        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token1.key}')
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token1.token}')
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data['detail'], 'Token disabled')
-        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}')
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}')
         self.assertEqual(response.status_code, 403)
         self.assertEqual(response.data['detail'], 'Token disabled')
 
