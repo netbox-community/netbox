@@ -16,6 +16,7 @@ from utilities.forms import get_field_value
 from utilities.forms.fields import CommentField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
+from core.choices import DataSourceStatusChoices
 
 __all__ = (
     'ConfigRevisionForm',
@@ -79,13 +80,23 @@ class DataSourceForm(NetBoxModelForm):
                 if self.instance and self.instance.parameters:
                     self.fields[field_name].initial = self.instance.parameters.get(name)
 
-    def save(self, *args, **kwargs):
+    def clean(self):
+        super().clean()
+        if not self.instance.pk:
+            self.cleaned_data['status'] = DataSourceStatusChoices.NEW
+        else:
+            if not self.data.get('sync_interval'):
+                self.cleaned_data['status'] = DataSourceStatusChoices.READY
 
+    def save(self, *args, **kwargs):
         parameters = {}
         for name in self.fields:
             if name.startswith('backend_'):
                 parameters[name[8:]] = self.cleaned_data[name]
         self.instance.parameters = parameters
+
+        # update status
+        self.instance.status = self.cleaned_data.get('status', self.instance.status)
 
         return super().save(*args, **kwargs)
 
