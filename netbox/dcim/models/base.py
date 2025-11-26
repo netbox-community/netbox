@@ -29,6 +29,8 @@ class PortMappingBase(models.Model):
         ),
     )
 
+    _netbox_private = True
+
     class Meta:
         abstract = True
         constraints = (

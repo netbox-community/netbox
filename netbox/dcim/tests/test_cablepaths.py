@@ -284,6 +284,7 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         PortMapping.objects.create(
+            device=self.device,
             front_port=frontport1,
             front_port_position=1,
             rear_port=rearport1,
@@ -347,6 +348,7 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         PortMapping.objects.create(
+            device=self.device,
             front_port=frontport1,
             front_port_position=1,
             rear_port=rearport1,
@@ -417,16 +419,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
             ),
         ])
 
@@ -541,16 +559,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
             ),
         ])
 
@@ -711,22 +745,46 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4_2 = FrontPort.objects.create(device=self.device, name='Front Port 4:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4_1, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4_1,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4_2, front_port_position=1, rear_port=rearport4, rear_port_position=2,
+                device=self.device,
+                front_port=frontport4_2,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=2,
             ),
         ])
 
@@ -839,28 +897,60 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4_2 = FrontPort.objects.create(device=self.device, name='Front Port 4:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport3_1, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3_1,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3_2, front_port_position=1, rear_port=rearport3, rear_port_position=2,
+                device=self.device,
+                front_port=frontport3_2,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport4_1, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4_1,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4_2, front_port_position=1, rear_port=rearport4, rear_port_position=2,
+                device=self.device,
+                front_port=frontport4_2,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=2,
             ),
         ])
 
@@ -975,19 +1065,39 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport3_2 = FrontPort.objects.create(device=self.device, name='Front Port 3:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3_1, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3_1,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3_2, front_port_position=1, rear_port=rearport3, rear_port_position=2,
+                device=self.device,
+                front_port=frontport3_2,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=2,
             ),
         ])
 
@@ -1082,10 +1192,18 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
         ])
 
@@ -1469,16 +1587,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
             ),
         ])
         circuittermination1 = CircuitTermination.objects.create(
@@ -1667,16 +1801,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
         ])
 
@@ -1760,28 +1910,60 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2_4 = FrontPort.objects.create(device=self.device, name='Front Port 2:4')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport1_3, front_port_position=1, rear_port=rearport1, rear_port_position=3,
+                device=self.device,
+                front_port=frontport1_3,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=3,
             ),
             PortMapping(
-                front_port=frontport1_4, front_port_position=1, rear_port=rearport1, rear_port_position=4,
+                device=self.device,
+                front_port=frontport1_4,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=4,
             ),
             PortMapping(
-                front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
             ),
             PortMapping(
-                front_port=frontport2_3, front_port_position=1, rear_port=rearport2, rear_port_position=3,
+                device=self.device,
+                front_port=frontport2_3,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=3,
             ),
             PortMapping(
-                front_port=frontport2_4, front_port_position=1, rear_port=rearport2, rear_port_position=4,
+                device=self.device,
+                front_port=frontport2_4,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=4,
             ),
         ])
 
@@ -1940,16 +2122,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
         ])
 
@@ -2025,16 +2223,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
         ])
 
@@ -2131,22 +2345,46 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport6 = FrontPort.objects.create(device=self.device, name='Front Port 6')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport5, front_port_position=1, rear_port=rearport5, rear_port_position=1,
+                device=self.device,
+                front_port=frontport5,
+                front_port_position=1,
+                rear_port=rearport5,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport6, front_port_position=1, rear_port=rearport6, rear_port_position=1,
+                device=self.device,
+                front_port=frontport6,
+                front_port_position=1,
+                rear_port=rearport6,
+                rear_port_position=1,
             ),
         ])
 
@@ -2253,10 +2491,18 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
         ])
 
@@ -2376,10 +2622,18 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
         ])
 
@@ -2426,10 +2680,18 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
         ])
 
@@ -2481,7 +2743,11 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
         ])
 
@@ -2595,16 +2861,32 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
         PortMapping.objects.bulk_create([
             PortMapping(
-                front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
             ),
             PortMapping(
-                front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
             ),
         ])
 

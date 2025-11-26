@@ -23,6 +23,8 @@ def populate_port_template_mappings(apps, schema_editor):
     def generate_copies():
         for front_port in front_ports:
             yield PortTemplateMapping(
+                device_type_id=front_port.device_type_id,
+                module_type_id=front_port.module_type_id,
                 front_port_id=front_port.pk,
                 front_port_position=1,
                 rear_port_id=front_port.rear_port_id,
@@ -43,6 +45,7 @@ def populate_port_mappings(apps, schema_editor):
     def generate_copies():
         for front_port in front_ports:
             yield PortMapping(
+                device_id=front_port.device_id,
                 front_port_id=front_port.pk,
                 front_port_position=1,
                 rear_port_id=front_port.rear_port_id,
@@ -83,6 +86,26 @@ class Migration(migrations.Migration):
                             django.core.validators.MinValueValidator(1),
                             django.core.validators.MaxValueValidator(1024)
                         ]
+                    )
+                ),
+                (
+                    'device_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.devicetype',
+                        related_name='port_mappings',
+                        blank=True,
+                        null=True
+                    )
+                ),
+                (
+                    'module_type',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.moduletype',
+                        related_name='port_mappings',
+                        blank=True,
+                        null=True
                     )
                 ),
                 (
@@ -142,6 +165,14 @@ class Migration(migrations.Migration):
                             django.core.validators.MaxValueValidator(1024),
                         ]
                     ),
+                ),
+                (
+                    'device',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='dcim.device',
+                        related_name='port_mappings'
+                    )
                 ),
                 (
                     'front_port',

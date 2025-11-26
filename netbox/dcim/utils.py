@@ -89,11 +89,9 @@ def create_port_mappings(device, device_type, module=None):
     """
     Replicate all front/rear port mappings from a DeviceType to the given device.
     """
-    from dcim.models import FrontPort, PortMapping, PortTemplateMapping, RearPort
+    from dcim.models import FrontPort, PortMapping, RearPort
 
-    templates = PortTemplateMapping.objects.filter(
-        front_port__device_type=device_type
-    ).prefetch_related('front_port', 'rear_port')
+    templates = device_type.port_mappings.prefetch_related('front_port', 'rear_port')
 
     # Cache front & rear ports for efficient lookups by name
     front_ports = {
@@ -110,6 +108,7 @@ def create_port_mappings(device, device_type, module=None):
         rear_port = rear_ports.get(template.rear_port.resolve_name(module=module))
         mappings.append(
             PortMapping(
+                device_id=front_port.device_id,
                 front_port=front_port,
                 front_port_position=template.front_port_position,
                 rear_port=rear_port,

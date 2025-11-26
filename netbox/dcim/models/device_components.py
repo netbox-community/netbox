@@ -1075,6 +1075,11 @@ class PortMapping(PortMappingBase):
     """
     Maps a FrontPort & position to a RearPort & position.
     """
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='port_mappings',
+    )
     front_port = models.ForeignKey(
         to='dcim.FrontPort',
         on_delete=models.CASCADE,
@@ -1096,6 +1101,11 @@ class PortMapping(PortMappingBase):
                     rear_port=self.rear_port
                 )
             })
+
+    def save(self, *args, **kwargs):
+        # Associate the mapping with the parent Device
+        self.device = self.front_port.device
+        super().save(*args, **kwargs)
 
 
 class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):

@@ -1158,10 +1158,8 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
         those assigned to the specified instance.
         """
         occupied_rear_port_positions = [
-            f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-            for assignment in PortTemplateMapping.objects.filter(
-                front_port__device_type=device_type
-            ).exclude(front_port=front_port.pk)
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in device_type.port_mappings.exclude(front_port=front_port.pk)
         ]
 
         choices = []
@@ -1652,8 +1650,8 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
         assigned to the specified instance.
         """
         occupied_rear_port_positions = [
-            f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-            for assignment in PortMapping.objects.filter(front_port__device=device).exclude(front_port=front_port.pk)
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in device.port_mappings.exclude(front_port=front_port.pk)
         ]
 
         choices = []

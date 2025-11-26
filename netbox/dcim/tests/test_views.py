@@ -747,9 +747,9 @@ class DeviceTypeTestCase(
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
         PortTemplateMapping.objects.bulk_create([
-            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         url = reverse('dcim:devicetype_frontports', kwargs={'pk': devicetype.pk})
@@ -1319,9 +1319,9 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
         PortTemplateMapping.objects.bulk_create([
-            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortTemplateMapping(module_type=moduletype, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(module_type=moduletype, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(module_type=moduletype, front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         url = reverse('dcim:moduletype_frontports', kwargs={'pk': moduletype.pk})
@@ -1777,9 +1777,9 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
         PortTemplateMapping.objects.bulk_create([
-            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         cls.form_data = {
@@ -2271,9 +2271,9 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         FrontPort.objects.bulk_create(front_ports)
         PortMapping.objects.bulk_create([
-            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=device, front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
@@ -3076,9 +3076,9 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         )
         FrontPort.objects.bulk_create(front_ports)
         PortMapping.objects.bulk_create([
-            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=device, front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')

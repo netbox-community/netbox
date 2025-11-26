@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import PortMapping, Site
+from dcim.models import PortMapping, PortTemplateMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
@@ -161,14 +161,24 @@ class FrontPortFormMixin(forms.Form):
 
         # Create new rear port mappings
         mappings = []
+        if self.port_mapping_model is PortTemplateMapping:
+            params = {
+                'device_type_id': self.instance.device_type_id,
+                'module_type_id': self.instance.module_type_id,
+            }
+        else:
+            params = {
+                'device_id': self.instance.device_id,
+            }
         for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
             rear_port_id, rear_port_position = rp_position.split(':')
             mappings.append(
-                self.port_mapping_model(
-                    front_port_id=self.instance.pk,
-                    front_port_position=i,
-                    rear_port_id=rear_port_id,
-                    rear_port_position=rear_port_position,
-                )
+                self.port_mapping_model(**{
+                    **params,
+                    'front_port_id': self.instance.pk,
+                    'front_port_position': i,
+                    'rear_port_id': rear_port_id,
+                    'rear_port_position': rear_port_position,
+                })
             )
         self.port_mapping_model.objects.bulk_create(mappings)

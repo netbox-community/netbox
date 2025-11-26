@@ -524,6 +524,20 @@ class PortTemplateMapping(PortMappingBase):
     """
     Maps a FrontPortTemplate & position to a RearPortTemplate & position.
     """
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='port_mappings',
+        blank=True,
+        null=True,
+    )
+    module_type = models.ForeignKey(
+        to='dcim.ModuleType',
+        on_delete=models.CASCADE,
+        related_name='port_mappings',
+        blank=True,
+        null=True,
+    )
     front_port = models.ForeignKey(
         to='dcim.FrontPortTemplate',
         on_delete=models.CASCADE,
@@ -545,6 +559,12 @@ class PortTemplateMapping(PortMappingBase):
                     rear_port=self.rear_port
                 )
             })
+
+    def save(self, *args, **kwargs):
+        # Associate the mapping with the parent DeviceType/ModuleType
+        self.device_type = self.front_port.device_type
+        self.module_type = self.front_port.module_type
+        super().save(*args, **kwargs)
 
 
 class FrontPortTemplate(ModularComponentTemplateModel):

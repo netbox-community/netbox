@@ -452,6 +452,7 @@ class DeviceTestCase(TestCase):
         frontport.save()
 
         PortTemplateMapping.objects.create(
+            device_type=device_type,
             front_port=frontport,
             rear_port=rearport,
             rear_port_position=2,
@@ -848,10 +849,10 @@ class CableTestCase(TestCase):
         )
         FrontPort.objects.bulk_create(front_ports)
         PortMapping.objects.bulk_create([
-            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
-            PortMapping(front_port=front_ports[3], rear_port=rear_ports[3]),
+            PortMapping(device=patch_panel, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=patch_panel, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=patch_panel, front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortMapping(device=patch_panel, front_port=front_ports[3], rear_port=rear_ports[3]),
         ])
 
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
