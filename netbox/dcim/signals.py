@@ -150,6 +150,7 @@ def nullify_connected_endpoints(instance, **kwargs):
         cablepath.retrace()
 
 
+# TODO: Adapt signal handler to act on changes to port mappings
 @receiver(post_save, sender=FrontPort)
 def extend_rearport_cable_paths(instance, created, raw, **kwargs):
     """

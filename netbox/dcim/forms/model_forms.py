@@ -1124,6 +1124,7 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
         ),
     )
 
+    # Override FrontPortFormMixin attrs
     port_mapping_model = PortTemplateMapping
     parent_field = 'device_type'
 
@@ -1619,8 +1620,6 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
             'description', 'tags',
         ),
     )
-
-    port_mapping_model = PortMapping
 
     class Meta:
         model = FrontPort

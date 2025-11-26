@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import PortTemplateMapping, Site
+from dcim.models import PortMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
@@ -138,16 +138,11 @@ class FrontPortFormMixin(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 8})
     )
 
-    port_mapping_model = PortTemplateMapping
+    port_mapping_model = PortMapping
+    parent_field = 'device'
 
     def clean(self):
         super().clean()
-
-        # FrontPort with no positions cannot be mapped to more than one RearPort
-        if not self.cleaned_data['positions'] and len(self.cleaned_data['rear_ports']) > 1:
-            raise forms.ValidationError({
-                'positions': _("A front port with no positions cannot be mapped to multiple rear ports.")
-            })
 
         # Count of selected rear port & position pairs much match the assigned number of positions
         if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:

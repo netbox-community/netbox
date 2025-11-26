@@ -840,7 +840,7 @@ class DeviceRearPortTable(RearPortTable):
             'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'positions', 'mappings', 'description', 'cable', 'link_peer',
+            'pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'cable', 'link_peer',
         )
 
 
