@@ -99,6 +99,11 @@ class TokenBulkEditForm(BulkEditForm):
         queryset=Token.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label=_('Enabled')
+    )
     write_enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
@@ -122,7 +127,7 @@ class TokenBulkEditForm(BulkEditForm):
 
     model = Token
     fieldsets = (
-        FieldSet('write_enabled', 'description', 'expires', 'allowed_ips'),
+        FieldSet('enabled', 'write_enabled', 'description', 'expires', 'allowed_ips'),
     )
     nullable_fields = (
         'expires', 'description', 'allowed_ips',

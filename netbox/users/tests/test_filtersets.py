@@ -285,6 +285,7 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
                 version=1,
                 user=users[0],
                 expires=future_date,
+                enabled=True,
                 write_enabled=True,
                 description='foobar1',
             ),
@@ -292,12 +293,14 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
                 version=2,
                 user=users[1],
                 expires=future_date,
+                enabled=False,
                 write_enabled=True,
                 description='foobar2',
             ),
             Token(
                 version=2,
                 user=users[2],
+                enabled=True,
                 expires=past_date,
                 write_enabled=False,
             ),
@@ -337,6 +340,12 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         params = {'expires__gte': '2021-01-01T00:00:00'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'expires__lte': '2021-01-01T00:00:00'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_write_enabled(self):

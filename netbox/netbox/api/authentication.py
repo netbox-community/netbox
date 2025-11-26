@@ -38,7 +38,7 @@ class TokenAuthentication(BaseAuthentication):
         try:
             auth_value = auth[1].decode()
         except UnicodeError:
-            raise exceptions.AuthenticationFailed("Invalid authorization header: Token contains invalid characters")
+            raise exceptions.AuthenticationFailed('Invalid authorization header: Token contains invalid characters')
 
         # Infer token version from presence or absence of prefix
         version = 2 if auth_value.startswith(TOKEN_PREFIX) else 1
@@ -75,17 +75,21 @@ class TokenAuthentication(BaseAuthentication):
             client_ip = get_client_ip(request)
             if client_ip is None:
                 raise exceptions.AuthenticationFailed(
-                    "Client IP address could not be determined for validation. Check that the HTTP server is "
-                    "correctly configured to pass the required header(s)."
+                    'Client IP address could not be determined for validation. Check that the HTTP server is '
+                    'correctly configured to pass the required header(s).'
                 )
             if not token.validate_client_ip(client_ip):
                 raise exceptions.AuthenticationFailed(
                     f"Source IP {client_ip} is not permitted to authenticate using this token."
                 )
 
+        # Enforce the Token is enabled
+        if not token.enabled:
+            raise exceptions.AuthenticationFailed('Token disabled')
+
         # Enforce the Token's expiration time, if one has been set.
         if token.is_expired:
-            raise exceptions.AuthenticationFailed("Token expired")
+            raise exceptions.AuthenticationFailed('Token expired')
 
         # Update last used, but only once per minute at most. This reduces write load on the database
         if not token.last_used or (timezone.now() - token.last_used).total_seconds() > 60:
