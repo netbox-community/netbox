@@ -1132,6 +1132,19 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name = _('front port')
         verbose_name_plural = _('front ports')
 
+    def clean(self):
+        super().clean()
+
+        # Check that positions is greater than or equal to the number of associated RearPorts
+        if not self._state.adding:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
+                raise ValidationError({
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped rear ports ({count})"
+                    ).format(count=mapping_count)
+                })
+
 
 class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
