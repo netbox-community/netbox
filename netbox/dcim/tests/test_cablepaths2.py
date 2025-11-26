@@ -363,8 +363,8 @@ class CablePathTests(CablePathTestCase):
         ]
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
         ])
@@ -441,17 +441,17 @@ class CablePathTests(CablePathTestCase):
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
         frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
             ),
         ])
@@ -669,17 +669,17 @@ class CablePathTests(CablePathTestCase):
             FrontPort.objects.create(device=self.device, name='Front Port 3'),
             FrontPort.objects.create(device=self.device, name='Front Port 4'),
         ]
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=front_ports[0], front_port_position=1, rear_port=rear_ports[0], rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=front_ports[1], front_port_position=1, rear_port=rear_ports[1], rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=front_ports[2], front_port_position=1, rear_port=rear_ports[2], rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=front_ports[3], front_port_position=1, rear_port=rear_ports[3], rear_port_position=1,
             ),
         ])
@@ -748,11 +748,11 @@ class CablePathTests(CablePathTestCase):
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
         ])

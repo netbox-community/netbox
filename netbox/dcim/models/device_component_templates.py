@@ -7,7 +7,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models.base import PortAssignmentBase
+from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -29,7 +29,7 @@ __all__ = (
     'InterfaceTemplate',
     'InventoryItemTemplate',
     'ModuleBayTemplate',
-    'PortAssignmentTemplate',
+    'PortTemplateMapping',
     'PowerOutletTemplate',
     'PowerPortTemplate',
     'RearPortTemplate',
@@ -520,19 +520,19 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
         }
 
 
-class PortAssignmentTemplate(PortAssignmentBase):
+class PortTemplateMapping(PortMappingBase):
     """
     Maps a FrontPortTemplate & position to a RearPortTemplate & position.
     """
     front_port = models.ForeignKey(
         to='dcim.FrontPortTemplate',
         on_delete=models.CASCADE,
-        related_name='assignments',
+        related_name='mappings',
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPortTemplate',
         on_delete=models.CASCADE,
-        related_name='assignments',
+        related_name='mappings',
     )
 
     def clean(self):
@@ -640,13 +640,13 @@ class RearPortTemplate(ModularComponentTemplateModel):
 
         # Check that positions count is greater than or equal to the number of associated FrontPortTemplates
         if not self._state.adding:
-            assignment_count = self.assignments.count()
-            if self.positions < assignment_count:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
                 raise ValidationError({
                     "positions": _(
                         "The number of positions cannot be less than the number of mapped front port templates "
                         "({count})"
-                    ).format(count=assignment_count)
+                    ).format(count=mapping_count)
                 })
 
     def instantiate(self, **kwargs):

@@ -5,7 +5,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
-    InventoryItemTemplate, ModuleBayTemplate, PortAssignmentTemplate, PowerOutletTemplate, PowerPortTemplate,
+    InventoryItemTemplate, ModuleBayTemplate, PortTemplateMapping, PowerOutletTemplate, PowerPortTemplate,
     RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
@@ -206,7 +206,7 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class RearPortTemplateAssignmentSerializer(serializers.ModelSerializer):
+class RearPortTemplateMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='rear_port_position'
     )
@@ -215,7 +215,7 @@ class RearPortTemplateAssignmentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = PortAssignmentTemplate
+        model = PortTemplateMapping
         fields = ('position', 'front_port', 'front_port_position')
 
 
@@ -233,8 +233,8 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
-    front_ports = RearPortTemplateAssignmentSerializer(
-        source='assignments',
+    front_ports = RearPortTemplateMappingSerializer(
+        source='mappings',
         many=True,
         required=False,
     )
@@ -248,29 +248,29 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     def create(self, validated_data):
-        assignments = validated_data.pop('assignments', [])
+        mappings = validated_data.pop('mappings', [])
         instance = super().create(validated_data)
 
-        # Create FrontPort assignments
-        for assignment_data in assignments:
-            PortAssignmentTemplate.objects.create(rear_port=instance, **assignment_data)
+        # Create FrontPort mappings
+        for attrs in mappings:
+            PortTemplateMapping.objects.create(rear_port=instance, **attrs)
 
         return instance
 
     def update(self, instance, validated_data):
-        assignments = validated_data.pop('assignments', None)
+        mappings = validated_data.pop('mappings', None)
         instance = super().update(instance, validated_data)
 
-        if assignments is not None:
-            # Update FrontPort assignments
-            PortAssignmentTemplate.objects.filter(rear_port=instance).delete()
-            for assignment_data in assignments:
-                PortAssignmentTemplate.objects.create(rear_port=instance, **assignment_data)
+        if mappings is not None:
+            # Update FrontPort mappings
+            PortTemplateMapping.objects.filter(rear_port=instance).delete()
+            for attrs in mappings:
+                PortTemplateMapping.objects.create(rear_port=instance, **attrs)
 
         return instance
 
 
-class FrontPortTemplateAssignmentSerializer(serializers.ModelSerializer):
+class FrontPortTemplateMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='front_port_position'
     )
@@ -279,7 +279,7 @@ class FrontPortTemplateAssignmentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = PortAssignmentTemplate
+        model = PortTemplateMapping
         fields = ('position', 'rear_port', 'rear_port_position')
 
 
@@ -297,8 +297,8 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_ports = FrontPortTemplateAssignmentSerializer(
-        source='assignments',
+    rear_ports = FrontPortTemplateMappingSerializer(
+        source='mappings',
         many=True,
         required=False,
     )
@@ -312,24 +312,24 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     def create(self, validated_data):
-        assignments = validated_data.pop('assignments', [])
+        mappings = validated_data.pop('mappings', [])
         instance = super().create(validated_data)
 
-        # Create RearPort assignments
-        for assignment_data in assignments:
-            PortAssignmentTemplate.objects.create(front_port=instance, **assignment_data)
+        # Create RearPort mappings
+        for attrs in mappings:
+            PortTemplateMapping.objects.create(front_port=instance, **attrs)
 
         return instance
 
     def update(self, instance, validated_data):
-        assignments = validated_data.pop('assignments', None)
+        mappings = validated_data.pop('mappings', None)
         instance = super().update(instance, validated_data)
 
-        if assignments is not None:
+        if mappings is not None:
             # Update RearPort assignments
-            PortAssignmentTemplate.objects.filter(front_port=instance).delete()
-            for assignment_data in assignments:
-                PortAssignmentTemplate.objects.create(front_port=instance, **assignment_data)
+            PortTemplateMapping.objects.filter(front_port=instance).delete()
+            for attrs in mappings:
+                PortTemplateMapping.objects.create(front_port=instance, **attrs)
 
         return instance
 

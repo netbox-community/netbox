@@ -22,7 +22,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
-from .device_components import FrontPort, PathEndpoint, PortAssignment, RearPort
+from .device_components import FrontPort, PathEndpoint, PortMapping, RearPort
 
 __all__ = (
     'Cable',
@@ -795,19 +795,19 @@ class CablePath(models.Model):
                     q_filter = Q()
                     for rt in remote_terminations:
                         q_filter |= Q(front_port=rt, front_port_position__in=positions)
-                    port_assignments = PortAssignment.objects.filter(q_filter)
+                    port_mappings = PortMapping.objects.filter(q_filter)
                 elif remote_terminations[0].positions > 1:
                     is_split = True
                     break
                 else:
-                    port_assignments = PortAssignment.objects.filter(front_port__in=remote_terminations)
-                if not port_assignments:
+                    port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
+                if not port_mappings:
                     break
 
                 # Compile the list of RearPorts without duplication or altering their ordering
-                terminations = list(dict.fromkeys(assignment.rear_port for assignment in port_assignments))
+                terminations = list(dict.fromkeys(mapping.rear_port for mapping in port_mappings))
                 if any(t.positions > 1 for t in terminations):
-                    position_stack.append([assignment.rear_port_position for assignment in port_assignments])
+                    position_stack.append([mapping.rear_port_position for mapping in port_mappings])
 
             elif isinstance(remote_terminations[0], RearPort):
                 # Follow RearPorts to their corresponding FrontPorts
@@ -816,19 +816,19 @@ class CablePath(models.Model):
                     q_filter = Q()
                     for rt in remote_terminations:
                         q_filter |= Q(rear_port=rt, rear_port_position__in=positions)
-                    port_assignments = PortAssignment.objects.filter(q_filter)
+                    port_mappings = PortMapping.objects.filter(q_filter)
                 elif remote_terminations[0].positions > 1:
                     is_split = True
                     break
                 else:
-                    port_assignments = PortAssignment.objects.filter(rear_port__in=remote_terminations)
-                if not port_assignments:
+                    port_mappings = PortMapping.objects.filter(rear_port__in=remote_terminations)
+                if not port_mappings:
                     break
 
                 # Compile the list of FrontPorts without duplication or altering their ordering
-                terminations = list(dict.fromkeys(assignment.front_port for assignment in port_assignments))
+                terminations = list(dict.fromkeys(mapping.front_port for mapping in port_mappings))
                 if any(t.positions > 1 for t in terminations):
-                    position_stack.append([assignment.front_port_position for assignment in port_assignments])
+                    position_stack.append([mapping.front_port_position for mapping in port_mappings])
 
             elif isinstance(remote_terminations[0], CircuitTermination):
                 # Follow a CircuitTermination to its corresponding CircuitTermination (A to Z or vice versa)

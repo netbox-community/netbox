@@ -1360,9 +1360,9 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignmentTemplate(front_port=front_ports[1], rear_port=rear_ports[1]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
         ])
         ModuleBayTemplate.objects.bulk_create((
             ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1'),
@@ -1624,9 +1624,9 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             FrontPortTemplate(module_type=module_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignmentTemplate(front_port=front_ports[1], rear_port=rear_ports[1]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
         ])
 
     def test_q(self):
@@ -2067,10 +2067,10 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
             ),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignmentTemplate(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignmentTemplate(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
     def test_name(self):
@@ -2746,9 +2746,9 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPort.objects.bulk_create(front_ports)
-        PortAssignment.objects.bulk_create([
-            PortAssignment(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignment(front_port=front_ports[1], rear_port=rear_ports[1]),
+        PortMapping.objects.bulk_create([
+            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
         ])
         ModuleBay.objects.create(device=devices[0], name='Module Bay 1')
         ModuleBay.objects.create(device=devices[1], name='Module Bay 2')
@@ -5142,13 +5142,13 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
         )
         FrontPort.objects.bulk_create(front_ports)
-        PortAssignment.objects.bulk_create([
-            PortAssignment(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignment(front_port=front_ports[1], rear_port=rear_ports[1], rear_port_position=2),
-            PortAssignment(front_port=front_ports[2], rear_port=rear_ports[2], rear_port_position=3),
-            PortAssignment(front_port=front_ports[3], rear_port=rear_ports[3]),
-            PortAssignment(front_port=front_ports[4], rear_port=rear_ports[4]),
-            PortAssignment(front_port=front_ports[5], rear_port=rear_ports[5]),
+        PortMapping.objects.bulk_create([
+            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1], rear_port_position=2),
+            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2], rear_port_position=3),
+            PortMapping(front_port=front_ports[3], rear_port=rear_ports[3]),
+            PortMapping(front_port=front_ports[4], rear_port=rear_ports[4]),
+            PortMapping(front_port=front_ports[5], rear_port=rear_ports[5]),
         ])
 
         # Cables
@@ -6412,7 +6412,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         power_outlet = PowerOutlet.objects.create(device=devices[0], name='Power Outlet 1')
         rear_port = RearPort.objects.create(device=devices[0], name='Rear Port 1')
         front_port = FrontPort.objects.create(device=devices[0], name='Front Port 1')
-        PortAssignment.objects.create(front_port=front_port, rear_port=rear_port)
+        PortMapping.objects.create(front_port=front_port, rear_port=rear_port)
 
         power_panel = PowerPanel.objects.create(name='Power Panel 1', site=sites[0])
         power_feed = PowerFeed.objects.create(name='Power Feed 1', power_panel=power_panel)

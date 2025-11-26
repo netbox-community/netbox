@@ -746,10 +746,10 @@ class DeviceTypeTestCase(
             FrontPortTemplate(device_type=devicetype, name='Front Port 3'),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignmentTemplate(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignmentTemplate(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         url = reverse('dcim:devicetype_frontports', kwargs={'pk': devicetype.pk})
@@ -1318,10 +1318,10 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             FrontPortTemplate(module_type=moduletype, name='Front Port 3'),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignmentTemplate(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignmentTemplate(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         url = reverse('dcim:moduletype_frontports', kwargs={'pk': moduletype.pk})
@@ -1776,10 +1776,10 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
             FrontPortTemplate(device_type=devicetype, name='Front Port Template 3'),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignmentTemplate(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignmentTemplate(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         cls.form_data = {
@@ -2270,10 +2270,10 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             FrontPort(device=device, name='Front Port Template 3'),
         )
         FrontPort.objects.bulk_create(front_ports)
-        PortAssignment.objects.bulk_create([
-            PortAssignment(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignment(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignment(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortMapping.objects.bulk_create([
+            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
@@ -3075,10 +3075,10 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             FrontPort(device=device, name='Front Port 3'),
         )
         FrontPort.objects.bulk_create(front_ports)
-        PortAssignment.objects.bulk_create([
-            PortAssignment(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignment(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignment(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortMapping.objects.bulk_create([
+            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')

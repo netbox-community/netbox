@@ -283,7 +283,7 @@ class LegacyCablePathTests(CablePathTestCase):
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
-        PortAssignment.objects.create(
+        PortMapping.objects.create(
             front_port=frontport1,
             front_port_position=1,
             rear_port=rearport1,
@@ -346,7 +346,7 @@ class LegacyCablePathTests(CablePathTestCase):
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
-        PortAssignment.objects.create(
+        PortMapping.objects.create(
             front_port=frontport1,
             front_port_position=1,
             rear_port=rearport1,
@@ -415,17 +415,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
         frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
             ),
         ])
@@ -539,17 +539,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
         frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
             ),
         ])
@@ -709,23 +709,23 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
         frontport4_1 = FrontPort.objects.create(device=self.device, name='Front Port 4:1')
         frontport4_2 = FrontPort.objects.create(device=self.device, name='Front Port 4:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4_1, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4_2, front_port_position=1, rear_port=rearport4, rear_port_position=2,
             ),
         ])
@@ -837,29 +837,29 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport3_2 = FrontPort.objects.create(device=self.device, name='Front Port 3:2')
         frontport4_1 = FrontPort.objects.create(device=self.device, name='Front Port 4:1')
         frontport4_2 = FrontPort.objects.create(device=self.device, name='Front Port 4:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3_1, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3_2, front_port_position=1, rear_port=rearport3, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4_1, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4_2, front_port_position=1, rear_port=rearport4, rear_port_position=2,
             ),
         ])
@@ -973,20 +973,20 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         frontport3_1 = FrontPort.objects.create(device=self.device, name='Front Port 3:1')
         frontport3_2 = FrontPort.objects.create(device=self.device, name='Front Port 3:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3_1, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3_2, front_port_position=1, rear_port=rearport3, rear_port_position=2,
             ),
         ])
@@ -1080,11 +1080,11 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2)
         frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
         ])
@@ -1150,7 +1150,7 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
-        PortAssignment.objects.create(
+        PortMapping.objects.create(
             front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
         )
 
@@ -1467,17 +1467,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
         frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
             ),
         ])
@@ -1665,17 +1665,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
         ])
@@ -1758,29 +1758,29 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
         frontport2_3 = FrontPort.objects.create(device=self.device, name='Front Port 2:3')
         frontport2_4 = FrontPort.objects.create(device=self.device, name='Front Port 2:4')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1_1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_2, front_port_position=1, rear_port=rearport1, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_3, front_port_position=1, rear_port=rearport1, rear_port_position=3,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport1_4, front_port_position=1, rear_port=rearport1, rear_port_position=4,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_1, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_2, front_port_position=1, rear_port=rearport2, rear_port_position=2,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_3, front_port_position=1, rear_port=rearport2, rear_port_position=3,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2_4, front_port_position=1, rear_port=rearport2, rear_port_position=4,
             ),
         ])
@@ -1938,17 +1938,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
         ])
@@ -2023,17 +2023,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
         ])
@@ -2129,23 +2129,23 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
         frontport5 = FrontPort.objects.create(device=self.device, name='Front Port 5')
         frontport6 = FrontPort.objects.create(device=self.device, name='Front Port 6')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport5, front_port_position=1, rear_port=rearport5, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport6, front_port_position=1, rear_port=rearport6, rear_port_position=1,
             ),
         ])
@@ -2251,11 +2251,11 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
         ])
@@ -2374,11 +2374,11 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
         ])
@@ -2424,11 +2424,11 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
         ])
@@ -2479,8 +2479,8 @@ class LegacyCablePathTests(CablePathTestCase):
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
         frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
         ])
@@ -2593,17 +2593,17 @@ class LegacyCablePathTests(CablePathTestCase):
         frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
         frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
         frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
-        PortAssignment.objects.bulk_create([
-            PortAssignment(
+        PortMapping.objects.bulk_create([
+            PortMapping(
                 front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport2, front_port_position=1, rear_port=rearport2, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport3, front_port_position=1, rear_port=rearport3, rear_port_position=1,
             ),
-            PortAssignment(
+            PortMapping(
                 front_port=frontport4, front_port_position=1, rear_port=rearport4, rear_port_position=1,
             ),
         ])

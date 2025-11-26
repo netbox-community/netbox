@@ -85,18 +85,17 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-def create_port_assignments(device, templates, module=None):
+def create_port_mappings(device, templates, module=None):
     """
-    Used for device and module instantiation. Replicate all front/rear port assignments from a DeviceType to the given
-    device.
+    Replicate all front/rear port mappings from a DeviceType to the given device.
     """
-    from dcim.models.device_components import FrontPort, PortAssignment, RearPort
+    from dcim.models.device_components import FrontPort, PortMapping, RearPort
 
     for template in templates:
         front_port = FrontPort.objects.get(device=device, name=template.front_port.resolve_name(module=module))
         rear_port = RearPort.objects.get(device=device, name=template.rear_port.resolve_name(module=module))
 
-        assignment = PortAssignment(
+        assignment = PortMapping(
             front_port=front_port,
             front_port_position=template.front_port_position,
             rear_port=rear_port,

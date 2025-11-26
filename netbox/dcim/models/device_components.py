@@ -11,7 +11,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
-from dcim.models.base import PortAssignmentBase
+from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
@@ -36,7 +36,7 @@ __all__ = (
     'InventoryItemRole',
     'ModuleBay',
     'PathEndpoint',
-    'PortAssignment',
+    'PortMapping',
     'PowerOutlet',
     'PowerPort',
     'RearPort',
@@ -1071,25 +1071,25 @@ class Interface(
 # Pass-through ports
 #
 
-class PortAssignment(PortAssignmentBase):
+class PortMapping(PortMappingBase):
     """
     Maps a FrontPort & position to a RearPort & position.
     """
     front_port = models.ForeignKey(
         to='dcim.FrontPort',
         on_delete=models.CASCADE,
-        related_name='assignments',
+        related_name='mappings',
     )
     rear_port = models.ForeignKey(
         to='dcim.RearPort',
         on_delete=models.CASCADE,
-        related_name='assignments',
+        related_name='mappings',
     )
 
     def clean(self):
         super().clean()
 
-        # Validate rear port assignment
+        # Both ports must belong to the same device
         if self.front_port.device_id != self.rear_port.device_id:
             raise ValidationError({
                 "rear_port": _("Rear port ({rear_port}) must belong to the same device").format(
@@ -1166,13 +1166,13 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
         if not self._state.adding:
-            assignment_count = self.assignments.count()
-            if self.positions < assignment_count:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
                 raise ValidationError({
                     "positions": _(
                         "The number of positions cannot be less than the number of mapped front ports "
                         "({count})"
-                    ).format(count=assignment_count)
+                    ).format(count=mapping_count)
                 })
 
 

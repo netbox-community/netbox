@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0222_m2m_port_assignments'),
+        ('dcim', '0222_port_mappings'),
     ]
 
     operations = [

@@ -64,11 +64,11 @@
             <div class="card">
                 <h2 class="card-header">{% trans "Rear Ports" %}</h2>
                 <table class="table table-hover">
-                  {% for assignment in front_port_assignments %}
+                  {% for mapping in front_port_mappings %}
                     <tr>
-                      <td>{{ assignment.rear_port_position }}</td>
-                      <td>{{ assignment.front_port|linkify }}</td>
-                      <td>{{ assignment.front_port_position }}</td>
+                      <td>{{ mapping.rear_port_position }}</td>
+                      <td>{{ mapping.front_port|linkify }}</td>
+                      <td>{{ mapping.front_port_position }}</td>
                     </tr>
                   {% endfor %}
                 </table>

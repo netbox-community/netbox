@@ -252,8 +252,8 @@ class FrontPortTemplateTable(ComponentTemplateTable):
     color = columns.ColorColumn(
         verbose_name=_('Color'),
     )
-    assignments = columns.ManyToManyColumn(
-        verbose_name=_('Assignments'),
+    mappings = columns.ManyToManyColumn(
+        verbose_name=_('Mappings'),
         transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}'
     )
     actions = columns.ActionsColumn(
@@ -263,7 +263,7 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.FrontPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'assignments', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'actions')
         empty_text = "None"
 
 
@@ -271,8 +271,8 @@ class RearPortTemplateTable(ComponentTemplateTable):
     color = columns.ColorColumn(
         verbose_name=_('Color'),
     )
-    assignments = columns.ManyToManyColumn(
-        verbose_name=_('Assignments'),
+    mappings = columns.ManyToManyColumn(
+        verbose_name=_('Mappings'),
         transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}'
     )
     actions = columns.ActionsColumn(
@@ -282,7 +282,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.RearPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'assignments', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'actions')
         empty_text = "None"
 
 

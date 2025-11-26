@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import PortAssignmentTemplate, Site
+from dcim.models import PortTemplateMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
@@ -138,7 +138,7 @@ class FrontPortFormMixin(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 8})
     )
 
-    port_assignment_model = PortAssignmentTemplate
+    port_mapping_model = PortTemplateMapping
 
     def clean(self):
         super().clean()
@@ -161,19 +161,19 @@ class FrontPortFormMixin(forms.Form):
         super()._save_m2m()
 
         # TODO: Can this be made more efficient?
-        # Delete existing rear port assignments
-        self.port_assignment_model.objects.filter(front_port_id=self.instance.pk).delete()
+        # Delete existing rear port mappings
+        self.port_mapping_model.objects.filter(front_port_id=self.instance.pk).delete()
 
-        # Create new rear port assignments
-        assignments = []
+        # Create new rear port mappings
+        mappings = []
         for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
             rear_port_id, rear_port_position = rp_position.split(':')
-            assignments.append(
-                self.port_assignment_model(
+            mappings.append(
+                self.port_mapping_model(
                     front_port_id=self.instance.pk,
                     front_port_position=i,
                     rear_port_id=rear_port_id,
                     rear_port_position=rear_port_position,
                 )
             )
-        self.port_assignment_model.objects.bulk_create(assignments)
+        self.port_mapping_model.objects.bulk_create(mappings)

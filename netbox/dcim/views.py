@@ -42,7 +42,7 @@ from wireless.models import WirelessLAN
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
-from .models.device_components import PortAssignment
+from .models.device_components import PortMapping
 from .object_actions import BulkAddComponents, BulkDisconnect
 
 CABLE_TERMINATION_TYPES = {
@@ -3245,7 +3245,7 @@ class FrontPortView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'rear_port_assignments': PortAssignment.objects.filter(front_port=instance).prefetch_related('rear_port'),
+            'rear_port_mappings': PortMapping.objects.filter(front_port=instance).prefetch_related('rear_port'),
         }
 
 
@@ -3321,7 +3321,7 @@ class RearPortView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'front_port_assignments': PortAssignment.objects.filter(rear_port=instance).prefetch_related('front_port'),
+            'front_port_mappings': PortMapping.objects.filter(rear_port=instance).prefetch_related('front_port'),
         }
 
 

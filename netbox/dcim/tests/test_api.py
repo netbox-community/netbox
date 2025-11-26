@@ -983,10 +983,10 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
             FrontPortTemplate(module_type=moduletype, name='Front Port Template 3', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPortTemplate.objects.bulk_create(front_port_templates)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_port_templates[0], rear_port=rear_port_templates[0]),
-            PortAssignmentTemplate(front_port=front_port_templates[1], rear_port=rear_port_templates[1]),
-            PortAssignmentTemplate(front_port=front_port_templates[2], rear_port=rear_port_templates[2]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_port_templates[0], rear_port=rear_port_templates[0]),
+            PortTemplateMapping(front_port=front_port_templates[1], rear_port=rear_port_templates[1]),
+            PortTemplateMapping(front_port=front_port_templates[2], rear_port=rear_port_templates[2]),
         ])
 
         cls.create_data = [
@@ -1061,10 +1061,10 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 3', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_port_templates)
-        PortAssignmentTemplate.objects.bulk_create([
-            PortAssignmentTemplate(front_port=front_port_templates[0], rear_port=rear_port_templates[0]),
-            PortAssignmentTemplate(front_port=front_port_templates[1], rear_port=rear_port_templates[1]),
-            PortAssignmentTemplate(front_port=front_port_templates[2], rear_port=rear_port_templates[2]),
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(front_port=front_port_templates[0], rear_port=rear_port_templates[0]),
+            PortTemplateMapping(front_port=front_port_templates[1], rear_port=rear_port_templates[1]),
+            PortTemplateMapping(front_port=front_port_templates[2], rear_port=rear_port_templates[2]),
         ])
 
         cls.create_data = [
@@ -2040,10 +2040,10 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             FrontPort(device=device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPort.objects.bulk_create(front_ports)
-        PortAssignment.objects.bulk_create([
-            PortAssignment(front_port=front_ports[0], rear_port=rear_ports[0]),
-            PortAssignment(front_port=front_ports[1], rear_port=rear_ports[1]),
-            PortAssignment(front_port=front_ports[2], rear_port=rear_ports[2]),
+        PortMapping.objects.bulk_create([
+            PortMapping(front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(front_port=front_ports[2], rear_port=rear_ports[2]),
         ])
 
         cls.create_data = [
@@ -2091,7 +2091,7 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
         interface1 = Interface.objects.create(device=device, name='Interface 1')
         rear_port = RearPort.objects.create(device=device, name='Rear Port 10', type=PortTypeChoices.TYPE_8P8C)
         front_port = FrontPort.objects.create(device=device, name='Front Port 10', type=PortTypeChoices.TYPE_8P8C)
-        PortAssignment.objects.create(front_port=front_port, rear_port=rear_port)
+        PortMapping.objects.create(front_port=front_port, rear_port=rear_port)
         Cable.objects.create(a_terminations=[interface1], b_terminations=[front_port])
 
         self.add_permissions(f'dcim.view_{self.model._meta.model_name}')

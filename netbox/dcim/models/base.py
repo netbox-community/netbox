@@ -6,13 +6,13 @@ from django.utils.translation import gettext_lazy as _
 from dcim.constants import PORT_POSITION_MAX, PORT_POSITION_MIN
 
 __all__ = (
-    'PortAssignmentBase',
+    'PortMappingBase',
 )
 
 
-class PortAssignmentBase(models.Model):
+class PortMappingBase(models.Model):
     """
-    Base class for PortAssignment and PortAssignment Template
+    Base class for PortMapping and PortTemplateMapping
     """
     front_port_position = models.PositiveSmallIntegerField(
         default=1,
@@ -45,7 +45,7 @@ class PortAssignmentBase(models.Model):
     def clean(self):
         super().clean()
 
-        # Validate rear port position assignment
+        # Validate rear port position
         if self.rear_port_position > self.rear_port.positions:
             raise ValidationError({
                 "rear_port_position": _(

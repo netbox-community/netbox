@@ -14,15 +14,15 @@ def chunked(iterable, size):
         yield chunk
 
 
-def populate_port_template_assignments(apps, schema_editor):
+def populate_port_template_mappings(apps, schema_editor):
     FrontPortTemplate = apps.get_model('dcim', 'FrontPortTemplate')
-    PortAssignmentTemplate = apps.get_model('dcim', 'PortAssignmentTemplate')
+    PortTemplateMapping = apps.get_model('dcim', 'PortTemplateMapping')
 
     front_ports = FrontPortTemplate.objects.iterator(chunk_size=1000)
 
     def generate_copies():
         for front_port in front_ports:
-            yield PortAssignmentTemplate(
+            yield PortTemplateMapping(
                 front_port_id=front_port.pk,
                 front_port_position=1,
                 rear_port_id=front_port.rear_port_id,
@@ -31,18 +31,18 @@ def populate_port_template_assignments(apps, schema_editor):
 
     # Bulk insert in streaming batches
     for chunk in chunked(generate_copies(), 1000):
-        PortAssignmentTemplate.objects.bulk_create(chunk, batch_size=1000)
+        PortTemplateMapping.objects.bulk_create(chunk, batch_size=1000)
 
 
-def populate_port_assignments(apps, schema_editor):
+def populate_port_mappings(apps, schema_editor):
     FrontPort = apps.get_model('dcim', 'FrontPort')
-    PortAssignment = apps.get_model('dcim', 'PortAssignment')
+    PortMapping = apps.get_model('dcim', 'PortMapping')
 
     front_ports = FrontPort.objects.iterator(chunk_size=1000)
 
     def generate_copies():
         for front_port in front_ports:
-            yield PortAssignment(
+            yield PortMapping(
                 front_port_id=front_port.pk,
                 front_port_position=1,
                 rear_port_id=front_port.rear_port_id,
@@ -51,7 +51,7 @@ def populate_port_assignments(apps, schema_editor):
 
     # Bulk insert in streaming batches
     for chunk in chunked(generate_copies(), 1000):
-        PortAssignment.objects.bulk_create(chunk, batch_size=1000)
+        PortMapping.objects.bulk_create(chunk, batch_size=1000)
 
 
 class Migration(migrations.Migration):
@@ -60,9 +60,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Create PortAssignmentTemplate model (for DeviceTypes)
+        # Create PortTemplateMapping model (for DeviceTypes)
         migrations.CreateModel(
-            name='PortAssignmentTemplate',
+            name='PortTemplateMapping',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 (
@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to='dcim.frontporttemplate',
-                        related_name='assignments'
+                        related_name='mappings'
                     )
                 ),
                 (
@@ -98,29 +98,29 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to='dcim.rearporttemplate',
-                        related_name='assignments'
+                        related_name='mappings'
                     )
                 ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='portassignmenttemplate',
+            model_name='porttemplatemapping',
             constraint=models.UniqueConstraint(
                 fields=('front_port', 'front_port_position'),
-                name='dcim_portassignmenttemplate_unique_front_port_position'
+                name='dcim_porttemplatemapping_unique_front_port_position'
             ),
         ),
         migrations.AddConstraint(
-            model_name='portassignmenttemplate',
+            model_name='porttemplatemapping',
             constraint=models.UniqueConstraint(
                 fields=('rear_port', 'rear_port_position'),
-                name='dcim_portassignmenttemplate_unique_rear_port_position'
+                name='dcim_porttemplatemapping_unique_rear_port_position'
             ),
         ),
 
-        # Create PortAssignment model (for Devices)
+        # Create PortMapping model (for Devices)
         migrations.CreateModel(
-            name='PortAssignment',
+            name='PortMapping',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 (
@@ -148,7 +148,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to='dcim.frontport',
-                        related_name='assignments'
+                        related_name='mappings'
                     )
                 ),
                 (
@@ -156,33 +156,33 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to='dcim.rearport',
-                        related_name='assignments'
+                        related_name='mappings'
                     )
                 ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='portassignment',
+            model_name='portmapping',
             constraint=models.UniqueConstraint(
                 fields=('front_port', 'front_port_position'),
-                name='dcim_portassignment_unique_front_port_position'
+                name='dcim_portmapping_unique_front_port_position'
             ),
         ),
         migrations.AddConstraint(
-            model_name='portassignment',
+            model_name='portmapping',
             constraint=models.UniqueConstraint(
                 fields=('rear_port', 'rear_port_position'),
-                name='dcim_portassignment_unique_rear_port_position'
+                name='dcim_portmapping_unique_rear_port_position'
             ),
         ),
 
         # Data migration
         migrations.RunPython(
-            code=populate_port_template_assignments,
+            code=populate_port_template_mappings,
             reverse_code=migrations.RunPython.noop
         ),
         migrations.RunPython(
-            code=populate_port_assignments,
+            code=populate_port_mappings,
             reverse_code=migrations.RunPython.noop
         ),
     ]

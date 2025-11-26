@@ -1124,7 +1124,7 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
         ),
     )
 
-    port_assignment_model = PortAssignmentTemplate
+    port_mapping_model = PortTemplateMapping
     parent_field = 'device_type'
 
     class Meta:
@@ -1144,11 +1144,11 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
         # Populate rear port choices
         self.fields['rear_ports'].choices = self._get_rear_port_choices(device_type, self.instance)
 
-        # Set initial rear port assignments
+        # Set initial rear port mappings
         if self.instance.pk:
             self.initial['rear_ports'] = [
-                f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-                for assignment in PortAssignmentTemplate.objects.filter(front_port_id=self.instance.pk)
+                f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+                for mapping in PortTemplateMapping.objects.filter(front_port_id=self.instance.pk)
             ]
 
     def _get_rear_port_choices(self, device_type, front_port):
@@ -1158,7 +1158,7 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
         """
         occupied_rear_port_positions = [
             f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-            for assignment in PortAssignmentTemplate.objects.filter(
+            for assignment in PortTemplateMapping.objects.filter(
                 front_port__device_type=device_type
             ).exclude(front_port=front_port.pk)
         ]
@@ -1620,7 +1620,7 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
         ),
     )
 
-    port_assignment_model = PortAssignment
+    port_mapping_model = PortMapping
 
     class Meta:
         model = FrontPort
@@ -1640,11 +1640,11 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
         # Populate rear port choices
         self.fields['rear_ports'].choices = self._get_rear_port_choices(device, self.instance)
 
-        # Set initial rear port assignments
+        # Set initial rear port mappings
         if self.instance.pk:
             self.initial['rear_ports'] = [
-                f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-                for assignment in PortAssignment.objects.filter(front_port_id=self.instance.pk)
+                f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+                for mapping in PortMapping.objects.filter(front_port_id=self.instance.pk)
             ]
 
     def _get_rear_port_choices(self, device, front_port):
@@ -1654,7 +1654,7 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
         """
         occupied_rear_port_positions = [
             f'{assignment.rear_port_id}:{assignment.rear_port_position}'
-            for assignment in PortAssignment.objects.filter(front_port__device=device).exclude(front_port=front_port.pk)
+            for assignment in PortMapping.objects.filter(front_port__device=device).exclude(front_port=front_port.pk)
         ]
 
         choices = []

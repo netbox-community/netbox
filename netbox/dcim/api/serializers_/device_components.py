@@ -5,7 +5,7 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PortAssignment,
+    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PortMapping,
     PowerOutlet, PowerPort, RearPort, VirtualDeviceContext,
 )
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
@@ -294,7 +294,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         return super().validate(data)
 
 
-class RearPortAssignmentSerializer(serializers.ModelSerializer):
+class RearPortMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='rear_port_position'
     )
@@ -303,7 +303,7 @@ class RearPortAssignmentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = PortAssignment
+        model = PortMapping
         fields = ('position', 'front_port', 'front_port_position')
 
 
@@ -316,8 +316,8 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
-    front_ports = RearPortAssignmentSerializer(
-        source='assignments',
+    front_ports = RearPortMappingSerializer(
+        source='mappings',
         many=True,
         required=False,
     )
@@ -332,29 +332,29 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
     def create(self, validated_data):
-        assignments = validated_data.pop('assignments', [])
+        mappings = validated_data.pop('mappings', [])
         instance = super().create(validated_data)
 
-        # Create FrontPort assignments
-        for assignment_data in assignments:
-            PortAssignment.objects.create(rear_port=instance, **assignment_data)
+        # Create FrontPort mappings
+        for attrs in mappings:
+            PortMapping.objects.create(rear_port=instance, **attrs)
 
         return instance
 
     def update(self, instance, validated_data):
-        assignments = validated_data.pop('assignments', None)
+        mappings = validated_data.pop('mappings', None)
         instance = super().update(instance, validated_data)
 
-        if assignments is not None:
-            # Update FrontPort assignments
-            PortAssignment.objects.filter(rear_port=instance).delete()
-            for assignment_data in assignments:
-                PortAssignment.objects.create(rear_port=instance, **assignment_data)
+        if mappings is not None:
+            # Update FrontPort mappings
+            PortMapping.objects.filter(rear_port=instance).delete()
+            for attrs in mappings:
+                PortMapping.objects.create(rear_port=instance, **attrs)
 
         return instance
 
 
-class FrontPortAssignmentSerializer(serializers.ModelSerializer):
+class FrontPortMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='front_port_position'
     )
@@ -363,7 +363,7 @@ class FrontPortAssignmentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = PortAssignment
+        model = PortMapping
         fields = ('position', 'rear_port', 'rear_port_position')
 
 
@@ -376,8 +376,8 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_ports = FrontPortAssignmentSerializer(
-        source='assignments',
+    rear_ports = FrontPortMappingSerializer(
+        source='mappings',
         many=True,
         required=False,
     )
@@ -392,24 +392,24 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
     def create(self, validated_data):
-        assignments = validated_data.pop('assignments', [])
+        mappings = validated_data.pop('mappings', [])
         instance = super().create(validated_data)
 
-        # Create RearPort assignments
-        for assignment_data in assignments:
-            PortAssignment.objects.create(front_port=instance, **assignment_data)
+        # Create RearPort mappings
+        for attrs in mappings:
+            PortMapping.objects.create(front_port=instance, **attrs)
 
         return instance
 
     def update(self, instance, validated_data):
-        assignments = validated_data.pop('assignments', None)
+        mappings = validated_data.pop('mappings', None)
         instance = super().update(instance, validated_data)
 
-        if assignments is not None:
-            # Update RearPort assignments
-            PortAssignment.objects.filter(front_port=instance).delete()
-            for assignment_data in assignments:
-                PortAssignment.objects.create(front_port=instance, **assignment_data)
+        if mappings is not None:
+            # Update RearPort mappings
+            PortMapping.objects.filter(front_port=instance).delete()
+            for attrs in mappings:
+                PortMapping.objects.create(front_port=instance, **attrs)
 
         return instance
 
