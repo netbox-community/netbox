@@ -100,7 +100,7 @@ class RackTypeTable(NetBoxTable):
         model = RackType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'description',
+            'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description',
             'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (

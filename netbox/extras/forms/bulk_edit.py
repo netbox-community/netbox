@@ -398,8 +398,12 @@ class ConfigTemplateBulkEditForm(ChangelogMessageMixin, BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
-
-    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension')
+    auto_sync_enabled = forms.NullBooleanField(
+        label=_('Auto sync enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    nullable_fields = ('description', 'mime_type', 'file_name', 'file_extension', 'auto_sync_enabled',)
 
 
 class ImageAttachmentBulkEditForm(ChangelogMessageMixin, BulkEditForm):

@@ -162,3 +162,18 @@ pre code {
   vertical-align: .05em;
   height: auto;
 }
+
+// Theme-based visibility utilities
+// Tabler's .hide-theme-* utilities expect data-bs-theme on :root, but NetBox applies
+// it to body. These overrides use higher specificity selectors to ensure theme-based
+// visibility works correctly. The :root:not(.dummy) pattern provides the additional
+// specificity needed to override Tabler's :root:not() rules.
+:root:not(.dummy) body[data-bs-theme='light'] .hide-theme-light,
+:root:not(.dummy) body[data-bs-theme='dark'] .hide-theme-dark {
+  display: none !important;
+}
+
+:root:not(.dummy) body[data-bs-theme='dark'] .hide-theme-light,
+:root:not(.dummy) body[data-bs-theme='light'] .hide-theme-dark {
+  display: inline-flex !important;
+}
