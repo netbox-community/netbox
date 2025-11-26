@@ -20,6 +20,32 @@ class TokenTest(TestCase):
         """
         cls.user = create_test_user('User 1')
 
+    def test_is_active(self):
+        """
+        Test the is_active property.
+        """
+        # Token with enabled status and no expiration date
+        token = Token(user=self.user, enabled=True, expires=None)
+        self.assertTrue(token.is_active)
+
+        # Token with disabled status
+        token.enabled = False
+        self.assertFalse(token.is_active)
+
+        # Token with enabled status and future expiration
+        future_date = timezone.now() + timedelta(days=1)
+        token = Token(user=self.user, enabled=True, expires=future_date)
+        self.assertTrue(token.is_active)
+
+        # Token with past expiration
+        token.expires = timezone.now() - timedelta(days=1)
+        self.assertFalse(token.is_active)
+
+        # Token with disabled status and past expiration
+        past_date = timezone.now() - timedelta(days=1)
+        token = Token(user=self.user, enabled=False, expires=past_date)
+        self.assertFalse(token.is_active)
+
     def test_is_expired(self):
         """
         Test the is_expired property.

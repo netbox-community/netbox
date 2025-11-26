@@ -167,7 +167,8 @@ class TokenFilterSet(BaseFilterSet):
     class Meta:
         model = Token
         fields = (
-            'id', 'version', 'key', 'pepper_id', 'write_enabled', 'description', 'created', 'expires', 'last_used',
+            'id', 'version', 'key', 'pepper_id', 'enabled', 'write_enabled',
+            'description', 'created', 'expires', 'last_used',
         )
 
     def search(self, queryset, name, value):

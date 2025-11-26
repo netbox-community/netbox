@@ -43,6 +43,10 @@
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Enabled" %}</th>
+            <td>{% checkmark object.enabled %}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Write enabled" %}</th>
             <td>{% checkmark object.write_enabled %}</td>
           </tr>

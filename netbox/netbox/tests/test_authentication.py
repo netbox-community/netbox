@@ -67,6 +67,32 @@ class TokenAuthenticationTestCase(APITestCase):
         self.assertEqual(response.data['detail'], "Invalid v2 token")
 
     @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_token_enabled(self):
+        url = reverse('dcim-api:site-list')
+
+        # Create v1 & v2 tokens
+        token1 = Token.objects.create(version=1, user=self.user, enabled=True)
+        token2 = Token.objects.create(version=2, user=self.user, enabled=True)
+
+        # Request with an enabled token should succeed
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token1.token}')
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}')
+        self.assertEqual(response.status_code, 200)
+
+        # Request with a disabled token should fail
+        token1.enabled = False
+        token1.save()
+        token2.enabled = False
+        token2.save()
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Token {token1.token}')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['detail'], 'Token disabled')
+        response = self.client.get(url, HTTP_AUTHORIZATION=f'Bearer {TOKEN_PREFIX}{token2.key}.{token2.token}')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['detail'], 'Token disabled')
+
+    @override_settings(LOGIN_REQUIRED=True, EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_token_expiration(self):
         url = reverse('dcim-api:site-list')
 

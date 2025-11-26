@@ -195,10 +195,10 @@ class TokenTest(
     APIViewTestCases.ListObjectsViewTestCase,
     APIViewTestCases.CreateObjectViewTestCase,
     APIViewTestCases.UpdateObjectViewTestCase,
-    APIViewTestCases.DeleteObjectViewTestCase
+    APIViewTestCases.DeleteObjectViewTestCase,
 ):
     model = Token
-    brief_fields = ['description', 'display', 'id', 'key', 'url', 'version', 'write_enabled']
+    brief_fields = ['description', 'display', 'enabled', 'id', 'key', 'url', 'version', 'write_enabled']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -229,12 +229,16 @@ class TokenTest(
         cls.create_data = [
             {
                 'user': users[0].pk,
+                'enabled': True,
             },
             {
                 'user': users[1].pk,
+                'enabled': False,
             },
             {
                 'user': users[2].pk,
+                'enabled': True,
+                'write_enabled': False,
             },
         ]
 
@@ -267,6 +271,8 @@ class TokenTest(
         self.assertEqual(response.data['expires'], data['expires'])
         token = Token.objects.get(user=user)
         self.assertEqual(token.key, response.data['key'])
+        self.assertEqual(token.enabled, response.data['enabled'])
+        self.assertEqual(token.write_enabled, response.data['write_enabled'])
 
     def test_provision_token_invalid(self):
         """
