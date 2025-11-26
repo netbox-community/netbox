@@ -12,7 +12,7 @@ Depending on its classification, each NetBox model may support various features 
 
 | Feature                                                    | Feature Mixin           | Registry Key        | Description                                                                             |
 |------------------------------------------------------------|-------------------------|---------------------|-----------------------------------------------------------------------------------------|
-| [Bookmarks](../features/customization.md#bookmarks)        | `BookmarksMixin`        | `bookmarks`         | These models can be bookmarked natively in the user interface                           |
+| [Bookmarks](../features/user-preferences.md#bookmarks)     | `BookmarksMixin`        | `bookmarks`         | These models can be bookmarked natively in the user interface                           |
 | [Change logging](../features/change-logging.md)            | `ChangeLoggingMixin`    | `change_logging`    | Changes to these objects are automatically recorded in the change log                   |
 | Cloning                                                    | `CloningMixin`          | `cloning`           | Provides the `clone()` method to prepare a copy                                         |
 | [Contacts](../features/contacts.md)                        | `ContactsMixin`         | `contacts`          | Contacts can be associated with these models                                            |
