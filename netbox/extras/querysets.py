@@ -46,6 +46,10 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         # Match against the directly assigned role as well as any parent roles.
         device_roles = obj.role.get_ancestors(include_self=True) if obj.role else []
 
+        # Match against the directly assigned platform as well as any parent platforms.
+        platform = getattr(obj, 'platform', None)
+        platforms = platform.get_ancestors(include_self=True) if platform else []
+
         queryset = self.filter(
             Q(regions__in=regions) | Q(regions=None),
             Q(site_groups__in=sitegroups) | Q(site_groups=None),
@@ -53,7 +57,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
             Q(locations__in=locations) | Q(locations=None),
             Q(device_types=device_type) | Q(device_types=None),
             Q(roles__in=device_roles) | Q(roles=None),
-            Q(platforms=obj.platform) | Q(platforms=None),
+            Q(platforms__in=platforms) | Q(platforms=None),
             Q(cluster_types=cluster_type) | Q(cluster_types=None),
             Q(cluster_groups=cluster_group) | Q(cluster_groups=None),
             Q(clusters=cluster) | Q(clusters=None),
@@ -103,7 +107,6 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             "content_type__model": self.model._meta.model_name
         }
         base_query = Q(
-            Q(platforms=OuterRef('platform')) | Q(platforms=None),
             Q(cluster_types=OuterRef('cluster__type')) | Q(cluster_types=None),
             Q(cluster_groups=OuterRef('cluster__group')) | Q(cluster_groups=None),
             Q(clusters=OuterRef('cluster')) | Q(clusters=None),
@@ -165,6 +168,15 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
                 roles__lft__lte=OuterRef('role__lft'),
                 roles__rght__gte=OuterRef('role__rght'),
             ) | Q(roles=None)),
+            Q.AND
+        )
+        base_query.add(
+            (Q(
+                platforms__tree_id=OuterRef('platform__tree_id'),
+                platforms__level__lte=OuterRef('platform__level'),
+                platforms__lft__lte=OuterRef('platform__lft'),
+                platforms__rght__gte=OuterRef('platform__rght'),
+            ) | Q(platforms=None)),
             Q.AND
         )
 
