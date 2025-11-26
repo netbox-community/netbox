@@ -641,7 +641,7 @@ class PlatformType(NestedGroupObjectType):
 @strawberry_django.type(
     models.PortMapping,
     fields='__all__',
-    # filters=PortMappingFilter,
+    filters=PortMappingFilter,
     pagination=True
 )
 class PortMappingType(ModularComponentTemplateType):
@@ -652,12 +652,12 @@ class PortMappingType(ModularComponentTemplateType):
 @strawberry_django.type(
     models.PortTemplateMapping,
     fields='__all__',
-    # filters=PortMappingTemplateFilter,
+    filters=PortTemplateMappingFilter,
     pagination=True
 )
 class PortMappingTemplateType(ModularComponentTemplateType):
-    front_port_template: Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]
-    rear_port_template: Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]
+    front_port: Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]
+    rear_port: Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]
 
 
 @strawberry_django.type(
