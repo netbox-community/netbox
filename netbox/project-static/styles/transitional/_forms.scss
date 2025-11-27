@@ -32,3 +32,11 @@ form.object-edit {
     border: 1px solid $red;
   }
 }
+
+// Filter modifier dropdown sizing
+.modifier-select {
+  min-width: 10rem;
+  max-width: 15rem;
+  width: auto;
+  white-space: nowrap;
+}

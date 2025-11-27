@@ -245,7 +245,7 @@ class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFil
 class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
     model = L2VPNTermination
     fieldsets = (
-        FieldSet('filter_id', 'l2vpn_id'),
+        FieldSet('filter_id', 'tag', 'l2vpn_id'),
         FieldSet(
             'assigned_object_type_id', 'region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id',
             name=_('Assigned Object')
@@ -303,3 +303,4 @@ class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
         },
         label=_('Virtual Machine')
     )
+    tag = TagFilterField(model)

@@ -638,6 +638,7 @@ class ModuleTypeProfileFilterForm(PrimaryModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
     )
     selector_fields = ('filter_id', 'q')
+    tag = TagFilterField(model)
 
 
 class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
