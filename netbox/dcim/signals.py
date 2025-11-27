@@ -150,15 +150,16 @@ def nullify_connected_endpoints(instance, **kwargs):
         cablepath.retrace()
 
 
+# TODO: Adapt signal handler to act on changes to port mappings
 @receiver(post_save, sender=FrontPort)
 def extend_rearport_cable_paths(instance, created, raw, **kwargs):
     """
     When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
     """
     if created and not raw:
-        rearport = instance.rear_port
-        for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
-            cablepath.retrace()
+        for mapping in instance.mappings.prefetch_related('rear_port'):
+            for cablepath in CablePath.objects.filter(_nodes__contains=mapping.rear_port):
+                cablepath.retrace()
 
 
 @receiver(post_save, sender=Interface)

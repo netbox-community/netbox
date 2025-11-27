@@ -281,9 +281,14 @@ class LegacyCablePathTests(CablePathTestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
         )
 
         # Create cable 1
@@ -340,9 +345,14 @@ class LegacyCablePathTests(CablePathTestCase):
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            device=self.device,
+            front_port=frontport1,
+            front_port_position=1,
+            rear_port=rearport1,
+            rear_port_position=1
         )
 
         # Create cable 1
@@ -403,18 +413,40 @@ class LegacyCablePathTests(CablePathTestCase):
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport2, rear_port_position=1
-        )
-        frontport2_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
+        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
+            ),
+        ])
 
         # Create cables 1-2
         cable1 = Cable(
@@ -521,18 +553,40 @@ class LegacyCablePathTests(CablePathTestCase):
         interface8 = Interface.objects.create(device=self.device, name='Interface 8')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport2, rear_port_position=1
-        )
-        frontport2_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
+        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
+            ),
+        ])
 
         # Create cables 1-2
         cable1 = Cable(
@@ -680,27 +734,59 @@ class LegacyCablePathTests(CablePathTestCase):
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
         rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
-        )
-        frontport4_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4:1', rear_port=rearport4, rear_port_position=1
-        )
-        frontport4_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4:2', rear_port=rearport4, rear_port_position=2
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        frontport4_1 = FrontPort.objects.create(device=self.device, name='Front Port 4:1')
+        frontport4_2 = FrontPort.objects.create(device=self.device, name='Front Port 4:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4_1,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4_2,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=2,
+            ),
+        ])
 
         # Create cables 1-2, 6-7
         cable1 = Cable(
@@ -801,30 +887,72 @@ class LegacyCablePathTests(CablePathTestCase):
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
         rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=4)
         rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport2, rear_port_position=1
-        )
-        frontport2_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
-        )
-        frontport3_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3:1', rear_port=rearport3, rear_port_position=1
-        )
-        frontport3_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3:2', rear_port=rearport3, rear_port_position=2
-        )
-        frontport4_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4:1', rear_port=rearport4, rear_port_position=1
-        )
-        frontport4_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4:2', rear_port=rearport4, rear_port_position=2
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
+        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        frontport3_1 = FrontPort.objects.create(device=self.device, name='Front Port 3:1')
+        frontport3_2 = FrontPort.objects.create(device=self.device, name='Front Port 3:2')
+        frontport4_1 = FrontPort.objects.create(device=self.device, name='Front Port 4:1')
+        frontport4_2 = FrontPort.objects.create(device=self.device, name='Front Port 4:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3_1,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3_2,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4_1,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4_2,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=2,
+            ),
+        ])
 
         # Create cables 1-3, 6-8
         cable1 = Cable(
@@ -928,23 +1056,50 @@ class LegacyCablePathTests(CablePathTestCase):
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 5', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 5', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport3, rear_port_position=1
-        )
-        frontport3_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport3, rear_port_position=2
-        )
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=4)
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3_1 = FrontPort.objects.create(device=self.device, name='Front Port 3:1')
+        frontport3_2 = FrontPort.objects.create(device=self.device, name='Front Port 3:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3_1,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3_2,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=2,
+            ),
+        ])
 
         # Create cables 1-2, 5-6
         cable1 = Cable(
@@ -1032,13 +1187,25 @@ class LegacyCablePathTests(CablePathTestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2)
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+        ])
 
         # Create cables 1
         cable1 = Cable(
@@ -1098,10 +1265,11 @@ class LegacyCablePathTests(CablePathTestCase):
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP2]
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.create(
+            front_port=frontport1, front_port_position=1, rear_port=rearport1, rear_port_position=1,
         )
 
         # Create cables
@@ -1413,18 +1581,40 @@ class LegacyCablePathTests(CablePathTestCase):
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport2_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport2, rear_port_position=1
-        )
-        frontport2_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
+        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
+            ),
+        ])
         circuittermination1 = CircuitTermination.objects.create(
             circuit=self.circuit,
             termination=self.site,
@@ -1601,22 +1791,44 @@ class LegacyCablePathTests(CablePathTestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1)
-        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
-        )
-        frontport4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+        ])
 
         # Create cables 1-2
         cable1 = Cable(
@@ -1688,30 +1900,72 @@ class LegacyCablePathTests(CablePathTestCase):
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
         rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
         rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport1_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:2', rear_port=rearport1, rear_port_position=2
-        )
-        frontport1_3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:3', rear_port=rearport1, rear_port_position=3
-        )
-        frontport1_4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1:4', rear_port=rearport1, rear_port_position=4
-        )
-        frontport2_1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:1', rear_port=rearport2, rear_port_position=1
-        )
-        frontport2_2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:2', rear_port=rearport2, rear_port_position=2
-        )
-        frontport2_3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:3', rear_port=rearport2, rear_port_position=3
-        )
-        frontport2_4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2:4', rear_port=rearport2, rear_port_position=4
-        )
+        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
+        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
+        frontport1_3 = FrontPort.objects.create(device=self.device, name='Front Port 1:3')
+        frontport1_4 = FrontPort.objects.create(device=self.device, name='Front Port 1:4')
+        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
+        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        frontport2_3 = FrontPort.objects.create(device=self.device, name='Front Port 2:3')
+        frontport2_4 = FrontPort.objects.create(device=self.device, name='Front Port 2:4')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_3,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=3,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1_4,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=4,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_1,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_3,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=3,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2_4,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=4,
+            ),
+        ])
 
         # Create cables 1-2
         cable1 = Cable(
@@ -1858,22 +2112,44 @@ class LegacyCablePathTests(CablePathTestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1)
-        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
-        )
-        frontport4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+        ])
 
         cable2 = Cable(
             a_terminations=[rearport1],
@@ -1937,22 +2213,44 @@ class LegacyCablePathTests(CablePathTestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1)
-        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
-        )
-        frontport4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+        ])
 
         cable2 = Cable(
             a_terminations=[rearport1],
@@ -2033,30 +2331,62 @@ class LegacyCablePathTests(CablePathTestCase):
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1)
-        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=1)
-        rearport5 = RearPort.objects.create(device=self.device, name='Rear Port 5', positions=1)
-        rearport6 = RearPort.objects.create(device=self.device, name='Rear Port 6', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
-        )
-        frontport4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
-        )
-        frontport5 = FrontPort.objects.create(
-            device=self.device, name='Front Port 5', rear_port=rearport5, rear_port_position=1
-        )
-        frontport6 = FrontPort.objects.create(
-            device=self.device, name='Front Port 6', rear_port=rearport6, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4')
+        rearport5 = RearPort.objects.create(device=self.device, name='Rear Port 5')
+        rearport6 = RearPort.objects.create(device=self.device, name='Rear Port 6')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
+        frontport5 = FrontPort.objects.create(device=self.device, name='Front Port 5')
+        frontport6 = FrontPort.objects.create(device=self.device, name='Front Port 6')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport5,
+                front_port_position=1,
+                rear_port=rearport5,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport6,
+                front_port_position=1,
+                rear_port=rearport6,
+                rear_port_position=1,
+            ),
+        ])
 
         cable2 = Cable(
             a_terminations=[rearport1],
@@ -2155,14 +2485,26 @@ class LegacyCablePathTests(CablePathTestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+        ])
 
         cable1 = Cable(
             a_terminations=[interface1],
@@ -2274,14 +2616,26 @@ class LegacyCablePathTests(CablePathTestCase):
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
         interface4 = Interface.objects.create(device=self.device, name='Interface 4')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+        ])
 
         # Create cables
         cable1 = Cable(
@@ -2320,14 +2674,26 @@ class LegacyCablePathTests(CablePathTestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+        ])
 
         # Create cable 2
         cable2 = Cable(
@@ -2373,10 +2739,17 @@ class LegacyCablePathTests(CablePathTestCase):
         """
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+        ])
 
         # Create cables 1 and 2
         cable1 = Cable(
@@ -2478,22 +2851,44 @@ class LegacyCablePathTests(CablePathTestCase):
         )
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=device, name='Rear Port 3', positions=1)
-        rearport4 = RearPort.objects.create(device=device, name='Rear Port 4', positions=1)
-        frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
-        )
-        frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
-        )
-        frontport3 = FrontPort.objects.create(
-            device=device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
-        )
-        frontport4 = FrontPort.objects.create(
-            device=device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
-        )
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2')
+        rearport3 = RearPort.objects.create(device=device, name='Rear Port 3')
+        rearport4 = RearPort.objects.create(device=device, name='Rear Port 4')
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 2')
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 3')
+        frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 4')
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
+                front_port_position=1,
+                rear_port=rearport3,
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport4,
+                rear_port_position=1,
+            ),
+        ])
 
         cable2 = Cable(
             a_terminations=[rearport1],

@@ -42,6 +42,7 @@ from wireless.models import WirelessLAN
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
+from .models.device_components import PortMapping
 from .object_actions import BulkAddComponents, BulkDisconnect
 
 CABLE_TERMINATION_TYPES = {
@@ -1515,6 +1516,7 @@ class DeviceTypeImportView(generic.BulkImportView):
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
+        'port-mappings': forms.PortTemplateMappingImportForm,
         'module-bays': forms.ModuleBayTemplateImportForm,
         'device-bays': forms.DeviceBayTemplateImportForm,
         'inventory-items': forms.InventoryItemTemplateImportForm,
@@ -1819,6 +1821,7 @@ class ModuleTypeImportView(generic.BulkImportView):
         'interfaces': forms.InterfaceTemplateImportForm,
         'rear-ports': forms.RearPortTemplateImportForm,
         'front-ports': forms.FrontPortTemplateImportForm,
+        'port-mappings': forms.PortTemplateMappingImportForm,
         'module-bays': forms.ModuleBayTemplateImportForm,
     }
 
@@ -3242,6 +3245,11 @@ class FrontPortListView(generic.ObjectListView):
 class FrontPortView(generic.ObjectView):
     queryset = FrontPort.objects.all()
 
+    def get_extra_context(self, request, instance):
+        return {
+            'rear_port_mappings': PortMapping.objects.filter(front_port=instance).prefetch_related('rear_port'),
+        }
+
 
 @register_model_view(FrontPort, 'add', detail=False)
 class FrontPortCreateView(generic.ComponentCreateView):
@@ -3312,6 +3320,11 @@ class RearPortListView(generic.ObjectListView):
 @register_model_view(RearPort)
 class RearPortView(generic.ObjectView):
     queryset = RearPort.objects.all()
+
+    def get_extra_context(self, request, instance):
+        return {
+            'front_port_mappings': PortMapping.objects.filter(rear_port=instance).prefetch_related('front_port'),
+        }
 
 
 @register_model_view(RearPort, 'add', detail=False)

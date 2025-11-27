@@ -47,12 +47,8 @@
                       </td>
                     </tr>
                     <tr>
-                        <th scope="row">{% trans "Rear Port" %}</th>
-                        <td>{{ object.rear_port|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Rear Port Position" %}</th>
-                        <td>{{ object.rear_port_position }}</td>
+                        <th scope="row">{% trans "Positions" %}</th>
+                        <td>{{ object.positions }}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Description" %}</th>
@@ -65,6 +61,18 @@
             {% plugin_left_page object %}
         </div>
         <div class="col col-12 col-md-6">
+            <div class="card">
+                <h2 class="card-header">{% trans "Rear Ports" %}</h2>
+                <table class="table table-hover">
+                  {% for mapping in rear_port_mappings %}
+                    <tr>
+                      <td>{{ mapping.front_port_position }}</td>
+                      <td>{{ mapping.rear_port|linkify }}</td>
+                      <td>{{ mapping.rear_port_position }}</td>
+                    </tr>
+                  {% endfor %}
+                </table>
+            </div>
             <div class="card">
                 <h2 class="card-header">{% trans "Connection" %}</h2>
                 {% if object.mark_connected %}

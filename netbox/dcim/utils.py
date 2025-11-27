@@ -83,3 +83,36 @@ def update_interface_bridges(device, interface_templates, module=None):
             )
             interface.full_clean()
             interface.save()
+
+
+def create_port_mappings(device, device_type, module=None):
+    """
+    Replicate all front/rear port mappings from a DeviceType to the given device.
+    """
+    from dcim.models import FrontPort, PortMapping, RearPort
+
+    templates = device_type.port_mappings.prefetch_related('front_port', 'rear_port')
+
+    # Cache front & rear ports for efficient lookups by name
+    front_ports = {
+        fp.name: fp for fp in FrontPort.objects.filter(device=device)
+    }
+    rear_ports = {
+        rp.name: rp for rp in RearPort.objects.filter(device=device)
+    }
+
+    # Replicate PortMappings
+    mappings = []
+    for template in templates:
+        front_port = front_ports.get(template.front_port.resolve_name(module=module))
+        rear_port = rear_ports.get(template.rear_port.resolve_name(module=module))
+        mappings.append(
+            PortMapping(
+                device_id=front_port.device_id,
+                front_port=front_port,
+                front_port_position=template.front_port_position,
+                rear_port=rear_port,
+                rear_port_position=template.rear_port_position,
+            )
+        )
+    PortMapping.objects.bulk_create(mappings)

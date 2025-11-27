@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import Site
+from dcim.models import PortMapping, PortTemplateMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
@@ -13,6 +13,7 @@ from utilities.templatetags.builtins.filters import bettertitle
 from utilities.forms.widgets import HTMXSelect
 
 __all__ = (
+    'FrontPortFormMixin',
     'ScopedBulkEditForm',
     'ScopedForm',
     'ScopedImportForm',
@@ -128,3 +129,56 @@ class ScopedImportForm(forms.Form):
                     "Please select a {scope_type}."
                 ).format(scope_type=scope_type.model_class()._meta.model_name)
             })
+
+
+class FrontPortFormMixin(forms.Form):
+    rear_ports = forms.MultipleChoiceField(
+        choices=[],
+        label=_('Rear ports'),
+        widget=forms.SelectMultiple(attrs={'size': 8})
+    )
+
+    port_mapping_model = PortMapping
+    parent_field = 'device'
+
+    def clean(self):
+        super().clean()
+
+        # Count of selected rear port & position pairs much match the assigned number of positions
+        if len(self.cleaned_data['rear_ports']) != self.cleaned_data['positions']:
+            raise forms.ValidationError({
+                'rear_ports': _(
+                    "The number of rear port/position pairs selected must match the number of positions assigned."
+                )
+            })
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        # TODO: Can this be made more efficient?
+        # Delete existing rear port mappings
+        self.port_mapping_model.objects.filter(front_port_id=self.instance.pk).delete()
+
+        # Create new rear port mappings
+        mappings = []
+        if self.port_mapping_model is PortTemplateMapping:
+            params = {
+                'device_type_id': self.instance.device_type_id,
+                'module_type_id': self.instance.module_type_id,
+            }
+        else:
+            params = {
+                'device_id': self.instance.device_id,
+            }
+        for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
+            rear_port_id, rear_port_position = rp_position.split(':')
+            mappings.append(
+                self.port_mapping_model(**{
+                    **params,
+                    'front_port_id': self.instance.pk,
+                    'front_port_position': i,
+                    'rear_port_id': rear_port_id,
+                    'rear_port_position': rear_port_position,
+                })
+            )
+        self.port_mapping_model.objects.bulk_create(mappings)

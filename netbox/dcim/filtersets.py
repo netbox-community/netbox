@@ -885,18 +885,27 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=RearPort.objects.all()
+        field_name='mappings__rear_port',
+        queryset=RearPort.objects.all(),
+        to_field_name='rear_port',
+        label=_('Rear port (ID)'),
     )
 
     class Meta:
         model = FrontPortTemplate
-        fields = ('id', 'name', 'label', 'type', 'color', 'rear_port_position', 'description')
+        fields = ('id', 'name', 'label', 'type', 'color', 'positions', 'description')
 
 
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
+    )
+    front_port_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='mappings__front_port',
+        queryset=FrontPort.objects.all(),
+        to_field_name='front_port',
+        label=_('Front port (ID)'),
     )
 
     class Meta:
@@ -2102,13 +2111,16 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=RearPort.objects.all()
+        field_name='mappings__rear_port',
+        queryset=RearPort.objects.all(),
+        to_field_name='rear_port',
+        label=_('Rear port (ID)'),
     )
 
     class Meta:
         model = FrontPort
         fields = (
-            'id', 'name', 'label', 'type', 'color', 'rear_port_position', 'description', 'mark_connected', 'cable_end',
+            'id', 'name', 'label', 'type', 'color', 'positions', 'description', 'mark_connected', 'cable_end',
             'cable_position',
         )
 
@@ -2117,6 +2129,12 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
+    )
+    front_port_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='mappings__front_port',
+        queryset=FrontPort.objects.all(),
+        to_field_name='front_port',
+        label=_('Front port (ID)'),
     )
 
     class Meta:
