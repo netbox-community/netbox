@@ -31,7 +31,7 @@ __all__ = (
     'CableTermination',
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(f'netbox.{__name__}')
 
 trace_paths = Signal()
 

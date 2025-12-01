@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import connection
+from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
@@ -191,3 +193,13 @@ class FrontPortFormMixin(forms.Form):
                 })
             )
         self.port_mapping_model.objects.bulk_create(mappings)
+        # Send post_save signals
+        for mapping in mappings:
+            post_save.send(
+                sender=PortMapping,
+                instance=mapping,
+                created=True,
+                raw=False,
+                using=connection,
+                update_fields=None
+            )
