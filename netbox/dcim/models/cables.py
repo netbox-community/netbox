@@ -1,4 +1,5 @@
 import itertools
+import logging
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -29,6 +30,8 @@ __all__ = (
     'CablePath',
     'CableTermination',
 )
+
+logger = logging.getLogger(__name__)
 
 trace_paths = Signal()
 
@@ -666,14 +669,13 @@ class CablePath(models.Model):
         is_active = True
         is_split = False
 
-        DEBUG = False
+        logger.debug(f'Tracing cable path from {terminations}...')
 
         segment = 0
         while terminations:
             segment += 1
-            if DEBUG:
-                print(f'[#{segment}] Position stack: {position_stack}')
-                print(f'[#{segment}] Local terminations: {terminations}')
+            logger.debug(f'[Path segment #{segment}] Position stack: {position_stack}')
+            logger.debug(f'[Path segment #{segment}] Local terminations: {terminations}')
 
             # Terminations must all be of the same type
             if not all(isinstance(t, type(terminations[0])) for t in terminations[1:]):
@@ -707,8 +709,7 @@ class CablePath(models.Model):
             links = list(dict.fromkeys(
                 termination.link for termination in terminations if termination.link is not None
             ))
-            if DEBUG:
-                print(f'[#{segment}] Links: {links}')
+            logger.debug(f'[Path segment #{segment}] Links: {links}')
             if len(links) == 0:
                 if len(path) == 1:
                     # If this is the start of the path and no link exists, return None
@@ -771,12 +772,13 @@ class CablePath(models.Model):
                     link.interface_b if link.interface_a is terminations[0] else link.interface_a for link in links
                 ]
 
-            if DEBUG:
-                print(f'[#{segment}] Remote terminations: {remote_terminations}')
+            logger.debug(f'[Path segment #{segment}] Remote terminations: {remote_terminations}')
+
             # Remote Terminations must all be of the same type, otherwise return a split path
             if not all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                 is_complete = False
                 is_split = True
+                logger.debug('Remote termination types differ; aborting trace.')
                 break
 
             # Step 7: Record the far-end termination object(s)
@@ -798,6 +800,10 @@ class CablePath(models.Model):
                     port_mappings = PortMapping.objects.filter(q_filter)
                 elif remote_terminations[0].positions > 1:
                     is_split = True
+                    logger.debug(
+                        'Encountered front port mapped to multiple rear ports but position stack is empty; aborting '
+                        'trace.'
+                    )
                     break
                 else:
                     port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
@@ -819,6 +825,10 @@ class CablePath(models.Model):
                     port_mappings = PortMapping.objects.filter(q_filter)
                 elif remote_terminations[0].positions > 1:
                     is_split = True
+                    logger.debug(
+                        'Encountered rear port mapped to multiple front ports but position stack is empty; aborting '
+                        'trace.'
+                    )
                     break
                 else:
                     port_mappings = PortMapping.objects.filter(rear_port__in=remote_terminations)
@@ -876,6 +886,7 @@ class CablePath(models.Model):
                     # Unsupported topology, mark as split and exit
                     is_complete = False
                     is_split = True
+                    logger.warning('Encountered an unsupported topology; aborting trace.')
                 break
 
         return cls(
