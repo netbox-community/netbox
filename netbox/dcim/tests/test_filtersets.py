@@ -2048,6 +2048,7 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
                 device_type=device_types[0],
                 name='Front Port 1',
                 type=PortTypeChoices.TYPE_8P8C,
+                positions=1,
                 color=ColorChoices.COLOR_RED,
                 description='foobar1'
             ),
@@ -2055,6 +2056,7 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
                 device_type=device_types[1],
                 name='Front Port 2',
                 type=PortTypeChoices.TYPE_110_PUNCH,
+                positions=2,
                 color=ColorChoices.COLOR_GREEN,
                 description='foobar2'
             ),
@@ -2062,6 +2064,7 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
                 device_type=device_types[2],
                 name='Front Port 3',
                 type=PortTypeChoices.TYPE_BNC,
+                positions=3,
                 color=ColorChoices.COLOR_BLUE,
                 description='foobar3'
             ),
@@ -2083,6 +2086,10 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
 
     def test_color(self):
         params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_positions(self):
+        params = {'positions': [1, 2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -5118,6 +5125,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 name='Front Port 4',
                 label='D',
                 type=PortTypeChoices.TYPE_FC,
+                positions=2,
                 _site=devices[3].site,
                 _location=devices[3].location,
                 _rack=devices[3].rack,
@@ -5127,6 +5135,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 name='Front Port 5',
                 label='E',
                 type=PortTypeChoices.TYPE_FC,
+                positions=3,
                 _site=devices[3].site,
                 _location=devices[3].location,
                 _rack=devices[3].rack,
@@ -5136,6 +5145,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 name='Front Port 6',
                 label='F',
                 type=PortTypeChoices.TYPE_FC,
+                positions=4,
                 _site=devices[3].site,
                 _location=devices[3].location,
                 _rack=devices[3].rack,
@@ -5170,6 +5180,10 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_color(self):
         params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_positions(self):
+        params = {'positions': [2, 3]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
