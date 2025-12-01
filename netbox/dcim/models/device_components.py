@@ -210,10 +210,6 @@ class CabledObjectModel(models.Model):
                 raise ValidationError({
                     "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
                 })
-            if not self.cable_position:
-                raise ValidationError({
-                    "cable_position": _("Must specify cable termination position when attaching a cable.")
-                })
         if self.cable_end and not self.cable:
             raise ValidationError({
                 "cable_end": _("Cable end must not be set without a cable.")
