@@ -44,10 +44,18 @@ class ScriptJob(JobRunner):
                 # A script can modify multiple models so need to do an atomic lock on
                 # both the default database (for non ChangeLogged models) and potentially
                 # any other database (for ChangeLogged models)
-                with transaction.atomic(using=router.db_for_write(Device)):
-                    script.output = script.run(data, commit)
-                    if not commit:
-                        raise AbortTransaction()
+                branch_db = router.db_for_write(Device)
+                with transaction.atomic(using='default'):
+                    # If branch database is different from default, wrap in a second atomic transaction
+                    if branch_db != 'default':
+                        with transaction.atomic(using=branch_db):
+                            script.output = script.run(data, commit)
+                            if not commit:
+                                raise AbortTransaction()
+                    else:
+                        script.output = script.run(data, commit)
+                        if not commit:
+                            raise AbortTransaction()
             except AbortTransaction:
                 script.log_info(message=_("Database changes have been reverted automatically."))
                 if script.failed:
