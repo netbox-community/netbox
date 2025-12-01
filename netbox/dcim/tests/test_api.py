@@ -1040,6 +1040,32 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'rear_ports': [
+                {
+                    'position': 1,
+                    'rear_port': rear_port_templates[3].pk,
+                    'rear_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the front port template
+        front_port_template = FrontPortTemplate.objects.get(name='Front Port Template 1')
+        rear_port_template = RearPortTemplate.objects.get(name='Rear Port Template 4')
+        self.assertTrue(
+            PortTemplateMapping.objects.filter(
+                front_port=front_port_template,
+                front_port_position=1,
+                rear_port=rear_port_template,
+                rear_port_position=1,
+            ).exists()
+        )
+
 
 class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = RearPortTemplate
@@ -1129,6 +1155,32 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 ],
             },
         ]
+
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'front_ports': [
+                {
+                    'position': 1,
+                    'front_port': front_port_templates[3].pk,
+                    'front_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the rear port template
+        front_port_template = FrontPortTemplate.objects.get(name='Front Port Template 4')
+        rear_port_template = RearPortTemplate.objects.get(name='Rear Port Template 1')
+        self.assertTrue(
+            PortTemplateMapping.objects.filter(
+                front_port=front_port_template,
+                front_port_position=1,
+                rear_port=rear_port_template,
+                rear_port_position=1,
+            ).exists()
+        )
 
 
 class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -2109,6 +2161,32 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'rear_ports': [
+                {
+                    'position': 1,
+                    'rear_port': rear_ports[3].pk,
+                    'rear_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the front port
+        front_port = FrontPort.objects.get(name='Front Port 1')
+        rear_port = RearPort.objects.get(name='Rear Port 4')
+        self.assertTrue(
+            PortMapping.objects.filter(
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1,
+            ).exists()
+        )
+
     @tag('regression')  # Issue #18991
     def test_front_port_paths(self):
         device = Device.objects.first()
@@ -2196,6 +2274,32 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 ],
             },
         ]
+
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'front_ports': [
+                {
+                    'position': 1,
+                    'front_port': front_ports[3].pk,
+                    'front_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the rear port
+        front_port = FrontPort.objects.get(name='Front Port 4')
+        rear_port = RearPort.objects.get(name='Rear Port 1')
+        self.assertTrue(
+            PortMapping.objects.filter(
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1,
+            ).exists()
+        )
 
     @tag('regression')  # Issue #18991
     def test_rear_port_paths(self):
