@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from core.signals import clear_events
 from dcim.models import Device
 from extras.models import Script as ScriptModel
+from netbox.context_managers import event_tracking
 from netbox.jobs import JobRunner
 from netbox.registry import registry
 from utilities.exceptions import AbortScript, AbortTransaction
@@ -116,5 +117,7 @@ class ScriptJob(JobRunner):
 
         with ExitStack() as stack:
             for request_processor in registry['request_processors']:
+                if not commit and request_processor is event_tracking:
+                    continue
                 stack.enter_context(request_processor(request))
             self.run_script(script, request, data, commit)
