@@ -127,26 +127,6 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
             'device_type', 'module_type', 'type', 'color', 'positions', 'description',
         )
 
-    def clean(self):
-        # TODO
-        # super(ComponentCreateForm, self).clean()
-
-        # Check that the number of FrontPortTemplates to be created matches the selected number of RearPortTemplate
-        # positions
-        positions = self.cleaned_data['positions']
-        frontport_count = len(self.cleaned_data['name'])
-        rearport_count = len(self.cleaned_data['rear_ports'])
-        if frontport_count * positions != rearport_count:
-            raise forms.ValidationError({
-                'rear_ports': _(
-                    "The number of front port templates to be created ({frontport_count}) must match the selected "
-                    "number of rear port positions ({rearport_count})."
-                ).format(
-                    frontport_count=frontport_count,
-                    rearport_count=rearport_count
-                )
-            })
-
     def get_iterative_data(self, iteration):
         positions = self.cleaned_data['positions']
         offset = positions * iteration
