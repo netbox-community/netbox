@@ -2,11 +2,14 @@ import logging
 import traceback
 from contextlib import ExitStack
 
-from django.db import transaction
+from django.db import router, transaction
+from django.db import DEFAULT_DB_ALIAS
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
+from dcim.models import Device
 from extras.models import Script as ScriptModel
+from netbox.context_managers import event_tracking
 from netbox.jobs import JobRunner
 from netbox.registry import registry
 from utilities.exceptions import AbortScript, AbortTransaction
@@ -42,10 +45,21 @@ class ScriptJob(JobRunner):
                 # A script can modify multiple models so need to do an atomic lock on
                 # both the default database (for non ChangeLogged models) and potentially
                 # any other database (for ChangeLogged models)
-                with transaction.atomic():
-                    script.output = script.run(data, commit)
-                    if not commit:
-                        raise AbortTransaction()
+                changeloged_db = router.db_for_write(Device)
+                with transaction.atomic(using=DEFAULT_DB_ALIAS):
+                    # If branch database is different from default, wrap in a second atomic transaction
+                    # Note: Don't add any extra code between the two atomic transactions,
+                    # otherwise the changes might get committed to the default database
+                    # if there are any raised exceptions.
+                    if changeloged_db != DEFAULT_DB_ALIAS:
+                        with transaction.atomic(using=changeloged_db):
+                            script.output = script.run(data, commit)
+                            if not commit:
+                                raise AbortTransaction()
+                    else:
+                        script.output = script.run(data, commit)
+                        if not commit:
+                            raise AbortTransaction()
             except AbortTransaction:
                 script.log_info(message=_("Database changes have been reverted automatically."))
                 if script.failed:
@@ -108,14 +122,14 @@ class ScriptJob(JobRunner):
         script.request = request
         self.logger.debug(f"Request ID: {request.id if request else None}")
 
-        # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
-        # change logging, event rules, etc.
         if commit:
             self.logger.info("Executing script (commit enabled)")
-            with ExitStack() as stack:
-                for request_processor in registry['request_processors']:
-                    stack.enter_context(request_processor(request))
-                self.run_script(script, request, data, commit)
         else:
             self.logger.warning("Executing script (commit disabled)")
+
+        with ExitStack() as stack:
+            for request_processor in registry['request_processors']:
+                if not commit and request_processor is event_tracking:
+                    continue
+                stack.enter_context(request_processor(request))
             self.run_script(script, request, data, commit)
