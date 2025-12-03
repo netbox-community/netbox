@@ -3,6 +3,7 @@ import traceback
 from contextlib import ExitStack
 
 from django.db import router, transaction
+from django.db import DEFAULT_DB_ALIAS
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
@@ -44,11 +45,14 @@ class ScriptJob(JobRunner):
                 # A script can modify multiple models so need to do an atomic lock on
                 # both the default database (for non ChangeLogged models) and potentially
                 # any other database (for ChangeLogged models)
-                branch_db = router.db_for_write(Device)
-                with transaction.atomic(using='default'):
+                changeloged_db = router.db_for_write(Device)
+                with transaction.atomic(using=DEFAULT_DB_ALIAS):
                     # If branch database is different from default, wrap in a second atomic transaction
-                    if branch_db != 'default':
-                        with transaction.atomic(using=branch_db):
+                    # Note: Don't add any extra code between the two atomic transactions,
+                    # otherwise the changes might get committed to the default database
+                    # if there are any raised exceptions.
+                    if changeloged_db != DEFAULT_DB_ALIAS:
+                        with transaction.atomic(using=changeloged_db):
                             script.output = script.run(data, commit)
                             if not commit:
                                 raise AbortTransaction()
