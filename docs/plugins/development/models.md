@@ -67,6 +67,24 @@ class MyModel(ExportTemplatesMixin, TagsMixin, models.Model):
     ...
 ```
 
+## Additional Models
+
+In addition to the base NetBoxModel class, the following additional classes are provided for convenience.
+
+!!! info "These base classes were added to the plugins API in NetBox v4.5."
+
+### PrimaryModel
+
+PrimaryModel is the go-to class for most object types. It extends NetBoxModel with `description` and `comments` fields, and it introduces support for ownership assignment.
+
+### OrganizationalModel
+
+OrganizationalModel is used by object types whose function is primarily the organization of other objects. It adds to NetBoxModel fields for `name`, `slug`, and `description`. It also supports ownership assignment.
+
+### NestedGroupModel
+
+NestedGroupModel is used for objects which arrange into a recursive hierarchy (like regions and locations) via its self-referential `parent` foreign key. It adds to NetBoxModel fields for `name`, `slug`, `description`, and `comments`. It also supports ownership assignment.
+
 ## Database Migrations
 
 Once you have completed defining the model(s) for your plugin, you'll need to create the database schema migrations. A migration file is essentially a set of instructions for manipulating the PostgreSQL database to support your new model, or to alter existing models. Creating migrations can usually be done automatically using Django's `makemigrations` management command. (Ensure that your plugin has been installed and enabled first, otherwise it won't be found.)
