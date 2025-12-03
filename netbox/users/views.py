@@ -3,7 +3,9 @@ from django.db.models import Count
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
+from netbox.ui import layout
 from netbox.views import generic
+from users.ui import panels
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
@@ -26,6 +28,14 @@ class TokenListView(generic.ObjectListView):
 @register_model_view(Token)
 class TokenView(generic.ObjectView):
     queryset = Token.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.TokenPanel(),
+        ],
+        right_panels=[
+            panels.TokenExamplePanel(),
+        ],
+    )
 
 
 @register_model_view(Token, 'add', detail=False)

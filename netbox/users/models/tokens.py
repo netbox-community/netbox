@@ -201,6 +201,15 @@ class Token(models.Model):
         """
         return self.enabled and not self.is_expired
 
+    def get_auth_header_prefix(self):
+        """
+        Return the HTTP Authorization header prefix for this token.
+        """
+        if self.v1:
+            return 'Token '
+        if self.v2:
+            return f'Bearer {TOKEN_PREFIX}{self.key}.'
+
     def clean(self):
         super().clean()
 
