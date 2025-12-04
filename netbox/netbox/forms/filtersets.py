@@ -45,34 +45,30 @@ class NetBoxModelFilterSetForm(FilterModifierMixin, CustomFieldsMixin, SavedFilt
         return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)
 
 
-class PrimaryModelFilterSetForm(NetBoxModelFilterSetForm):
+class OwnerFilterMixin(forms.Form):
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
+
+
+class PrimaryModelFilterSetForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
     """
     FilterSet form for models which inherit from PrimaryModel.
     """
-    owner_id = DynamicModelChoiceField(
-        queryset=Owner.objects.all(),
-        required=False,
-        label=_('Owner'),
-    )
+    pass
 
 
-class OrganizationalModelFilterSetForm(NetBoxModelFilterSetForm):
+class OrganizationalModelFilterSetForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
     """
     FilterSet form for models which inherit from OrganizationalModel.
     """
-    owner_id = DynamicModelChoiceField(
-        queryset=Owner.objects.all(),
-        required=False,
-        label=_('Owner'),
-    )
+    pass
 
 
-class NestedGroupModelFilterSetForm(NetBoxModelFilterSetForm):
+class NestedGroupModelFilterSetForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
     """
     FilterSet form for models which inherit from NestedGroupModel.
     """
-    owner_id = DynamicModelChoiceField(
-        queryset=Owner.objects.all(),
-        required=False,
-        label=_('Owner'),
-    )
+    pass
