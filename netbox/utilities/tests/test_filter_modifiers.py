@@ -1,15 +1,41 @@
 from django import forms
+from django.db import models
 from django.http import QueryDict
 from django.template import Context
 from django.test import RequestFactory, TestCase
 
+import dcim.filtersets  # noqa: F401 - Import to register Device filterset
 from dcim.forms.filtersets import DeviceFilterForm
 from dcim.models import Device
+from netbox.filtersets import BaseFilterSet
+from netbox.plugins.registration import register_filterset
 from users.models import User
 from utilities.forms.fields import TagFilterField
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.widgets import FilterModifierWidget
 from utilities.templatetags.helpers import applied_filters
+
+
+# Test model for FilterModifierMixin tests
+class TestModel(models.Model):
+    """Dummy model for testing filter modifiers."""
+    char_field = models.CharField(max_length=100, blank=True)
+    integer_field = models.IntegerField(null=True, blank=True)
+    decimal_field = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    date_field = models.DateField(null=True, blank=True)
+    boolean_field = models.BooleanField(default=False)
+
+    class Meta:
+        app_label = 'utilities'
+        managed = False  # Don't create actual database table
+
+
+# Test filterset using BaseFilterSet to automatically generate lookups
+@register_filterset
+class TestFilterSet(BaseFilterSet):
+    class Meta:
+        model = TestModel
+        fields = ['char_field', 'integer_field', 'decimal_field', 'date_field', 'boolean_field']
 
 
 class FilterModifierWidgetTest(TestCase):
@@ -100,81 +126,76 @@ class FilterModifierMixinTest(TestCase):
     def test_mixin_enhances_char_field_with_modifiers(self):
         """CharField should be enhanced with contains/starts/ends modifiers."""
         class TestForm(FilterModifierMixin, forms.Form):
-            name = forms.CharField(required=False)
+            char_field = forms.CharField(required=False)
+            model = TestModel
 
         form = TestForm()
 
-        self.assertIsInstance(form.fields['name'].widget, FilterModifierWidget)
-        lookup_codes = [lookup[0] for lookup in form.fields['name'].widget.lookups]
+        self.assertIsInstance(form.fields['char_field'].widget, FilterModifierWidget)
+        lookup_codes = [lookup[0] for lookup in form.fields['char_field'].widget.lookups]
         expected_lookups = ['exact', 'n', 'ic', 'isw', 'iew', 'ie', 'regex', 'iregex', 'empty_true', 'empty_false']
         self.assertEqual(lookup_codes, expected_lookups)
 
     def test_mixin_skips_boolean_fields(self):
         """Boolean fields should not be enhanced."""
         class TestForm(FilterModifierMixin, forms.Form):
-            active = forms.BooleanField(required=False)
+            boolean_field = forms.BooleanField(required=False)
+            model = TestModel
 
         form = TestForm()
 
-        self.assertNotIsInstance(form.fields['active'].widget, FilterModifierWidget)
+        self.assertNotIsInstance(form.fields['boolean_field'].widget, FilterModifierWidget)
 
     def test_mixin_enhances_tag_filter_field(self):
         """TagFilterField should be enhanced even though it's a MultipleChoiceField."""
         class TestForm(FilterModifierMixin, forms.Form):
             tag = TagFilterField(Device)
+            model = Device
 
         form = TestForm()
 
         self.assertIsInstance(form.fields['tag'].widget, FilterModifierWidget)
         tag_lookups = [lookup[0] for lookup in form.fields['tag'].widget.lookups]
-        expected_lookups = ['exact', 'n', 'empty_true', 'empty_false']
+        # Device filterset has tag and tag__n but not tag__empty
+        expected_lookups = ['exact', 'n']
         self.assertEqual(tag_lookups, expected_lookups)
-
-    def test_mixin_enhances_multi_choice_field(self):
-        """Plain MultipleChoiceField should be enhanced with choice-appropriate lookups."""
-        class TestForm(FilterModifierMixin, forms.Form):
-            status = forms.MultipleChoiceField(choices=[('a', 'A'), ('b', 'B')], required=False)
-
-        form = TestForm()
-
-        self.assertIsInstance(form.fields['status'].widget, FilterModifierWidget)
-        status_lookups = [lookup[0] for lookup in form.fields['status'].widget.lookups]
-        expected_lookups = ['exact', 'n', 'empty_true', 'empty_false']
-        self.assertEqual(status_lookups, expected_lookups)
 
     def test_mixin_enhances_integer_field(self):
         """IntegerField should be enhanced with comparison modifiers."""
         class TestForm(FilterModifierMixin, forms.Form):
-            count = forms.IntegerField(required=False)
+            integer_field = forms.IntegerField(required=False)
+            model = TestModel
 
         form = TestForm()
 
-        self.assertIsInstance(form.fields['count'].widget, FilterModifierWidget)
-        lookup_codes = [lookup[0] for lookup in form.fields['count'].widget.lookups]
+        self.assertIsInstance(form.fields['integer_field'].widget, FilterModifierWidget)
+        lookup_codes = [lookup[0] for lookup in form.fields['integer_field'].widget.lookups]
         expected_lookups = ['exact', 'n', 'gt', 'gte', 'lt', 'lte', 'empty_true', 'empty_false']
         self.assertEqual(lookup_codes, expected_lookups)
 
     def test_mixin_enhances_decimal_field(self):
         """DecimalField should be enhanced with comparison modifiers."""
         class TestForm(FilterModifierMixin, forms.Form):
-            weight = forms.DecimalField(required=False)
+            decimal_field = forms.DecimalField(required=False)
+            model = TestModel
 
         form = TestForm()
 
-        self.assertIsInstance(form.fields['weight'].widget, FilterModifierWidget)
-        lookup_codes = [lookup[0] for lookup in form.fields['weight'].widget.lookups]
+        self.assertIsInstance(form.fields['decimal_field'].widget, FilterModifierWidget)
+        lookup_codes = [lookup[0] for lookup in form.fields['decimal_field'].widget.lookups]
         expected_lookups = ['exact', 'n', 'gt', 'gte', 'lt', 'lte', 'empty_true', 'empty_false']
         self.assertEqual(lookup_codes, expected_lookups)
 
     def test_mixin_enhances_date_field(self):
         """DateField should be enhanced with date-appropriate modifiers."""
         class TestForm(FilterModifierMixin, forms.Form):
-            created = forms.DateField(required=False)
+            date_field = forms.DateField(required=False)
+            model = TestModel
 
         form = TestForm()
 
-        self.assertIsInstance(form.fields['created'].widget, FilterModifierWidget)
-        lookup_codes = [lookup[0] for lookup in form.fields['created'].widget.lookups]
+        self.assertIsInstance(form.fields['date_field'].widget, FilterModifierWidget)
+        lookup_codes = [lookup[0] for lookup in form.fields['date_field'].widget.lookups]
         expected_lookups = ['exact', 'n', 'gt', 'gte', 'lt', 'lte', 'empty_true', 'empty_false']
         self.assertEqual(lookup_codes, expected_lookups)
 

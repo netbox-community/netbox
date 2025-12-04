@@ -196,11 +196,11 @@ class FilterModifierMixin:
             if filterset:
                 lookups = self._verify_lookups_with_filterset(field_name, lookups, filterset)
 
-            if len(lookups) > 1:
-                field.widget = FilterModifierWidget(
-                    widget=field.widget,
-                    lookups=lookups
-                )
+                if len(lookups) > 1:
+                    field.widget = FilterModifierWidget(
+                        widget=field.widget,
+                        lookups=lookups
+                    )
 
     def _get_lookup_choices(self, field):
         """Determine the available lookup choices for a given field.
