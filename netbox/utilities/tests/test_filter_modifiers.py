@@ -261,6 +261,26 @@ class ExtendedLookupFilterPillsTest(TestCase):
         filter_pill = result['applied_filters'][0]
         self.assertIn('matches pattern', filter_pill['link_text'].lower())
 
+    def test_exact_lookup_filter_pill(self):
+        """Filter pill should show field label and value without lookup modifier for exact match."""
+        query_params = QueryDict('serial=ABC123')
+        form = DeviceFilterForm(query_params)
+
+        request = RequestFactory().get('/', query_params)
+        request.user = self.user
+        context = Context({'request': request})
+        result = applied_filters(context, Device, form, query_params)
+
+        self.assertGreater(len(result['applied_filters']), 0)
+        filter_pill = result['applied_filters'][0]
+        # Should not contain lookup modifier text
+        self.assertNotIn('is not', filter_pill['link_text'].lower())
+        self.assertNotIn('matches pattern', filter_pill['link_text'].lower())
+        self.assertNotIn('contains', filter_pill['link_text'].lower())
+        # Should contain field label and value
+        self.assertIn('Serial', filter_pill['link_text'])
+        self.assertIn('ABC123', filter_pill['link_text'])
+
 
 class EmptyLookupTest(TestCase):
     """Tests for empty (is empty/not empty) lookup support."""
