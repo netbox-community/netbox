@@ -85,10 +85,8 @@ class FilterModifierWidgetTest(TestCase):
         # Should contain modifier dropdown
         self.assertIn('class="form-select modifier-select"', html)
         self.assertIn('data-field="serial"', html)
-        self.assertIn('value="exact"', html)
-        self.assertIn('>Is</option>', html)
-        self.assertIn('value="ic"', html)
-        self.assertIn('>Contains</option>', html)
+        self.assertIn('<option value="exact" selected>Is</option>', html)
+        self.assertIn('<option value="ic">Contains</option>', html)
 
         # Should contain original input
         self.assertIn('type="text"', html)
