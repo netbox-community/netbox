@@ -36,7 +36,7 @@ class MyModelTable(NetBoxTable):
         default_columns = ('pk', 'name', ...)
 ```
 
-In addition to the base NetBoxTable class, the following table classes are also available for applicable models.
+In addition to the base NetBoxTable class, the following table classes are also available for subclasses of standard base models.
 
 | Model Class           | Serializer Class                         |
 |-----------------------|------------------------------------------|
