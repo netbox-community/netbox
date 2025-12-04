@@ -4,10 +4,10 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, PrimaryModelFilterSet
+from netbox.plugins.registration import register_filterset
 from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.filters import ContentTypeFilter
-from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 

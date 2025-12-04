@@ -14,12 +14,11 @@ from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
     ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
 )
+from netbox.plugins.registration import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
-from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from .choices import *
