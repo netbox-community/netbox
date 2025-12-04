@@ -32,7 +32,7 @@ class MyFilterSet(NetBoxModelFilterSet):
         fields = ('some', 'other', 'fields')
 ```
 
-In addition to the base NetBoxModelFilterSet class, the following filterset classes are also available for applicable models.
+In addition to the base NetBoxModelFilterSet class, the following filterset classes are also available for subclasses of standard base models.
 
 | Model Class           | FilterSet Class                                  |
 |-----------------------|--------------------------------------------------|
