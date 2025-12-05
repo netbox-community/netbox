@@ -80,13 +80,6 @@ class DataSourceForm(NetBoxModelForm):
                 if self.instance and self.instance.parameters:
                     self.fields[field_name].initial = self.instance.parameters.get(name)
 
-    def clean(self):
-        super().clean()
-        if not self.instance.pk:
-            self.cleaned_data['status'] = DataSourceStatusChoices.NEW
-        else:
-            if not self.data.get('sync_interval'):
-                self.cleaned_data['status'] = DataSourceStatusChoices.READY
 
     def save(self, *args, **kwargs):
         parameters = {}
@@ -95,8 +88,20 @@ class DataSourceForm(NetBoxModelForm):
                 parameters[name[8:]] = self.cleaned_data[name]
         self.instance.parameters = parameters
 
-        # update status
-        self.instance.status = self.cleaned_data.get('status', self.instance.status)
+        # Determine initial status based on new/existing instance
+        if not self.instance.pk:
+            # New instance
+            object_status = DataSourceStatusChoices.NEW
+        else:
+            # Existing instance
+            if not self.cleaned_data.get("sync_interval"):
+                object_status = DataSourceStatusChoices.READY
+            else:
+                object_status = self.instance.status
+
+        # # Final override only if the user explicitly provided a status
+        # user_status = self.cleaned_data.get("status")
+        self.instance.status = object_status
 
         return super().save(*args, **kwargs)
 
