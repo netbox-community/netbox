@@ -287,6 +287,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 
 
 class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
+    model = TableConfig
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),

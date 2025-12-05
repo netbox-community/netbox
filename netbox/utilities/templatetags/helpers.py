@@ -5,9 +5,11 @@ from urllib.parse import quote
 from django import template
 from django.urls import NoReverseMatch, reverse
 from django.utils.html import conditional_escape
+from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
+from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_viewname, get_action_url
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
 
@@ -418,7 +420,20 @@ def applied_filters(context, model, form, query_params):
             continue
 
         querydict = query_params.copy()
-        if filter_name not in querydict:
+
+        # Check if this is a modifier-enhanced field
+        # Field may be in querydict as field__lookup instead of field
+        param_name = None
+        if filter_name in querydict:
+            param_name = filter_name
+        else:
+            # Check for modifier variants (field__ic, field__isw, etc.)
+            for key in querydict.keys():
+                if key.startswith(f'{filter_name}__'):
+                    param_name = key
+                    break
+
+        if param_name is None:
             continue
 
         # Skip saved filters, as they're displayed alongside the quick search widget
@@ -426,14 +441,46 @@ def applied_filters(context, model, form, query_params):
             continue
 
         bound_field = form.fields[filter_name].get_bound_field(form, filter_name)
-        querydict.pop(filter_name)
+        querydict.pop(param_name)
+
+        # Extract modifier from parameter name (e.g., "serial__ic" → "ic")
+        if '__' in param_name:
+            modifier = param_name.split('__', 1)[1]
+        else:
+            modifier = 'exact'
+
+        # Get display value
         display_value = ', '.join([str(v) for v in get_selected_values(form, filter_name)])
 
+        # Get the correct lookup label for this field's type
+        lookup_label = None
+        if modifier != 'exact':
+            field = form.fields[filter_name]
+            for field_class in field.__class__.__mro__:
+                if field_lookups := FORM_FIELD_LOOKUPS.get(field_class):
+                    for lookup_code, label in field_lookups:
+                        if lookup_code == modifier:
+                            lookup_label = label
+                            break
+                    if lookup_label:
+                        break
+
+        # Special handling for empty lookup (boolean value)
+        if modifier == 'empty':
+            if display_value.lower() in ('true', '1'):
+                link_text = f'{bound_field.label} {_("is empty")}'
+            else:
+                link_text = f'{bound_field.label} {_("is not empty")}'
+        elif lookup_label:
+            link_text = f'{bound_field.label} {lookup_label}: {display_value}'
+        else:
+            link_text = f'{bound_field.label}: {display_value}'
+
         applied_filters.append({
-            'name': filter_name,
-            'value': form.cleaned_data[filter_name],
+            'name': param_name,  # Use actual param name for removal link
+            'value': form.cleaned_data.get(filter_name),
             'link_url': f'?{querydict.urlencode()}',
-            'link_text': f'{bound_field.label}: {display_value}',
+            'link_text': link_text,
         })
 
     save_link = None
