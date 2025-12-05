@@ -7,8 +7,6 @@ from strawberry import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
 from core.graphql.filters import ContentTypeFilter
-from netbox.graphql.filter_mixins import WeightFilterMixin
-from netbox.graphql.filters import ChangeLoggedModelFilter, NetBoxModelFilter, PrimaryModelFilter
 from .enums import *
 
 if TYPE_CHECKING:
@@ -19,12 +17,12 @@ if TYPE_CHECKING:
 
 __all__ = (
     'CabledObjectModelFilterMixin',
-    'ComponentModelFilter',
-    'ComponentTemplateFilter',
+    'ComponentModelFilterMixin',
+    'ComponentTemplateFilterMixin',
     'InterfaceBaseFilterMixin',
-    'ModularComponentModelFilter',
-    'ModularComponentTemplateFilter',
-    'RackBaseFilter',
+    'ModularComponentModelFilterMixin',
+    'ModularComponentTemplateFilterMixin',
+    'RackFilterMixin',
     'RenderConfigFilterMixin',
     'ScopedFilterMixin',
 )
@@ -39,7 +37,7 @@ class ScopedFilterMixin:
 
 
 @dataclass
-class ComponentModelFilter(NetBoxModelFilter):
+class ComponentModelFilterMixin:
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -48,7 +46,7 @@ class ComponentModelFilter(NetBoxModelFilter):
 
 
 @dataclass
-class ModularComponentModelFilter(ComponentModelFilter):
+class ModularComponentModelFilterMixin(ComponentModelFilterMixin):
     module: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     module_id: ID | None = strawberry_django.filter_field()
     inventory_items: Annotated['InventoryItemFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -67,7 +65,7 @@ class CabledObjectModelFilterMixin:
 
 
 @dataclass
-class ComponentTemplateFilter(ChangeLoggedModelFilter):
+class ComponentTemplateFilterMixin:
     device_type: Annotated['DeviceTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -78,7 +76,7 @@ class ComponentTemplateFilter(ChangeLoggedModelFilter):
 
 
 @dataclass
-class ModularComponentTemplateFilter(ComponentTemplateFilter):
+class ModularComponentTemplateFilterMixin(ComponentTemplateFilterMixin):
     module_type: Annotated['ModuleTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -124,7 +122,7 @@ class InterfaceBaseFilterMixin:
 
 
 @dataclass
-class RackBaseFilter(WeightFilterMixin, PrimaryModelFilter):
+class RackFilterMixin:
     width: BaseFilterLookup[Annotated['RackWidthEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )

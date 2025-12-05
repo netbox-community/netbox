@@ -8,10 +8,10 @@ from strawberry_django import BaseFilterLookup, FilterLookup
 from dcim.graphql.filter_mixins import InterfaceBaseFilterMixin, RenderConfigFilterMixin, ScopedFilterMixin
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
 from netbox.graphql.filter_mixins import ImageAttachmentFilterMixin
-from netbox.graphql.filters import OrganizationalModelFilter, PrimaryModelFilter
+from netbox.graphql.filters import NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization import models
-from virtualization.graphql.filter_mixins import VMComponentFilter
+from virtualization.graphql.filter_mixins import VMComponentFilterMixin
 
 if TYPE_CHECKING:
     from .enums import *
@@ -135,7 +135,7 @@ class VirtualMachineFilter(
 
 
 @strawberry_django.filter_type(models.VMInterface, lookups=True)
-class VMInterfaceFilter(VMComponentFilter, InterfaceBaseFilterMixin):
+class VMInterfaceFilter(InterfaceBaseFilterMixin, VMComponentFilterMixin, NetBoxModelFilter):
     ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -160,7 +160,7 @@ class VMInterfaceFilter(VMComponentFilter, InterfaceBaseFilterMixin):
 
 
 @strawberry_django.filter_type(models.VirtualDisk, lookups=True)
-class VirtualDiskFilter(VMComponentFilter):
+class VirtualDiskFilter(VMComponentFilterMixin, NetBoxModelFilter):
     size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

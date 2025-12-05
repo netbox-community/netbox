@@ -10,7 +10,7 @@ from netbox.graphql.filter_mixins import DistanceFilterMixin
 from netbox.graphql.filters import PrimaryModelFilter, NestedGroupModelFilter
 from tenancy.graphql.filter_mixins import TenancyFilterMixin
 from wireless import models
-from .filter_mixins import WirelessAuthenticationBaseFilterMixin
+from .filter_mixins import WirelessAuthenticationFilterMixin
 
 if TYPE_CHECKING:
     from dcim.graphql.filters import InterfaceFilter
@@ -31,7 +31,7 @@ class WirelessLANGroupFilter(NestedGroupModelFilter):
 
 @strawberry_django.filter_type(models.WirelessLAN, lookups=True)
 class WirelessLANFilter(
-    WirelessAuthenticationBaseFilterMixin,
+    WirelessAuthenticationFilterMixin,
     ScopedFilterMixin,
     TenancyFilterMixin,
     PrimaryModelFilter
@@ -50,7 +50,7 @@ class WirelessLANFilter(
 
 @strawberry_django.filter_type(models.WirelessLink, lookups=True)
 class WirelessLinkFilter(
-    WirelessAuthenticationBaseFilterMixin,
+    WirelessAuthenticationFilterMixin,
     DistanceFilterMixin,
     TenancyFilterMixin,
     PrimaryModelFilter

@@ -12,7 +12,7 @@ from strawberry_django import BaseFilterLookup, FilterLookup, DateFilterLookup
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
-from ipam.graphql.filter_mixins import ServiceBaseFilterMixin
+from ipam.graphql.filter_mixins import ServiceFilterMixin
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter, NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
 )
@@ -340,7 +340,7 @@ class RouteTargetFilter(TenancyFilterMixin, PrimaryModelFilter):
 
 
 @strawberry_django.filter_type(models.Service, lookups=True)
-class ServiceFilter(ContactFilterMixin, ServiceBaseFilterMixin, PrimaryModelFilter):
+class ServiceFilter(ContactFilterMixin, ServiceFilterMixin, PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     ip_addresses: Annotated['IPAddressFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -352,7 +352,7 @@ class ServiceFilter(ContactFilterMixin, ServiceBaseFilterMixin, PrimaryModelFilt
 
 
 @strawberry_django.filter_type(models.ServiceTemplate, lookups=True)
-class ServiceTemplateFilter(ServiceBaseFilterMixin, PrimaryModelFilter):
+class ServiceTemplateFilter(ServiceFilterMixin, PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
 
 

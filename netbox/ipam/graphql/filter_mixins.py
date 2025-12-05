@@ -9,12 +9,12 @@ if TYPE_CHECKING:
     from .enums import *
 
 __all__ = (
-    'ServiceBaseFilterMixin',
+    'ServiceFilterMixin',
 )
 
 
 @dataclass
-class ServiceBaseFilterMixin:
+class ServiceFilterMixin:
     protocol: Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )

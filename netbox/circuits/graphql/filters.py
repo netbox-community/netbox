@@ -7,12 +7,12 @@ from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup, DateFilterLookup
 
 from circuits import models
+from circuits.graphql.filter_mixins import CircuitTypeFilterMixin
 from dcim.graphql.filter_mixins import CabledObjectModelFilterMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filter_mixins import DistanceFilterMixin, ImageAttachmentFilterMixin
 from netbox.graphql.filters import ChangeLoggedModelFilter, OrganizationalModelFilter, PrimaryModelFilter
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
-from .filter_mixins import BaseCircuitTypeFilter
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
@@ -118,7 +118,7 @@ class CircuitFilter(
 
 
 @strawberry_django.filter_type(models.CircuitType, lookups=True)
-class CircuitTypeFilter(BaseCircuitTypeFilter):
+class CircuitTypeFilter(CircuitTypeFilterMixin, OrganizationalModelFilter):
     pass
 
 
@@ -173,7 +173,7 @@ class ProviderNetworkFilter(PrimaryModelFilter):
 
 
 @strawberry_django.filter_type(models.VirtualCircuitType, lookups=True)
-class VirtualCircuitTypeFilter(BaseCircuitTypeFilter):
+class VirtualCircuitTypeFilter(CircuitTypeFilterMixin, OrganizationalModelFilter):
     pass
 
 

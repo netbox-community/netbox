@@ -9,12 +9,12 @@ if TYPE_CHECKING:
     from .enums import *
 
 __all__ = (
-    'WirelessAuthenticationBaseFilterMixin',
+    'WirelessAuthenticationFilterMixin',
 )
 
 
 @dataclass
-class WirelessAuthenticationBaseFilterMixin:
+class WirelessAuthenticationFilterMixin:
     auth_type: Annotated['WirelessAuthTypeEnum', strawberry.lazy('wireless.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )

@@ -6,7 +6,7 @@ from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
 from extras import models
-from extras.graphql.filter_mixins import TagBaseFilter, CustomFieldsFilterMixin, TagsFilterMixin
+from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filter_mixins import SyncedDataFilterMixin
 from netbox.graphql.filters import ChangeLoggedModelFilter, PrimaryModelFilter
 
@@ -295,7 +295,9 @@ class TableConfigFilter(ChangeLoggedModelFilter):
 
 
 @strawberry_django.filter_type(models.Tag, lookups=True)
-class TagFilter(ChangeLoggedModelFilter, TagBaseFilter):
+class TagFilter(ChangeLoggedModelFilter):
+    name: FilterLookup[str] | None = strawberry_django.filter_field()
+    slug: FilterLookup[str] | None = strawberry_django.filter_field()
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )

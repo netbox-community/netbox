@@ -3,7 +3,6 @@ from typing import Annotated, TYPE_CHECKING
 
 import strawberry
 import strawberry_django
-from strawberry_django import FilterLookup
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import JSONFilter
@@ -14,7 +13,6 @@ __all__ = (
     'JournalEntriesFilterMixin',
     'TagsFilterMixin',
     'ConfigContextFilterMixin',
-    'TagBaseFilter',
 )
 
 
@@ -42,9 +40,3 @@ class ConfigContextFilterMixin:
     local_context_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-
-
-@dataclass
-class TagBaseFilter:
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
-    slug: FilterLookup[str] | None = strawberry_django.filter_field()
