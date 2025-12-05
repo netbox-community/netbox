@@ -472,13 +472,29 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for module weight')
     )
+    attribute_data = forms.JSONField(
+        label=_('Attributes'),
+        required=False,
+        help_text=_('Attribute values for the assigned profile, passed as a dictionary')
+    )
 
     class Meta:
         model = ModuleType
         fields = [
             'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'profile',
-            'comments', 'tags'
+            'attribute_data', 'comments', 'tags',
         ]
+
+    def clean(self):
+        super().clean()
+
+        # Attribute data may be included only if a profile is specified
+        if self.cleaned_data.get('attribute_data') and not self.cleaned_data.get('profile'):
+            raise forms.ValidationError(_("Profile must be specified if attribute data is provided."))
+
+        # Default attribute_data to an empty dictionary if a profile is specified (to enforce schema validation)
+        if self.cleaned_data.get('profile') and not self.cleaned_data.get('attribute_data'):
+            self.cleaned_data['attribute_data'] = {}
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
