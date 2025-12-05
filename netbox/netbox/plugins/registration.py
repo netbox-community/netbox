@@ -7,7 +7,6 @@ from .navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 from .templates import PluginTemplateExtension
 
 __all__ = (
-    'register_filterset',
     'register_graphql_schema',
     'register_menu',
     'register_menu_items',
@@ -43,18 +42,6 @@ def register_template_extensions(class_list):
             models = [None]
         for model in models:
             registry['plugins']['template_extensions'][model].append(template_extension)
-
-
-def register_filterset(filterset_class):
-    """
-    Decorator for registering a FilterSet with the application registry.
-
-    Uses model identifier as key to match search index pattern.
-    """
-    model = filterset_class._meta.model
-    label = f'{model._meta.app_label}.{model._meta.model_name}'
-    registry['filtersets'][label] = filterset_class
-    return filterset_class
 
 
 def register_menu(menu):

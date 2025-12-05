@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.filters import ContentTypeFilter
 

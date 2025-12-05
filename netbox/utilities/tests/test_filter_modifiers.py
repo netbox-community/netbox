@@ -8,7 +8,7 @@ import dcim.filtersets  # noqa: F401 - Import to register Device filterset
 from dcim.forms.filtersets import DeviceFilterForm
 from dcim.models import Device
 from netbox.filtersets import BaseFilterSet
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from users.models import User
 from utilities.forms.fields import TagFilterField
 from utilities.forms.mixins import FilterModifierMixin

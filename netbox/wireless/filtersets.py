@@ -6,7 +6,7 @@ from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.filtersets import NestedGroupModelFilterSet, PrimaryModelFilterSet
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from .choices import *

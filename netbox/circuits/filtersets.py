@@ -7,7 +7,7 @@ from dcim.filtersets import CabledObjectFilterSet
 from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,

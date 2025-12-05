@@ -14,7 +14,7 @@ from netbox.filtersets import (
     AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
     OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
 )
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin

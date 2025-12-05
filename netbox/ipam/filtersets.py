@@ -14,7 +14,7 @@ from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
     ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
 )
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,

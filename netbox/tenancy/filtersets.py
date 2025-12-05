@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from netbox.filtersets import (
     NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
-from netbox.plugins.registration import register_filterset
+from utilities.filtersets import register_filterset
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
 
