@@ -5,7 +5,6 @@ import strawberry_django
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
-from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filters import (
     ChangeLoggedModelFilter, NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
@@ -39,9 +38,7 @@ class TunnelGroupFilter(OrganizationalModelFilter):
 
 
 @strawberry_django.filter_type(models.TunnelTermination, lookups=True)
-class TunnelTerminationFilter(
-    BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter
-):
+class TunnelTerminationFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     tunnel: Annotated['TunnelFilter', strawberry.lazy('vpn.graphql.filters')] | None = strawberry_django.filter_field()
     tunnel_id: ID | None = strawberry_django.filter_field()
     role: BaseFilterLookup[Annotated['TunnelTerminationRoleEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (

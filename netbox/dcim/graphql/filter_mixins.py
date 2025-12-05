@@ -6,7 +6,6 @@ import strawberry_django
 from strawberry import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
-from core.graphql.filter_mixins import BaseFilter
 from core.graphql.filters import ContentTypeFilter
 from netbox.graphql.filter_mixins import WeightFilterMixin
 from netbox.graphql.filters import ChangeLoggedModelFilter, NetBoxModelFilter, PrimaryModelFilter
@@ -32,7 +31,7 @@ __all__ = (
 
 
 @dataclass
-class ScopedFilterMixin(BaseFilter):
+class ScopedFilterMixin:
     scope_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -58,7 +57,7 @@ class ModularComponentModelFilter(ComponentModelFilter):
 
 
 @dataclass
-class CabledObjectModelFilterMixin(BaseFilter):
+class CabledObjectModelFilterMixin:
     cable: Annotated['CableFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     cable_id: ID | None = strawberry_django.filter_field()
     cable_end: (
@@ -86,7 +85,7 @@ class ModularComponentTemplateFilter(ComponentTemplateFilter):
 
 
 @dataclass
-class RenderConfigFilterMixin(BaseFilter):
+class RenderConfigFilterMixin:
     config_template: Annotated['ConfigTemplateFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -94,7 +93,7 @@ class RenderConfigFilterMixin(BaseFilter):
 
 
 @dataclass
-class InterfaceBaseFilterMixin(BaseFilter):
+class InterfaceBaseFilterMixin:
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     mtu: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()

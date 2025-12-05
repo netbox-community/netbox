@@ -9,7 +9,6 @@ from netaddr.core import AddrFormatError
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup, DateFilterLookup
 
-from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
@@ -131,7 +130,7 @@ class FHRPGroupFilter(PrimaryModelFilter):
 
 
 @strawberry_django.filter_type(models.FHRPGroupAssignment, lookups=True)
-class FHRPGroupAssignmentFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
+class FHRPGroupAssignmentFilter(ChangeLoggedModelFilter):
     interface_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

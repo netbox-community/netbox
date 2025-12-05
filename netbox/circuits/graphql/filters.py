@@ -7,7 +7,6 @@ from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup, DateFilterLookup
 
 from circuits import models
-from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
 from dcim.graphql.filter_mixins import CabledObjectModelFilterMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filter_mixins import DistanceFilterMixin, ImageAttachmentFilterMixin
@@ -39,7 +38,6 @@ __all__ = (
 
 @strawberry_django.filter_type(models.CircuitTermination, lookups=True)
 class CircuitTerminationFilter(
-    BaseObjectTypeFilterMixin,
     CustomFieldsFilterMixin,
     TagsFilterMixin,
     ChangeLoggedModelFilter,
@@ -130,9 +128,7 @@ class CircuitGroupFilter(TenancyFilterMixin, OrganizationalModelFilter):
 
 
 @strawberry_django.filter_type(models.CircuitGroupAssignment, lookups=True)
-class CircuitGroupAssignmentFilter(
-    BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter
-):
+class CircuitGroupAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     member_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -205,9 +201,7 @@ class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilter):
 
 
 @strawberry_django.filter_type(models.VirtualCircuitTermination, lookups=True)
-class VirtualCircuitTerminationFilter(
-    BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter
-):
+class VirtualCircuitTerminationFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     virtual_circuit: Annotated['VirtualCircuitFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

@@ -6,8 +6,6 @@ import strawberry
 import strawberry_django
 from strawberry_django import BaseFilterLookup, FilterLookup, DatetimeFilterLookup
 
-from core.graphql.filter_mixins import BaseFilter
-
 __all__ = (
     'DistanceFilterMixin',
     'ImageAttachmentFilterMixin',
@@ -25,14 +23,14 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ImageAttachmentFilterMixin(BaseFilter):
+class ImageAttachmentFilterMixin:
     images: Annotated['ImageAttachmentFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
 
 @dataclass
-class WeightFilterMixin(BaseFilter):
+class WeightFilterMixin:
     weight: FilterLookup[float] | None = strawberry_django.filter_field()
     weight_unit: BaseFilterLookup[Annotated['WeightUnitEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -40,7 +38,7 @@ class WeightFilterMixin(BaseFilter):
 
 
 @dataclass
-class SyncedDataFilterMixin(BaseFilter):
+class SyncedDataFilterMixin:
     data_source: Annotated['DataSourceFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -55,7 +53,7 @@ class SyncedDataFilterMixin(BaseFilter):
 
 
 @dataclass
-class DistanceFilterMixin(BaseFilter):
+class DistanceFilterMixin:
     distance: FilterLookup[float] | None = strawberry_django.filter_field()
     distance_unit: BaseFilterLookup[Annotated['DistanceUnitEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
