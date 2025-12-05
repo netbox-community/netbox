@@ -72,9 +72,22 @@ class AvailableOptions(forms.SelectMultiple):
     will be empty.) Employed by SplitMultiSelectWidget.
     """
     def optgroups(self, name, value, attrs=None):
-        self.choices = [
-            choice for choice in self.choices if str(choice[0]) not in value
-        ]
+        # Handle both flat choices and optgroup choices
+        filtered_choices = []
+        for choice in self.choices:
+            # Check if this is an optgroup (nested tuple) or flat choice
+            if isinstance(choice[1], (list, tuple)):
+                # This is an optgroup: (group_label, [(id, name), ...])
+                group_label, group_choices = choice
+                filtered_group = [c for c in group_choices if str(c[0]) not in value]
+                if filtered_group:  # Only include optgroup if it has choices left
+                    filtered_choices.append((group_label, filtered_group))
+            else:
+                # This is a flat choice: (id, name)
+                if str(choice[0]) not in value:
+                    filtered_choices.append(choice)
+
+        self.choices = filtered_choices
         value = []  # Clear selected choices
         return super().optgroups(name, value, attrs)
 
@@ -86,6 +99,12 @@ class AvailableOptions(forms.SelectMultiple):
 
         return context
 
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        # Add title attribute to show full text on hover
+        option['attrs']['title'] = label
+        return option
+
 
 class SelectedOptions(forms.SelectMultiple):
     """
@@ -93,11 +112,30 @@ class SelectedOptions(forms.SelectMultiple):
     will include _all_ choices.) Employed by SplitMultiSelectWidget.
     """
     def optgroups(self, name, value, attrs=None):
-        self.choices = [
-            choice for choice in self.choices if str(choice[0]) in value
-        ]
+        # Handle both flat choices and optgroup choices
+        filtered_choices = []
+        for choice in self.choices:
+            # Check if this is an optgroup (nested tuple) or flat choice
+            if isinstance(choice[1], (list, tuple)):
+                # This is an optgroup: (group_label, [(id, name), ...])
+                group_label, group_choices = choice
+                filtered_group = [c for c in group_choices if str(c[0]) in value]
+                if filtered_group:  # Only include optgroup if it has choices left
+                    filtered_choices.append((group_label, filtered_group))
+            else:
+                # This is a flat choice: (id, name)
+                if str(choice[0]) in value:
+                    filtered_choices.append(choice)
+
+        self.choices = filtered_choices
         value = []  # Clear selected choices
         return super().optgroups(name, value, attrs)
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        # Add title attribute to show full text on hover
+        option['attrs']['title'] = label
+        return option
 
 
 class SplitMultiSelectWidget(forms.MultiWidget):

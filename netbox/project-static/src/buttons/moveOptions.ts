@@ -1,7 +1,7 @@
 import { getElements } from '../util';
 
 /**
- * Move selected options from one select element to another.
+ * Move selected options from one select element to another, preserving optgroup structure.
  *
  * @param source Select Element
  * @param target Select Element
@@ -9,14 +9,42 @@ import { getElements } from '../util';
 function moveOption(source: HTMLSelectElement, target: HTMLSelectElement): void {
   for (const option of Array.from(source.options)) {
     if (option.selected) {
-      target.appendChild(option.cloneNode(true));
+      // Check if option is inside an optgroup
+      const parentOptgroup = option.parentElement as HTMLElement;
+
+      if (parentOptgroup.tagName === 'OPTGROUP') {
+        // Find or create matching optgroup in target
+        const groupLabel = parentOptgroup.getAttribute('label');
+        let targetOptgroup = Array.from(target.children).find(
+          child => child.tagName === 'OPTGROUP' && child.getAttribute('label') === groupLabel,
+        ) as HTMLOptGroupElement;
+
+        if (!targetOptgroup) {
+          // Create new optgroup in target
+          targetOptgroup = document.createElement('optgroup');
+          targetOptgroup.setAttribute('label', groupLabel!);
+          target.appendChild(targetOptgroup);
+        }
+
+        // Move option to target optgroup
+        targetOptgroup.appendChild(option.cloneNode(true));
+      } else {
+        // Option is not in an optgroup, append directly
+        target.appendChild(option.cloneNode(true));
+      }
+
       option.remove();
+
+      // Clean up empty optgroups in source
+      if (parentOptgroup.tagName === 'OPTGROUP' && parentOptgroup.children.length === 0) {
+        parentOptgroup.remove();
+      }
     }
   }
 }
 
 /**
- * Move selected options of a select element up in order.
+ * Move selected options of a select element up in order, respecting optgroup boundaries.
  *
  * Adapted from:
  * @see https://www.tomred.net/css-html-js/reorder-option-elements-of-an-html-select.html
@@ -27,14 +55,21 @@ function moveOptionUp(element: HTMLSelectElement): void {
   for (let i = 1; i < options.length; i++) {
     const option = options[i];
     if (option.selected) {
-      element.removeChild(option);
-      element.insertBefore(option, element.options[i - 1]);
+      const parent = option.parentElement as HTMLElement;
+      const previousOption = element.options[i - 1];
+      const previousParent = previousOption.parentElement as HTMLElement;
+
+      // Only move if previous option is in the same parent (optgroup or select)
+      if (parent === previousParent) {
+        parent.removeChild(option);
+        parent.insertBefore(option, previousOption);
+      }
     }
   }
 }
 
 /**
- * Move selected options of a select element down in order.
+ * Move selected options of a select element down in order, respecting optgroup boundaries.
  *
  * Adapted from:
  * @see https://www.tomred.net/css-html-js/reorder-option-elements-of-an-html-select.html
@@ -43,12 +78,18 @@ function moveOptionUp(element: HTMLSelectElement): void {
 function moveOptionDown(element: HTMLSelectElement): void {
   const options = Array.from(element.options);
   for (let i = options.length - 2; i >= 0; i--) {
-    let option = options[i];
+    const option = options[i];
     if (option.selected) {
-      let next = element.options[i + 1];
-      option = element.removeChild(option);
-      next = element.replaceChild(option, next);
-      element.insertBefore(next, option);
+      const parent = option.parentElement as HTMLElement;
+      const nextOption = element.options[i + 1];
+      const nextParent = nextOption.parentElement as HTMLElement;
+
+      // Only move if next option is in the same parent (optgroup or select)
+      if (parent === nextParent) {
+        const optionClone = parent.removeChild(option);
+        const nextClone = parent.replaceChild(optionClone, nextOption);
+        parent.insertBefore(nextClone, optionClone);
+      }
     }
   }
 }

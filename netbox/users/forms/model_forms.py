@@ -283,10 +283,41 @@ class GroupForm(forms.ModelForm):
 
 
 def get_object_types_choices():
-    return [
-        (ot.pk, str(ot))
-        for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model')
-    ]
+    """
+    Generate choices for object types grouped by app label using optgroups.
+    Returns nested structure: [(app_label, [(id, model_name), ...]), ...]
+    """
+    from django.apps import apps
+
+    choices = []
+    current_app = None
+    current_group = []
+
+    for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model'):
+        # Get verbose app label (e.g., "NetBox Branching" instead of "netbox_branching")
+        try:
+            app_config = apps.get_app_config(ot.app_label)
+            app_label = app_config.verbose_name
+        except LookupError:
+            app_label = ot.app_label
+
+        # Start new optgroup when app changes
+        if current_app != app_label:
+            if current_group:
+                choices.append((current_app, current_group))
+            current_app = app_label
+            current_group = []
+
+        # Add model to current group using just the model's verbose name
+        model_class = ot.model_class()
+        model_name = model_class._meta.verbose_name if model_class else ot.model
+        current_group.append((ot.pk, model_name.title()))
+
+    # Add final group
+    if current_group:
+        choices.append((current_app, current_group))
+
+    return choices
 
 
 class ObjectPermissionForm(forms.ModelForm):
