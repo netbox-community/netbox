@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from dcim.choices import *
-from dcim.constants import MODULE_TOKEN
 from dcim.utils import update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
@@ -331,7 +330,6 @@ class Module(PrimaryModel, ConfigContextModel):
             else:
                 # ModuleBays must be saved individually for MPTT
                 for instance in create_instances:
-                    instance.name = instance.name.replace(MODULE_TOKEN, str(self.module_bay.position))
                     instance.save()
 
             update_fields = ['module']
