@@ -564,6 +564,82 @@ vlan: 102
         self.assertEqual(prefix.vlan.vid, 102)
         self.assertEqual(prefix.scope, site)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_import_with_vlan_site_multiple_vlans_same_vid(self):
+        """
+        Test import when multiple VLANs exist with the same vid but different sites.
+        Ref: #20560
+        """
+        site1 = Site.objects.get(name='Site 1')
+        site2 = Site.objects.get(name='Site 2')
+
+        # Create VLANs with the same vid but different sites
+        vlan1 = VLAN.objects.create(vid=1, name='VLAN1-Site1', site=site1)
+        VLAN.objects.create(vid=1, name='VLAN1-Site2', site=site2)  # Create ambiguity
+
+        # Import prefix with vlan_site specified
+        IMPORT_DATA = f"""
+prefix: 10.11.0.0/22
+status: active
+scope_type: dcim.site
+scope_id: {site1.pk}
+vlan_site: {site1.name}
+vlan: 1
+description: LOC02-MGMT
+"""
+
+        # Add all required permissions to the test user
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        # Verify the prefix was created with the correct VLAN
+        prefix = Prefix.objects.get(prefix='10.11.0.0/22')
+        self.assertEqual(prefix.vlan, vlan1)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_import_with_vlan_site_and_global_vlan(self):
+        """
+        Test import when a global VLAN (no site) and site-specific VLAN exist with same vid.
+        When vlan_site is specified, should prefer the site-specific VLAN.
+        Ref: #20560
+        """
+        site1 = Site.objects.get(name='Site 1')
+
+        # Create a global VLAN (no site) and a site-specific VLAN with the same vid
+        VLAN.objects.create(vid=10, name='VLAN10-Global', site=None)  # Create ambiguity
+        vlan_site = VLAN.objects.create(vid=10, name='VLAN10-Site1', site=site1)
+
+        # Import prefix with vlan_site specified
+        IMPORT_DATA = f"""
+prefix: 10.12.0.0/22
+status: active
+scope_type: dcim.site
+scope_id: {site1.pk}
+vlan_site: {site1.name}
+vlan: 10
+description: Test Site-Specific VLAN
+"""
+
+        # Add all required permissions to the test user
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        # Verify the prefix was created with the site-specific VLAN (not the global one)
+        prefix = Prefix.objects.get(prefix='10.12.0.0/22')
+        self.assertEqual(prefix.vlan, vlan_site)
+
 
 class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = IPRange
