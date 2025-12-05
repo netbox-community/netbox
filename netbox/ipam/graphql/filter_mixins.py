@@ -4,7 +4,7 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 import strawberry_django
 
-from core.graphql.filter_mixins import BaseFilterMixin
+from core.graphql.filter_mixins import BaseFilter
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import IntegerLookup
@@ -16,7 +16,7 @@ __all__ = (
 
 
 @dataclass
-class ServiceBaseFilterMixin(BaseFilterMixin):
+class ServiceBaseFilterMixin(BaseFilter):
     protocol: Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )

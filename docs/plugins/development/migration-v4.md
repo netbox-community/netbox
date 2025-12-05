@@ -332,7 +332,7 @@ import strawberry
 import strawberry_django
 from circuits import filtersets, models
 
-from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilter
 
 __all__ = (
     'CircuitFilter',
@@ -341,7 +341,7 @@ __all__ = (
 
 @strawberry_django.filter(models.Circuit, lookups=True)
 @autotype_decorator(filtersets.CircuitFilterSet)
-class CircuitFilter(BaseFilterMixin):
+class CircuitFilter(BaseFilter):
     pass
 
 ```

@@ -5,7 +5,7 @@ import strawberry
 import strawberry_django
 from strawberry_django import FilterLookup
 
-from core.graphql.filter_mixins import BaseFilterMixin
+from core.graphql.filter_mixins import BaseFilter
 
 if TYPE_CHECKING:
     from .enums import *
@@ -16,7 +16,7 @@ __all__ = (
 
 
 @dataclass
-class WirelessAuthenticationBaseFilterMixin(BaseFilterMixin):
+class WirelessAuthenticationBaseFilterMixin(BaseFilter):
     auth_type: Annotated['WirelessAuthTypeEnum', strawberry.lazy('wireless.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )

@@ -6,18 +6,18 @@ import strawberry_django
 from strawberry import ID
 from strawberry_django import FilterLookup
 
-from netbox.graphql.filter_mixins import NetBoxModelFilterMixin
+from netbox.graphql.filters import NetBoxModelFilter
 
 if TYPE_CHECKING:
     from .filters import VirtualMachineFilter
 
 __all__ = (
-    'VMComponentFilterMixin',
+    'VMComponentFilter',
 )
 
 
 @dataclass
-class VMComponentFilterMixin(NetBoxModelFilterMixin):
+class VMComponentFilter(NetBoxModelFilter):
     virtual_machine: Annotated['VirtualMachineFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

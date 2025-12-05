@@ -4,16 +4,16 @@ from typing import Annotated, TYPE_CHECKING
 import strawberry
 import strawberry_django
 
-from netbox.graphql.filter_mixins import OrganizationalModelFilterMixin
+from netbox.graphql.filters import OrganizationalModelFilter
 
 if TYPE_CHECKING:
     from netbox.graphql.enums import ColorEnum
 
 __all__ = (
-    'BaseCircuitTypeFilterMixin',
+    'BaseCircuitTypeFilter',
 )
 
 
 @dataclass
-class BaseCircuitTypeFilterMixin(OrganizationalModelFilterMixin):
+class BaseCircuitTypeFilter(OrganizationalModelFilter):
     color: Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')] | None = strawberry_django.filter_field()

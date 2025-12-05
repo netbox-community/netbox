@@ -8,8 +8,8 @@ from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup
 
 from core import models
-from core.graphql.filter_mixins import BaseFilterMixin
-from netbox.graphql.filter_mixins import PrimaryModelFilterMixin
+from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
+from netbox.graphql.filters import PrimaryModelFilter
 from .enums import *
 
 if TYPE_CHECKING:
@@ -25,8 +25,7 @@ __all__ = (
 
 
 @strawberry_django.filter_type(models.DataFile, lookups=True)
-class DataFileFilter(BaseFilterMixin):
-    id: FilterLookup[ID] | None = strawberry_django.filter_field()
+class DataFileFilter(BaseObjectTypeFilterMixin):
     created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     last_updated: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     source: Annotated['DataSourceFilter', strawberry.lazy('core.graphql.filters')] | None = (
@@ -41,7 +40,7 @@ class DataFileFilter(BaseFilterMixin):
 
 
 @strawberry_django.filter_type(models.DataSource, lookups=True)
-class DataSourceFilter(PrimaryModelFilterMixin):
+class DataSourceFilter(PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     type: FilterLookup[str] | None = strawberry_django.filter_field()
     source_url: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -60,8 +59,7 @@ class DataSourceFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.ObjectChange, lookups=True)
-class ObjectChangeFilter(BaseFilterMixin):
-    id: FilterLookup[ID] | None = strawberry_django.filter_field()
+class ObjectChangeFilter(BaseObjectTypeFilterMixin):
     time: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
     user_name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -88,7 +86,6 @@ class ObjectChangeFilter(BaseFilterMixin):
 
 
 @strawberry_django.filter_type(DjangoContentType, lookups=True)
-class ContentTypeFilter(BaseFilterMixin):
-    id: FilterLookup[ID] | None = strawberry_django.filter_field()
+class ContentTypeFilter(BaseObjectTypeFilterMixin):
     app_label: FilterLookup[str] | None = strawberry_django.filter_field()
     model: FilterLookup[str] | None = strawberry_django.filter_field()

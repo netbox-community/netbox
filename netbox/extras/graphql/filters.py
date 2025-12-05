@@ -5,10 +5,11 @@ import strawberry_django
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
-from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
+from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
 from extras import models
-from extras.graphql.filter_mixins import TagBaseFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin
-from netbox.graphql.filter_mixins import PrimaryModelFilterMixin, SyncedDataFilterMixin
+from extras.graphql.filter_mixins import TagBaseFilter, CustomFieldsFilterMixin, TagsFilterMixin
+from netbox.graphql.filter_mixins import SyncedDataFilterMixin
+from netbox.graphql.filters import ChangeLoggedModelFilter, PrimaryModelFilter
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
@@ -42,7 +43,7 @@ __all__ = (
 
 
 @strawberry_django.filter_type(models.ConfigContext, lookups=True)
-class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
+class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
@@ -99,14 +100,14 @@ class ConfigContextFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Chan
 
 
 @strawberry_django.filter_type(models.ConfigContextProfile, lookups=True)
-class ConfigContextProfileFilter(SyncedDataFilterMixin, PrimaryModelFilterMixin):
+class ConfigContextProfileFilter(SyncedDataFilterMixin, PrimaryModelFilter):
     name: FilterLookup[str] = strawberry_django.filter_field()
     description: FilterLookup[str] = strawberry_django.filter_field()
     tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ConfigTemplate, lookups=True)
-class ConfigTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
+class ConfigTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     template_code: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -120,7 +121,7 @@ class ConfigTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
 
 
 @strawberry_django.filter_type(models.CustomField, lookups=True)
-class CustomFieldFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class CustomFieldFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['CustomFieldTypeEnum', strawberry.lazy('extras.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -179,7 +180,7 @@ class CustomFieldFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 
 
 @strawberry_django.filter_type(models.CustomFieldChoiceSet, lookups=True)
-class CustomFieldChoiceSetFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class CustomFieldChoiceSetFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     base_choices: (
@@ -194,7 +195,7 @@ class CustomFieldChoiceSetFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin
 
 
 @strawberry_django.filter_type(models.CustomLink, lookups=True)
-class CustomLinkFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class CustomLinkFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     link_text: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -212,7 +213,7 @@ class CustomLinkFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 
 
 @strawberry_django.filter_type(models.ExportTemplate, lookups=True)
-class ExportTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLogFilterMixin):
+class ExportTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     template_code: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -226,7 +227,7 @@ class ExportTemplateFilter(BaseObjectTypeFilterMixin, SyncedDataFilterMixin, Cha
 
 
 @strawberry_django.filter_type(models.ImageAttachment, lookups=True)
-class ImageAttachmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class ImageAttachmentFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -241,7 +242,7 @@ class ImageAttachmentFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 
 
 @strawberry_django.filter_type(models.JournalEntry, lookups=True)
-class JournalEntryFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin):
+class JournalEntryFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     assigned_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -257,7 +258,7 @@ class JournalEntryFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, Tag
 
 
 @strawberry_django.filter_type(models.NotificationGroup, lookups=True)
-class NotificationGroupFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class NotificationGroupFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     groups: Annotated['GroupFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
@@ -265,7 +266,7 @@ class NotificationGroupFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 
 
 @strawberry_django.filter_type(models.SavedFilter, lookups=True)
-class SavedFilterFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class SavedFilterFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -282,7 +283,7 @@ class SavedFilterFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 
 
 @strawberry_django.filter_type(models.TableConfig, lookups=True)
-class TableConfigFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
+class TableConfigFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
@@ -295,7 +296,7 @@ class TableConfigFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin):
 
 
 @strawberry_django.filter_type(models.Tag, lookups=True)
-class TagFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin, TagBaseFilterMixin):
+class TagFilter(BaseObjectTypeFilterMixin, ChangeLoggedModelFilter, TagBaseFilter):
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -303,7 +304,7 @@ class TagFilter(BaseObjectTypeFilterMixin, ChangeLogFilterMixin, TagBaseFilterMi
 
 
 @strawberry_django.filter_type(models.Webhook, lookups=True)
-class WebhookFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin):
+class WebhookFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     payload_url: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -324,7 +325,7 @@ class WebhookFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilt
 
 
 @strawberry_django.filter_type(models.EventRule, lookups=True)
-class EventRuleFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin):
+class EventRuleFilter(BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     event_types: Annotated['StringArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
