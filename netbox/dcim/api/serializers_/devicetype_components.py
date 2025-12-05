@@ -5,12 +5,14 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
     ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
-    InventoryItemTemplate, ModuleBayTemplate, PowerOutletTemplate, PowerPortTemplate, RearPortTemplate,
+    InventoryItemTemplate, ModuleBayTemplate, PortTemplateMapping, PowerOutletTemplate, PowerPortTemplate,
+    RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from wireless.choices import *
+from .base import PortSerializer
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceTemplateSerializer
@@ -205,7 +207,20 @@ class InterfaceTemplateSerializer(ComponentTemplateSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class RearPortTemplateSerializer(ComponentTemplateSerializer):
+class RearPortTemplateMappingSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='rear_port_position'
+    )
+    front_port = serializers.PrimaryKeyRelatedField(
+        queryset=FrontPortTemplate.objects.all(),
+    )
+
+    class Meta:
+        model = PortTemplateMapping
+        fields = ('position', 'front_port', 'front_port_position')
+
+
+class RearPortTemplateSerializer(ComponentTemplateSerializer, PortSerializer):
     device_type = DeviceTypeSerializer(
         required=False,
         nested=True,
@@ -219,17 +234,35 @@ class RearPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
+    front_ports = RearPortTemplateMappingSerializer(
+        source='mappings',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = RearPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
-            'positions', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
+            'front_ports', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class FrontPortTemplateSerializer(ComponentTemplateSerializer):
+class FrontPortTemplateMappingSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='front_port_position'
+    )
+    rear_port = serializers.PrimaryKeyRelatedField(
+        queryset=RearPortTemplate.objects.all(),
+    )
+
+    class Meta:
+        model = PortTemplateMapping
+        fields = ('position', 'rear_port', 'rear_port_position')
+
+
+class FrontPortTemplateSerializer(ComponentTemplateSerializer, PortSerializer):
     device_type = DeviceTypeSerializer(
         nested=True,
         required=False,
@@ -243,13 +276,17 @@ class FrontPortTemplateSerializer(ComponentTemplateSerializer):
         default=None
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_port = RearPortTemplateSerializer(nested=True)
+    rear_ports = FrontPortTemplateMappingSerializer(
+        source='mappings',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color',
-            'rear_port', 'rear_port_position', 'description', 'created', 'last_updated',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
+            'rear_ports', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

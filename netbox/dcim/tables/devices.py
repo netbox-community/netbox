@@ -749,12 +749,9 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
     color = columns.ColorColumn(
         verbose_name=_('Color'),
     )
-    rear_port_position = tables.Column(
-        verbose_name=_('Position')
-    )
-    rear_port = tables.Column(
-        verbose_name=_('Rear Port'),
-        linkify=True
+    mappings = columns.ManyToManyColumn(
+        verbose_name=_('Mappings'),
+        transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}'
     )
     tags = columns.TagColumn(
         url_name='dcim:frontport_list'
@@ -763,12 +760,12 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.FrontPort
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'rear_port',
-            'rear_port_position', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer',
-            'inventory_items', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'mappings',
+            'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'inventory_items', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'pk', 'name', 'device', 'label', 'type', 'color', 'positions', 'mappings', 'description',
         )
 
 
@@ -786,11 +783,11 @@ class DeviceFrontPortTable(FrontPortTable):
     class Meta(CableTerminationTable.Meta, DeviceComponentTable.Meta):
         model = models.FrontPort
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'rear_port', 'rear_port_position',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'mappings',
             'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'rear_port', 'rear_port_position', 'description', 'cable', 'link_peer',
+            'pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'cable', 'link_peer',
         )
 
 
@@ -805,6 +802,10 @@ class RearPortTable(ModularDeviceComponentTable, CableTerminationTable):
     color = columns.ColorColumn(
         verbose_name=_('Color'),
     )
+    mappings = columns.ManyToManyColumn(
+        verbose_name=_('Mappings'),
+        transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}'
+    )
     tags = columns.TagColumn(
         url_name='dcim:rearport_list'
     )
@@ -812,10 +813,13 @@ class RearPortTable(ModularDeviceComponentTable, CableTerminationTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.RearPort
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'description',
-            'mark_connected', 'cable', 'cable_color', 'link_peer', 'inventory_items', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'mappings',
+            'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'inventory_items', 'tags', 'created',
+            'last_updated',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'type', 'color', 'description')
+        default_columns = (
+            'pk', 'name', 'device', 'label', 'type', 'color', 'positions', 'mappings', 'description',
+        )
 
 
 class DeviceRearPortTable(RearPortTable):
@@ -832,11 +836,11 @@ class DeviceRearPortTable(RearPortTable):
     class Meta(CableTerminationTable.Meta, DeviceComponentTable.Meta):
         model = models.RearPort
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'positions', 'description', 'mark_connected',
-            'cable', 'cable_color', 'link_peer', 'tags', 'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'color', 'positions', 'mappings',
+            'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'positions', 'description', 'cable', 'link_peer',
+            'pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'cable', 'link_peer',
         )
 
 

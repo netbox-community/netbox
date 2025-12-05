@@ -193,7 +193,8 @@ class FrontPortTestCase(TestCase):
             'name': 'FrontPort[1-4]',
             'label': 'Port[1-4]',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
+            'positions': 1,
+            'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
         }
         form = FrontPortCreateForm(front_port_data)
 
@@ -208,7 +209,8 @@ class FrontPortTestCase(TestCase):
             'name': 'FrontPort[1-4]',
             'label': 'Port[1-2]',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
+            'positions': 1,
+            'rear_ports': [f'{rear_port.pk}:1' for rear_port in self.rear_ports],
         }
         form = FrontPortCreateForm(bad_front_port_data)
 

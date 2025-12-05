@@ -1,10 +1,12 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import connection
+from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import Site
+from dcim.models import PortMapping, PortTemplateMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
     ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
@@ -13,6 +15,7 @@ from utilities.templatetags.builtins.filters import bettertitle
 from utilities.forms.widgets import HTMXSelect
 
 __all__ = (
+    'FrontPortFormMixin',
     'ScopedBulkEditForm',
     'ScopedForm',
     'ScopedImportForm',
@@ -128,3 +131,75 @@ class ScopedImportForm(forms.Form):
                     "Please select a {scope_type}."
                 ).format(scope_type=scope_type.model_class()._meta.model_name)
             })
+
+
+class FrontPortFormMixin(forms.Form):
+    rear_ports = forms.MultipleChoiceField(
+        choices=[],
+        label=_('Rear ports'),
+        widget=forms.SelectMultiple(attrs={'size': 8})
+    )
+
+    port_mapping_model = PortMapping
+    parent_field = 'device'
+
+    def clean(self):
+        super().clean()
+
+        # Check that the total number of FrontPorts and positions matches the selected number of RearPort:position
+        # mappings. Note that `name` will be a list under FrontPortCreateForm, in which cases we multiply the number of
+        # FrontPorts being creation by the number of positions.
+        positions = self.cleaned_data['positions']
+        frontport_count = len(self.cleaned_data['name']) if type(self.cleaned_data['name']) is list else 1
+        rearport_count = len(self.cleaned_data['rear_ports'])
+        if frontport_count * positions != rearport_count:
+            raise forms.ValidationError({
+                'rear_ports': _(
+                    "The total number of front port positions ({frontport_count}) must match the selected number of "
+                    "rear port positions ({rearport_count})."
+                ).format(
+                    frontport_count=frontport_count,
+                    rearport_count=rearport_count
+                )
+            })
+
+    def _save_m2m(self):
+        super()._save_m2m()
+
+        # TODO: Can this be made more efficient?
+        # Delete existing rear port mappings
+        self.port_mapping_model.objects.filter(front_port_id=self.instance.pk).delete()
+
+        # Create new rear port mappings
+        mappings = []
+        if self.port_mapping_model is PortTemplateMapping:
+            params = {
+                'device_type_id': self.instance.device_type_id,
+                'module_type_id': self.instance.module_type_id,
+            }
+        else:
+            params = {
+                'device_id': self.instance.device_id,
+            }
+        for i, rp_position in enumerate(self.cleaned_data['rear_ports'], start=1):
+            rear_port_id, rear_port_position = rp_position.split(':')
+            mappings.append(
+                self.port_mapping_model(**{
+                    **params,
+                    'front_port_id': self.instance.pk,
+                    'front_port_position': i,
+                    'rear_port_id': rear_port_id,
+                    'rear_port_position': rear_port_position,
+                })
+            )
+        self.port_mapping_model.objects.bulk_create(mappings)
+        # Send post_save signals
+        for mapping in mappings:
+            post_save.send(
+                sender=PortMapping,
+                instance=mapping,
+                created=True,
+                raw=False,
+                using=connection,
+                update_fields=None
+            )

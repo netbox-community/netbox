@@ -109,85 +109,30 @@ class InterfaceTemplateCreateForm(ComponentCreateForm, model_forms.InterfaceTemp
 
 
 class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemplateForm):
-    rear_port = forms.MultipleChoiceField(
-        choices=[],
-        label=_('Rear ports'),
-        help_text=_('Select one rear port assignment for each front port being created.'),
-        widget=forms.SelectMultiple(attrs={'size': 6})
-    )
 
-    # Override fieldsets from FrontPortTemplateForm to omit rear_port_position
+    # Override fieldsets from FrontPortTemplateForm
     fieldsets = (
         FieldSet(
             TabbedGroups(
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'color', 'rear_port', 'description',
+            'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'description',
         ),
     )
 
-    class Meta(model_forms.FrontPortTemplateForm.Meta):
-        exclude = ('name', 'label', 'rear_port', 'rear_port_position')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # TODO: This needs better validation
-        if 'device_type' in self.initial or self.data.get('device_type'):
-            parent = DeviceType.objects.get(
-                pk=self.initial.get('device_type') or self.data.get('device_type')
-            )
-        elif 'module_type' in self.initial or self.data.get('module_type'):
-            parent = ModuleType.objects.get(
-                pk=self.initial.get('module_type') or self.data.get('module_type')
-            )
-        else:
-            return
-
-        # Determine which rear port positions are occupied. These will be excluded from the list of available mappings.
-        occupied_port_positions = [
-            (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in parent.frontporttemplates.all()
-        ]
-
-        # Populate rear port choices
-        choices = []
-        rear_ports = parent.rearporttemplates.all()
-        for rear_port in rear_ports:
-            for i in range(1, rear_port.positions + 1):
-                if (rear_port.pk, i) not in occupied_port_positions:
-                    choices.append(
-                        ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
-                    )
-        self.fields['rear_port'].choices = choices
-
-    def clean(self):
-        super().clean()
-
-        # Check that the number of FrontPortTemplates to be created matches the selected number of RearPortTemplate
-        # positions
-        frontport_count = len(self.cleaned_data['name'])
-        rearport_count = len(self.cleaned_data['rear_port'])
-        if frontport_count != rearport_count:
-            raise forms.ValidationError({
-                'rear_port': _(
-                    "The number of front port templates to be created ({frontport_count}) must match the selected "
-                    "number of rear port positions ({rearport_count})."
-                ).format(
-                    frontport_count=frontport_count,
-                    rearport_count=rearport_count
-                )
-            })
+    class Meta:
+        model = FrontPortTemplate
+        fields = (
+            'device_type', 'module_type', 'type', 'color', 'positions', 'description',
+        )
 
     def get_iterative_data(self, iteration):
-
-        # Assign rear port and position from selected set
-        rear_port, position = self.cleaned_data['rear_port'][iteration].split(':')
+        positions = self.cleaned_data['positions']
+        offset = positions * iteration
 
         return {
-            'rear_port': int(rear_port),
-            'rear_port_position': int(position),
+            'rear_ports': self.cleaned_data['rear_ports'][offset:offset + positions]
         }
 
 
@@ -269,74 +214,26 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
             }
         )
     )
-    rear_port = forms.MultipleChoiceField(
-        choices=[],
-        label=_('Rear ports'),
-        help_text=_('Select one rear port assignment for each front port being created.'),
-        widget=forms.SelectMultiple(attrs={'size': 6})
-    )
 
     # Override fieldsets from FrontPortForm to omit rear_port_position
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
+            'description', 'tags',
         ),
     )
 
-    class Meta(model_forms.FrontPortForm.Meta):
-        exclude = ('name', 'label', 'rear_port', 'rear_port_position')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if device_id := self.data.get('device') or self.initial.get('device'):
-            device = Device.objects.get(pk=device_id)
-        else:
-            return
-
-        # Determine which rear port positions are occupied. These will be excluded from the list of available
-        # mappings.
-        occupied_port_positions = [
-            (front_port.rear_port_id, front_port.rear_port_position)
-            for front_port in device.frontports.all()
+    class Meta:
+        model = FrontPort
+        fields = [
+            'device', 'module', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner', 'tags',
         ]
 
-        # Populate rear port choices
-        choices = []
-        rear_ports = RearPort.objects.filter(device=device)
-        for rear_port in rear_ports:
-            for i in range(1, rear_port.positions + 1):
-                if (rear_port.pk, i) not in occupied_port_positions:
-                    choices.append(
-                        ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
-                    )
-        self.fields['rear_port'].choices = choices
-
-    def clean(self):
-        super().clean()
-
-        # Check that the number of FrontPorts to be created matches the selected number of RearPort positions
-        frontport_count = len(self.cleaned_data['name'])
-        rearport_count = len(self.cleaned_data['rear_port'])
-        if frontport_count != rearport_count:
-            raise forms.ValidationError({
-                'rear_port': _(
-                    "The number of front ports to be created ({frontport_count}) must match the selected number of "
-                    "rear port positions ({rearport_count})."
-                ).format(
-                    frontport_count=frontport_count,
-                    rearport_count=rearport_count
-                )
-            })
-
     def get_iterative_data(self, iteration):
-
-        # Assign rear port and position from selected set
-        rear_port, position = self.cleaned_data['rear_port'][iteration].split(':')
-
+        positions = self.cleaned_data['positions']
+        offset = positions * iteration
         return {
-            'rear_port': int(rear_port),
-            'rear_port_position': int(position),
+            'rear_ports': self.cleaned_data['rear_ports'][offset:offset + positions]
         }
 
 

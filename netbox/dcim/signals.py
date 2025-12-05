@@ -1,5 +1,6 @@
 import logging
 
+from django.db.models import Q
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
@@ -7,7 +8,7 @@ from dcim.choices import CableEndChoices, LinkStatusChoices
 from virtualization.models import VMInterface
 from .models import (
     Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
-    InventoryItem, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
+    InventoryItem, ModuleBay, PathEndpoint, PortMapping, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
     VirtualChassis,
 )
 from .models.cables import trace_paths
@@ -135,6 +136,17 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
+@receiver((post_delete, post_save), sender=PortMapping)
+def update_passthrough_port_paths(instance, **kwargs):
+    """
+    When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
+    """
+    for cablepath in CablePath.objects.filter(
+        Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
+    ):
+        cablepath.retrace()
+
+
 @receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, **kwargs):
     """
@@ -148,17 +160,6 @@ def nullify_connected_endpoints(instance, **kwargs):
         if instance.termination in cablepath.origins:
             cablepath.origins.remove(instance.termination)
         cablepath.retrace()
-
-
-@receiver(post_save, sender=FrontPort)
-def extend_rearport_cable_paths(instance, created, raw, **kwargs):
-    """
-    When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
-    """
-    if created and not raw:
-        rearport = instance.rear_port
-        for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
-            cablepath.retrace()
 
 
 @receiver(post_save, sender=Interface)
