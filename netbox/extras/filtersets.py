@@ -6,13 +6,13 @@ from django.utils.translation import gettext as _
 from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet
-from utilities.filtersets import register_filterset
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 )
+from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .choices import *
 from .filters import TagFilter, TagIDFilter

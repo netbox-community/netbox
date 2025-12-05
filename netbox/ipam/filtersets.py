@@ -1,6 +1,5 @@
 import django_filters
 import netaddr
-from dcim.base_filtersets import ScopedFilterSet
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -10,15 +9,16 @@ from drf_spectacular.utils import extend_schema_field
 from netaddr.core import AddrFormatError
 
 from circuits.models import Provider
+from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
     ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
 )
-from utilities.filtersets import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from .choices import *

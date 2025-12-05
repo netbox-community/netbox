@@ -10,10 +10,10 @@ from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
-from utilities.filtersets import register_filterset
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from users.filterset_mixins import OwnerFilterMixin
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 

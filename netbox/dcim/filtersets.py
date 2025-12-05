@@ -14,7 +14,6 @@ from netbox.filtersets import (
     AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
     OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
 )
-from utilities.filtersets import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
@@ -23,6 +22,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices

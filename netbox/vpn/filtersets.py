@@ -6,9 +6,9 @@ from core.models import ObjectType
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
-from utilities.filtersets import register_filterset
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import *

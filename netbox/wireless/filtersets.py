@@ -1,14 +1,14 @@
 import django_filters
 from django.db.models import Q
 
-from dcim.choices import LinkStatusChoices
 from dcim.base_filtersets import ScopedFilterSet
+from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.filtersets import NestedGroupModelFilterSet, PrimaryModelFilterSet
-from utilities.filtersets import register_filterset
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
+from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 
