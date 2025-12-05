@@ -5,9 +5,10 @@ import strawberry_django
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
-from core.graphql.filter_mixins import BaseObjectTypeFilterMixin, ChangeLogFilterMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
-from netbox.graphql.filter_mixins import NetBoxModelFilterMixin, OrganizationalModelFilterMixin, PrimaryModelFilterMixin
+from netbox.graphql.filters import (
+    ChangeLoggedModelFilter, NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
+)
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from vpn import models
 
@@ -32,14 +33,12 @@ __all__ = (
 
 
 @strawberry_django.filter_type(models.TunnelGroup, lookups=True)
-class TunnelGroupFilter(OrganizationalModelFilterMixin):
+class TunnelGroupFilter(OrganizationalModelFilter):
     pass
 
 
 @strawberry_django.filter_type(models.TunnelTermination, lookups=True)
-class TunnelTerminationFilter(
-    BaseObjectTypeFilterMixin, CustomFieldsFilterMixin, TagsFilterMixin, ChangeLogFilterMixin
-):
+class TunnelTerminationFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedModelFilter):
     tunnel: Annotated['TunnelFilter', strawberry.lazy('vpn.graphql.filters')] | None = strawberry_django.filter_field()
     tunnel_id: ID | None = strawberry_django.filter_field()
     role: BaseFilterLookup[Annotated['TunnelTerminationRoleEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
@@ -59,7 +58,7 @@ class TunnelTerminationFilter(
 
 
 @strawberry_django.filter_type(models.Tunnel, lookups=True)
-class TunnelFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
+class TunnelFilter(TenancyFilterMixin, PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['TunnelStatusEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -85,7 +84,7 @@ class TunnelFilter(TenancyFilterMixin, PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.IKEProposal, lookups=True)
-class IKEProposalFilter(PrimaryModelFilterMixin):
+class IKEProposalFilter(PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     authentication_method: (
         BaseFilterLookup[Annotated['AuthenticationMethodEnum', strawberry.lazy('vpn.graphql.enums')]] | None
@@ -114,7 +113,7 @@ class IKEProposalFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.IKEPolicy, lookups=True)
-class IKEPolicyFilter(PrimaryModelFilterMixin):
+class IKEPolicyFilter(PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     version: BaseFilterLookup[Annotated['IKEVersionEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -129,7 +128,7 @@ class IKEPolicyFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.IPSecProposal, lookups=True)
-class IPSecProposalFilter(PrimaryModelFilterMixin):
+class IPSecProposalFilter(PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     encryption_algorithm: (
         BaseFilterLookup[Annotated['EncryptionAlgorithmEnum', strawberry.lazy('vpn.graphql.enums')]] | None
@@ -155,7 +154,7 @@ class IPSecProposalFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.IPSecPolicy, lookups=True)
-class IPSecPolicyFilter(PrimaryModelFilterMixin):
+class IPSecPolicyFilter(PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     proposals: Annotated['IPSecProposalFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -166,7 +165,7 @@ class IPSecPolicyFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.IPSecProfile, lookups=True)
-class IPSecProfileFilter(PrimaryModelFilterMixin):
+class IPSecProfileFilter(PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     mode: BaseFilterLookup[Annotated['IPSecModeEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
         strawberry_django.filter_field()
@@ -182,7 +181,7 @@ class IPSecProfileFilter(PrimaryModelFilterMixin):
 
 
 @strawberry_django.filter_type(models.L2VPN, lookups=True)
-class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixin):
+class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     type: BaseFilterLookup[Annotated['L2VPNTypeEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
@@ -206,7 +205,7 @@ class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilterMixi
 
 
 @strawberry_django.filter_type(models.L2VPNTermination, lookups=True)
-class L2VPNTerminationFilter(NetBoxModelFilterMixin):
+class L2VPNTerminationFilter(NetBoxModelFilter):
     l2vpn: Annotated['L2VPNFilter', strawberry.lazy('vpn.graphql.filters')] | None = strawberry_django.filter_field()
     l2vpn_id: ID | None = strawberry_django.filter_field()
     assigned_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (

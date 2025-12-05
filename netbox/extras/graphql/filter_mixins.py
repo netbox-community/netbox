@@ -3,9 +3,6 @@ from typing import Annotated, TYPE_CHECKING
 
 import strawberry
 import strawberry_django
-from strawberry_django import FilterLookup
-
-from core.graphql.filter_mixins import BaseFilterMixin
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import JSONFilter
@@ -16,37 +13,30 @@ __all__ = (
     'JournalEntriesFilterMixin',
     'TagsFilterMixin',
     'ConfigContextFilterMixin',
-    'TagBaseFilterMixin',
 )
 
 
 @dataclass
-class CustomFieldsFilterMixin(BaseFilterMixin):
+class CustomFieldsFilterMixin:
     custom_field_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
 
 
 @dataclass
-class JournalEntriesFilterMixin(BaseFilterMixin):
+class JournalEntriesFilterMixin:
     journal_entries: Annotated['JournalEntryFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
 
 
 @dataclass
-class TagsFilterMixin(BaseFilterMixin):
+class TagsFilterMixin:
     tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
 
 
 @dataclass
-class ConfigContextFilterMixin(BaseFilterMixin):
+class ConfigContextFilterMixin:
     local_context_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-
-
-@dataclass
-class TagBaseFilterMixin(BaseFilterMixin):
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
-    slug: FilterLookup[str] | None = strawberry_django.filter_field()
