@@ -32,6 +32,14 @@ class MyFilterSet(NetBoxModelFilterSet):
         fields = ('some', 'other', 'fields')
 ```
 
+In addition to the base NetBoxModelFilterSet class, the following filterset classes are also available for subclasses of standard base models.
+
+| Model Class           | FilterSet Class                                  |
+|-----------------------|--------------------------------------------------|
+| `PrimaryModel`        | `netbox.filtersets.PrimaryModelFilterSet`        |
+| `OrganizationalModel` | `netbox.filtersets.OrganizationalModelFilterSet` |
+| `NestedGroupModel`    | `netbox.filtersets.NestedGroupModelFilterSet`    |
+
 ### Declaring Filter Sets
 
 To utilize a filter set in a subclass of one of NetBox's generic views (such as `ObjectListView` or `BulkEditView`), define the `filterset` attribute on the view class:

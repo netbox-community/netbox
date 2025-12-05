@@ -27,6 +27,14 @@ Serializers are responsible for converting Python objects to JSON data suitable 
 
 The default nested representation of an object is defined by the `brief_fields` attributes under the serializer's `Meta` class. (Older versions of NetBox required the definition of a separate nested serializer.)
 
+In addition to the base NetBoxModelSerializer class, the following serializer classes are also available for subclasses of standard base models.
+
+| Model Class           | Serializer Class                                       |
+|-----------------------|--------------------------------------------------------|
+| `PrimaryModel`        | `netbox.api.serializers.PrimaryModelSerializer`        |
+| `OrganizationalModel` | `netbox.api.serializers.OrganizationalModelSerializer` |
+| `NestedGroupModel`    | `netbox.api.serializers.NestedGroupModelSerializer`    |
+
 #### Example
 
 To create a serializer for a plugin model, subclass `NetBoxModelSerializer` in `api/serializers.py`. Specify the model class and the fields to include within the serializer's `Meta` class.
