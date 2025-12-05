@@ -10,7 +10,7 @@ from dcim import models
 from dcim.constants import *
 from dcim.graphql.enums import InterfaceKindEnum
 from dcim.graphql.filter_mixins import (
-    ComponentModelFilterMixin, ComponentTemplateFilterMixin, ModularComponentModelFilterMixin,
+    ComponentModelFilterMixin, ComponentTemplateFilterMixin, ModularComponentFilterMixin,
     ModularComponentTemplateFilterMixin, RackFilterMixin,
 )
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
@@ -91,7 +91,7 @@ __all__ = (
 
 
 @strawberry_django.filter_type(models.Cable, lookups=True)
-class CableFilter(PrimaryModelFilter, TenancyFilterMixin):
+class CableFilter(TenancyFilterMixin, PrimaryModelFilter):
     type: BaseFilterLookup[Annotated['CableTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -127,7 +127,7 @@ class CableTerminationFilter(ChangeLoggedModelFilter):
 
 
 @strawberry_django.filter_type(models.ConsolePort, lookups=True)
-class ConsolePortFilter(ModularComponentTemplateFilterMixin, CabledObjectModelFilterMixin, ChangeLoggedModelFilter):
+class ConsolePortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -145,7 +145,7 @@ class ConsolePortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLogge
 
 @strawberry_django.filter_type(models.ConsoleServerPort, lookups=True)
 class ConsoleServerPortFilter(
-    ModularComponentTemplateFilterMixin,
+    ModularComponentFilterMixin,
     CabledObjectModelFilterMixin,
     ChangeLoggedModelFilter
 ):
@@ -317,7 +317,7 @@ class InventoryItemTemplateFilter(ComponentTemplateFilterMixin, ChangeLoggedMode
 
 
 @strawberry_django.filter_type(models.DeviceRole, lookups=True)
-class DeviceRoleFilter(OrganizationalModelFilter, RenderConfigFilterMixin):
+class DeviceRoleFilter(RenderConfigFilterMixin, OrganizationalModelFilter):
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -325,7 +325,7 @@ class DeviceRoleFilter(OrganizationalModelFilter, RenderConfigFilterMixin):
 
 
 @strawberry_django.filter_type(models.DeviceType, lookups=True)
-class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilter, WeightFilterMixin):
+class DeviceTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     manufacturer: Annotated['ManufacturerFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -401,7 +401,7 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilter, WeightFil
 
 
 @strawberry_django.filter_type(models.FrontPort, lookups=True)
-class FrontPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
+class FrontPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -463,7 +463,7 @@ class MACAddressFilter(PrimaryModelFilter):
 
 @strawberry_django.filter_type(models.Interface, lookups=True)
 class InterfaceFilter(
-    ModularComponentModelFilterMixin,
+    ModularComponentFilterMixin,
     InterfaceBaseFilterMixin,
     CabledObjectModelFilterMixin,
     NetBoxModelFilter
@@ -634,7 +634,7 @@ class ManufacturerFilter(ContactFilterMixin, OrganizationalModelFilter):
 
 
 @strawberry_django.filter_type(models.Module, lookups=True)
-class ModuleFilter(PrimaryModelFilter, ConfigContextFilterMixin):
+class ModuleFilter(ConfigContextFilterMixin, PrimaryModelFilter):
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
     module_bay: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -683,7 +683,7 @@ class ModuleFilter(PrimaryModelFilter, ConfigContextFilterMixin):
 
 
 @strawberry_django.filter_type(models.ModuleBay, lookups=True)
-class ModuleBayFilter(ModularComponentModelFilterMixin, NetBoxModelFilter):
+class ModuleBayFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     parent: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -702,7 +702,7 @@ class ModuleTypeProfileFilter(PrimaryModelFilter):
 
 
 @strawberry_django.filter_type(models.ModuleType, lookups=True)
-class ModuleTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilter, WeightFilterMixin):
+class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     manufacturer: Annotated['ManufacturerFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -800,7 +800,7 @@ class PowerFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, PrimaryM
 
 
 @strawberry_django.filter_type(models.PowerOutlet, lookups=True)
-class PowerOutletFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
+class PowerOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PowerOutletTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -820,7 +820,7 @@ class PowerOutletFilter(ModularComponentModelFilterMixin, CabledObjectModelFilte
 
 
 @strawberry_django.filter_type(models.PowerOutletTemplate, lookups=True)
-class PowerOutletTemplateFilter(ModularComponentModelFilterMixin, NetBoxModelFilter):
+class PowerOutletTemplateFilter(ModularComponentTemplateFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PowerOutletTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -847,7 +847,7 @@ class PowerPanelFilter(ContactFilterMixin, ImageAttachmentFilterMixin, PrimaryMo
 
 
 @strawberry_django.filter_type(models.PowerPort, lookups=True)
-class PowerPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
+class PowerPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PowerPortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -892,6 +892,7 @@ class RackFilter(
     ContactFilterMixin,
     ImageAttachmentFilterMixin,
     TenancyFilterMixin,
+    WeightFilterMixin,
     RackFilterMixin,
     PrimaryModelFilter
 ):
@@ -950,7 +951,7 @@ class RackRoleFilter(OrganizationalModelFilter):
 
 
 @strawberry_django.filter_type(models.RearPort, lookups=True)
-class RearPortFilter(ModularComponentModelFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
+class RearPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['PortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )

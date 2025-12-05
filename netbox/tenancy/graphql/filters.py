@@ -54,7 +54,7 @@ __all__ = (
 
 
 @strawberry_django.filter_type(models.Tenant, lookups=True)
-class TenantFilter(PrimaryModelFilter, ContactFilterMixin):
+class TenantFilter(ContactFilterMixin, PrimaryModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     group: Annotated['TenantGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (

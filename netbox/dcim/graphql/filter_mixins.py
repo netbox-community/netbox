@@ -20,7 +20,7 @@ __all__ = (
     'ComponentModelFilterMixin',
     'ComponentTemplateFilterMixin',
     'InterfaceBaseFilterMixin',
-    'ModularComponentModelFilterMixin',
+    'ModularComponentFilterMixin',
     'ModularComponentTemplateFilterMixin',
     'RackFilterMixin',
     'RenderConfigFilterMixin',
@@ -46,7 +46,7 @@ class ComponentModelFilterMixin:
 
 
 @dataclass
-class ModularComponentModelFilterMixin(ComponentModelFilterMixin):
+class ModularComponentFilterMixin(ComponentModelFilterMixin):
     module: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     module_id: ID | None = strawberry_django.filter_field()
     inventory_items: Annotated['InventoryItemFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
