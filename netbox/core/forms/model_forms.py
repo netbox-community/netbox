@@ -100,7 +100,6 @@ class DataSourceForm(NetBoxModelForm):
                 object_status = self.instance.status
 
         # # Final override only if the user explicitly provided a status
-        # user_status = self.cleaned_data.get("status")
         self.instance.status = object_status
 
         return super().save(*args, **kwargs)
