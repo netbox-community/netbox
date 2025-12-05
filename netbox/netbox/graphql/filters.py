@@ -1,12 +1,11 @@
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-import strawberry
 import strawberry_django
 from strawberry import ID
-from strawberry_django import FilterLookup, DatetimeFilterLookup
+from strawberry_django import FilterLookup
 
+from core.graphql.filter_mixins import ChangeLoggingMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, JournalEntriesFilterMixin, TagsFilterMixin
 
 if TYPE_CHECKING:
@@ -22,25 +21,21 @@ __all__ = (
 )
 
 
+@dataclass
 class BaseModelFilter:
     id: FilterLookup[ID] | None = strawberry_django.filter_field()
 
 
-@dataclass
-class ChangeLoggedModelFilter(BaseModelFilter):
-    # TODO: "changelog" is not a valid field name; needs to be updated for ObjectChange
-    changelog: Annotated['ObjectChangeFilter', strawberry.lazy('core.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
-    last_updated: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+class ChangeLoggedModelFilter(ChangeLoggingMixin, BaseModelFilter):
+    pass
 
 
 class NetBoxModelFilter(
     CustomFieldsFilterMixin,
     JournalEntriesFilterMixin,
     TagsFilterMixin,
-    ChangeLoggedModelFilter,
+    ChangeLoggingMixin,
+    BaseModelFilter
 ):
     pass
 
