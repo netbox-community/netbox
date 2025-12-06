@@ -681,8 +681,8 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.name,
-            label=self.label,
+            name=self.resolve_name(kwargs.get('module')),
+            label=self.resolve_label(kwargs.get('module')),
             position=self.position,
             **kwargs
         )
