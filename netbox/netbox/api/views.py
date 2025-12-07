@@ -5,6 +5,7 @@ from django.conf import settings
 from django_rq.queues import get_connection
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
@@ -12,6 +13,7 @@ from rq.worker import Worker
 
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.plugins.utils import get_installed_plugins
+from users.api.serializers import UserSerializer
 from utilities.apps import get_installed_apps
 
 
@@ -62,3 +64,15 @@ class StatusView(APIView):
             'python-version': platform.python_version(),
             'rq-workers-running': Worker.count(get_connection('default')),
         })
+
+
+class AuthenticationCheckView(APIView):
+    """
+    Return the user making the request, if authenticated successfully.
+    """
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request):
+        serializer = UserSerializer(request.user, context={'request': request})
+        return Response(serializer.data)

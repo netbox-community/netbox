@@ -32,6 +32,18 @@ class AppTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
+    def test_authentication_check(self):
+        url = reverse('api-authentication-check')
+
+        # Test an unauthenticated request
+        response = self.client.get(f'{url}')
+        self.assertEqual(response.status_code, 403)
+
+        # Test an authenticated request
+        response = self.client.get(f'{url}', **self.header)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], self.user.pk)
+
 
 class OptionalLimitOffsetPaginationTest(TestCase):
 
