@@ -127,7 +127,7 @@ class CableTerminationFilter(ChangeLoggedModelFilter):
 
 
 @strawberry_django.filter_type(models.ConsolePort, lookups=True)
-class ConsolePortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, ChangeLoggedModelFilter):
+class ConsolePortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -144,11 +144,7 @@ class ConsolePortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLogge
 
 
 @strawberry_django.filter_type(models.ConsoleServerPort, lookups=True)
-class ConsoleServerPortFilter(
-    ModularComponentFilterMixin,
-    CabledObjectModelFilterMixin,
-    ChangeLoggedModelFilter
-):
+class ConsoleServerPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
     type: BaseFilterLookup[Annotated['ConsolePortTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -820,7 +816,7 @@ class PowerOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixi
 
 
 @strawberry_django.filter_type(models.PowerOutletTemplate, lookups=True)
-class PowerOutletTemplateFilter(ModularComponentTemplateFilterMixin, NetBoxModelFilter):
+class PowerOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     type: BaseFilterLookup[Annotated['PowerOutletTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
