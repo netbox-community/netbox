@@ -58,6 +58,7 @@ class OrganizationalModelFilterMixin(
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     slug: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
+    comments: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @dataclass

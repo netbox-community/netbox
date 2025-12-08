@@ -91,6 +91,7 @@ class OrganizationalModelForm(OwnerMixin, NetBoxModelForm):
     Form for models which inherit from OrganizationalModel.
     """
     slug = SlugField()
+    comments = CommentField()
 
 
 class NestedGroupModelForm(OwnerMixin, NetBoxModelForm):
