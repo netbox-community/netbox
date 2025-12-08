@@ -44,7 +44,7 @@ class ContactRoleTable(OrganizationalModelTable):
 
     class Meta(OrganizationalModelTable.Meta):
         model = ContactRole
-        fields = ('pk', 'name', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions')
+        fields = ('pk', 'name', 'description', 'comments', 'slug', 'tags', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'name', 'description')
 
 

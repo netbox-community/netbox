@@ -28,8 +28,8 @@ class TunnelGroupSerializer(OrganizationalModelSerializer):
     class Meta:
         model = TunnelGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'tags', 'custom_fields',
-            'created', 'last_updated', 'tunnel_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'tunnel_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tunnel_count')
 

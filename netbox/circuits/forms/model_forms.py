@@ -97,7 +97,7 @@ class CircuitTypeForm(OrganizationalModelForm):
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug', 'color', 'description', 'tags',
+            'name', 'slug', 'color', 'description', 'comments', 'tags',
         ]
 
 
@@ -236,7 +236,7 @@ class CircuitGroupForm(TenancyForm, OrganizationalModelForm):
     class Meta:
         model = CircuitGroup
         fields = [
-            'name', 'slug', 'description', 'tenant_group', 'tenant', 'owner', 'tags',
+            'name', 'slug', 'description', 'tenant_group', 'tenant', 'owner', 'comments', 'tags',
         ]
 
 
@@ -307,7 +307,7 @@ class VirtualCircuitTypeForm(OrganizationalModelForm):
     class Meta:
         model = VirtualCircuitType
         fields = [
-            'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 

@@ -1053,7 +1053,7 @@ class InventoryItemRoleTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = models.InventoryItemRole
         fields = (
-            'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'tags', 'actions',
+            'pk', 'id', 'name', 'inventoryitem_count', 'color', 'description', 'slug', 'comments', 'tags', 'actions',
         )
         default_columns = ('pk', 'name', 'inventoryitem_count', 'color', 'description')
 

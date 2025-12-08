@@ -38,7 +38,7 @@ class CircuitTypeSerializer(OrganizationalModelSerializer):
     class Meta:
         model = CircuitType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
@@ -71,7 +71,7 @@ class CircuitGroupSerializer(OrganizationalModelSerializer):
     class Meta:
         model = CircuitGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tenant', 'owner', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tenant', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count'
         ]
         brief_fields = ('id', 'url', 'display', 'name')
@@ -161,7 +161,7 @@ class VirtualCircuitTypeSerializer(OrganizationalModelSerializer):
     class Meta:
         model = VirtualCircuitType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'virtual_circuit_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'virtual_circuit_count')

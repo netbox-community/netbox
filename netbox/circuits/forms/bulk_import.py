@@ -73,7 +73,7 @@ class CircuitTypeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = CircuitType
-        fields = ('name', 'slug', 'color', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'color', 'description', 'owner', 'comments', 'tags')
 
 
 class CircuitImportForm(PrimaryModelImportForm):
@@ -176,7 +176,7 @@ class CircuitGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = CircuitGroup
-        fields = ('name', 'slug', 'description', 'tenant', 'owner', 'tags')
+        fields = ('name', 'slug', 'description', 'tenant', 'owner', 'comments', 'tags')
 
 
 class CircuitGroupAssignmentImportForm(NetBoxModelImportForm):
@@ -199,7 +199,7 @@ class VirtualCircuitTypeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = VirtualCircuitType
-        fields = ('name', 'slug', 'color', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'color', 'description', 'owner', 'comments', 'tags')
 
 
 class VirtualCircuitImportForm(PrimaryModelImportForm):

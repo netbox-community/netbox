@@ -28,7 +28,7 @@ class TunnelGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = TunnelGroup
-        fields = ('name', 'slug', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
 class TunnelImportForm(PrimaryModelImportForm):

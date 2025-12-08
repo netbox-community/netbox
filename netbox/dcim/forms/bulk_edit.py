@@ -208,7 +208,7 @@ class RackRoleBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('color', 'description'),
     )
-    nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description', 'comments')
 
 
 class RackTypeBulkEditForm(PrimaryModelBulkEditForm):
@@ -474,7 +474,7 @@ class ManufacturerBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('description'),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class DeviceTypeBulkEditForm(PrimaryModelBulkEditForm):
@@ -1719,7 +1719,7 @@ class InventoryItemRoleBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('color', 'description'),
     )
-    nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description', 'comments')
 
 
 class VirtualDeviceContextBulkEditForm(PrimaryModelBulkEditForm):

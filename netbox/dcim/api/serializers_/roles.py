@@ -38,7 +38,7 @@ class InventoryItemRoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = InventoryItemRole
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'inventoryitem_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'inventoryitem_count')

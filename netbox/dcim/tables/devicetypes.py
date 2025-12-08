@@ -64,7 +64,8 @@ class ManufacturerTable(ContactsColumnMixin, OrganizationalModelTable):
         model = models.Manufacturer
         fields = (
             'pk', 'id', 'name', 'racktype_count', 'devicetype_count', 'moduletype_count', 'inventoryitem_count',
-            'platform_count', 'description', 'slug', 'tags', 'contacts', 'actions', 'created', 'last_updated',
+            'platform_count', 'description', 'slug', 'comments', 'tags', 'contacts', 'actions', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'name', 'racktype_count', 'devicetype_count', 'moduletype_count', 'inventoryitem_count',

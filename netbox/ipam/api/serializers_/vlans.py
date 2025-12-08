@@ -45,8 +45,8 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
         model = VLANGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'vid_ranges',
-            'tenant', 'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count',
-            'utilization',
+            'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'vlan_count', 'utilization',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
         validators = []

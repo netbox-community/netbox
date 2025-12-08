@@ -72,7 +72,7 @@ class ContactRoleBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('description'),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class ContactBulkEditForm(PrimaryModelBulkEditForm):

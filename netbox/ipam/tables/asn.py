@@ -30,8 +30,8 @@ class ASNRangeTable(TenancyColumnsMixin, OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = ASNRange
         fields = (
-            'pk', 'name', 'slug', 'rir', 'start', 'end', 'asn_count', 'tenant', 'tenant_group', 'description', 'tags',
-            'created', 'last_updated', 'actions',
+            'pk', 'name', 'slug', 'rir', 'start', 'end', 'asn_count', 'tenant', 'tenant_group', 'description',
+            'comments', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'rir', 'start', 'end', 'tenant', 'asn_count', 'description')
 

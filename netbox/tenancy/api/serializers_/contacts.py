@@ -36,8 +36,8 @@ class ContactRoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = ContactRole
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'tags', 'custom_fields',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 

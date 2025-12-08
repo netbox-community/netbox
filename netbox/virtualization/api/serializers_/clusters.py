@@ -23,8 +23,8 @@ class ClusterTypeSerializer(OrganizationalModelSerializer):
     class Meta:
         model = ClusterType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'tags', 'custom_fields',
-            'created', 'last_updated', 'cluster_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'cluster_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
@@ -37,8 +37,8 @@ class ClusterGroupSerializer(OrganizationalModelSerializer):
     class Meta:
         model = ClusterGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'tags', 'custom_fields',
-            'created', 'last_updated', 'cluster_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'cluster_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 

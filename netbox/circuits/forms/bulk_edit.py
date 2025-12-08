@@ -99,7 +99,7 @@ class CircuitTypeBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('color', 'description'),
     )
-    nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description', 'comments')
 
 
 class CircuitBulkEditForm(PrimaryModelBulkEditForm):
@@ -241,7 +241,7 @@ class CircuitGroupBulkEditForm(OrganizationalModelBulkEditForm):
 
     model = CircuitGroup
     nullable_fields = (
-        'description', 'tenant',
+        'description', 'tenant', 'comments',
     )
 
 
@@ -274,7 +274,7 @@ class VirtualCircuitTypeBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('color', 'description'),
     )
-    nullable_fields = ('color', 'description')
+    nullable_fields = ('color', 'description', 'comments')
 
 
 class VirtualCircuitBulkEditForm(PrimaryModelBulkEditForm):

@@ -85,7 +85,7 @@ class RIRBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('is_private', 'description'),
     )
-    nullable_fields = ('is_private', 'description')
+    nullable_fields = ('is_private', 'description', 'comments')
 
 
 class ASNRangeBulkEditForm(OrganizationalModelBulkEditForm):
@@ -104,7 +104,7 @@ class ASNRangeBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('rir', 'tenant', 'description'),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class ASNBulkEditForm(PrimaryModelBulkEditForm):
@@ -164,7 +164,7 @@ class RoleBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('weight', 'description'),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
@@ -379,7 +379,7 @@ class VLANGroupBulkEditForm(OrganizationalModelBulkEditForm):
         FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('tenant', name=_('Tenancy')),
     )
-    nullable_fields = ('description', 'scope')
+    nullable_fields = ('description', 'scope', 'comments')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

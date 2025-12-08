@@ -84,7 +84,7 @@ class RIRImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = RIR
-        fields = ('name', 'slug', 'is_private', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'is_private', 'description', 'owner', 'comments', 'tags')
 
 
 class AggregateImportForm(PrimaryModelImportForm):
@@ -124,7 +124,7 @@ class ASNRangeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ASNRange
-        fields = ('name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'owner', 'comments', 'tags')
 
 
 class ASNImportForm(PrimaryModelImportForm):
@@ -151,7 +151,7 @@ class RoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = Role
-        fields = ('name', 'slug', 'weight', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'weight', 'description', 'owner', 'comments', 'tags')
 
 
 class PrefixImportForm(ScopedImportForm, PrimaryModelImportForm):
@@ -476,7 +476,9 @@ class VLANGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = VLANGroup
-        fields = ('name', 'slug', 'scope_type', 'scope_id', 'vid_ranges', 'tenant', 'description', 'owner', 'tags')
+        fields = (
+            'name', 'slug', 'scope_type', 'scope_id', 'vid_ranges', 'tenant', 'description', 'owner', 'comments', 'tags'
+        )
         labels = {
             'scope_id': 'Scope ID',
         }

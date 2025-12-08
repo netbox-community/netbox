@@ -99,7 +99,7 @@ class RIRForm(OrganizationalModelForm):
     class Meta:
         model = RIR
         fields = [
-            'name', 'slug', 'is_private', 'description', 'owner', 'tags',
+            'name', 'slug', 'is_private', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -139,7 +139,7 @@ class ASNRangeForm(TenancyForm, OrganizationalModelForm):
     class Meta:
         model = ASNRange
         fields = [
-            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'owner', 'description', 'tags'
+            'name', 'slug', 'rir', 'start', 'end', 'tenant_group', 'tenant', 'owner', 'description', 'comments', 'tags'
         ]
 
 
@@ -189,7 +189,7 @@ class RoleForm(OrganizationalModelForm):
     class Meta:
         model = Role
         fields = [
-            'name', 'slug', 'weight', 'description', 'owner', 'tags',
+            'name', 'slug', 'weight', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -614,7 +614,8 @@ class VLANGroupForm(TenancyForm, OrganizationalModelForm):
     class Meta:
         model = VLANGroup
         fields = [
-            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'owner', 'tags',
+            'name', 'slug', 'description', 'vid_ranges', 'scope_type', 'tenant_group', 'tenant', 'owner', 'comments',
+            'tags',
         ]
 
     def __init__(self, *args, **kwargs):
