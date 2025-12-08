@@ -23,11 +23,11 @@ This is the base form for creating and editing NetBox models. It extends Django'
 
 The corresponding model-specific subclasses of `NetBoxModelForm` are documented below.
 
-| Model Class         | Form Class              |
-|---------------------|-------------------------|
-| PrimaryModel        | PrimaryModelForm        |
-| OrganizationalModel | OrganizationalModelForm |
-| NestedGroupModel    | NestedGroupModelForm    |
+| Model Class           | Form Class                |
+|-----------------------|---------------------------|
+| `PrimaryModel`        | `PrimaryModelForm`        |
+| `OrganizationalModel` | `OrganizationalModelForm` |
+| `NestedGroupModel`    | `NestedGroupModelForm`    |
 
 #### Example
 
@@ -65,11 +65,11 @@ This form facilitates the bulk import of new objects from CSV, JSON, or YAML dat
 
 The corresponding model-specific subclasses of `NetBoxModelImportForm` are documented below.
 
-| Model Class         | Form Class                    |
-|---------------------|-------------------------------|
-| PrimaryModel        | PrimaryModelImportForm        |
-| OrganizationalModel | OrganizationalModelImportForm |
-| NestedGroupModel    | NestedGroupModelImportForm    |
+| Model Class           | Form Class                      |
+|-----------------------|---------------------------------|
+| `PrimaryModel`        | `PrimaryModelImportForm`        |
+| `OrganizationalModel` | `OrganizationalModelImportForm` |
+| `NestedGroupModel`    | `NestedGroupModelImportForm`    |
 
 #### Example
 
@@ -107,11 +107,11 @@ This form facilitates editing multiple objects in bulk. Unlike a model form, thi
 
 The corresponding model-specific subclasses of `NetBoxModelBulkEditForm` are documented below.
 
-| Model Class         | Form Class                      |
-|---------------------|---------------------------------|
-| PrimaryModel        | PrimaryModelBulkEditForm        |
-| OrganizationalModel | OrganizationalModelBulkEditForm |
-| NestedGroupModel    | NestedGroupModelBulkEditForm    |
+| Model Class           | Form Class                        |
+|-----------------------|-----------------------------------|
+| `PrimaryModel`        | `PrimaryModelBulkEditForm`        |
+| `OrganizationalModel` | `OrganizationalModelBulkEditForm` |
+| `NestedGroupModel`    | `NestedGroupModelBulkEditForm`    |
 
 #### Example
 
@@ -159,11 +159,11 @@ This form class is used to render a form expressly for filtering a list of objec
 
 The corresponding model-specific subclasses of `NetBoxModelFilterSetForm` are documented below.
 
-| Model Class         | Form Class                       |
-|---------------------|----------------------------------|
-| PrimaryModel        | PrimaryModelFilterSetForm        |
-| OrganizationalModel | OrganizationalModelFilterSetForm |
-| NestedGroupModel    | NestedGroupModelFilterSetForm    |
+| Model Class           | Form Class                         |
+|-----------------------|------------------------------------|
+| `PrimaryModel`        | `PrimaryModelFilterSetForm`        |
+| `OrganizationalModel` | `OrganizationalModelFilterSetForm` |
+| `NestedGroupModel`    | `NestedGroupModelFilterSetForm`    |
 
 #### Example
 
