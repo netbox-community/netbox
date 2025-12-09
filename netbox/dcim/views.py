@@ -799,6 +799,7 @@ class RackRoleView(GetRelatedModelsMixin, generic.ObjectView):
         right_panels=[
             RelatedObjectsPanel(),
             CustomFieldsPanel(),
+            CommentsPanel(),
         ],
     )
 
