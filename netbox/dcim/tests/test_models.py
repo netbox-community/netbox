@@ -444,13 +444,19 @@ class DeviceTestCase(TestCase):
         )
         rearport.save()
 
-        FrontPortTemplate(
+        frontport = FrontPortTemplate(
             device_type=device_type,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
+        )
+        frontport.save()
+
+        PortTemplateMapping.objects.create(
+            device_type=device_type,
+            front_port=frontport,
             rear_port=rearport,
-            rear_port_position=2
-        ).save()
+            rear_port_position=2,
+        )
 
         ModuleBayTemplate(
             device_type=device_type,
@@ -528,10 +534,11 @@ class DeviceTestCase(TestCase):
             device=device,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
-            rear_port=rearport,
-            rear_port_position=2
+            positions=1
         )
         self.assertEqual(frontport.cf['cf1'], 'foo')
+
+        self.assertTrue(PortMapping.objects.filter(front_port=frontport, rear_port=rearport).exists())
 
         modulebay = ModuleBay.objects.get(
             device=device,
@@ -792,8 +799,54 @@ class ModuleBayTestCase(TestCase):
         )
         device.consoleports.first()
 
-    def test_nested_module_token(self):
-        pass
+    @tag('regression')  # #19918
+    def test_nested_module_bay_label_resolution(self):
+        """Test that nested module bay labels properly resolve {module} placeholders"""
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Create device type with module bay template (position='A')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Device with Bays',
+            slug='device-with-bays'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Bay A',
+            position='A'
+        )
+
+        # Create module type with nested bay template using {module} placeholder
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Module with Nested Bays'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=module_type,
+            name='SFP {module}-21',
+            label='{module}-21',
+            position='21'
+        )
+
+        # Create device and install module
+        device = Device.objects.create(
+            name='Test Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+        module_bay = device.modulebays.get(name='Bay A')
+        module = Module.objects.create(
+            device=device,
+            module_bay=module_bay,
+            module_type=module_type
+        )
+
+        # Verify nested bay label resolves {module} to parent position
+        nested_bay = module.modulebays.get(name='SFP A-21')
+        self.assertEqual(nested_bay.label, 'A-21')
 
 
 class CableTestCase(TestCase):
@@ -835,12 +888,18 @@ class CableTestCase(TestCase):
         )
         RearPort.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPort(device=patch_panel, name='FP1', type='8p8c', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPort(device=patch_panel, name='FP2', type='8p8c', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPort(device=patch_panel, name='FP3', type='8p8c', rear_port=rear_ports[2], rear_port_position=1),
-            FrontPort(device=patch_panel, name='FP4', type='8p8c', rear_port=rear_ports[3], rear_port_position=1),
+            FrontPort(device=patch_panel, name='FP1', type='8p8c'),
+            FrontPort(device=patch_panel, name='FP2', type='8p8c'),
+            FrontPort(device=patch_panel, name='FP3', type='8p8c'),
+            FrontPort(device=patch_panel, name='FP4', type='8p8c'),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=patch_panel, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=patch_panel, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=patch_panel, front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortMapping(device=patch_panel, front_port=front_ports[3], rear_port=rear_ports[3]),
+        ])
 
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=provider)

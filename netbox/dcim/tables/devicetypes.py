@@ -250,11 +250,12 @@ class InterfaceTemplateTable(ComponentTemplateTable):
 
 
 class FrontPortTemplateTable(ComponentTemplateTable):
-    rear_port_position = tables.Column(
-        verbose_name=_('Position')
-    )
     color = columns.ColorColumn(
         verbose_name=_('Color'),
+    )
+    mappings = columns.ManyToManyColumn(
+        verbose_name=_('Mappings'),
+        transform=lambda obj: f'{obj.rear_port}:{obj.rear_port_position}'
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -263,13 +264,17 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.FrontPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'actions')
         empty_text = "None"
 
 
 class RearPortTemplateTable(ComponentTemplateTable):
     color = columns.ColorColumn(
         verbose_name=_('Color'),
+    )
+    mappings = columns.ManyToManyColumn(
+        verbose_name=_('Mappings'),
+        transform=lambda obj: f'{obj.front_port}:{obj.front_port_position}'
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -278,7 +283,7 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.RearPortTemplate
-        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'type', 'color', 'positions', 'mappings', 'description', 'actions')
         empty_text = "None"
 
 

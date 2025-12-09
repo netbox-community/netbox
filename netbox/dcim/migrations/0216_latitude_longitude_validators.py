@@ -1,3 +1,5 @@
+import decimal
+
 import django.core.validators
 from django.db import migrations, models
 
@@ -17,8 +19,8 @@ class Migration(migrations.Migration):
                 max_digits=8,
                 null=True,
                 validators=[
-                    django.core.validators.MinValueValidator(-90.0),
-                    django.core.validators.MaxValueValidator(90.0),
+                    django.core.validators.MinValueValidator(decimal.Decimal('-90.0')),
+                    django.core.validators.MaxValueValidator(decimal.Decimal('90.0'))
                 ],
             ),
         ),
@@ -31,8 +33,8 @@ class Migration(migrations.Migration):
                 max_digits=9,
                 null=True,
                 validators=[
-                    django.core.validators.MinValueValidator(-180.0),
-                    django.core.validators.MaxValueValidator(180.0),
+                    django.core.validators.MinValueValidator(decimal.Decimal('-180.0')),
+                    django.core.validators.MaxValueValidator(decimal.Decimal('180.0'))
                 ],
             ),
         ),
@@ -45,8 +47,8 @@ class Migration(migrations.Migration):
                 max_digits=8,
                 null=True,
                 validators=[
-                    django.core.validators.MinValueValidator(-90.0),
-                    django.core.validators.MaxValueValidator(90.0),
+                    django.core.validators.MinValueValidator(decimal.Decimal('-90.0')),
+                    django.core.validators.MaxValueValidator(decimal.Decimal('90.0'))
                 ],
             ),
         ),
@@ -59,8 +61,8 @@ class Migration(migrations.Migration):
                 max_digits=9,
                 null=True,
                 validators=[
-                    django.core.validators.MinValueValidator(-180.0),
-                    django.core.validators.MaxValueValidator(180.0),
+                    django.core.validators.MinValueValidator(decimal.Decimal('-180.0')),
+                    django.core.validators.MaxValueValidator(decimal.Decimal('180.0'))
                 ],
             ),
         ),
