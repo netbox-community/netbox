@@ -25,6 +25,9 @@ class TokenTable(NetBoxTable):
         verbose_name=_('token'),
         template_code=TOKEN,
     )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled')
+    )
     write_enabled = columns.BooleanColumn(
         verbose_name=_('Write Enabled')
     )
@@ -49,10 +52,10 @@ class TokenTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Token
         fields = (
-            'pk', 'id', 'token', 'version', 'pepper_id', 'user', 'description', 'write_enabled', 'created', 'expires',
-            'last_used', 'allowed_ips',
+            'pk', 'id', 'token', 'version', 'pepper_id', 'user', 'description', 'enabled', 'write_enabled', 'created',
+            'expires', 'last_used', 'allowed_ips',
         )
-        default_columns = ('token', 'version', 'user', 'write_enabled', 'description', 'allowed_ips')
+        default_columns = ('token', 'version', 'user', 'enabled', 'write_enabled', 'description', 'allowed_ips')
 
 
 class UserTable(NetBoxTable):

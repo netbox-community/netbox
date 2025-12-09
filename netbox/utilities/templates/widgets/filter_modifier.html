@@ -1,0 +1,18 @@
+<div class="d-flex filter-modifier-group">
+  {% if widget.lookups %}
+    {# Modifier dropdown - NO name attribute, just a UI control #}
+    <select class="form-select modifier-select"
+            data-field="{{ widget.field_name }}"
+            data-empty-placeholder="{{ widget.empty_placeholder }}"
+            aria-label="Modifier">
+      {% for lookup, label in widget.lookups %}
+        <option value="{{ lookup }}"{% if widget.current_modifier == lookup %} selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  {% endif %}
+
+  {# Original widget - rendered exactly as it would be without our wrapper #}
+  <div class="ms-2 flex-grow-1 filter-value-container">
+    {% include widget.original_widget.template_name with widget=widget.original_widget %}
+  </div>
+</div>

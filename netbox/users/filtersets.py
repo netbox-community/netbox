@@ -1,5 +1,4 @@
 import django_filters
-
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -8,6 +7,7 @@ from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.filters import ContentTypeFilter
+from utilities.filtersets import register_filterset
 
 __all__ = (
     'GroupFilterSet',
@@ -19,6 +19,7 @@ __all__ = (
 )
 
 
+@register_filterset
 class GroupFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -64,6 +65,7 @@ class GroupFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class UserFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -120,6 +122,7 @@ class UserFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class TokenFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -167,7 +170,8 @@ class TokenFilterSet(BaseFilterSet):
     class Meta:
         model = Token
         fields = (
-            'id', 'version', 'key', 'pepper_id', 'write_enabled', 'description', 'created', 'expires', 'last_used',
+            'id', 'version', 'key', 'pepper_id', 'enabled', 'write_enabled',
+            'description', 'created', 'expires', 'last_used',
         )
 
     def search(self, queryset, name, value):
@@ -180,6 +184,7 @@ class TokenFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class ObjectPermissionFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -247,6 +252,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
             return queryset.exclude(actions__contains=[action])
 
 
+@register_filterset
 class OwnerGroupFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -266,6 +272,7 @@ class OwnerGroupFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class OwnerFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',

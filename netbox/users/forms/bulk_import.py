@@ -52,7 +52,7 @@ class TokenImportForm(CSVModelForm):
 
     class Meta:
         model = Token
-        fields = ('user', 'version', 'token', 'write_enabled', 'expires', 'description',)
+        fields = ('user', 'version', 'token', 'enabled', 'write_enabled', 'expires', 'description',)
 
 
 class OwnerGroupImportForm(CSVModelForm):

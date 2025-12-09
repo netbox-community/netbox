@@ -22,6 +22,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
     NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
@@ -84,6 +85,7 @@ __all__ = (
 )
 
 
+@register_filterset
 class RegionFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -114,6 +116,7 @@ class RegionFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
@@ -144,6 +147,7 @@ class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
@@ -208,6 +212,7 @@ class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         return queryset.filter(qs_filter).distinct()
 
 
+@register_filterset
 class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -287,6 +292,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
         return queryset
 
 
+@register_filterset
 class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -294,6 +300,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
+@register_filterset
 class RackTypeFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
@@ -332,6 +339,7 @@ class RackTypeFilterSet(PrimaryModelFilterSet):
         )
 
 
+@register_filterset
 class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -448,6 +456,7 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         )
 
 
+@register_filterset
 class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     rack_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Rack.objects.all(),
@@ -537,6 +546,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         )
 
 
+@register_filterset
 class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
@@ -544,6 +554,7 @@ class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class DeviceTypeFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
@@ -687,6 +698,7 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
         return queryset.exclude(inventoryitemtemplates__isnull=value)
 
 
+@register_filterset
 class ModuleTypeProfileFilterSet(PrimaryModelFilterSet):
 
     class Meta:
@@ -703,6 +715,7 @@ class ModuleTypeProfileFilterSet(PrimaryModelFilterSet):
         )
 
 
+@register_filterset
 class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
     profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleTypeProfile.objects.all(),
@@ -819,6 +832,7 @@ class ModularDeviceTypeComponentFilterSet(DeviceTypeComponentFilterSet):
     )
 
 
+@register_filterset
 class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
@@ -826,6 +840,7 @@ class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
         fields = ('id', 'name', 'label', 'type', 'description')
 
 
+@register_filterset
 class ConsoleServerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
@@ -833,6 +848,7 @@ class ConsoleServerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDevi
         fields = ('id', 'name', 'label', 'type', 'description')
 
 
+@register_filterset
 class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
@@ -840,6 +856,7 @@ class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         fields = ('id', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description')
 
 
+@register_filterset
 class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
@@ -855,6 +872,7 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
         fields = ('id', 'name', 'label', 'type', 'color', 'feed_leg', 'description')
 
 
+@register_filterset
 class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
@@ -879,6 +897,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         fields = ('id', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description')
 
 
+@register_filterset
 class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -896,6 +915,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         fields = ('id', 'name', 'label', 'type', 'color', 'positions', 'description')
 
 
+@register_filterset
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -913,6 +933,7 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
         fields = ('id', 'name', 'label', 'type', 'color', 'positions', 'description')
 
 
+@register_filterset
 class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
@@ -920,6 +941,7 @@ class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         fields = ('id', 'name', 'label', 'position', 'description')
 
 
+@register_filterset
 class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
@@ -927,6 +949,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
         fields = ('id', 'name', 'label', 'description')
 
 
+@register_filterset
 class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItemTemplate.objects.all(),
@@ -970,6 +993,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class DeviceRoleFilterSet(NestedGroupModelFilterSet):
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
@@ -1004,6 +1028,7 @@ class DeviceRoleFilterSet(NestedGroupModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'vm_role', 'description')
 
 
+@register_filterset
 class PlatformFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
@@ -1061,6 +1086,7 @@ class PlatformFilterSet(NestedGroupModelFilterSet):
         return queryset.filter(Q(manufacturer=None) | Q(manufacturer__device_types=value))
 
 
+@register_filterset
 class DeviceFilterSet(
     PrimaryModelFilterSet,
     TenancyFilterSet,
@@ -1363,6 +1389,7 @@ class DeviceFilterSet(
         return queryset.exclude(params)
 
 
+@register_filterset
 class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, PrimaryIPFilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
@@ -1412,6 +1439,7 @@ class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, Pri
         return queryset.exclude(params)
 
 
+@register_filterset
 class ModuleFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer',
@@ -1700,6 +1728,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
             return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
 
 
+@register_filterset
 class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
@@ -1711,6 +1740,7 @@ class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
         fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'cable_position')
 
 
+@register_filterset
 class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
@@ -1722,6 +1752,7 @@ class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFi
         fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'cable_position')
 
 
+@register_filterset
 class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
@@ -1736,6 +1767,7 @@ class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet,
         )
 
 
+@register_filterset
 class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
@@ -1762,6 +1794,7 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
         )
 
 
+@register_filterset
 class MACAddressFilterSet(PrimaryModelFilterSet):
     mac_address = MultiValueMACAddressFilter()
     assigned_object_type = ContentTypeFilter()
@@ -1943,6 +1976,7 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
         )
 
 
+@register_filterset
 class InterfaceFilterSet(
     ModularDeviceComponentFilterSet,
     CabledObjectFilterSet,
@@ -2105,6 +2139,7 @@ class InterfaceFilterSet(
             )
 
 
+@register_filterset
 class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -2125,6 +2160,7 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
         )
 
 
+@register_filterset
 class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
@@ -2145,6 +2181,7 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
         )
 
 
+@register_filterset
 class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleBay.objects.all(),
@@ -2161,6 +2198,7 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
         fields = ('id', 'name', 'label', 'position', 'description')
 
 
+@register_filterset
 class DeviceBayFilterSet(DeviceComponentFilterSet):
     installed_device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
@@ -2178,6 +2216,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
         fields = ('id', 'name', 'label', 'description')
 
 
+@register_filterset
 class InventoryItemFilterSet(DeviceComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
@@ -2230,6 +2269,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet):
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -2237,6 +2277,7 @@ class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'color', 'description')
 
 
+@register_filterset
 class VirtualChassisFilterSet(PrimaryModelFilterSet):
     master_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
@@ -2313,6 +2354,7 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter).distinct()
 
 
+@register_filterset
 class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     termination_a_type = ContentTypeFilter(
         field_name='terminations__termination_type'
@@ -2485,6 +2527,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         return self.filter_by_termination_object(queryset, CircuitTermination, value)
 
 
+@register_filterset
 class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
     termination_type = ContentTypeFilter()
 
@@ -2493,6 +2536,7 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
         fields = ('id', 'cable', 'cable_end', 'position', 'termination_type', 'termination_id')
 
 
+@register_filterset
 class PowerPanelFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -2551,6 +2595,7 @@ class PowerPanelFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class PowerFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),

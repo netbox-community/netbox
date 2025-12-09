@@ -61,6 +61,11 @@ class Token(models.Model):
         blank=True,
         null=True
     )
+    enabled = models.BooleanField(
+        verbose_name=_('enabled'),
+        default=True,
+        help_text=_('Disable to temporarily revoke this token without deleting it.'),
+    )
     write_enabled = models.BooleanField(
         verbose_name=_('write enabled'),
         default=True,
@@ -180,6 +185,31 @@ class Token(models.Model):
                 self.key = self.key or self.generate_key()
                 self.update_digest()
 
+    @property
+    def is_expired(self):
+        """
+        Check whether the token has expired.
+        """
+        if self.expires is None or timezone.now() < self.expires:
+            return False
+        return True
+
+    @property
+    def is_active(self):
+        """
+        Check whether the token is active (enabled and not expired).
+        """
+        return self.enabled and not self.is_expired
+
+    def get_auth_header_prefix(self):
+        """
+        Return the HTTP Authorization header prefix for this token.
+        """
+        if self.v1:
+            return 'Token '
+        if self.v2:
+            return f'Bearer {TOKEN_PREFIX}{self.key}.'
+
     def clean(self):
         super().clean()
 
@@ -235,12 +265,6 @@ class Token(models.Model):
             self.token.encode('utf-8'),
             hashlib.sha256
         ).hexdigest()
-
-    @property
-    def is_expired(self):
-        if self.expires is None or timezone.now() < self.expires:
-            return False
-        return True
 
     def validate(self, token):
         """

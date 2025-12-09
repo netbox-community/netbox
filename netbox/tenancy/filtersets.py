@@ -6,6 +6,7 @@ from netbox.filtersets import (
     NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
+from utilities.filtersets import register_filterset
 from .models import *
 
 __all__ = (
@@ -24,6 +25,7 @@ __all__ = (
 # Contacts
 #
 
+@register_filterset
 class ContactGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
@@ -59,6 +61,7 @@ class ContactGroupFilterSet(NestedGroupModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -66,6 +69,7 @@ class ContactRoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class ContactFilterSet(PrimaryModelFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
@@ -100,6 +104,7 @@ class ContactFilterSet(PrimaryModelFilterSet):
         )
 
 
+@register_filterset
 class ContactAssignmentFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -170,6 +175,7 @@ class ContactModelFilterSet(django_filters.FilterSet):
 # Tenancy
 #
 
+@register_filterset
 class TenantGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
@@ -200,6 +206,7 @@ class TenantGroupFilterSet(NestedGroupModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class TenantFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     group_id = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),

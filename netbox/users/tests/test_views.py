@@ -236,13 +236,14 @@ class TokenTestCase(
             'token': '4F9DAouzURLbicyoG55htImgqQ0b4UZHP5LUYgl5',
             'user': users[0].pk,
             'description': 'Test token',
+            'enabled': True,
         }
 
         cls.csv_data = (
-            "token,user,description",
-            f"zjebxBPzICiPbWz0Wtx0fTL7bCKXKGTYhNzkgC2S,{users[0].pk},Test token",
-            f"9Z5kGtQWba60Vm226dPDfEAV6BhlTr7H5hAXAfbF,{users[1].pk},Test token",
-            f"njpMnNT6r0k0MDccoUhTYYlvP9BvV3qLzYN2p6Uu,{users[1].pk},Test token",
+            "token,user,description,enabled,write_enabled",
+            f"zjebxBPzICiPbWz0Wtx0fTL7bCKXKGTYhNzkgC2S,{users[0].pk},Test token,true,true",
+            f"9Z5kGtQWba60Vm226dPDfEAV6BhlTr7H5hAXAfbF,{users[1].pk},Test token,true,false",
+            f"njpMnNT6r0k0MDccoUhTYYlvP9BvV3qLzYN2p6Uu,{users[1].pk},Test token,false,true",
         )
 
         cls.csv_update_data = (

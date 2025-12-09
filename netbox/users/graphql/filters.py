@@ -5,7 +5,7 @@ import strawberry
 import strawberry_django
 from strawberry_django import DatetimeFilterLookup, FilterLookup
 
-from core.graphql.filter_mixins import BaseObjectTypeFilterMixin
+from netbox.graphql.filters import BaseModelFilter
 from users import models
 
 __all__ = (
@@ -17,13 +17,13 @@ __all__ = (
 
 
 @strawberry_django.filter_type(models.Group, lookups=True)
-class GroupFilter(BaseObjectTypeFilterMixin):
+class GroupFilter(BaseModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.User, lookups=True)
-class UserFilter(BaseObjectTypeFilterMixin):
+class UserFilter(BaseModelFilter):
     username: FilterLookup[str] | None = strawberry_django.filter_field()
     first_name: FilterLookup[str] | None = strawberry_django.filter_field()
     last_name: FilterLookup[str] | None = strawberry_django.filter_field()
@@ -36,7 +36,7 @@ class UserFilter(BaseObjectTypeFilterMixin):
 
 
 @strawberry_django.filter_type(models.Owner, lookups=True)
-class OwnerFilter(BaseObjectTypeFilterMixin):
+class OwnerFilter(BaseModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()
     group: Annotated['OwnerGroupFilter', strawberry.lazy('users.graphql.filters')] | None = (
@@ -49,6 +49,6 @@ class OwnerFilter(BaseObjectTypeFilterMixin):
 
 
 @strawberry_django.filter_type(models.OwnerGroup, lookups=True)
-class OwnerGroupFilter(BaseObjectTypeFilterMixin):
+class OwnerGroupFilter(BaseModelFilter):
     name: FilterLookup[str] | None = strawberry_django.filter_field()
     description: FilterLookup[str] | None = strawberry_django.filter_field()

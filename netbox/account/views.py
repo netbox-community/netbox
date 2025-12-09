@@ -25,10 +25,12 @@ from extras.models import Bookmark
 from extras.tables import BookmarkTable, NotificationTable, SubscriptionTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
+from netbox.ui import layout
 from netbox.views import generic
 from users import forms
 from users.models import UserConfig
 from users.tables import TokenTable
+from users.ui.panels import TokenExamplePanel, TokenPanel
 from utilities.request import safe_for_redirect
 from utilities.string import remove_linebreaks
 from utilities.views import register_model_view
@@ -342,12 +344,21 @@ class UserTokenListView(LoginRequiredMixin, View):
 
 @register_model_view(UserToken)
 class UserTokenView(LoginRequiredMixin, View):
+    layout = layout.SimpleLayout(
+        left_panels=[
+            TokenPanel(),
+        ],
+        right_panels=[
+            TokenExamplePanel(),
+        ],
+    )
 
     def get(self, request, pk):
         token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
 
         return render(request, 'account/token.html', {
             'object': token,
+            'layout': self.layout,
         })
 
 

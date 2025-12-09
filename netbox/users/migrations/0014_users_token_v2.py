@@ -9,6 +9,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Add a new field to enable/disable tokens
+        migrations.AddField(
+            model_name='token',
+            name='enabled',
+            field=models.BooleanField(default=True),
+        ),
+
         # Rename the original key field to "plaintext"
         migrations.RenameField(
             model_name='token',
@@ -35,7 +42,7 @@ class Migration(migrations.Migration):
             ),
         ),
 
-        # Add version field to distinguish v1 and v2 tokens
+        # Add a version field to distinguish v1 and v2 tokens
         migrations.AddField(
             model_name='token',
             name='version',

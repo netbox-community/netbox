@@ -140,7 +140,7 @@ class UserTokenForm(forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'version', 'token', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'token', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -177,7 +177,7 @@ class TokenForm(UserTokenForm):
 
     class Meta(UserTokenForm.Meta):
         fields = [
-            'version', 'token', 'user', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'token', 'user', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
 
     def __init__(self, *args, **kwargs):

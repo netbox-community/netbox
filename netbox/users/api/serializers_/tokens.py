@@ -32,10 +32,10 @@ class TokenSerializer(ValidatedModelSerializer):
         model = Token
         fields = (
             'id', 'url', 'display_url', 'display', 'version', 'key', 'user', 'description', 'created', 'expires',
-            'last_used', 'write_enabled', 'pepper_id', 'allowed_ips', 'token',
+            'last_used', 'enabled', 'write_enabled', 'pepper_id', 'allowed_ips', 'token',
         )
         read_only_fields = ('key',)
-        brief_fields = ('id', 'url', 'display', 'version', 'key', 'write_enabled', 'description')
+        brief_fields = ('id', 'url', 'display', 'version', 'key', 'enabled', 'write_enabled', 'description')
 
     def get_fields(self):
         fields = super().get_fields()
@@ -79,7 +79,7 @@ class TokenProvisionSerializer(TokenSerializer):
         model = Token
         fields = (
             'id', 'url', 'display_url', 'display', 'version', 'user', 'key', 'created', 'expires', 'last_used', 'key',
-            'write_enabled', 'description', 'allowed_ips', 'username', 'password', 'token',
+            'enabled', 'write_enabled', 'description', 'allowed_ips', 'username', 'password', 'token',
         )
 
     def validate(self, data):

@@ -114,7 +114,7 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
         FieldSet('q', 'filter_id',),
-        FieldSet('version', 'user_id', 'write_enabled', 'expires', 'last_used', name=_('Token')),
+        FieldSet('version', 'user_id', 'enabled', 'write_enabled', 'expires', 'last_used', name=_('Token')),
     )
     version = forms.ChoiceField(
         choices=add_blank_choice(TokenVersionChoices),
@@ -124,6 +124,13 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
         queryset=User.objects.all(),
         required=False,
         label=_('User')
+    )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+        label=_('Enabled'),
     )
     write_enabled = forms.NullBooleanField(
         required=False,

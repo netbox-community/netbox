@@ -1,6 +1,5 @@
 import django_filters
 import netaddr
-from dcim.base_filtersets import ScopedFilterSet
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -10,15 +9,16 @@ from drf_spectacular.utils import extend_schema_field
 from netaddr.core import AddrFormatError
 
 from circuits.models import Provider
+from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
     ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-
 from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
+from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from .choices import *
@@ -47,6 +47,7 @@ __all__ = (
 )
 
 
+@register_filterset
 class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',
@@ -85,6 +86,7 @@ class VRFFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         fields = ('id', 'name', 'rd', 'enforce_unique', 'description')
 
 
+@register_filterset
 class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     importing_vrf_id = django_filters.ModelMultipleChoiceFilter(
         field_name='importing_vrfs',
@@ -144,6 +146,7 @@ class RouteTargetFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         fields = ('id', 'name', 'description')
 
 
+@register_filterset
 class RIRFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -151,6 +154,7 @@ class RIRFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'is_private', 'description')
 
 
+@register_filterset
 class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
@@ -198,6 +202,7 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
             return queryset.none()
 
 
+@register_filterset
 class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
@@ -223,6 +228,7 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         )
 
 
+@register_filterset
 class ASNFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
@@ -285,6 +291,7 @@ class ASNFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class RoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -292,6 +299,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description', 'weight')
 
 
+@register_filterset
 class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='prefix',
@@ -458,6 +466,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
         ).distinct()
 
 
+@register_filterset
 class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='start_address',
@@ -550,6 +559,7 @@ class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
         return queryset.filter(q)
 
 
+@register_filterset
 class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     family = django_filters.NumberFilter(
         field_name='address',
@@ -786,6 +796,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
             )
 
 
+@register_filterset
 class FHRPGroupFilterSet(PrimaryModelFilterSet):
     protocol = django_filters.MultipleChoiceFilter(
         choices=FHRPGroupProtocolChoices
@@ -833,6 +844,7 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
         return queryset.filter(ip_filter)
 
 
+@register_filterset
 class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
     interface_type = ContentTypeFilter()
     group_id = django_filters.ModelMultipleChoiceFilter(
@@ -887,6 +899,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
+@register_filterset
 class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     scope_type = ContentTypeFilter()
     region = django_filters.NumberFilter(
@@ -936,6 +949,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         )
 
 
+@register_filterset
 class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
@@ -1087,6 +1101,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         ).distinct()
 
 
+@register_filterset
 class VLANTranslationPolicyFilterSet(PrimaryModelFilterSet):
 
     class Meta:
@@ -1103,6 +1118,7 @@ class VLANTranslationPolicyFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
     policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLANTranslationPolicy.objects.all(),
@@ -1134,6 +1150,7 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class ServiceTemplateFilterSet(PrimaryModelFilterSet):
     port = NumericArrayFilter(
         field_name='ports',
@@ -1154,6 +1171,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
         return queryset.filter(qs_filter)
 
 
+@register_filterset
 class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = ContentTypeFilter()
     device = MultiValueCharFilter(
