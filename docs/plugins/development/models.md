@@ -67,6 +67,46 @@ class MyModel(ExportTemplatesMixin, TagsMixin, models.Model):
     ...
 ```
 
+### Additional Models
+
+In addition to the base NetBoxModel class, the following additional classes are provided for convenience.
+
+!!! info "These model classes were added to the plugins API in NetBox v4.5."
+
+#### PrimaryModel
+
+PrimaryModel is the go-to class for most object types. It extends NetBoxModel with `description` and `comments` fields, and it introduces support for ownership assignment.
+
+| Field         | Required | Unique | Description                                 |
+|---------------|----------|--------|---------------------------------------------|
+| `owner`       | No       | No     | The object's owner                          |
+| `description` | No       | No     | A human-friendly description for the object |
+| `comments`    | No       | No     | General comments                            |
+
+#### OrganizationalModel
+
+OrganizationalModel is used by object types whose function is primarily the organization of other objects.
+
+| Field         | Required | Unique | Description                                 |
+|---------------|----------|--------|---------------------------------------------|
+| `name`        | Yes      | Yes    | The name of the object                      |
+| `slug`        | Yes      | Yes    | A unique URL-friendly identifier            |
+| `owner`       | No       | No     | The object's owner                          |
+| `description` | No       | No     | A human-friendly description for the object |
+
+#### NestedGroupModel
+
+NestedGroupModel is used for objects which arrange into a recursive hierarchy (like regions and locations) via its self-referential `parent` foreign key.
+
+| Field         | Required | Unique | Description                                                     |
+|---------------|----------|--------|-----------------------------------------------------------------|
+| `name`        | Yes      | Yes    | The name of the object                                          |
+| `slug`        | Yes      | Yes    | A unique URL-friendly identifier                                |
+| `parent`      | No       | No     | The object (of the same type) under which this object is nested |
+| `owner`       | No       | No     | The object's owner                                              |
+| `description` | No       | No     | A human-friendly description for the object                     |
+| `comments`    | No       | No     | General comments                                                |
+
 ## Database Migrations
 
 Once you have completed defining the model(s) for your plugin, you'll need to create the database schema migrations. A migration file is essentially a set of instructions for manipulating the PostgreSQL database to support your new model, or to alter existing models. Creating migrations can usually be done automatically using Django's `makemigrations` management command. (Ensure that your plugin has been installed and enabled first, otherwise it won't be found.)
