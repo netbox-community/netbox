@@ -58,32 +58,10 @@
             </div>
             {% include 'inc/panels/custom_fields.html' %}
             {% include 'inc/panels/tags.html' %}
+            {% include 'dcim/inc/panels/inventory_items.html' %}
             {% plugin_left_page object %}
         </div>
         <div class="col col-12 col-md-6">
-            <div class="card">
-              <h2 class="card-header">{% trans "Port Mappings" %}</h2>
-              <table class="table table-hover">
-                {% if rear_port_mappings %}
-                  <thead>
-                    <tr>
-                      <th>{% trans "Position" %}</th>
-                      <th>{% trans "Rear Port" %}</th>
-                    </tr>
-                  </thead>
-                {% endif %}
-                {% for mapping in rear_port_mappings %}
-                  <tr>
-                    <td>{{ mapping.front_port_position }}</td>
-                    <td>
-                      <a href="{{ mapping.rear_port.get_absolute_url }}">{{ mapping.rear_port }}:{{ mapping.rear_port_position }}</a>
-                    </td>
-                  </tr>
-                {% empty %}
-                  {% trans "No mappings defined" %}
-                {% endfor %}
-              </table>
-            </div>
             <div class="card">
                 <h2 class="card-header">{% trans "Connection" %}</h2>
                 {% if object.mark_connected %}
@@ -145,7 +123,29 @@
                     </div>
                 {% endif %}
             </div>
-            {% include 'dcim/inc/panels/inventory_items.html' %}
+            <div class="card">
+              <h2 class="card-header">{% trans "Port Mappings" %}</h2>
+              <table class="table table-hover">
+                {% if rear_port_mappings %}
+                  <thead>
+                    <tr>
+                      <th>{% trans "Position" %}</th>
+                      <th>{% trans "Rear Port" %}</th>
+                    </tr>
+                  </thead>
+                {% endif %}
+                {% for mapping in rear_port_mappings %}
+                  <tr>
+                    <td>{{ mapping.front_port_position }}</td>
+                    <td>
+                      <a href="{{ mapping.rear_port.get_absolute_url }}">{{ mapping.rear_port }}:{{ mapping.rear_port_position }}</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  {% trans "No mappings defined" %}
+                {% endfor %}
+              </table>
+            </div>
             {% plugin_right_page object %}
         </div>
     </div>
