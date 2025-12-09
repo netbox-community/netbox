@@ -562,6 +562,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         form.instance._replicated_base = hasattr(self.form, "replication_fields")
 
         if form.is_valid():
+            changelog_message = form.cleaned_data.pop('changelog_message', '')
             new_components = []
             data = deepcopy(request.POST)
             pattern_count = len(form.cleaned_data[self.form.replication_fields[0]])
@@ -588,6 +589,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         # Create the new components
                         new_objs = []
                         for component_form in new_components:
+                            # Record changelog message (if any)
+                            if changelog_message:
+                                component_form.instance._changelog_message = changelog_message
                             obj = component_form.save()
                             new_objs.append(obj)
 

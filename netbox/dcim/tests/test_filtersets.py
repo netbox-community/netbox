@@ -43,6 +43,13 @@ class DeviceComponentFilterSetTests:
         params = {'device_status': ['active', 'planned']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class DeviceComponentTemplateFilterSetTests:
 
@@ -3384,9 +3391,17 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -3396,6 +3411,7 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -3405,6 +3421,7 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -3624,9 +3641,17 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -3636,6 +3661,7 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -3645,6 +3671,7 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -3864,9 +3891,17 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -3876,6 +3911,7 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -3885,6 +3921,7 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -4118,9 +4155,17 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -4130,6 +4175,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -4139,6 +4185,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -4397,9 +4444,17 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         virtual_chassis = VirtualChassis(name='Virtual Chassis')
         virtual_chassis.save()
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1A',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -4412,6 +4467,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 1B',
+                tenant=tenants[1],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -4424,6 +4480,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[2],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -4433,6 +4490,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -5018,9 +5076,17 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -5030,6 +5096,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -5039,6 +5106,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -5309,9 +5377,17 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -5321,6 +5397,7 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -5330,6 +5407,7 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -5586,9 +5664,17 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -5598,6 +5684,7 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -5607,6 +5694,7 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],
@@ -5759,9 +5847,17 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Rack.objects.bulk_create(racks)
 
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         devices = (
             Device(
                 name='Device 1',
+                tenant=tenants[0],
                 device_type=device_types[0],
                 role=roles[0],
                 site=sites[0],
@@ -5771,6 +5867,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 2',
+                tenant=tenants[1],
                 device_type=device_types[1],
                 role=roles[1],
                 site=sites[1],
@@ -5780,6 +5877,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ),
             Device(
                 name='Device 3',
+                tenant=tenants[2],
                 device_type=device_types[2],
                 role=roles[2],
                 site=sites[2],

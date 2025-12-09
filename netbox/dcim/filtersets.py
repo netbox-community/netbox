@@ -1664,6 +1664,17 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         choices=DeviceStatusChoices,
         field_name='device__status',
     )
+    tenant_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__tenant',
+        queryset=Tenant.objects.all(),
+        label=_('Tenant (ID)'),
+    )
+    tenant = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__tenant__slug',
+        queryset=Tenant.objects.all(),
+        to_field_name='slug',
+        label=_('Tenant (slug)'),
+    )
 
     def search(self, queryset, name, value):
         if not value.strip():

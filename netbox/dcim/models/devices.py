@@ -650,7 +650,10 @@ class Device(
         decimal_places=6,
         blank=True,
         null=True,
-        validators=[MinValueValidator(-90.0), MaxValueValidator(90.0)],
+        validators=[
+            MinValueValidator(decimal.Decimal('-90.0')),
+            MaxValueValidator(decimal.Decimal('90.0'))
+        ],
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
     longitude = models.DecimalField(
@@ -659,7 +662,10 @@ class Device(
         decimal_places=6,
         blank=True,
         null=True,
-        validators=[MinValueValidator(-180.0), MaxValueValidator(180.0)],
+        validators=[
+            MinValueValidator(decimal.Decimal('-180.0')),
+            MaxValueValidator(decimal.Decimal('180.0'))
+        ],
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
     services = GenericRelation(

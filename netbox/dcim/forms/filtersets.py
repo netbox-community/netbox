@@ -13,6 +13,7 @@ from netbox.forms import (
     PrimaryModelFilterSetForm,
 )
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
+from tenancy.models import Tenant
 from users.models import Owner, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
@@ -123,6 +124,11 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Device role')
     )
+    tenant_id = DynamicModelMultipleChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        label=_('Tenant')
+    )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -131,7 +137,8 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
             'location_id': '$location_id',
             'virtual_chassis_id': '$virtual_chassis_id',
             'device_type_id': '$device_type_id',
-            'role_id': '$role_id'
+            'role_id': '$role_id',
+            'tenant_id': '$tenant_id'
         },
         label=_('Device')
     )
@@ -1360,7 +1367,8 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('name', 'label', 'type', 'speed', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
         ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
@@ -1384,7 +1392,7 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
         FieldSet('name', 'label', 'type', 'speed', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
@@ -1409,7 +1417,8 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('name', 'label', 'type', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
         ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
     )
@@ -1428,7 +1437,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('name', 'label', 'type', 'color', 'status', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
@@ -1461,7 +1470,8 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', 'vdc_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'vdc_id',
             name=_('Device')
         ),
         FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
@@ -1582,7 +1592,8 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id', name=_('Device')
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
         ),
         FieldSet('cabled', 'occupied', name=_('Cable')),
     )
@@ -1606,7 +1617,7 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
         FieldSet('cabled', 'occupied', name=_('Cable')),
@@ -1630,7 +1641,7 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
         FieldSet('name', 'label', 'position', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
     )
@@ -1648,7 +1659,7 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
         FieldSet('name', 'label', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
     )
@@ -1665,7 +1676,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         ),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
-            'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
     )
