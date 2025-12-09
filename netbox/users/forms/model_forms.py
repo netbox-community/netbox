@@ -1,6 +1,8 @@
 import json
+from collections import defaultdict
 
 from django import forms
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
@@ -21,6 +23,7 @@ from utilities.forms.fields import (
     DynamicModelMultipleChoiceField,
     JSONField,
 )
+from utilities.string import title
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
@@ -287,37 +290,20 @@ def get_object_types_choices():
     Generate choices for object types grouped by app label using optgroups.
     Returns nested structure: [(app_label, [(id, model_name), ...]), ...]
     """
-    from django.apps import apps
-
-    choices = []
-    current_app = None
-    current_group = []
+    app_label_map = {
+        app_config.label: app_config.verbose_name
+        for app_config in apps.get_app_configs()
+    }
+    choices_by_app = defaultdict(list)
 
     for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model'):
-        # Get verbose app label (e.g., "NetBox Branching" instead of "netbox_branching")
-        try:
-            app_config = apps.get_app_config(ot.app_label)
-            app_label = app_config.verbose_name
-        except LookupError:
-            app_label = ot.app_label
+        app_label = app_label_map.get(ot.app_label, ot.app_label)
 
-        # Start new optgroup when app changes
-        if current_app != app_label:
-            if current_group:
-                choices.append((current_app, current_group))
-            current_app = app_label
-            current_group = []
-
-        # Add model to current group using just the model's verbose name
         model_class = ot.model_class()
         model_name = model_class._meta.verbose_name if model_class else ot.model
-        current_group.append((ot.pk, model_name.title()))
+        choices_by_app[app_label].append((ot.pk, title(model_name)))
 
-    # Add final group
-    if current_group:
-        choices.append((current_app, current_group))
-
-    return choices
+    return list(choices_by_app.items())
 
 
 class ObjectPermissionForm(forms.ModelForm):
