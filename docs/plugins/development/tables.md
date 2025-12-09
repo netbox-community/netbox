@@ -38,7 +38,7 @@ class MyModelTable(NetBoxTable):
 
 In addition to the base NetBoxTable class, the following table classes are also available for subclasses of standard base models.
 
-| Model Class           | Serializer Class                         |
+| Model Class           | Table Class                              |
 |-----------------------|------------------------------------------|
 | `PrimaryModel`        | `netbox.tables.PrimaryModelTable`        |
 | `OrganizationalModel` | `netbox.tables.OrganizationalModelTable` |
