@@ -66,17 +66,45 @@ class SelectWithPK(forms.Select):
     option_template_name = 'widgets/select_option_with_pk.html'
 
 
-class AvailableOptions(forms.SelectMultiple):
+class SelectMultipleBase(forms.SelectMultiple):
+    """
+    Base class for select widgets that filter choices based on selected values.
+    Subclasses should set `include_selected` to control filtering behavior.
+    """
+    include_selected = False
+
+    def optgroups(self, name, value, attrs=None):
+        filtered_choices = []
+        include_selected = self.include_selected
+
+        for choice in self.choices:
+            if isinstance(choice[1], (list, tuple)):  # optgroup
+                group_label, group_choices = choice
+                filtered_group = [
+                    c for c in group_choices if (str(c[0]) in value) == include_selected
+                ]
+
+                if filtered_group:  # Only include optgroup if it has choices left
+                    filtered_choices.append((group_label, filtered_group))
+            else:  # option, e.g. flat choice
+                if (str(choice[0]) in value) == include_selected:
+                    filtered_choices.append(choice)
+
+        self.choices = filtered_choices
+        value = []  # Clear selected choices
+        return super().optgroups(name, value, attrs)
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        option['attrs']['title'] = label  # Add title attribute to show full text on hover
+        return option
+
+
+class AvailableOptions(SelectMultipleBase):
     """
     Renders a <select multiple=true> including only choices that have been selected. (For unbound fields, this list
     will be empty.) Employed by SplitMultiSelectWidget.
     """
-    def optgroups(self, name, value, attrs=None):
-        self.choices = [
-            choice for choice in self.choices if str(choice[0]) not in value
-        ]
-        value = []  # Clear selected choices
-        return super().optgroups(name, value, attrs)
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
@@ -87,17 +115,12 @@ class AvailableOptions(forms.SelectMultiple):
         return context
 
 
-class SelectedOptions(forms.SelectMultiple):
+class SelectedOptions(SelectMultipleBase):
     """
     Renders a <select multiple=true> including only choices that have _not_ been selected. (For unbound fields, this
     will include _all_ choices.) Employed by SplitMultiSelectWidget.
     """
-    def optgroups(self, name, value, attrs=None):
-        self.choices = [
-            choice for choice in self.choices if str(choice[0]) in value
-        ]
-        value = []  # Clear selected choices
-        return super().optgroups(name, value, attrs)
+    include_selected = True
 
 
 class SplitMultiSelectWidget(forms.MultiWidget):

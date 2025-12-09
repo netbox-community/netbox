@@ -1,6 +1,8 @@
 import json
+from collections import defaultdict
 
 from django import forms
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
@@ -21,6 +23,7 @@ from utilities.forms.fields import (
     DynamicModelMultipleChoiceField,
     JSONField,
 )
+from utilities.string import title
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
@@ -283,10 +286,24 @@ class GroupForm(forms.ModelForm):
 
 
 def get_object_types_choices():
-    return [
-        (ot.pk, str(ot))
-        for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model')
-    ]
+    """
+    Generate choices for object types grouped by app label using optgroups.
+    Returns nested structure: [(app_label, [(id, model_name), ...]), ...]
+    """
+    app_label_map = {
+        app_config.label: app_config.verbose_name
+        for app_config in apps.get_app_configs()
+    }
+    choices_by_app = defaultdict(list)
+
+    for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES).order_by('app_label', 'model'):
+        app_label = app_label_map.get(ot.app_label, ot.app_label)
+
+        model_class = ot.model_class()
+        model_name = model_class._meta.verbose_name if model_class else ot.model
+        choices_by_app[app_label].append((ot.pk, title(model_name)))
+
+    return list(choices_by_app.items())
 
 
 class ObjectPermissionForm(forms.ModelForm):
