@@ -1,6 +1,5 @@
 import logging
 from collections import defaultdict
-from copy import deepcopy
 
 from django.contrib import messages
 from django.db import router, transaction
@@ -564,7 +563,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         if form.is_valid():
             changelog_message = form.cleaned_data.pop('changelog_message', '')
             new_components = []
-            data = deepcopy(request.POST)
+            data = request.POST.copy()
             pattern_count = len(form.cleaned_data[self.form.replication_fields[0]])
 
             for i in range(pattern_count):
@@ -573,7 +572,8 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         data[field_name] = form.cleaned_data[field_name][i]
 
                 if hasattr(form, 'get_iterative_data'):
-                    data.update(form.get_iterative_data(i))
+                    for k, v in form.get_iterative_data(i).items():
+                        data.setlist(k, v)
 
                 component_form = self.model_form(data)
 

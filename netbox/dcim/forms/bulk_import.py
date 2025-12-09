@@ -1091,12 +1091,6 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
-    rear_port = CSVModelChoiceField(
-        label=_('Rear port'),
-        queryset=RearPort.objects.all(),
-        to_field_name='name',
-        help_text=_('Corresponding rear port')
-    )
     type = CSVChoiceField(
         label=_('Type'),
         choices=PortTypeChoices,
@@ -1106,31 +1100,8 @@ class FrontPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = FrontPort
         fields = (
-            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
-            'description', 'owner', 'tags'
+            'device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'owner', 'tags'
         )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit RearPort choices to those belonging to this device (or VC master)
-        if self.is_bound and 'device' in self.data:
-            try:
-                device = self.fields['device'].to_python(self.data['device'])
-            except forms.ValidationError:
-                device = None
-        else:
-            try:
-                device = self.instance.device
-            except Device.DoesNotExist:
-                device = None
-
-        if device:
-            self.fields['rear_port'].queryset = RearPort.objects.filter(
-                device__in=[device, device.get_vc_master()]
-            )
-        else:
-            self.fields['rear_port'].queryset = RearPort.objects.none()
 
 
 class RearPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):

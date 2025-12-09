@@ -1362,22 +1362,15 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             RearPortTemplate(device_type=device_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
-        FrontPortTemplate.objects.bulk_create(
-            (
-                FrontPortTemplate(
-                    device_type=device_types[0],
-                    name='Front Port 1',
-                    type=PortTypeChoices.TYPE_8P8C,
-                    rear_port=rear_ports[0],
-                ),
-                FrontPortTemplate(
-                    device_type=device_types[1],
-                    name='Front Port 2',
-                    type=PortTypeChoices.TYPE_8P8C,
-                    rear_port=rear_ports[1],
-                ),
-            )
+        front_ports = (
+            FrontPortTemplate(device_type=device_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(device_type=device_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(device_type=device_types[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=device_types[1], front_port=front_ports[1], rear_port=rear_ports[1]),
+        ])
         ModuleBayTemplate.objects.bulk_create((
             ModuleBayTemplate(device_type=device_types[0], name='Module Bay 1'),
             ModuleBayTemplate(device_type=device_types[1], name='Module Bay 2'),
@@ -1633,22 +1626,15 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             RearPortTemplate(module_type=module_types[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
-        FrontPortTemplate.objects.bulk_create(
-            (
-                FrontPortTemplate(
-                    module_type=module_types[0],
-                    name='Front Port 1',
-                    type=PortTypeChoices.TYPE_8P8C,
-                    rear_port=rear_ports[0],
-                ),
-                FrontPortTemplate(
-                    module_type=module_types[1],
-                    name='Front Port 2',
-                    type=PortTypeChoices.TYPE_8P8C,
-                    rear_port=rear_ports[1],
-                ),
-            )
+        front_ports = (
+            FrontPortTemplate(module_type=module_types[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=module_types[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(module_type=module_types[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(module_type=module_types[1], front_port=front_ports[1], rear_port=rear_ports[1]),
+        ])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -2064,32 +2050,38 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
 
-        FrontPortTemplate.objects.bulk_create((
+        front_ports = (
             FrontPortTemplate(
                 device_type=device_types[0],
                 name='Front Port 1',
-                rear_port=rear_ports[0],
                 type=PortTypeChoices.TYPE_8P8C,
+                positions=1,
                 color=ColorChoices.COLOR_RED,
                 description='foobar1'
             ),
             FrontPortTemplate(
                 device_type=device_types[1],
                 name='Front Port 2',
-                rear_port=rear_ports[1],
                 type=PortTypeChoices.TYPE_110_PUNCH,
+                positions=2,
                 color=ColorChoices.COLOR_GREEN,
                 description='foobar2'
             ),
             FrontPortTemplate(
                 device_type=device_types[2],
                 name='Front Port 3',
-                rear_port=rear_ports[2],
                 type=PortTypeChoices.TYPE_BNC,
+                positions=3,
                 color=ColorChoices.COLOR_BLUE,
                 description='foobar3'
             ),
-        ))
+        )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(device_type=device_types[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=device_types[1], front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(device_type=device_types[2], front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
     def test_name(self):
         params = {'name': ['Front Port 1', 'Front Port 2']}
@@ -2101,6 +2093,10 @@ class FrontPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
 
     def test_color(self):
         params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_positions(self):
+        params = {'positions': [1, 2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -2759,10 +2755,15 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             RearPort(device=devices[1], name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPort.objects.bulk_create(rear_ports)
-        FrontPort.objects.bulk_create((
-            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
-        ))
+        front_ports = (
+            FrontPort(device=devices[0], name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=devices[1], name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
+        )
+        FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=devices[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=devices[1], front_port=front_ports[1], rear_port=rear_ports[1]),
+        ])
         ModuleBay.objects.create(device=devices[0], name='Module Bay 1')
         ModuleBay.objects.create(device=devices[1], name='Module Bay 2')
         DeviceBay.objects.bulk_create((
@@ -5158,8 +5159,6 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 label='A',
                 type=PortTypeChoices.TYPE_8P8C,
                 color=ColorChoices.COLOR_RED,
-                rear_port=rear_ports[0],
-                rear_port_position=1,
                 description='First',
                 _site=devices[0].site,
                 _location=devices[0].location,
@@ -5172,8 +5171,6 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 label='B',
                 type=PortTypeChoices.TYPE_110_PUNCH,
                 color=ColorChoices.COLOR_GREEN,
-                rear_port=rear_ports[1],
-                rear_port_position=2,
                 description='Second',
                 _site=devices[1].site,
                 _location=devices[1].location,
@@ -5186,8 +5183,6 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 label='C',
                 type=PortTypeChoices.TYPE_BNC,
                 color=ColorChoices.COLOR_BLUE,
-                rear_port=rear_ports[2],
-                rear_port_position=3,
                 description='Third',
                 _site=devices[2].site,
                 _location=devices[2].location,
@@ -5198,8 +5193,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 name='Front Port 4',
                 label='D',
                 type=PortTypeChoices.TYPE_FC,
-                rear_port=rear_ports[3],
-                rear_port_position=1,
+                positions=2,
                 _site=devices[3].site,
                 _location=devices[3].location,
                 _rack=devices[3].rack,
@@ -5209,8 +5203,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 name='Front Port 5',
                 label='E',
                 type=PortTypeChoices.TYPE_FC,
-                rear_port=rear_ports[4],
-                rear_port_position=1,
+                positions=3,
                 _site=devices[3].site,
                 _location=devices[3].location,
                 _rack=devices[3].rack,
@@ -5220,14 +5213,21 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 name='Front Port 6',
                 label='F',
                 type=PortTypeChoices.TYPE_FC,
-                rear_port=rear_ports[5],
-                rear_port_position=1,
+                positions=4,
                 _site=devices[3].site,
                 _location=devices[3].location,
                 _rack=devices[3].rack,
             ),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=devices[0], front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=devices[1], front_port=front_ports[1], rear_port=rear_ports[1], rear_port_position=2),
+            PortMapping(device=devices[2], front_port=front_ports[2], rear_port=rear_ports[2], rear_port_position=3),
+            PortMapping(device=devices[3], front_port=front_ports[3], rear_port=rear_ports[3]),
+            PortMapping(device=devices[3], front_port=front_ports[4], rear_port=rear_ports[4]),
+            PortMapping(device=devices[3], front_port=front_ports[5], rear_port=rear_ports[5]),
+        ])
 
         # Cables
         Cable(a_terminations=[front_ports[0]], b_terminations=[front_ports[3]]).save()
@@ -5248,6 +5248,10 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_color(self):
         params = {'color': [ColorChoices.COLOR_RED, ColorChoices.COLOR_GREEN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_positions(self):
+        params = {'positions': [2, 3]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -6518,13 +6522,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         console_server_port = ConsoleServerPort.objects.create(device=devices[0], name='Console Server Port 1')
         power_port = PowerPort.objects.create(device=devices[0], name='Power Port 1')
         power_outlet = PowerOutlet.objects.create(device=devices[0], name='Power Outlet 1')
-        rear_port = RearPort.objects.create(device=devices[0], name='Rear Port 1', positions=1)
-        front_port = FrontPort.objects.create(
-            device=devices[0],
-            name='Front Port 1',
-            rear_port=rear_port,
-            rear_port_position=1
-        )
+        rear_port = RearPort.objects.create(device=devices[0], name='Rear Port 1')
+        front_port = FrontPort.objects.create(device=devices[0], name='Front Port 1')
+        PortMapping.objects.create(device=devices[0], front_port=front_port, rear_port=rear_port)
 
         power_panel = PowerPanel.objects.create(name='Power Panel 1', site=sites[0])
         power_feed = PowerFeed.objects.create(name='Power Feed 1', power_panel=power_panel)

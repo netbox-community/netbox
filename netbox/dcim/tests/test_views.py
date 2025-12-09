@@ -741,17 +741,16 @@ class DeviceTypeTestCase(
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPortTemplate(
-                device_type=devicetype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
-            ),
-            FrontPortTemplate(
-                device_type=devicetype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
-            ),
-            FrontPortTemplate(
-                device_type=devicetype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
-            ),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 1'),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 2'),
+            FrontPortTemplate(device_type=devicetype, name='Front Port 3'),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         url = reverse('dcim:devicetype_frontports', kwargs={'pk': devicetype.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -866,12 +865,16 @@ rear-ports:
 front-ports:
   - name: Front Port 1
     type: 8p8c
-    rear_port: Rear Port 1
   - name: Front Port 2
     type: 8p8c
-    rear_port: Rear Port 2
   - name: Front Port 3
     type: 8p8c
+port-mappings:
+  - front_port: Front Port 1
+    rear_port: Rear Port 1
+  - front_port: Front Port 2
+    rear_port: Rear Port 2
+  - front_port: Front Port 3
     rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
@@ -971,8 +974,12 @@ inventory-items:
         self.assertEqual(device_type.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
-        self.assertEqual(fp1.rear_port, rp1)
-        self.assertEqual(fp1.rear_port_position, 1)
+
+        self.assertEqual(device_type.port_mappings.count(), 3)
+        mapping1 = PortTemplateMapping.objects.first()
+        self.assertEqual(mapping1.device_type, device_type)
+        self.assertEqual(mapping1.front_port, fp1)
+        self.assertEqual(mapping1.rear_port, rp1)
 
         self.assertEqual(device_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()
@@ -1316,17 +1323,16 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         RearPortTemplate.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPortTemplate(
-                module_type=moduletype, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1
-            ),
-            FrontPortTemplate(
-                module_type=moduletype, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1
-            ),
-            FrontPortTemplate(
-                module_type=moduletype, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1
-            ),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 1'),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 2'),
+            FrontPortTemplate(module_type=moduletype, name='Front Port 3'),
         )
         FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(module_type=moduletype, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(module_type=moduletype, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(module_type=moduletype, front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         url = reverse('dcim:moduletype_frontports', kwargs={'pk': moduletype.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -1394,12 +1400,16 @@ rear-ports:
 front-ports:
   - name: Front Port 1
     type: 8p8c
-    rear_port: Rear Port 1
   - name: Front Port 2
     type: 8p8c
-    rear_port: Rear Port 2
   - name: Front Port 3
     type: 8p8c
+port-mappings:
+  - front_port: Front Port 1
+    rear_port: Rear Port 1
+  - front_port: Front Port 2
+    rear_port: Rear Port 2
+  - front_port: Front Port 3
     rear_port: Rear Port 3
 module-bays:
   - name: Module Bay 1
@@ -1477,8 +1487,12 @@ module-bays:
         self.assertEqual(module_type.frontporttemplates.count(), 3)
         fp1 = FrontPortTemplate.objects.first()
         self.assertEqual(fp1.name, 'Front Port 1')
-        self.assertEqual(fp1.rear_port, rp1)
-        self.assertEqual(fp1.rear_port_position, 1)
+
+        self.assertEqual(module_type.port_mappings.count(), 3)
+        mapping1 = PortTemplateMapping.objects.first()
+        self.assertEqual(mapping1.module_type, module_type)
+        self.assertEqual(mapping1.front_port, fp1)
+        self.assertEqual(mapping1.rear_port, rp1)
 
         self.assertEqual(module_type.modulebaytemplates.count(), 3)
         mb1 = ModuleBayTemplate.objects.first()
@@ -1770,7 +1784,7 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
-        rearports = (
+        rear_ports = (
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 1'),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 2'),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 3'),
@@ -1778,35 +1792,33 @@ class FrontPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCas
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 5'),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 6'),
         )
-        RearPortTemplate.objects.bulk_create(rearports)
-
-        FrontPortTemplate.objects.bulk_create(
-            (
-                FrontPortTemplate(
-                    device_type=devicetype, name='Front Port Template 1', rear_port=rearports[0], rear_port_position=1
-                ),
-                FrontPortTemplate(
-                    device_type=devicetype, name='Front Port Template 2', rear_port=rearports[1], rear_port_position=1
-                ),
-                FrontPortTemplate(
-                    device_type=devicetype, name='Front Port Template 3', rear_port=rearports[2], rear_port_position=1
-                ),
-            )
+        RearPortTemplate.objects.bulk_create(rear_ports)
+        front_ports = (
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1'),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2'),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 3'),
         )
+        FrontPortTemplate.objects.bulk_create(front_ports)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortTemplateMapping(device_type=devicetype, front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         cls.form_data = {
             'device_type': devicetype.pk,
             'name': 'Front Port X',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port': rearports[3].pk,
-            'rear_port_position': 1,
+            'positions': 1,
+            'rear_ports': [f'{rear_ports[3].pk}:1'],
         }
 
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
             'name': 'Front Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port': [f'{rp.pk}:1' for rp in rearports[3:6]],
+            'positions': 1,
+            'rear_ports': [f'{rp.pk}:1' for rp in rear_ports[3:6]],
         }
 
         cls.bulk_edit_data = {
@@ -2276,11 +2288,16 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         RearPort.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPort(device=device, name='Front Port 1', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPort(device=device, name='Front Port 2', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPort(device=device, name='Front Port 3', rear_port=rear_ports[2], rear_port_position=1),
+            FrontPort(device=device, name='Front Port Template 1'),
+            FrontPort(device=device, name='Front Port Template 2'),
+            FrontPort(device=device, name='Front Port Template 3'),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=device, front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         url = reverse('dcim:device_frontports', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -3065,7 +3082,7 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     def setUpTestData(cls):
         device = create_test_device('Device 1')
 
-        rearports = (
+        rear_ports = (
             RearPort(device=device, name='Rear Port 1'),
             RearPort(device=device, name='Rear Port 2'),
             RearPort(device=device, name='Rear Port 3'),
@@ -3073,14 +3090,19 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             RearPort(device=device, name='Rear Port 5'),
             RearPort(device=device, name='Rear Port 6'),
         )
-        RearPort.objects.bulk_create(rearports)
+        RearPort.objects.bulk_create(rear_ports)
 
         front_ports = (
-            FrontPort(device=device, name='Front Port 1', rear_port=rearports[0]),
-            FrontPort(device=device, name='Front Port 2', rear_port=rearports[1]),
-            FrontPort(device=device, name='Front Port 3', rear_port=rearports[2]),
+            FrontPort(device=device, name='Front Port 1'),
+            FrontPort(device=device, name='Front Port 2'),
+            FrontPort(device=device, name='Front Port 3'),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=device, front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -3088,8 +3110,8 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'device': device.pk,
             'name': 'Front Port X',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port': rearports[3].pk,
-            'rear_port_position': 1,
+            'positions': 1,
+            'rear_ports': [f'{rear_ports[3].pk}:1'],
             'description': 'New description',
             'tags': [t.pk for t in tags],
         }
@@ -3098,7 +3120,8 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'device': device.pk,
             'name': 'Front Port [4-6]',
             'type': PortTypeChoices.TYPE_8P8C,
-            'rear_port': [f'{rp.pk}:1' for rp in rearports[3:6]],
+            'positions': 1,
+            'rear_ports': [f'{rp.pk}:1' for rp in rear_ports[3:6]],
             'description': 'New description',
             'tags': [t.pk for t in tags],
         }
@@ -3109,10 +3132,10 @@ class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name,type,rear_port,rear_port_position",
-            "Device 1,Front Port 4,8p8c,Rear Port 4,1",
-            "Device 1,Front Port 5,8p8c,Rear Port 5,1",
-            "Device 1,Front Port 6,8p8c,Rear Port 6,1",
+            "device,name,type,positions",
+            "Device 1,Front Port 4,8p8c,1",
+            "Device 1,Front Port 5,8p8c,1",
+            "Device 1,Front Port 6,8p8c,1",
         )
 
         cls.csv_update_data = (

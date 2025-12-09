@@ -16,7 +16,8 @@ from dcim.graphql.filter_mixins import (
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
 from netbox.graphql.filter_mixins import ImageAttachmentFilterMixin, WeightFilterMixin
 from netbox.graphql.filters import (
-    ChangeLoggedModelFilter, NestedGroupModelFilter, OrganizationalModelFilter, PrimaryModelFilter, NetBoxModelFilter,
+    BaseModelFilter, ChangeLoggedModelFilter, NestedGroupModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
+    NetBoxModelFilter,
 )
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization.models import VMInterface
@@ -70,6 +71,8 @@ __all__ = (
     'ModuleTypeFilter',
     'ModuleTypeProfileFilter',
     'PlatformFilter',
+    'PortMappingFilter',
+    'PortTemplateMappingFilter',
     'PowerFeedFilter',
     'PowerOutletFilter',
     'PowerOutletTemplateFilter',
@@ -404,13 +407,6 @@ class FrontPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin,
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    rear_port: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
-    )
-    rear_port_id: ID | None = strawberry_django.filter_field()
-    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
 
 
 @strawberry_django.filter_type(models.FrontPortTemplate, lookups=True)
@@ -421,13 +417,37 @@ class FrontPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
     color: BaseFilterLookup[Annotated['ColorEnum', strawberry.lazy('netbox.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
+
+
+@strawberry_django.filter_type(models.PortMapping, lookups=True)
+class PortMappingFilter(BaseModelFilter):
+    device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
+    front_port: Annotated['FrontPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    rear_port: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    front_port_position: FilterLookup[int] | None = strawberry_django.filter_field()
+    rear_port_position: FilterLookup[int] | None = strawberry_django.filter_field()
+
+
+@strawberry_django.filter_type(models.PortTemplateMapping, lookups=True)
+class PortTemplateMappingFilter(BaseModelFilter):
+    device_type: Annotated['DeviceTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    module_type: Annotated['ModuleTypeFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    front_port: Annotated['FrontPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     rear_port: Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    rear_port_id: ID | None = strawberry_django.filter_field()
-    rear_port_position: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
+    front_port_position: FilterLookup[int] | None = strawberry_django.filter_field()
+    rear_port_position: FilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.MACAddress, lookups=True)

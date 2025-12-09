@@ -6,6 +6,7 @@ from timezone_field import TimeZoneFormField
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.forms.mixins import FrontPortFormMixin
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
@@ -1112,33 +1113,65 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
         ]
 
 
-class FrontPortTemplateForm(ModularComponentTemplateForm):
-    rear_port = DynamicModelChoiceField(
-        label=_('Rear port'),
-        queryset=RearPortTemplate.objects.all(),
-        required=False,
-        query_params={
-            'device_type_id': '$device_type',
-            'module_type_id': '$module_type',
-        }
-    )
-
+class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
     fieldsets = (
         FieldSet(
             TabbedGroups(
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'name', 'label', 'type', 'positions', 'rear_ports', 'description',
         ),
     )
+
+    # Override FrontPortFormMixin attrs
+    port_mapping_model = PortTemplateMapping
+    parent_field = 'device_type'
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
-            'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if device_type_id := self.data.get('device_type') or self.initial.get('device_type'):
+            device_type = DeviceType.objects.get(pk=device_type_id)
+        else:
+            return
+
+        # Populate rear port choices
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(device_type, self.instance)
+
+        # Set initial rear port mappings
+        if self.instance.pk:
+            self.initial['rear_ports'] = [
+                f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+                for mapping in PortTemplateMapping.objects.filter(front_port_id=self.instance.pk)
+            ]
+
+    def _get_rear_port_choices(self, device_type, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the device type, excluding
+        those assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in device_type.port_mappings.exclude(front_port=front_port.pk)
+        ]
+
+        choices = []
+        for rear_port in RearPortTemplate.objects.filter(device_type=device_type):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append(
+                        (pair_id, pair_label)
+                    )
+        return choices
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
@@ -1578,17 +1611,10 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         }
 
 
-class FrontPortForm(ModularDeviceComponentForm):
-    rear_port = DynamicModelChoiceField(
-        queryset=RearPort.objects.all(),
-        query_params={
-            'device_id': '$device',
-        }
-    )
-
+class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
             'description', 'tags',
         ),
     )
@@ -1596,9 +1622,48 @@ class FrontPortForm(ModularDeviceComponentForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
-            'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner',
+            'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if device_id := self.data.get('device') or self.initial.get('device'):
+            device = Device.objects.get(pk=device_id)
+        else:
+            return
+
+        # Populate rear port choices
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(device, self.instance)
+
+        # Set initial rear port mappings
+        if self.instance.pk:
+            self.initial['rear_ports'] = [
+                f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+                for mapping in PortMapping.objects.filter(front_port_id=self.instance.pk)
+            ]
+
+    def _get_rear_port_choices(self, device, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the device, excluding those
+        assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in device.port_mappings.exclude(front_port=front_port.pk)
+        ]
+
+        choices = []
+        for rear_port in RearPort.objects.filter(device=device):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append(
+                        (pair_id, pair_label)
+                    )
+        return choices
 
 
 class RearPortForm(ModularDeviceComponentForm):

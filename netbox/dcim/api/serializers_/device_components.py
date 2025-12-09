@@ -5,21 +5,21 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
-    RearPort, VirtualDeviceContext,
+    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PortMapping,
+    PowerOutlet, PowerPort, RearPort, VirtualDeviceContext,
 )
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
-from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import NetBoxModelSerializer
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
-from .base import ConnectedEndpointsSerializer
+from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
@@ -294,7 +294,20 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         return super().validate(data)
 
 
-class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+class RearPortMappingSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='rear_port_position'
+    )
+    front_port = serializers.PrimaryKeyRelatedField(
+        queryset=FrontPort.objects.all(),
+    )
+
+    class Meta:
+        model = PortMapping
+        fields = ('position', 'front_port', 'front_port_position')
+
+
+class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, PortSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -303,28 +316,36 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
+    front_ports = RearPortMappingSerializer(
+        source='mappings',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = RearPort
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions',
-            'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'tags',
-            'custom_fields', 'created', 'last_updated', '_occupied',
+            'front_ports', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class FrontPortRearPortSerializer(WritableNestedSerializer):
-    """
-    NestedRearPortSerializer but with parent device omitted (since front and rear ports must belong to same device)
-    """
+class FrontPortMappingSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='front_port_position'
+    )
+    rear_port = serializers.PrimaryKeyRelatedField(
+        queryset=RearPort.objects.all(),
+    )
 
     class Meta:
-        model = RearPort
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'label', 'description']
+        model = PortMapping
+        fields = ('position', 'rear_port', 'rear_port_position')
 
 
-class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, PortSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -333,14 +354,18 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_port = FrontPortRearPortSerializer()
+    rear_ports = FrontPortMappingSerializer(
+        source='mappings',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = FrontPort
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'rear_port',
-            'rear_port_position', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers',
-            'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions',
+            'rear_ports', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 

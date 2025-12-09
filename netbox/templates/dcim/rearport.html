@@ -58,6 +58,7 @@
             </div>
             {% include 'inc/panels/custom_fields.html' %}
             {% include 'inc/panels/tags.html' %}
+            {% include 'dcim/inc/panels/inventory_items.html' %}
             {% plugin_left_page object %}
         </div>
         <div class="col col-12 col-md-6">
@@ -116,7 +117,29 @@
                     </div>
                 {% endif %}
             </div>
-            {% include 'dcim/inc/panels/inventory_items.html' %}
+            <div class="card">
+              <h2 class="card-header">{% trans "Port Mappings" %}</h2>
+              <table class="table table-hover">
+                {% if front_port_mappings %}
+                  <thead>
+                    <tr>
+                      <th>{% trans "Position" %}</th>
+                      <th>{% trans "Front Port" %}</th>
+                    </tr>
+                  </thead>
+                {% endif %}
+                {% for mapping in front_port_mappings %}
+                  <tr>
+                    <td>{{ mapping.rear_port_position }}</td>
+                    <td>
+                      <a href="{{ mapping.front_port.get_absolute_url }}">{{ mapping.front_port }}:{{ mapping.front_port_position }}</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  {% trans "No mappings defined" %}
+                {% endfor %}
+              </table>
+            </div>
             {% plugin_right_page object %}
         </div>
     </div>
