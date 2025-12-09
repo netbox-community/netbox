@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-06 05:01+0000\n"
+"POT-Creation-Date: 2025-12-09 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1470,7 +1470,7 @@ msgstr ""
 #: netbox/dcim/models/device_components.py:488
 #: netbox/dcim/models/device_components.py:1319
 #: netbox/dcim/models/devices.py:580 netbox/dcim/models/devices.py:1202
-#: netbox/dcim/models/modules.py:210 netbox/dcim/models/power.py:94
+#: netbox/dcim/models/modules.py:209 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/racks.py:677
 #: netbox/dcim/models/sites.py:157 netbox/dcim/models/sites.py:281
 #: netbox/ipam/models/ip.py:243 netbox/ipam/models/ip.py:529
@@ -1604,7 +1604,7 @@ msgstr ""
 #: netbox/dcim/models/device_component_templates.py:44
 #: netbox/dcim/models/device_components.py:53 netbox/dcim/models/devices.py:524
 #: netbox/dcim/models/devices.py:1128 netbox/dcim/models/devices.py:1197
-#: netbox/dcim/models/modules.py:32 netbox/dcim/models/power.py:38
+#: netbox/dcim/models/modules.py:31 netbox/dcim/models/power.py:38
 #: netbox/dcim/models/power.py:89 netbox/dcim/models/racks.py:263
 #: netbox/dcim/models/sites.py:145 netbox/extras/models/configs.py:36
 #: netbox/extras/models/configs.py:78 netbox/extras/models/configs.py:272
@@ -6625,7 +6625,7 @@ msgid "module bays"
 msgstr ""
 
 #: netbox/dcim/models/device_components.py:1217
-#: netbox/dcim/models/modules.py:258
+#: netbox/dcim/models/modules.py:257
 msgid "A module bay cannot belong to a module installed within it."
 msgstr ""
 
@@ -6661,14 +6661,14 @@ msgid "inventory item roles"
 msgstr ""
 
 #: netbox/dcim/models/device_components.py:1346
-#: netbox/dcim/models/devices.py:533 netbox/dcim/models/modules.py:218
+#: netbox/dcim/models/devices.py:533 netbox/dcim/models/modules.py:217
 #: netbox/dcim/models/racks.py:310
 #: netbox/virtualization/models/virtualmachines.py:125
 msgid "serial number"
 msgstr ""
 
 #: netbox/dcim/models/device_components.py:1354
-#: netbox/dcim/models/devices.py:541 netbox/dcim/models/modules.py:225
+#: netbox/dcim/models/devices.py:541 netbox/dcim/models/modules.py:224
 #: netbox/dcim/models/racks.py:317
 msgid "asset tag"
 msgstr ""
@@ -6717,7 +6717,7 @@ msgstr ""
 msgid "manufacturers"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:85 netbox/dcim/models/modules.py:74
+#: netbox/dcim/models/devices.py:85 netbox/dcim/models/modules.py:73
 #: netbox/dcim/models/racks.py:139
 msgid "model"
 msgstr ""
@@ -6726,11 +6726,11 @@ msgstr ""
 msgid "default platform"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:101 netbox/dcim/models/modules.py:78
+#: netbox/dcim/models/devices.py:101 netbox/dcim/models/modules.py:77
 msgid "part number"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:104 netbox/dcim/models/modules.py:81
+#: netbox/dcim/models/devices.py:104 netbox/dcim/models/modules.py:80
 msgid "Discrete part number (optional)"
 msgstr ""
 
@@ -6765,7 +6765,7 @@ msgid ""
 msgstr ""
 
 #: netbox/dcim/models/devices.py:132 netbox/dcim/models/devices.py:586
-#: netbox/dcim/models/modules.py:84 netbox/dcim/models/racks.py:321
+#: netbox/dcim/models/modules.py:83 netbox/dcim/models/racks.py:321
 msgid "airflow"
 msgstr ""
 
@@ -6853,7 +6853,7 @@ msgstr ""
 msgid "Chassis serial number, assigned by the manufacturer"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:542 netbox/dcim/models/modules.py:226
+#: netbox/dcim/models/devices.py:542 netbox/dcim/models/modules.py:225
 msgid "A unique tag used to identify this device"
 msgstr ""
 
@@ -7106,44 +7106,44 @@ msgstr ""
 msgid "Wireless role may be set only on wireless interfaces."
 msgstr ""
 
-#: netbox/dcim/models/modules.py:40 netbox/extras/models/configs.py:49
+#: netbox/dcim/models/modules.py:39 netbox/extras/models/configs.py:49
 msgid "schema"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:47
+#: netbox/dcim/models/modules.py:46
 msgid "module type profile"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:48
+#: netbox/dcim/models/modules.py:47
 msgid "module type profiles"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:93
+#: netbox/dcim/models/modules.py:92
 msgid "attributes"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:109
+#: netbox/dcim/models/modules.py:108
 msgid "module type"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:110
+#: netbox/dcim/models/modules.py:109
 msgid "module types"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:140
+#: netbox/dcim/models/modules.py:139
 #, python-brace-format
 msgid "Invalid schema: {error}"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:233
+#: netbox/dcim/models/modules.py:232
 msgid "module"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:234
+#: netbox/dcim/models/modules.py:233
 msgid "modules"
 msgstr ""
 
-#: netbox/dcim/models/modules.py:247
+#: netbox/dcim/models/modules.py:246
 #, python-brace-format
 msgid ""
 "Module must be installed within a module bay belonging to the assigned "
