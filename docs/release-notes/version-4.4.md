@@ -1,5 +1,22 @@
 # NetBox v4.4
 
+## v4.4.8 (2025-12-09)
+
+### Enhancements
+
+* [#20068](https://github.com/netbox-community/netbox/issues/20068) - Support the assignment of module type profile attributes via bulk import
+* [#20914](https://github.com/netbox-community/netbox/issues/20914) - Enable filtering device components by tenant assigned to device
+
+### Bug Fixes
+
+* [#19918](https://github.com/netbox-community/netbox/issues/19918) - Fix support for `{module}` resolution of components of child modules
+* [#20759](https://github.com/netbox-community/netbox/issues/20759) - Improve legibility of object types in permissions form
+* [#20860](https://github.com/netbox-community/netbox/issues/20860) - Ensure user-provided changelog message is recorded when creating device components via the UI
+* [#20878](https://github.com/netbox-community/netbox/issues/20878) - Use the active database connection when executing custom scripts
+* [#20888](https://github.com/netbox-community/netbox/issues/20888) - Resolve warnings about non-decimal values for min/max latitude & longitude fields
+
+---
+
 ## v4.4.7 (2025-11-25)
 
 ### Enhancements
