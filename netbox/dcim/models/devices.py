@@ -33,6 +33,7 @@ from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module
+from ..utils import update_device_components
 
 
 __all__ = (
@@ -1012,6 +1013,8 @@ class Device(
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
             # Interface bridges have to be set after interface instantiation
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
+            # Update denormalized fields for all components
+            update_device_components(self)
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)

@@ -15,6 +15,7 @@ from netbox.models.mixins import WeightMixin
 from utilities.jsonschema import validate_schema
 from utilities.string import title
 from .device_components import *
+from ..utils import update_device_components
 
 __all__ = (
     'Module',
@@ -347,3 +348,5 @@ class Module(PrimaryModel, ConfigContextModel):
 
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
+        # Update denormalized fields for all components
+        update_device_components(self.device)

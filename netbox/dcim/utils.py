@@ -76,3 +76,36 @@ def update_interface_bridges(device, interface_templates, module=None):
             )
             interface.full_clean()
             interface.save()
+
+
+def update_device_components(device):
+    """
+    Update denormalized fields (_site, _location, _rack) for all component models
+    associated with the specified device.
+
+    :param device: Device instance whose components should be updated
+    """
+    from dcim.models import (
+        ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface,
+        InventoryItem, ModuleBay, PowerOutlet, PowerPort, RearPort,
+    )
+
+    COMPONENT_MODELS = (
+        ConsolePort,
+        ConsoleServerPort,
+        DeviceBay,
+        FrontPort,
+        Interface,
+        InventoryItem,
+        ModuleBay,
+        PowerOutlet,
+        PowerPort,
+        RearPort,
+    )
+
+    for model in COMPONENT_MODELS:
+        model.objects.filter(device=device).update(
+            _site=device.site,
+            _location=device.location,
+            _rack=device.rack,
+        )
