@@ -11,6 +11,7 @@ class ManufacturerSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     devicetype_count = RelatedObjectCountField('device_types')
+    moduletype_count = RelatedObjectCountField('module_types')
     inventoryitem_count = RelatedObjectCountField('inventory_items')
     platform_count = RelatedObjectCountField('platforms')
 
@@ -18,6 +19,6 @@ class ManufacturerSerializer(OrganizationalModelSerializer):
         model = Manufacturer
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'tags', 'custom_fields',
-            'created', 'last_updated', 'devicetype_count', 'inventoryitem_count', 'platform_count',
+            'created', 'last_updated', 'devicetype_count', 'moduletype_count', 'inventoryitem_count', 'platform_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'devicetype_count')
