@@ -1,6 +1,7 @@
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -177,14 +178,23 @@ class CabledObjectModel(models.Model):
         blank=True,
         null=True
     )
-    cable_position = models.PositiveIntegerField(
-        verbose_name=_('cable position'),
+    cable_connector = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=(
-            MinValueValidator(CABLE_POSITION_MIN),
-            MaxValueValidator(CABLE_POSITION_MAX)
+            MinValueValidator(CABLE_CONNECTOR_MIN),
+            MaxValueValidator(CABLE_CONNECTOR_MAX)
         ),
+    )
+    cable_positions = ArrayField(
+        base_field=models.PositiveSmallIntegerField(
+            validators=(
+                MinValueValidator(CABLE_POSITION_MIN),
+                MaxValueValidator(CABLE_POSITION_MAX)
+            )
+        ),
+        blank=True,
+        null=True,
     )
     mark_connected = models.BooleanField(
         verbose_name=_('mark connected'),

@@ -1,3 +1,4 @@
+import django.contrib.postgres.fields
 import django.core.validators
 from django.db import migrations, models
 
@@ -10,98 +11,218 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='consoleport',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
+                ],
+            ),
+        ),
+        migrations.AddField(
+            model_name='consoleport',
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='consoleserverport',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
+                blank=True,
+                null=True,
+                validators=[
+                    django.core.validators.MinValueValidator(1),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='consoleserverport',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='frontport',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='frontport',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='interface',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='interface',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='powerfeed',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='powerfeed',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='poweroutlet',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='poweroutlet',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='powerport',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='powerport',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
+                blank=True,
+                null=True,
+                size=None,
+            ),
+        ),
+        migrations.AddField(
+            model_name='rearport',
+            name='cable_connector',
+            field=models.PositiveSmallIntegerField(
                 blank=True,
                 null=True,
                 validators=[
                     django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
+                    django.core.validators.MaxValueValidator(256)
                 ],
             ),
         ),
         migrations.AddField(
             model_name='rearport',
-            name='cable_position',
-            field=models.PositiveIntegerField(
+            name='cable_positions',
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.PositiveSmallIntegerField(
+                    validators=[
+                        django.core.validators.MinValueValidator(1),
+                        django.core.validators.MaxValueValidator(1024),
+                    ]
+                ),
                 blank=True,
                 null=True,
-                validators=[
-                    django.core.validators.MinValueValidator(1),
-                    django.core.validators.MaxValueValidator(1024),
-                ],
+                size=None,
             ),
         ),
     ]

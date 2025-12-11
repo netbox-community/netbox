@@ -1722,16 +1722,32 @@ class PortTypeChoices(ChoiceSet):
 #
 
 class CableProfileChoices(ChoiceSet):
-    STRAIGHT_SINGLE = 'straight-single'
-    STRAIGHT_MULTI = 'straight-multi'
+    STRAIGHT_1C1P = 'straight-1c1p'
+    STRAIGHT_1C2P = 'straight-1c2p'
+    STRAIGHT_1C4P = 'straight-1c4p'
+    STRAIGHT_1C8P = 'straight-1c8p'
+    STRAIGHT_2C1P = 'straight-2c1p'
+    STRAIGHT_2C2P = 'straight-2c2p'
+    BREAKOUT_1X4 = 'breakout-1x4'
+    MPO_TRUNK_4X4 = 'mpo-trunk-4x4'
+    MPO_TRUNK_8X8 = 'mpo-trunk-8x8'
     SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
     SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
+    SHUFFLE_BREAKOUT_2X8 = 'shuffle-breakout-2x8'
 
     CHOICES = (
-        (STRAIGHT_SINGLE, _('Straight (single position)')),
-        (STRAIGHT_MULTI, _('Straight (multi-position)')),
+        (STRAIGHT_1C1P, _('Straight (1C1P)')),
+        (STRAIGHT_1C2P, _('Straight (1C2P)')),
+        (STRAIGHT_1C4P, _('Straight (1C4P)')),
+        (STRAIGHT_1C8P, _('Straight (1C8P)')),
+        (STRAIGHT_2C1P, _('Straight (2C1P)')),
+        (STRAIGHT_2C2P, _('Straight (2C2P)')),
+        (BREAKOUT_1X4, _('Breakout (1:4)')),
+        (MPO_TRUNK_4X4, _('MPO Trunk (4x4)')),
+        (MPO_TRUNK_8X8, _('MPO Trunk (8x8)')),
         (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
         (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
+        (SHUFFLE_BREAKOUT_2X8, _('Shuffle breakout (2x8)')),
     )
 
 
