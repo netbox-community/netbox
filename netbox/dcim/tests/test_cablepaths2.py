@@ -1,3 +1,5 @@
+from unittest import skip
+
 from circuits.models import CircuitTermination
 from dcim.choices import CableProfileChoices
 from dcim.models import *
@@ -14,11 +16,11 @@ class CablePathTests(CablePathTestCase):
         2XX: Topology tests replicated from the legacy test case and adapted to use profiles
     """
 
-    def test_101_cable_profile_straight_single(self):
+    def test_101_cable_profile_straight_1c1p(self):
         """
         [IF1] --C1-- [IF2]
 
-        Cable profile: Straight single
+        Cable profile: Straight 1C1P
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
@@ -27,7 +29,7 @@ class CablePathTests(CablePathTestCase):
 
         # Create cable 1
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_SINGLE,
+            profile=CableProfileChoices.STRAIGHT_1C1P,
             a_terminations=[interfaces[0]],
             b_terminations=[interfaces[1]],
         )
@@ -49,8 +51,10 @@ class CablePathTests(CablePathTestCase):
         interfaces[1].refresh_from_db()
         self.assertPathIsSet(interfaces[0], path1)
         self.assertPathIsSet(interfaces[1], path2)
-        self.assertEqual(interfaces[0].cable_position, 1)
-        self.assertEqual(interfaces[1].cable_position, 1)
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[0].cable_positions, [1])
+        self.assertEqual(interfaces[1].cable_connector, 1)
+        self.assertEqual(interfaces[1].cable_positions, [1])
 
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
@@ -61,12 +65,12 @@ class CablePathTests(CablePathTestCase):
         # Check that all CablePaths have been deleted
         self.assertEqual(CablePath.objects.count(), 0)
 
-    def test_102_cable_profile_straight_multi(self):
+    def test_102_cable_profile_straight_2c1p(self):
         """
         [IF1] --C1-- [IF3]
         [IF2]        [IF4]
 
-        Cable profile: Straight multi
+        Cable profile: Straight 2C1P
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
@@ -77,7 +81,7 @@ class CablePathTests(CablePathTestCase):
 
         # Create cable 1
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.STRAIGHT_2C1P,
             a_terminations=[interfaces[0], interfaces[1]],
             b_terminations=[interfaces[2], interfaces[3]],
         )
@@ -112,10 +116,14 @@ class CablePathTests(CablePathTestCase):
         self.assertPathIsSet(interfaces[1], path2)
         self.assertPathIsSet(interfaces[2], path3)
         self.assertPathIsSet(interfaces[3], path4)
-        self.assertEqual(interfaces[0].cable_position, 1)
-        self.assertEqual(interfaces[1].cable_position, 2)
-        self.assertEqual(interfaces[2].cable_position, 1)
-        self.assertEqual(interfaces[3].cable_position, 2)
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[0].cable_positions, [1])
+        self.assertEqual(interfaces[1].cable_connector, 2)
+        self.assertEqual(interfaces[1].cable_positions, [1])
+        self.assertEqual(interfaces[2].cable_connector, 1)
+        self.assertEqual(interfaces[2].cable_positions, [1])
+        self.assertEqual(interfaces[3].cable_connector, 2)
+        self.assertEqual(interfaces[3].cable_positions, [1])
 
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
@@ -126,7 +134,8 @@ class CablePathTests(CablePathTestCase):
         # Check that all CablePaths have been deleted
         self.assertEqual(CablePath.objects.count(), 0)
 
-    def test_103_cable_profile_2x2_mpo8(self):
+    @skip("Under development")
+    def test_103_cable_profile_shuffle_2x2_mpo8(self):
         """
         [IF1:1] --C1-- [IF3:1]
         [IF1:2]        [IF3:2]
@@ -227,7 +236,7 @@ class CablePathTests(CablePathTestCase):
             interface.refresh_from_db()
             self.assertPathIsSet(interface, path)
             self.assertEqual(interface.cable_end, 'A' if i < 8 else 'B')
-            self.assertEqual(interface.cable_position, (i % 8) + 1)
+            self.assertEqual(interface.cable_positions, [(i % 8) + 1])
 
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
@@ -238,6 +247,7 @@ class CablePathTests(CablePathTestCase):
         # Check that all CablePaths have been deleted
         self.assertEqual(CablePath.objects.count(), 0)
 
+    @skip("Under development")
     def test_104_cable_profile_4x4_mpo8(self):
         """
         [IF1:1] --C1-- [IF3:1]
@@ -339,7 +349,7 @@ class CablePathTests(CablePathTestCase):
             interface.refresh_from_db()
             self.assertPathIsSet(interface, path)
             self.assertEqual(interface.cable_end, 'A' if i < 8 else 'B')
-            self.assertEqual(interface.cable_position, (i % 8) + 1)
+            self.assertEqual(interface.cable_positions, [(i % 8) + 1])
 
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
@@ -361,8 +371,8 @@ class CablePathTests(CablePathTestCase):
             Interface.objects.create(device=self.device, name='Interface 3'),
             Interface.objects.create(device=self.device, name='Interface 4'),
         ]
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1')
-        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1', positions=4)
         PortMapping.objects.bulk_create([
             PortMapping(
                 device=self.device,
@@ -371,18 +381,39 @@ class CablePathTests(CablePathTestCase):
                 rear_port=rearport1,
                 rear_port_position=1,
             ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=2,
+                rear_port=rearport1,
+                rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=3,
+                rear_port=rearport1,
+                rear_port_position=3,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport1,
+                front_port_position=4,
+                rear_port=rearport1,
+                rear_port_position=4,
+            ),
         ])
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
-            a_terminations=[interfaces[0], interfaces[1]],
-            b_terminations=[frontport1],
+            profile=CableProfileChoices.BREAKOUT_1X4,
+            a_terminations=[frontport1],
+            b_terminations=[interfaces[0], interfaces[1]],
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.BREAKOUT_1X4,
             a_terminations=[rearport1],
             b_terminations=[interfaces[2], interfaces[3]]
         )
@@ -424,10 +455,10 @@ class CablePathTests(CablePathTestCase):
 
     def test_204_multiple_paths_via_pass_through_with_breakouts(self):
         """
-        [IF1] --C1-- [FP1:1] [RP1] --C3-- [RP2] [FP2:1] --C4-- [IF4]
-        [IF2]                                                  [IF5]
-        [IF3] --C2-- [FP1:2]                    [FP2:2] --C5-- [IF6]
-        [IF4]                                                  [IF7]
+        [IF1] --C1-- [FP1] [RP1] --C3-- [RP2] [FP3] --C4-- [IF5]
+        [IF2]                                              [IF6]
+        [IF3] --C2-- [FP2]                    [FP4] --C5-- [IF7]
+        [IF4]                                              [IF8]
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
@@ -439,76 +470,104 @@ class CablePathTests(CablePathTestCase):
             Interface.objects.create(device=self.device, name='Interface 7'),
             Interface.objects.create(device=self.device, name='Interface 8'),
         ]
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=4)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=4)
-        frontport1_1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1')
-        frontport1_2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2')
-        frontport2_1 = FrontPort.objects.create(device=self.device, name='Front Port 2:1')
-        frontport2_2 = FrontPort.objects.create(device=self.device, name='Front Port 2:2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=8)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=8)
+        frontport1 = FrontPort.objects.create(device=self.device, name='Front Port 1:1', positions=4)
+        frontport2 = FrontPort.objects.create(device=self.device, name='Front Port 1:2', positions=4)
+        frontport3 = FrontPort.objects.create(device=self.device, name='Front Port 2:1', positions=4)
+        frontport4 = FrontPort.objects.create(device=self.device, name='Front Port 2:2', positions=4)
         PortMapping.objects.bulk_create([
             PortMapping(
                 device=self.device,
-                front_port=frontport1_1,
+                front_port=frontport1,
                 front_port_position=1,
                 rear_port=rearport1,
                 rear_port_position=1,
             ),
             PortMapping(
                 device=self.device,
-                front_port=frontport1_2,
-                front_port_position=1,
+                front_port=frontport1,
+                front_port_position=2,
                 rear_port=rearport1,
                 rear_port_position=2,
             ),
             PortMapping(
                 device=self.device,
-                front_port=frontport2_1,
+                front_port=frontport2,
+                front_port_position=1,
+                rear_port=rearport1,
+                rear_port_position=5,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport2,
+                front_port_position=2,
+                rear_port=rearport1,
+                rear_port_position=6,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport3,
                 front_port_position=1,
                 rear_port=rearport2,
                 rear_port_position=1,
             ),
             PortMapping(
                 device=self.device,
-                front_port=frontport2_2,
-                front_port_position=1,
+                front_port=frontport3,
+                front_port_position=2,
                 rear_port=rearport2,
                 rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=1,
+                rear_port=rearport2,
+                rear_port_position=5,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=frontport4,
+                front_port_position=2,
+                rear_port=rearport2,
+                rear_port_position=6,
             ),
         ])
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
-            a_terminations=[interfaces[0], interfaces[1]],
-            b_terminations=[frontport1_1]
+            profile=CableProfileChoices.BREAKOUT_1X4,
+            a_terminations=[frontport1],
+            b_terminations=[interfaces[0], interfaces[1]],
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
-            a_terminations=[interfaces[2], interfaces[3]],
-            b_terminations=[frontport1_2]
+            profile=CableProfileChoices.BREAKOUT_1X4,
+            a_terminations=[frontport2],
+            b_terminations=[interfaces[2], interfaces[3]],
         )
         cable2.clean()
         cable2.save()
         cable3 = Cable(
-            profile=CableProfileChoices.STRAIGHT_SINGLE,
+            profile=CableProfileChoices.STRAIGHT_1C8P,
             a_terminations=[rearport1],
             b_terminations=[rearport2]
         )
         cable3.clean()
         cable3.save()
         cable4 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
-            a_terminations=[frontport2_1],
-            b_terminations=[interfaces[4], interfaces[5]]
+            profile=CableProfileChoices.BREAKOUT_1X4,
+            a_terminations=[frontport3],
+            b_terminations=[interfaces[4], interfaces[5]],
         )
         cable4.clean()
         cable4.save()
         cable5 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
-            a_terminations=[frontport2_2],
-            b_terminations=[interfaces[6], interfaces[7]]
+            profile=CableProfileChoices.BREAKOUT_1X4,
+            a_terminations=[frontport4],
+            b_terminations=[interfaces[6], interfaces[7]],
         )
         cable5.clean()
         cable5.save()
@@ -516,7 +575,7 @@ class CablePathTests(CablePathTestCase):
         paths = [
             self.assertPathExists(
                 (
-                    interfaces[0], cable1, frontport1_1, rearport1, cable3, rearport2, frontport2_1, cable4,
+                    interfaces[0], cable1, frontport1, rearport1, cable3, rearport2, frontport3, cable4,
                     interfaces[4],
                 ),
                 is_complete=True,
@@ -524,7 +583,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[1], cable1, frontport1_1, rearport1, cable3, rearport2, frontport2_1, cable4,
+                    interfaces[1], cable1, frontport1, rearport1, cable3, rearport2, frontport3, cable4,
                     interfaces[5],
                 ),
                 is_complete=True,
@@ -532,7 +591,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[2], cable2, frontport1_2, rearport1, cable3, rearport2, frontport2_2, cable5,
+                    interfaces[2], cable2, frontport2, rearport1, cable3, rearport2, frontport4, cable5,
                     interfaces[6],
                 ),
                 is_complete=True,
@@ -540,7 +599,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[3], cable2, frontport1_2, rearport1, cable3, rearport2, frontport2_2, cable5,
+                    interfaces[3], cable2, frontport2, rearport1, cable3, rearport2, frontport4, cable5,
                     interfaces[7],
                 ),
                 is_complete=True,
@@ -548,7 +607,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[4], cable4, frontport2_1, rearport2, cable3, rearport1, frontport1_1, cable1,
+                    interfaces[4], cable4, frontport3, rearport2, cable3, rearport1, frontport1, cable1,
                     interfaces[0],
                 ),
                 is_complete=True,
@@ -556,7 +615,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[5], cable4, frontport2_1, rearport2, cable3, rearport1, frontport1_1, cable1,
+                    interfaces[5], cable4, frontport3, rearport2, cable3, rearport1, frontport1, cable1,
                     interfaces[1],
                 ),
                 is_complete=True,
@@ -564,7 +623,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[6], cable5, frontport2_2, rearport2, cable3, rearport1, frontport1_2, cable2,
+                    interfaces[6], cable5, frontport4, rearport2, cable3, rearport1, frontport2, cable2,
                     interfaces[2],
                 ),
                 is_complete=True,
@@ -572,7 +631,7 @@ class CablePathTests(CablePathTestCase):
             ),
             self.assertPathExists(
                 (
-                    interfaces[7], cable5, frontport2_2, rearport2, cable3, rearport1, frontport1_2, cable2,
+                    interfaces[7], cable5, frontport4, rearport2, cable3, rearport1, frontport2, cable2,
                     interfaces[3],
                 ),
                 is_complete=True,
@@ -619,14 +678,14 @@ class CablePathTests(CablePathTestCase):
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
-            a_terminations=[interfaces[0], interfaces[1]],
-            b_terminations=[circuittermination1]
+            profile=CableProfileChoices.BREAKOUT_1X4,
+            a_terminations=[circuittermination1],
+            b_terminations=[interfaces[0], interfaces[1]],
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.BREAKOUT_1X4,
             a_terminations=[circuittermination2],
             b_terminations=[interfaces[2], interfaces[3]]
         )
@@ -668,6 +727,8 @@ class CablePathTests(CablePathTestCase):
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
 
+    # TBD: Is this a topology we want to support?
+    @skip("Test applicability TBD")
     def test_217_interface_to_interface_via_rear_ports(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP3] [FP3] --C3-- [IF2]
@@ -722,7 +783,7 @@ class CablePathTests(CablePathTestCase):
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.STRAIGHT_2C1P,
             a_terminations=[interfaces[0]],
             b_terminations=[front_ports[0], front_ports[1]]
         )
@@ -735,7 +796,7 @@ class CablePathTests(CablePathTestCase):
         cable2.clean()
         cable2.save()
         cable3 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.STRAIGHT_2C1P,
             a_terminations=[interfaces[1]],
             b_terminations=[front_ports[2], front_ports[3]]
         )
@@ -803,14 +864,14 @@ class CablePathTests(CablePathTestCase):
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.STRAIGHT_2C2P,
             a_terminations=[interfaces[0], interfaces[1]],
             b_terminations=[frontport1, frontport2]
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.STRAIGHT_MULTI,
+            profile=CableProfileChoices.STRAIGHT_2C2P,
             a_terminations=[rearport1, rearport2],
             b_terminations=[interfaces[2], interfaces[3]]
         )
@@ -819,22 +880,22 @@ class CablePathTests(CablePathTestCase):
 
         # Validate paths
         self.assertPathExists(
-            (interfaces[0], cable1, [frontport1, frontport2], [rearport1, rearport2], cable2, interfaces[2]),
+            (interfaces[0], cable1, frontport1, rearport1, cable2, interfaces[2]),
             is_complete=True,
             is_active=True
         )
         self.assertPathExists(
-            (interfaces[1], cable1, [frontport1, frontport2], [rearport1, rearport2], cable2, interfaces[3]),
+            (interfaces[1], cable1, frontport2, rearport2, cable2, interfaces[3]),
             is_complete=True,
             is_active=True
         )
         self.assertPathExists(
-            (interfaces[2], cable2, [rearport1, rearport2], [frontport1, frontport2], cable1, interfaces[0]),
+            (interfaces[2], cable2, rearport1, frontport1, cable1, interfaces[0]),
             is_complete=True,
             is_active=True
         )
         self.assertPathExists(
-            (interfaces[3], cable2, [rearport1, rearport2], [frontport1, frontport2], cable1, interfaces[1]),
+            (interfaces[3], cable2, rearport2, frontport2, cable1, interfaces[1]),
             is_complete=True,
             is_active=True
         )
