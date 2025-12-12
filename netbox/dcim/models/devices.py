@@ -957,8 +957,7 @@ class Device(
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:
                     component.custom_field_data = cf_defaults
-            # Set denormalized references (_site, _location, _rack) before bulk_create
-            # since bulk_create bypasses the save() method
+            # Set denormalized references
             for component in components:
                 component._site = self.site
                 component._location = self.location

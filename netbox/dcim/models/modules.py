@@ -315,8 +315,7 @@ class Module(PrimaryModel, ConfigContextModel):
                 for component in create_instances:
                     component.custom_field_data = cf_defaults
 
-            # Set denormalized references (_site, _location, _rack) before bulk_create
-            # since bulk_create bypasses the save() method
+            # Set denormalized references
             for component in create_instances:
                 component._site = self.device.site
                 component._location = self.device.location

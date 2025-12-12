@@ -45,7 +45,6 @@ def handle_location_site_change(instance, created, **kwargs):
         PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
         CableTermination.objects.filter(_location__in=locations).update(_site=instance.site)
         # Update component models for devices in these locations
-        # (since Device.objects.update() doesn't trigger post_save signals)
         for model in COMPONENT_MODELS:
             model.objects.filter(device__location__in=locations).update(_site=instance.site)
 
@@ -58,7 +57,6 @@ def handle_rack_site_change(instance, created, **kwargs):
     if not created:
         Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
         # Update component models for devices in this rack
-        # (since Device.objects.update() doesn't trigger post_save signals)
         for model in COMPONENT_MODELS:
             model.objects.filter(device__rack=instance).update(
                 _site=instance.site,
