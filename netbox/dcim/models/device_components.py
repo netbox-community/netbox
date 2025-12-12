@@ -220,18 +220,31 @@ class CabledObjectModel(models.Model):
                 raise ValidationError({
                     "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
                 })
-        if self.cable_end and not self.cable:
-            raise ValidationError({
-                "cable_end": _("Cable end must not be set without a cable.")
-            })
-        if self.cable_positions and not self.cable:
-            raise ValidationError({
-                "cable_positions": _("Cable termination positions must not be set without a cable.")
-            })
-        if self.mark_connected and self.cable:
-            raise ValidationError({
-                "mark_connected": _("Cannot mark as connected with a cable attached.")
-            })
+            if self.cable_connector and not self.cable_positions:
+                raise ValidationError({
+                    "cable_positions": _("Must specify position(s) when specifying a cable connector.")
+                })
+            if self.cable_positions and not self.cable_connector:
+                raise ValidationError({
+                    "cable_positions": _("Cable positions cannot be set without a cable connector.")
+                })
+            if self.mark_connected:
+                raise ValidationError({
+                    "mark_connected": _("Cannot mark as connected with a cable attached.")
+                })
+        else:
+            if self.cable_end:
+                raise ValidationError({
+                    "cable_end": _("Cable end must not be set without a cable.")
+                })
+            if self.cable_connector:
+                raise ValidationError({
+                    "cable_connector": _("Cable connector must not be set without a cable.")
+                })
+            if self.cable_positions:
+                raise ValidationError({
+                    "cable_positions": _("Cable termination positions must not be set without a cable.")
+                })
 
     @property
     def link(self):
