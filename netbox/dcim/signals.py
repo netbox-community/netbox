@@ -44,6 +44,9 @@ def handle_location_site_change(instance, created, **kwargs):
         Device.objects.filter(location__in=locations).update(site=instance.site)
         PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
         CableTermination.objects.filter(_location__in=locations).update(_site=instance.site)
+        # Update component models for devices in these locations
+        for model in COMPONENT_MODELS:
+            model.objects.filter(device__location__in=locations).update(_site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
@@ -53,6 +56,12 @@ def handle_rack_site_change(instance, created, **kwargs):
     """
     if not created:
         Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
+        # Update component models for devices in this rack
+        for model in COMPONENT_MODELS:
+            model.objects.filter(device__rack=instance).update(
+                _site=instance.site,
+                _location=instance.location,
+            )
 
 
 @receiver(post_save, sender=Device)
