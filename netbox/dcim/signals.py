@@ -61,7 +61,6 @@ def handle_rack_site_change(instance, created, **kwargs):
             model.objects.filter(device__rack=instance).update(
                 _site=instance.site,
                 _location=instance.location,
-                _rack=instance,
             )
 
 
