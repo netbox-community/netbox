@@ -27,6 +27,7 @@ from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_partial, htmx_maybe_redirect_current_page
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
@@ -1081,6 +1082,14 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
 class ObjectRenderConfigView(generic.ObjectView):
     base_template = None
     template_name = 'extras/object_render_config.html'
+
+    def has_permission(self):
+        if super().has_permission():  # enforce base required permission
+            perm = get_permission_for_model(self.queryset.model, 'render_config')
+            if self.request.user.has_perm(perm):
+                self.queryset = self.queryset.restrict(self.request.user, 'render_config')
+                return True
+        return False
 
     def get(self, request, **kwargs):
         instance = self.get_object(**kwargs)
