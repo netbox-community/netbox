@@ -224,9 +224,9 @@ class CabledObjectModel(models.Model):
             raise ValidationError({
                 "cable_end": _("Cable end must not be set without a cable.")
             })
-        if self.cable_position and not self.cable:
+        if self.cable_positions and not self.cable:
             raise ValidationError({
-                "cable_position": _("Cable termination position must not be set without a cable.")
+                "cable_positions": _("Cable termination positions must not be set without a cable.")
             })
         if self.mark_connected and self.cable:
             raise ValidationError({

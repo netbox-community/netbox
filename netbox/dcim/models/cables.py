@@ -532,7 +532,7 @@ class CableTermination(ChangeLoggedModel):
         termination.cable = None
         termination.cable_end = None
         termination.cable_connector = None
-        termination.cable_position = None
+        termination.cable_positions = None
         termination.save()
 
         super().delete(*args, **kwargs)

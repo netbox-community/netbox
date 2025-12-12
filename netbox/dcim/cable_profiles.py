@@ -1,29 +1,37 @@
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
 from dcim.models import CableTermination
 
 
 class BaseCableProfile:
 
     def clean(self, cable):
-        pass
-        # # Enforce maximum connection limits
-        # if self.a_max_connections and len(cable.a_terminations) > self.a_max_connections:
-        #     raise ValidationError({
-        #         'a_terminations': _(
-        #             'Maximum A side connections for profile {profile}: {max}'
-        #         ).format(
-        #             profile=cable.get_profile_display(),
-        #             max=self.a_max_connections,
-        #         )
-        #     })
-        # if self.b_max_connections and len(cable.b_terminations) > self.b_max_connections:
-        #     raise ValidationError({
-        #         'b_terminations': _(
-        #             'Maximum B side connections for profile {profile}: {max}'
-        #         ).format(
-        #             profile=cable.get_profile_display(),
-        #             max=self.b_max_connections,
-        #         )
-        #     })
+        # Enforce maximum terminations limits
+        a_terminations_count = len(cable.a_terminations)
+        b_terminations_count = len(cable.b_terminations)
+        max_a_terminations = len(self.a_connectors)
+        max_b_terminations = len(self.b_connectors)
+        if a_terminations_count > max_a_terminations:
+            raise ValidationError({
+                'a_terminations': _(
+                    'A side of cable has {count} terminations but only {max} are permitted for profile {profile}'
+                ).format(
+                    count=a_terminations_count,
+                    profile=cable.get_profile_display(),
+                    max=max_a_terminations,
+                )
+            })
+        if b_terminations_count > max_b_terminations:
+            raise ValidationError({
+                'b_terminations': _(
+                    'B side of cable has {count} terminations but only {max} are permitted for profile {profile}'
+                ).format(
+                    count=b_terminations_count,
+                    profile=cable.get_profile_display(),
+                    max=max_b_terminations,
+                )
+            })
 
     def get_mapped_position(self, side, connector, position):
         """
@@ -36,14 +44,11 @@ class BaseCableProfile:
         """
         Given a terminating object, return the peer terminating object (if any) on the opposite end of the cable.
         """
-        print(f'get_peer_termination({termination}, {position})')
-        print(f'  Mapping {termination.cable_end} {termination.cable_connector}:{position}...')
         connector, position = self.get_mapped_position(
             termination.cable_end,
             termination.cable_connector,
             position
         )
-        print(f'  Mapped to {connector}:{position}')
         try:
             ct = CableTermination.objects.get(
                 cable=termination.cable,
@@ -51,10 +56,8 @@ class BaseCableProfile:
                 connector=connector,
                 positions__contains=[position],
             )
-            print(f'  Found termination {ct.termination}')
             return ct.termination, position
         except CableTermination.DoesNotExist:
-            print(f'  Failed to resolve far end termination for {connector}:{position}')
             return None, None
 
 
