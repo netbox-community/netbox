@@ -36,6 +36,14 @@ class MyModelTable(NetBoxTable):
         default_columns = ('pk', 'name', ...)
 ```
 
+In addition to the base NetBoxTable class, the following table classes are also available for subclasses of standard base models.
+
+| Model Class           | Table Class                              |
+|-----------------------|------------------------------------------|
+| `PrimaryModel`        | `netbox.tables.PrimaryModelTable`        |
+| `OrganizationalModel` | `netbox.tables.OrganizationalModelTable` |
+| `NestedGroupModel`    | `netbox.tables.NestedGroupModelTable`    |
+
 ### Table Configuration
 
 The NetBoxTable class features dynamic configuration to allow users to change their column display and ordering preferences. To configure a table for a specific request, simply call its `configure()` method and pass the current HTTPRequest object. For example:

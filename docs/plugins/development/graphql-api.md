@@ -46,3 +46,19 @@ NetBox provides two object type classes for use by plugins.
 ::: netbox.graphql.types.NetBoxObjectType
     options:
       members: false
+
+## GraphQL Filters
+
+NetBox provides a base filter class for use by plugins which employ subclasseses of `NetBoxModel`.
+
+::: netbox.graphql.filters.NetBoxModelFilter
+    options:
+      members: false
+
+Additionally, the following filter classes are available for subclasses of standard base models.
+
+| Model Class           | FilterSet Class                                    |
+|-----------------------|----------------------------------------------------|
+| `PrimaryModel`        | `netbox.graphql.filters.PrimaryModelFilter`        |
+| `OrganizationalModel` | `netbox.graphql.filters.OrganizationalModelFilter` |
+| `NestedGroupModel`    | `netbox.graphql.filters.NestedGroupModelFilter`    |
