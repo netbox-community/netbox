@@ -33,7 +33,6 @@ from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module
-from ..utils import update_device_components
 
 
 __all__ = (
@@ -958,6 +957,12 @@ class Device(
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:
                     component.custom_field_data = cf_defaults
+            # Set denormalized references (_site, _location, _rack) before bulk_create
+            # since bulk_create bypasses the save() method
+            for component in components:
+                component._site = self.site
+                component._location = self.location
+                component._rack = self.rack
             components = model.objects.bulk_create(components)
             # Prefetch related objects to minimize queries needed during post_save
             prefetch_fields = get_prefetchable_fields(model)
@@ -1013,8 +1018,6 @@ class Device(
             self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
             # Interface bridges have to be set after interface instantiation
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
-            # Update denormalized fields for all components
-            update_device_components(self)
 
         # Update Site and Rack assignment for any child Devices
         devices = Device.objects.filter(parent_bay__device=self)

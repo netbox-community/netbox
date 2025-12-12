@@ -6,11 +6,25 @@ from django.dispatch import receiver
 from dcim.choices import CableEndChoices, LinkStatusChoices
 from virtualization.models import VMInterface
 from .models import (
-    Cable, CablePath, CableTermination, Device, FrontPort, Interface, PathEndpoint, PowerPanel, Rack, Location,
+    Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
+    InventoryItem, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
     VirtualChassis,
 )
 from .models.cables import trace_paths
-from .utils import create_cablepath, rebuild_paths, update_device_components
+from .utils import create_cablepath, rebuild_paths
+
+COMPONENT_MODELS = (
+    ConsolePort,
+    ConsoleServerPort,
+    DeviceBay,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    ModuleBay,
+    PowerOutlet,
+    PowerPort,
+    RearPort,
+)
 
 
 #
@@ -31,8 +45,9 @@ def handle_location_site_change(instance, created, **kwargs):
         PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
         CableTermination.objects.filter(_location__in=locations).update(_site=instance.site)
         # Update component models for devices in these locations
-        for device in Device.objects.filter(location__in=locations):
-            update_device_components(device)
+        # (since Device.objects.update() doesn't trigger post_save signals)
+        for model in COMPONENT_MODELS:
+            model.objects.filter(device__location__in=locations).update(_site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
@@ -43,8 +58,13 @@ def handle_rack_site_change(instance, created, **kwargs):
     if not created:
         Device.objects.filter(rack=instance).update(site=instance.site, location=instance.location)
         # Update component models for devices in this rack
-        for device in Device.objects.filter(rack=instance):
-            update_device_components(device)
+        # (since Device.objects.update() doesn't trigger post_save signals)
+        for model in COMPONENT_MODELS:
+            model.objects.filter(device__rack=instance).update(
+                _site=instance.site,
+                _location=instance.location,
+                _rack=instance,
+            )
 
 
 @receiver(post_save, sender=Device)
@@ -53,7 +73,12 @@ def handle_device_site_change(instance, created, **kwargs):
     Update child components to update the parent Site, Location, and Rack when a Device is saved.
     """
     if not created:
-        update_device_components(instance)
+        for model in COMPONENT_MODELS:
+            model.objects.filter(device=instance).update(
+                _site=instance.site,
+                _location=instance.location,
+                _rack=instance.rack,
+            )
 
 
 #
