@@ -1748,7 +1748,9 @@ class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 
     class Meta:
         model = ConsolePort
-        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
+        fields = (
+            'id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'cable_connector',
+        )
 
 
 @register_filterset
@@ -1760,7 +1762,9 @@ class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFi
 
     class Meta:
         model = ConsoleServerPort
-        fields = ('id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end')
+        fields = (
+            'id', 'name', 'label', 'speed', 'description', 'mark_connected', 'cable_end', 'cable_connector',
+        )
 
 
 @register_filterset
@@ -1774,6 +1778,7 @@ class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet,
         model = PowerPort
         fields = (
             'id', 'name', 'label', 'maximum_draw', 'allocated_draw', 'description', 'mark_connected', 'cable_end',
+            'cable_connector',
         )
 
 
@@ -1800,6 +1805,7 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
         model = PowerOutlet
         fields = (
             'id', 'name', 'status', 'label', 'feed_leg', 'description', 'color', 'mark_connected', 'cable_end',
+            'cable_connector',
         )
 
 
@@ -2109,7 +2115,7 @@ class InterfaceFilterSet(
         fields = (
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable_id', 'cable_end',
+            'cable_id', 'cable_end', 'cable_connector',
         )
 
     def filter_virtual_chassis_member_or_master(self, queryset, name, value):
@@ -2165,6 +2171,7 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
         model = FrontPort
         fields = (
             'id', 'name', 'label', 'type', 'color', 'positions', 'description', 'mark_connected', 'cable_end',
+            'cable_connector',
         )
 
 
@@ -2185,6 +2192,7 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
         model = RearPort
         fields = (
             'id', 'name', 'label', 'type', 'color', 'positions', 'description', 'mark_connected', 'cable_end',
+            'cable_connector',
         )
 
 
@@ -2659,7 +2667,7 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpo
         model = PowerFeed
         fields = (
             'id', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization',
-            'available_power', 'mark_connected', 'cable_end', 'description',
+            'available_power', 'mark_connected', 'cable_end', 'cable_connector', 'description',
         )
 
     def search(self, queryset, name, value):
