@@ -59,7 +59,7 @@ def populate_port_mappings(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0221_cable_position'),
+        ('dcim', '0221_cable_connector_positions'),
     ]
 
     operations = [
