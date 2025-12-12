@@ -119,7 +119,9 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             if snapshots:
                 params["snapshots"] = snapshots
             if request:
-                params["request"] = copy_safe_request(request)
+                # Exclude FILES - webhooks don't need uploaded files,
+                # which can cause pickle errors with Pillow.
+                params["request"] = copy_safe_request(request, include_files=False)
 
             # Enqueue the task
             rq_queue.enqueue(
