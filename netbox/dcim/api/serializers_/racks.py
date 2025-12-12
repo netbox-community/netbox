@@ -30,7 +30,7 @@ class RackRoleSerializer(OrganizationalModelSerializer):
     class Meta:
         model = RackRole
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'rack_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')

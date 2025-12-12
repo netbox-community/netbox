@@ -39,7 +39,7 @@ class ClusterTypeForm(OrganizationalModelForm):
     class Meta:
         model = ClusterType
         fields = (
-            'name', 'slug', 'description', 'owner', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         )
 
 
@@ -51,7 +51,7 @@ class ClusterGroupForm(OrganizationalModelForm):
     class Meta:
         model = ClusterGroup
         fields = (
-            'name', 'slug', 'description', 'owner', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         )
 
 

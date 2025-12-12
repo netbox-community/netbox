@@ -215,6 +215,10 @@ class OrganizationalModel(OwnerMixin, NetBoxModel):
         max_length=200,
         blank=True
     )
+    comments = models.TextField(
+        verbose_name=_('comments'),
+        blank=True
+    )
 
     class Meta:
         abstract = True

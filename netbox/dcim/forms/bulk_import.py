@@ -183,7 +183,7 @@ class RackRoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = RackRole
-        fields = ('name', 'slug', 'color', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'color', 'description', 'owner', 'comments', 'tags')
 
 
 class RackTypeImportForm(PrimaryModelImportForm):
@@ -400,7 +400,7 @@ class ManufacturerImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = Manufacturer
-        fields = ('name', 'slug', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
 class DeviceTypeImportForm(PrimaryModelImportForm):
@@ -1298,7 +1298,7 @@ class InventoryItemRoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = InventoryItemRole
-        fields = ('name', 'slug', 'color', 'description')
+        fields = ('name', 'slug', 'color', 'description', 'owner', 'comments')
 
 
 #

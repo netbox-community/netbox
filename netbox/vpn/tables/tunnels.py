@@ -30,8 +30,8 @@ class TunnelGroupTable(ContactsColumnMixin, OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = TunnelGroup
         fields = (
-            'pk', 'id', 'name', 'tunnel_count', 'description', 'slug', 'contacts', 'tags', 'actions', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'tunnel_count', 'description', 'comments', 'slug', 'contacts', 'tags', 'actions',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'tunnel_count', 'description')
 

@@ -31,6 +31,7 @@ class ASNRangeIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('rir', 'tenant', 'description')
 
@@ -89,6 +90,7 @@ class RIRIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 
@@ -100,6 +102,7 @@ class RoleIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 
@@ -156,6 +159,7 @@ class VLANGroupIndex(SearchIndex):
         ('name', 100),
         ('slug', 110),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('scope_type', 'description')
 

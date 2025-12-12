@@ -74,7 +74,7 @@ class ContactRoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ContactRole
-        fields = ('name', 'slug', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
 class ContactImportForm(PrimaryModelImportForm):

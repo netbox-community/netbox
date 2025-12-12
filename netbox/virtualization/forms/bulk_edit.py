@@ -34,7 +34,7 @@ class ClusterTypeBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('description'),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class ClusterGroupBulkEditForm(OrganizationalModelBulkEditForm):
@@ -42,7 +42,7 @@ class ClusterGroupBulkEditForm(OrganizationalModelBulkEditForm):
     fieldsets = (
         FieldSet('description'),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class ClusterBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):

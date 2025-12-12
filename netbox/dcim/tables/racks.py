@@ -35,7 +35,7 @@ class RackRoleTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = RackRole
         fields = (
-            'pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions', 'created',
+            'pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'comments', 'tags', 'actions', 'created',
             'last_updated',
         )
         default_columns = ('pk', 'name', 'rack_count', 'color', 'description')

@@ -799,6 +799,7 @@ class RackRoleView(GetRelatedModelsMixin, generic.ObjectView):
         right_panels=[
             RelatedObjectsPanel(),
             CustomFieldsPanel(),
+            CommentsPanel(),
         ],
     )
 
@@ -1233,7 +1234,7 @@ class ManufacturerView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Manufacturer.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[OrganizationalObjectPanel(), TagsPanel()],
-        right_panels=[RelatedObjectsPanel(), CustomFieldsPanel()],
+        right_panels=[RelatedObjectsPanel(), CustomFieldsPanel(), CommentsPanel()],
     )
 
     def get_extra_context(self, request, instance):

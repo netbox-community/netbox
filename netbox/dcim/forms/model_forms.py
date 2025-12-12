@@ -202,7 +202,7 @@ class RackRoleForm(OrganizationalModelForm):
     class Meta:
         model = RackRole
         fields = [
-            'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -345,7 +345,7 @@ class ManufacturerForm(OrganizationalModelForm):
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug', 'description', 'owner', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -1880,7 +1880,7 @@ class InventoryItemRoleForm(OrganizationalModelForm):
     class Meta:
         model = InventoryItemRole
         fields = [
-            'name', 'slug', 'color', 'description', 'owner', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 

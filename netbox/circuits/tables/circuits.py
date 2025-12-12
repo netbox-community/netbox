@@ -40,8 +40,8 @@ class CircuitTypeTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = CircuitType
         fields = (
-            'pk', 'id', 'name', 'circuit_count', 'color', 'description', 'slug', 'tags', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'circuit_count', 'color', 'description', 'slug', 'comments', 'tags', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'circuit_count', 'color', 'description')
 
@@ -175,7 +175,7 @@ class CircuitGroupTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = CircuitGroup
         fields = (
-            'pk', 'name', 'description', 'circuit_group_assignment_count', 'tags',
+            'pk', 'name', 'description', 'circuit_group_assignment_count', 'comments', 'tags',
             'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'description', 'circuit_group_assignment_count')

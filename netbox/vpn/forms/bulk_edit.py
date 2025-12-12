@@ -25,7 +25,7 @@ __all__ = (
 
 class TunnelGroupBulkEditForm(OrganizationalModelBulkEditForm):
     model = TunnelGroup
-    nullable_fields = ('description',)
+    nullable_fields = ('description', 'comments')
 
 
 class TunnelBulkEditForm(PrimaryModelBulkEditForm):

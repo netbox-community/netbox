@@ -285,6 +285,9 @@ class OrganizationalModelTable(NetBoxTable):
         linkify=True,
         verbose_name=_('Owner')
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
 
 
 class NestedGroupModelTable(NetBoxTable):

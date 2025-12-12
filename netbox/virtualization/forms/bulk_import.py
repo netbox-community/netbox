@@ -28,14 +28,14 @@ class ClusterTypeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ClusterType
-        fields = ('name', 'slug', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
 class ClusterGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ('name', 'slug', 'description', 'owner', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
 class ClusterImportForm(ScopedImportForm, PrimaryModelImportForm):

@@ -37,7 +37,7 @@ class TunnelGroupForm(OrganizationalModelForm):
     class Meta:
         model = TunnelGroup
         fields = [
-            'name', 'slug', 'description', 'owner', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         ]
 
 

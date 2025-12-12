@@ -48,7 +48,7 @@ class RIRTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = RIR
         fields = (
-            'pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'tags', 'created',
+            'pk', 'id', 'name', 'slug', 'is_private', 'aggregate_count', 'description', 'comments', 'tags', 'created',
             'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'is_private', 'aggregate_count', 'description')
@@ -126,8 +126,8 @@ class RoleTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = Role
         fields = (
-            'pk', 'id', 'name', 'slug', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'weight', 'tags',
-            'created', 'last_updated', 'actions',
+            'pk', 'id', 'name', 'slug', 'prefix_count', 'iprange_count', 'vlan_count', 'description', 'weight',
+            'comments', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'prefix_count', 'iprange_count', 'vlan_count', 'description')
 

@@ -29,7 +29,8 @@ class ClusterTypeTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = ClusterType
         fields = (
-            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'created', 'last_updated', 'tags', 'actions',
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'comments', 'created', 'last_updated', 'tags',
+            'actions',
         )
         default_columns = ('pk', 'name', 'cluster_count', 'description')
 
@@ -51,8 +52,8 @@ class ClusterGroupTable(ContactsColumnMixin, OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = ClusterGroup
         fields = (
-            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'contacts', 'tags', 'created', 'last_updated',
-            'actions',
+            'pk', 'id', 'name', 'slug', 'cluster_count', 'description', 'comments', 'contacts', 'tags', 'created',
+            'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'cluster_count', 'description')
 

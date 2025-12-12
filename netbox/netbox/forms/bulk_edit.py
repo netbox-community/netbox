@@ -91,6 +91,7 @@ class OrganizationalModelBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    comments = CommentField()
 
 
 class NestedGroupModelBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
