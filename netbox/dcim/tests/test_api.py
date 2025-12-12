@@ -531,7 +531,7 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
 
 class ManufacturerTest(APIViewTestCases.APIViewTestCase):
     model = Manufacturer
-    brief_fields = ['description', 'devicetype_count', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Manufacturer 4',
