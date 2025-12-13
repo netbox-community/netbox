@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-12 05:02+0000\n"
+"POT-Creation-Date: 2025-12-13 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1441,7 +1441,7 @@ msgstr ""
 #: netbox/dcim/models/device_components.py:517
 #: netbox/dcim/models/device_components.py:1063
 #: netbox/dcim/models/device_components.py:1134
-#: netbox/dcim/models/device_components.py:1280
+#: netbox/dcim/models/device_components.py:1282
 #: netbox/dcim/models/devices.py:382 netbox/dcim/models/racks.py:227
 #: netbox/extras/models/tags.py:29
 msgid "color"
@@ -1469,8 +1469,8 @@ msgstr ""
 #: netbox/circuits/models/virtual_circuits.py:59 netbox/core/models/data.py:52
 #: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:51
 #: netbox/dcim/models/device_components.py:488
-#: netbox/dcim/models/device_components.py:1319
-#: netbox/dcim/models/devices.py:580 netbox/dcim/models/devices.py:1202
+#: netbox/dcim/models/device_components.py:1321
+#: netbox/dcim/models/devices.py:580 netbox/dcim/models/devices.py:1207
 #: netbox/dcim/models/modules.py:209 netbox/dcim/models/power.py:94
 #: netbox/dcim/models/racks.py:294 netbox/dcim/models/racks.py:677
 #: netbox/dcim/models/sites.py:157 netbox/dcim/models/sites.py:281
@@ -1604,7 +1604,7 @@ msgstr ""
 #: netbox/core/models/jobs.py:56
 #: netbox/dcim/models/device_component_templates.py:44
 #: netbox/dcim/models/device_components.py:53 netbox/dcim/models/devices.py:524
-#: netbox/dcim/models/devices.py:1128 netbox/dcim/models/devices.py:1197
+#: netbox/dcim/models/devices.py:1133 netbox/dcim/models/devices.py:1202
 #: netbox/dcim/models/modules.py:31 netbox/dcim/models/power.py:38
 #: netbox/dcim/models/power.py:89 netbox/dcim/models/racks.py:263
 #: netbox/dcim/models/sites.py:145 netbox/extras/models/configs.py:36
@@ -3817,8 +3817,8 @@ msgstr ""
 
 #: netbox/dcim/filtersets.py:1197 netbox/dcim/forms/filtersets.py:855
 #: netbox/dcim/forms/filtersets.py:1483 netbox/dcim/forms/filtersets.py:1699
-#: netbox/dcim/forms/model_forms.py:1900 netbox/dcim/models/devices.py:1298
-#: netbox/dcim/models/devices.py:1318 netbox/virtualization/filtersets.py:201
+#: netbox/dcim/forms/model_forms.py:1900 netbox/dcim/models/devices.py:1303
+#: netbox/dcim/models/devices.py:1323 netbox/virtualization/filtersets.py:201
 #: netbox/virtualization/filtersets.py:273
 #: netbox/virtualization/forms/filtersets.py:178
 #: netbox/virtualization/forms/filtersets.py:231
@@ -6277,12 +6277,12 @@ msgid ""
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:777
-#: netbox/dcim/models/device_components.py:1340
+#: netbox/dcim/models/device_components.py:1342
 msgid "part ID"
 msgstr ""
 
 #: netbox/dcim/models/device_component_templates.py:779
-#: netbox/dcim/models/device_components.py:1342
+#: netbox/dcim/models/device_components.py:1344
 msgid "Manufacturer-assigned part identifier"
 msgstr ""
 
@@ -6631,83 +6631,83 @@ msgstr ""
 msgid "A module bay cannot belong to a module installed within it."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1243
+#: netbox/dcim/models/device_components.py:1245
 msgid "device bay"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1244
+#: netbox/dcim/models/device_components.py:1246
 msgid "device bays"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1251
+#: netbox/dcim/models/device_components.py:1253
 #, python-brace-format
 msgid "This type of device ({device_type}) does not support device bays."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1257
+#: netbox/dcim/models/device_components.py:1259
 msgid "Cannot install a device into itself."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1265
+#: netbox/dcim/models/device_components.py:1267
 #, python-brace-format
 msgid ""
 "Cannot install the specified device; device is already installed in {bay}."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1286
+#: netbox/dcim/models/device_components.py:1288
 msgid "inventory item role"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1287
+#: netbox/dcim/models/device_components.py:1289
 msgid "inventory item roles"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1346
+#: netbox/dcim/models/device_components.py:1348
 #: netbox/dcim/models/devices.py:533 netbox/dcim/models/modules.py:217
 #: netbox/dcim/models/racks.py:310
 #: netbox/virtualization/models/virtualmachines.py:125
 msgid "serial number"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1354
+#: netbox/dcim/models/device_components.py:1356
 #: netbox/dcim/models/devices.py:541 netbox/dcim/models/modules.py:224
 #: netbox/dcim/models/racks.py:317
 msgid "asset tag"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1355
+#: netbox/dcim/models/device_components.py:1357
 msgid "A unique tag used to identify this item"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1358
+#: netbox/dcim/models/device_components.py:1360
 msgid "discovered"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1360
+#: netbox/dcim/models/device_components.py:1362
 msgid "This item was automatically discovered"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1378
+#: netbox/dcim/models/device_components.py:1380
 msgid "inventory item"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1379
+#: netbox/dcim/models/device_components.py:1381
 msgid "inventory items"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1387
+#: netbox/dcim/models/device_components.py:1389
 msgid "Cannot assign self as parent."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1395
+#: netbox/dcim/models/device_components.py:1397
 msgid "Parent inventory item does not belong to the same device."
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1401
+#: netbox/dcim/models/device_components.py:1403
 msgid "Cannot move an inventory item with dependent children"
 msgstr ""
 
-#: netbox/dcim/models/device_components.py:1409
+#: netbox/dcim/models/device_components.py:1411
 msgid "Cannot assign inventory item to component on another device"
 msgstr ""
 
@@ -6867,12 +6867,12 @@ msgstr ""
 msgid "rack face"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:598 netbox/dcim/models/devices.py:1218
+#: netbox/dcim/models/devices.py:598 netbox/dcim/models/devices.py:1223
 #: netbox/virtualization/models/virtualmachines.py:94
 msgid "primary IPv4"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:606 netbox/dcim/models/devices.py:1226
+#: netbox/dcim/models/devices.py:606 netbox/dcim/models/devices.py:1231
 #: netbox/virtualization/models/virtualmachines.py:102
 msgid "primary IPv6"
 msgstr ""
@@ -7020,68 +7020,68 @@ msgid ""
 "is currently designated as its master."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1133
+#: netbox/dcim/models/devices.py:1138
 msgid "domain"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1146 netbox/dcim/models/devices.py:1147
+#: netbox/dcim/models/devices.py:1151 netbox/dcim/models/devices.py:1152
 msgid "virtual chassis"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1159
+#: netbox/dcim/models/devices.py:1164
 #, python-brace-format
 msgid "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1174
+#: netbox/dcim/models/devices.py:1179
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {self}. There are member interfaces which "
 "form a cross-chassis LAG interfaces."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1207 netbox/vpn/models/l2vpn.py:42
+#: netbox/dcim/models/devices.py:1212 netbox/vpn/models/l2vpn.py:42
 msgid "identifier"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1208
+#: netbox/dcim/models/devices.py:1213
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1236 netbox/extras/models/customfields.py:231
+#: netbox/dcim/models/devices.py:1241 netbox/extras/models/customfields.py:231
 #: netbox/extras/models/models.py:111 netbox/extras/models/models.py:800
 #: netbox/netbox/models/__init__.py:120 netbox/netbox/models/__init__.py:155
 msgid "comments"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1252
+#: netbox/dcim/models/devices.py:1257
 msgid "virtual device context"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1253
+#: netbox/dcim/models/devices.py:1258
 msgid "virtual device contexts"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1282
+#: netbox/dcim/models/devices.py:1287
 #, python-brace-format
 msgid "{ip} is not an IPv{family} address."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1288
+#: netbox/dcim/models/devices.py:1293
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1319
+#: netbox/dcim/models/devices.py:1324
 msgid "MAC addresses"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1351
+#: netbox/dcim/models/devices.py:1356
 msgid ""
 "Cannot unassign MAC Address while it is designated as the primary MAC for an "
 "object"
 msgstr ""
 
-#: netbox/dcim/models/devices.py:1355
+#: netbox/dcim/models/devices.py:1360
 msgid ""
 "Cannot reassign MAC Address while it is designated as the primary MAC for an "
 "object"
