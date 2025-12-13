@@ -141,8 +141,8 @@ class ModelTestCase(TestCase):
             elif value and type(field) is GenericForeignKey:
                 model_dict[key] = value.pk
 
+            # Handle API output
             elif api:
-
                 # Replace ContentType numeric IDs with <app_label>.<model>
                 if type(getattr(instance, key)) in (ContentType, ObjectType):
                     object_type = ObjectType.objects.get(pk=value)
@@ -152,9 +152,13 @@ class ModelTestCase(TestCase):
                 elif type(value) is IPNetwork:
                     model_dict[key] = str(value)
 
-            else:
-                field = instance._meta.get_field(key)
+                # Normalize arrays of numeric ranges (e.g. VLAN IDs or port ranges).
+                # DB uses canonical half-open [lo, hi) via NumericRange; API uses inclusive [lo, hi].
+                # Convert to inclusive pairs for stable API comparisons.
+                elif type(field) is ArrayField and issubclass(type(field.base_field), RangeField):
+                    model_dict[key] = [[r.lower, r.upper - 1] for r in value]
 
+            else:
                 # Convert ArrayFields to CSV strings
                 if type(field) is ArrayField:
                     if getattr(field.base_field, 'choices', None):

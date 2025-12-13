@@ -1071,14 +1071,17 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
         {
             'name': 'VLAN Group 4',
             'slug': 'vlan-group-4',
+            'vid_ranges': [[1, 4094]]
         },
         {
             'name': 'VLAN Group 5',
             'slug': 'vlan-group-5',
+            'vid_ranges': [[1, 4094]]
         },
         {
             'name': 'VLAN Group 6',
             'slug': 'vlan-group-6',
+            'vid_ranges': [[1, 4094]]
         },
     ]
     bulk_update_data = {
