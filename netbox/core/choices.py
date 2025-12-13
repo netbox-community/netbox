@@ -13,6 +13,7 @@ class DataSourceStatusChoices(ChoiceSet):
     SYNCING = 'syncing'
     COMPLETED = 'completed'
     FAILED = 'failed'
+    READY = 'ready'
 
     CHOICES = (
         (NEW, _('New'), 'blue'),
@@ -20,6 +21,7 @@ class DataSourceStatusChoices(ChoiceSet):
         (SYNCING, _('Syncing'), 'cyan'),
         (COMPLETED, _('Completed'), 'green'),
         (FAILED, _('Failed'), 'red'),
+        (READY, _('Ready'), 'green'),
     )
 
 
