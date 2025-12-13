@@ -1,8 +1,9 @@
 from django.test import TestCase
 
+from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, ProviderNetwork
 from dcim.choices import (
-    DeviceFaceChoices, DeviceStatusChoices, InterfaceModeChoices, InterfaceTypeChoices, PortTypeChoices,
-    PowerOutletStatusChoices,
+    CableTypeChoices, DeviceFaceChoices, DeviceStatusChoices, InterfaceModeChoices, InterfaceTypeChoices,
+    PortTypeChoices, PowerOutletStatusChoices,
 )
 from dcim.forms import *
 from dcim.models import *
@@ -411,3 +412,204 @@ class InterfaceTestCase(TestCase):
         self.assertNotIn('untagged_vlan', form.cleaned_data.keys())
         self.assertNotIn('tagged_vlans', form.cleaned_data.keys())
         self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
+
+
+class CableImportFormTestCase(TestCase):
+    """
+    Test cases for CableImportForm error handling and edge cases.
+
+    Note: Happy path scenarios (successful cable creation) are covered by
+    dcim.tests.test_views.CableTestCase which tests the bulk import view.
+    These tests focus on validation errors and edge cases not covered by the view tests.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create sites
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a')
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+
+        # Create manufacturer and device type
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+        )
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
+
+        # Create devices
+        cls.device_a1 = Device.objects.create(
+            name='Device-A1',
+            device_type=device_type,
+            role=role,
+            site=cls.site_a,
+        )
+        cls.device_a2 = Device.objects.create(
+            name='Device-A2',
+            device_type=device_type,
+            role=role,
+            site=cls.site_a,
+        )
+        # Device with same name in different site
+        cls.device_b_duplicate = Device.objects.create(
+            name='Device-A1',  # Same name as device_a1
+            device_type=device_type,
+            role=role,
+            site=cls.site_b,
+        )
+
+        # Create interfaces
+        cls.interface_a1_eth0 = Interface.objects.create(
+            device=cls.device_a1,
+            name='eth0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        cls.interface_a2_eth0 = Interface.objects.create(
+            device=cls.device_a2,
+            name='eth0',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+
+        # Create circuit for testing circuit not found error
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        cls.circuit = Circuit.objects.create(
+            provider=provider,
+            type=circuit_type,
+            cid='CIRCUIT-001',
+        )
+        cls.circuit_term_a = CircuitTermination.objects.create(
+            circuit=cls.circuit,
+            term_side='A',
+        )
+
+        # Create provider network for testing provider network validation
+        cls.provider_network = ProviderNetwork.objects.create(
+            provider=provider,
+            name='Provider Network 1',
+        )
+
+    def test_device_not_found(self):
+        """Test error when parent device is not found."""
+        form = CableImportForm(data={
+            'side_a_site': 'Site A',
+            'side_a_parent': 'NonexistentDevice',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'eth0',
+            'side_b_site': 'Site A',
+            'side_b_parent': 'Device-A2',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'eth0',
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': 'connected',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Side A: Device not found: NonexistentDevice', str(form.errors))
+
+    def test_circuit_not_found(self):
+        """Test error when circuit is not found."""
+        form = CableImportForm(data={
+            'side_a_site': None,
+            'side_a_parent': 'NONEXISTENT-CID',
+            'side_a_type': 'circuits.circuittermination',
+            'side_a_name': 'A',
+            'side_b_site': 'Site A',
+            'side_b_parent': 'Device-A1',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'eth0',
+            'type': CableTypeChoices.TYPE_MMF_OM4,
+            'status': 'connected',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Side A: Circuit not found: NONEXISTENT-CID', str(form.errors))
+
+    def test_termination_not_found(self):
+        """Test error when termination is not found on parent."""
+        form = CableImportForm(data={
+            'side_a_site': 'Site A',
+            'side_a_parent': 'Device-A1',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'eth999',  # Nonexistent interface
+            'side_b_site': 'Site A',
+            'side_b_parent': 'Device-A2',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'eth0',
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': 'connected',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Side A: Interface not found', str(form.errors))
+
+    def test_termination_already_cabled(self):
+        """Test error when termination is already connected to a cable."""
+        # Create an existing cable
+        existing_cable = Cable.objects.create(type=CableTypeChoices.TYPE_CAT6, status='connected')
+        self.interface_a1_eth0.cable = existing_cable
+        self.interface_a1_eth0.save()
+
+        form = CableImportForm(data={
+            'side_a_site': 'Site A',
+            'side_a_parent': 'Device-A1',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'eth0',
+            'side_b_site': 'Site A',
+            'side_b_parent': 'Device-A2',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'eth0',
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': 'connected',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('already connected', str(form.errors))
+
+    def test_circuit_termination_with_provider_network(self):
+        """Test error when circuit termination is already connected to a provider network."""
+        from django.contrib.contenttypes.models import ContentType
+
+        # Connect circuit termination to provider network
+        circuit_term = CircuitTermination.objects.get(pk=self.circuit_term_a.pk)
+        pn_ct = ContentType.objects.get_for_model(ProviderNetwork)
+        circuit_term.termination_type = pn_ct
+        circuit_term.termination_id = self.provider_network.pk
+        circuit_term.save()
+
+        try:
+            form = CableImportForm(data={
+                'side_a_site': None,
+                'side_a_parent': 'CIRCUIT-001',
+                'side_a_type': 'circuits.circuittermination',
+                'side_a_name': 'A',
+                'side_b_site': 'Site A',
+                'side_b_parent': 'Device-A1',
+                'side_b_type': 'dcim.interface',
+                'side_b_name': 'eth0',
+                'type': CableTypeChoices.TYPE_MMF_OM4,
+                'status': 'connected',
+            })
+            self.assertFalse(form.is_valid())
+            self.assertIn('already connected to a provider network', str(form.errors))
+        finally:
+            # Clean up: remove provider network connection
+            circuit_term.termination_type = None
+            circuit_term.termination_id = None
+            circuit_term.save()
+
+    def test_multiple_parents_without_site(self):
+        """Test error when multiple parent objects are found without site scoping."""
+        # Device-A1 exists in both site_a and site_b
+        # Try to find device without specifying site
+        form = CableImportForm(data={
+            'side_a_site': '',  # Empty site - should cause multiple matches
+            'side_a_parent': 'Device-A1',
+            'side_a_type': 'dcim.interface',
+            'side_a_name': 'eth0',
+            'side_b_site': 'Site A',
+            'side_b_parent': 'Device-A2',
+            'side_b_type': 'dcim.interface',
+            'side_b_name': 'eth0',
+            'type': CableTypeChoices.TYPE_CAT6,
+            'status': 'connected',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('Multiple Device objects found', str(form.errors))
