@@ -5,6 +5,12 @@ from dcim.models import CableTermination
 
 
 class BaseCableProfile:
+    """Base class for representing a cable profile."""
+
+    # Mappings of connectors to their available positions at either end of the cable. For example, a 12-strand MPO
+    # fiber cable would have one connector at either end with six positions (six bidirectional fiber pairs).
+    a_connectors = {}
+    b_connectors = {}
 
     def clean(self, cable):
         # Enforce maximum terminations limits
@@ -61,35 +67,56 @@ class BaseCableProfile:
             return None, None
 
 
-class Straight1C1PCableProfile(BaseCableProfile):
+class Single1C1PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1],
     }
     b_connectors = a_connectors
 
 
-class Straight1C2PCableProfile(BaseCableProfile):
+class Single1C2PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2],
     }
     b_connectors = a_connectors
 
 
-class Straight1C4PCableProfile(BaseCableProfile):
+class Single1C4PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2, 3, 4],
     }
     b_connectors = a_connectors
 
 
-class Straight1C8PCableProfile(BaseCableProfile):
+class Single1C6PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6],
+    }
+    b_connectors = a_connectors
+
+
+class Single1C8PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2, 3, 4, 5, 6, 7, 8],
     }
     b_connectors = a_connectors
 
 
-class Straight2C1PCableProfile(BaseCableProfile):
+class Single1C12PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    }
+    b_connectors = a_connectors
+
+
+class Single1C16PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 16],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk2C1PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1],
         2: [1],
@@ -97,7 +124,7 @@ class Straight2C1PCableProfile(BaseCableProfile):
     b_connectors = a_connectors
 
 
-class Straight2C2PCableProfile(BaseCableProfile):
+class Trunk2C2PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2],
         2: [1, 2],
@@ -105,7 +132,104 @@ class Straight2C2PCableProfile(BaseCableProfile):
     b_connectors = a_connectors
 
 
+class Trunk2C4PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4],
+        2: [1, 2, 3, 4],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk2C6PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6],
+        2: [1, 2, 3, 4, 5, 6],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk2C8PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6, 7, 8],
+        2: [1, 2, 3, 4, 5, 6, 7, 8],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk2C12PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        2: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk4C1PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1],
+        2: [1],
+        3: [1],
+        4: [1],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk4C2PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2],
+        2: [1, 2],
+        3: [1, 2],
+        4: [1, 2],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk4C4PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4],
+        2: [1, 2, 3, 4],
+        3: [1, 2, 3, 4],
+        4: [1, 2, 3, 4],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk4C6PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6],
+        2: [1, 2, 3, 4, 5, 6],
+        3: [1, 2, 3, 4, 5, 6],
+        4: [1, 2, 3, 4, 5, 6],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk4C8PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4, 5, 6, 7, 8],
+        2: [1, 2, 3, 4, 5, 6, 7, 8],
+        3: [1, 2, 3, 4, 5, 6, 7, 8],
+        4: [1, 2, 3, 4, 5, 6, 7, 8],
+    }
+    b_connectors = a_connectors
+
+
+class Trunk8C4PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: [1, 2, 3, 4],
+        2: [1, 2, 3, 4],
+        3: [1, 2, 3, 4],
+        4: [1, 2, 3, 4],
+        5: [1, 2, 3, 4],
+        6: [1, 2, 3, 4],
+        7: [1, 2, 3, 4],
+        8: [1, 2, 3, 4],
+    }
+    b_connectors = a_connectors
+
+
 class Breakout1x4CableProfile(BaseCableProfile):
+    """Breakout 1:4 to 4:1"""
     a_connectors = {
         1: [1, 2, 3, 4],
     }
@@ -127,30 +251,6 @@ class Breakout1x4CableProfile(BaseCableProfile):
 
     def get_mapped_position(self, side, connector, position):
         return self._mapping.get((connector, position))
-
-
-class MPOTrunk4x4CableProfile(BaseCableProfile):
-    a_connectors = {
-        1: [1, 2, 3, 4],
-        2: [1, 2, 3, 4],
-        3: [1, 2, 3, 4],
-        4: [1, 2, 3, 4],
-    }
-    b_connectors = a_connectors
-
-
-class MPOTrunk8x8CableProfile(BaseCableProfile):
-    a_connectors = {
-        1: [1, 2, 3, 4],
-        2: [1, 2, 3, 4],
-        3: [1, 2, 3, 4],
-        4: [1, 2, 3, 4],
-        5: [1, 2, 3, 4],
-        6: [1, 2, 3, 4],
-        7: [1, 2, 3, 4],
-        8: [1, 2, 3, 4],
-    }
-    b_connectors = a_connectors
 
 
 class Shuffle2x2MPO8CableProfile(BaseCableProfile):

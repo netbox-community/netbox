@@ -1722,32 +1722,78 @@ class PortTypeChoices(ChoiceSet):
 #
 
 class CableProfileChoices(ChoiceSet):
-    STRAIGHT_1C1P = 'straight-1c1p'
-    STRAIGHT_1C2P = 'straight-1c2p'
-    STRAIGHT_1C4P = 'straight-1c4p'
-    STRAIGHT_1C8P = 'straight-1c8p'
-    STRAIGHT_2C1P = 'straight-2c1p'
-    STRAIGHT_2C2P = 'straight-2c2p'
+    # Singles
+    SINGLE_1C1P = 'single-1c1p'
+    SINGLE_1C2P = 'single-1c2p'
+    SINGLE_1C4P = 'single-1c4p'
+    SINGLE_1C6P = 'single-1c6p'
+    SINGLE_1C8P = 'single-1c8p'
+    SINGLE_1C12P = 'single-1c12p'
+    SINGLE_1C16P = 'single-1c16p'
+    # Trunks
+    TRUNK_2C1P = 'trunk-2c1p'
+    TRUNK_2C2P = 'trunk-2c2p'
+    TRUNK_2C4P = 'trunk-2c4p'
+    TRUNK_2C6P = 'trunk-2c6p'
+    TRUNK_2C8P = 'trunk-2c8p'
+    TRUNK_2C12P = 'trunk-2c12p'
+    TRUNK_4C1P = 'trunk-4c1p'
+    TRUNK_4C2P = 'trunk-4c2p'
+    TRUNK_4C4P = 'trunk-4c4p'
+    TRUNK_4C6P = 'trunk-4c6p'
+    TRUNK_4C8P = 'trunk-4c8p'
+    TRUNK_8C4P = 'trunk-8c4p'
+    # Breakouts
     BREAKOUT_1X4 = 'breakout-1x4'
-    MPO_TRUNK_4X4 = 'mpo-trunk-4x4'
-    MPO_TRUNK_8X8 = 'mpo-trunk-8x8'
+    SHUFFLE_BREAKOUT_2X8 = 'shuffle-breakout-2x8'
+    # Shuffles
     SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
     SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
-    SHUFFLE_BREAKOUT_2X8 = 'shuffle-breakout-2x8'
 
     CHOICES = (
-        (STRAIGHT_1C1P, _('Straight (1C1P)')),
-        (STRAIGHT_1C2P, _('Straight (1C2P)')),
-        (STRAIGHT_1C4P, _('Straight (1C4P)')),
-        (STRAIGHT_1C8P, _('Straight (1C8P)')),
-        (STRAIGHT_2C1P, _('Straight (2C1P)')),
-        (STRAIGHT_2C2P, _('Straight (2C2P)')),
-        (BREAKOUT_1X4, _('Breakout (1:4)')),
-        (MPO_TRUNK_4X4, _('MPO Trunk (4x4)')),
-        (MPO_TRUNK_8X8, _('MPO Trunk (8x8)')),
-        (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
-        (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
-        (SHUFFLE_BREAKOUT_2X8, _('Shuffle breakout (2x8)')),
+        (
+            _('Single'),
+            (
+                (SINGLE_1C1P, _('Single (1C1P)')),
+                (SINGLE_1C2P, _('Single (1C2P)')),
+                (SINGLE_1C4P, _('Single (1C4P)')),
+                (SINGLE_1C6P, _('Single (1C6P)')),
+                (SINGLE_1C8P, _('Single (1C8P)')),
+                (SINGLE_1C12P, _('Single (1C12P)')),
+                (SINGLE_1C16P, _('Single (1C16P)')),
+            ),
+        ),
+        (
+            _('Trunk'),
+            (
+                (TRUNK_2C1P, _('Trunk (2C1P)')),
+                (TRUNK_2C2P, _('Trunk (2C2P)')),
+                (TRUNK_2C4P, _('Trunk (2C4P)')),
+                (TRUNK_2C6P, _('Trunk (2C6P)')),
+                (TRUNK_2C8P, _('Trunk (2C8P)')),
+                (TRUNK_2C12P, _('Trunk (2C12P)')),
+                (TRUNK_4C1P, _('Trunk (4C1P)')),
+                (TRUNK_4C2P, _('Trunk (4C2P)')),
+                (TRUNK_4C4P, _('Trunk (4C4P)')),
+                (TRUNK_4C6P, _('Trunk (4C6P)')),
+                (TRUNK_4C8P, _('Trunk (4C8P)')),
+                (TRUNK_8C4P, _('Trunk (8C4P)')),
+            ),
+        ),
+        (
+            _('Breakouts'),
+            (
+                (BREAKOUT_1X4, _('Breakout (1:4)')),
+            ),
+        ),
+        (
+            _('Shuffles'),
+            (
+                (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
+                (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
+                (SHUFFLE_BREAKOUT_2X8, _('Shuffle breakout (2x8)')),
+            ),
+        ),
     )
 
 
