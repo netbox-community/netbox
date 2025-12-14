@@ -1747,8 +1747,8 @@ class CableProfileChoices(ChoiceSet):
     BREAKOUT_1X4 = 'breakout-1x4'
     SHUFFLE_BREAKOUT_2X8 = 'shuffle-breakout-2x8'
     # Shuffles
-    SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
-    SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
+    SHUFFLE_2C4P = 'shuffle-2c4p'
+    SHUFFLE_4C4P = 'shuffle-4c4p'
 
     CHOICES = (
         (
@@ -1789,8 +1789,8 @@ class CableProfileChoices(ChoiceSet):
         (
             _('Shuffles'),
             (
-                (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
-                (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
+                (SHUFFLE_2C4P, _('Shuffle (2C4P)')),
+                (SHUFFLE_4C4P, _('Shuffle (4C4P)')),
                 (SHUFFLE_BREAKOUT_2X8, _('Shuffle breakout (2x8)')),
             ),
         ),

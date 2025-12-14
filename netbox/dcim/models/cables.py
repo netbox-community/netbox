@@ -157,8 +157,8 @@ class Cable(PrimaryModel):
             CableProfileChoices.TRUNK_4C8P: cable_profiles.Trunk4C8PCableProfile,
             CableProfileChoices.TRUNK_8C4P: cable_profiles.Trunk8C4PCableProfile,
             CableProfileChoices.BREAKOUT_1X4: cable_profiles.Breakout1x4CableProfile,
-            CableProfileChoices.SHUFFLE_2X2_MPO8: cable_profiles.Shuffle2x2MPO8CableProfile,
-            CableProfileChoices.SHUFFLE_4X4_MPO8: cable_profiles.Shuffle4x4MPO8CableProfile,
+            CableProfileChoices.SHUFFLE_2C4P: cable_profiles.Shuffle2C4PCableProfile,
+            CableProfileChoices.SHUFFLE_4C4P: cable_profiles.Shuffle4C4PCableProfile,
             CableProfileChoices.SHUFFLE_BREAKOUT_2X8: cable_profiles.ShuffleBreakout2x8CableProfile,
         }.get(self.profile)
 

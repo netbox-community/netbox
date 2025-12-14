@@ -253,7 +253,7 @@ class Breakout1x4CableProfile(BaseCableProfile):
         return self._mapping.get((connector, position))
 
 
-class Shuffle2x2MPO8CableProfile(BaseCableProfile):
+class Shuffle2C4PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2, 3, 4],
         2: [1, 2, 3, 4],
@@ -274,7 +274,7 @@ class Shuffle2x2MPO8CableProfile(BaseCableProfile):
         return self._mapping.get((connector, position))
 
 
-class Shuffle4x4MPO8CableProfile(BaseCableProfile):
+class Shuffle4C4PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2, 3, 4],
         2: [1, 2, 3, 4],

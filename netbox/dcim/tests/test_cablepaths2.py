@@ -632,7 +632,7 @@ class CablePathTests(CablePathTestCase):
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
 
-    def test_106_cable_profile_shuffle_2x2_mpo8(self):
+    def test_106_cable_profile_shuffle(self):
         """
         [IF1] --C1-- [FP1][RP1] --C17-- [RP3][FP9]  --C9--  [IF9]
         [IF2] --C2-- [FP2]                   [FP10] --C10-- [IF10]
@@ -710,7 +710,7 @@ class CablePathTests(CablePathTestCase):
             cable.save()
             cables.append(cable)
         shuffle_cable = Cable(
-            profile=CableProfileChoices.SHUFFLE_2X2_MPO8,
+            profile=CableProfileChoices.SHUFFLE_2C4P,
             a_terminations=rear_ports[0:2],
             b_terminations=rear_ports[2:4],
         )
