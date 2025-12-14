@@ -559,7 +559,7 @@ class CablePathTests(CablePathTestCase):
         cable4.clean()
         cable4.save()
         cable5 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[rear_ports[0]],
             b_terminations=interfaces[4:8],
         )
@@ -843,14 +843,14 @@ class CablePathTests(CablePathTestCase):
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[frontport1],
             b_terminations=[interfaces[0], interfaces[1]],
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[rearport1],
             b_terminations=[interfaces[2], interfaces[3]]
         )
@@ -974,14 +974,14 @@ class CablePathTests(CablePathTestCase):
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[frontport1],
             b_terminations=[interfaces[0], interfaces[1]],
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[frontport2],
             b_terminations=[interfaces[2], interfaces[3]],
         )
@@ -995,14 +995,14 @@ class CablePathTests(CablePathTestCase):
         cable3.clean()
         cable3.save()
         cable4 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[frontport3],
             b_terminations=[interfaces[4], interfaces[5]],
         )
         cable4.clean()
         cable4.save()
         cable5 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[frontport4],
             b_terminations=[interfaces[6], interfaces[7]],
         )
@@ -1115,14 +1115,14 @@ class CablePathTests(CablePathTestCase):
 
         # Create cables
         cable1 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[circuittermination1],
             b_terminations=[interfaces[0], interfaces[1]],
         )
         cable1.clean()
         cable1.save()
         cable2 = Cable(
-            profile=CableProfileChoices.BREAKOUT_1X4,
+            profile=CableProfileChoices.BREAKOUT_1C4P_4C1P,
             a_terminations=[circuittermination2],
             b_terminations=[interfaces[2], interfaces[3]]
         )

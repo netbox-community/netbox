@@ -156,7 +156,7 @@ class Cable(PrimaryModel):
             CableProfileChoices.TRUNK_4C6P: cable_profiles.Trunk4C6PCableProfile,
             CableProfileChoices.TRUNK_4C8P: cable_profiles.Trunk4C8PCableProfile,
             CableProfileChoices.TRUNK_8C4P: cable_profiles.Trunk8C4PCableProfile,
-            CableProfileChoices.BREAKOUT_1X4: cable_profiles.Breakout1x4CableProfile,
+            CableProfileChoices.BREAKOUT_1C4P_4C1P: cable_profiles.Breakout1C4Px4C1PCableProfile,
             CableProfileChoices.SHUFFLE_2C4P: cable_profiles.Shuffle2C4PCableProfile,
             CableProfileChoices.SHUFFLE_4C4P: cable_profiles.Shuffle4C4PCableProfile,
             CableProfileChoices.SHUFFLE_BREAKOUT_2X8: cable_profiles.ShuffleBreakout2x8CableProfile,

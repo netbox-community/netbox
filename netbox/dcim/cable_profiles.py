@@ -228,8 +228,7 @@ class Trunk8C4PCableProfile(BaseCableProfile):
     b_connectors = a_connectors
 
 
-class Breakout1x4CableProfile(BaseCableProfile):
-    """Breakout 1:4 to 4:1"""
+class Breakout1C4Px4C1PCableProfile(BaseCableProfile):
     a_connectors = {
         1: [1, 2, 3, 4],
     }
