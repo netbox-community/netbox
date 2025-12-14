@@ -157,6 +157,7 @@ class Cable(PrimaryModel):
             CableProfileChoices.TRUNK_4C8P: cable_profiles.Trunk4C8PCableProfile,
             CableProfileChoices.TRUNK_8C4P: cable_profiles.Trunk8C4PCableProfile,
             CableProfileChoices.BREAKOUT_1C4P_4C1P: cable_profiles.Breakout1C4Px4C1PCableProfile,
+            CableProfileChoices.BREAKOUT_1C6P_6C1P: cable_profiles.Breakout1C6Px6C1PCableProfile,
             CableProfileChoices.SHUFFLE_2C4P: cable_profiles.Shuffle2C4PCableProfile,
             CableProfileChoices.SHUFFLE_4C4P: cable_profiles.Shuffle4C4PCableProfile,
             CableProfileChoices.SHUFFLE_BREAKOUT_2X8: cable_profiles.ShuffleBreakout2x8CableProfile,
@@ -363,7 +364,7 @@ class Cable(PrimaryModel):
                 connector = positions = None
                 if self.profile:
                     connector = i
-                    positions = self.profile_class().a_connectors[i]
+                    positions = list(range(1, self.profile_class().a_connectors[i] + 1))
                 CableTermination(
                     cable=self,
                     cable_end='A',
@@ -376,7 +377,7 @@ class Cable(PrimaryModel):
                 connector = positions = None
                 if self.profile:
                     connector = i
-                    positions = self.profile_class().b_connectors[i]
+                    positions = list(range(1, self.profile_class().b_connectors[i] + 1))
                 CableTermination(
                     cable=self,
                     cable_end='B',
