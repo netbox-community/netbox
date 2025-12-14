@@ -2586,7 +2586,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[14].pk,
                 }],
                 'label': 'Cable 4',
-                'profile': CableProfileChoices.STRAIGHT_1C1P,
+                'profile': CableProfileChoices.SINGLE_1C1P,
             },
             {
                 'a_terminations': [{
@@ -2598,7 +2598,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[15].pk,
                 }],
                 'label': 'Cable 5',
-                'profile': CableProfileChoices.STRAIGHT_1C1P,
+                'profile': CableProfileChoices.SINGLE_1C1P,
             },
             {
                 'a_terminations': [{
