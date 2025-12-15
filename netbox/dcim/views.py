@@ -2682,6 +2682,7 @@ class DeviceConfigContextView(ObjectConfigContextView):
 class DeviceRenderConfigView(ObjectRenderConfigView):
     queryset = Device.objects.all()
     base_template = 'dcim/device/base.html'
+    additional_permissions = ['dcim.render_config_device']
     tab = ViewTab(
         label=_('Render Config'),
         weight=2100,
