@@ -59,11 +59,17 @@ class BaseCableProfile:
         """
         Given a terminating object, return the peer terminating object (if any) on the opposite end of the cable.
         """
-        connector, position = self.get_mapped_position(
-            termination.cable_end,
-            termination.cable_connector,
-            position
-        )
+        try:
+            connector, position = self.get_mapped_position(
+                termination.cable_end,
+                termination.cable_connector,
+                position
+            )
+        except TypeError:
+            raise ValueError(
+                f"Could not map connector {termination.cable_connector} position {position} on side "
+                f"{termination.cable_end}"
+            )
         try:
             ct = CableTermination.objects.get(
                 cable=termination.cable,
@@ -379,6 +385,6 @@ class Breakout2C4Px8C1PShuffleCableProfile(BaseCableProfile):
     }
 
     def get_mapped_position(self, side, connector, position):
-        if side.lower() == CableEndChoices.SIDE_A:
+        if side.upper() == CableEndChoices.SIDE_A:
             return self._a_mapping.get((connector, position))
         return self._b_mapping.get((connector, position))
