@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='cabletermination',
-            options={'ordering': ('cable', 'cable_end', 'connector', 'positions', 'pk')},
+            options={'ordering': ('cable', 'cable_end', 'connector', 'pk')},  # connector may be null
         ),
         migrations.AddConstraint(
             model_name='cabletermination',

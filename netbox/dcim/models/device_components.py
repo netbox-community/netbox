@@ -279,6 +279,22 @@ class CabledObjectModel(models.Model):
             return None
         return CableEndChoices.SIDE_A if self.cable_end == CableEndChoices.SIDE_B else CableEndChoices.SIDE_B
 
+    def set_cable_termination(self, termination):
+        """Save attributes from the given CableTermination on the terminating object."""
+        self.cable = termination.cable
+        self.cable_end = termination.cable_end
+        self.cable_connector = termination.connector
+        self.cable_positions = termination.positions
+    set_cable_termination.alters_data = True
+
+    def clear_cable_termination(self, termination):
+        """Clear all cable termination attributes from the terminating object."""
+        self.cable = None
+        self.cable_end = None
+        self.cable_connector = None
+        self.cable_positions = None
+    clear_cable_termination.alters_data = True
+
 
 class PathEndpoint(models.Model):
     """

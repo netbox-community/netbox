@@ -75,6 +75,11 @@ class BaseCableProfile:
         except CableTermination.DoesNotExist:
             return None, None
 
+    @staticmethod
+    def get_position_list(n):
+        """Return a list of integers from 1 to n, inclusive."""
+        return list(range(1, n + 1))
+
 
 # Profile naming:
 #  - Single: One connector per side, with one or more positions

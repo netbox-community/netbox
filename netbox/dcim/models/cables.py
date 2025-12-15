@@ -359,15 +359,16 @@ class Cable(PrimaryModel):
                 ct.delete()
 
         # Save any new CableTerminations
+        profile = self.profile_class() if self.profile else None
         for i, termination in enumerate(self.a_terminations, start=1):
             if not termination.pk or termination not in a_terminations:
                 connector = positions = None
-                if self.profile:
+                if profile:
                     connector = i
-                    positions = list(range(1, self.profile_class().a_connectors[i] + 1))
+                    positions = profile.get_position_list(profile.a_connectors[i])
                 CableTermination(
                     cable=self,
-                    cable_end='A',
+                    cable_end=CableEndChoices.SIDE_A,
                     connector=connector,
                     positions=positions,
                     termination=termination
@@ -375,12 +376,12 @@ class Cable(PrimaryModel):
         for i, termination in enumerate(self.b_terminations, start=1):
             if not termination.pk or termination not in b_terminations:
                 connector = positions = None
-                if self.profile:
+                if profile:
                     connector = i
-                    positions = list(range(1, self.profile_class().b_connectors[i] + 1))
+                    positions = profile.get_position_list(profile.b_connectors[i])
                 CableTermination(
                     cable=self,
-                    cable_end='B',
+                    cable_end=CableEndChoices.SIDE_B,
                     connector=connector,
                     positions=positions,
                     termination=termination
@@ -459,7 +460,7 @@ class CableTermination(ChangeLoggedModel):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ('cable', 'cable_end', 'connector', 'positions', 'pk')
+        ordering = ('cable', 'cable_end', 'connector', 'pk')
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
@@ -530,10 +531,7 @@ class CableTermination(ChangeLoggedModel):
         # Set the cable on the terminating object
         termination = self.termination._meta.model.objects.get(pk=self.termination_id)
         termination.snapshot()
-        termination.cable = self.cable
-        termination.cable_end = self.cable_end
-        termination.cable_connector = self.connector
-        termination.cable_positions = self.positions
+        termination.set_cable_termination(self)
         termination.save()
 
     def delete(self, *args, **kwargs):
@@ -541,10 +539,7 @@ class CableTermination(ChangeLoggedModel):
         # Delete the cable association on the terminating object
         termination = self.termination._meta.model.objects.get(pk=self.termination_id)
         termination.snapshot()
-        termination.cable = None
-        termination.cable_end = None
-        termination.cable_connector = None
-        termination.cable_positions = None
+        termination.clear_cable_termination(self)
         termination.save()
 
         super().delete(*args, **kwargs)
@@ -753,7 +748,6 @@ class CablePath(models.Model):
                 object_to_path_node(t) for t in terminations
             ])
             # If not null, push cable position onto the stack
-            # TODO: Handle multiple positions?
             if isinstance(terminations[0], PathEndpoint) and terminations[0].cable_positions:
                 position_stack.append([terminations[0].cable_positions[0]])
 
