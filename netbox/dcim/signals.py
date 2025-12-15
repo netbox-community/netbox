@@ -9,7 +9,7 @@ from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN
 from .models import (Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort,
                      Interface, InventoryItem, Location, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort,
-                     Rack, RearPort, Region, Site, SiteGroup, VirtualChassis)
+                     Rack, RearPort, Site, VirtualChassis)
 from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
 
@@ -184,8 +184,6 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
 
 @receiver(post_save, sender=Location)
 @receiver(post_save, sender=Site)
-@receiver(post_save, sender=SiteGroup)
-@receiver(post_save, sender=Region)
 def sync_cached_scope_fields(sender, instance, **kwargs):
     """
     Rebuild cached scope fields for all CachedScopeMixin-based models
@@ -196,14 +194,10 @@ def sync_cached_scope_fields(sender, instance, **kwargs):
     authoritative relationships.
     """
 
-    if isinstance(instance, Location) and instance.site:
+    if isinstance(instance, Location):
         filters = {'_location': instance}
     elif isinstance(instance, Site):
         filters = {'_site': instance}
-    elif isinstance(instance, SiteGroup):
-        filters = {'_site_group': instance}
-    elif isinstance(instance, Region):
-        filters = {'_region': instance}
     else:
         return
 
