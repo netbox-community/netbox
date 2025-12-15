@@ -3,6 +3,7 @@ import logging
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -136,10 +137,30 @@ class Cable(PrimaryModel):
     def profile_class(self):
         from dcim import cable_profiles
         return {
-            CableProfileChoices.STRAIGHT_SINGLE: cable_profiles.StraightSingleCableProfile,
-            CableProfileChoices.STRAIGHT_MULTI: cable_profiles.StraightMultiCableProfile,
-            CableProfileChoices.SHUFFLE_2X2_MPO8: cable_profiles.Shuffle2x2MPO8CableProfile,
-            CableProfileChoices.SHUFFLE_4X4_MPO8: cable_profiles.Shuffle4x4MPO8CableProfile,
+            CableProfileChoices.SINGLE_1C1P: cable_profiles.Single1C1PCableProfile,
+            CableProfileChoices.SINGLE_1C2P: cable_profiles.Single1C2PCableProfile,
+            CableProfileChoices.SINGLE_1C4P: cable_profiles.Single1C4PCableProfile,
+            CableProfileChoices.SINGLE_1C6P: cable_profiles.Single1C6PCableProfile,
+            CableProfileChoices.SINGLE_1C8P: cable_profiles.Single1C8PCableProfile,
+            CableProfileChoices.SINGLE_1C12P: cable_profiles.Single1C12PCableProfile,
+            CableProfileChoices.SINGLE_1C16P: cable_profiles.Single1C16PCableProfile,
+            CableProfileChoices.TRUNK_2C1P: cable_profiles.Trunk2C1PCableProfile,
+            CableProfileChoices.TRUNK_2C2P: cable_profiles.Trunk2C2PCableProfile,
+            CableProfileChoices.TRUNK_2C4P: cable_profiles.Trunk2C4PCableProfile,
+            CableProfileChoices.TRUNK_2C4P_SHUFFLE: cable_profiles.Trunk2C4PShuffleCableProfile,
+            CableProfileChoices.TRUNK_2C6P: cable_profiles.Trunk2C6PCableProfile,
+            CableProfileChoices.TRUNK_2C8P: cable_profiles.Trunk2C8PCableProfile,
+            CableProfileChoices.TRUNK_2C12P: cable_profiles.Trunk2C12PCableProfile,
+            CableProfileChoices.TRUNK_4C1P: cable_profiles.Trunk4C1PCableProfile,
+            CableProfileChoices.TRUNK_4C2P: cable_profiles.Trunk4C2PCableProfile,
+            CableProfileChoices.TRUNK_4C4P: cable_profiles.Trunk4C4PCableProfile,
+            CableProfileChoices.TRUNK_4C4P_SHUFFLE: cable_profiles.Trunk4C4PShuffleCableProfile,
+            CableProfileChoices.TRUNK_4C6P: cable_profiles.Trunk4C6PCableProfile,
+            CableProfileChoices.TRUNK_4C8P: cable_profiles.Trunk4C8PCableProfile,
+            CableProfileChoices.TRUNK_8C4P: cable_profiles.Trunk8C4PCableProfile,
+            CableProfileChoices.BREAKOUT_1C4P_4C1P: cable_profiles.Breakout1C4Px4C1PCableProfile,
+            CableProfileChoices.BREAKOUT_1C6P_6C1P: cable_profiles.Breakout1C6Px6C1PCableProfile,
+            CableProfileChoices.BREAKOUT_2C4P_8C1P_SHUFFLE: cable_profiles.Breakout2C4Px8C1PShuffleCableProfile,
         }.get(self.profile)
 
     def _get_x_terminations(self, side):
@@ -338,14 +359,33 @@ class Cable(PrimaryModel):
                 ct.delete()
 
         # Save any new CableTerminations
+        profile = self.profile_class() if self.profile else None
         for i, termination in enumerate(self.a_terminations, start=1):
             if not termination.pk or termination not in a_terminations:
-                position = i if self.profile and isinstance(termination, PathEndpoint) else None
-                CableTermination(cable=self, cable_end='A', position=position, termination=termination).save()
+                connector = positions = None
+                if profile:
+                    connector = i
+                    positions = profile.get_position_list(profile.a_connectors[i])
+                CableTermination(
+                    cable=self,
+                    cable_end=CableEndChoices.SIDE_A,
+                    connector=connector,
+                    positions=positions,
+                    termination=termination
+                ).save()
         for i, termination in enumerate(self.b_terminations, start=1):
             if not termination.pk or termination not in b_terminations:
-                position = i if self.profile and isinstance(termination, PathEndpoint) else None
-                CableTermination(cable=self, cable_end='B', position=position, termination=termination).save()
+                connector = positions = None
+                if profile:
+                    connector = i
+                    positions = profile.get_position_list(profile.b_connectors[i])
+                CableTermination(
+                    cable=self,
+                    cable_end=CableEndChoices.SIDE_B,
+                    connector=connector,
+                    positions=positions,
+                    termination=termination
+                ).save()
 
 
 class CableTermination(ChangeLoggedModel):
@@ -372,13 +412,23 @@ class CableTermination(ChangeLoggedModel):
         ct_field='termination_type',
         fk_field='termination_id'
     )
-    position = models.PositiveIntegerField(
+    connector = models.PositiveSmallIntegerField(
         blank=True,
         null=True,
         validators=(
-            MinValueValidator(CABLE_POSITION_MIN),
-            MaxValueValidator(CABLE_POSITION_MAX)
-        )
+            MinValueValidator(CABLE_CONNECTOR_MIN),
+            MaxValueValidator(CABLE_CONNECTOR_MAX)
+        ),
+    )
+    positions = ArrayField(
+        base_field=models.PositiveSmallIntegerField(
+            validators=(
+                MinValueValidator(CABLE_POSITION_MIN),
+                MaxValueValidator(CABLE_POSITION_MAX)
+            )
+        ),
+        blank=True,
+        null=True,
     )
 
     # Cached associations to enable efficient filtering
@@ -410,15 +460,15 @@ class CableTermination(ChangeLoggedModel):
     objects = RestrictedQuerySet.as_manager()
 
     class Meta:
-        ordering = ('cable', 'cable_end', 'position', 'pk')
+        ordering = ('cable', 'cable_end', 'connector', 'pk')
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
                 name='%(app_label)s_%(class)s_unique_termination'
             ),
             models.UniqueConstraint(
-                fields=('cable', 'cable_end', 'position'),
-                name='%(app_label)s_%(class)s_unique_position'
+                fields=('cable', 'cable_end', 'connector'),
+                name='%(app_label)s_%(class)s_unique_connector'
             ),
         )
         verbose_name = _('cable termination')
@@ -481,9 +531,7 @@ class CableTermination(ChangeLoggedModel):
         # Set the cable on the terminating object
         termination = self.termination._meta.model.objects.get(pk=self.termination_id)
         termination.snapshot()
-        termination.cable = self.cable
-        termination.cable_end = self.cable_end
-        termination.cable_position = self.position
+        termination.set_cable_termination(self)
         termination.save()
 
     def delete(self, *args, **kwargs):
@@ -491,9 +539,7 @@ class CableTermination(ChangeLoggedModel):
         # Delete the cable association on the terminating object
         termination = self.termination._meta.model.objects.get(pk=self.termination_id)
         termination.snapshot()
-        termination.cable = None
-        termination.cable_end = None
-        termination.cable_position = None
+        termination.clear_cable_termination(self)
         termination.save()
 
         super().delete(*args, **kwargs)
@@ -701,9 +747,9 @@ class CablePath(models.Model):
             path.append([
                 object_to_path_node(t) for t in terminations
             ])
-            # If not null, push cable_position onto the stack
-            if terminations[0].cable_position is not None:
-                position_stack.append([terminations[0].cable_position])
+            # If not null, push cable position onto the stack
+            if isinstance(terminations[0], PathEndpoint) and terminations[0].cable_positions:
+                position_stack.append([terminations[0].cable_positions[0]])
 
             # Step 2: Determine the attached links (Cable or WirelessLink), if any
             links = list(dict.fromkeys(
@@ -744,8 +790,9 @@ class CablePath(models.Model):
                 # Profile-based tracing
                 if links[0].profile:
                     cable_profile = links[0].profile_class()
-                    peer_cable_terminations = cable_profile.get_peer_terminations(terminations, position_stack)
-                    remote_terminations = [ct.termination for ct in peer_cable_terminations]
+                    term, position = cable_profile.get_peer_termination(terminations[0], position_stack.pop()[0])
+                    remote_terminations = [term]
+                    position_stack.append([position])
 
                 # Legacy (positionless) behavior
                 else:

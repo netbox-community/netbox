@@ -2586,7 +2586,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[14].pk,
                 }],
                 'label': 'Cable 4',
-                'profile': CableProfileChoices.STRAIGHT_SINGLE,
+                'profile': CableProfileChoices.SINGLE_1C1P,
             },
             {
                 'a_terminations': [{
@@ -2598,7 +2598,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[15].pk,
                 }],
                 'label': 'Cable 5',
-                'profile': CableProfileChoices.STRAIGHT_SINGLE,
+                'profile': CableProfileChoices.SINGLE_1C1P,
             },
             {
                 'a_terminations': [{
@@ -2620,7 +2620,9 @@ class CableTerminationTest(
     APIViewTestCases.ListObjectsViewTestCase,
 ):
     model = CableTermination
-    brief_fields = ['cable', 'cable_end', 'display', 'id', 'position', 'termination_id', 'termination_type', 'url']
+    brief_fields = [
+        'cable', 'cable_end', 'connector', 'display', 'id', 'positions', 'termination_id', 'termination_type', 'url',
+    ]
 
     @classmethod
     def setUpTestData(cls):

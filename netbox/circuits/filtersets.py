@@ -353,7 +353,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         model = CircuitTermination
         fields = (
             'id', 'termination_id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description',
-            'mark_connected', 'pp_info', 'cable_end', 'cable_position',
+            'mark_connected', 'pp_info', 'cable_end', 'cable_connector',
         )
 
     def search(self, queryset, name, value):

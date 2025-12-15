@@ -3332,6 +3332,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = ConsolePort.objects.all()
     filterset = ConsolePortFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -3582,6 +3583,7 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = ConsoleServerPort.objects.all()
     filterset = ConsoleServerPortFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -3832,6 +3834,7 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
 class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = PowerPort.objects.all()
     filterset = PowerPortFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -4096,6 +4099,7 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = PowerOutlet.objects.all()
     filterset = PowerOutletFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -4380,7 +4384,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = Interface.objects.all()
     filterset = InterfaceFilterSet
-    ignore_fields = ('tagged_vlans', 'untagged_vlan', 'qinq_svlan', 'vdcs')
+    ignore_fields = ('tagged_vlans', 'untagged_vlan', 'qinq_svlan', 'vdcs', 'cable_positions')
 
     @classmethod
     def setUpTestData(cls):
@@ -5017,6 +5021,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = FrontPort.objects.all()
     filterset = FrontPortFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -5321,6 +5326,7 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = RearPort.objects.all()
     filterset = RearPortFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -6859,6 +6865,7 @@ class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):
 class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = PowerFeed.objects.all()
     filterset = PowerFeedFilterSet
+    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):

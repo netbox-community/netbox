@@ -41,12 +41,12 @@ def create_cablepaths(objects):
     """
     from dcim.models import CablePath
 
-    # Arrange objects by cable position. All objects with a null position are grouped together.
+    # Arrange objects by cable connector. All objects with a null connector are grouped together.
     origins = defaultdict(list)
     for obj in objects:
-        origins[obj.cable_position].append(obj)
+        origins[obj.cable_connector].append(obj)
 
-    for position, objects in origins.items():
+    for connector, objects in origins.items():
         if cp := CablePath.from_origin(objects):
             cp.save()
 

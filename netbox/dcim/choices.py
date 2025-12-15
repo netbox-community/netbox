@@ -1722,16 +1722,74 @@ class PortTypeChoices(ChoiceSet):
 #
 
 class CableProfileChoices(ChoiceSet):
-    STRAIGHT_SINGLE = 'straight-single'
-    STRAIGHT_MULTI = 'straight-multi'
-    SHUFFLE_2X2_MPO8 = 'shuffle-2x2-mpo8'
-    SHUFFLE_4X4_MPO8 = 'shuffle-4x4-mpo8'
+    # Singles
+    SINGLE_1C1P = 'single-1c1p'
+    SINGLE_1C2P = 'single-1c2p'
+    SINGLE_1C4P = 'single-1c4p'
+    SINGLE_1C6P = 'single-1c6p'
+    SINGLE_1C8P = 'single-1c8p'
+    SINGLE_1C12P = 'single-1c12p'
+    SINGLE_1C16P = 'single-1c16p'
+    # Trunks
+    TRUNK_2C1P = 'trunk-2c1p'
+    TRUNK_2C2P = 'trunk-2c2p'
+    TRUNK_2C4P = 'trunk-2c4p'
+    TRUNK_2C4P_SHUFFLE = 'trunk-2c4p-shuffle'
+    TRUNK_2C6P = 'trunk-2c6p'
+    TRUNK_2C8P = 'trunk-2c8p'
+    TRUNK_2C12P = 'trunk-2c12p'
+    TRUNK_4C1P = 'trunk-4c1p'
+    TRUNK_4C2P = 'trunk-4c2p'
+    TRUNK_4C4P = 'trunk-4c4p'
+    TRUNK_4C4P_SHUFFLE = 'trunk-4c4p-shuffle'
+    TRUNK_4C6P = 'trunk-4c6p'
+    TRUNK_4C8P = 'trunk-4c8p'
+    TRUNK_8C4P = 'trunk-8c4p'
+    # Breakouts
+    BREAKOUT_1C4P_4C1P = 'breakout-1c4p-4c1p'
+    BREAKOUT_1C6P_6C1P = 'breakout-1c6p-6c1p'
+    BREAKOUT_2C4P_8C1P_SHUFFLE = 'breakout-2c4p-8c1p-shuffle'
 
     CHOICES = (
-        (STRAIGHT_SINGLE, _('Straight (single position)')),
-        (STRAIGHT_MULTI, _('Straight (multi-position)')),
-        (SHUFFLE_2X2_MPO8, _('Shuffle (2x2 MPO8)')),
-        (SHUFFLE_4X4_MPO8, _('Shuffle (4x4 MPO8)')),
+        (
+            _('Single'),
+            (
+                (SINGLE_1C1P, _('1C1P')),
+                (SINGLE_1C2P, _('1C2P')),
+                (SINGLE_1C4P, _('1C4P')),
+                (SINGLE_1C6P, _('1C6P')),
+                (SINGLE_1C8P, _('1C8P')),
+                (SINGLE_1C12P, _('1C12P')),
+                (SINGLE_1C16P, _('1C16P')),
+            ),
+        ),
+        (
+            _('Trunk'),
+            (
+                (TRUNK_2C1P, _('2C1P trunk')),
+                (TRUNK_2C2P, _('2C2P trunk')),
+                (TRUNK_2C4P, _('2C4P trunk')),
+                (TRUNK_2C4P_SHUFFLE, _('2C4P trunk (shuffle)')),
+                (TRUNK_2C6P, _('2C6P trunk')),
+                (TRUNK_2C8P, _('2C8P trunk')),
+                (TRUNK_2C12P, _('2C12P trunk')),
+                (TRUNK_4C1P, _('4C1P trunk')),
+                (TRUNK_4C2P, _('4C2P trunk')),
+                (TRUNK_4C4P, _('4C4P trunk')),
+                (TRUNK_4C4P_SHUFFLE, _('4C4P trunk (shuffle)')),
+                (TRUNK_4C6P, _('4C6P trunk')),
+                (TRUNK_4C8P, _('4C8P trunk')),
+                (TRUNK_8C4P, _('8C4P trunk')),
+            ),
+        ),
+        (
+            _('Breakout'),
+            (
+                (BREAKOUT_1C4P_4C1P, _('1C4P:4C1P breakout')),
+                (BREAKOUT_1C6P_6C1P, _('1C6P:6C1P breakout')),
+                (BREAKOUT_2C4P_8C1P_SHUFFLE, _('2C4P:8C1P breakout (shuffle)')),
+            ),
+        ),
     )
 
 

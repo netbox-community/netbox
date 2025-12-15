@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('circuits', '0054_cable_position'),
+        ('circuits', '0054_cable_connector_positions'),
     ]
 
     operations = [
