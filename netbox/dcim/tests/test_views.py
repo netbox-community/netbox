@@ -2340,8 +2340,7 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_inventory', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
-    @tag('regression')  # #20929
-    def test_device_renderconfig_permission(self):
+    def test_device_renderconfig(self):
         configtemplate = ConfigTemplate.objects.create(
             name='Test Config Template',
             template_code='Config for device {{ device.name }}'

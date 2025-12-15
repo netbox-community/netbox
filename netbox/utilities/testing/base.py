@@ -73,11 +73,9 @@ class TestCase(_TestCase):
         """
         for name in names:
             object_type, action = resolve_permission_type(name)
-            obj_perms = ObjectPermission.objects.filter(
+            ObjectPermission.objects.filter(
                 actions__contains=[action], object_types=object_type, users=self.user
-            )
-            for obj_perm in obj_perms:
-                obj_perm.users.remove(self.user)
+            ).delete()
 
     #
     # Custom assertions

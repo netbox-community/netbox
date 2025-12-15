@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings, tag
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.choices import InterfaceModeChoices
@@ -327,8 +327,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('virtualization:virtualmachine_interfaces', kwargs={'pk': virtualmachine.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
-    @tag('regression')  # #20929
-    def test_virtualmachine_renderconfig_permission(self):
+    def test_virtualmachine_renderconfig(self):
         configtemplate = ConfigTemplate.objects.create(
             name='Test Config Template',
             template_code='Config for VM {{ virtualmachine.name }}'
