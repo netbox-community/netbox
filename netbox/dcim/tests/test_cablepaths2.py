@@ -710,7 +710,7 @@ class CablePathTests(CablePathTestCase):
             cable.save()
             cables.append(cable)
         shuffle_cable = Cable(
-            profile=CableProfileChoices.SHUFFLE_2C4P,
+            profile=CableProfileChoices.TRUNK_2C4P_SHUFFLE,
             a_terminations=rear_ports[0:2],
             b_terminations=rear_ports[2:4],
         )

@@ -147,20 +147,20 @@ class Cable(PrimaryModel):
             CableProfileChoices.TRUNK_2C1P: cable_profiles.Trunk2C1PCableProfile,
             CableProfileChoices.TRUNK_2C2P: cable_profiles.Trunk2C2PCableProfile,
             CableProfileChoices.TRUNK_2C4P: cable_profiles.Trunk2C4PCableProfile,
+            CableProfileChoices.TRUNK_2C4P_SHUFFLE: cable_profiles.Trunk2C4PShuffleCableProfile,
             CableProfileChoices.TRUNK_2C6P: cable_profiles.Trunk2C6PCableProfile,
             CableProfileChoices.TRUNK_2C8P: cable_profiles.Trunk2C8PCableProfile,
             CableProfileChoices.TRUNK_2C12P: cable_profiles.Trunk2C12PCableProfile,
             CableProfileChoices.TRUNK_4C1P: cable_profiles.Trunk4C1PCableProfile,
             CableProfileChoices.TRUNK_4C2P: cable_profiles.Trunk4C2PCableProfile,
             CableProfileChoices.TRUNK_4C4P: cable_profiles.Trunk4C4PCableProfile,
+            CableProfileChoices.TRUNK_4C4P_SHUFFLE: cable_profiles.Trunk4C4PShuffleCableProfile,
             CableProfileChoices.TRUNK_4C6P: cable_profiles.Trunk4C6PCableProfile,
             CableProfileChoices.TRUNK_4C8P: cable_profiles.Trunk4C8PCableProfile,
             CableProfileChoices.TRUNK_8C4P: cable_profiles.Trunk8C4PCableProfile,
             CableProfileChoices.BREAKOUT_1C4P_4C1P: cable_profiles.Breakout1C4Px4C1PCableProfile,
             CableProfileChoices.BREAKOUT_1C6P_6C1P: cable_profiles.Breakout1C6Px6C1PCableProfile,
-            CableProfileChoices.SHUFFLE_2C4P: cable_profiles.Shuffle2C4PCableProfile,
-            CableProfileChoices.SHUFFLE_4C4P: cable_profiles.Shuffle4C4PCableProfile,
-            CableProfileChoices.SHUFFLE_BREAKOUT_2X8: cable_profiles.ShuffleBreakout2x8CableProfile,
+            CableProfileChoices.BREAKOUT_2C4P_8C1P_SHUFFLE: cable_profiles.Breakout2C4Px8C1PShuffleCableProfile,
         }.get(self.profile)
 
     def _get_x_terminations(self, side):

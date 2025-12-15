@@ -296,7 +296,7 @@ class Breakout1C6Px6C1PCableProfile(BaseCableProfile):
     }
 
 
-class Shuffle2C4PCableProfile(BaseCableProfile):
+class Trunk2C4PShuffleCableProfile(BaseCableProfile):
     a_connectors = {
         1: 4,
         2: 4,
@@ -314,7 +314,7 @@ class Shuffle2C4PCableProfile(BaseCableProfile):
     }
 
 
-class Shuffle4C4PCableProfile(BaseCableProfile):
+class Trunk4C4PShuffleCableProfile(BaseCableProfile):
     a_connectors = {
         1: 4,
         2: 4,
@@ -342,10 +342,7 @@ class Shuffle4C4PCableProfile(BaseCableProfile):
     }
 
 
-class ShuffleBreakout2x8CableProfile(BaseCableProfile):
-    """
-    Temporary solution for mapping 2 front/rear ports to 8 discrete interfaces
-    """
+class Breakout2C4Px8C1PShuffleCableProfile(BaseCableProfile):
     a_connectors = {
         1: 4,
         2: 4,
