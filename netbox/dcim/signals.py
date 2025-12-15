@@ -1,15 +1,15 @@
 import logging
 
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
-from virtualization.models import VMInterface
-from .models import (
-    Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
-    InventoryItem, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
-    VirtualChassis,
-)
+from ipam.models import Prefix
+from virtualization.models import Cluster, VMInterface
+from wireless.models import WirelessLAN
+from .models import (Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort,
+                     Interface, InventoryItem, Location, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort,
+                     Rack, RearPort, Region, Site, SiteGroup, VirtualChassis)
 from .models.cables import trace_paths
 from .utils import create_cablepath, rebuild_paths
 
@@ -180,3 +180,42 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
     if created and not raw and instance.primary_mac_address:
         instance.primary_mac_address.assigned_object = instance
         instance.primary_mac_address.save()
+
+
+@receiver(post_save, sender=Location)
+@receiver(post_save, sender=Site)
+@receiver(post_save, sender=SiteGroup)
+@receiver(post_save, sender=Region)
+def sync_cached_scope_fields(sender, instance, **kwargs):
+    """
+    Rebuild cached scope fields for all CachedScopeMixin-based models
+    affected by a change in a Region, SiteGroup, Site, or Location.
+
+    This method is safe to run for objects created in the past and does
+    not rely on incremental updates. Cached fields are recomputed from
+    authoritative relationships.
+    """
+
+    if isinstance(instance, Location) and instance.site:
+        filters = {'_location': instance}
+    elif isinstance(instance, Site):
+        filters = {'_site': instance}
+    elif isinstance(instance, SiteGroup):
+        filters = {'_site_group': instance}
+    elif isinstance(instance, Region):
+        filters = {'_region': instance}
+    else:
+        return
+
+    for model in (Prefix, Cluster, WirelessLAN):
+        qs = model.objects.filter(**filters)
+
+        for obj in qs.only('id'):
+            # Recompute cache using the same logic as save()
+            obj.cache_related_objects()
+            obj.save(update_fields=[
+                '_location',
+                '_site',
+                '_site_group',
+                '_region',
+            ])
