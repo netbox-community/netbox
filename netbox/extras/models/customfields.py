@@ -449,7 +449,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             return model.objects.filter(pk__in=value)
         return value
 
-    def to_form_field(self, set_initial=True, enforce_required=True, enforce_visibility=True, for_csv_import=False):
+    def to_form_field(
+        self,
+        set_initial=True,
+        enforce_required=True,
+        enforce_visibility=True,
+        for_csv_import=False,
+        for_filterset_form=False,
+    ):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
@@ -457,6 +464,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
         enforce_visibility: Honor the value of CustomField.ui_visible. Set to False for filtering.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
+        for_filterset_form: Return a form field suitable for use in a FilterSet form.
         """
         initial = self.default if set_initial else None
         required = self.required if enforce_required else False
@@ -519,7 +527,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     field_class = CSVMultipleChoiceField
                 field = field_class(choices=choices, required=required, initial=initial)
             else:
-                if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                if self.type == CustomFieldTypeChoices.TYPE_SELECT and not for_filterset_form:
                     field_class = DynamicChoiceField
                     widget_class = APISelect
                 else:
