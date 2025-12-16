@@ -11,6 +11,9 @@ def get_installed_apps():
         if version := getattr(app, 'VERSION', getattr(app, '__version__', None)):
             if type(version) is tuple:
                 version = '.'.join(str(n) for n in version)
+            elif not isinstance(version, str):
+                # Skip non-serializable version types (e.g. setuptools-scm placeholders)
+                continue
             installed_apps[app_config.name] = version
     return {
         k: v for k, v in sorted(installed_apps.items())
