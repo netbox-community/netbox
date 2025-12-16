@@ -4,6 +4,7 @@ from django.urls import reverse
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
+from extras.models import ConfigTemplate
 from ipam.models import VLAN, VRF
 from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
@@ -325,6 +326,28 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('virtualization:virtualmachine_interfaces', kwargs={'pk': virtualmachine.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_virtualmachine_renderconfig(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='Config for VM {{ virtualmachine.name }}'
+        )
+        vm = VirtualMachine.objects.first()
+        vm.config_template = configtemplate
+        vm.save()
+        url = reverse('virtualization:virtualmachine_render-config', kwargs={'pk': vm.pk})
+
+        # User with only view permission should NOT be able to render config
+        self.add_permissions('virtualization.view_virtualmachine')
+        self.assertHttpStatus(self.client.get(url), 403)
+
+        # With render_config permission added should be able to render config
+        self.add_permissions('virtualization.render_config_virtualmachine')
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        # With view permission removed should NOT be able to render config
+        self.remove_permissions('virtualization.view_virtualmachine')
+        self.assertHttpStatus(self.client.get(url), 403)
 
 
 class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):

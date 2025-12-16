@@ -11,6 +11,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
@@ -2338,6 +2339,28 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('dcim:device_inventory', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_device_renderconfig(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Test Config Template',
+            template_code='Config for device {{ device.name }}'
+        )
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+        url = reverse('dcim:device_render-config', kwargs={'pk': device.pk})
+
+        # User with only view permission should NOT be able to render config
+        self.add_permissions('dcim.view_device')
+        self.assertHttpStatus(self.client.get(url), 403)
+
+        # With render_config permission added should be able to render config
+        self.add_permissions('dcim.render_config_device')
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        # With view permission removed should NOT be able to render config
+        self.remove_permissions('dcim.view_device')
+        self.assertHttpStatus(self.client.get(url), 403)
 
 
 class ModuleTestCase(

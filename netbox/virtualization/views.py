@@ -405,6 +405,7 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
 class VirtualMachineRenderConfigView(ObjectRenderConfigView):
     queryset = VirtualMachine.objects.all()
     base_template = 'virtualization/virtualmachine/base.html'
+    additional_permissions = ['virtualization.render_config_virtualmachine']
     tab = ViewTab(
         label=_('Render Config'),
         weight=2100,

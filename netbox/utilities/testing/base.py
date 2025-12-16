@@ -67,6 +67,16 @@ class TestCase(_TestCase):
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(object_type)
 
+    def remove_permissions(self, *names):
+        """
+        Remove a set of permissions from the test user. Accepts permission names in the form <app>.<action>_<model>.
+        """
+        for name in names:
+            object_type, action = resolve_permission_type(name)
+            ObjectPermission.objects.filter(
+                actions__contains=[action], object_types=object_type, users=self.user
+            ).delete()
+
     #
     # Custom assertions
     #
