@@ -93,7 +93,7 @@ The assignment of cable profiles is optional: Cable tracing will continue to ope
 * [#20204](https://github.com/netbox-community/netbox/issues/20204) - Started migrating object views from custom HTML templates to declarative layouts
 * [#20295](https://github.com/netbox-community/netbox/issues/20295) - Cable terminations may be modified via the REST API only by modifying the cable itself
 * [#20617](https://github.com/netbox-community/netbox/issues/20617) - Introduce `BaseModel` as the global base class for models
-* [#20683](https://github.com/netbox-community/netbox/issues/20683) - Remove the UI view dedicated to swaping A/Z circuit terminations
+* [#20683](https://github.com/netbox-community/netbox/issues/20683) - Remove the UI view dedicated to swapping A/Z circuit terminations
 * [#20926](https://github.com/netbox-community/netbox/issues/20926) - Standardize naming of GraphQL filters
 
 ### REST API Changes
