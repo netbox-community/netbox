@@ -875,7 +875,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=RearPort.objects.all()
+        queryset=RearPortTemplate.objects.all()
     )
 
     class Meta:
