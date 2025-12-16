@@ -9,6 +9,7 @@ from tenancy.api.serializers_.tenants import TenantSerializer
 __all__ = (
     'ASNRangeSerializer',
     'ASNSerializer',
+    'ASNSiteSerializer',
     'AvailableASNSerializer',
     'RIRSerializer',
 )
