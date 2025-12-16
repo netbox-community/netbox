@@ -3,8 +3,8 @@
 
 [project]
 name = "netbox"
-version = "4.4.7"
-requires-python = ">=3.10"
+version = "4.5.0-beta1"
+requires-python = ">=3.12"
 description = "The premier source of truth powering network automation."
 readme = "README.md"
 license = "Apache-2.0"
