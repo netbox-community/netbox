@@ -1,13 +1,15 @@
 from rest_framework import serializers
 
+from dcim.models import Site
 from ipam.models import ASN, ASNRange, RIR
-from netbox.api.fields import RelatedObjectCountField
+from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 __all__ = (
     'ASNRangeSerializer',
     'ASNSerializer',
+    'ASNSiteSerializer',
     'AvailableASNSerializer',
     'RIRSerializer',
 )
@@ -41,9 +43,27 @@ class ASNRangeSerializer(OrganizationalModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
+class ASNSiteSerializer(PrimaryModelSerializer):
+    """
+    This serializer is meant for inclusion in ASNSerializer and is only used
+    to avoid a circular import of SiteSerializer.
+    """
+    class Meta:
+        model = Site
+        fields = ('id', 'url', 'display', 'name', 'description', 'slug')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'slug')
+
+
 class ASNSerializer(PrimaryModelSerializer):
     rir = RIRSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    sites = SerializedPKRelatedField(
+        queryset=Site.objects.all(),
+        serializer=ASNSiteSerializer,
+        nested=True,
+        required=False,
+        many=True
+    )
 
     # Related object counts
     site_count = RelatedObjectCountField('sites')
@@ -53,7 +73,7 @@ class ASNSerializer(PrimaryModelSerializer):
         model = ASN
         fields = [
             'id', 'url', 'display_url', 'display', 'asn', 'rir', 'tenant', 'description', 'owner', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count',
+            'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count', 'sites',
         ]
         brief_fields = ('id', 'url', 'display', 'asn', 'description')
 
