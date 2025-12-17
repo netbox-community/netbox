@@ -205,4 +205,6 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
         )
 
     def _get_form_field(self, customfield):
-        return customfield.to_form_field(set_initial=False, enforce_required=False, enforce_visibility=False)
+        return customfield.to_form_field(
+            set_initial=False, enforce_required=False, enforce_visibility=False, for_filterset_form=True
+        )
