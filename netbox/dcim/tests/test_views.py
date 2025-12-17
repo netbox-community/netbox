@@ -2322,6 +2322,32 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('dcim:device_inventory', kwargs={'pk': device.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_import_duplicate_ids_error_message(self):
+        device = Device.objects.first()
+        csv_data = (
+            "id,role",
+            f"{device.pk},Device Role 1",
+            f"{device.pk},Device Role 2",
+        )
+
+        self.add_permissions('dcim.add_device', 'dcim.change_device')
+        response = self.client.post(
+            self._get_url('bulk_import'),
+            {
+                'data': '\n'.join(csv_data),
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
+            },
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            f'Duplicate objects found: Device with ID(s) {device.pk} appears multiple times',
+            response.content.decode('utf-8')
+        )
+
 
 class ModuleTestCase(
     # Module does not support bulk renaming (no name field) or
