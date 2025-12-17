@@ -55,13 +55,6 @@ class ASNRange(OrganizationalModel):
     def __str__(self):
         return f'{self.name} ({self.range_as_string()})'
 
-    @property
-    def range(self):
-        return range(self.start, self.end + 1)
-
-    def range_as_string(self):
-        return f'{self.start}-{self.end}'
-
     def clean(self):
         super().clean()
 
@@ -72,7 +65,45 @@ class ASNRange(OrganizationalModel):
                 )
             )
 
+    @property
+    def range(self):
+        """
+        Return a range of integers representing the ASN range.
+        """
+        return range(self.start, self.end + 1)
+
+    @property
+    def start_asdot(self):
+        """
+        Return ASDOT notation for AS numbers greater than 16 bits.
+        """
+        return ASNField.to_asdot(self.start)
+
+    @property
+    def end_asdot(self):
+        """
+        Return ASDOT notation for AS numbers greater than 16 bits.
+        """
+        return ASNField.to_asdot(self.end)
+
+    def range_as_string(self):
+        """
+        Return a string representation of the ASN range.
+        """
+        return f'{self.start}-{self.end}'
+
+    def range_as_string_with_asdot(self):
+        """
+        Return a string representation of the ASN range, including ASDOT notation.
+        """
+        if self.end >= 65536:
+            return f'{self.range_as_string()} ({self.start_asdot}-{self.end_asdot})'
+        return self.range_as_string()
+
     def get_child_asns(self):
+        """
+        Return all child ASNs (ASNs within the range).
+        """
         return ASN.objects.filter(
             asn__gte=self.start,
             asn__lte=self.end
@@ -131,20 +162,20 @@ class ASN(ContactsMixin, PrimaryModel):
         """
         Return ASDOT notation for AS numbers greater than 16 bits.
         """
-        if self.asn > 65535:
-            return f'{self.asn // 65536}.{self.asn % 65536}'
-        return self.asn
+        return ASNField.to_asdot(self.asn)
 
     @property
     def asn_with_asdot(self):
         """
         Return both plain and ASDOT notation, where applicable.
         """
-        if self.asn > 65535:
-            return f'{self.asn} ({self.asn // 65536}.{self.asn % 65536})'
-        else:
-            return self.asn
+        if self.asn >= 65536:
+            return f'{self.asn} ({self.asn_asdot})'
+        return str(self.asn)
 
     @property
     def prefixed_name(self):
+        """
+        Return the ASN with ASDOT notation prefixed with "AS".
+        """
         return f'AS{self.asn_with_asdot}'
