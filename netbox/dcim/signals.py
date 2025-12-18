@@ -205,6 +205,8 @@ def sync_cached_scope_fields(instance, created, **kwargs):
     else:
         return
 
+    # These models are explicitly listed because they all subclass CachedScopeMixin
+    # and therefore require their cached scope fields to be recomputed.
     for model in (Prefix, Cluster, WirelessLAN):
         qs = model.objects.filter(**filters)
 
