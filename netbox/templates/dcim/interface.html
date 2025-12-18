@@ -113,6 +113,19 @@
             <td>{{ object.bridge|linkify|placeholder }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Bridged Interfaces" %}</th>
+            <td>
+              {% if object.is_bridge %}
+                {% for interface in bridge_interfaces %}
+                  {{ interface|linkify }}
+                  {% if not forloop.last %}<br />{% endif %}
+                {% endfor %}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "LAG" %}</th>
             <td>{{ object.lag|linkify|placeholder }}</td>
           </tr>
@@ -438,7 +451,7 @@
   {% if object.is_bridge %}
     <div class="row mb-3">
       <div class="col col-md-12">
-        {% include 'inc/panel_table.html' with table=bridge_interfaces_table heading="Bridge Interfaces" %}
+        {% include 'inc/panel_table.html' with table=bridge_interfaces_table heading="Bridged Interfaces" %}
       </div>
     </div>
   {% endif %}
