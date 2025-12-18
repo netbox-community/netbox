@@ -1318,7 +1318,10 @@ class MACAddress(PrimaryModel):
     )
 
     class Meta:
-        ordering = ('mac_address', 'pk',)
+        ordering = ('mac_address', 'pk')
+        indexes = (
+            models.Index(fields=('assigned_object_type', 'assigned_object_id')),
+        )
         verbose_name = _('MAC address')
         verbose_name_plural = _('MAC addresses')
 
