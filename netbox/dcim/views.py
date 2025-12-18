@@ -13,7 +13,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.views import generic
@@ -2856,7 +2856,10 @@ class InterfaceView(generic.ObjectView):
         vdc_table.configure(request)
 
         # Get bridge interfaces
-        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
+        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance).select_related(
+            'device', 'module', 'parent', 'bridge', 'lag', 'vrf', 'untagged_vlan', 'qinq_svlan',
+            'primary_mac_address'
+        ).prefetch_related('tagged_vlans', 'wireless_lans', 'vdcs')
         bridge_interfaces_table = tables.InterfaceTable(
             bridge_interfaces,
             exclude=('device', 'parent'),
@@ -2899,6 +2902,7 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
+            'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'vlan_table': vlan_table,
