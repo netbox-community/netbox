@@ -186,7 +186,7 @@ def update_mac_address_interface(instance, created, raw, **kwargs):
 
 @receiver(post_save, sender=Location)
 @receiver(post_save, sender=Site)
-def sync_cached_scope_fields(sender, instance, **kwargs):
+def sync_cached_scope_fields(instance, created, **kwargs):
     """
     Rebuild cached scope fields for all CachedScopeMixin-based models
     affected by a change in a Region, SiteGroup, Site, or Location.
@@ -195,6 +195,8 @@ def sync_cached_scope_fields(sender, instance, **kwargs):
     not rely on incremental updates. Cached fields are recomputed from
     authoritative relationships.
     """
+    if created:
+        return
 
     if isinstance(instance, Location):
         filters = {'_location': instance}
