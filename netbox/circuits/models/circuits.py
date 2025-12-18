@@ -335,6 +335,9 @@ class CircuitTermination(
                 name='%(app_label)s_%(class)s_unique_circuit_term_side'
             ),
         )
+        indexes = (
+            models.Index(fields=('termination_type', 'termination_id')),
+        )
         verbose_name = _('circuit termination')
         verbose_name_plural = _('circuit terminations')
 
