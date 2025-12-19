@@ -2454,11 +2454,12 @@ class DeviceBulkImportView(generic.BulkImportView):
     model_form = forms.DeviceImportForm
 
     def save_object(self, object_form, request):
+        parent_bay = getattr(object_form.instance, 'parent_bay', None)
         obj = object_form.save()
 
         # For child devices, save the reverse relation to the parent device bay
-        if getattr(obj, 'parent_bay', None):
-            device_bay = obj.parent_bay
+        if parent_bay:
+            device_bay = parent_bay
             device_bay.installed_device = obj
             device_bay.save()
 
