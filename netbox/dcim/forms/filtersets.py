@@ -1300,6 +1300,18 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 # Device components
 #
 
+class DeviceComponentTemplateFilterForm(NetBoxModelFilterSetForm):
+    device_type_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceType.objects.all(), required=False, label=_('Device type')
+    )
+    module_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={'manufacturer_id': '$manufacturer_id'},
+        label=_('Module Type'),
+    )
+
+
 class CabledFilterForm(forms.Form):
     cabled = forms.NullBooleanField(
         label=_('Cabled'),
@@ -1352,12 +1364,12 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class ConsolePortTemplateFilterForm(NetBoxModelFilterSetForm):
+class ConsolePortTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = ConsolePortTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'speed', name=_('Attributes')),
-        FieldSet('device_type_id', name=_('Device Type')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1396,12 +1408,12 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
     tag = TagFilterField(model)
 
 
-class ConsoleServerPortTemplateFilterForm(NetBoxModelFilterSetForm):
+class ConsoleServerPortTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = ConsoleServerPortTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'speed', name=_('Attributes')),
-        FieldSet('device_type_id', name=_('Device Type')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1435,12 +1447,12 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class PowerPortTemplateFilterForm(NetBoxModelFilterSetForm):
+class PowerPortTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = PowerPortTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', name=_('Attributes')),
-        FieldSet('device_type_id', name=_('Device Type')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1478,12 +1490,12 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     )
 
 
-class PowerOutletTemplateFilterForm(NetBoxModelFilterSetForm):
+class PowerOutletTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = PowerOutletTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'type', 'color', 'status', name=_('Attributes')),
-        FieldSet('device_type_id', name=_('Device Type')),
+        FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1492,11 +1504,6 @@ class PowerOutletTemplateFilterForm(NetBoxModelFilterSetForm):
     )
     color = ColorField(
         label=_('Color'),
-        required=False
-    )
-    status = forms.MultipleChoiceField(
-        label=_('Status'),
-        choices=PowerOutletStatusChoices,
         required=False
     )
 
@@ -1628,14 +1635,14 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class InterfaceTemplateFilterForm(NetBoxModelFilterSetForm):
+class InterfaceTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = InterfaceTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'kind', 'type', 'speed', 'duplex', 'enabled', 'mgmt_only', name=_('Attributes')),
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power', name=_('Wireless')),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
 
     kind = forms.MultipleChoiceField(
@@ -1696,11 +1703,12 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class FrontPortTemplateFilterForm(NetBoxModelFilterSetForm):
+class FrontPortTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = FrontPortTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1737,11 +1745,12 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
-class RearPortTemplateFilterForm(NetBoxModelFilterSetForm):
+class RearPortTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = RearPortTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -1772,26 +1781,12 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
     )
 
 
-class ModuleBayTemplateFilterForm(NetBoxModelFilterSetForm):
+class ModuleBayTemplateFilterForm(DeviceComponentTemplateFilterForm, NetBoxModelFilterSetForm):
     model = ModuleBayTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', 'position', name=_('Attributes')),
-        FieldSet(
-            'device_type_id',
-            'module_type_id',
-            name=_('Device'),
-        ),
-    )
-
-    device_type_id = DynamicModelMultipleChoiceField(
-        queryset=DeviceType.objects.all(), required=False, label=_('Device type')
-    )
-    module_type_id = DynamicModelMultipleChoiceField(
-        queryset=ModuleType.objects.all(),
-        required=False,
-        query_params={'manufacturer_id': '$manufacturer_id'},
-        label=_('Module Type'),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
 
     position = forms.CharField(label=_('Position'), required=False)
@@ -1816,10 +1811,7 @@ class DeviceBayTemplateFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', 'label', name=_('Attributes')),
-        FieldSet(
-            'device_type_id',
-            name=_('Device'),
-        ),
+        FieldSet('device_type_id', name=_('Device')),
     )
 
     device_type_id = DynamicModelMultipleChoiceField(
@@ -1878,12 +1870,8 @@ class InventoryItemTemplateFilterForm(NetBoxModelFilterSetForm):
     model = InventoryItemTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet(
-            'name', 'label', 'status', 'role_id', 'manufacturer_id', name=_('Attributes')
-        ),
-        FieldSet(
-            'device_type_id', name=_('Device'),
-        ),
+        FieldSet('name', 'label', 'role_id', 'manufacturer_id', name=_('Attributes')),
+        FieldSet('device_type_id', name=_('Device')),
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=InventoryItemRole.objects.all(),
@@ -1894,11 +1882,6 @@ class InventoryItemTemplateFilterForm(NetBoxModelFilterSetForm):
         queryset=Manufacturer.objects.all(),
         required=False,
         label=_('Manufacturer')
-    )
-    status = forms.MultipleChoiceField(
-        label=_('Status'),
-        choices=InventoryItemStatusChoices,
-        required=False
     )
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(), required=False, label=_('Device type')
