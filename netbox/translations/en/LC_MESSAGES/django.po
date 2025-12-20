@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-18 05:03+0000\n"
+"POT-Creation-Date: 2025-12-20 05:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7987,31 +7987,31 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr ""
 
-#: netbox/dcim/views.py:3237
+#: netbox/dcim/views.py:3238
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3278
+#: netbox/dcim/views.py:3279
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3391 netbox/ipam/tables/ip.py:181
+#: netbox/dcim/views.py:3392 netbox/ipam/tables/ip.py:181
 msgid "Children"
 msgstr ""
 
-#: netbox/dcim/views.py:3864
+#: netbox/dcim/views.py:3865
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr ""
 
-#: netbox/dcim/views.py:3909
+#: netbox/dcim/views.py:3910
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
 
-#: netbox/dcim/views.py:3920
+#: netbox/dcim/views.py:3921
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr ""
