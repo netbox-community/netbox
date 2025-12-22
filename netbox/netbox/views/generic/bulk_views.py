@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import Counter
 from copy import deepcopy
 
 from django.contrib import messages
@@ -33,6 +34,7 @@ from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
+from utilities.string import title
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_action_url
 from .base import BaseMultiObjectView
@@ -443,6 +445,18 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         # Prefetch objects to be updated, if any
         prefetch_ids = [int(record['id']) for record in records if record.get('id')]
+
+        # check for duplicate IDs
+        duplicate_pks = [pk for pk, count in Counter(prefetch_ids).items() if count > 1]
+        if duplicate_pks:
+            error_msg = _(
+                "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
+            ).format(
+                model=title(self.queryset.model._meta.verbose_name),
+                ids=', '.join(str(pk) for pk in sorted(duplicate_pks))
+            )
+            raise ValidationError(error_msg)
+
         prefetched_objects = {
             obj.pk: obj
             for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
