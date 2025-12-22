@@ -23,12 +23,12 @@ class ASNRangeTable(TenancyColumnsMixin, NetBoxTable):
     start_asdot = tables.Column(
         accessor=tables.A('start_asdot'),
         order_by=tables.A('start'),
-        verbose_name=_('Start ASDOT')
+        verbose_name=_('Start (ASDOT)')
     )
     end_asdot = tables.Column(
         accessor=tables.A('end_asdot'),
         order_by=tables.A('end'),
-        verbose_name=_('End ASDOT')
+        verbose_name=_('End (ASDOT)')
     )
     tags = columns.TagColumn(
         url_name='ipam:asnrange_list'
