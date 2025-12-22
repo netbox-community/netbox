@@ -80,22 +80,21 @@ class Config:
         try:
             # Enforce the creation date as the ordering parameter
             revision = ConfigRevision.objects.get(active=True)
-            logger.debug(f"Loaded active configuration revision #{revision.pk}")
+            logger.debug(f"Loaded active configuration revision (#{revision.pk})")
         except (ConfigRevision.DoesNotExist, ConfigRevision.MultipleObjectsReturned):
-            logger.debug("No active configuration revision found - falling back to most recent")
             revision = ConfigRevision.objects.order_by('-created').first()
             if revision is None:
-                logger.debug("No previous configuration found in database; proceeding with default values")
+                logger.debug("No configuration found in database; proceeding with default values")
                 return
-            logger.debug(f"Using fallback configuration revision #{revision.pk}")
+            logger.debug(f"No active configuration revision found; falling back to most recent (#{revision.pk})")
         except DatabaseError:
             # The database may not be available yet (e.g. when running a management command)
             logger.warning("Skipping config initialization (database unavailable)")
             return
 
-        revision.activate()
-        logger.debug("Filled cache with data from latest ConfigRevision")
+        revision.activate(update_db=False)
         self._populate_from_cache()
+        logger.debug("Filled cache with data from latest ConfigRevision")
 
 
 class ConfigItem:
