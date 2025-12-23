@@ -1,3 +1,4 @@
+from django.db.models import ForeignKey
 from django.template import loader
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
@@ -174,6 +175,21 @@ class BulkEdit(ObjectAction):
     multi = True
     permissions_required = {'change'}
     template_name = 'buttons/bulk_edit.html'
+
+    @classmethod
+    def get_context(cls, context, model):
+        url_params = super().get_url_params(context)
+
+        # If this is a child object, pass the parent's PK as a URL parameter
+        if parent := context.get('object'):
+            for field in model._meta.get_fields():
+                if isinstance(field, ForeignKey) and field.remote_field.model == parent.__class__:
+                    url_params[field.name] = parent.pk
+                    break
+
+        return {
+            'url_params': url_params,
+        }
 
 
 class BulkRename(ObjectAction):
