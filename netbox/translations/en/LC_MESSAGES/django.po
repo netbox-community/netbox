@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-20 05:01+0000\n"
+"POT-Creation-Date: 2025-12-23 05:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -272,8 +272,8 @@ msgid "ASN (ID)"
 msgstr ""
 
 #: netbox/circuits/filtersets.py:79 netbox/circuits/forms/filtersets.py:39
-#: netbox/ipam/forms/model_forms.py:166 netbox/ipam/models/asns.py:106
-#: netbox/ipam/models/asns.py:123 netbox/ipam/tables/asn.py:41
+#: netbox/ipam/forms/model_forms.py:166 netbox/ipam/models/asns.py:137
+#: netbox/ipam/models/asns.py:154 netbox/ipam/tables/asn.py:51
 #: netbox/templates/ipam/asn.html:20
 msgid "ASN"
 msgstr ""
@@ -453,8 +453,8 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:43
 #: netbox/circuits/tables/providers.py:32 netbox/dcim/forms/bulk_edit.py:143
 #: netbox/dcim/forms/filtersets.py:204 netbox/dcim/forms/model_forms.py:133
-#: netbox/dcim/tables/sites.py:108 netbox/ipam/models/asns.py:124
-#: netbox/ipam/tables/asn.py:27 netbox/ipam/views.py:269
+#: netbox/dcim/tables/sites.py:108 netbox/ipam/models/asns.py:155
+#: netbox/ipam/tables/asn.py:37 netbox/ipam/views.py:269
 #: netbox/netbox/navigation/menu.py:179 netbox/netbox/navigation/menu.py:182
 #: netbox/templates/circuits/provider.html:23
 msgid "ASNs"
@@ -1882,7 +1882,7 @@ msgstr ""
 #: netbox/dcim/tables/sites.py:40 netbox/dcim/tables/sites.py:74
 #: netbox/dcim/tables/sites.py:121 netbox/dcim/tables/sites.py:179
 #: netbox/extras/forms/bulk_import.py:303 netbox/extras/tables/tables.py:706
-#: netbox/ipam/tables/asn.py:69 netbox/ipam/tables/fhrp.py:34
+#: netbox/ipam/tables/asn.py:79 netbox/ipam/tables/fhrp.py:34
 #: netbox/ipam/tables/ip.py:83 netbox/ipam/tables/ip.py:227
 #: netbox/ipam/tables/ip.py:286 netbox/ipam/tables/ip.py:355
 #: netbox/ipam/tables/services.py:25 netbox/ipam/tables/services.py:55
@@ -7942,7 +7942,7 @@ msgstr ""
 #: netbox/dcim/tables/sites.py:34 netbox/dcim/tables/sites.py:68
 #: netbox/extras/forms/filtersets.py:424 netbox/extras/forms/model_forms.py:630
 #: netbox/ipam/forms/bulk_edit.py:134 netbox/ipam/forms/model_forms.py:160
-#: netbox/ipam/tables/asn.py:66 netbox/netbox/navigation/menu.py:15
+#: netbox/ipam/tables/asn.py:76 netbox/netbox/navigation/menu.py:15
 #: netbox/netbox/navigation/menu.py:19
 msgid "Sites"
 msgstr ""
@@ -10130,7 +10130,7 @@ msgstr ""
 msgid "Customer"
 msgstr ""
 
-#: netbox/ipam/fields.py:39
+#: netbox/ipam/fields.py:40
 #, python-brace-format
 msgid "Invalid IP address format: {address}"
 msgstr ""
@@ -10356,9 +10356,9 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:151 netbox/ipam/forms/model_forms.py:100
 #: netbox/ipam/forms/model_forms.py:113 netbox/ipam/forms/model_forms.py:136
 #: netbox/ipam/forms/model_forms.py:155 netbox/ipam/models/asns.py:32
-#: netbox/ipam/models/asns.py:101 netbox/ipam/models/ip.py:72
+#: netbox/ipam/models/asns.py:132 netbox/ipam/models/ip.py:72
 #: netbox/ipam/models/ip.py:88 netbox/ipam/tables/asn.py:20
-#: netbox/ipam/tables/asn.py:45 netbox/templates/ipam/aggregate.html:18
+#: netbox/ipam/tables/asn.py:55 netbox/templates/ipam/aggregate.html:18
 #: netbox/templates/ipam/asn.html:27 netbox/templates/ipam/asnrange.html:19
 #: netbox/templates/ipam/rir.html:19
 msgid "RIR"
@@ -10834,16 +10834,16 @@ msgstr ""
 msgid "ASN ranges"
 msgstr ""
 
-#: netbox/ipam/models/asns.py:70
+#: netbox/ipam/models/asns.py:63
 #, python-brace-format
 msgid "Starting ASN ({start}) must be lower than ending ASN ({end})."
 msgstr ""
 
-#: netbox/ipam/models/asns.py:102
+#: netbox/ipam/models/asns.py:133
 msgid "Regional Internet Registry responsible for this AS number space"
 msgstr ""
 
-#: netbox/ipam/models/asns.py:107
+#: netbox/ipam/models/asns.py:138
 msgid "16- or 32-bit autonomous system number"
 msgstr ""
 
@@ -11261,15 +11261,23 @@ msgstr ""
 msgid "route targets"
 msgstr ""
 
-#: netbox/ipam/tables/asn.py:52
-msgid "ASDOT"
+#: netbox/ipam/tables/asn.py:26
+msgid "Start (ASDOT)"
 msgstr ""
 
-#: netbox/ipam/tables/asn.py:57
-msgid "Site Count"
+#: netbox/ipam/tables/asn.py:31
+msgid "End (ASDOT)"
 msgstr ""
 
 #: netbox/ipam/tables/asn.py:62
+msgid "ASDOT"
+msgstr ""
+
+#: netbox/ipam/tables/asn.py:67
+msgid "Site Count"
+msgstr ""
+
+#: netbox/ipam/tables/asn.py:72
 msgid "Provider Count"
 msgstr ""
 
@@ -12585,69 +12593,75 @@ msgstr ""
 msgid "Dummy Plugin"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:122
+#: netbox/netbox/views/generic/bulk_views.py:124
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
 "{error}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:388
+#: netbox/netbox/views/generic/bulk_views.py:390
 msgid "Must be a list."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:398
+#: netbox/netbox/views/generic/bulk_views.py:400
 msgid "Must be a dictionary."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:461
+#: netbox/netbox/views/generic/bulk_views.py:453
+#, python-brace-format
+msgid ""
+"Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
+msgstr ""
+
+#: netbox/netbox/views/generic/bulk_views.py:475
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:546
+#: netbox/netbox/views/generic/bulk_views.py:560
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:562
+#: netbox/netbox/views/generic/bulk_views.py:576
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:752
+#: netbox/netbox/views/generic/bulk_views.py:766
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:768
+#: netbox/netbox/views/generic/bulk_views.py:782
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:801
-#: netbox/netbox/views/generic/bulk_views.py:1036
-#: netbox/netbox/views/generic/bulk_views.py:1084
+#: netbox/netbox/views/generic/bulk_views.py:815
+#: netbox/netbox/views/generic/bulk_views.py:1050
+#: netbox/netbox/views/generic/bulk_views.py:1098
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:894
+#: netbox/netbox/views/generic/bulk_views.py:908
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:964
+#: netbox/netbox/views/generic/bulk_views.py:978
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:991
+#: netbox/netbox/views/generic/bulk_views.py:1005
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr ""
 
-#: netbox/netbox/views/generic/bulk_views.py:1008
+#: netbox/netbox/views/generic/bulk_views.py:1022
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr ""
 
