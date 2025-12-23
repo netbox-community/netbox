@@ -1,5 +1,31 @@
 # NetBox v4.4
 
+## v4.4.9 (2025-12-23)
+
+### Enhancements
+
+* [#20309](https://github.com/netbox-community/netbox/issues/20309) - Support ASDOT notation for ASN ranges
+* [#20720](https://github.com/netbox-community/netbox/issues/20720) - Add Latvian translations
+* [#20900](https://github.com/netbox-community/netbox/issues/20900) - Allow filtering custom choice fields by multiple values in the UI
+
+### Bug Fixes
+
+* [#17976](https://github.com/netbox-community/netbox/issues/17976) - Remove `devicetype_count` from nested manufacturer to correct OpenAPI schema
+* [#20011](https://github.com/netbox-community/netbox/issues/20011) - Provide a clear message when encountering duplicate object IDs during bulk import
+* [#20114](https://github.com/netbox-community/netbox/issues/20114) - Preserve `parent_bay` during device bulk import when tags are present
+* [#20491](https://github.com/netbox-community/netbox/issues/20491) - Improve handling of numeric ranges in tests
+* [#20873](https://github.com/netbox-community/netbox/issues/20873) - Fix `AttributeError` exception triggered by event rules associated with an object that supports file attachments
+* [#20875](https://github.com/netbox-community/netbox/issues/20875) - Ensure that parent object relations are cached (for filtering) on device/module components during instantiation
+* [#20876](https://github.com/netbox-community/netbox/issues/20876) - Allow editing an IP address that resides within a range marked as populated
+* [#20912](https://github.com/netbox-community/netbox/issues/20912) - Fix inconsistent clearing of `module` field on ModuleBay
+* [#20944](https://github.com/netbox-community/netbox/issues/20944) - Ensure cached scope is updated on child objects when a parent region/site/location is changed
+* [#20948](https://github.com/netbox-community/netbox/issues/20948) - Handle the deletion of related objects with `on_delete=RESTRICT` the same as `CASCADE`
+* [#20969](https://github.com/netbox-community/netbox/issues/20969) - Fix querying of front port templates by `rear_port_id`
+* [#21011](https://github.com/netbox-community/netbox/issues/21011) - Avoid writing to the database when loading active ConfigRevision
+* [#21032](https://github.com/netbox-community/netbox/issues/21032) - Avoid SQL subquery in RestrictedQuerySet where unnecessary
+
+---
+
 ## v4.4.8 (2025-12-09)
 
 ### Enhancements
