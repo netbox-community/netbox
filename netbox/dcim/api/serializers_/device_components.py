@@ -350,14 +350,14 @@ class ModuleBaySerializer(NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        fields=('id', 'url', 'display'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True,
         default=None
     )
     installed_module = ModuleSerializer(
         nested=True,
-        fields=('id', 'url', 'display', 'serial', 'description'),
+        fields=('id', 'url', 'display', 'device', 'module_bay', 'serial', 'description'),
         required=False,
         allow_null=True
     )
