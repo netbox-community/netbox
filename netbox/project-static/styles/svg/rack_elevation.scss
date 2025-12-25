@@ -18,7 +18,7 @@ svg {
 
   &[data-bs-theme='dark'] {
     // Dark mode values
-    --nbx-rack-bg: rgb(27, 41, 58);
+    --nbx-rack-bg: $rich-black-light;
     --nbx-rack-border: #{$gray-600};
     --nbx-rack-slot-bg: #{$gray-800};
     --nbx-rack-slot-border: #{$gray-700};
