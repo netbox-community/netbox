@@ -41,6 +41,19 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+    def run_validation(self, data=serializers.empty):
+        """
+        Override run_validation to skip field-level validation for nested serializers.
+        When nested=True, we only need to look up the object by ID/attrs, not validate
+        all required fields.
+        """
+        if self.nested:
+            # For nested serializers, skip field-level validation and go straight to
+            # to_internal_value which will look up the object by ID/attrs
+            return self.to_internal_value(data)
+
+        return super().run_validation(data)
+
     def to_internal_value(self, data):
 
         # If initialized as a nested serializer, we should expect to receive the attrs or PK
