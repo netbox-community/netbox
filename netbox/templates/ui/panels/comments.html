@@ -1,0 +1,12 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <div class="card-body">
+    {% if comments %}
+      {{ comments|markdown }}
+    {% else %}
+      <span class="text-muted">{% trans "None" %}</span>
+    {% endif %}
+  </div>
+{% endblock panel_content %}

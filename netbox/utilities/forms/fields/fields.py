@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.conf import settings
 from django.db.models import Count
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.templatetags.static import static
@@ -16,9 +17,18 @@ __all__ = (
     'JSONField',
     'LaxURLField',
     'MACAddressField',
+    'QueryField',
     'SlugField',
     'TagFilterField',
 )
+
+
+class QueryField(forms.CharField):
+    """
+    A CharField subclass used for global search/query fields in filter forms.
+    This field type signals to FilterModifierMixin to skip enhancement with lookup modifiers.
+    """
+    pass
 
 
 class CommentField(forms.CharField):
@@ -52,6 +62,14 @@ class SlugField(forms.SlugField):
 
         self.widget.attrs['slug-source'] = slug_source
 
+    def get_bound_field(self, form, field_name):
+        if prefix := form.prefix:
+            slug_source = self.widget.attrs.get('slug-source')
+            if slug_source and not slug_source.startswith(f'{prefix}-'):
+                self.widget.attrs['slug-source'] = f"{prefix}-{slug_source}"
+
+        return super().get_bound_field(form, field_name)
+
 
 class ColorField(forms.CharField):
     """
@@ -74,7 +92,8 @@ class TagFilterField(forms.MultipleChoiceField):
                 count=Count('extras_taggeditem_items')
             ).order_by('name')
             return [
-                (str(tag.slug), '{} ({})'.format(tag.name, tag.count)) for tag in tags
+                (settings.FILTERS_NULL_CHOICE_VALUE, settings.FILTERS_NULL_CHOICE_LABEL),  # "None" option
+                *[(str(tag.slug), f'{tag.name} ({tag.count})') for tag in tags]
             ]
 
         # Choices are fetched each time the form is initialized

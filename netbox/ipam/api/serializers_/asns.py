@@ -1,19 +1,21 @@
 from rest_framework import serializers
 
+from dcim.models import Site
 from ipam.models import ASN, ASNRange, RIR
-from netbox.api.fields import RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
+from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 __all__ = (
     'ASNRangeSerializer',
     'ASNSerializer',
+    'ASNSiteSerializer',
     'AvailableASNSerializer',
     'RIRSerializer',
 )
 
 
-class RIRSerializer(NetBoxModelSerializer):
+class RIRSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     aggregate_count = RelatedObjectCountField('aggregates')
@@ -21,13 +23,13 @@ class RIRSerializer(NetBoxModelSerializer):
     class Meta:
         model = RIR
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'is_private', 'description', 'tags',
-            'custom_fields', 'created', 'last_updated', 'aggregate_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'is_private', 'description', 'owner', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated', 'aggregate_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'aggregate_count')
 
 
-class ASNRangeSerializer(NetBoxModelSerializer):
+class ASNRangeSerializer(OrganizationalModelSerializer):
     rir = RIRSerializer(nested=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     asn_count = serializers.IntegerField(read_only=True)
@@ -36,14 +38,32 @@ class ASNRangeSerializer(NetBoxModelSerializer):
         model = ASNRange
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'rir', 'start', 'end', 'tenant', 'description',
-            'tags', 'custom_fields', 'created', 'last_updated', 'asn_count',
+            'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'asn_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
-class ASNSerializer(NetBoxModelSerializer):
+class ASNSiteSerializer(PrimaryModelSerializer):
+    """
+    This serializer is meant for inclusion in ASNSerializer and is only used
+    to avoid a circular import of SiteSerializer.
+    """
+    class Meta:
+        model = Site
+        fields = ('id', 'url', 'display', 'name', 'description', 'slug')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'slug')
+
+
+class ASNSerializer(PrimaryModelSerializer):
     rir = RIRSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    sites = SerializedPKRelatedField(
+        queryset=Site.objects.all(),
+        serializer=ASNSiteSerializer,
+        nested=True,
+        required=False,
+        many=True
+    )
 
     # Related object counts
     site_count = RelatedObjectCountField('sites')
@@ -52,8 +72,8 @@ class ASNSerializer(NetBoxModelSerializer):
     class Meta:
         model = ASN
         fields = [
-            'id', 'url', 'display_url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count',
+            'id', 'url', 'display_url', 'display', 'asn', 'rir', 'tenant', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count', 'sites',
         ]
         brief_fields = ('id', 'url', 'display', 'asn', 'description')
 

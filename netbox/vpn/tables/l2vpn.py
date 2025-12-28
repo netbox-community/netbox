@@ -1,8 +1,8 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from netbox.tables import NetBoxTable, PrimaryModelTable, columns
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
@@ -17,7 +17,7 @@ L2VPN_TARGETS = """
 """
 
 
-class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
+class L2VPNTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     pk = columns.ToggleColumn()
     name = tables.Column(
         verbose_name=_('Name'),
@@ -36,18 +36,15 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
         template_code=L2VPN_TARGETS,
         orderable=False
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:l2vpn_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = L2VPN
         fields = (
             'pk', 'name', 'slug', 'status', 'identifier', 'type', 'import_targets', 'export_targets', 'tenant',
-            'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'tenant_group', 'description', 'contacts', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'status', 'identifier', 'type', 'description')
 

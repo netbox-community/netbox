@@ -1,0 +1,7 @@
+{% load i18n %}
+<span{% if name %} id="attr_{{ name }}"{% endif %}{% if style %} class="{{ style }}"{% endif %}>{{ value }}</span>
+{% if copy_button %}
+  <a class="btn btn-sm btn-primary copy-content" data-clipboard-target="#attr_{{ name }}" title="{% trans "Copy to clipboard" %}">
+    <i class="mdi mdi-content-copy"></i>
+  </a>
+{% endif %}

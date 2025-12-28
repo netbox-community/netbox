@@ -10,9 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Interface, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
-from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
+from ipam.querysets import VLANGroupQuerySet, VLANQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
-from utilities.data import check_ranges_overlap, ranges_to_string
+from utilities.data import check_ranges_overlap, ranges_to_string, ranges_to_string_list
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -132,7 +132,8 @@ class VLANGroup(OrganizationalModel):
     def save(self, *args, **kwargs):
         self._total_vlan_ids = 0
         for vid_range in self.vid_ranges:
-            self._total_vlan_ids += vid_range.upper - vid_range.lower + 1
+            # VID range is inclusive on lower-bound, exclusive on upper-bound
+            self._total_vlan_ids += vid_range.upper - vid_range.lower
 
         super().save(*args, **kwargs)
 
@@ -165,7 +166,17 @@ class VLANGroup(OrganizationalModel):
         return VLAN.objects.filter(group=self).order_by('vid')
 
     @property
+    def vid_ranges_items(self):
+        """
+        Property that converts VID ranges to a list of string representations.
+        """
+        return ranges_to_string_list(self.vid_ranges)
+
+    @property
     def vid_ranges_list(self):
+        """
+        Property that converts VID ranges into a string representation.
+        """
         return ranges_to_string(self.vid_ranges)
 
 

@@ -1,8 +1,8 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import NestedGroupModelTable, NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.models import *
 from utilities.tables import linkify_phone
 
@@ -14,15 +14,7 @@ __all__ = (
 )
 
 
-class ContactGroupTable(NetBoxTable):
-    name = columns.MPTTColumn(
-        verbose_name=_('Name'),
-        linkify=True
-    )
-    parent = tables.Column(
-        verbose_name=_('Parent'),
-        linkify=True,
-    )
+class ContactGroupTable(NestedGroupModelTable):
     contact_count = columns.LinkedCountColumn(
         viewname='tenancy:contact_list',
         url_params={'group_id': 'pk'},
@@ -31,11 +23,8 @@ class ContactGroupTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='tenancy:contactgroup_list'
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(NestedGroupModelTable.Meta):
         model = ContactGroup
         fields = (
             'pk', 'name', 'parent', 'contact_count', 'description', 'comments', 'slug', 'tags', 'created',
@@ -44,7 +33,7 @@ class ContactGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'contact_count', 'description')
 
 
-class ContactRoleTable(NetBoxTable):
+class ContactRoleTable(OrganizationalModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -53,13 +42,13 @@ class ContactRoleTable(NetBoxTable):
         url_name='tenancy:contactrole_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(OrganizationalModelTable.Meta):
         model = ContactRole
-        fields = ('pk', 'name', 'description', 'slug', 'tags', 'created', 'last_updated', 'actions')
+        fields = ('pk', 'name', 'description', 'comments', 'slug', 'tags', 'created', 'last_updated', 'actions')
         default_columns = ('pk', 'name', 'description')
 
 
-class ContactTable(NetBoxTable):
+class ContactTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -72,9 +61,6 @@ class ContactTable(NetBoxTable):
         verbose_name=_('Phone'),
         linkify=linkify_phone,
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     assignment_count = columns.LinkedCountColumn(
         viewname='tenancy:contactassignment_list',
         url_params={'contact_id': 'pk'},
@@ -84,7 +70,7 @@ class ContactTable(NetBoxTable):
         url_name='tenancy:contact_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Contact
         fields = (
             'pk', 'name', 'groups', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments',
@@ -110,10 +96,10 @@ class ContactAssignmentTable(NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
-    contact_group = tables.Column(
-        accessor=Accessor('contact__group'),
-        verbose_name=_('Group'),
-        linkify=True
+    contact_groups = columns.ManyToManyColumn(
+        accessor=Accessor('contact__groups'),
+        verbose_name=_('Groups'),
+        linkify_item=('tenancy:contactgroup', {'pk': tables.A('pk')})
     )
     contact_title = tables.Column(
         accessor=Accessor('contact__title'),
@@ -152,7 +138,7 @@ class ContactAssignmentTable(NetBoxTable):
         model = ContactAssignment
         fields = (
             'pk', 'object_type', 'object', 'contact', 'role', 'priority', 'contact_title', 'contact_phone',
-            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'contact_group', 'tags',
+            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'contact_groups', 'tags',
             'actions'
         )
         default_columns = (

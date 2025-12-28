@@ -1,6 +1,7 @@
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -11,8 +12,11 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
+from dcim.models.base import PortMappingBase
+from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -33,13 +37,14 @@ __all__ = (
     'InventoryItemRole',
     'ModuleBay',
     'PathEndpoint',
+    'PortMapping',
     'PowerOutlet',
     'PowerPort',
     'RearPort',
 )
 
 
-class ComponentModel(NetBoxModel):
+class ComponentModel(OwnerMixin, NetBoxModel):
     """
     An abstract model inherited by any model which has a parent Device.
     """
@@ -173,6 +178,24 @@ class CabledObjectModel(models.Model):
         blank=True,
         null=True
     )
+    cable_connector = models.PositiveSmallIntegerField(
+        blank=True,
+        null=True,
+        validators=(
+            MinValueValidator(CABLE_CONNECTOR_MIN),
+            MaxValueValidator(CABLE_CONNECTOR_MAX)
+        ),
+    )
+    cable_positions = ArrayField(
+        base_field=models.PositiveSmallIntegerField(
+            validators=(
+                MinValueValidator(CABLE_POSITION_MIN),
+                MaxValueValidator(CABLE_POSITION_MAX)
+            )
+        ),
+        blank=True,
+        null=True,
+    )
     mark_connected = models.BooleanField(
         verbose_name=_('mark connected'),
         default=False,
@@ -192,18 +215,36 @@ class CabledObjectModel(models.Model):
     def clean(self):
         super().clean()
 
-        if self.cable and not self.cable_end:
-            raise ValidationError({
-                "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
-            })
-        if self.cable_end and not self.cable:
-            raise ValidationError({
-                "cable_end": _("Cable end must not be set without a cable.")
-            })
-        if self.mark_connected and self.cable:
-            raise ValidationError({
-                "mark_connected": _("Cannot mark as connected with a cable attached.")
-            })
+        if self.cable:
+            if not self.cable_end:
+                raise ValidationError({
+                    "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
+                })
+            if self.cable_connector and not self.cable_positions:
+                raise ValidationError({
+                    "cable_positions": _("Must specify position(s) when specifying a cable connector.")
+                })
+            if self.cable_positions and not self.cable_connector:
+                raise ValidationError({
+                    "cable_positions": _("Cable positions cannot be set without a cable connector.")
+                })
+            if self.mark_connected:
+                raise ValidationError({
+                    "mark_connected": _("Cannot mark as connected with a cable attached.")
+                })
+        else:
+            if self.cable_end:
+                raise ValidationError({
+                    "cable_end": _("Cable end must not be set without a cable.")
+                })
+            if self.cable_connector:
+                raise ValidationError({
+                    "cable_connector": _("Cable connector must not be set without a cable.")
+                })
+            if self.cable_positions:
+                raise ValidationError({
+                    "cable_positions": _("Cable termination positions must not be set without a cable.")
+                })
 
     @property
     def link(self):
@@ -237,6 +278,22 @@ class CabledObjectModel(models.Model):
         if not self.cable_end:
             return None
         return CableEndChoices.SIDE_A if self.cable_end == CableEndChoices.SIDE_B else CableEndChoices.SIDE_B
+
+    def set_cable_termination(self, termination):
+        """Save attributes from the given CableTermination on the terminating object."""
+        self.cable = termination.cable
+        self.cable_end = termination.cable_end
+        self.cable_connector = termination.connector
+        self.cable_positions = termination.positions
+    set_cable_termination.alters_data = True
+
+    def clear_cable_termination(self, termination):
+        """Clear all cable termination attributes from the terminating object."""
+        self.cable = None
+        self.cable_end = None
+        self.cable_connector = None
+        self.cable_positions = None
+    clear_cable_termination.alters_data = True
 
 
 class PathEndpoint(models.Model):
@@ -632,10 +689,17 @@ class BaseInterface(models.Model):
             })
 
         # Check that the primary MAC address (if any) is assigned to this interface
-        if self.primary_mac_address and self.primary_mac_address.assigned_object != self:
+        if (
+                self.primary_mac_address and
+                self.primary_mac_address.assigned_object is not None and
+                self.primary_mac_address.assigned_object != self
+        ):
             raise ValidationError({
-                'primary_mac_address': _("MAC address {mac_address} is not assigned to this interface.").format(
-                    mac_address=self.primary_mac_address
+                'primary_mac_address': _(
+                    "MAC address {mac_address} is assigned to a different interface ({interface})."
+                ).format(
+                    mac_address=self.primary_mac_address,
+                    interface=self.primary_mac_address.assigned_object,
                 )
             })
 
@@ -669,7 +733,14 @@ class BaseInterface(models.Model):
             return self.primary_mac_address.mac_address
 
 
-class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+class Interface(
+    InterfaceValidationMixin,
+    ModularComponentModel,
+    BaseInterface,
+    CabledObjectModel,
+    PathEndpoint,
+    TrackingModelMixin,
+):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
@@ -872,25 +943,21 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                         "The selected parent interface ({interface}) belongs to a different device ({device})"
                     ).format(interface=self.parent, device=self.parent.device)
                 })
-            elif self.parent.device.virtual_chassis != self.parent.virtual_chassis:
+            elif self.parent.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
                     'parent': _(
                         "The selected parent interface ({interface}) belongs to {device}, which is not part of "
                         "virtual chassis {virtual_chassis}."
                     ).format(
                         interface=self.parent,
-                        device=self.parent_device,
+                        device=self.parent.device,
                         virtual_chassis=self.device.virtual_chassis
                     )
                 })
 
         # Bridge validation
 
-        # An interface cannot be bridged to itself
-        if self.pk and self.bridge_id == self.pk:
-            raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
-
-        # A bridged interface belong to the same device or virtual chassis
+        # A bridged interface belongs to the same device or virtual chassis
         if self.bridge and self.bridge.device != self.device:
             if self.device.virtual_chassis is None:
                 raise ValidationError({
@@ -935,29 +1002,9 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
                     )
                 })
 
-        # PoE validation
-
-        # Only physical interfaces may have a PoE mode/type assigned
-        if self.poe_mode and self.is_virtual:
-            raise ValidationError({
-                'poe_mode': _("Virtual interfaces cannot have a PoE mode.")
-            })
-        if self.poe_type and self.is_virtual:
-            raise ValidationError({
-                'poe_type': _("Virtual interfaces cannot have a PoE type.")
-            })
-
-        # An interface with a PoE type set must also specify a mode
-        if self.poe_type and not self.poe_mode:
-            raise ValidationError({
-                'poe_type': _("Must specify PoE mode when designating a PoE type.")
-            })
-
         # Wireless validation
 
-        # RF role & channel may only be set for wireless interfaces
-        if self.rf_role and not self.is_wireless:
-            raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
+        # RF channel may only be set for wireless interfaces
         if self.rf_channel and not self.is_wireless:
             raise ValidationError({'rf_channel': _("Channel may be set only on wireless interfaces.")})
 
@@ -1059,6 +1106,43 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
 # Pass-through ports
 #
 
+class PortMapping(PortMappingBase):
+    """
+    Maps a FrontPort & position to a RearPort & position.
+    """
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='port_mappings',
+    )
+    front_port = models.ForeignKey(
+        to='dcim.FrontPort',
+        on_delete=models.CASCADE,
+        related_name='mappings',
+    )
+    rear_port = models.ForeignKey(
+        to='dcim.RearPort',
+        on_delete=models.CASCADE,
+        related_name='mappings',
+    )
+
+    def clean(self):
+        super().clean()
+
+        # Both ports must belong to the same device
+        if self.front_port.device_id != self.rear_port.device_id:
+            raise ValidationError({
+                "rear_port": _("Rear port ({rear_port}) must belong to the same device").format(
+                    rear_port=self.rear_port
+                )
+            })
+
+    def save(self, *args, **kwargs):
+        # Associate the mapping with the parent Device
+        self.device = self.front_port.device
+        super().save(*args, **kwargs)
+
+
 class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
     A pass-through port on the front of a Device.
@@ -1072,32 +1156,22 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name=_('color'),
         blank=True
     )
-    rear_port = models.ForeignKey(
-        to='dcim.RearPort',
-        on_delete=models.CASCADE,
-        related_name='frontports'
-    )
-    rear_port_position = models.PositiveSmallIntegerField(
-        verbose_name=_('rear port position'),
+    positions = models.PositiveSmallIntegerField(
+        verbose_name=_('positions'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
         ],
-        help_text=_('Mapped position on corresponding rear port')
     )
 
-    clone_fields = ('device', 'type', 'color')
+    clone_fields = ('device', 'type', 'color', 'positions')
 
     class Meta(ModularComponentModel.Meta):
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'name'),
                 name='%(app_label)s_%(class)s_unique_device_name'
-            ),
-            models.UniqueConstraint(
-                fields=('rear_port', 'rear_port_position'),
-                name='%(app_label)s_%(class)s_unique_rear_port_position'
             ),
         )
         verbose_name = _('front port')
@@ -1106,27 +1180,14 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     def clean(self):
         super().clean()
 
-        if hasattr(self, 'rear_port'):
-
-            # Validate rear port assignment
-            if self.rear_port.device != self.device:
+        # Check that positions is greater than or equal to the number of associated RearPorts
+        if not self._state.adding:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
                 raise ValidationError({
-                    "rear_port": _(
-                        "Rear port ({rear_port}) must belong to the same device"
-                    ).format(rear_port=self.rear_port)
-                })
-
-            # Validate rear port position assignment
-            if self.rear_port_position > self.rear_port.positions:
-                raise ValidationError({
-                    "rear_port_position": _(
-                        "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
-                        "positions."
-                    ).format(
-                        rear_port_position=self.rear_port_position,
-                        name=self.rear_port.name,
-                        positions=self.rear_port.positions
-                    )
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped rear ports ({count})"
+                    ).format(count=mapping_count)
                 })
 
 
@@ -1147,11 +1208,11 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
         verbose_name=_('positions'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
         ],
-        help_text=_('Number of front ports which may be mapped')
     )
+
     clone_fields = ('device', 'type', 'color', 'positions')
 
     class Meta(ModularComponentModel.Meta):
@@ -1163,13 +1224,13 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 
         # Check that positions count is greater than or equal to the number of associated FrontPorts
         if not self._state.adding:
-            frontport_count = self.frontports.count()
-            if self.positions < frontport_count:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
                 raise ValidationError({
                     "positions": _(
                         "The number of positions cannot be less than the number of mapped front ports "
-                        "({frontport_count})"
-                    ).format(frontport_count=frontport_count)
+                        "({count})"
+                    ).format(count=mapping_count)
                 })
 
 

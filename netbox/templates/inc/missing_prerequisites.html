@@ -1,16 +1,14 @@
 {% load buttons %}
 {% load i18n %}
 
-<div class="alert alert-warning" role="alert">
-  <div class="d-flex justify-content-between">
-    <div>
-      <i class="mdi mdi-alert p-2"></i>
-      {% blocktrans trimmed with model=model|meta:"verbose_name" prerequisite_model=prerequisite_model|meta:"verbose_name" %}
-        Before you can add a {{ model }} you must first create a <strong>{{ prerequisite_model }}</strong>.
-      {% endblocktrans %}
-    </div>
-    <div>
-      {% add_button prerequisite_model request.path %}
-    </div>
-  </div>
+<div class="alert alert-warning d-flex align-items-center" role="alert">
+  <span class="text-warning fs-1">
+    <i class="mdi mdi-alert"></i>
+  </span>
+  <span class="flex-fill">
+  {% blocktrans trimmed with model=model|meta:"verbose_name" prerequisite_model=prerequisite_model|meta:"verbose_name" %}
+    Before you can add a {{ model }} you must first create a <strong>{{ prerequisite_model }}</strong>.
+  {% endblocktrans %}
+  </span>
+  {% add_button prerequisite_model return_url=request.path %}
 </div>

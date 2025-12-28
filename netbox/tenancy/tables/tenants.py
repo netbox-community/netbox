@@ -1,9 +1,9 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
+
+from netbox.tables import NestedGroupModelTable, PrimaryModelTable, columns
 from tenancy.models import *
 from tenancy.tables import ContactsColumnMixin
-
-from netbox.tables import NetBoxTable, columns
 
 __all__ = (
     'TenantGroupTable',
@@ -11,15 +11,7 @@ __all__ = (
 )
 
 
-class TenantGroupTable(NetBoxTable):
-    name = columns.MPTTColumn(
-        verbose_name=_('Name'),
-        linkify=True
-    )
-    parent = tables.Column(
-        verbose_name=_('Parent'),
-        linkify=True,
-    )
+class TenantGroupTable(NestedGroupModelTable):
     tenant_count = columns.LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group_id': 'pk'},
@@ -28,11 +20,8 @@ class TenantGroupTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='tenancy:tenantgroup_list'
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(NestedGroupModelTable.Meta):
         model = TenantGroup
         fields = (
             'pk', 'id', 'name', 'parent', 'tenant_count', 'description', 'comments', 'slug', 'tags', 'created',
@@ -41,7 +30,7 @@ class TenantGroupTable(NetBoxTable):
         default_columns = ('pk', 'name', 'tenant_count', 'description')
 
 
-class TenantTable(ContactsColumnMixin, NetBoxTable):
+class TenantTable(ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -50,14 +39,11 @@ class TenantTable(ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Group'),
         linkify=True
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='tenancy:tenant_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Tenant
         fields = (
             'pk', 'id', 'name', 'slug', 'group', 'description', 'comments', 'contacts', 'tags', 'created',

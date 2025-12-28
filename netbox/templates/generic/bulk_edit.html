@@ -58,6 +58,16 @@ Context:
             {% render_fieldset form fieldset %}
           {% endfor %}
 
+          {# Render owner field (if defined) #}
+          {% if form.owner %}
+            <div class="field-group mb-5">
+              <div class="row">
+                <h2 class="col-9 offset-3">{% trans "Owner" %}</h2>
+              </div>
+              {% render_field form.owner bulk_nullable=True %}
+            </div>
+          {% endif %}
+
           {# Render tag add/remove fields #}
           {% if form.add_tags and form.remove_tags %}
             <div class="field-group mb-5">

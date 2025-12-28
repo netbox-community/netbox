@@ -1,4 +1,4 @@
-from django.test import Client, TestCase, override_settings
+from django.test import Client, TestCase, override_settings, tag
 from django.urls import reverse
 from drf_spectacular.drainage import GENERATOR_STATS
 from rest_framework import status
@@ -9,6 +9,7 @@ from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
 from netbox.config import get_config
+from utilities.api import get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -149,14 +150,13 @@ class APIPaginationTestCase(APITestCase):
     def test_default_page_size_with_small_max_page_size(self):
         response = self.client.get(self.url, format='json', **self.header)
         page_size = get_config().MAX_PAGE_SIZE
-        paginate_count = get_config().PAGINATE_COUNT
         self.assertLess(page_size, 100, "Default page size not sufficient for data set")
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 100)
-        self.assertTrue(response.data['next'].endswith(f'?limit={paginate_count}&offset={paginate_count}'))
+        self.assertTrue(response.data['next'].endswith(f'?limit={page_size}&offset={page_size}'))
         self.assertIsNone(response.data['previous'])
-        self.assertEqual(len(response.data['results']), paginate_count)
+        self.assertEqual(len(response.data['results']), page_size)
 
     def test_custom_page_size(self):
         response = self.client.get(f'{self.url}?limit=10', format='json', **self.header)
@@ -268,3 +268,19 @@ class APIDocsTestCase(TestCase):
         with GENERATOR_STATS.silence():  # Suppress schema generator warnings
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+
+class GetViewNameTestCase(TestCase):
+
+    @tag('regression')
+    def test_get_view_name_with_none_queryset(self):
+        from rest_framework.viewsets import ReadOnlyModelViewSet
+
+        class MockViewSet(ReadOnlyModelViewSet):
+            queryset = None
+
+        view = MockViewSet()
+        view.suffix = 'List'
+
+        name = get_view_name(view)
+        self.assertEqual(name, 'Mock List')

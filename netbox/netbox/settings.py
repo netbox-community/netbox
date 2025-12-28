@@ -11,6 +11,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from rest_framework.utils import field_mapping
 
 from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
@@ -19,7 +20,19 @@ from netbox.plugins import PluginConfig
 from netbox.registry import registry
 import storages.utils  # type: ignore
 from utilities.release import load_release_data
+from utilities.security import validate_peppers
 from utilities.string import trailing_slash
+from .monkey import get_unique_validators
+
+
+#
+# Monkey-patching
+#
+
+# TODO: Remove this once #20547 has been implemented
+# Override DRF's get_unique_validators() function with our own (see bug #19302)
+field_mapping.get_unique_validators = get_unique_validators
+
 
 #
 # Environment setup
@@ -63,8 +76,8 @@ elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
+API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -84,6 +97,7 @@ CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIS
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 CSRF_COOKIE_NAME = getattr(configuration, 'CSRF_COOKIE_NAME', 'csrftoken')
 CSRF_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
+CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
@@ -123,6 +137,7 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GRAPHQL_DEFAULT_VERSION = getattr(configuration, 'GRAPHQL_DEFAULT_VERSION', 1)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
@@ -173,11 +188,16 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = getattr(configuration, 'SECURE_HSTS_INCLUDE_SUB
 SECURE_HSTS_PRELOAD = getattr(configuration, 'SECURE_HSTS_PRELOAD', False)
 SECURE_HSTS_SECONDS = getattr(configuration, 'SECURE_HSTS_SECONDS', 0)
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
+SENTRY_CONFIG = getattr(configuration, 'SENTRY_CONFIG', {})
+# TODO: Remove in NetBox v4.5
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
+# TODO: Remove in NetBox v4.5
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
+# TODO: Remove in NetBox v4.5
 SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
+# TODO: Remove in NetBox v4.5
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -208,6 +228,12 @@ if len(SECRET_KEY) < 50:
         f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
         f"  python {BASE_DIR}/generate_secret_key.py"
     )
+
+# Validate API token peppers
+if API_TOKEN_PEPPERS:
+    validate_peppers(API_TOKEN_PEPPERS)
+else:
+    warnings.warn("API_TOKEN_PEPPERS is not defined. v2 API tokens cannot be used.")
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
@@ -271,6 +297,9 @@ DEFAULT_STORAGES = {
     },
     "scripts": {
         "BACKEND": "extras.storage.ScriptFileSystemStorage",
+        "OPTIONS": {
+            "allow_overwrite": True,
+        },
     },
 }
 STORAGES = DEFAULT_STORAGES | STORAGES
@@ -596,18 +625,29 @@ if SENTRY_ENABLED:
         import sentry_sdk
     except ModuleNotFoundError:
         raise ImproperlyConfigured("SENTRY_ENABLED is True but the sentry-sdk package is not installed.")
-    if not SENTRY_DSN:
-        raise ImproperlyConfigured("SENTRY_ENABLED is True but SENTRY_DSN has not been defined.")
+
+    # Construct default Sentry initialization parameters from legacy SENTRY_* config parameters
+    sentry_config = {
+        'dsn': SENTRY_DSN,
+        'sample_rate': SENTRY_SAMPLE_RATE,
+        'send_default_pii': SENTRY_SEND_DEFAULT_PII,
+        'traces_sample_rate': SENTRY_TRACES_SAMPLE_RATE,
+        # TODO: Support proxy routing
+        'http_proxy': HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
+        'https_proxy': HTTP_PROXIES.get('https') if HTTP_PROXIES else None,
+    }
+    # Override/extend the default parameters with any provided via SENTRY_CONFIG
+    sentry_config.update(SENTRY_CONFIG)
+    # Check for a DSN
+    if not sentry_config.get('dsn'):
+        raise ImproperlyConfigured(
+            "Sentry is enabled but a DSN has not been specified. Set one under the SENTRY_CONFIG parameter."
+        )
+
     # Initialize the SDK
     sentry_sdk.init(
-        dsn=SENTRY_DSN,
         release=RELEASE.full_version,
-        sample_rate=SENTRY_SAMPLE_RATE,
-        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=SENTRY_SEND_DEFAULT_PII,
-        # TODO: Support proxy routing
-        http_proxy=HTTP_PROXIES.get('http') if HTTP_PROXIES else None,
-        https_proxy=HTTP_PROXIES.get('https') if HTTP_PROXIES else None
+        **sentry_config
     )
     # Assign any configured tags
     for k, v in SENTRY_TAGS.items():
@@ -621,6 +661,13 @@ if SENTRY_ENABLED:
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
+
+
+#
+# NetBox Copilot
+#
+
+NETBOX_COPILOT_URL = 'https://static.copilot.netboxlabs.ai/load.js'
 
 
 #

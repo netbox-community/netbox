@@ -1,6 +1,5 @@
 import logging
 from collections import defaultdict
-from copy import deepcopy
 
 from django.contrib import messages
 from django.db import router, transaction
@@ -14,9 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
-from netbox.object_actions import (
-    AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, CloneObject, DeleteObject, EditObject,
-)
+from netbox.object_actions import BulkDelete, BulkEdit, CloneObject, DeleteObject, EditObject
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import DeleteForm, restrict_form_fields
@@ -46,9 +43,11 @@ class ObjectView(ActionsMixin, BaseObjectView):
     Note: If `template_name` is not specified, it will be determined automatically based on the queryset model.
 
     Attributes:
+        layout: An instance of `netbox.ui.layout.Layout` which defines the page layout (overrides HTML template)
         tab: A ViewTab instance for the view
         actions: An iterable of ObjectAction subclasses (see ActionsMixin)
     """
+    layout = None
     tab = None
     actions = (CloneObject, EditObject, DeleteObject)
 
@@ -83,6 +82,7 @@ class ObjectView(ActionsMixin, BaseObjectView):
             'object': instance,
             'actions': actions,
             'tab': self.tab,
+            'layout': self.layout,
             **self.get_extra_context(request, instance),
         })
 
@@ -103,7 +103,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     table = None
     filterset = None
     filterset_form = None
-    actions = (AddObject, BulkImport, BulkEdit, BulkExport, BulkDelete)
+    actions = (CloneObject, EditObject, DeleteObject, BulkEdit, BulkDelete)
     template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):
@@ -240,7 +240,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         model = self.queryset.model
 
         initial_data = normalize_querydict(request.GET)
-        form = self.form(instance=obj, initial=initial_data)
+        form_prefix = 'quickadd' if request.GET.get('_quickadd') else None
+        form = self.form(instance=obj, initial=initial_data, prefix=form_prefix)
         restrict_form_fields(form, request.user)
 
         context = {
@@ -282,7 +283,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
 
         obj = self.alter_object(obj, request, args, kwargs)
 
-        form = self.form(data=request.POST, files=request.FILES, instance=obj)
+        form_prefix = 'quickadd' if request.GET.get('_quickadd') else None
+        form = self.form(data=request.POST, files=request.FILES, instance=obj, prefix=form_prefix)
         restrict_form_fields(form, request.user)
 
         if form.is_valid():
@@ -559,8 +561,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         form.instance._replicated_base = hasattr(self.form, "replication_fields")
 
         if form.is_valid():
+            changelog_message = form.cleaned_data.pop('changelog_message', '')
             new_components = []
-            data = deepcopy(request.POST)
+            data = request.POST.copy()
             pattern_count = len(form.cleaned_data[self.form.replication_fields[0]])
 
             for i in range(pattern_count):
@@ -569,7 +572,8 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         data[field_name] = form.cleaned_data[field_name][i]
 
                 if hasattr(form, 'get_iterative_data'):
-                    data.update(form.get_iterative_data(i))
+                    for k, v in form.get_iterative_data(i).items():
+                        data.setlist(k, v)
 
                 component_form = self.model_form(data)
 
@@ -585,6 +589,9 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         # Create the new components
                         new_objs = []
                         for component_form in new_components:
+                            # Record changelog message (if any)
+                            if changelog_message:
+                                component_form.instance._changelog_message = changelog_message
                             obj = component_form.save()
                             new_objs.append(obj)
 

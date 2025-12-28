@@ -7,6 +7,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.models.base import PortMappingBase
+from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -27,6 +29,7 @@ __all__ = (
     'InterfaceTemplate',
     'InventoryItemTemplate',
     'ModuleBayTemplate',
+    'PortTemplateMapping',
     'PowerOutletTemplate',
     'PowerPortTemplate',
     'RearPortTemplate',
@@ -338,6 +341,10 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         blank=True,
         null=True
     )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
+    )
     power_port = models.ForeignKey(
         to='dcim.PowerPortTemplate',
         on_delete=models.SET_NULL,
@@ -388,6 +395,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
+            color=self.color,
             power_port=power_port,
             feed_leg=self.feed_leg,
             **kwargs
@@ -398,6 +406,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         return {
             'name': self.name,
             'type': self.type,
+            'color': self.color,
             'power_port': self.power_port.name if self.power_port else None,
             'feed_leg': self.feed_leg,
             'label': self.label,
@@ -405,7 +414,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         }
 
 
-class InterfaceTemplate(ModularComponentTemplateModel):
+class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel):
     """
     A template for a physical data interface on a new Device.
     """
@@ -469,8 +478,6 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         super().clean()
 
         if self.bridge:
-            if self.pk and self.bridge_id == self.pk:
-                raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
             if self.device_type and self.device_type != self.bridge.device_type:
                 raise ValidationError({
                     'bridge': _(
@@ -483,11 +490,6 @@ class InterfaceTemplate(ModularComponentTemplateModel):
                         "Bridge interface ({bridge}) must belong to the same module type"
                     ).format(bridge=self.bridge)
                 })
-
-        if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
-            raise ValidationError({
-                'rf_role': "Wireless role may be set only on wireless interfaces."
-            })
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -518,6 +520,53 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         }
 
 
+class PortTemplateMapping(PortMappingBase):
+    """
+    Maps a FrontPortTemplate & position to a RearPortTemplate & position.
+    """
+    device_type = models.ForeignKey(
+        to='dcim.DeviceType',
+        on_delete=models.CASCADE,
+        related_name='port_mappings',
+        blank=True,
+        null=True,
+    )
+    module_type = models.ForeignKey(
+        to='dcim.ModuleType',
+        on_delete=models.CASCADE,
+        related_name='port_mappings',
+        blank=True,
+        null=True,
+    )
+    front_port = models.ForeignKey(
+        to='dcim.FrontPortTemplate',
+        on_delete=models.CASCADE,
+        related_name='mappings',
+    )
+    rear_port = models.ForeignKey(
+        to='dcim.RearPortTemplate',
+        on_delete=models.CASCADE,
+        related_name='mappings',
+    )
+
+    def clean(self):
+        super().clean()
+
+        # Validate rear port assignment
+        if self.front_port.device_type_id != self.rear_port.device_type_id:
+            raise ValidationError({
+                "rear_port": _("Rear port ({rear_port}) must belong to the same device type").format(
+                    rear_port=self.rear_port
+                )
+            })
+
+    def save(self, *args, **kwargs):
+        # Associate the mapping with the parent DeviceType/ModuleType
+        self.device_type = self.front_port.device_type
+        self.module_type = self.front_port.module_type
+        super().save(*args, **kwargs)
+
+
 class FrontPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
@@ -531,18 +580,13 @@ class FrontPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('color'),
         blank=True
     )
-    rear_port = models.ForeignKey(
-        to='dcim.RearPortTemplate',
-        on_delete=models.CASCADE,
-        related_name='frontport_templates'
-    )
-    rear_port_position = models.PositiveSmallIntegerField(
-        verbose_name=_('rear port position'),
+    positions = models.PositiveSmallIntegerField(
+        verbose_name=_('positions'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
-        ]
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
+        ],
     )
 
     component_model = FrontPort
@@ -557,10 +601,6 @@ class FrontPortTemplate(ModularComponentTemplateModel):
                 fields=('module_type', 'name'),
                 name='%(app_label)s_%(class)s_unique_module_type_name'
             ),
-            models.UniqueConstraint(
-                fields=('rear_port', 'rear_port_position'),
-                name='%(app_label)s_%(class)s_unique_rear_port_position'
-            ),
         )
         verbose_name = _('front port template')
         verbose_name_plural = _('front port templates')
@@ -568,40 +608,23 @@ class FrontPortTemplate(ModularComponentTemplateModel):
     def clean(self):
         super().clean()
 
-        try:
-
-            # Validate rear port assignment
-            if self.rear_port.device_type != self.device_type:
-                raise ValidationError(
-                    _("Rear port ({name}) must belong to the same device type").format(name=self.rear_port)
-                )
-
-            # Validate rear port position assignment
-            if self.rear_port_position > self.rear_port.positions:
-                raise ValidationError(
-                    _("Invalid rear port position ({position}); rear port {name} has only {count} positions").format(
-                        position=self.rear_port_position,
-                        name=self.rear_port.name,
-                        count=self.rear_port.positions
-                    )
-                )
-
-        except RearPortTemplate.DoesNotExist:
-            pass
+        # Check that positions is greater than or equal to the number of associated RearPortTemplates
+        if not self._state.adding:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
+                raise ValidationError({
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped rear port templates ({count})"
+                    ).format(count=mapping_count)
+                })
 
     def instantiate(self, **kwargs):
-        if self.rear_port:
-            rear_port_name = self.rear_port.resolve_name(kwargs.get('module'))
-            rear_port = RearPort.objects.get(name=rear_port_name, **kwargs)
-        else:
-            rear_port = None
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
             type=self.type,
             color=self.color,
-            rear_port=rear_port,
-            rear_port_position=self.rear_port_position,
+            positions=self.positions,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -611,8 +634,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             'name': self.name,
             'type': self.type,
             'color': self.color,
-            'rear_port': self.rear_port.name,
-            'rear_port_position': self.rear_port_position,
+            'positions': self.positions,
             'label': self.label,
             'description': self.description,
         }
@@ -635,9 +657,9 @@ class RearPortTemplate(ModularComponentTemplateModel):
         verbose_name=_('positions'),
         default=1,
         validators=[
-            MinValueValidator(REARPORT_POSITIONS_MIN),
-            MaxValueValidator(REARPORT_POSITIONS_MAX)
-        ]
+            MinValueValidator(PORT_POSITION_MIN),
+            MaxValueValidator(PORT_POSITION_MAX)
+        ],
     )
 
     component_model = RearPort
@@ -645,6 +667,20 @@ class RearPortTemplate(ModularComponentTemplateModel):
     class Meta(ModularComponentTemplateModel.Meta):
         verbose_name = _('rear port template')
         verbose_name_plural = _('rear port templates')
+
+    def clean(self):
+        super().clean()
+
+        # Check that positions is greater than or equal to the number of associated FrontPortTemplates
+        if not self._state.adding:
+            mapping_count = self.mappings.count()
+            if self.positions < mapping_count:
+                raise ValidationError({
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped front port templates "
+                        "({count})"
+                    ).format(count=mapping_count)
+                })
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -687,8 +723,8 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.name,
-            label=self.label,
+            name=self.resolve_name(kwargs.get('module')),
+            label=self.resolve_label(kwargs.get('module')),
             position=self.position,
             **kwargs
         )

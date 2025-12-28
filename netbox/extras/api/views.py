@@ -16,7 +16,7 @@ from rq import Worker
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
@@ -238,13 +238,22 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
     serializer_class = serializers.ConfigTemplateSerializer
     filterset_class = filtersets.ConfigTemplateFilterSet
 
+    def get_permissions(self):
+        # For render action, check only token write ability (not model permissions)
+        if self.action == 'render':
+            return [TokenWritePermission()]
+        return super().get_permissions()
+
     @action(detail=True, methods=['post'], renderer_classes=[JSONRenderer, TextRenderer])
     def render(self, request, pk):
         """
         Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
         return the raw rendered content, rather than serialized JSON.
         """
+        # Override restrict() on the default queryset to enforce the render & view actions
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'render').restrict(request.user, 'view')
         configtemplate = self.get_object()
+
         context = request.data
 
         return self.render_configtemplate(request, configtemplate, context)
@@ -266,6 +275,14 @@ class ScriptViewSet(ModelViewSet):
 
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+
+        # Restrict the view's QuerySet to allow only the permitted objects
+        if request.user.is_authenticated:
+            action = 'run' if request.method == 'POST' else 'view'
+            self.queryset = self.queryset.restrict(request.user, action)
 
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
@@ -290,10 +307,12 @@ class ScriptViewSet(ModelViewSet):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
-        if not request.user.has_perm('extras.run_script'):
-            raise PermissionDenied("This user does not have permission to run scripts.")
 
         script = self._get_script(pk)
+
+        if not request.user.has_perm('extras.run_script', obj=script):
+            raise PermissionDenied("This user does not have permission to run this script.")
+
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
             context={'script': script}

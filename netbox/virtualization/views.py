@@ -80,6 +80,7 @@ class ClusterTypeBulkEditView(generic.BulkEditView):
 @register_model_view(ClusterType, 'bulk_rename', path='rename', detail=False)
 class ClusterTypeBulkRenameView(generic.BulkRenameView):
     queryset = ClusterType.objects.all()
+    filterset = filtersets.ClusterTypeFilterSet
 
 
 @register_model_view(ClusterType, 'bulk_delete', path='delete', detail=False)
@@ -158,6 +159,7 @@ class ClusterGroupBulkEditView(generic.BulkEditView):
 @register_model_view(ClusterGroup, 'bulk_rename', path='rename', detail=False)
 class ClusterGroupBulkRenameView(generic.BulkRenameView):
     queryset = ClusterGroup.objects.all()
+    filterset = filtersets.ClusterGroupFilterSet
 
 
 @register_model_view(ClusterGroup, 'bulk_delete', path='delete', detail=False)
@@ -277,6 +279,7 @@ class ClusterBulkEditView(generic.BulkEditView):
 @register_model_view(Cluster, 'bulk_rename', path='rename', detail=False)
 class ClusterBulkRenameView(generic.BulkRenameView):
     queryset = Cluster.objects.all()
+    filterset = filtersets.ClusterFilterSet
 
 
 @register_model_view(Cluster, 'bulk_delete', path='delete', detail=False)
@@ -402,6 +405,7 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
 class VirtualMachineRenderConfigView(ObjectRenderConfigView):
     queryset = VirtualMachine.objects.all()
     base_template = 'virtualization/virtualmachine/base.html'
+    additional_permissions = ['virtualization.render_config_virtualmachine']
     tab = ViewTab(
         label=_('Render Config'),
         weight=2100,
@@ -437,6 +441,7 @@ class VirtualMachineBulkEditView(generic.BulkEditView):
 @register_model_view(VirtualMachine, 'bulk_rename', path='rename', detail=False)
 class VirtualMachineBulkRenameView(generic.BulkRenameView):
     queryset = VirtualMachine.objects.all()
+    filterset = filtersets.VirtualMachineFilterSet
 
 
 @register_model_view(VirtualMachine, 'bulk_delete', path='delete', detail=False)
@@ -539,6 +544,7 @@ class VMInterfaceBulkEditView(generic.BulkEditView):
 @register_model_view(VMInterface, 'bulk_rename', path='rename', detail=False)
 class VMInterfaceBulkRenameView(generic.BulkRenameView):
     queryset = VMInterface.objects.all()
+    filterset = filtersets.VMInterfaceFilterSet
     form = forms.VMInterfaceBulkRenameForm
 
 
@@ -602,6 +608,7 @@ class VirtualDiskBulkEditView(generic.BulkEditView):
 @register_model_view(VirtualDisk, 'bulk_rename', path='rename', detail=False)
 class VirtualDiskBulkRenameView(generic.BulkRenameView):
     queryset = VirtualDisk.objects.all()
+    filterset = filtersets.VirtualDiskFilterSet
     form = forms.VirtualDiskBulkRenameForm
 
 

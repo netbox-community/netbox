@@ -1,16 +1,5 @@
 # Security & Authentication Parameters
 
-## ALLOW_TOKEN_RETRIEVAL
-
-Default: `False`
-
-!!! note
-    The default value of this parameter changed from `True` to `False` in NetBox v4.3.0.
-
-If disabled, the values of API tokens will not be displayed after each token's initial creation. A user **must** record the value of a token prior to its creation, or it will be lost. Note that this affects _all_ users, regardless of assigned permissions.
-
----
-
 ## ALLOWED_URL_SCHEMES
 
 !!! tip "Dynamic Configuration Parameter"
@@ -92,7 +81,7 @@ If `True`, the cookie employed for cross-site request forgery (CSRF) protection 
 
 Default: `[]`
 
-Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a pass-through to Django's [`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-trusted-origins) setting. Note that each host listed must specify a scheme (e.g. `http://` or `https://).
+Defines a list of trusted origins for unsafe (e.g. `POST`) requests. This is a pass-through to Django's [`CSRF_TRUSTED_ORIGINS`](https://docs.djangoproject.com/en/stable/ref/settings/#csrf-trusted-origins) setting. Note that each host listed must specify a scheme (e.g. `http://` or `https://`).
 
 ```python
 CSRF_TRUSTED_ORIGINS = (

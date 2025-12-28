@@ -1,0 +1,15 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers %}
+{% load i18n %}
+
+{% block panel_content %}
+  <div class="card-body">
+    {% with url=object|validated_viewname:"list" %}
+      {% for tag in object.tags.all %}
+        {% tag tag url %}
+      {% empty %}
+        <span class="text-muted">{% trans "No tags assigned" %}</span>
+      {% endfor %}
+    {% endwith %}
+  </div>
+{% endblock panel_content %}

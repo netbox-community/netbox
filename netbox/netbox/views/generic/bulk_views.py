@@ -323,7 +323,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
 class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
     """
-    Import objects in bulk (CSV format).
+    Import objects in bulk (CSV/JSON/YAML format).
 
     Attributes:
         model_form: The form used to create each imported object
@@ -368,7 +368,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 error_messages.append(f"Record {index} {prefix}{field_name}: {err}")
         return error_messages
 
-    def _save_object(self, model_form, request):
+    def _save_object(self, model_form, request, parent_idx):
         _action = 'Updated' if model_form.instance.pk else 'Created'
 
         # Save the primary object
@@ -381,8 +381,25 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         # Iterate through the related object forms (if any), validating and saving each instance.
         for field_name, related_object_form in self.related_object_forms.items():
 
+            related_objects = model_form.data.get(field_name, list())
+            if not isinstance(related_objects, list):
+                raise ValidationError(
+                    self._compile_form_errors(
+                        {field_name: [_("Must be a list.")]},
+                        index=parent_idx
+                    )
+                )
+
             related_obj_pks = []
-            for i, rel_obj_data in enumerate(model_form.data.get(field_name, list())):
+            for i, rel_obj_data in enumerate(related_objects, start=1):
+                if not isinstance(rel_obj_data, dict):
+                    raise ValidationError(
+                        self._compile_form_errors(
+                            {f'{field_name}[{i}]': [_("Must be a dictionary.")]},
+                            index=parent_idx,
+                        )
+                    )
+
                 rel_obj_data = self.prep_related_object_data(obj, rel_obj_data)
                 f = related_object_form(rel_obj_data)
 
@@ -396,7 +413,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 else:
                     # Replicate errors on the related object form to the import form for display and abort
                     raise ValidationError(
-                        self._compile_form_errors(f.errors, index=i, prefix=f'{field_name}[{i}]')
+                        self._compile_form_errors(f.errors, index=parent_idx, prefix=f'{field_name}[{i}]')
                     )
 
             # Enforce object-level permissions on related objects
@@ -439,8 +456,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     instance = prefetched_objects[object_id]
                 except KeyError:
-                    form.add_error('data', _("Row {i}: Object with ID {id} does not exist").format(i=i, id=object_id))
-                    raise ValidationError('')
+                    raise ValidationError(
+                        self._compile_form_errors(
+                            {'id': [_("Object with ID {id} does not exist").format(id=object_id)]},
+                            index=i
+                        )
+                    )
 
                 # Take a snapshot for change logging
                 if instance.pk and hasattr(instance, 'snapshot'):
@@ -481,7 +502,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                obj = self._save_object(model_form, request)
+                obj = self._save_object(model_form, request, i)
                 saved_objects.append(obj)
             else:
                 # Raise model form errors
@@ -799,6 +820,9 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     """
     field_name = 'name'
     template_name = 'generic/bulk_rename.html'
+    # Match BulkEditView/BulkDeleteView behavior: allow passing a FilterSet
+    # so "Select all N matching query" can expand across the full queryset.
+    filterset = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -827,12 +851,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, ''))
+                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, '') or '')
                 # Catch regex group reference errors
                 except re.error:
                     obj.new_name = getattr(obj, self.field_name)
             else:
-                obj.new_name = getattr(obj, self.field_name, '').replace(find, replace)
+                obj.new_name = (getattr(obj, self.field_name, '') or '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
@@ -840,9 +864,16 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkRenameView')
 
+        # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
+        if request.POST.get('_all') and self.filterset is not None:
+            pk_list = self.filterset(request.GET, self.queryset.values_list('pk', flat=True), request=request).qs
+        else:
+            pk_list = request.POST.getlist('pk')
+
+        selected_objects = self.queryset.filter(pk__in=pk_list)
+
         if '_preview' in request.POST or '_apply' in request.POST:
-            form = self.form(request.POST, initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+            form = self.form(request.POST, initial={'pk': pk_list})
 
             if form.is_valid():
                 try:
@@ -877,8 +908,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                     clear_events.send(sender=self)
 
         else:
-            form = self.form(initial={'pk': request.POST.getlist('pk')})
-            selected_objects = self.queryset.filter(pk__in=form.initial['pk'])
+            form = self.form(initial={'pk': pk_list})
 
         return render(request, self.template_name, {
             'field_name': self.field_name,

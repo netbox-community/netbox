@@ -2,8 +2,8 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
-from netbox.tables import NetBoxTable, columns
-from tenancy.tables import TenancyColumnsMixin
+from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from vpn.models import *
 
 __all__ = (
@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-class TunnelGroupTable(NetBoxTable):
+class TunnelGroupTable(ContactsColumnMixin, OrganizationalModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -27,15 +27,16 @@ class TunnelGroupTable(NetBoxTable):
         url_name='vpn:tunnelgroup_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(OrganizationalModelTable.Meta):
         model = TunnelGroup
         fields = (
-            'pk', 'id', 'name', 'tunnel_count', 'description', 'slug', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'tunnel_count', 'description', 'comments', 'slug', 'contacts', 'tags', 'actions',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'tunnel_count', 'description')
 
 
-class TunnelTable(TenancyColumnsMixin, NetBoxTable):
+class TunnelTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -57,18 +58,16 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
         url_params={'tunnel_id': 'pk'},
         verbose_name=_('Terminations')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:tunnel_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Tunnel
         fields = (
             'pk', 'id', 'name', 'group', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tenant_group',
-            'tunnel_id', 'termination_count', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'tunnel_id', 'termination_count', 'description', 'contacts', 'comments', 'tags', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'group', 'status', 'encapsulation', 'tenant', 'terminations_count')
 

@@ -1,13 +1,12 @@
 from dcim.constants import LOCATION_SCOPE_TYPES
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.gfk_fields import GFKSerializerField
+from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-from utilities.api import get_serializer_for_model
 
 __all__ = (
     'ClusterGroupSerializer',
@@ -16,7 +15,7 @@ __all__ = (
 )
 
 
-class ClusterTypeSerializer(NetBoxModelSerializer):
+class ClusterTypeSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     cluster_count = RelatedObjectCountField('clusters')
@@ -24,13 +23,13 @@ class ClusterTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = ClusterType
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'cluster_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'cluster_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
-class ClusterGroupSerializer(NetBoxModelSerializer):
+class ClusterGroupSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     cluster_count = RelatedObjectCountField('clusters')
@@ -38,13 +37,13 @@ class ClusterGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = ClusterGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'cluster_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'cluster_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
-class ClusterSerializer(NetBoxModelSerializer):
+class ClusterSerializer(PrimaryModelSerializer):
     type = ClusterTypeSerializer(nested=True)
     group = ClusterGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=ClusterStatusChoices, required=False)
@@ -58,7 +57,7 @@ class ClusterSerializer(NetBoxModelSerializer):
         default=None
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    scope = serializers.SerializerMethodField(read_only=True)
+    scope = GFKSerializerField(read_only=True)
     allocated_vcpus = serializers.DecimalField(
         read_only=True,
         max_digits=8,
@@ -76,15 +75,7 @@ class ClusterSerializer(NetBoxModelSerializer):
         model = Cluster
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'scope_type',
-            'scope_id', 'scope', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'scope_id', 'scope', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'device_count', 'virtualmachine_count', 'allocated_vcpus', 'allocated_memory', 'allocated_disk'
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'virtualmachine_count')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_scope(self, obj):
-        if obj.scope_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.scope)
-        context = {'request': self.context['request']}
-        return serializer(obj.scope, nested=True, context=context).data

@@ -1,7 +1,9 @@
 import datetime
+import json
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.test import tag
 from django.urls import reverse
 from rest_framework import status
 
@@ -268,6 +270,60 @@ class CustomFieldTest(TestCase):
         instance.save()
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    @tag('regression')
+    def test_json_field_falsy_defaults(self):
+        """Test that falsy JSON default values are properly handled"""
+        falsy_test_cases = [
+            ({}, 'empty_dict'),
+            ([], 'empty_array'),
+            (0, 'zero'),
+            (False, 'false_bool'),
+            ("", 'empty_string'),
+        ]
+
+        for default, suffix in falsy_test_cases:
+            with self.subTest(default=default, suffix=suffix):
+                cf = CustomField.objects.create(
+                    name=f'json_falsy_{suffix}',
+                    type=CustomFieldTypeChoices.TYPE_JSON,
+                    default=default,
+                    required=False
+                )
+                cf.object_types.set([self.object_type])
+
+                instance = Site.objects.create(name=f'Test Site {suffix}', slug=f'test-site-{suffix}')
+
+                self.assertIsNotNone(instance.custom_field_data)
+                self.assertIn(cf.name, instance.custom_field_data)
+
+                instance.refresh_from_db()
+                stored = instance.custom_field_data[cf.name]
+                self.assertEqual(stored, default)
+
+    @tag('regression')
+    def test_json_field_falsy_to_form_field(self):
+        """Test form field generation preserves falsy defaults"""
+        falsy_test_cases = (
+            ({}, json.dumps({}), 'empty_dict'),
+            ([], json.dumps([]), 'empty_array'),
+            (0, json.dumps(0), 'zero'),
+            (False, json.dumps(False), 'false_bool'),
+            ("", '""', 'empty_string'),
+        )
+
+        for default, expected, suffix in falsy_test_cases:
+            with self.subTest(default=default, expected=expected, suffix=suffix):
+                cf = CustomField.objects.create(
+                    name=f'json_falsy_{suffix}',
+                    type=CustomFieldTypeChoices.TYPE_JSON,
+                    default=default,
+                    required=False
+                )
+                cf.object_types.set([self.object_type])
+
+                form_field = cf.to_form_field(set_initial=True)
+                self.assertEqual(form_field.initial, expected)
 
     def test_select_field(self):
         CHOICES = (
@@ -1241,6 +1297,28 @@ class CustomFieldAPITest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
         data = {'custom_fields': {'text_field': 'ABC'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_url_regex_validation(self):
+        """
+        Test that validation_regex is applied to URL custom fields (fixes #20498).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        cf_url = CustomField.objects.get(name='url_field')
+        cf_url.validation_regex = r'^https://'  # Require HTTPS
+        cf_url.save()
+
+        # Test invalid URL (http instead of https)
+        data = {'custom_fields': {'url_field': 'http://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Test valid URL (https)
+        data = {'custom_fields': {'url_field': 'https://example.com'}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 

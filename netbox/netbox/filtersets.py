@@ -14,6 +14,7 @@ from core.models import ObjectChange
 from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter, TagIDFilter
 from extras.models import CustomField, SavedFilter
+from users.filterset_mixins import OwnerFilterMixin
 from utilities.constants import (
     FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
     FILTER_NUMERIC_BASED_LOOKUP_MAP
@@ -25,8 +26,10 @@ __all__ = (
     'AttributeFiltersMixin',
     'BaseFilterSet',
     'ChangeLoggedModelFilterSet',
+    'NestedGroupModelFilterSet',
     'NetBoxModelFilterSet',
     'OrganizationalModelFilterSet',
+    'PrimaryModelFilterSet',
 )
 
 STANDARD_LOOKUPS = (
@@ -149,6 +152,7 @@ class BaseFilterSet(django_filters.FilterSet):
 
         elif isinstance(existing_filter, (
             django_filters.filters.CharFilter,
+            django_filters.ChoiceFilter,
             django_filters.MultipleChoiceFilter,
             filters.MultiValueCharFilter,
             filters.MultiValueMACAddressFilter
@@ -328,9 +332,16 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
         return queryset
 
 
-class OrganizationalModelFilterSet(NetBoxModelFilterSet):
+class PrimaryModelFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     """
-    A base class for adding the search method to models which only expose the `name` and `slug` fields
+    Base filterset for models inheriting from PrimaryModel.
+    """
+    pass
+
+
+class OrganizationalModelFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
+    """
+    Base filterset for models inheriting from OrganizationalModel.
     """
     def search(self, queryset, name, value):
         if not value.strip():
@@ -342,9 +353,9 @@ class OrganizationalModelFilterSet(NetBoxModelFilterSet):
         )
 
 
-class NestedGroupModelFilterSet(NetBoxModelFilterSet):
+class NestedGroupModelFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     """
-    A base FilterSet for models that inherit from NestedGroupModel
+    Base filterset for models inheriting from NestedGroupModel.
     """
     def search(self, queryset, name, value):
         if value.strip():

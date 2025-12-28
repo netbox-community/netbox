@@ -37,20 +37,24 @@
     </div>
     <div class="card">
       <h2 class="card-header">{% trans "Assigned Models" %}</h2>
-      <table class="table table-hover attr-table">
+      <div class="list-group list-group-flush" role="presentation">
         {% for object_type in object.object_types.all %}
-          <tr>
-            <td>{{ object_type }}</td>
-          </tr>
+          {% with object_type.model_class|validated_viewname:"list" as viewname %}
+            {% if viewname %}
+              <a href="{% url viewname %}?{{ object.url_params }}" class="list-group-item list-group-item-action">{{ object_type }}</a>
+            {% else %}
+              <div class="list-group-item list-group-item-action">{{ object_type }}</div>
+            {% endif %}
+          {% endwith %}
         {% endfor %}
-      </table>
+      </div>
     </div>
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-12 col-md-7">
     <div class="card">
       <h2 class="card-header">{% trans "Parameters" %}</h2>
-      <div class="card-body">
+      <div class="card-body p-0">
         <pre>{{ object.parameters|json }}</pre>
       </div>
     </div>

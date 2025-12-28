@@ -6,13 +6,14 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
-from netbox.forms.base import NetBoxModelFilterSetForm
+from netbox.forms import NetBoxModelFilterSetForm, PrimaryModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
-from users.models import Group, User
+from users.models import Group, Owner, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
+    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
@@ -42,17 +43,20 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomField
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet(
-            'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'unique', 'choice_set_id',
-            name=_('Attributes')
-        ),
+        FieldSet('object_type_id', 'type', 'group_name', 'weight', 'required', 'unique', name=_('Attributes')),
+        FieldSet('choice_set_id', 'related_object_type_id', name=_('Type Options')),
         FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
         FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
     )
-    related_object_type_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
-        label=_('Related object type')
+        label=_('Object types'),
+    )
+    related_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.public(),
+        required=False,
+        label=_('Related object type'),
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
@@ -103,17 +107,22 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    validation_minimum = forms.IntegerField(
+    validation_minimum = forms.DecimalField(
         label=_('Minimum value'),
         required=False
     )
-    validation_maximum = forms.IntegerField(
+    validation_maximum = forms.DecimalField(
         label=_('Maximum value'),
         required=False
     )
     validation_regex = forms.CharField(
         label=_('Validation regex'),
         required=False
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 
@@ -130,18 +139,23 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     choice = forms.CharField(
         required=False
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     model = CustomLink
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'new_window', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
-        required=False
+        required=False,
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -160,6 +174,11 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     weight = forms.IntegerField(
         label=_('Weight'),
         required=False
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 
@@ -207,6 +226,11 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
@@ -230,12 +254,12 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     model = SavedFilter
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
+        FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
-    object_type = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.public(),
-        required=False
+        required=False,
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -255,9 +279,15 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
         label=_('Weight'),
         required=False
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
+    model = TableConfig
     fieldsets = (
         FieldSet('q', 'filter_id'),
         FieldSet('object_type_id', 'enabled', 'shared', 'weight', name=_('Attributes')),
@@ -290,7 +320,7 @@ class TableConfigFilterForm(SavedFiltersMixin, FilterForm):
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
     )
     http_content_type = forms.CharField(
@@ -306,15 +336,18 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('HTTP method')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
     tag = TagFilterField(model)
 
 
 class EventRuleFilterForm(NetBoxModelFilterSetForm):
     model = EventRule
-    tag = TagFilterField(model)
-
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
         FieldSet('object_type_id', 'event_type', 'action_type', 'enabled', name=_('Attributes')),
     )
     object_type_id = ContentTypeMultipleChoiceField(
@@ -339,6 +372,12 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
+    tag = TagFilterField(model)
 
 
 class TagFilterForm(SavedFiltersMixin, FilterForm):
@@ -353,9 +392,14 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Allowed object type')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
-class ConfigContextProfileFilterForm(SavedFiltersMixin, FilterForm):
+class ConfigContextProfileFilterForm(PrimaryModelFilterSetForm):
     model = ConfigContextProfile
     fieldsets = (
         FieldSet('q', 'filter_id'),
@@ -470,13 +514,18 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Tags')
     )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
+    )
 
 
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     model = ConfigTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+        FieldSet('data_source_id', 'data_file_id', 'auto_sync_enabled', name=_('Data')),
         FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
@@ -491,6 +540,13 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
         query_params={
             'source_id': '$data_source_id'
         }
+    )
+    auto_sync_enabled = forms.NullBooleanField(
+        label=_('Auto sync enabled'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     tag = TagFilterField(ConfigTemplate)
     mime_type = forms.CharField(
@@ -511,6 +567,11 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    owner_id = DynamicModelChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        label=_('Owner'),
     )
 
 

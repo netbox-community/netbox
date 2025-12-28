@@ -1,0 +1,9 @@
+{% extends 'ui/panels/_base.html' %}
+
+{% block panel_content %}
+<div id="token-example" class="card-body font-monospace">curl -X GET \<br />
+-H "Authorization: {{ object.get_auth_header_prefix }}<mark>&lt;TOKEN&gt;</mark>" \<br />
+-H "Content-Type: application/json" \<br />
+-H "Accept: application/json; indent=4" \<br />
+{{ request.scheme }}://{{ request.get_host }}{% url "api-status" %}</div>
+{% endblock panel_content %}

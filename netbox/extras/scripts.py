@@ -1,12 +1,9 @@
 import inspect
-import json
 import logging
 import os
 import re
 
-import yaml
 from django import forms
-from django.conf import settings
 from django.core.files.storage import storages
 from django.core.validators import RegexValidator
 from django.utils import timezone
@@ -329,6 +326,9 @@ class BaseScript:
         # Declare the placeholder for the current request
         self.request = None
 
+        # Initiate the storage backend (local, S3, etc) as a class attr
+        self.storage = storages.create_storage(storages.backends["scripts"])
+
         # Compile test methods and initialize results skeleton
         for method in dir(self):
             if method.startswith('test_') and callable(getattr(self, method)):
@@ -394,8 +394,7 @@ class BaseScript:
         return inspect.getfile(self.__class__)
 
     def findsource(self, object):
-        storage = storages.create_storage(storages.backends["scripts"])
-        with storage.open(os.path.basename(self.filename), 'r') as f:
+        with self.storage.open(os.path.basename(self.filename), 'r') as f:
             data = f.read()
 
         # Break the source code into lines
@@ -488,7 +487,7 @@ class BaseScript:
         if self.fieldsets:
             fieldsets.extend(self.fieldsets)
         else:
-            fields = list(name for name, _ in self._get_vars().items())
+            fields = list(name for name, __ in self._get_vars().items())
             fieldsets.append((_('Script Data'), fields))
 
         # Append the default fieldset if defined in the Meta class
@@ -579,40 +578,6 @@ class BaseScript:
     def log_failure(self, message=None, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
         self.failed = True
-
-    #
-    # Convenience functions
-    #
-
-    def load_yaml(self, filename):
-        """
-        Return data from a YAML file
-        """
-        # TODO: DEPRECATED: Remove this method in v4.5
-        self._log(
-            _("load_yaml is deprecated and will be removed in v4.5"),
-            level=LogLevelChoices.LOG_WARNING
-        )
-        file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
-            data = yaml.load(datafile, Loader=yaml.SafeLoader)
-
-        return data
-
-    def load_json(self, filename):
-        """
-        Return data from a JSON file
-        """
-        # TODO: DEPRECATED: Remove this method in v4.5
-        self._log(
-            _("load_json is deprecated and will be removed in v4.5"),
-            level=LogLevelChoices.LOG_WARNING
-        )
-        file_path = os.path.join(settings.SCRIPTS_ROOT, filename)
-        with open(file_path, 'r') as datafile:
-            data = json.load(datafile)
-
-        return data
 
     #
     # Legacy Report functionality

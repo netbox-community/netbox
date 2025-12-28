@@ -12,6 +12,7 @@ __all__ = (
     'DeviceFaceEnum',
     'DeviceStatusEnum',
     'InterfaceDuplexEnum',
+    'InterfaceKindEnum',
     'InterfaceModeEnum',
     'InterfacePoEModeEnum',
     'InterfacePoETypeEnum',
@@ -27,11 +28,13 @@ __all__ = (
     'PowerFeedSupplyEnum',
     'PowerFeedTypeEnum',
     'PowerOutletFeedLegEnum',
+    'PowerOutletStatusEnum',
     'PowerOutletTypeEnum',
     'PowerPortTypeEnum',
     'RackAirflowEnum',
     'RackDimensionUnitEnum',
     'RackFormFactorEnum',
+    'RackReservationStatusEnum',
     'RackStatusEnum',
     'RackWidthEnum',
     'SiteStatusEnum',
@@ -48,6 +51,7 @@ DeviceAirflowEnum = strawberry.enum(DeviceAirflowChoices.as_enum(prefix='airflow
 DeviceFaceEnum = strawberry.enum(DeviceFaceChoices.as_enum(prefix='face'))
 DeviceStatusEnum = strawberry.enum(DeviceStatusChoices.as_enum(prefix='status'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
+InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))
 InterfaceModeEnum = strawberry.enum(InterfaceModeChoices.as_enum(prefix='mode'))
 InterfacePoEModeEnum = strawberry.enum(InterfacePoEModeChoices.as_enum(prefix='mode'))
 InterfacePoETypeEnum = strawberry.enum(InterfacePoETypeChoices.as_enum())
@@ -63,11 +67,13 @@ PowerFeedStatusEnum = strawberry.enum(PowerFeedStatusChoices.as_enum(prefix='sta
 PowerFeedSupplyEnum = strawberry.enum(PowerFeedSupplyChoices.as_enum(prefix='supply'))
 PowerFeedTypeEnum = strawberry.enum(PowerFeedTypeChoices.as_enum(prefix='type'))
 PowerOutletFeedLegEnum = strawberry.enum(PowerOutletFeedLegChoices.as_enum(prefix='feed_leg'))
+PowerOutletStatusEnum = strawberry.enum(PowerOutletStatusChoices.as_enum(prefix='status'))
 PowerOutletTypeEnum = strawberry.enum(PowerOutletTypeChoices.as_enum(prefix='type'))
 PowerPortTypeEnum = strawberry.enum(PowerPortTypeChoices.as_enum(prefix='type'))
 RackAirflowEnum = strawberry.enum(RackAirflowChoices.as_enum())
 RackDimensionUnitEnum = strawberry.enum(RackDimensionUnitChoices.as_enum(prefix='unit'))
 RackFormFactorEnum = strawberry.enum(RackFormFactorChoices.as_enum(prefix='type'))
+RackReservationStatusEnum = strawberry.enum(RackReservationStatusChoices.as_enum(prefix='status'))
 RackStatusEnum = strawberry.enum(RackStatusChoices.as_enum(prefix='status'))
 RackWidthEnum = strawberry.enum(RackWidthChoices.as_enum(prefix='width'))
 SiteStatusEnum = strawberry.enum(SiteStatusChoices.as_enum(prefix='status'))

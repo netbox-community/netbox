@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
-from circuits.constants import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
@@ -231,6 +230,7 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
 class CircuitTermination(
     CustomFieldsMixin,
     CustomLinksMixin,
+    ExportTemplatesMixin,
     TagsMixin,
     ChangeLoggedModel,
     CabledObjectModel
@@ -334,6 +334,9 @@ class CircuitTermination(
                 fields=('circuit', 'term_side'),
                 name='%(app_label)s_%(class)s_unique_circuit_term_side'
             ),
+        )
+        indexes = (
+            models.Index(fields=('termination_type', 'termination_id')),
         )
         verbose_name = _('circuit termination')
         verbose_name_plural = _('circuit terminations')

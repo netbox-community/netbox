@@ -3,10 +3,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, PrimaryModelFilterSet
 from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.filters import ContentTypeFilter
+from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 
@@ -20,7 +21,8 @@ __all__ = (
 )
 
 
-class DataSourceFilterSet(NetBoxModelFilterSet):
+@register_filterset
+class DataSourceFilterSet(PrimaryModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=get_data_backend_choices,
         null_value=None
@@ -48,6 +50,7 @@ class DataSourceFilterSet(NetBoxModelFilterSet):
         )
 
 
+@register_filterset
 class DataFileFilterSet(ChangeLoggedModelFilterSet):
     q = django_filters.CharFilter(
         method='search'
@@ -75,11 +78,17 @@ class DataFileFilterSet(ChangeLoggedModelFilterSet):
         )
 
 
+@register_filterset
 class JobFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
     )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.with_feature('jobs'),
+        field_name='object_type_id',
+    )
+    object_type = ContentTypeFilter()
     created = django_filters.DateTimeFilter()
     created__before = django_filters.DateTimeFilter(
         field_name='created',
@@ -123,7 +132,7 @@ class JobFilterSet(BaseFilterSet):
 
     class Meta:
         model = Job
-        fields = ('id', 'object_type', 'object_id', 'name', 'interval', 'status', 'user', 'job_id')
+        fields = ('id', 'object_type', 'object_type_id', 'object_id', 'name', 'interval', 'status', 'user', 'job_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -134,6 +143,7 @@ class JobFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class ObjectTypeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -159,6 +169,7 @@ class ObjectTypeFilterSet(BaseFilterSet):
         return queryset.filter(features__icontains=value)
 
 
+@register_filterset
 class ObjectChangeFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -169,6 +180,7 @@ class ObjectChangeFilterSet(BaseFilterSet):
     changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContentType.objects.all()
     )
+    related_object_type = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),
@@ -197,6 +209,7 @@ class ObjectChangeFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class ConfigRevisionFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',

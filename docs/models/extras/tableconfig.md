@@ -4,6 +4,9 @@ This object represents the saved configuration of an object table in NetBox. Tab
 
 For example, you might wish to create a table config for the devices list to assist in inventory tasks. This view might show the device name, location, serial number, and asset tag, but omit operational details like IP addresses. Once applied, this table config can be saved for reuse in future audits.
 
+!!! note
+    Per‑user table preferences (columns and ordering remembered for an individual user) are distinct from Table Configs. If a list view fails to render due to outdated saved preferences, see [Clearing table preferences](../../features/user-preferences.md#clearing-table-preferences).
+
 ## Fields
 
 ### Name
@@ -20,7 +23,7 @@ The type of NetBox object to which the table config pertains.
 
 ### Table
 
-The name of the specific table to which the table config pertains. (Some NetBox object use multiple tables.)
+The name of the specific table to which the table config pertains. (Some NetBox objects use multiple tables.)
 
 ### Weight
 

@@ -26,6 +26,7 @@ registry = Registry({
     'data_backends': dict(),
     'denormalized_fields': collections.defaultdict(list),
     'event_types': dict(),
+    'filtersets': dict(),
     'model_features': dict(),
     'models': collections.defaultdict(set),
     'plugins': dict(),

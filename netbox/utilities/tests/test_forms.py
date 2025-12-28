@@ -4,8 +4,10 @@ from django.test import TestCase
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import get_field_value, expand_alphanumeric_pattern, expand_ipaddress_pattern
+from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
 
 
 class ExpandIPAddress(TestCase):
@@ -448,3 +450,103 @@ class GetFieldValueTest(TestCase):
             get_field_value(form, 'site'),
             None
         )
+
+
+class CSVSelectWidgetTest(TestCase):
+    """
+    Validate that CSVSelectWidget treats blank values as omitted.
+    This allows model defaults to be applied when CSV fields are present but empty.
+    Related to issue #20645.
+    """
+
+    def test_blank_value_treated_as_omitted(self):
+        """Test that blank string values are treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {'test_field': ''}
+        self.assertTrue(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+    def test_none_value_treated_as_omitted(self):
+        """Test that None values are treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {'test_field': None}
+        self.assertTrue(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+    def test_missing_field_treated_as_omitted(self):
+        """Test that missing fields are treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {}
+        self.assertTrue(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+    def test_valid_value_not_omitted(self):
+        """Test that valid values are not treated as omitted"""
+        widget = CSVSelectWidget()
+        data = {'test_field': 'valid_value'}
+        self.assertFalse(widget.value_omitted_from_data(data, {}, 'test_field'))
+
+
+class SelectMultipleWidgetTest(TestCase):
+    """
+    Validate filtering behavior of AvailableOptions and SelectedOptions widgets.
+    """
+
+    def test_available_options_flat_choices(self):
+        """AvailableOptions should exclude selected values from flat choices"""
+        widget = AvailableOptions(choices=[
+            (1, 'Option 1'),
+            (2, 'Option 2'),
+            (3, 'Option 3'),
+        ])
+        widget.optgroups('test', ['2'], None)
+
+        self.assertEqual(len(widget.choices), 2)
+        self.assertEqual(widget.choices[0], (1, 'Option 1'))
+        self.assertEqual(widget.choices[1], (3, 'Option 3'))
+
+    def test_available_options_optgroups(self):
+        """AvailableOptions should exclude selected values from optgroups"""
+        widget = AvailableOptions(choices=[
+            ('Group A', [(1, 'Option 1'), (2, 'Option 2')]),
+            ('Group B', [(3, 'Option 3'), (4, 'Option 4')]),
+        ])
+
+        # Select options 2 and 3
+        widget.optgroups('test', ['2', '3'], None)
+
+        # Should have 2 groups with filtered choices
+        self.assertEqual(len(widget.choices), 2)
+        self.assertEqual(widget.choices[0][0], 'Group A')
+        self.assertEqual(widget.choices[0][1], [(1, 'Option 1')])
+        self.assertEqual(widget.choices[1][0], 'Group B')
+        self.assertEqual(widget.choices[1][1], [(4, 'Option 4')])
+
+    def test_selected_options_flat_choices(self):
+        """SelectedOptions should include only selected values from flat choices"""
+        widget = SelectedOptions(choices=[
+            (1, 'Option 1'),
+            (2, 'Option 2'),
+            (3, 'Option 3'),
+        ])
+
+        # Select option 2
+        widget.optgroups('test', ['2'], None)
+
+        # Should only have option 2
+        self.assertEqual(len(widget.choices), 1)
+        self.assertEqual(widget.choices[0], (2, 'Option 2'))
+
+    def test_selected_options_optgroups(self):
+        """SelectedOptions should include only selected values from optgroups"""
+        widget = SelectedOptions(choices=[
+            ('Group A', [(1, 'Option 1'), (2, 'Option 2')]),
+            ('Group B', [(3, 'Option 3'), (4, 'Option 4')]),
+        ])
+
+        # Select options 2 and 3
+        widget.optgroups('test', ['2', '3'], None)
+
+        # Should have 2 groups with only selected choices
+        self.assertEqual(len(widget.choices), 2)
+        self.assertEqual(widget.choices[0][0], 'Group A')
+        self.assertEqual(widget.choices[0][1], [(2, 'Option 2')])
+        self.assertEqual(widget.choices[1][0], 'Group B')
+        self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])

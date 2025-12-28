@@ -21,6 +21,7 @@ from extras.choices import *
 from extras.data import CHOICE_SETS
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
+from netbox.models.mixins import OwnerMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.datetime import datetime_from_timestamp
@@ -70,7 +71,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         }
 
 
-class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
     object_types = models.ManyToManyField(
         to='contenttypes.ContentType',
         related_name='custom_fields',
@@ -174,13 +175,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         verbose_name=_('display weight'),
         help_text=_('Fields with higher weights appear lower in a form.')
     )
-    validation_minimum = models.BigIntegerField(
+    validation_minimum = models.DecimalField(
+        max_digits=16,
+        decimal_places=4,
         blank=True,
         null=True,
         verbose_name=_('minimum value'),
         help_text=_('Minimum allowed value (for numeric fields)')
     )
-    validation_maximum = models.BigIntegerField(
+    validation_maximum = models.DecimalField(
+        max_digits=16,
+        decimal_places=4,
         blank=True,
         null=True,
         verbose_name=_('maximum value'),
@@ -471,7 +476,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             field = forms.DecimalField(
                 required=required,
                 initial=initial,
-                max_digits=12,
+                max_digits=16,
                 decimal_places=4,
                 min_value=self.validation_minimum,
                 max_value=self.validation_maximum
@@ -531,10 +536,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
             field = LaxURLField(assume_scheme='https', required=required, initial=initial)
+            if self.validation_regex:
+                field.validators = [
+                    RegexValidator(
+                        regex=self.validation_regex,
+                        message=mark_safe(_("Values must match this regex: <code>{regex}</code>").format(
+                            regex=escape(self.validation_regex)
+                        ))
+                    )
+                ]
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
-            field = JSONField(required=required, initial=json.dumps(initial) if initial else None)
+            field = JSONField(required=required, initial=json.dumps(initial) if initial is not None else None)
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
@@ -680,6 +694,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 if self.validation_regex and not re.match(self.validation_regex, value):
                     raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
 
+            # Validate URL field
+            elif self.type == CustomFieldTypeChoices.TYPE_URL:
+                if type(value) is not str:
+                    raise ValidationError(_("Value must be a string."))
+                if self.validation_regex and not re.match(self.validation_regex, value):
+                    raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
+
             # Validate integer
             elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
                 if type(value) is not int:
@@ -769,7 +790,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             raise ValidationError(_("Required field cannot be empty."))
 
 
-class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
     """
     Represents a set of choices available for choice and multi-choice custom fields.
     """

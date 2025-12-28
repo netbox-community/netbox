@@ -1,16 +1,18 @@
 import logging
 
-from django.db.models.signals import post_save, post_delete, pre_delete
+from django.db.models import Q
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
+from virtualization.models import VMInterface
 from .models import (
     Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
-    InventoryItem, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
+    InventoryItem, ModuleBay, PathEndpoint, PortMapping, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Location,
     VirtualChassis,
 )
 from .models.cables import trace_paths
-from .utils import create_cablepath, rebuild_paths
+from .utils import create_cablepaths, rebuild_paths
 
 COMPONENT_MODELS = (
     ConsolePort,
@@ -84,18 +86,6 @@ def assign_virtualchassis_master(instance, created, **kwargs):
         master.save()
 
 
-@receiver(pre_delete, sender=VirtualChassis)
-def clear_virtualchassis_members(instance, **kwargs):
-    """
-    When a VirtualChassis is deleted, nullify the vc_position and vc_priority fields of its prior members.
-    """
-    devices = Device.objects.filter(virtual_chassis=instance.pk)
-    for device in devices:
-        device.vc_position = None
-        device.vc_priority = None
-        device.save()
-
-
 #
 # Cables
 #
@@ -125,7 +115,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             if not nodes:
                 continue
             if isinstance(nodes[0], PathEndpoint):
-                create_cablepath(nodes)
+                create_cablepaths(nodes)
             else:
                 rebuild_paths(nodes)
 
@@ -146,6 +136,17 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
+@receiver((post_delete, post_save), sender=PortMapping)
+def update_passthrough_port_paths(instance, **kwargs):
+    """
+    When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
+    """
+    for cablepath in CablePath.objects.filter(
+        Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
+    ):
+        cablepath.retrace()
+
+
 @receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, **kwargs):
     """
@@ -161,12 +162,13 @@ def nullify_connected_endpoints(instance, **kwargs):
         cablepath.retrace()
 
 
-@receiver(post_save, sender=FrontPort)
-def extend_rearport_cable_paths(instance, created, raw, **kwargs):
+@receiver(post_save, sender=Interface)
+@receiver(post_save, sender=VMInterface)
+def update_mac_address_interface(instance, created, raw, **kwargs):
     """
-    When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
+    When creating a new Interface or VMInterface, check whether a MACAddress has been designated as its primary. If so,
+    assign the MACAddress to the interface.
     """
-    if created and not raw:
-        rearport = instance.rear_port
-        for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
-            cablepath.retrace()
+    if created and not raw and instance.primary_mac_address:
+        instance.primary_mac_address.assigned_object = instance
+        instance.primary_mac_address.save()

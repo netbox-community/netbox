@@ -1,5 +1,8 @@
+import decimal
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneField
@@ -210,6 +213,10 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         decimal_places=6,
         blank=True,
         null=True,
+        validators=[
+            MinValueValidator(decimal.Decimal('-90.0')),
+            MaxValueValidator(decimal.Decimal('90.0'))
+        ],
         help_text=_('GPS coordinate in decimal format (xx.yyyyyy)')
     )
     longitude = models.DecimalField(
@@ -218,6 +225,10 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         decimal_places=6,
         blank=True,
         null=True,
+        validators=[
+            MinValueValidator(decimal.Decimal('-180.0')),
+            MaxValueValidator(decimal.Decimal('180.0'))
+        ],
         help_text=_('GPS coordinate in decimal format (xx.yyyyyy)')
     )
 

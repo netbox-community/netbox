@@ -49,3 +49,17 @@ class VirtualMachineStatusChoices(ChoiceSet):
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
         (STATUS_PAUSED, _('Paused'), 'orange'),
     ]
+
+
+class VirtualMachineStartOnBootChoices(ChoiceSet):
+    key = 'VirtualMachine.start_on_boot'
+
+    STATUS_ON = 'on'
+    STATUS_OFF = 'off'
+    STATUS_LAST_STATE = 'laststate'
+
+    CHOICES = [
+        (STATUS_ON, _('On'), 'green'),
+        (STATUS_OFF, _('Off'), 'gray'),
+        (STATUS_LAST_STATE, _('Last State'), 'cyan')
+    ]

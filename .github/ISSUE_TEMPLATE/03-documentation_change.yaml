@@ -2,7 +2,7 @@
 name: 📖 Documentation Change
 type: Documentation
 description: Suggest an addition or modification to the NetBox documentation
-labels: ["type: documentation", "status: needs triage"]
+labels: ["netbox", "type: documentation", "status: needs triage"]
 body:
   - type: dropdown
     attributes:
@@ -25,9 +25,12 @@ body:
         - Getting started
         - Configuration
         - Customization
+        - Best practices
         - Integrations/API
         - Plugins
         - Administration
+        - Data model
+        - Reference
         - Development
         - Other
     validations:

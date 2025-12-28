@@ -1,8 +1,7 @@
 import decimal
-import yaml
-
 from functools import cached_property
 
+import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -19,21 +18,20 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from dcim.utils import update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
-from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import WeightMixin
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module
-
 
 __all__ = (
     'Device',
@@ -183,6 +181,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
     inventory_item_template_count = CounterCacheField(
         to_model='dcim.InventoryItemTemplate',
+        to_field='device_type'
+    )
+    device_count = CounterCacheField(
+        to_model='dcim.Device',
         to_field='device_type'
     )
 
@@ -646,6 +648,10 @@ class Device(
         decimal_places=6,
         blank=True,
         null=True,
+        validators=[
+            MinValueValidator(decimal.Decimal('-90.0')),
+            MaxValueValidator(decimal.Decimal('90.0'))
+        ],
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
     longitude = models.DecimalField(
@@ -654,6 +660,10 @@ class Device(
         decimal_places=6,
         blank=True,
         null=True,
+        validators=[
+            MinValueValidator(decimal.Decimal('-180.0')),
+            MaxValueValidator(decimal.Decimal('180.0'))
+        ],
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
     services = GenericRelation(
@@ -997,6 +1007,8 @@ class Device(
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())
+            # Replicate any front/rear port mappings from the DeviceType
+            create_port_mappings(self, self.device_type)
             # Disable bulk_create to accommodate MPTT
             self._instantiate_components(self.device_type.modulebaytemplates.all(), bulk_create=False)
             self._instantiate_components(self.device_type.devicebaytemplates.all())
@@ -1154,7 +1166,6 @@ class VirtualChassis(PrimaryModel):
             })
 
     def delete(self, *args, **kwargs):
-
         # Check for LAG interfaces split across member chassis
         interfaces = Interface.objects.filter(
             device__in=self.members.all(),
@@ -1167,6 +1178,13 @@ class VirtualChassis(PrimaryModel):
                 "Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG "
                 "interfaces."
             ).format(self=self, interfaces=InterfaceSpeedChoices))
+
+        # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
+        # This must be done here because on_delete=SET_NULL executes before pre_delete signal
+        for device in self.members.all():
+            device.vc_position = None
+            device.vc_priority = None
+            device.save()
 
         return super().delete(*args, **kwargs)
 
@@ -1300,7 +1318,10 @@ class MACAddress(PrimaryModel):
     )
 
     class Meta:
-        ordering = ('mac_address', 'pk',)
+        ordering = ('mac_address', 'pk')
+        indexes = (
+            models.Index(fields=('assigned_object_type', 'assigned_object_id')),
+        )
         verbose_name = _('MAC address')
         verbose_name_plural = _('MAC addresses')
 

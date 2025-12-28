@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.api.serializers_.sites import SiteSerializer
@@ -7,9 +6,9 @@ from ipam.choices import *
 from ipam.constants import VLANGROUP_SCOPE_TYPES
 from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VLANTranslationRule
 from netbox.api.fields import ChoiceField, ContentTypeField, IntegerRangeSerializer, RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.gfk_fields import GFKSerializerField
+from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from .nested import NestedVLANSerializer
 from .roles import RoleSerializer
@@ -24,7 +23,7 @@ __all__ = (
 )
 
 
-class VLANGroupSerializer(NetBoxModelSerializer):
+class VLANGroupSerializer(OrganizationalModelSerializer):
     scope_type = ContentTypeField(
         queryset=ContentType.objects.filter(
             model__in=VLANGROUP_SCOPE_TYPES
@@ -34,7 +33,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         default=None
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
-    scope = serializers.SerializerMethodField(read_only=True)
+    scope = GFKSerializerField(read_only=True)
     vid_ranges = IntegerRangeSerializer(many=True, required=False)
     utilization = serializers.CharField(read_only=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -46,21 +45,14 @@ class VLANGroupSerializer(NetBoxModelSerializer):
         model = VLANGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'vid_ranges',
-            'tenant', 'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
+            'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'vlan_count', 'utilization',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
         validators = []
 
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_scope(self, obj):
-        if obj.scope_id is None:
-            return None
-        serializer = get_serializer_for_model(obj.scope)
-        context = {'request': self.context['request']}
-        return serializer(obj.scope, nested=True, context=context).data
 
-
-class VLANSerializer(NetBoxModelSerializer):
+class VLANSerializer(PrimaryModelSerializer):
     site = SiteSerializer(nested=True, required=False, allow_null=True)
     group = VLANGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
@@ -77,7 +69,7 @@ class VLANSerializer(NetBoxModelSerializer):
         model = VLAN
         fields = [
             'id', 'url', 'display_url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role',
-            'description', 'qinq_role', 'qinq_svlan', 'comments', 'l2vpn_termination', 'tags', 'custom_fields',
+            'description', 'qinq_role', 'qinq_svlan', 'owner', 'comments', 'l2vpn_termination', 'tags', 'custom_fields',
             'created', 'last_updated', 'prefix_count',
         ]
         brief_fields = ('id', 'url', 'display', 'vid', 'name', 'description')
@@ -125,10 +117,10 @@ class VLANTranslationRuleSerializer(NetBoxModelSerializer):
         fields = ['id', 'url', 'display', 'policy', 'local_vid', 'remote_vid', 'description']
 
 
-class VLANTranslationPolicySerializer(NetBoxModelSerializer):
+class VLANTranslationPolicySerializer(PrimaryModelSerializer):
     rules = VLANTranslationRuleSerializer(many=True, read_only=True)
 
     class Meta:
         model = VLANTranslationPolicy
-        fields = ['id', 'url', 'display', 'name', 'description', 'display', 'rules']
+        fields = ['id', 'url', 'display', 'name', 'description', 'display', 'rules', 'owner', 'comments']
         brief_fields = ('id', 'url', 'display', 'name', 'description')

@@ -1,7 +1,7 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import PrimaryModelTable, columns
 from vpn.models import *
 
 __all__ = (
@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-class IKEProposalTable(NetBoxTable):
+class IKEProposalTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -33,14 +33,11 @@ class IKEProposalTable(NetBoxTable):
     sa_lifetime = tables.Column(
         verbose_name=_('SA Lifetime')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:ikeproposal_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = IKEProposal
         fields = (
             'pk', 'id', 'name', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm',
@@ -52,7 +49,7 @@ class IKEProposalTable(NetBoxTable):
         )
 
 
-class IKEPolicyTable(NetBoxTable):
+class IKEPolicyTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -70,14 +67,11 @@ class IKEPolicyTable(NetBoxTable):
     preshared_key = tables.Column(
         verbose_name=_('Pre-shared Key')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:ikepolicy_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = IKEPolicy
         fields = (
             'pk', 'id', 'name', 'version', 'mode', 'proposals', 'preshared_key', 'description', 'comments', 'tags',
@@ -88,7 +82,7 @@ class IKEPolicyTable(NetBoxTable):
         )
 
 
-class IPSecProposalTable(NetBoxTable):
+class IPSecProposalTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -105,14 +99,11 @@ class IPSecProposalTable(NetBoxTable):
     sa_lifetime_data = tables.Column(
         verbose_name=_('SA Lifetime (KB)')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:ipsecproposal_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = IPSecProposal
         fields = (
             'pk', 'id', 'name', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
@@ -124,7 +115,7 @@ class IPSecProposalTable(NetBoxTable):
         )
 
 
-class IPSecPolicyTable(NetBoxTable):
+class IPSecPolicyTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -136,14 +127,11 @@ class IPSecPolicyTable(NetBoxTable):
     pfs_group = tables.Column(
         verbose_name=_('PFS Group')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:ipsecpolicy_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = IPSecPolicy
         fields = (
             'pk', 'id', 'name', 'proposals', 'pfs_group', 'description', 'comments', 'tags', 'created', 'last_updated',
@@ -153,7 +141,7 @@ class IPSecPolicyTable(NetBoxTable):
         )
 
 
-class IPSecProfileTable(NetBoxTable):
+class IPSecProfileTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -169,14 +157,11 @@ class IPSecProfileTable(NetBoxTable):
         linkify=True,
         verbose_name=_('IPSec Policy')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='vpn:ipsecprofile_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = IPSecProfile
         fields = (
             'pk', 'id', 'name', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags', 'created',

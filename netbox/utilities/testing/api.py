@@ -17,6 +17,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from ipam.graphql.types import IPAddressFamilyType
 from netbox.models.features import ChangeLoggingMixin
+from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 from .base import ModelTestCase
@@ -50,7 +51,7 @@ class APITestCase(ModelTestCase):
         self.user = User.objects.create_user(username='testuser')
         self.add_permissions(*self.user_permissions)
         self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
 
     def _get_view_namespace(self):
         return f'{self.view_namespace or self.model._meta.app_label}-api'
@@ -153,6 +154,7 @@ class APIViewTestCases:
             url = f'{self._get_list_url()}?brief=1'
             response = self.client.get(url, **self.header)
 
+            self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data['results']), self._get_queryset().count())
             self.assertEqual(sorted(response.data['results'][0]), self.brief_fields)
 
@@ -247,9 +249,9 @@ class APIViewTestCases:
             if issubclass(self.model, ChangeLoggingMixin):
                 objectchange = ObjectChange.objects.get(
                     changed_object_type=ContentType.objects.get_for_model(instance),
-                    changed_object_id=instance.pk
+                    changed_object_id=instance.pk,
+                    action=ObjectChangeActionChoices.ACTION_CREATE,
                 )
-                self.assertEqual(objectchange.action, ObjectChangeActionChoices.ACTION_CREATE)
                 self.assertEqual(objectchange.message, data['changelog_message'])
 
         def test_bulk_create_objects(self):
@@ -298,11 +300,11 @@ class APIViewTestCases:
                 ]
                 objectchanges = ObjectChange.objects.filter(
                     changed_object_type=ContentType.objects.get_for_model(self.model),
-                    changed_object_id__in=id_list
+                    changed_object_id__in=id_list,
+                    action=ObjectChangeActionChoices.ACTION_CREATE,
                 )
                 self.assertEqual(len(objectchanges), len(self.create_data))
                 for oc in objectchanges:
-                    self.assertEqual(oc.action, ObjectChangeActionChoices.ACTION_CREATE)
                     self.assertEqual(oc.message, changelog_message)
 
     class UpdateObjectViewTestCase(APITestCase):

@@ -9,9 +9,11 @@ from dcim.models import MACAddress
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+from users.filterset_mixins import OwnerFilterMixin
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
+from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
 
@@ -25,6 +27,7 @@ __all__ = (
 )
 
 
+@register_filterset
 class ClusterTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -32,6 +35,7 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
         fields = ('id', 'name', 'slug', 'description')
 
 
+@register_filterset
 class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
@@ -39,7 +43,8 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
         fields = ('id', 'name', 'slug', 'description')
 
 
-class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ScopedFilterSet, ContactModelFilterSet):
+@register_filterset
+class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ScopedFilterSet, ContactModelFilterSet):
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
         label=_('Parent group (ID)'),
@@ -79,8 +84,9 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ScopedFilterSet, 
         )
 
 
+@register_filterset
 class VirtualMachineFilterSet(
-    NetBoxModelFilterSet,
+    PrimaryModelFilterSet,
     TenancyFilterSet,
     ContactModelFilterSet,
     LocalConfigContextFilterSet,
@@ -88,6 +94,10 @@ class VirtualMachineFilterSet(
 ):
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
+        null_value=None
+    )
+    start_on_boot = django_filters.MultipleChoiceFilter(
+        choices=VirtualMachineStartOnBootChoices,
         null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
@@ -235,7 +245,8 @@ class VirtualMachineFilterSet(
         return queryset.exclude(params)
 
 
-class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
+@register_filterset
+class VMInterfaceFilterSet(CommonInterfaceFilterSet, OwnerFilterMixin, NetBoxModelFilterSet):
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__cluster',
         queryset=Cluster.objects.all(),
@@ -297,7 +308,8 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         )
 
 
-class VirtualDiskFilterSet(NetBoxModelFilterSet):
+@register_filterset
+class VirtualDiskFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),

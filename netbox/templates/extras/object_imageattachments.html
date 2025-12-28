@@ -27,6 +27,16 @@
                 alt="{{ object.description|default:object.name }}"
               />
             </a>
+          {% empty %}
+            <a href="{{ object.get_absolute_url }}" class="d-block text-decoration-none" title="{{ object.name }}">
+              <div class="d-flex align-items-center justify-content-center rounded bg-light text-secondary border" style="width: 200px; height: 200px;">
+                <div class="text-center">
+                  <i class="mdi mdi-image-broken-variant display-4"></i>
+                  <div class="small mt-2 text-dark">{% trans "Thumbnail cannot be generated" %}</div>
+                  <div class="small fw-bold text-dark">{% trans "Click to view original" %}</div>
+                </div>
+              </div>
+            </a>
           {% endthumbnail %}
           <div class="text-center text-secondary text-truncate fs-5">
             {{ object }}

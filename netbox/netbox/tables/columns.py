@@ -270,7 +270,7 @@ class ActionsColumn(tables.Column):
         if not (self.actions or self.extra_buttons):
             return ''
         # Skip dummy records (e.g. available VLANs or IP ranges replacing individual IPs)
-        if type(record) is not model or not getattr(record, 'pk', None):
+        if not isinstance(record, model) or not getattr(record, 'pk', None):
             return ''
 
         if request := getattr(table, 'context', {}).get('request'):

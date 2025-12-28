@@ -1,0 +1,14 @@
+{% extends "ui/panels/_base.html" %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    {% for attr in attrs %}
+      <tr>
+        <th scope="row">{{ attr.label }}</th>
+        <td>
+          <div class="d-flex justify-content-between align-items-start">{{ attr.value }}</div>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock panel_content %}

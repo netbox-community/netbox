@@ -1,17 +1,21 @@
 import strawberry
 import strawberry_django
+from strawberry.types import Info
 from django.contrib.contenttypes.models import ContentType
 
 from core.graphql.mixins import ChangelogMixin
 from core.models import ObjectType as ObjectType_
 from extras.graphql.mixins import CustomFieldsMixin, JournalEntriesMixin, TagsMixin
+from users.graphql.mixins import OwnerMixin
 
 __all__ = (
     'BaseObjectType',
     'ContentTypeType',
+    'NestedGroupObjectType',
+    'NetBoxObjectType',
     'ObjectType',
     'OrganizationalObjectType',
-    'NetBoxObjectType',
+    'PrimaryObjectType',
 )
 
 
@@ -26,7 +30,7 @@ class BaseObjectType:
     """
 
     @classmethod
-    def get_queryset(cls, queryset, info, **kwargs):
+    def get_queryset(cls, queryset, info: Info, **kwargs):
         # Enforce object permissions on the queryset
         if hasattr(queryset, 'restrict'):
             return queryset.restrict(info.context.request.user, 'view')
@@ -52,14 +56,44 @@ class ObjectType(
     pass
 
 
-class OrganizationalObjectType(
+class PrimaryObjectType(
     ChangelogMixin,
     CustomFieldsMixin,
+    JournalEntriesMixin,
     TagsMixin,
+    OwnerMixin,
     BaseObjectType
 ):
     """
-    Base type for organizational models
+    Base GraphQL type for models which inherit from PrimaryModel.
+    """
+    pass
+
+
+class OrganizationalObjectType(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    OwnerMixin,
+    BaseObjectType
+):
+    """
+    Base GraphQL type for models which inherit from OrganizationalModel.
+    """
+    pass
+
+
+class NestedGroupObjectType(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    OwnerMixin,
+    BaseObjectType
+):
+    """
+    Base GraphQL type for models which inherit from NestedGroupModel.
     """
     pass
 
@@ -71,9 +105,6 @@ class NetBoxObjectType(
     TagsMixin,
     BaseObjectType
 ):
-    """
-    GraphQL type for most NetBox models. Includes support for custom fields, change logging, journaling, and tags.
-    """
     pass
 
 

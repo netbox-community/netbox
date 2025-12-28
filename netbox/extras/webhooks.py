@@ -52,7 +52,6 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'event': WEBHOOK_EVENT_TYPES.get(event_type, event_type),
         'timestamp': timestamp,
         'object_type': '.'.join(object_type.natural_key()),
-        'model': object_type.model,
         'username': username,
         'request_id': request.id if request else None,
         'data': data,
@@ -100,7 +99,7 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'data': body.encode('utf8'),
     }
     logger.info(
-        f"Sending {params['method']} request to {params['url']} ({context['model']} {context['event']})"
+        f"Sending {params['method']} request to {params['url']} ({context['object_type']} {context['event']})"
     )
     logger.debug(params)
     try:

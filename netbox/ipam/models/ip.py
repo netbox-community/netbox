@@ -283,14 +283,15 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
         verbose_name = _('prefix')
         verbose_name_plural = _('prefixes')
-        indexes = [
+        indexes = (
+            models.Index(fields=('scope_type', 'scope_id')),
             GistIndex(
                 fields=['prefix'],
                 name='ipam_prefix_gist_idx',
                 opclasses=['inet_ops'],
             ),
-        ]
-        triggers = [
+          )
+        triggers = (
             pgtrigger.Trigger(
                 name='ipam_prefix_delete',
                 operation=pgtrigger.Delete,
@@ -309,7 +310,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                 when=pgtrigger.After,
                 func=ipam_prefix_update_adjust_prefix_parent,
             ),
-        ]
+          )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -631,7 +632,7 @@ class IPRange(ContactsMixin, PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Report space as 100% utilized")
+        help_text=_("Report space as fully utilized")
     )
 
     clone_fields = (

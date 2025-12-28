@@ -1,13 +1,8 @@
-from django.contrib import messages
-from django.db import router, transaction
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
 from ipam.models import ASN
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
@@ -83,6 +78,7 @@ class ProviderBulkEditView(generic.BulkEditView):
 @register_model_view(Provider, 'bulk_rename', path='rename', detail=False)
 class ProviderBulkRenameView(generic.BulkRenameView):
     queryset = Provider.objects.all()
+    filterset = filtersets.ProviderFilterSet
 
 
 @register_model_view(Provider, 'bulk_delete', path='delete', detail=False)
@@ -150,6 +146,7 @@ class ProviderAccountBulkEditView(generic.BulkEditView):
 @register_model_view(ProviderAccount, 'bulk_rename', path='rename', detail=False)
 class ProviderAccountBulkRenameView(generic.BulkRenameView):
     queryset = ProviderAccount.objects.all()
+    filterset = filtersets.ProviderAccountFilterSet
 
 
 @register_model_view(ProviderAccount, 'bulk_delete', path='delete', detail=False)
@@ -226,6 +223,7 @@ class ProviderNetworkBulkEditView(generic.BulkEditView):
 @register_model_view(ProviderNetwork, 'bulk_rename', path='rename', detail=False)
 class ProviderNetworkBulkRenameView(generic.BulkRenameView):
     queryset = ProviderNetwork.objects.all()
+    filterset = filtersets.ProviderNetworkFilterSet
 
 
 @register_model_view(ProviderNetwork, 'bulk_delete', path='delete', detail=False)
@@ -290,6 +288,7 @@ class CircuitTypeBulkEditView(generic.BulkEditView):
 @register_model_view(CircuitType, 'bulk_rename', path='rename', detail=False)
 class CircuitTypeBulkRenameView(generic.BulkRenameView):
     queryset = CircuitType.objects.all()
+    filterset = filtersets.CircuitTypeFilterSet
 
 
 @register_model_view(CircuitType, 'bulk_delete', path='delete', detail=False)
@@ -362,6 +361,7 @@ class CircuitBulkEditView(generic.BulkEditView):
 class CircuitBulkRenameView(generic.BulkRenameView):
     queryset = Circuit.objects.all()
     field_name = 'cid'
+    filterset = filtersets.CircuitFilterSet
 
 
 @register_model_view(Circuit, 'bulk_delete', path='delete', detail=False)
@@ -371,82 +371,6 @@ class CircuitBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.CircuitFilterSet
     table = tables.CircuitTable
-
-
-class CircuitSwapTerminations(generic.ObjectEditView):
-    """
-    Swap the A and Z terminations of a circuit.
-    """
-    queryset = Circuit.objects.all()
-
-    def get(self, request, pk):
-        circuit = get_object_or_404(self.queryset, pk=pk)
-        form = ConfirmationForm()
-
-        # Circuit must have at least one termination to swap
-        if not circuit.termination_a and not circuit.termination_z:
-            messages.error(request, _(
-                "No terminations have been defined for circuit {circuit}."
-            ).format(circuit=circuit))
-            return redirect('circuits:circuit', pk=circuit.pk)
-
-        return render(request, 'circuits/circuit_terminations_swap.html', {
-            'circuit': circuit,
-            'termination_a': circuit.termination_a,
-            'termination_z': circuit.termination_z,
-            'form': form,
-            'panel_class': 'light',
-            'button_class': 'primary',
-            'return_url': circuit.get_absolute_url(),
-        })
-
-    def post(self, request, pk):
-        circuit = get_object_or_404(self.queryset, pk=pk)
-        form = ConfirmationForm(request.POST)
-
-        if form.is_valid():
-
-            termination_a = CircuitTermination.objects.filter(pk=circuit.termination_a_id).first()
-            termination_z = CircuitTermination.objects.filter(pk=circuit.termination_z_id).first()
-
-            if termination_a and termination_z:
-                # Use a placeholder to avoid an IntegrityError on the (circuit, term_side) unique constraint
-                with transaction.atomic(using=router.db_for_write(CircuitTermination)):
-                    termination_a.term_side = '_'
-                    termination_a.save()
-                    termination_z.term_side = 'A'
-                    termination_z.save()
-                    termination_a.term_side = 'Z'
-                    termination_a.save()
-                    circuit.refresh_from_db()
-                    circuit.termination_a = termination_z
-                    circuit.termination_z = termination_a
-                    circuit.save()
-            elif termination_a:
-                termination_a.term_side = 'Z'
-                termination_a.save()
-                circuit.refresh_from_db()
-                circuit.termination_a = None
-                circuit.save()
-            else:
-                termination_z.term_side = 'A'
-                termination_z.save()
-                circuit.refresh_from_db()
-                circuit.termination_z = None
-                circuit.save()
-
-            messages.success(request, _("Swapped terminations for circuit {circuit}.").format(circuit=circuit))
-            return redirect('circuits:circuit', pk=circuit.pk)
-
-        return render(request, 'circuits/circuit_terminations_swap.html', {
-            'circuit': circuit,
-            'termination_a': circuit.termination_a,
-            'termination_z': circuit.termination_z,
-            'form': form,
-            'panel_class': 'default',
-            'button_class': 'primary',
-            'return_url': circuit.get_absolute_url(),
-        })
 
 
 #
@@ -557,6 +481,7 @@ class CircuitGroupBulkEditView(generic.BulkEditView):
 @register_model_view(CircuitGroup, 'bulk_rename', path='rename', detail=False)
 class CircuitGroupBulkRenameView(generic.BulkRenameView):
     queryset = CircuitGroup.objects.all()
+    filterset = filtersets.CircuitGroupFilterSet
 
 
 @register_model_view(CircuitGroup, 'bulk_delete', path='delete', detail=False)
@@ -672,6 +597,7 @@ class VirtualCircuitTypeBulkEditView(generic.BulkEditView):
 @register_model_view(VirtualCircuitType, 'bulk_rename', path='rename', detail=False)
 class VirtualCircuitTypeBulkRenameView(generic.BulkRenameView):
     queryset = VirtualCircuitType.objects.all()
+    filterset = filtersets.VirtualCircuitTypeFilterSet
 
 
 @register_model_view(VirtualCircuitType, 'bulk_delete', path='delete', detail=False)
@@ -744,6 +670,7 @@ class VirtualCircuitBulkEditView(generic.BulkEditView):
 class VirtualCircuitBulkRenameView(generic.BulkRenameView):
     queryset = VirtualCircuit.objects.all()
     field_name = 'cid'
+    filterset = filtersets.VirtualCircuitFilterSet
 
 
 @register_model_view(VirtualCircuit, 'bulk_delete', path='delete', detail=False)

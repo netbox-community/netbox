@@ -1,13 +1,16 @@
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.forms.mixins import ScopedImportForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
-from ipam.models import VRF
+from ipam.choices import VLANQinQRoleChoices
+from ipam.models import VLAN, VRF, VLANGroup
 from netbox.forms import NetBoxModelImportForm
+from netbox.forms import OrganizationalModelImportForm, OwnerCSVMixin, PrimaryModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -21,23 +24,21 @@ __all__ = (
 )
 
 
-class ClusterTypeImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+class ClusterTypeImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ClusterType
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
-class ClusterGroupImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+class ClusterGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = ClusterGroup
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
-class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
+class ClusterImportForm(ScopedImportForm, PrimaryModelImportForm):
     type = CSVModelChoiceField(
         label=_('Type'),
         queryset=ClusterType.objects.all(),
@@ -74,18 +75,25 @@ class ClusterImportForm(ScopedImportForm, NetBoxModelImportForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'owner', 'comments',
+            'tags',
         )
         labels = {
             'scope_id': _('Scope ID'),
         }
 
 
-class VirtualMachineImportForm(NetBoxModelImportForm):
+class VirtualMachineImportForm(PrimaryModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=VirtualMachineStatusChoices,
         help_text=_('Operational status')
+    )
+    start_on_boot = CSVChoiceField(
+        label=_('Start on boot'),
+        choices=VirtualMachineStartOnBootChoices,
+        help_text=_('Start on boot in hypervisor'),
+        required=False,
     )
     site = CSVModelChoiceField(
         label=_('Site'),
@@ -142,12 +150,12 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualMachine
         fields = (
-            'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'serial', 'config_template', 'comments', 'tags',
+            'name', 'status', 'start_on_boot', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus',
+            'memory', 'disk', 'description', 'serial', 'config_template', 'comments', 'owner', 'tags',
         )
 
 
-class VMInterfaceImportForm(NetBoxModelImportForm):
+class VMInterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
@@ -158,20 +166,54 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
         queryset=VMInterface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent interface')
+        help_text=_('Parent interface'),
     )
     bridge = CSVModelChoiceField(
         label=_('Bridge'),
         queryset=VMInterface.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Bridged interface')
+        help_text=_('Bridged interface'),
     )
     mode = CSVChoiceField(
         label=_('Mode'),
         choices=InterfaceModeChoices,
         required=False,
-        help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)')
+        help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)'),
+    )
+    vlan_group = CSVModelChoiceField(
+        label=_('VLAN group'),
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Filter VLANs available for assignment by group'),
+    )
+    untagged_vlan = CSVModelChoiceField(
+        label=_('Untagged VLAN'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text=_('Assigned untagged VLAN ID (filtered by VLAN group)'),
+    )
+    tagged_vlans = CSVModelMultipleChoiceField(
+        label=_('Tagged VLANs'),
+        queryset=VLAN.objects.all(),
+        required=False,
+        to_field_name='vid',
+        help_text=mark_safe(
+            _(
+                'Assigned tagged VLAN IDs separated by commas, encased with double quotes '
+                '(filtered by VLAN group). Example:'
+            )
+            + ' <code>"100,200,300"</code>'
+        ),
+    )
+    qinq_svlan = CSVModelChoiceField(
+        label=_('Q-in-Q Service VLAN'),
+        queryset=VLAN.objects.filter(qinq_role=VLANQinQRoleChoices.ROLE_SERVICE),
+        required=False,
+        to_field_name='vid',
+        help_text=_('Assigned Q-in-Q Service VLAN ID (filtered by VLAN group)'),
     )
     vrf = CSVModelChoiceField(
         label=_('VRF'),
@@ -184,8 +226,8 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
     class Meta:
         model = VMInterface
         fields = (
-            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode',
-            'vrf', 'tags'
+            'virtual_machine', 'name', 'parent', 'bridge', 'enabled', 'mtu', 'description', 'mode', 'vlan_group',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vrf', 'owner', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -200,6 +242,13 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
                 self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
                 self.fields['bridge'].queryset = self.fields['bridge'].queryset.filter(**params)
 
+            # Limit choices for VLANs to the assigned VLAN group
+            if vlan_group := data.get('vlan_group'):
+                params = {f"group__{self.fields['vlan_group'].to_field_name}": vlan_group}
+                self.fields['untagged_vlan'].queryset = self.fields['untagged_vlan'].queryset.filter(**params)
+                self.fields['tagged_vlans'].queryset = self.fields['tagged_vlans'].queryset.filter(**params)
+                self.fields['qinq_svlan'].queryset = self.fields['qinq_svlan'].queryset.filter(**params)
+
     def clean_enabled(self):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:
@@ -208,7 +257,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
             return self.cleaned_data['enabled']
 
 
-class VirtualDiskImportForm(NetBoxModelImportForm):
+class VirtualDiskImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
@@ -218,5 +267,5 @@ class VirtualDiskImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualDisk
         fields = (
-            'virtual_machine', 'name', 'size', 'description', 'tags'
+            'virtual_machine', 'name', 'size', 'description', 'owner', 'tags'
         )

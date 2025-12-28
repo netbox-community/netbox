@@ -13,7 +13,7 @@ def get_related_models(model, ordered=True):
     related_models = [
         (field.related_model, field.remote_field.name)
         for field in model._meta.related_objects
-        if type(field) is ManyToOneRel
+        if type(field) is ManyToOneRel and not getattr(field.related_model, '_netbox_private', False)
     ]
 
     if ordered:

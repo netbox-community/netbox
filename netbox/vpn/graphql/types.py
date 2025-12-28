@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
+from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType, PrimaryObjectType
 from vpn import models
 from .filters import *
 
@@ -58,7 +58,7 @@ class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     filters=TunnelFilter,
     pagination=True
 )
-class TunnelType(ContactsMixin, NetBoxObjectType):
+class TunnelType(ContactsMixin, PrimaryObjectType):
     group: Annotated["TunnelGroupType", strawberry.lazy('vpn.graphql.types')] | None
     ipsec_profile: Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -72,8 +72,7 @@ class TunnelType(ContactsMixin, NetBoxObjectType):
     filters=IKEProposalFilter,
     pagination=True
 )
-class IKEProposalType(OrganizationalObjectType):
-
+class IKEProposalType(PrimaryObjectType):
     ike_policies: List[Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]]
 
 
@@ -83,8 +82,7 @@ class IKEProposalType(OrganizationalObjectType):
     filters=IKEPolicyFilter,
     pagination=True
 )
-class IKEPolicyType(OrganizationalObjectType):
-
+class IKEPolicyType(PrimaryObjectType):
     proposals: List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]
     ipsec_profiles: List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]
 
@@ -95,8 +93,7 @@ class IKEPolicyType(OrganizationalObjectType):
     filters=IPSecProposalFilter,
     pagination=True
 )
-class IPSecProposalType(OrganizationalObjectType):
-
+class IPSecProposalType(PrimaryObjectType):
     ipsec_policies: List[Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]]
 
 
@@ -106,8 +103,7 @@ class IPSecProposalType(OrganizationalObjectType):
     filters=IPSecPolicyFilter,
     pagination=True
 )
-class IPSecPolicyType(OrganizationalObjectType):
-
+class IPSecPolicyType(PrimaryObjectType):
     proposals: List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]
     ipsec_profiles: List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]
 
@@ -118,7 +114,7 @@ class IPSecPolicyType(OrganizationalObjectType):
     filters=IPSecProfileFilter,
     pagination=True
 )
-class IPSecProfileType(OrganizationalObjectType):
+class IPSecProfileType(PrimaryObjectType):
     ike_policy: Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]
     ipsec_policy: Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]
 
@@ -131,7 +127,7 @@ class IPSecProfileType(OrganizationalObjectType):
     filters=L2VPNFilter,
     pagination=True
 )
-class L2VPNType(ContactsMixin, NetBoxObjectType):
+class L2VPNType(ContactsMixin, PrimaryObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
     export_targets: List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]

@@ -1,0 +1,25 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers %}
+{% load i18n %}
+
+{% block panel_content %}
+  <ul class="list-group list-group-flush" role="presentation">
+    {% for related_object_count in related_models %}
+      {% action_url related_object_count.queryset.model 'list' as list_url %}
+      {% if list_url %}
+        <a href="{{ list_url }}?{{ related_object_count.filter_param }}={{ object.pk }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+          {{ related_object_count.name }}
+          {% with count=related_object_count.queryset.count %}
+            {% if count %}
+              <span class="badge text-bg-primary rounded-pill">{{ count }}</span>
+            {% else %}
+              <span class="badge text-bg-light rounded-pill">&mdash;</span>
+            {% endif %}
+          {% endwith %}
+        </a>
+      {% endif %}
+    {% empty %}
+      <span class="list-group-item text-muted">{% trans "None" %}</span>
+    {% endfor %}
+  </ul>
+{% endblock panel_content %}

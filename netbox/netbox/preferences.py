@@ -26,16 +26,6 @@ def get_csv_delimiters():
 PREFERENCES = {
 
     # User interface
-    'ui.htmx_navigation': UserPreference(
-        label=_('HTMX Navigation'),
-        choices=(
-            ('', _('Disabled')),
-            ('true', _('Enabled')),
-        ),
-        description=_('Enable dynamic UI navigation'),
-        default=False,
-        warning=_('Experimental feature')
-    ),
     'locale.language': UserPreference(
         label=_('Language'),
         choices=(
@@ -48,6 +38,15 @@ PREFERENCES = {
             if not settings.TRANSLATION_ENABLED
             else ''
         )
+    ),
+    'ui.copilot_enabled': UserPreference(
+        label=_('NetBox Copilot'),
+        choices=(
+            ('', _('Disabled')),
+            ('true', _('Enabled')),
+        ),
+        description=_('Enable the NetBox Copilot AI agent'),
+        default=False,
     ),
     'pagination.per_page': UserPreference(
         label=_('Page length'),

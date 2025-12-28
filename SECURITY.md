@@ -34,4 +34,4 @@ For any security concerns regarding the community-maintained Docker image for Ne
 
 ### Bug Bounties
 
-As NetBox is provided as free open source software, we do not offer any monetary compensation for vulnerability or bug reports, however your contributions are greatly appreciated.
+As NetBox is provided as free open source software, we do not offer any monetary compensation for vulnerability or bug reports; however, your contributions are greatly appreciated.

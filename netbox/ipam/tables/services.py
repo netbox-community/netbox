@@ -1,8 +1,9 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
 from ipam.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import PrimaryModelTable, columns
+from tenancy.tables import ContactsColumnMixin
 
 __all__ = (
     'ServiceTable',
@@ -10,7 +11,7 @@ __all__ = (
 )
 
 
-class ServiceTemplateTable(NetBoxTable):
+class ServiceTemplateTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -20,14 +21,11 @@ class ServiceTemplateTable(NetBoxTable):
         accessor=tables.A('port_list'),
         order_by=tables.A('ports'),
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='ipam:servicetemplate_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = ServiceTemplate
         fields = (
             'pk', 'id', 'name', 'protocol', 'ports', 'description', 'comments', 'tags', 'created', 'last_updated',
@@ -35,7 +33,7 @@ class ServiceTemplateTable(NetBoxTable):
         default_columns = ('pk', 'name', 'protocol', 'ports', 'description')
 
 
-class ServiceTable(NetBoxTable):
+class ServiceTable(ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -50,17 +48,14 @@ class ServiceTable(NetBoxTable):
         accessor=tables.A('port_list'),
         order_by=tables.A('ports'),
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='ipam:service_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Service
         fields = (
-            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'parent', 'protocol', 'ports', 'ipaddresses', 'description', 'contacts', 'comments',
+            'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'parent', 'protocol', 'ports', 'description')
