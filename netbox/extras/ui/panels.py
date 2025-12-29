@@ -51,7 +51,14 @@ class ImageAttachmentsPanel(panels.ObjectsTablePanel):
     ]
 
     def __init__(self, **kwargs):
-        super().__init__('extras.imageattachment', **kwargs)
+        super().__init__(
+            'extras.imageattachment',
+            filters={
+                'object_type_id': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                'object_id': lambda ctx: ctx['object'].pk,
+            },
+            **kwargs,
+        )
 
 
 class TagsPanel(panels.ObjectPanel):
