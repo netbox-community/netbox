@@ -2856,10 +2856,7 @@ class InterfaceView(generic.ObjectView):
         vdc_table.configure(request)
 
         # Get bridge interfaces
-        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance).select_related(
-            'device', 'module', 'parent', 'bridge', 'lag', 'vrf', 'untagged_vlan', 'qinq_svlan',
-            'primary_mac_address'
-        ).prefetch_related('tagged_vlans', 'wireless_lans', 'vdcs')
+        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
         bridge_interfaces_table = tables.InterfaceTable(
             bridge_interfaces,
             exclude=('device', 'parent'),
