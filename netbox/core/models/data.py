@@ -131,6 +131,19 @@ class DataSource(JobsMixin, PrimaryModel):
                 'source_url': "URLs for local sources must start with file:// (or specify no scheme)"
             })
 
+    def save(self, *args, **kwargs):
+
+        # If recurring sync is disabled for an existing DataSource, clear any pending sync jobs for it and reset its
+        # "queued" status
+        if not self._state.adding and not self.sync_interval:
+            self.jobs.filter(status=JobStatusChoices.STATUS_PENDING).delete()
+            if self.status == DataSourceStatusChoices.QUEUED and self.last_synced:
+                self.status = DataSourceStatusChoices.COMPLETED
+            elif self.status == DataSourceStatusChoices.QUEUED:
+                self.status = DataSourceStatusChoices.NEW
+
+        super().save(*args, **kwargs)
+
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
 
