@@ -6,6 +6,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
+from ipam.models import Prefix
 from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
@@ -1192,3 +1193,14 @@ class VirtualChassisTestCase(TestCase):
         device2.vc_position = 1
         with self.assertRaises(ValidationError):
             device2.full_clean()
+
+
+class SiteSignalTestCase(TestCase):
+
+    @tag('regression')
+    def test_edit_site_with_prefix_no_vrf(self):
+        site = Site.objects.create(name='Test Site', slug='test-site')
+        Prefix.objects.create(prefix='192.0.2.0/24', scope=site, vrf=None)
+
+        # Regression test for #21045: should not raise ValueError
+        site.save()

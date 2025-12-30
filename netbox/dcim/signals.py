@@ -210,7 +210,7 @@ def sync_cached_scope_fields(instance, created, **kwargs):
     for model in (Prefix, Cluster, WirelessLAN):
         qs = model.objects.filter(**filters)
 
-        for obj in qs.only('id'):
+        for obj in qs:
             # Recompute cache using the same logic as save()
             obj.cache_related_objects()
             obj.save(update_fields=[
