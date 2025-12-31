@@ -151,6 +151,16 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     rear_image = attrs.ImageAttr('rear_image')
 
 
+class ModulePanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    device_type = attrs.RelatedObjectAttr('device.device_type', linkify=True, grouped_by='manufacturer')
+    module_bay = attrs.NestedObjectAttr('module_bay')
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
+    asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
+
+
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')

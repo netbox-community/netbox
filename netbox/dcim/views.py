@@ -2824,6 +2824,21 @@ class ModuleListView(generic.ObjectListView):
 @register_model_view(Module)
 class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Module.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModulePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Module Type'),
+                template_name='dcim/panels/module_type.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
