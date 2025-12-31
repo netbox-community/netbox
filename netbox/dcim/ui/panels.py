@@ -166,6 +166,11 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
 
 
+class PlatformPanel(panels.NestedGroupObjectPanel):
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
+
+
 class VirtualChassisMembersPanel(panels.ObjectPanel):
     """
     A panel which lists all members of a virtual chassis.

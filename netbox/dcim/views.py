@@ -2412,6 +2412,27 @@ class PlatformListView(generic.ObjectListView):
 @register_model_view(Platform)
 class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Platform.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PlatformPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.Platform',
+                title=_('Child Platforms'),
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.Platform', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ]
+    )
 
     def get_extra_context(self, request, instance):
         return {
