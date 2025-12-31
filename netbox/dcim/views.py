@@ -21,8 +21,8 @@ from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
-    CommentsPanel, JSONPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, RelatedObjectsPanel,
-    TemplatePanel,
+    CommentsPanel, JSONPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, Panel,
+    RelatedObjectsPanel, TemplatePanel,
 )
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
@@ -1657,6 +1657,22 @@ class ModuleTypeListView(generic.ObjectListView):
 @register_model_view(ModuleType)
 class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleTypePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Attributes'),
+                template_name='dcim/panels/module_type_attributes.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            ImageAttachmentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {

@@ -150,6 +150,16 @@ class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
 
 
+class ModuleTypePanel(panels.ObjectAttributesPanel):
+    profile = attrs.RelatedObjectAttr('profile', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    model = attrs.TextAttr('name')
+    part_number = attrs.TextAttr('part_number')
+    description = attrs.TextAttr('description')
+    airflow = attrs.ChoiceAttr('airflow')
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
+
+
 class VirtualChassisMembersPanel(panels.ObjectPanel):
     """
     A panel which lists all members of a virtual chassis.
