@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-23 05:04+0000\n"
+"POT-Creation-Date: 2025-12-31 05:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2551,7 +2551,7 @@ msgstr ""
 msgid "Change logging is not supported for this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/config.py:21 netbox/core/models/data.py:269
+#: netbox/core/models/config.py:21 netbox/core/models/data.py:282
 #: netbox/core/models/files.py:29 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:839 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
@@ -2657,58 +2657,58 @@ msgstr ""
 msgid "Unknown backend type: {type}"
 msgstr ""
 
-#: netbox/core/models/data.py:167
+#: netbox/core/models/data.py:180
 msgid "Cannot initiate sync; syncing already in progress."
 msgstr ""
 
-#: netbox/core/models/data.py:180
+#: netbox/core/models/data.py:193
 msgid ""
 "There was an error initializing the backend. A dependency needs to be "
 "installed: "
 msgstr ""
 
-#: netbox/core/models/data.py:273 netbox/core/models/files.py:33
+#: netbox/core/models/data.py:286 netbox/core/models/files.py:33
 #: netbox/netbox/models/features.py:67
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:283 netbox/dcim/models/cables.py:528
+#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:528
 msgid "path"
 msgstr ""
 
-#: netbox/core/models/data.py:286
+#: netbox/core/models/data.py:299
 msgid "File path relative to the data source's root"
 msgstr ""
 
-#: netbox/core/models/data.py:290 netbox/ipam/models/ip.py:510
+#: netbox/core/models/data.py:303 netbox/ipam/models/ip.py:510
 msgid "size"
 msgstr ""
 
-#: netbox/core/models/data.py:293
+#: netbox/core/models/data.py:306
 msgid "hash"
 msgstr ""
 
-#: netbox/core/models/data.py:297
+#: netbox/core/models/data.py:310
 msgid "Length must be 64 hexadecimal characters."
 msgstr ""
 
-#: netbox/core/models/data.py:299
+#: netbox/core/models/data.py:312
 msgid "SHA256 hash of the file data"
 msgstr ""
 
-#: netbox/core/models/data.py:313
+#: netbox/core/models/data.py:326
 msgid "data file"
 msgstr ""
 
-#: netbox/core/models/data.py:314
+#: netbox/core/models/data.py:327
 msgid "data files"
 msgstr ""
 
-#: netbox/core/models/data.py:387
+#: netbox/core/models/data.py:400
 msgid "auto sync record"
 msgstr ""
 
-#: netbox/core/models/data.py:388
+#: netbox/core/models/data.py:401
 msgid "auto sync records"
 msgstr ""
 
@@ -12287,7 +12287,7 @@ msgstr ""
 msgid "Background Tasks"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:87
+#: netbox/netbox/object_actions.py:88
 #: netbox/templates/circuits/inc/circuit_termination.html:10
 #: netbox/templates/dcim/manufacturer.html:11
 #: netbox/templates/extras/tableconfig_edit.html:29
@@ -12299,12 +12299,12 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:97
+#: netbox/netbox/object_actions.py:98
 #: netbox/utilities/templates/buttons/clone.html:4
 msgid "Clone"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:113
+#: netbox/netbox/object_actions.py:114
 #: netbox/templates/circuits/inc/circuit_termination.html:15
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:37
 #: netbox/templates/dcim/inc/panels/inventory_items.html:32
@@ -12317,7 +12317,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:124
+#: netbox/netbox/object_actions.py:125
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/powerpanel.html:66
@@ -12332,26 +12332,26 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:135
+#: netbox/netbox/object_actions.py:136
 #: netbox/utilities/templatetags/buttons.py:190
 msgid "Import"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:145
+#: netbox/netbox/object_actions.py:146
 #: netbox/utilities/templatetags/buttons.py:207
 msgid "Export"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:173
+#: netbox/netbox/object_actions.py:174
 #: netbox/utilities/templatetags/buttons.py:227
 msgid "Edit Selected"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:184
+#: netbox/netbox/object_actions.py:200
 msgid "Rename Selected"
 msgstr ""
 
-#: netbox/netbox/object_actions.py:195
+#: netbox/netbox/object_actions.py:211
 #: netbox/utilities/templatetags/buttons.py:244
 msgid "Delete Selected"
 msgstr ""
