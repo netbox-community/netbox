@@ -22,7 +22,7 @@
 
 #### Lookup Modifiers in Filter Forms ([#7604](https://github.com/netbox-community/netbox/issues/7604))
 
-Most object list filters within the UI have been extended to include optional lookup modifiers to support more complex queries. For instance, filters for numeric values now include a dropdown where a user can select "less than," "greater than," or "not" in addition to the default equivalency match. The specific modifiers available depend on the type of each filter.
+Most object list filters within the UI have been extended to include optional lookup modifiers to support more complex queries. For instance, filters for numeric values now include a dropdown where a user can select "less than," "greater than," or "not" in addition to the default equivalency match. The specific modifiers available depend on the type of each filter. Plugins can register their own filtersets using the `register_filterset()` decorator to enable this new functionality.
 
 (Note that this feature does not introduce any new filters. Rather, it makes available in the UI filters which already exist.)
 
