@@ -25,6 +25,7 @@ from netbox.ui.panels import (
     NestedGroupObjectPanel,
     ObjectsTablePanel,
     OrganizationalObjectPanel,
+    Panel,
     RelatedObjectsPanel,
     TemplatePanel,
 )
@@ -1667,6 +1668,22 @@ class ModuleTypeListView(generic.ObjectListView):
 @register_model_view(ModuleType)
 class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleTypePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Attributes'),
+                template_name='dcim/panels/module_type_attributes.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            ImageAttachmentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
