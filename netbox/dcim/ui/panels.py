@@ -129,6 +129,12 @@ class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
     total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
 
 
+class DeviceRolePanel(panels.NestedGroupObjectPanel):
+    color = attrs.ColorAttr('color')
+    vm_role = attrs.BooleanAttr('vm_role', label=_('VM role'))
+    config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
+
+
 class DeviceTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
