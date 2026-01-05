@@ -878,6 +878,16 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
 
+        # Check for duplicate values in extra_choices
+        choice_values = [c[0] for c in self.extra_choices] if self.extra_choices else []
+        if len(set(choice_values)) != len(choice_values):
+            # At least one duplicate value is present. Find the first one and raise an error.
+            _seen = []
+            for value in choice_values:
+                if value in _seen:
+                    raise ValidationError(_("Duplicate value '{value}' found in extra choices.").format(value=value))
+                _seen.append(value)
+
         # Check whether any choices have been removed. If so, check whether any of the removed
         # choices are still set in custom field data for any object.
         original_choices = set([
