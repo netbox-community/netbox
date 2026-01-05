@@ -13,7 +13,7 @@ from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.views import generic
@@ -2900,6 +2900,7 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
+            'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'vlan_table': vlan_table,
