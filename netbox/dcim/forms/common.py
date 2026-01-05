@@ -126,18 +126,26 @@ class ModuleCommonForm(forms.Form):
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
 
-                    if len(module_bays) != template.name.count(MODULE_TOKEN):
+                    token_count = template.name.count(MODULE_TOKEN)
+                    # Validate: depth must be >= token_count (can't expand tokens without context)
+                    if len(module_bays) < token_count:
                         raise forms.ValidationError(
                             _(
                                 "Cannot install module with placeholder values in a module bay tree {level} in tree "
                                 "but {tokens} placeholders given."
                             ).format(
-                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
+                                level=len(module_bays), tokens=token_count
                             )
                         )
 
-                    for module_bay in module_bays:
-                        resolved_name = resolved_name.replace(MODULE_TOKEN, module_bay.position, 1)
+                    if token_count == 1:
+                        # Single token: substitute with full path (e.g., "1/1" for depth 2)
+                        full_path = '/'.join([mb.position for mb in module_bays])
+                        resolved_name = resolved_name.replace(MODULE_TOKEN, full_path, 1)
+                    else:
+                        # Multiple tokens: substitute level-by-level (existing behavior)
+                        for mb in module_bays:
+                            resolved_name = resolved_name.replace(MODULE_TOKEN, mb.position, 1)
 
                 existing_item = installed_components.get(resolved_name)
 
