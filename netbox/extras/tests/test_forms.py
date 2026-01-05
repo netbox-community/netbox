@@ -5,6 +5,7 @@ from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.forms import SavedFilterForm
+from extras.forms.model_forms import CustomFieldChoiceSetForm
 from extras.models import CustomField, CustomFieldChoiceSet
 
 
@@ -88,6 +89,31 @@ class CustomFieldModelFormTest(TestCase):
         for field_type, _ in CustomFieldTypeChoices.CHOICES:
             self.assertIn(field_type, instance.custom_field_data)
             self.assertIsNone(instance.custom_field_data[field_type])
+
+
+class CustomFieldChoiceSetFormTest(TestCase):
+
+    def test_escaped_colons_preserved_on_edit(self):
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Test Choice Set',
+            extra_choices=[['foo:bar', 'label'], ['value', 'label:with:colons']]
+        )
+
+        form = CustomFieldChoiceSetForm(instance=choice_set)
+        initial_choices = form.initial['extra_choices']
+
+        # colons are re-escaped
+        self.assertEqual(initial_choices, 'foo\\:bar:label\nvalue:label\\:with\\:colons')
+
+        form = CustomFieldChoiceSetForm(
+            {'name': choice_set.name, 'extra_choices': initial_choices},
+            instance=choice_set
+        )
+        self.assertTrue(form.is_valid())
+        updated = form.save()
+
+        # cleaned extra choices are correct, which does actually mean a list of tuples
+        self.assertEqual(updated.extra_choices, [('foo:bar', 'label'), ('value', 'label:with:colons')])
 
 
 class SavedFilterFormTest(TestCase):
