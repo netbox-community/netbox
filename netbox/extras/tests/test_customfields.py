@@ -1506,18 +1506,17 @@ class CustomFieldModelTest(TestCase):
 
     def test_invalid_data(self):
         """
-        Setting custom field data for a non-applicable (or non-existent) CustomField should raise a ValidationError.
+        Any invalid or stale custom field data should be removed from the instance.
         """
         site = Site(name='Test Site', slug='test-site')
 
         # Set custom field data
         site.custom_field_data['foo'] = 'abc'
         site.custom_field_data['bar'] = 'def'
-        with self.assertRaises(ValidationError):
-            site.clean()
-
-        del site.custom_field_data['bar']
         site.clean()
+
+        self.assertIn('foo', site.custom_field_data)
+        self.assertNotIn('bar', site.custom_field_data)
 
     def test_missing_required_field(self):
         """
