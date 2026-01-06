@@ -175,9 +175,16 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
         if module:
             modules = self._get_module_tree(module)
+            token_count = self.name.count(MODULE_TOKEN)
             name = self.name
-            for module in modules:
-                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            if token_count == 1:
+                # Single token: substitute with full path (e.g., "1/1" for depth 2)
+                full_path = '/'.join([m.module_bay.position for m in modules])
+                name = name.replace(MODULE_TOKEN, full_path, 1)
+            else:
+                # Multiple tokens: substitute level-by-level (existing behavior)
+                for m in modules:
+                    name = name.replace(MODULE_TOKEN, m.module_bay.position, 1)
             return name
         return self.name
 
@@ -187,9 +194,16 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
         if module:
             modules = self._get_module_tree(module)
+            token_count = self.label.count(MODULE_TOKEN)
             label = self.label
-            for module in modules:
-                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
+            if token_count == 1:
+                # Single token: substitute with full path (e.g., "1/1" for depth 2)
+                full_path = '/'.join([m.module_bay.position for m in modules])
+                label = label.replace(MODULE_TOKEN, full_path, 1)
+            else:
+                # Multiple tokens: substitute level-by-level (existing behavior)
+                for m in modules:
+                    label = label.replace(MODULE_TOKEN, m.module_bay.position, 1)
             return label
         return self.label
 
