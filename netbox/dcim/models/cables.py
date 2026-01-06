@@ -115,8 +115,9 @@ class Cable(PrimaryModel):
         # A copy of the PK to be used by __str__ in case the object is deleted
         self._pk = self.__dict__.get('id')
 
-        # Cache the original status so we can check later if it's been changed
+        # Cache the original profile & status so we can check later whether either has been changed
         self._orig_status = self.__dict__.get('status')
+        self._orig_profile = self.__dict__.get('profile')
 
         self._terminations_modified = False
 
@@ -290,7 +291,10 @@ class Cable(PrimaryModel):
             # Update the private PK used in __str__()
             self._pk = self.pk
 
-        if self._terminations_modified:
+        if self._orig_profile != self.profile:
+            print(f'profile changed from {self._orig_profile} to {self.profile}')
+            self.update_terminations(force=True)
+        elif self._terminations_modified:
             self.update_terminations()
 
         super().save(*args, force_update=True, using=using, update_fields=update_fields)
@@ -344,24 +348,28 @@ class Cable(PrimaryModel):
 
         return a_terminations, b_terminations
 
-    def update_terminations(self):
+    def update_terminations(self, force=False):
         """
         Create/delete CableTerminations for this Cable to reflect its current state.
+
+        Args:
+            force: Force the recreation of all CableTerminations, even if no changes have been made. Needed e.g. when
+                altering a Cable's assigned profile.
         """
         a_terminations, b_terminations = self.get_terminations()
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
-            if termination.pk and termination not in self.a_terminations:
+            if force or (termination.pk and termination not in self.a_terminations):
                 ct.delete()
         for termination, ct in b_terminations.items():
-            if termination.pk and termination not in self.b_terminations:
+            if force or (termination.pk and termination not in self.b_terminations):
                 ct.delete()
 
         # Save any new CableTerminations
         profile = self.profile_class() if self.profile else None
         for i, termination in enumerate(self.a_terminations, start=1):
-            if not termination.pk or termination not in a_terminations:
+            if force or not termination.pk or termination not in a_terminations:
                 connector = positions = None
                 if profile:
                     connector = i
@@ -374,7 +382,7 @@ class Cable(PrimaryModel):
                     termination=termination
                 ).save()
         for i, termination in enumerate(self.b_terminations, start=1):
-            if not termination.pk or termination not in b_terminations:
+            if force or not termination.pk or termination not in b_terminations:
                 connector = positions = None
                 if profile:
                     connector = i
@@ -790,7 +798,8 @@ class CablePath(models.Model):
                 # Profile-based tracing
                 if links[0].profile:
                     cable_profile = links[0].profile_class()
-                    term, position = cable_profile.get_peer_termination(terminations[0], position_stack.pop()[0])
+                    position = position_stack.pop()[0] if position_stack else None
+                    term, position = cable_profile.get_peer_termination(terminations[0], position)
                     remote_terminations = [term]
                     position_stack.append([position])
 
