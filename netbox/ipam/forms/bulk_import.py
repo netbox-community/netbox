@@ -229,10 +229,6 @@ class PrefixImportForm(ScopedImportForm, PrimaryModelImportForm):
             query |= Q(**{
                 f"site__{self.fields['vlan_site'].to_field_name}": vlan_site
             })
-            # Don't Forget to include VLANs without a site in the filter
-            query |= Q(**{
-                f"site__{self.fields['vlan_site'].to_field_name}__isnull": True
-            })
 
         if vlan_group:
             query &= Q(**{

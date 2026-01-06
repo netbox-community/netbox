@@ -450,7 +450,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             return model.objects.filter(pk__in=value)
         return value
 
-    def to_form_field(self, set_initial=True, enforce_required=True, enforce_visibility=True, for_csv_import=False):
+    def to_form_field(
+        self,
+        set_initial=True,
+        enforce_required=True,
+        enforce_visibility=True,
+        for_csv_import=False,
+        for_filterset_form=False,
+    ):
         """
         Return a form field suitable for setting a CustomField's value for an object.
 
@@ -458,6 +465,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
         enforce_visibility: Honor the value of CustomField.ui_visible. Set to False for filtering.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
+        for_filterset_form: Return a form field suitable for use in a FilterSet form.
         """
         initial = self.default if set_initial else None
         required = self.required if enforce_required else False
@@ -520,7 +528,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                     field_class = CSVMultipleChoiceField
                 field = field_class(choices=choices, required=required, initial=initial)
             else:
-                if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                if self.type == CustomFieldTypeChoices.TYPE_SELECT and not for_filterset_form:
                     field_class = DynamicChoiceField
                     widget_class = APISelect
                 else:
@@ -870,6 +878,16 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
     def clean(self):
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
+
+        # Check for duplicate values in extra_choices
+        choice_values = [c[0] for c in self.extra_choices] if self.extra_choices else []
+        if len(set(choice_values)) != len(choice_values):
+            # At least one duplicate value is present. Find the first one and raise an error.
+            _seen = []
+            for value in choice_values:
+                if value in _seen:
+                    raise ValidationError(_("Duplicate value '{value}' found in extra choices.").format(value=value))
+                _seen.append(value)
 
         # Check whether any choices have been removed. If so, check whether any of the removed
         # choices are still set in custom field data for any object.

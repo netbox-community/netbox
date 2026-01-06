@@ -189,22 +189,22 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
         # if standardize these, we can simplify this code
 
         # Convert extra_choices Array Field from model to CharField for form
-        if 'extra_choices' in self.initial and self.initial['extra_choices']:
-            extra_choices = self.initial['extra_choices']
+        if extra_choices := self.initial.get('extra_choices', None):
             if isinstance(extra_choices, str):
                 extra_choices = [extra_choices]
-            choices = ""
+            choices = []
             for choice in extra_choices:
                 # Setup choices in Add Another use case
                 if isinstance(choice, str):
                     choice_str = ":".join(choice.replace("'", "").replace(" ", "")[1:-1].split(","))
-                    choices += choice_str + "\n"
+                    choices.append(choice_str)
                 # Setup choices in Edit use case
                 elif isinstance(choice, list):
-                    choice_str = ":".join(choice)
-                    choices += choice_str + "\n"
+                    value = choice[0].replace(':', '\\:')
+                    label = choice[1].replace(':', '\\:')
+                    choices.append(f'{value}:{label}')
 
-            self.initial['extra_choices'] = choices
+            self.initial['extra_choices'] = '\n'.join(choices)
 
     def clean_extra_choices(self):
         data = []

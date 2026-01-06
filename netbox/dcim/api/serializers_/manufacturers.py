@@ -22,4 +22,4 @@ class ManufacturerSerializer(OrganizationalModelSerializer):
             'custom_fields', 'created', 'last_updated', 'devicetype_count', 'moduletype_count', 'inventoryitem_count',
             'platform_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'devicetype_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')

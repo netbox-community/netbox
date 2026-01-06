@@ -1292,6 +1292,8 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     def save(self, *args, **kwargs):
         if self.module:
             self.parent = self.module.module_bay
+        else:
+            self.parent = None
         super().save(*args, **kwargs)
 
 

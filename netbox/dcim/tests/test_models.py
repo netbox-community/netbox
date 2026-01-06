@@ -6,6 +6,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
+from ipam.models import Prefix
 from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
@@ -848,6 +849,32 @@ class ModuleBayTestCase(TestCase):
         nested_bay = module.modulebays.get(name='SFP A-21')
         self.assertEqual(nested_bay.label, 'A-21')
 
+    @tag('regression')  # #20912
+    def test_module_bay_parent_cleared_when_module_removed(self):
+        """Test that the parent field is properly cleared when a module bay's module assignment is removed"""
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module Type')
+        bay1 = ModuleBay.objects.create(device=device, name='Test Bay 1')
+        bay2 = ModuleBay.objects.create(device=device, name='Test Bay 2')
+
+        # Install a module in bay1
+        module1 = Module.objects.create(device=device, module_bay=bay1, module_type=module_type)
+
+        # Assign bay2 to module1 and verify parent is now set to bay1 (module1's bay)
+        bay2.module = module1
+        bay2.save()
+        bay2.refresh_from_db()
+        self.assertEqual(bay2.parent, bay1)
+        self.assertEqual(bay2.module, module1)
+
+        # Clear the module assignment (return bay2 to device level) Verify parent is cleared
+        bay2.module = None
+        bay2.save()
+        bay2.refresh_from_db()
+        self.assertIsNone(bay2.parent)
+        self.assertIsNone(bay2.module)
+
 
 class CableTestCase(TestCase):
 
@@ -1179,3 +1206,14 @@ class VirtualChassisTestCase(TestCase):
         device2.vc_position = 1
         with self.assertRaises(ValidationError):
             device2.full_clean()
+
+
+class SiteSignalTestCase(TestCase):
+
+    @tag('regression')
+    def test_edit_site_with_prefix_no_vrf(self):
+        site = Site.objects.create(name='Test Site', slug='test-site')
+        Prefix.objects.create(prefix='192.0.2.0/24', scope=site, vrf=None)
+
+        # Regression test for #21045: should not raise ValueError
+        site.save()

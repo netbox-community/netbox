@@ -27,35 +27,45 @@ __all__ = (
     'CableFilterForm',
     'ConsoleConnectionFilterForm',
     'ConsolePortFilterForm',
+    'ConsolePortTemplateFilterForm',
     'ConsoleServerPortFilterForm',
+    'ConsoleServerPortTemplateFilterForm',
     'DeviceBayFilterForm',
+    'DeviceBayTemplateFilterForm',
     'DeviceFilterForm',
     'DeviceRoleFilterForm',
     'DeviceTypeFilterForm',
     'FrontPortFilterForm',
+    'FrontPortTemplateFilterForm',
     'InterfaceConnectionFilterForm',
     'InterfaceFilterForm',
+    'InterfaceTemplateFilterForm',
     'InventoryItemFilterForm',
+    'InventoryItemTemplateFilterForm',
     'InventoryItemRoleFilterForm',
     'LocationFilterForm',
     'MACAddressFilterForm',
     'ManufacturerFilterForm',
     'ModuleFilterForm',
     'ModuleBayFilterForm',
+    'ModuleBayTemplateFilterForm',
     'ModuleTypeFilterForm',
     'ModuleTypeProfileFilterForm',
     'PlatformFilterForm',
     'PowerConnectionFilterForm',
     'PowerFeedFilterForm',
     'PowerOutletFilterForm',
+    'PowerOutletTemplateFilterForm',
     'PowerPanelFilterForm',
     'PowerPortFilterForm',
+    'PowerPortTemplateFilterForm',
     'RackFilterForm',
     'RackElevationFilterForm',
     'RackReservationFilterForm',
     'RackRoleFilterForm',
     'RackTypeFilterForm',
     'RearPortFilterForm',
+    'RearPortTemplateFilterForm',
     'RegionFilterForm',
     'SiteFilterForm',
     'SiteGroupFilterForm',
@@ -1333,6 +1343,23 @@ class PowerFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
 # Device components
 #
 
+class DeviceComponentTemplateFilterForm(NetBoxModelFilterSetForm):
+    device_type_id = DynamicModelMultipleChoiceField(
+        queryset=DeviceType.objects.all(),
+        required=False,
+        label=_('Device type'),
+    )
+
+
+class ModularDeviceComponentTemplateFilterForm(DeviceComponentTemplateFilterForm):
+    module_type_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleType.objects.all(),
+        required=False,
+        query_params={'manufacturer_id': '$manufacturer_id'},
+        label=_('Module Type'),
+    )
+
+
 class CabledFilterForm(forms.Form):
     cabled = forms.NullBooleanField(
         label=_('Cabled'),
@@ -1385,6 +1412,20 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
+class ConsolePortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = ConsolePortTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=ConsolePortTypeChoices,
+        required=False
+    )
+
+
 class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = ConsoleServerPort
     fieldsets = (
@@ -1410,6 +1451,20 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
     tag = TagFilterField(model)
 
 
+class ConsoleServerPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = ConsoleServerPortTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=ConsolePortTypeChoices,
+        required=False
+    )
+
+
 class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     model = PowerPort
     fieldsets = (
@@ -1428,6 +1483,20 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+class PowerPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = PowerPortTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=PowerPortTypeChoices,
+        required=False
+    )
 
 
 class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
@@ -1455,6 +1524,20 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=PowerOutletStatusChoices,
+        required=False
+    )
+
+
+class PowerOutletTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = PowerOutletTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=PowerOutletTypeChoices,
         required=False
     )
 
@@ -1586,6 +1669,51 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
+class InterfaceTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = InterfaceTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'enabled', 'mgmt_only', name=_('Attributes')),
+        FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('rf_role', name=_('Wireless')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=InterfaceTypeChoices,
+        required=False
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    mgmt_only = forms.NullBooleanField(
+        label=_('Management only'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    poe_mode = forms.MultipleChoiceField(
+        choices=InterfacePoEModeChoices,
+        required=False,
+        label=_('PoE mode')
+    )
+    poe_type = forms.MultipleChoiceField(
+        choices=InterfacePoETypeChoices,
+        required=False,
+        label=_('PoE type')
+    )
+    rf_role = forms.MultipleChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        label=_('Wireless role')
+    )
+
+
 class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag', 'owner_id'),
@@ -1608,6 +1736,24 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+class FrontPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = FrontPortTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+        required=False
+    )
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
 
 
 class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
@@ -1634,6 +1780,24 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
     tag = TagFilterField(model)
 
 
+class RearPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = RearPortTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'color', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+        required=False
+    )
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
+
+
 class ModuleBayFilterForm(DeviceComponentFilterForm):
     model = ModuleBay
     fieldsets = (
@@ -1652,6 +1816,19 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
     )
 
 
+class ModuleBayTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = ModuleBayTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'position', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    position = forms.CharField(
+        label=_('Position'),
+        required=False,
+    )
+
+
 class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
     fieldsets = (
@@ -1664,6 +1841,15 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
         ),
     )
     tag = TagFilterField(model)
+
+
+class DeviceBayTemplateFilterForm(DeviceComponentTemplateFilterForm):
+    model = DeviceBayTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', name=_('Attributes')),
+        FieldSet('device_type_id', name=_('Device')),
+    )
 
 
 class InventoryItemFilterForm(DeviceComponentFilterForm):
@@ -1711,6 +1897,25 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         required=False
     )
     tag = TagFilterField(model)
+
+
+class InventoryItemTemplateFilterForm(DeviceComponentTemplateFilterForm):
+    model = InventoryItemTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'role_id', 'manufacturer_id', name=_('Attributes')),
+        FieldSet('device_type_id', name=_('Device')),
+    )
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=InventoryItemRole.objects.all(),
+        required=False,
+        label=_('Role')
+    )
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer')
+    )
 
 
 #

@@ -16,7 +16,7 @@ from circuits.models import Circuit, CircuitTermination
 from dcim.ui import panels
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
@@ -2714,11 +2714,12 @@ class DeviceBulkImportView(generic.BulkImportView):
     model_form = forms.DeviceImportForm
 
     def save_object(self, object_form, request):
+        parent_bay = getattr(object_form.instance, 'parent_bay', None)
         obj = object_form.save()
 
         # For child devices, save the reverse relation to the parent device bay
-        if getattr(obj, 'parent_bay', None):
-            device_bay = obj.parent_bay
+        if parent_bay:
+            device_bay = parent_bay
             device_bay.installed_device = obj
             device_bay.save()
 
@@ -3159,6 +3160,7 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
+            'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'vlan_table': vlan_table,

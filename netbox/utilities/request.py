@@ -35,27 +35,34 @@ class NetBoxFakeRequest:
 # Utility functions
 #
 
-def copy_safe_request(request):
+def copy_safe_request(request, include_files=True):
     """
     Copy selected attributes from a request object into a new fake request object. This is needed in places where
     thread safe pickling of the useful request data is needed.
+
+    Args:
+        request: The original request object
+        include_files: Whether to include request.FILES.
     """
     meta = {
         k: request.META[k]
         for k in HTTP_REQUEST_META_SAFE_COPY
         if k in request.META and isinstance(request.META[k], str)
     }
-    return NetBoxFakeRequest({
+    data = {
         'META': meta,
         'COOKIES': request.COOKIES,
         'POST': request.POST,
         'GET': request.GET,
-        'FILES': request.FILES,
         'user': request.user,
         'method': request.method,
         'path': request.path,
         'id': getattr(request, 'id', None),  # UUID assigned by middleware
-    })
+    }
+    if include_files:
+        data['FILES'] = request.FILES
+
+    return NetBoxFakeRequest(data)
 
 
 def get_client_ip(request, additional_headers=()):

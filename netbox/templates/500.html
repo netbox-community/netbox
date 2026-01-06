@@ -36,6 +36,12 @@
   {{ plugin }}: {{ version }}{% empty %}{% trans "None installed" %}{% endfor %}
 </pre>
             <p>
+              {% trans "The request which yielded the above error is shown below:" %}
+            </p>
+            <p>
+              <code>{{ request.method }} {{ request.build_absolute_uri }}</code>
+            </p>
+            <p>
               {% trans "If further assistance is required, please post to the" %} <a href="https://github.com/netbox-community/netbox/discussions">{% trans "NetBox discussion forum" %}</a> {% trans "on GitHub" %}.
             </p>
             <div class="text-end">

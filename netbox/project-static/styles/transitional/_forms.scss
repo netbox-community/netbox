@@ -36,7 +36,6 @@ form.object-edit {
 // Make optgroup labels sticky when scrolling through select elements
 select[multiple] {
   optgroup {
-    position: sticky;
     top: 0;
     background-color: var(--bs-body-bg);
     font-style: normal;

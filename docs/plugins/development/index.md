@@ -74,7 +74,7 @@ The plugin source directory contains all the actual Python code and other resour
 
 The `PluginConfig` class is a NetBox-specific wrapper around Django's built-in [`AppConfig`](https://docs.djangoproject.com/en/stable/ref/applications/) class. It is used to declare NetBox plugin functionality within a Python package. Each plugin should provide its own subclass, defining its name, metadata, and default and required configuration parameters. An example is below:
 
-```python
+```python title="__init__.py"
 from netbox.plugins import PluginConfig
 
 class FooBarConfig(PluginConfig):
@@ -151,7 +151,7 @@ Any additional apps must be installed within the same Python environment as NetB
 
 An example `pyproject.toml` is below:
 
-```
+```toml title="pyproject.toml"
 # See PEP 518 for the spec of this file
 # https://www.python.org/dev/peps/pep-0518/
 
@@ -179,10 +179,23 @@ classifiers=[
 ]
 
 requires-python = ">=3.12.0"
-
 ```
 
 Many of these are self-explanatory, but for more information, see the [pyproject.toml documentation](https://packaging.python.org/en/latest/specifications/pyproject-toml/).
+
+## Compatibility Matrix
+
+Consider adding a file named `COMPATIBILITY.md` to your plugin project root (alongside `pyproject.toml`). This file should contain a table listing the minimum and maximum supported versions of NetBox (`min_version` and `max_version`) for each release. This serves as a handy reference for users who are upgrading from a previous version of your plugin. An example is shown below:
+
+```markdown title="COMPATIBILITY.md"
+# Compatibility Matrix
+
+| Release | Minimum NetBox Version | Maximum NetBox Version |
+|---------|------------------------|------------------------|
+| 0.2.0   | 4.4.0                  | 4.5.x                  |
+| 0.1.1   | 4.3.0                  | 4.4.x                  |
+| 0.1.0   | 4.3.0                  | 4.4.x                  |
+```
 
 ## Create a Virtual Environment
 

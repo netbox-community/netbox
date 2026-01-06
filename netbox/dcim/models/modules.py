@@ -321,6 +321,12 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 for component in create_instances:
                     component.custom_field_data = cf_defaults
 
+            # Set denormalized references
+            for component in create_instances:
+                component._site = self.device.site
+                component._location = self.device.location
+                component._rack = self.device.rack
+
             if component_model is not ModuleBay:
                 component_model.objects.bulk_create(create_instances)
                 # Emit the post_save signal for each newly created object

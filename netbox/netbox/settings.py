@@ -833,6 +833,7 @@ LANGUAGES = (
     ('fr', _('French')),
     ('it', _('Italian')),
     ('ja', _('Japanese')),
+    ('lv', _('Latvian')),
     ('nl', _('Dutch')),
     ('pl', _('Polish')),
     ('pt', _('Portuguese')),

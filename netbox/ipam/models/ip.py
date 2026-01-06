@@ -907,13 +907,13 @@ class IPAddress(ContactsMixin, PrimaryModel):
                     })
 
             # Disallow the creation of IPAddresses within an IPRange with mark_populated=True
-            parent_range = IPRange.objects.filter(
+            parent_range_qs = IPRange.objects.filter(
                 start_address__lte=self.address,
                 end_address__gte=self.address,
                 vrf=self.vrf,
                 mark_populated=True
-            ).first()
-            if parent_range:
+            )
+            if not self.pk and (parent_range := parent_range_qs.first()):
                 raise ValidationError({
                     'address': _(
                         "Cannot create IP address {ip} inside range {range}."
