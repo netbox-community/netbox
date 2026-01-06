@@ -6,16 +6,16 @@
 # Translators:
 # Tatsuya Ueda <ml@tatsuya.info>, 2024
 # teapot, 2025
-# Jeremy Stretch, 2025
+# Jeremy Stretch, 2026
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-23 05:04+0000\n"
+"POT-Creation-Date: 2026-01-06 05:04+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2025\n"
+"Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Japanese (https://app.transifex.com/netbox-community/teams/178115/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -133,7 +133,7 @@ msgid "Decommissioned"
 msgstr "廃止"
 
 #: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1927
-#: netbox/dcim/tables/devices.py:1178 netbox/templates/dcim/interface.html:135
+#: netbox/dcim/tables/devices.py:1178 netbox/templates/dcim/interface.html:148
 #: netbox/templates/virtualization/vminterface.html:83
 #: netbox/tenancy/choices.py:17
 msgid "Primary"
@@ -152,7 +152,7 @@ msgstr "三次"
 msgid "Inactive"
 msgstr "非アクティブ"
 
-#: netbox/circuits/choices.py:107 netbox/templates/dcim/interface.html:275
+#: netbox/circuits/choices.py:107 netbox/templates/dcim/interface.html:288
 #: netbox/vpn/choices.py:63
 msgid "Peer"
 msgstr "ピア"
@@ -222,13 +222,13 @@ msgstr "サイトグループ (slug)"
 #: netbox/dcim/forms/bulk_edit.py:958 netbox/dcim/forms/bulk_import.py:135
 #: netbox/dcim/forms/bulk_import.py:237 netbox/dcim/forms/bulk_import.py:338
 #: netbox/dcim/forms/bulk_import.py:630 netbox/dcim/forms/bulk_import.py:1619
-#: netbox/dcim/forms/bulk_import.py:1647 netbox/dcim/forms/filtersets.py:90
-#: netbox/dcim/forms/filtersets.py:234 netbox/dcim/forms/filtersets.py:346
-#: netbox/dcim/forms/filtersets.py:448 netbox/dcim/forms/filtersets.py:790
-#: netbox/dcim/forms/filtersets.py:1009 netbox/dcim/forms/filtersets.py:1082
-#: netbox/dcim/forms/filtersets.py:1106 netbox/dcim/forms/filtersets.py:1196
-#: netbox/dcim/forms/filtersets.py:1234 netbox/dcim/forms/filtersets.py:1744
-#: netbox/dcim/forms/filtersets.py:1768 netbox/dcim/forms/filtersets.py:1792
+#: netbox/dcim/forms/bulk_import.py:1647 netbox/dcim/forms/filtersets.py:100
+#: netbox/dcim/forms/filtersets.py:244 netbox/dcim/forms/filtersets.py:356
+#: netbox/dcim/forms/filtersets.py:458 netbox/dcim/forms/filtersets.py:800
+#: netbox/dcim/forms/filtersets.py:1019 netbox/dcim/forms/filtersets.py:1092
+#: netbox/dcim/forms/filtersets.py:1116 netbox/dcim/forms/filtersets.py:1206
+#: netbox/dcim/forms/filtersets.py:1244 netbox/dcim/forms/filtersets.py:1949
+#: netbox/dcim/forms/filtersets.py:1973 netbox/dcim/forms/filtersets.py:1997
 #: netbox/dcim/forms/model_forms.py:147 netbox/dcim/forms/model_forms.py:175
 #: netbox/dcim/forms/model_forms.py:251 netbox/dcim/forms/model_forms.py:577
 #: netbox/dcim/forms/model_forms.py:841 netbox/dcim/forms/object_create.py:395
@@ -458,7 +458,7 @@ msgstr "インタフェース (ID)"
 #: netbox/circuits/forms/filtersets.py:64
 #: netbox/circuits/forms/model_forms.py:43
 #: netbox/circuits/tables/providers.py:32 netbox/dcim/forms/bulk_edit.py:143
-#: netbox/dcim/forms/filtersets.py:204 netbox/dcim/forms/model_forms.py:133
+#: netbox/dcim/forms/filtersets.py:214 netbox/dcim/forms/model_forms.py:133
 #: netbox/dcim/tables/sites.py:108 netbox/ipam/models/asns.py:155
 #: netbox/ipam/tables/asn.py:37 netbox/ipam/views.py:269
 #: netbox/netbox/navigation/menu.py:179 netbox/netbox/navigation/menu.py:182
@@ -653,7 +653,7 @@ msgstr "説明"
 #: netbox/templates/circuits/virtualcircuit.html:23
 #: netbox/templates/circuits/virtualcircuittermination.html:26
 #: netbox/templates/dcim/inc/cable_termination.html:58
-#: netbox/templates/dcim/interface.html:166
+#: netbox/templates/dcim/interface.html:179
 msgid "Provider"
 msgstr "プロバイダ"
 
@@ -670,8 +670,9 @@ msgstr "サービス ID"
 #: netbox/dcim/forms/bulk_edit.py:673 netbox/dcim/forms/bulk_edit.py:889
 #: netbox/dcim/forms/bulk_edit.py:1262 netbox/dcim/forms/bulk_edit.py:1289
 #: netbox/dcim/forms/bulk_edit.py:1823 netbox/dcim/forms/bulk_import.py:1494
-#: netbox/dcim/forms/filtersets.py:1149 netbox/dcim/forms/filtersets.py:1409
-#: netbox/dcim/forms/filtersets.py:1564 netbox/dcim/forms/filtersets.py:1588
+#: netbox/dcim/forms/filtersets.py:1159 netbox/dcim/forms/filtersets.py:1478
+#: netbox/dcim/forms/filtersets.py:1692 netbox/dcim/forms/filtersets.py:1711
+#: netbox/dcim/forms/filtersets.py:1734 netbox/dcim/forms/filtersets.py:1753
 #: netbox/dcim/tables/devices.py:767 netbox/dcim/tables/devices.py:823
 #: netbox/dcim/tables/devices.py:1064 netbox/dcim/tables/devicetypes.py:256
 #: netbox/dcim/tables/devicetypes.py:271 netbox/dcim/tables/racks.py:33
@@ -709,13 +710,17 @@ msgstr "色"
 #: netbox/dcim/forms/bulk_import.py:856 netbox/dcim/forms/bulk_import.py:876
 #: netbox/dcim/forms/bulk_import.py:962 netbox/dcim/forms/bulk_import.py:1098
 #: netbox/dcim/forms/bulk_import.py:1140 netbox/dcim/forms/bulk_import.py:1475
-#: netbox/dcim/forms/bulk_import.py:1684 netbox/dcim/forms/filtersets.py:1040
-#: netbox/dcim/forms/filtersets.py:1139 netbox/dcim/forms/filtersets.py:1260
-#: netbox/dcim/forms/filtersets.py:1333 netbox/dcim/forms/filtersets.py:1358
-#: netbox/dcim/forms/filtersets.py:1383 netbox/dcim/forms/filtersets.py:1403
-#: netbox/dcim/forms/filtersets.py:1451 netbox/dcim/forms/filtersets.py:1559
-#: netbox/dcim/forms/filtersets.py:1583 netbox/dcim/forms/model_forms.py:821
-#: netbox/dcim/forms/model_forms.py:827 netbox/dcim/forms/object_import.py:84
+#: netbox/dcim/forms/bulk_import.py:1684 netbox/dcim/forms/filtersets.py:1050
+#: netbox/dcim/forms/filtersets.py:1149 netbox/dcim/forms/filtersets.py:1270
+#: netbox/dcim/forms/filtersets.py:1360 netbox/dcim/forms/filtersets.py:1380
+#: netbox/dcim/forms/filtersets.py:1399 netbox/dcim/forms/filtersets.py:1419
+#: netbox/dcim/forms/filtersets.py:1438 netbox/dcim/forms/filtersets.py:1453
+#: netbox/dcim/forms/filtersets.py:1472 netbox/dcim/forms/filtersets.py:1496
+#: netbox/dcim/forms/filtersets.py:1534 netbox/dcim/forms/filtersets.py:1639
+#: netbox/dcim/forms/filtersets.py:1687 netbox/dcim/forms/filtersets.py:1706
+#: netbox/dcim/forms/filtersets.py:1729 netbox/dcim/forms/filtersets.py:1748
+#: netbox/dcim/forms/model_forms.py:821 netbox/dcim/forms/model_forms.py:827
+#: netbox/dcim/forms/object_import.py:84
 #: netbox/dcim/forms/object_import.py:113
 #: netbox/dcim/forms/object_import.py:146 netbox/dcim/tables/devices.py:196
 #: netbox/dcim/tables/devices.py:875 netbox/dcim/tables/power.py:77
@@ -731,8 +736,8 @@ msgstr "色"
 #: netbox/templates/dcim/consoleserverport.html:36
 #: netbox/templates/dcim/frontport.html:36
 #: netbox/templates/dcim/interface.html:46
-#: netbox/templates/dcim/interface.html:226
-#: netbox/templates/dcim/interface.html:368
+#: netbox/templates/dcim/interface.html:239
+#: netbox/templates/dcim/interface.html:381
 #: netbox/templates/dcim/powerfeed.html:32
 #: netbox/templates/dcim/poweroutlet.html:36
 #: netbox/templates/dcim/powerport.html:36
@@ -784,12 +789,12 @@ msgstr "プロバイダアカウント"
 #: netbox/dcim/forms/bulk_import.py:595 netbox/dcim/forms/bulk_import.py:755
 #: netbox/dcim/forms/bulk_import.py:1248 netbox/dcim/forms/bulk_import.py:1469
 #: netbox/dcim/forms/bulk_import.py:1679 netbox/dcim/forms/bulk_import.py:1743
-#: netbox/dcim/forms/filtersets.py:187 netbox/dcim/forms/filtersets.py:246
-#: netbox/dcim/forms/filtersets.py:363 netbox/dcim/forms/filtersets.py:469
-#: netbox/dcim/forms/filtersets.py:836 netbox/dcim/forms/filtersets.py:961
-#: netbox/dcim/forms/filtersets.py:1043 netbox/dcim/forms/filtersets.py:1144
-#: netbox/dcim/forms/filtersets.py:1255 netbox/dcim/forms/filtersets.py:1413
-#: netbox/dcim/forms/filtersets.py:1666 netbox/dcim/tables/devices.py:158
+#: netbox/dcim/forms/filtersets.py:197 netbox/dcim/forms/filtersets.py:256
+#: netbox/dcim/forms/filtersets.py:373 netbox/dcim/forms/filtersets.py:479
+#: netbox/dcim/forms/filtersets.py:846 netbox/dcim/forms/filtersets.py:971
+#: netbox/dcim/forms/filtersets.py:1053 netbox/dcim/forms/filtersets.py:1154
+#: netbox/dcim/forms/filtersets.py:1265 netbox/dcim/forms/filtersets.py:1482
+#: netbox/dcim/forms/filtersets.py:1852 netbox/dcim/tables/devices.py:158
 #: netbox/dcim/tables/devices.py:547 netbox/dcim/tables/devices.py:878
 #: netbox/dcim/tables/devices.py:1012 netbox/dcim/tables/devices.py:1123
 #: netbox/dcim/tables/modules.py:104 netbox/dcim/tables/power.py:74
@@ -865,12 +870,12 @@ msgstr "ステータス"
 #: netbox/dcim/forms/bulk_import.py:111 netbox/dcim/forms/bulk_import.py:156
 #: netbox/dcim/forms/bulk_import.py:248 netbox/dcim/forms/bulk_import.py:368
 #: netbox/dcim/forms/bulk_import.py:569 netbox/dcim/forms/bulk_import.py:1481
-#: netbox/dcim/forms/bulk_import.py:1736 netbox/dcim/forms/filtersets.py:127
-#: netbox/dcim/forms/filtersets.py:182 netbox/dcim/forms/filtersets.py:214
-#: netbox/dcim/forms/filtersets.py:327 netbox/dcim/forms/filtersets.py:408
-#: netbox/dcim/forms/filtersets.py:429 netbox/dcim/forms/filtersets.py:759
-#: netbox/dcim/forms/filtersets.py:953 netbox/dcim/forms/filtersets.py:1063
-#: netbox/dcim/forms/filtersets.py:1093 netbox/dcim/forms/filtersets.py:1215
+#: netbox/dcim/forms/bulk_import.py:1736 netbox/dcim/forms/filtersets.py:137
+#: netbox/dcim/forms/filtersets.py:192 netbox/dcim/forms/filtersets.py:224
+#: netbox/dcim/forms/filtersets.py:337 netbox/dcim/forms/filtersets.py:418
+#: netbox/dcim/forms/filtersets.py:439 netbox/dcim/forms/filtersets.py:769
+#: netbox/dcim/forms/filtersets.py:963 netbox/dcim/forms/filtersets.py:1073
+#: netbox/dcim/forms/filtersets.py:1103 netbox/dcim/forms/filtersets.py:1225
 #: netbox/dcim/tables/power.py:88 netbox/extras/filtersets.py:749
 #: netbox/extras/forms/filtersets.py:391 netbox/extras/forms/filtersets.py:469
 #: netbox/ipam/forms/bulk_edit.py:46 netbox/ipam/forms/bulk_edit.py:71
@@ -979,15 +984,20 @@ msgstr "サービス情報"
 #: netbox/circuits/forms/filtersets.py:316
 #: netbox/circuits/forms/filtersets.py:331 netbox/core/forms/filtersets.py:73
 #: netbox/core/forms/filtersets.py:141 netbox/dcim/forms/bulk_edit.py:913
-#: netbox/dcim/forms/bulk_import.py:476 netbox/dcim/forms/filtersets.py:181
-#: netbox/dcim/forms/filtersets.py:213 netbox/dcim/forms/filtersets.py:952
-#: netbox/dcim/forms/filtersets.py:1092 netbox/dcim/forms/filtersets.py:1216
-#: netbox/dcim/forms/filtersets.py:1324 netbox/dcim/forms/filtersets.py:1349
-#: netbox/dcim/forms/filtersets.py:1374 netbox/dcim/forms/filtersets.py:1394
-#: netbox/dcim/forms/filtersets.py:1423 netbox/dcim/forms/filtersets.py:1549
-#: netbox/dcim/forms/filtersets.py:1574 netbox/dcim/forms/filtersets.py:1598
-#: netbox/dcim/forms/filtersets.py:1616 netbox/dcim/forms/filtersets.py:1632
-#: netbox/dcim/forms/filtersets.py:1690 netbox/dcim/tables/modules.py:24
+#: netbox/dcim/forms/bulk_import.py:476 netbox/dcim/forms/filtersets.py:191
+#: netbox/dcim/forms/filtersets.py:223 netbox/dcim/forms/filtersets.py:962
+#: netbox/dcim/forms/filtersets.py:1102 netbox/dcim/forms/filtersets.py:1226
+#: netbox/dcim/forms/filtersets.py:1351 netbox/dcim/forms/filtersets.py:1376
+#: netbox/dcim/forms/filtersets.py:1390 netbox/dcim/forms/filtersets.py:1415
+#: netbox/dcim/forms/filtersets.py:1429 netbox/dcim/forms/filtersets.py:1449
+#: netbox/dcim/forms/filtersets.py:1463 netbox/dcim/forms/filtersets.py:1492
+#: netbox/dcim/forms/filtersets.py:1506 netbox/dcim/forms/filtersets.py:1633
+#: netbox/dcim/forms/filtersets.py:1677 netbox/dcim/forms/filtersets.py:1702
+#: netbox/dcim/forms/filtersets.py:1720 netbox/dcim/forms/filtersets.py:1744
+#: netbox/dcim/forms/filtersets.py:1762 netbox/dcim/forms/filtersets.py:1780
+#: netbox/dcim/forms/filtersets.py:1793 netbox/dcim/forms/filtersets.py:1807
+#: netbox/dcim/forms/filtersets.py:1818 netbox/dcim/forms/filtersets.py:1863
+#: netbox/dcim/forms/filtersets.py:1895 netbox/dcim/tables/modules.py:24
 #: netbox/extras/forms/bulk_edit.py:94 netbox/extras/forms/filtersets.py:45
 #: netbox/extras/forms/filtersets.py:142 netbox/extras/forms/filtersets.py:219
 #: netbox/extras/forms/filtersets.py:236 netbox/extras/forms/filtersets.py:266
@@ -1071,7 +1081,7 @@ msgstr "接続済みにする"
 #: netbox/circuits/forms/model_forms.py:185
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:55
 #: netbox/templates/dcim/frontport.html:121
-#: netbox/templates/dcim/interface.html:250
+#: netbox/templates/dcim/interface.html:263
 #: netbox/templates/dcim/rearport.html:111
 msgid "Circuit Termination"
 msgstr "回線終端"
@@ -1113,9 +1123,10 @@ msgstr "プロバイダネットワーク"
 #: netbox/circuits/forms/model_forms.py:366 netbox/dcim/forms/bulk_edit.py:383
 #: netbox/dcim/forms/bulk_edit.py:1351 netbox/dcim/forms/bulk_edit.py:1787
 #: netbox/dcim/forms/bulk_import.py:260 netbox/dcim/forms/bulk_import.py:1217
-#: netbox/dcim/forms/filtersets.py:371 netbox/dcim/forms/filtersets.py:814
-#: netbox/dcim/forms/filtersets.py:1643 netbox/dcim/forms/model_forms.py:264
-#: netbox/dcim/forms/model_forms.py:1228 netbox/dcim/forms/model_forms.py:1697
+#: netbox/dcim/forms/filtersets.py:381 netbox/dcim/forms/filtersets.py:824
+#: netbox/dcim/forms/filtersets.py:1829 netbox/dcim/forms/filtersets.py:1869
+#: netbox/dcim/forms/model_forms.py:264 netbox/dcim/forms/model_forms.py:1228
+#: netbox/dcim/forms/model_forms.py:1697
 #: netbox/dcim/forms/object_import.py:182 netbox/dcim/tables/devices.py:187
 #: netbox/dcim/tables/devices.py:870 netbox/dcim/tables/devices.py:996
 #: netbox/dcim/tables/devicetypes.py:311 netbox/dcim/tables/racks.py:132
@@ -1133,8 +1144,8 @@ msgstr "プロバイダネットワーク"
 #: netbox/templates/circuits/virtualcircuittermination.html:42
 #: netbox/templates/dcim/device.html:188
 #: netbox/templates/dcim/inc/panels/inventory_items.html:20
-#: netbox/templates/dcim/interface.html:178
-#: netbox/templates/dcim/interface.html:280
+#: netbox/templates/dcim/interface.html:191
+#: netbox/templates/dcim/interface.html:293
 #: netbox/templates/dcim/inventoryitem.html:40
 #: netbox/templates/dcim/rack.html:49 netbox/templates/ipam/ipaddress.html:41
 #: netbox/templates/ipam/iprange.html:57 netbox/templates/ipam/prefix.html:73
@@ -1250,8 +1261,8 @@ msgstr "運用上のロール"
 #: netbox/templates/circuits/virtualcircuittermination.html:60
 #: netbox/templates/dcim/frontport.html:106
 #: netbox/templates/dcim/interface.html:27
-#: netbox/templates/dcim/interface.html:241
-#: netbox/templates/dcim/interface.html:367
+#: netbox/templates/dcim/interface.html:254
+#: netbox/templates/dcim/interface.html:380
 #: netbox/templates/dcim/rearport.html:102
 #: netbox/templates/virtualization/vminterface.html:18
 #: netbox/templates/vpn/tunneltermination.html:31
@@ -1275,19 +1286,19 @@ msgstr "インタフェース"
 #: netbox/dcim/forms/bulk_edit.py:813 netbox/dcim/forms/bulk_edit.py:967
 #: netbox/dcim/forms/bulk_import.py:242 netbox/dcim/forms/bulk_import.py:344
 #: netbox/dcim/forms/bulk_import.py:636 netbox/dcim/forms/bulk_import.py:1625
-#: netbox/dcim/forms/bulk_import.py:1659 netbox/dcim/forms/filtersets.py:98
-#: netbox/dcim/forms/filtersets.py:326 netbox/dcim/forms/filtersets.py:360
-#: netbox/dcim/forms/filtersets.py:405 netbox/dcim/forms/filtersets.py:456
-#: netbox/dcim/forms/filtersets.py:756 netbox/dcim/forms/filtersets.py:799
-#: netbox/dcim/forms/filtersets.py:979 netbox/dcim/forms/filtersets.py:1017
-#: netbox/dcim/forms/filtersets.py:1062 netbox/dcim/forms/filtersets.py:1091
-#: netbox/dcim/forms/filtersets.py:1111 netbox/dcim/forms/filtersets.py:1175
-#: netbox/dcim/forms/filtersets.py:1205 netbox/dcim/forms/filtersets.py:1214
-#: netbox/dcim/forms/filtersets.py:1325 netbox/dcim/forms/filtersets.py:1350
-#: netbox/dcim/forms/filtersets.py:1375 netbox/dcim/forms/filtersets.py:1395
-#: netbox/dcim/forms/filtersets.py:1428 netbox/dcim/forms/filtersets.py:1550
-#: netbox/dcim/forms/filtersets.py:1575 netbox/dcim/forms/filtersets.py:1599
-#: netbox/dcim/forms/filtersets.py:1617 netbox/dcim/forms/filtersets.py:1634
+#: netbox/dcim/forms/bulk_import.py:1659 netbox/dcim/forms/filtersets.py:108
+#: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:370
+#: netbox/dcim/forms/filtersets.py:415 netbox/dcim/forms/filtersets.py:466
+#: netbox/dcim/forms/filtersets.py:766 netbox/dcim/forms/filtersets.py:809
+#: netbox/dcim/forms/filtersets.py:989 netbox/dcim/forms/filtersets.py:1027
+#: netbox/dcim/forms/filtersets.py:1072 netbox/dcim/forms/filtersets.py:1101
+#: netbox/dcim/forms/filtersets.py:1121 netbox/dcim/forms/filtersets.py:1185
+#: netbox/dcim/forms/filtersets.py:1215 netbox/dcim/forms/filtersets.py:1224
+#: netbox/dcim/forms/filtersets.py:1352 netbox/dcim/forms/filtersets.py:1391
+#: netbox/dcim/forms/filtersets.py:1430 netbox/dcim/forms/filtersets.py:1464
+#: netbox/dcim/forms/filtersets.py:1511 netbox/dcim/forms/filtersets.py:1678
+#: netbox/dcim/forms/filtersets.py:1721 netbox/dcim/forms/filtersets.py:1763
+#: netbox/dcim/forms/filtersets.py:1794 netbox/dcim/forms/filtersets.py:1820
 #: netbox/dcim/forms/model_forms.py:191 netbox/dcim/forms/model_forms.py:256
 #: netbox/dcim/forms/model_forms.py:582 netbox/dcim/forms/model_forms.py:846
 #: netbox/dcim/tables/devices.py:175 netbox/dcim/tables/power.py:30
@@ -1311,11 +1322,11 @@ msgstr "ロケーション"
 
 #: netbox/circuits/forms/filtersets.py:40
 #: netbox/circuits/forms/filtersets.py:74
-#: netbox/circuits/forms/filtersets.py:132 netbox/dcim/forms/filtersets.py:153
-#: netbox/dcim/forms/filtersets.py:167 netbox/dcim/forms/filtersets.py:183
-#: netbox/dcim/forms/filtersets.py:215 netbox/dcim/forms/filtersets.py:332
-#: netbox/dcim/forms/filtersets.py:409 netbox/dcim/forms/filtersets.py:485
-#: netbox/dcim/forms/filtersets.py:760 netbox/dcim/forms/filtersets.py:1176
+#: netbox/circuits/forms/filtersets.py:132 netbox/dcim/forms/filtersets.py:163
+#: netbox/dcim/forms/filtersets.py:177 netbox/dcim/forms/filtersets.py:193
+#: netbox/dcim/forms/filtersets.py:225 netbox/dcim/forms/filtersets.py:342
+#: netbox/dcim/forms/filtersets.py:419 netbox/dcim/forms/filtersets.py:495
+#: netbox/dcim/forms/filtersets.py:770 netbox/dcim/forms/filtersets.py:1186
 #: netbox/ipam/forms/filtersets.py:103 netbox/ipam/forms/filtersets.py:183
 #: netbox/ipam/forms/filtersets.py:283 netbox/ipam/forms/filtersets.py:335
 #: netbox/ipam/forms/filtersets.py:621 netbox/netbox/navigation/menu.py:31
@@ -1336,14 +1347,14 @@ msgstr "連絡先"
 #: netbox/circuits/forms/filtersets.py:231
 #: netbox/circuits/tables/circuits.py:139 netbox/dcim/forms/bulk_edit.py:122
 #: netbox/dcim/forms/bulk_edit.py:339 netbox/dcim/forms/bulk_edit.py:942
-#: netbox/dcim/forms/bulk_import.py:97 netbox/dcim/forms/filtersets.py:76
-#: netbox/dcim/forms/filtersets.py:194 netbox/dcim/forms/filtersets.py:220
-#: netbox/dcim/forms/filtersets.py:338 netbox/dcim/forms/filtersets.py:434
-#: netbox/dcim/forms/filtersets.py:776 netbox/dcim/forms/filtersets.py:995
-#: netbox/dcim/forms/filtersets.py:1068 netbox/dcim/forms/filtersets.py:1098
-#: netbox/dcim/forms/filtersets.py:1182 netbox/dcim/forms/filtersets.py:1221
-#: netbox/dcim/forms/filtersets.py:1736 netbox/dcim/forms/filtersets.py:1760
-#: netbox/dcim/forms/filtersets.py:1784 netbox/dcim/forms/model_forms.py:120
+#: netbox/dcim/forms/bulk_import.py:97 netbox/dcim/forms/filtersets.py:86
+#: netbox/dcim/forms/filtersets.py:204 netbox/dcim/forms/filtersets.py:230
+#: netbox/dcim/forms/filtersets.py:348 netbox/dcim/forms/filtersets.py:444
+#: netbox/dcim/forms/filtersets.py:786 netbox/dcim/forms/filtersets.py:1005
+#: netbox/dcim/forms/filtersets.py:1078 netbox/dcim/forms/filtersets.py:1108
+#: netbox/dcim/forms/filtersets.py:1192 netbox/dcim/forms/filtersets.py:1231
+#: netbox/dcim/forms/filtersets.py:1941 netbox/dcim/forms/filtersets.py:1965
+#: netbox/dcim/forms/filtersets.py:1989 netbox/dcim/forms/model_forms.py:120
 #: netbox/dcim/forms/object_create.py:379 netbox/dcim/tables/devices.py:161
 #: netbox/dcim/tables/sites.py:99 netbox/extras/filtersets.py:640
 #: netbox/ipam/forms/bulk_edit.py:469 netbox/ipam/forms/filtersets.py:226
@@ -1362,12 +1373,12 @@ msgstr "リージョン"
 #: netbox/circuits/forms/filtersets.py:50
 #: netbox/circuits/forms/filtersets.py:174
 #: netbox/circuits/forms/filtersets.py:236 netbox/dcim/forms/bulk_edit.py:347
-#: netbox/dcim/forms/bulk_edit.py:950 netbox/dcim/forms/filtersets.py:81
-#: netbox/dcim/forms/filtersets.py:199 netbox/dcim/forms/filtersets.py:225
-#: netbox/dcim/forms/filtersets.py:351 netbox/dcim/forms/filtersets.py:439
-#: netbox/dcim/forms/filtersets.py:781 netbox/dcim/forms/filtersets.py:1000
-#: netbox/dcim/forms/filtersets.py:1073 netbox/dcim/forms/filtersets.py:1187
-#: netbox/dcim/forms/filtersets.py:1226 netbox/dcim/forms/object_create.py:387
+#: netbox/dcim/forms/bulk_edit.py:950 netbox/dcim/forms/filtersets.py:91
+#: netbox/dcim/forms/filtersets.py:209 netbox/dcim/forms/filtersets.py:235
+#: netbox/dcim/forms/filtersets.py:361 netbox/dcim/forms/filtersets.py:449
+#: netbox/dcim/forms/filtersets.py:791 netbox/dcim/forms/filtersets.py:1010
+#: netbox/dcim/forms/filtersets.py:1083 netbox/dcim/forms/filtersets.py:1197
+#: netbox/dcim/forms/filtersets.py:1236 netbox/dcim/forms/object_create.py:387
 #: netbox/extras/filtersets.py:657 netbox/ipam/forms/bulk_edit.py:474
 #: netbox/ipam/forms/filtersets.py:156 netbox/ipam/forms/filtersets.py:231
 #: netbox/ipam/forms/filtersets.py:452 netbox/ipam/forms/filtersets.py:543
@@ -1413,7 +1424,7 @@ msgstr "割当"
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:94
 #: netbox/ipam/tables/vlans.py:205
 #: netbox/templates/circuits/circuitgroupassignment.html:22
-#: netbox/templates/dcim/interface.html:341 netbox/templates/dcim/site.html:37
+#: netbox/templates/dcim/interface.html:354 netbox/templates/dcim/site.html:37
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:23
 #: netbox/templates/ipam/vlan.html:27 netbox/templates/tenancy/tenant.html:20
 #: netbox/templates/users/group.html:6 netbox/templates/users/group.html:14
@@ -1738,7 +1749,7 @@ msgstr "仮想回線終端"
 #: netbox/circuits/tables/virtual_circuits.py:18 netbox/core/tables/data.py:17
 #: netbox/core/tables/jobs.py:16 netbox/core/tables/plugins.py:45
 #: netbox/core/tables/tasks.py:12 netbox/core/tables/tasks.py:117
-#: netbox/dcim/forms/filtersets.py:66 netbox/dcim/forms/object_create.py:43
+#: netbox/dcim/forms/filtersets.py:76 netbox/dcim/forms/object_create.py:43
 #: netbox/dcim/tables/devices.py:63 netbox/dcim/tables/devices.py:107
 #: netbox/dcim/tables/devices.py:153 netbox/dcim/tables/devices.py:312
 #: netbox/dcim/tables/devices.py:425 netbox/dcim/tables/devices.py:466
@@ -1784,7 +1795,7 @@ msgstr "仮想回線終端"
 #: netbox/templates/dcim/inc/interface_vlans_table.html:5
 #: netbox/templates/dcim/inc/panels/inventory_items.html:18
 #: netbox/templates/dcim/interface.html:38
-#: netbox/templates/dcim/interface.html:222
+#: netbox/templates/dcim/interface.html:235
 #: netbox/templates/dcim/inventoryitem.html:28
 #: netbox/templates/dcim/inventoryitemrole.html:18
 #: netbox/templates/dcim/location.html:29
@@ -1879,7 +1890,7 @@ msgstr "回線"
 #: netbox/circuits/tables/virtual_circuits.py:42
 #: netbox/templates/circuits/circuit.html:26
 #: netbox/templates/circuits/virtualcircuit.html:35
-#: netbox/templates/dcim/interface.html:174
+#: netbox/templates/dcim/interface.html:187
 msgid "Circuit ID"
 msgstr "回線 ID"
 
@@ -1931,7 +1942,7 @@ msgstr "保証帯域"
 msgid "Comments"
 msgstr "コメント"
 
-#: netbox/circuits/tables/circuits.py:89 netbox/dcim/forms/filtersets.py:1693
+#: netbox/circuits/tables/circuits.py:89 netbox/dcim/forms/filtersets.py:1898
 #: netbox/templates/tenancy/contact.html:94
 #: netbox/tenancy/tables/contacts.py:81
 msgid "Assignments"
@@ -1958,7 +1969,7 @@ msgstr "サイトグループ"
 #: netbox/templates/circuits/providernetwork.html:17
 #: netbox/templates/circuits/virtualcircuit.html:27
 #: netbox/templates/circuits/virtualcircuittermination.html:30
-#: netbox/templates/dcim/interface.html:170
+#: netbox/templates/dcim/interface.html:183
 msgid "Provider Network"
 msgstr "プロバイダネットワーク"
 
@@ -1992,15 +2003,20 @@ msgstr "終端"
 #: netbox/dcim/forms/bulk_import.py:1152 netbox/dcim/forms/bulk_import.py:1164
 #: netbox/dcim/forms/bulk_import.py:1212 netbox/dcim/forms/bulk_import.py:1334
 #: netbox/dcim/forms/bulk_import.py:1730 netbox/dcim/forms/connections.py:29
-#: netbox/dcim/forms/filtersets.py:140 netbox/dcim/forms/filtersets.py:958
-#: netbox/dcim/forms/filtersets.py:990 netbox/dcim/forms/filtersets.py:1136
-#: netbox/dcim/forms/filtersets.py:1328 netbox/dcim/forms/filtersets.py:1353
-#: netbox/dcim/forms/filtersets.py:1378 netbox/dcim/forms/filtersets.py:1398
-#: netbox/dcim/forms/filtersets.py:1432 netbox/dcim/forms/filtersets.py:1553
-#: netbox/dcim/forms/filtersets.py:1578 netbox/dcim/forms/filtersets.py:1602
-#: netbox/dcim/forms/filtersets.py:1620 netbox/dcim/forms/filtersets.py:1637
-#: netbox/dcim/forms/filtersets.py:1752 netbox/dcim/forms/filtersets.py:1776
-#: netbox/dcim/forms/filtersets.py:1800 netbox/dcim/forms/model_forms.py:748
+#: netbox/dcim/forms/filtersets.py:150 netbox/dcim/forms/filtersets.py:968
+#: netbox/dcim/forms/filtersets.py:1000 netbox/dcim/forms/filtersets.py:1146
+#: netbox/dcim/forms/filtersets.py:1355 netbox/dcim/forms/filtersets.py:1377
+#: netbox/dcim/forms/filtersets.py:1394 netbox/dcim/forms/filtersets.py:1416
+#: netbox/dcim/forms/filtersets.py:1433 netbox/dcim/forms/filtersets.py:1450
+#: netbox/dcim/forms/filtersets.py:1467 netbox/dcim/forms/filtersets.py:1493
+#: netbox/dcim/forms/filtersets.py:1515 netbox/dcim/forms/filtersets.py:1636
+#: netbox/dcim/forms/filtersets.py:1681 netbox/dcim/forms/filtersets.py:1703
+#: netbox/dcim/forms/filtersets.py:1724 netbox/dcim/forms/filtersets.py:1745
+#: netbox/dcim/forms/filtersets.py:1766 netbox/dcim/forms/filtersets.py:1781
+#: netbox/dcim/forms/filtersets.py:1797 netbox/dcim/forms/filtersets.py:1808
+#: netbox/dcim/forms/filtersets.py:1823 netbox/dcim/forms/filtersets.py:1864
+#: netbox/dcim/forms/filtersets.py:1957 netbox/dcim/forms/filtersets.py:1981
+#: netbox/dcim/forms/filtersets.py:2005 netbox/dcim/forms/model_forms.py:748
 #: netbox/dcim/forms/model_forms.py:968 netbox/dcim/forms/model_forms.py:1369
 #: netbox/dcim/forms/model_forms.py:1854 netbox/dcim/forms/model_forms.py:1927
 #: netbox/dcim/forms/object_create.py:260 netbox/dcim/tables/connections.py:22
@@ -2023,7 +2039,7 @@ msgstr "終端"
 #: netbox/templates/dcim/devicebay.html:48
 #: netbox/templates/dcim/frontport.html:20
 #: netbox/templates/dcim/interface.html:30
-#: netbox/templates/dcim/interface.html:218
+#: netbox/templates/dcim/interface.html:231
 #: netbox/templates/dcim/inventoryitem.html:20
 #: netbox/templates/dcim/module.html:57
 #: netbox/templates/dcim/modulebay.html:20
@@ -2227,7 +2243,7 @@ msgstr "エラー"
 
 #: netbox/core/data_backends.py:32 netbox/core/tables/plugins.py:53
 #: netbox/templates/core/plugin.html:88
-#: netbox/templates/dcim/interface.html:273
+#: netbox/templates/dcim/interface.html:286
 msgid "Local"
 msgstr "ローカル"
 
@@ -2288,16 +2304,16 @@ msgstr "ユーザ名"
 #: netbox/core/forms/bulk_edit.py:26 netbox/core/forms/filtersets.py:43
 #: netbox/core/tables/data.py:27 netbox/dcim/choices.py:1965
 #: netbox/dcim/forms/bulk_edit.py:1211 netbox/dcim/forms/bulk_edit.py:1492
-#: netbox/dcim/forms/filtersets.py:1468 netbox/dcim/tables/devices.py:596
-#: netbox/dcim/tables/devicetypes.py:231 netbox/extras/forms/bulk_edit.py:127
-#: netbox/extras/forms/bulk_edit.py:195 netbox/extras/forms/bulk_edit.py:223
-#: netbox/extras/forms/bulk_edit.py:282 netbox/extras/forms/filtersets.py:150
-#: netbox/extras/forms/filtersets.py:244 netbox/extras/forms/filtersets.py:274
-#: netbox/extras/forms/filtersets.py:339 netbox/extras/tables/tables.py:168
-#: netbox/extras/tables/tables.py:291 netbox/extras/tables/tables.py:324
-#: netbox/extras/tables/tables.py:484 netbox/netbox/preferences.py:33
-#: netbox/netbox/preferences.py:56 netbox/netbox/preferences.py:81
-#: netbox/templates/core/datasource.html:42
+#: netbox/dcim/forms/filtersets.py:1551 netbox/dcim/forms/filtersets.py:1644
+#: netbox/dcim/tables/devices.py:596 netbox/dcim/tables/devicetypes.py:231
+#: netbox/extras/forms/bulk_edit.py:127 netbox/extras/forms/bulk_edit.py:195
+#: netbox/extras/forms/bulk_edit.py:223 netbox/extras/forms/bulk_edit.py:282
+#: netbox/extras/forms/filtersets.py:150 netbox/extras/forms/filtersets.py:244
+#: netbox/extras/forms/filtersets.py:274 netbox/extras/forms/filtersets.py:339
+#: netbox/extras/tables/tables.py:168 netbox/extras/tables/tables.py:291
+#: netbox/extras/tables/tables.py:324 netbox/extras/tables/tables.py:484
+#: netbox/netbox/preferences.py:33 netbox/netbox/preferences.py:56
+#: netbox/netbox/preferences.py:81 netbox/templates/core/datasource.html:42
 #: netbox/templates/dcim/interface.html:61
 #: netbox/templates/extras/customlink.html:17
 #: netbox/templates/extras/eventrule.html:17
@@ -2403,7 +2419,7 @@ msgid "Completed before"
 msgstr "以前に完了"
 
 #: netbox/core/forms/filtersets.py:132 netbox/core/forms/filtersets.py:161
-#: netbox/dcim/forms/bulk_edit.py:496 netbox/dcim/forms/filtersets.py:476
+#: netbox/dcim/forms/bulk_edit.py:496 netbox/dcim/forms/filtersets.py:486
 #: netbox/dcim/forms/model_forms.py:334 netbox/extras/forms/filtersets.py:557
 #: netbox/extras/forms/filtersets.py:577 netbox/extras/tables/tables.py:371
 #: netbox/extras/tables/tables.py:411
@@ -2518,7 +2534,7 @@ msgstr "検証"
 msgid "User Preferences"
 msgstr "ユーザ設定"
 
-#: netbox/core/forms/model_forms.py:170 netbox/dcim/forms/filtersets.py:769
+#: netbox/core/forms/model_forms.py:170 netbox/dcim/forms/filtersets.py:779
 #: netbox/templates/core/inc/config_data.html:127
 #: netbox/users/forms/model_forms.py:75
 msgid "Miscellaneous"
@@ -2582,7 +2598,7 @@ msgstr "オブジェクト変更"
 msgid "Change logging is not supported for this object type ({type})."
 msgstr "このオブジェクトタイプ ({type}) では変更ログはサポートされていません。"
 
-#: netbox/core/models/config.py:21 netbox/core/models/data.py:269
+#: netbox/core/models/config.py:21 netbox/core/models/data.py:282
 #: netbox/core/models/files.py:29 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:839 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
@@ -2689,58 +2705,58 @@ msgstr "データソース"
 msgid "Unknown backend type: {type}"
 msgstr "不明なバックエンドタイプ: {type}"
 
-#: netbox/core/models/data.py:167
+#: netbox/core/models/data.py:180
 msgid "Cannot initiate sync; syncing already in progress."
 msgstr "同期を開始できません。同期はすでに進行中です。"
 
-#: netbox/core/models/data.py:180
+#: netbox/core/models/data.py:193
 msgid ""
 "There was an error initializing the backend. A dependency needs to be "
 "installed: "
 msgstr "バックエンドの初期化中にエラーが発生しました。依存関係をインストールする必要があります。 "
 
-#: netbox/core/models/data.py:273 netbox/core/models/files.py:33
+#: netbox/core/models/data.py:286 netbox/core/models/files.py:33
 #: netbox/netbox/models/features.py:67
 msgid "last updated"
 msgstr "最終更新日時"
 
-#: netbox/core/models/data.py:283 netbox/dcim/models/cables.py:528
+#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:528
 msgid "path"
 msgstr "パス"
 
-#: netbox/core/models/data.py:286
+#: netbox/core/models/data.py:299
 msgid "File path relative to the data source's root"
 msgstr "データソースのルートを基準にしたファイルパス"
 
-#: netbox/core/models/data.py:290 netbox/ipam/models/ip.py:510
+#: netbox/core/models/data.py:303 netbox/ipam/models/ip.py:510
 msgid "size"
 msgstr "サイズ"
 
-#: netbox/core/models/data.py:293
+#: netbox/core/models/data.py:306
 msgid "hash"
 msgstr "ハッシュ"
 
-#: netbox/core/models/data.py:297
+#: netbox/core/models/data.py:310
 msgid "Length must be 64 hexadecimal characters."
 msgstr "64 桁の 16 進数でなければなりません。"
 
-#: netbox/core/models/data.py:299
+#: netbox/core/models/data.py:312
 msgid "SHA256 hash of the file data"
 msgstr "ファイルの SHA256 ハッシュ"
 
-#: netbox/core/models/data.py:313
+#: netbox/core/models/data.py:326
 msgid "data file"
 msgstr "データファイル"
 
-#: netbox/core/models/data.py:314
+#: netbox/core/models/data.py:327
 msgid "data files"
 msgstr "データファイル"
 
-#: netbox/core/models/data.py:387
+#: netbox/core/models/data.py:400
 msgid "auto sync record"
 msgstr "自動同期レコード"
 
-#: netbox/core/models/data.py:388
+#: netbox/core/models/data.py:401
 msgid "auto sync records"
 msgstr "自動同期レコード"
 
@@ -3090,16 +3106,16 @@ msgstr "プラグインカタログを読み込めませんでした"
 msgid "Plugin {name} not found"
 msgstr "プラグイン {name} が見つかりません"
 
-#: netbox/dcim/api/serializers_/device_components.py:263
+#: netbox/dcim/api/serializers_/device_components.py:264
 msgid "Interface mode does not support q-in-q service vlan"
 msgstr "インターフェイスモードは Q-in-Q サービス VLAN をサポートしていません"
 
-#: netbox/dcim/api/serializers_/device_components.py:270
+#: netbox/dcim/api/serializers_/device_components.py:271
 msgid "Interface mode does not support untagged vlan"
 msgstr "インターフェイスモードはタグなし VLAN をサポートしていません"
 
-#: netbox/dcim/api/serializers_/device_components.py:275
-#: netbox/dcim/api/serializers_/device_components.py:280
+#: netbox/dcim/api/serializers_/device_components.py:276
+#: netbox/dcim/api/serializers_/device_components.py:281
 msgid "Interface mode does not support tagged vlans"
 msgstr "インターフェイスモードはタグ付き VLAN をサポートしていません"
 
@@ -3209,8 +3225,8 @@ msgstr "古い"
 #: netbox/dcim/forms/bulk_import.py:78 netbox/dcim/forms/bulk_import.py:141
 #: netbox/dcim/forms/bulk_import.py:502 netbox/dcim/forms/bulk_import.py:530
 #: netbox/dcim/forms/bulk_import.py:656 netbox/dcim/forms/bulk_import.py:932
-#: netbox/dcim/forms/bulk_import.py:1229 netbox/dcim/forms/filtersets.py:243
-#: netbox/dcim/forms/filtersets.py:721 netbox/dcim/forms/filtersets.py:732
+#: netbox/dcim/forms/bulk_import.py:1229 netbox/dcim/forms/filtersets.py:253
+#: netbox/dcim/forms/filtersets.py:731 netbox/dcim/forms/filtersets.py:742
 #: netbox/dcim/forms/model_forms.py:80 netbox/dcim/forms/model_forms.py:100
 #: netbox/dcim/forms/model_forms.py:180 netbox/dcim/forms/model_forms.py:519
 #: netbox/dcim/forms/model_forms.py:541 netbox/dcim/forms/model_forms.py:1220
@@ -3224,7 +3240,7 @@ msgstr "古い"
 #: netbox/ipam/tables/fhrp.py:59 netbox/ipam/tables/ip.py:336
 #: netbox/ipam/tables/services.py:45 netbox/templates/dcim/devicerole.html:34
 #: netbox/templates/dcim/interface.html:108
-#: netbox/templates/dcim/interface.html:366
+#: netbox/templates/dcim/interface.html:379
 #: netbox/templates/dcim/location.html:41
 #: netbox/templates/dcim/platform.html:37 netbox/templates/dcim/region.html:37
 #: netbox/templates/dcim/sitegroup.html:37
@@ -3349,10 +3365,11 @@ msgid "Virtual"
 msgstr "仮想"
 
 #: netbox/dcim/choices.py:885 netbox/dcim/choices.py:1351
-#: netbox/dcim/forms/bulk_edit.py:1652 netbox/dcim/forms/filtersets.py:1427
-#: netbox/dcim/forms/model_forms.py:1130 netbox/dcim/forms/model_forms.py:1583
-#: netbox/netbox/navigation/menu.py:147 netbox/netbox/navigation/menu.py:151
-#: netbox/templates/dcim/interface.html:267
+#: netbox/dcim/forms/bulk_edit.py:1652 netbox/dcim/forms/filtersets.py:1510
+#: netbox/dcim/forms/filtersets.py:1635 netbox/dcim/forms/model_forms.py:1130
+#: netbox/dcim/forms/model_forms.py:1583 netbox/netbox/navigation/menu.py:147
+#: netbox/netbox/navigation/menu.py:151
+#: netbox/templates/dcim/interface.html:280
 msgid "Wireless"
 msgstr "無線"
 
@@ -3430,9 +3447,9 @@ msgstr "バックプレーンイーサネット"
 msgid "Cellular"
 msgstr "セルラー"
 
-#: netbox/dcim/choices.py:1419 netbox/dcim/forms/filtersets.py:392
-#: netbox/dcim/forms/filtersets.py:846 netbox/dcim/forms/filtersets.py:1048
-#: netbox/dcim/forms/filtersets.py:1651
+#: netbox/dcim/choices.py:1419 netbox/dcim/forms/filtersets.py:402
+#: netbox/dcim/forms/filtersets.py:856 netbox/dcim/forms/filtersets.py:1058
+#: netbox/dcim/forms/filtersets.py:1837
 #: netbox/templates/dcim/inventoryitem.html:56
 #: netbox/templates/dcim/virtualchassis_edit.html:58
 msgid "Serial"
@@ -3533,7 +3550,7 @@ msgstr "ファイバ-シングルモード"
 msgid "Fiber - Other"
 msgstr "ファイバー-その他"
 
-#: netbox/dcim/choices.py:1857 netbox/dcim/forms/filtersets.py:1312
+#: netbox/dcim/choices.py:1857 netbox/dcim/forms/filtersets.py:1339
 msgid "Connected"
 msgstr "接続済"
 
@@ -3689,61 +3706,61 @@ msgstr "デフォルトプラットフォーム (ID)"
 msgid "Default platform (slug)"
 msgstr "デフォルトプラットフォーム (slug)"
 
-#: netbox/dcim/filtersets.py:568 netbox/dcim/forms/filtersets.py:531
+#: netbox/dcim/filtersets.py:568 netbox/dcim/forms/filtersets.py:541
 msgid "Has a front image"
 msgstr "正面画像がある"
 
-#: netbox/dcim/filtersets.py:572 netbox/dcim/forms/filtersets.py:538
+#: netbox/dcim/filtersets.py:572 netbox/dcim/forms/filtersets.py:548
 msgid "Has a rear image"
 msgstr "背面画像がある"
 
 #: netbox/dcim/filtersets.py:577 netbox/dcim/filtersets.py:724
-#: netbox/dcim/filtersets.py:1225 netbox/dcim/forms/filtersets.py:545
-#: netbox/dcim/forms/filtersets.py:654 netbox/dcim/forms/filtersets.py:885
+#: netbox/dcim/filtersets.py:1225 netbox/dcim/forms/filtersets.py:555
+#: netbox/dcim/forms/filtersets.py:664 netbox/dcim/forms/filtersets.py:895
 msgid "Has console ports"
 msgstr "コンソールポートがある"
 
 #: netbox/dcim/filtersets.py:581 netbox/dcim/filtersets.py:728
-#: netbox/dcim/filtersets.py:1229 netbox/dcim/forms/filtersets.py:552
-#: netbox/dcim/forms/filtersets.py:661 netbox/dcim/forms/filtersets.py:892
+#: netbox/dcim/filtersets.py:1229 netbox/dcim/forms/filtersets.py:562
+#: netbox/dcim/forms/filtersets.py:671 netbox/dcim/forms/filtersets.py:902
 msgid "Has console server ports"
 msgstr "コンソールサーバポートがある"
 
 #: netbox/dcim/filtersets.py:585 netbox/dcim/filtersets.py:732
-#: netbox/dcim/filtersets.py:1233 netbox/dcim/forms/filtersets.py:559
-#: netbox/dcim/forms/filtersets.py:668 netbox/dcim/forms/filtersets.py:899
+#: netbox/dcim/filtersets.py:1233 netbox/dcim/forms/filtersets.py:569
+#: netbox/dcim/forms/filtersets.py:678 netbox/dcim/forms/filtersets.py:909
 msgid "Has power ports"
 msgstr "電源ポートがある"
 
 #: netbox/dcim/filtersets.py:589 netbox/dcim/filtersets.py:736
-#: netbox/dcim/filtersets.py:1237 netbox/dcim/forms/filtersets.py:566
-#: netbox/dcim/forms/filtersets.py:675 netbox/dcim/forms/filtersets.py:906
+#: netbox/dcim/filtersets.py:1237 netbox/dcim/forms/filtersets.py:576
+#: netbox/dcim/forms/filtersets.py:685 netbox/dcim/forms/filtersets.py:916
 msgid "Has power outlets"
 msgstr "電源コンセントがある"
 
 #: netbox/dcim/filtersets.py:593 netbox/dcim/filtersets.py:740
-#: netbox/dcim/filtersets.py:1241 netbox/dcim/forms/filtersets.py:573
-#: netbox/dcim/forms/filtersets.py:682 netbox/dcim/forms/filtersets.py:913
+#: netbox/dcim/filtersets.py:1241 netbox/dcim/forms/filtersets.py:583
+#: netbox/dcim/forms/filtersets.py:692 netbox/dcim/forms/filtersets.py:923
 msgid "Has interfaces"
 msgstr "インタフェースを持つ"
 
 #: netbox/dcim/filtersets.py:597 netbox/dcim/filtersets.py:744
-#: netbox/dcim/filtersets.py:1245 netbox/dcim/forms/filtersets.py:580
-#: netbox/dcim/forms/filtersets.py:689 netbox/dcim/forms/filtersets.py:920
+#: netbox/dcim/filtersets.py:1245 netbox/dcim/forms/filtersets.py:590
+#: netbox/dcim/forms/filtersets.py:699 netbox/dcim/forms/filtersets.py:930
 msgid "Has pass-through ports"
 msgstr "パススルーポートがある"
 
 #: netbox/dcim/filtersets.py:601 netbox/dcim/filtersets.py:1249
-#: netbox/dcim/forms/filtersets.py:594
+#: netbox/dcim/forms/filtersets.py:604
 msgid "Has module bays"
 msgstr "モジュールベイがある"
 
 #: netbox/dcim/filtersets.py:605 netbox/dcim/filtersets.py:1253
-#: netbox/dcim/forms/filtersets.py:587
+#: netbox/dcim/forms/filtersets.py:597
 msgid "Has device bays"
 msgstr "デバイスベイがある"
 
-#: netbox/dcim/filtersets.py:609 netbox/dcim/forms/filtersets.py:601
+#: netbox/dcim/filtersets.py:609 netbox/dcim/forms/filtersets.py:611
 msgid "Has inventory items"
 msgstr "在庫品目がある"
 
@@ -3849,8 +3866,8 @@ msgstr "デバイスモデル (slug)"
 msgid "Is full depth"
 msgstr "奥行きをすべて使う"
 
-#: netbox/dcim/filtersets.py:1197 netbox/dcim/forms/filtersets.py:855
-#: netbox/dcim/forms/filtersets.py:1483 netbox/dcim/forms/filtersets.py:1699
+#: netbox/dcim/filtersets.py:1197 netbox/dcim/forms/filtersets.py:865
+#: netbox/dcim/forms/filtersets.py:1566 netbox/dcim/forms/filtersets.py:1904
 #: netbox/dcim/forms/model_forms.py:1900 netbox/dcim/models/devices.py:1303
 #: netbox/dcim/models/devices.py:1323 netbox/virtualization/filtersets.py:201
 #: netbox/virtualization/filtersets.py:273
@@ -3860,7 +3877,7 @@ msgid "MAC address"
 msgstr "MAC アドレス"
 
 #: netbox/dcim/filtersets.py:1204 netbox/dcim/filtersets.py:1368
-#: netbox/dcim/forms/filtersets.py:864 netbox/dcim/forms/filtersets.py:967
+#: netbox/dcim/forms/filtersets.py:874 netbox/dcim/forms/filtersets.py:977
 #: netbox/virtualization/filtersets.py:205
 #: netbox/virtualization/forms/filtersets.py:182
 msgid "Has a primary IP"
@@ -3936,7 +3953,7 @@ msgstr "デバイスロール (slug)"
 msgid "Virtual Chassis (ID)"
 msgstr "バーチャルシャーシ (ID)"
 
-#: netbox/dcim/filtersets.py:1623 netbox/dcim/forms/filtersets.py:112
+#: netbox/dcim/filtersets.py:1623 netbox/dcim/forms/filtersets.py:122
 #: netbox/dcim/forms/object_create.py:430 netbox/dcim/tables/devices.py:229
 #: netbox/netbox/navigation/menu.py:79 netbox/templates/dcim/device.html:31
 #: netbox/templates/dcim/device.html:126
@@ -4017,7 +4034,7 @@ msgid "Assigned VID"
 msgstr "割当 VID"
 
 #: netbox/dcim/filtersets.py:1904 netbox/dcim/forms/bulk_edit.py:1618
-#: netbox/dcim/forms/bulk_import.py:1024 netbox/dcim/forms/filtersets.py:1536
+#: netbox/dcim/forms/bulk_import.py:1024 netbox/dcim/forms/filtersets.py:1619
 #: netbox/dcim/forms/model_forms.py:1549
 #: netbox/dcim/models/device_components.py:810
 #: netbox/dcim/tables/devices.py:677 netbox/ipam/filtersets.py:335
@@ -4035,7 +4052,7 @@ msgstr "割当 VID"
 #: netbox/ipam/models/ip.py:748 netbox/ipam/models/vrfs.py:61
 #: netbox/ipam/tables/ip.py:189 netbox/ipam/tables/ip.py:262
 #: netbox/ipam/tables/ip.py:318 netbox/ipam/tables/ip.py:418
-#: netbox/templates/dcim/interface.html:152
+#: netbox/templates/dcim/interface.html:165
 #: netbox/templates/ipam/ipaddress.html:18
 #: netbox/templates/ipam/iprange.html:47 netbox/templates/ipam/prefix.html:19
 #: netbox/templates/ipam/vrf.html:7 netbox/templates/ipam/vrf.html:13
@@ -4060,7 +4077,7 @@ msgstr "VRF (RD)"
 msgid "L2VPN (ID)"
 msgstr "L2VPN (ID)"
 
-#: netbox/dcim/filtersets.py:1921 netbox/dcim/forms/filtersets.py:1541
+#: netbox/dcim/filtersets.py:1921 netbox/dcim/forms/filtersets.py:1624
 #: netbox/dcim/tables/devices.py:613 netbox/ipam/filtersets.py:1030
 #: netbox/ipam/forms/filtersets.py:592 netbox/ipam/tables/vlans.py:116
 #: netbox/templates/dcim/interface.html:99 netbox/templates/ipam/vlan.html:82
@@ -4076,7 +4093,7 @@ msgstr "L2VPN"
 msgid "VLAN Translation Policy (ID)"
 msgstr "VLAN 変換ポリシー (ID)"
 
-#: netbox/dcim/filtersets.py:1932 netbox/dcim/forms/filtersets.py:1507
+#: netbox/dcim/filtersets.py:1932 netbox/dcim/forms/filtersets.py:1590
 #: netbox/dcim/forms/model_forms.py:1566
 #: netbox/dcim/models/device_components.py:612
 #: netbox/ipam/forms/filtersets.py:511 netbox/ipam/forms/model_forms.py:714
@@ -4120,7 +4137,7 @@ msgid "LAG interface (ID)"
 msgstr "LAG インタフェース (ID)"
 
 #: netbox/dcim/filtersets.py:2008 netbox/dcim/tables/devices.py:635
-#: netbox/dcim/tables/devices.py:1164 netbox/templates/dcim/interface.html:131
+#: netbox/dcim/tables/devices.py:1164 netbox/templates/dcim/interface.html:144
 #: netbox/templates/dcim/macaddress.html:11
 #: netbox/templates/dcim/macaddress.html:14
 #: netbox/templates/virtualization/vminterface.html:79
@@ -4138,7 +4155,7 @@ msgid "Primary MAC address"
 msgstr "プライマリ MAC アドレス"
 
 #: netbox/dcim/filtersets.py:2041 netbox/dcim/filtersets.py:2053
-#: netbox/dcim/forms/filtersets.py:1443 netbox/dcim/forms/model_forms.py:1880
+#: netbox/dcim/forms/filtersets.py:1526 netbox/dcim/forms/model_forms.py:1880
 #: netbox/templates/dcim/virtualdevicecontext.html:15
 msgid "Virtual Device Context"
 msgstr "仮想デバイスコンテキスト"
@@ -4185,7 +4202,7 @@ msgstr "マスター (ID)"
 msgid "Master (name)"
 msgstr "マスター (名前)"
 
-#: netbox/dcim/filtersets.py:2341 netbox/dcim/forms/filtersets.py:1162
+#: netbox/dcim/filtersets.py:2341 netbox/dcim/forms/filtersets.py:1172
 msgid "Unterminated"
 msgstr "未終端"
 
@@ -4205,9 +4222,9 @@ msgstr "電源盤 (ID)"
 msgid "Tags"
 msgstr "タグ"
 
-#: netbox/dcim/forms/bulk_create.py:115 netbox/dcim/forms/filtersets.py:1607
-#: netbox/dcim/forms/model_forms.py:602 netbox/dcim/forms/model_forms.py:661
-#: netbox/dcim/forms/object_create.py:208
+#: netbox/dcim/forms/bulk_create.py:115 netbox/dcim/forms/filtersets.py:1771
+#: netbox/dcim/forms/filtersets.py:1784 netbox/dcim/forms/model_forms.py:602
+#: netbox/dcim/forms/model_forms.py:661 netbox/dcim/forms/object_create.py:208
 #: netbox/dcim/forms/object_create.py:357 netbox/dcim/tables/devices.py:183
 #: netbox/dcim/tables/devices.py:770 netbox/dcim/tables/devicetypes.py:253
 #: netbox/templates/dcim/device.html:49 netbox/templates/dcim/device.html:137
@@ -4224,7 +4241,7 @@ msgid ""
 msgstr "英数字の範囲が使用できます。(作成する名前の数と一致する必要があります)"
 
 #: netbox/dcim/forms/bulk_edit.py:137 netbox/dcim/forms/bulk_edit.py:207
-#: netbox/dcim/forms/filtersets.py:251 netbox/templates/dcim/location.html:58
+#: netbox/dcim/forms/filtersets.py:261 netbox/templates/dcim/location.html:58
 #: netbox/templates/dcim/site.html:56
 msgid "Facility"
 msgstr "ファシリティ"
@@ -4253,14 +4270,14 @@ msgstr "タイムゾーン"
 #: netbox/dcim/forms/bulk_import.py:189 netbox/dcim/forms/bulk_import.py:405
 #: netbox/dcim/forms/bulk_import.py:454 netbox/dcim/forms/bulk_import.py:540
 #: netbox/dcim/forms/bulk_import.py:576 netbox/dcim/forms/bulk_import.py:1223
-#: netbox/dcim/forms/filtersets.py:317 netbox/dcim/forms/filtersets.py:376
-#: netbox/dcim/forms/filtersets.py:508 netbox/dcim/forms/filtersets.py:646
-#: netbox/dcim/forms/filtersets.py:737 netbox/dcim/forms/filtersets.py:819
-#: netbox/dcim/forms/filtersets.py:1032 netbox/dcim/forms/filtersets.py:1648
-#: netbox/dcim/forms/model_forms.py:219 netbox/dcim/forms/model_forms.py:355
-#: netbox/dcim/forms/model_forms.py:367 netbox/dcim/forms/model_forms.py:439
-#: netbox/dcim/forms/model_forms.py:546 netbox/dcim/forms/model_forms.py:1233
-#: netbox/dcim/forms/model_forms.py:1702
+#: netbox/dcim/forms/filtersets.py:327 netbox/dcim/forms/filtersets.py:386
+#: netbox/dcim/forms/filtersets.py:518 netbox/dcim/forms/filtersets.py:656
+#: netbox/dcim/forms/filtersets.py:747 netbox/dcim/forms/filtersets.py:829
+#: netbox/dcim/forms/filtersets.py:1042 netbox/dcim/forms/filtersets.py:1834
+#: netbox/dcim/forms/filtersets.py:1874 netbox/dcim/forms/model_forms.py:219
+#: netbox/dcim/forms/model_forms.py:355 netbox/dcim/forms/model_forms.py:367
+#: netbox/dcim/forms/model_forms.py:439 netbox/dcim/forms/model_forms.py:546
+#: netbox/dcim/forms/model_forms.py:1233 netbox/dcim/forms/model_forms.py:1702
 #: netbox/dcim/forms/object_import.py:188 netbox/dcim/tables/devices.py:115
 #: netbox/dcim/tables/devices.py:190 netbox/dcim/tables/devices.py:999
 #: netbox/dcim/tables/devicetypes.py:85 netbox/dcim/tables/devicetypes.py:315
@@ -4279,14 +4296,14 @@ msgstr "メーカ"
 
 #: netbox/dcim/forms/bulk_edit.py:250 netbox/dcim/forms/bulk_edit.py:403
 #: netbox/dcim/forms/bulk_import.py:198 netbox/dcim/forms/bulk_import.py:277
-#: netbox/dcim/forms/filtersets.py:264
+#: netbox/dcim/forms/filtersets.py:274
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:6
 msgid "Form factor"
 msgstr "フォームファクタ"
 
 #: netbox/dcim/forms/bulk_edit.py:255 netbox/dcim/forms/bulk_edit.py:408
 #: netbox/dcim/forms/bulk_import.py:206 netbox/dcim/forms/bulk_import.py:280
-#: netbox/dcim/forms/filtersets.py:269
+#: netbox/dcim/forms/filtersets.py:279
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:10
 msgid "Width"
 msgstr "幅"
@@ -4298,7 +4315,7 @@ msgid "Height (U)"
 msgstr "高さ (U)"
 
 #: netbox/dcim/forms/bulk_edit.py:270 netbox/dcim/forms/bulk_edit.py:419
-#: netbox/dcim/forms/filtersets.py:283
+#: netbox/dcim/forms/filtersets.py:293
 msgid "Descending units"
 msgstr "降順"
 
@@ -4328,10 +4345,10 @@ msgstr "取り付け奥行き"
 #: netbox/dcim/forms/bulk_edit.py:569 netbox/dcim/forms/bulk_edit.py:592
 #: netbox/dcim/forms/bulk_edit.py:637 netbox/dcim/forms/bulk_edit.py:659
 #: netbox/dcim/forms/bulk_import.py:418 netbox/dcim/forms/bulk_import.py:465
-#: netbox/dcim/forms/filtersets.py:289 netbox/dcim/forms/filtersets.py:311
-#: netbox/dcim/forms/filtersets.py:331 netbox/dcim/forms/filtersets.py:410
-#: netbox/dcim/forms/filtersets.py:502 netbox/dcim/forms/filtersets.py:608
-#: netbox/dcim/forms/filtersets.py:635 netbox/dcim/forms/filtersets.py:701
+#: netbox/dcim/forms/filtersets.py:299 netbox/dcim/forms/filtersets.py:321
+#: netbox/dcim/forms/filtersets.py:341 netbox/dcim/forms/filtersets.py:420
+#: netbox/dcim/forms/filtersets.py:512 netbox/dcim/forms/filtersets.py:618
+#: netbox/dcim/forms/filtersets.py:645 netbox/dcim/forms/filtersets.py:711
 #: netbox/dcim/forms/model_forms.py:234 netbox/dcim/forms/model_forms.py:316
 #: netbox/dcim/tables/devicetypes.py:111 netbox/dcim/tables/modules.py:57
 #: netbox/dcim/tables/racks.py:78 netbox/dcim/tables/racks.py:179
@@ -4355,7 +4372,7 @@ msgid "Weight"
 msgstr "重量"
 
 #: netbox/dcim/forms/bulk_edit.py:303 netbox/dcim/forms/bulk_edit.py:457
-#: netbox/dcim/forms/filtersets.py:294
+#: netbox/dcim/forms/filtersets.py:304
 msgid "Max weight"
 msgstr "最大重量"
 
@@ -4363,12 +4380,12 @@ msgstr "最大重量"
 #: netbox/dcim/forms/bulk_edit.py:574 netbox/dcim/forms/bulk_edit.py:642
 #: netbox/dcim/forms/bulk_import.py:217 netbox/dcim/forms/bulk_import.py:302
 #: netbox/dcim/forms/bulk_import.py:423 netbox/dcim/forms/bulk_import.py:470
-#: netbox/dcim/forms/filtersets.py:299 netbox/dcim/forms/filtersets.py:612
-#: netbox/dcim/forms/filtersets.py:705
+#: netbox/dcim/forms/filtersets.py:309 netbox/dcim/forms/filtersets.py:622
+#: netbox/dcim/forms/filtersets.py:715
 msgid "Weight unit"
 msgstr "重量単位"
 
-#: netbox/dcim/forms/bulk_edit.py:322 netbox/dcim/forms/filtersets.py:309
+#: netbox/dcim/forms/bulk_edit.py:322 netbox/dcim/forms/filtersets.py:319
 #: netbox/dcim/forms/model_forms.py:230 netbox/dcim/forms/model_forms.py:269
 #: netbox/templates/dcim/rack.html:45 netbox/templates/dcim/racktype.html:13
 msgid "Rack Type"
@@ -4387,14 +4404,14 @@ msgstr "外形寸法"
 msgid "Dimensions"
 msgstr "寸法"
 
-#: netbox/dcim/forms/bulk_edit.py:329 netbox/dcim/forms/filtersets.py:310
-#: netbox/dcim/forms/filtersets.py:330 netbox/dcim/forms/model_forms.py:237
+#: netbox/dcim/forms/bulk_edit.py:329 netbox/dcim/forms/filtersets.py:320
+#: netbox/dcim/forms/filtersets.py:340 netbox/dcim/forms/model_forms.py:237
 #: netbox/templates/dcim/inc/panels/racktype_numbering.html:3
 msgid "Numbering"
 msgstr "ナンバリング"
 
 #: netbox/dcim/forms/bulk_edit.py:388 netbox/dcim/forms/bulk_import.py:267
-#: netbox/dcim/forms/filtersets.py:384
+#: netbox/dcim/forms/filtersets.py:394
 msgid "Rack type"
 msgstr "ラックタイプ"
 
@@ -4406,18 +4423,18 @@ msgstr "ラックタイプ"
 msgid "Serial Number"
 msgstr "シリアル番号"
 
-#: netbox/dcim/forms/bulk_edit.py:398 netbox/dcim/forms/filtersets.py:396
-#: netbox/dcim/forms/filtersets.py:850 netbox/dcim/forms/filtersets.py:1052
-#: netbox/dcim/forms/filtersets.py:1655
+#: netbox/dcim/forms/bulk_edit.py:398 netbox/dcim/forms/filtersets.py:406
+#: netbox/dcim/forms/filtersets.py:860 netbox/dcim/forms/filtersets.py:1062
+#: netbox/dcim/forms/filtersets.py:1841
 msgid "Asset tag"
 msgstr "アセットタグ"
 
 #: netbox/dcim/forms/bulk_edit.py:447 netbox/dcim/forms/bulk_edit.py:564
 #: netbox/dcim/forms/bulk_edit.py:632 netbox/dcim/forms/bulk_edit.py:781
 #: netbox/dcim/forms/bulk_import.py:296 netbox/dcim/forms/bulk_import.py:459
-#: netbox/dcim/forms/bulk_import.py:670 netbox/dcim/forms/filtersets.py:387
-#: netbox/dcim/forms/filtersets.py:525 netbox/dcim/forms/filtersets.py:696
-#: netbox/dcim/forms/filtersets.py:841 netbox/templates/dcim/device.html:104
+#: netbox/dcim/forms/bulk_import.py:670 netbox/dcim/forms/filtersets.py:397
+#: netbox/dcim/forms/filtersets.py:535 netbox/dcim/forms/filtersets.py:706
+#: netbox/dcim/forms/filtersets.py:851 netbox/templates/dcim/device.html:104
 #: netbox/templates/dcim/devicetype.html:65
 #: netbox/templates/dcim/moduletype.html:47 netbox/templates/dcim/rack.html:65
 msgid "Airflow"
@@ -4426,11 +4443,11 @@ msgstr "エアフロー"
 #: netbox/dcim/forms/bulk_edit.py:476 netbox/dcim/forms/bulk_edit.py:995
 #: netbox/dcim/forms/bulk_import.py:351 netbox/dcim/forms/bulk_import.py:354
 #: netbox/dcim/forms/bulk_import.py:643 netbox/dcim/forms/bulk_import.py:1666
-#: netbox/dcim/forms/bulk_import.py:1670 netbox/dcim/forms/filtersets.py:107
-#: netbox/dcim/forms/filtersets.py:328 netbox/dcim/forms/filtersets.py:414
-#: netbox/dcim/forms/filtersets.py:428 netbox/dcim/forms/filtersets.py:466
-#: netbox/dcim/forms/filtersets.py:809 netbox/dcim/forms/filtersets.py:1022
-#: netbox/dcim/forms/filtersets.py:1120 netbox/dcim/forms/filtersets.py:1252
+#: netbox/dcim/forms/bulk_import.py:1670 netbox/dcim/forms/filtersets.py:117
+#: netbox/dcim/forms/filtersets.py:338 netbox/dcim/forms/filtersets.py:424
+#: netbox/dcim/forms/filtersets.py:438 netbox/dcim/forms/filtersets.py:476
+#: netbox/dcim/forms/filtersets.py:819 netbox/dcim/forms/filtersets.py:1032
+#: netbox/dcim/forms/filtersets.py:1130 netbox/dcim/forms/filtersets.py:1262
 #: netbox/dcim/forms/model_forms.py:280 netbox/dcim/forms/model_forms.py:324
 #: netbox/dcim/forms/model_forms.py:593 netbox/dcim/forms/model_forms.py:874
 #: netbox/dcim/forms/object_create.py:404 netbox/dcim/tables/devices.py:179
@@ -4446,9 +4463,9 @@ msgid "Rack"
 msgstr "ラック"
 
 #: netbox/dcim/forms/bulk_edit.py:479 netbox/dcim/forms/bulk_edit.py:814
-#: netbox/dcim/forms/filtersets.py:329 netbox/dcim/forms/filtersets.py:407
-#: netbox/dcim/forms/filtersets.py:495 netbox/dcim/forms/filtersets.py:630
-#: netbox/dcim/forms/filtersets.py:758 netbox/dcim/forms/filtersets.py:980
+#: netbox/dcim/forms/filtersets.py:339 netbox/dcim/forms/filtersets.py:417
+#: netbox/dcim/forms/filtersets.py:505 netbox/dcim/forms/filtersets.py:640
+#: netbox/dcim/forms/filtersets.py:768 netbox/dcim/forms/filtersets.py:990
 #: netbox/dcim/forms/model_forms.py:448 netbox/dcim/forms/model_forms.py:788
 #: netbox/dcim/forms/model_forms.py:1770
 #: netbox/templates/dcim/device_edit.html:22
@@ -4456,12 +4473,12 @@ msgid "Hardware"
 msgstr "ハードウェア"
 
 #: netbox/dcim/forms/bulk_edit.py:540 netbox/dcim/forms/bulk_import.py:411
-#: netbox/dcim/forms/filtersets.py:513 netbox/dcim/forms/model_forms.py:372
+#: netbox/dcim/forms/filtersets.py:523 netbox/dcim/forms/model_forms.py:372
 msgid "Default platform"
 msgstr "デフォルトプラットフォーム"
 
 #: netbox/dcim/forms/bulk_edit.py:545 netbox/dcim/forms/bulk_edit.py:628
-#: netbox/dcim/forms/filtersets.py:516 netbox/dcim/forms/filtersets.py:649
+#: netbox/dcim/forms/filtersets.py:526 netbox/dcim/forms/filtersets.py:659
 msgid "Part number"
 msgstr "パーツ番号"
 
@@ -4492,7 +4509,7 @@ msgid "Schema"
 msgstr "スキーマ"
 
 #: netbox/dcim/forms/bulk_edit.py:611 netbox/dcim/forms/bulk_edit.py:618
-#: netbox/dcim/forms/bulk_import.py:448 netbox/dcim/forms/filtersets.py:641
+#: netbox/dcim/forms/bulk_import.py:448 netbox/dcim/forms/filtersets.py:651
 #: netbox/dcim/forms/model_forms.py:421 netbox/dcim/forms/model_forms.py:434
 #: netbox/dcim/tables/modules.py:45 netbox/extras/forms/filtersets.py:396
 #: netbox/extras/forms/model_forms.py:615 netbox/extras/tables/tables.py:583
@@ -4504,11 +4521,11 @@ msgstr "スキーマ"
 msgid "Profile"
 msgstr "プロフィール"
 
-#: netbox/dcim/forms/bulk_edit.py:656 netbox/dcim/forms/model_forms.py:447
-#: netbox/dcim/forms/model_forms.py:1028 netbox/dcim/forms/model_forms.py:1070
-#: netbox/dcim/forms/model_forms.py:1097 netbox/dcim/forms/model_forms.py:1125
-#: netbox/dcim/forms/model_forms.py:1156 netbox/dcim/forms/model_forms.py:1175
-#: netbox/dcim/forms/model_forms.py:1193
+#: netbox/dcim/forms/bulk_edit.py:656 netbox/dcim/forms/filtersets.py:1316
+#: netbox/dcim/forms/model_forms.py:447 netbox/dcim/forms/model_forms.py:1028
+#: netbox/dcim/forms/model_forms.py:1070 netbox/dcim/forms/model_forms.py:1097
+#: netbox/dcim/forms/model_forms.py:1125 netbox/dcim/forms/model_forms.py:1156
+#: netbox/dcim/forms/model_forms.py:1175 netbox/dcim/forms/model_forms.py:1193
 #: netbox/dcim/forms/object_create.py:124 netbox/dcim/tables/modules.py:54
 #: netbox/dcim/tables/modules.py:100 netbox/templates/dcim/module.html:92
 #: netbox/templates/dcim/modulebay.html:66
@@ -4530,8 +4547,8 @@ msgstr "VMのロール"
 #: netbox/dcim/forms/bulk_edit.py:796 netbox/dcim/forms/bulk_import.py:512
 #: netbox/dcim/forms/bulk_import.py:516 netbox/dcim/forms/bulk_import.py:547
 #: netbox/dcim/forms/bulk_import.py:551 netbox/dcim/forms/bulk_import.py:676
-#: netbox/dcim/forms/bulk_import.py:680 netbox/dcim/forms/filtersets.py:716
-#: netbox/dcim/forms/filtersets.py:742 netbox/dcim/forms/filtersets.py:860
+#: netbox/dcim/forms/bulk_import.py:680 netbox/dcim/forms/filtersets.py:726
+#: netbox/dcim/forms/filtersets.py:752 netbox/dcim/forms/filtersets.py:870
 #: netbox/dcim/forms/model_forms.py:513 netbox/dcim/forms/model_forms.py:552
 #: netbox/dcim/forms/model_forms.py:670
 #: netbox/virtualization/forms/bulk_import.py:143
@@ -4542,19 +4559,20 @@ msgid "Config template"
 msgstr "設定テンプレート"
 
 #: netbox/dcim/forms/bulk_edit.py:737 netbox/dcim/forms/bulk_edit.py:1150
-#: netbox/dcim/forms/bulk_import.py:582 netbox/dcim/forms/filtersets.py:117
-#: netbox/dcim/forms/model_forms.py:615 netbox/dcim/forms/model_forms.py:991
-#: netbox/dcim/forms/model_forms.py:1008 netbox/extras/filtersets.py:684
+#: netbox/dcim/forms/bulk_import.py:582 netbox/dcim/forms/filtersets.py:127
+#: netbox/dcim/forms/filtersets.py:1307 netbox/dcim/forms/model_forms.py:615
+#: netbox/dcim/forms/model_forms.py:991 netbox/dcim/forms/model_forms.py:1008
+#: netbox/extras/filtersets.py:684
 msgid "Device type"
 msgstr "デバイスタイプ"
 
 #: netbox/dcim/forms/bulk_edit.py:748 netbox/dcim/forms/bulk_import.py:563
-#: netbox/dcim/forms/filtersets.py:122 netbox/dcim/forms/model_forms.py:623
+#: netbox/dcim/forms/filtersets.py:132 netbox/dcim/forms/model_forms.py:623
 msgid "Device role"
 msgstr "デバイスロール"
 
 #: netbox/dcim/forms/bulk_edit.py:771 netbox/dcim/forms/bulk_import.py:588
-#: netbox/dcim/forms/filtersets.py:833 netbox/dcim/forms/model_forms.py:564
+#: netbox/dcim/forms/filtersets.py:843 netbox/dcim/forms/model_forms.py:564
 #: netbox/dcim/forms/model_forms.py:628 netbox/dcim/tables/devices.py:205
 #: netbox/extras/filtersets.py:700 netbox/templates/dcim/device.html:192
 #: netbox/templates/dcim/platform.html:26
@@ -4568,7 +4586,7 @@ msgid "Platform"
 msgstr "プラットフォーム"
 
 #: netbox/dcim/forms/bulk_edit.py:801 netbox/dcim/forms/bulk_import.py:607
-#: netbox/dcim/forms/filtersets.py:765 netbox/dcim/forms/filtersets.py:935
+#: netbox/dcim/forms/filtersets.py:775 netbox/dcim/forms/filtersets.py:945
 #: netbox/dcim/forms/model_forms.py:637 netbox/dcim/tables/devices.py:225
 #: netbox/extras/filtersets.py:733 netbox/extras/forms/filtersets.py:390
 #: netbox/ipam/forms/filtersets.py:439 netbox/ipam/forms/filtersets.py:472
@@ -4610,7 +4628,7 @@ msgstr "モジュールタイプ"
 #: netbox/dcim/forms/bulk_edit.py:1157 netbox/dcim/forms/bulk_edit.py:1201
 #: netbox/dcim/forms/bulk_edit.py:1252 netbox/dcim/forms/bulk_edit.py:1279
 #: netbox/dcim/forms/bulk_edit.py:1306 netbox/dcim/forms/bulk_edit.py:1324
-#: netbox/dcim/forms/bulk_edit.py:1342 netbox/dcim/forms/filtersets.py:70
+#: netbox/dcim/forms/bulk_edit.py:1342 netbox/dcim/forms/filtersets.py:80
 #: netbox/dcim/forms/object_create.py:46 netbox/templates/dcim/cable.html:32
 #: netbox/templates/dcim/consoleport.html:32
 #: netbox/templates/dcim/consoleserverport.html:32
@@ -4628,13 +4646,13 @@ msgstr "モジュールタイプ"
 msgid "Label"
 msgstr "ラベル"
 
-#: netbox/dcim/forms/bulk_edit.py:893 netbox/dcim/forms/filtersets.py:1153
+#: netbox/dcim/forms/bulk_edit.py:893 netbox/dcim/forms/filtersets.py:1163
 #: netbox/templates/dcim/cable.html:50
 msgid "Length"
 msgstr "長さ"
 
 #: netbox/dcim/forms/bulk_edit.py:898 netbox/dcim/forms/bulk_import.py:1488
-#: netbox/dcim/forms/bulk_import.py:1491 netbox/dcim/forms/filtersets.py:1157
+#: netbox/dcim/forms/bulk_import.py:1491 netbox/dcim/forms/filtersets.py:1167
 msgid "Length unit"
 msgstr "長さの単位"
 
@@ -4644,33 +4662,33 @@ msgid "Domain"
 msgstr "ドメイン"
 
 #: netbox/dcim/forms/bulk_edit.py:990 netbox/dcim/forms/bulk_import.py:1653
-#: netbox/dcim/forms/filtersets.py:1243 netbox/dcim/forms/model_forms.py:868
+#: netbox/dcim/forms/filtersets.py:1253 netbox/dcim/forms/model_forms.py:868
 msgid "Power panel"
 msgstr "電源盤"
 
 #: netbox/dcim/forms/bulk_edit.py:1012 netbox/dcim/forms/bulk_import.py:1689
-#: netbox/dcim/forms/filtersets.py:1265
+#: netbox/dcim/forms/filtersets.py:1275
 #: netbox/templates/dcim/powerfeed.html:83
 msgid "Supply"
 msgstr "供給電源"
 
 #: netbox/dcim/forms/bulk_edit.py:1018 netbox/dcim/forms/bulk_import.py:1694
-#: netbox/dcim/forms/filtersets.py:1270
+#: netbox/dcim/forms/filtersets.py:1280
 #: netbox/templates/dcim/powerfeed.html:95
 msgid "Phase"
 msgstr "電力相"
 
-#: netbox/dcim/forms/bulk_edit.py:1024 netbox/dcim/forms/filtersets.py:1275
+#: netbox/dcim/forms/bulk_edit.py:1024 netbox/dcim/forms/filtersets.py:1285
 #: netbox/templates/dcim/powerfeed.html:87
 msgid "Voltage"
 msgstr "電圧"
 
-#: netbox/dcim/forms/bulk_edit.py:1028 netbox/dcim/forms/filtersets.py:1279
+#: netbox/dcim/forms/bulk_edit.py:1028 netbox/dcim/forms/filtersets.py:1289
 #: netbox/templates/dcim/powerfeed.html:91
 msgid "Amperage"
 msgstr "アンペア数"
 
-#: netbox/dcim/forms/bulk_edit.py:1032 netbox/dcim/forms/filtersets.py:1283
+#: netbox/dcim/forms/bulk_edit.py:1032 netbox/dcim/forms/filtersets.py:1293
 msgid "Max utilization"
 msgstr "最大使用率"
 
@@ -4705,27 +4723,28 @@ msgid "Feed leg"
 msgstr "供給端子"
 
 #: netbox/dcim/forms/bulk_edit.py:1218 netbox/dcim/forms/bulk_edit.py:1539
+#: netbox/dcim/forms/filtersets.py:1651
 msgid "Management only"
 msgstr "管理のみ"
 
 #: netbox/dcim/forms/bulk_edit.py:1228 netbox/dcim/forms/bulk_edit.py:1545
-#: netbox/dcim/forms/bulk_import.py:975 netbox/dcim/forms/filtersets.py:1492
-#: netbox/dcim/forms/object_import.py:90
+#: netbox/dcim/forms/bulk_import.py:975 netbox/dcim/forms/filtersets.py:1575
+#: netbox/dcim/forms/filtersets.py:1660 netbox/dcim/forms/object_import.py:90
 #: netbox/dcim/models/device_component_templates.py:446
 #: netbox/dcim/models/device_components.py:782
 msgid "PoE mode"
 msgstr "PoE モード"
 
 #: netbox/dcim/forms/bulk_edit.py:1234 netbox/dcim/forms/bulk_edit.py:1551
-#: netbox/dcim/forms/bulk_import.py:981 netbox/dcim/forms/filtersets.py:1497
-#: netbox/dcim/forms/object_import.py:95
+#: netbox/dcim/forms/bulk_import.py:981 netbox/dcim/forms/filtersets.py:1580
+#: netbox/dcim/forms/filtersets.py:1665 netbox/dcim/forms/object_import.py:95
 #: netbox/dcim/models/device_component_templates.py:453
 #: netbox/dcim/models/device_components.py:789
 msgid "PoE type"
 msgstr "PoE タイプ"
 
-#: netbox/dcim/forms/bulk_edit.py:1240 netbox/dcim/forms/filtersets.py:1512
-#: netbox/dcim/forms/object_import.py:100
+#: netbox/dcim/forms/bulk_edit.py:1240 netbox/dcim/forms/filtersets.py:1595
+#: netbox/dcim/forms/filtersets.py:1670 netbox/dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr "無線ロール"
 
@@ -4745,7 +4764,7 @@ msgid "Module"
 msgstr "モジュール"
 
 #: netbox/dcim/forms/bulk_edit.py:1519 netbox/dcim/tables/devices.py:728
-#: netbox/templates/dcim/interface.html:116
+#: netbox/templates/dcim/interface.html:129
 msgid "LAG"
 msgstr "LAG"
 
@@ -4754,8 +4773,8 @@ msgid "Virtual device contexts"
 msgstr "仮想デバイスコンテキスト"
 
 #: netbox/dcim/forms/bulk_edit.py:1530 netbox/dcim/forms/bulk_import.py:810
-#: netbox/dcim/forms/bulk_import.py:836 netbox/dcim/forms/filtersets.py:1338
-#: netbox/dcim/forms/filtersets.py:1363 netbox/dcim/forms/filtersets.py:1456
+#: netbox/dcim/forms/bulk_import.py:836 netbox/dcim/forms/filtersets.py:1365
+#: netbox/dcim/forms/filtersets.py:1404 netbox/dcim/forms/filtersets.py:1539
 #: netbox/dcim/tables/devices.py:661
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:62
 #: netbox/templates/dcim/consoleport.html:40
@@ -4823,16 +4842,16 @@ msgstr "無線 LAN グループ"
 
 #: netbox/dcim/forms/bulk_edit.py:1628 netbox/dcim/forms/model_forms.py:1507
 #: netbox/dcim/tables/devices.py:670 netbox/netbox/navigation/menu.py:153
-#: netbox/templates/dcim/interface.html:337
+#: netbox/templates/dcim/interface.html:350
 #: netbox/wireless/tables/wirelesslan.py:28
 msgid "Wireless LANs"
 msgstr "無線 LAN"
 
-#: netbox/dcim/forms/bulk_edit.py:1637 netbox/dcim/forms/filtersets.py:1424
+#: netbox/dcim/forms/bulk_edit.py:1637 netbox/dcim/forms/filtersets.py:1507
 #: netbox/dcim/forms/model_forms.py:1573 netbox/ipam/forms/bulk_edit.py:269
 #: netbox/ipam/forms/bulk_edit.py:367 netbox/ipam/forms/filtersets.py:177
 #: netbox/netbox/navigation/menu.py:109
-#: netbox/templates/dcim/interface.html:128
+#: netbox/templates/dcim/interface.html:141
 #: netbox/templates/ipam/prefix.html:91
 #: netbox/templates/virtualization/vminterface.html:76
 #: netbox/virtualization/forms/filtersets.py:205
@@ -4840,14 +4859,15 @@ msgstr "無線 LAN"
 msgid "Addressing"
 msgstr "アドレス"
 
-#: netbox/dcim/forms/bulk_edit.py:1638 netbox/dcim/forms/filtersets.py:757
+#: netbox/dcim/forms/bulk_edit.py:1638 netbox/dcim/forms/filtersets.py:767
 #: netbox/dcim/forms/model_forms.py:1574
 #: netbox/virtualization/forms/model_forms.py:377
 msgid "Operation"
 msgstr "オペレーション"
 
-#: netbox/dcim/forms/bulk_edit.py:1639 netbox/dcim/forms/filtersets.py:1425
-#: netbox/dcim/forms/model_forms.py:1129 netbox/dcim/forms/model_forms.py:1576
+#: netbox/dcim/forms/bulk_edit.py:1639 netbox/dcim/forms/filtersets.py:1508
+#: netbox/dcim/forms/filtersets.py:1634 netbox/dcim/forms/model_forms.py:1129
+#: netbox/dcim/forms/model_forms.py:1576
 msgid "PoE"
 msgstr "PoE"
 
@@ -4858,7 +4878,7 @@ msgstr "PoE"
 msgid "Related Interfaces"
 msgstr "関連インタフェース"
 
-#: netbox/dcim/forms/bulk_edit.py:1642 netbox/dcim/forms/filtersets.py:1426
+#: netbox/dcim/forms/bulk_edit.py:1642 netbox/dcim/forms/filtersets.py:1509
 #: netbox/dcim/forms/model_forms.py:1579
 #: netbox/virtualization/forms/bulk_edit.py:257
 #: netbox/virtualization/forms/filtersets.py:206
@@ -5172,7 +5192,7 @@ msgstr "二重引用符で囲んだカンマ区切りのVDC 名。例:"
 msgid "Physical medium"
 msgstr "物理媒体"
 
-#: netbox/dcim/forms/bulk_import.py:967 netbox/dcim/forms/filtersets.py:1463
+#: netbox/dcim/forms/bulk_import.py:967 netbox/dcim/forms/filtersets.py:1546
 msgid "Duplex"
 msgstr "デュプレックス"
 
@@ -5510,15 +5530,15 @@ msgstr "電源盤"
 msgid "Power Feed"
 msgstr "電源タップ"
 
-#: netbox/dcim/forms/filtersets.py:145 netbox/dcim/tables/devices.py:327
+#: netbox/dcim/forms/filtersets.py:155 netbox/dcim/tables/devices.py:327
 msgid "Device Status"
 msgstr "デバイスステータス"
 
-#: netbox/dcim/forms/filtersets.py:158
+#: netbox/dcim/forms/filtersets.py:168
 msgid "Parent region"
 msgstr "親リージョン"
 
-#: netbox/dcim/forms/filtersets.py:172 netbox/tenancy/forms/bulk_import.py:29
+#: netbox/dcim/forms/filtersets.py:182 netbox/tenancy/forms/bulk_import.py:29
 #: netbox/tenancy/forms/bulk_import.py:63
 #: netbox/tenancy/forms/filtersets.py:33 netbox/tenancy/forms/filtersets.py:62
 #: netbox/wireless/forms/bulk_import.py:27
@@ -5526,70 +5546,70 @@ msgstr "親リージョン"
 msgid "Parent group"
 msgstr "親グループ"
 
-#: netbox/dcim/forms/filtersets.py:406
+#: netbox/dcim/forms/filtersets.py:416
 msgid "Function"
 msgstr "機能"
 
-#: netbox/dcim/forms/filtersets.py:427 netbox/dcim/forms/model_forms.py:340
+#: netbox/dcim/forms/filtersets.py:437 netbox/dcim/forms/model_forms.py:340
 #: netbox/dcim/tables/racks.py:210
 msgid "Reservation"
 msgstr "予約"
 
-#: netbox/dcim/forms/filtersets.py:497 netbox/dcim/forms/model_forms.py:392
+#: netbox/dcim/forms/filtersets.py:507 netbox/dcim/forms/model_forms.py:392
 #: netbox/netbox/views/generic/feature_views.py:97
 #: netbox/templates/inc/panels/image_attachments.html:6
 msgid "Images"
 msgstr "画像"
 
-#: netbox/dcim/forms/filtersets.py:500 netbox/dcim/forms/filtersets.py:633
-#: netbox/dcim/forms/filtersets.py:763
+#: netbox/dcim/forms/filtersets.py:510 netbox/dcim/forms/filtersets.py:643
+#: netbox/dcim/forms/filtersets.py:773
 msgid "Components"
 msgstr "構成要素"
 
-#: netbox/dcim/forms/filtersets.py:520
+#: netbox/dcim/forms/filtersets.py:530
 msgid "Subdevice role"
 msgstr "サブデバイスロール"
 
-#: netbox/dcim/forms/filtersets.py:827 netbox/dcim/tables/racks.py:54
+#: netbox/dcim/forms/filtersets.py:837 netbox/dcim/tables/racks.py:54
 #: netbox/templates/dcim/module.html:99 netbox/templates/dcim/racktype.html:20
 msgid "Model"
 msgstr "モデル"
 
-#: netbox/dcim/forms/filtersets.py:871
+#: netbox/dcim/forms/filtersets.py:881
 msgid "Has an OOB IP"
 msgstr "OOB IP アドレスがある"
 
-#: netbox/dcim/forms/filtersets.py:878
+#: netbox/dcim/forms/filtersets.py:888
 msgid "Virtual chassis member"
 msgstr "バーチャルシャーシメンバー"
 
-#: netbox/dcim/forms/filtersets.py:927
+#: netbox/dcim/forms/filtersets.py:937
 msgid "Has virtual device contexts"
 msgstr "仮想デバイスコンテキストがある"
 
-#: netbox/dcim/forms/filtersets.py:940 netbox/extras/filtersets.py:722
+#: netbox/dcim/forms/filtersets.py:950 netbox/extras/filtersets.py:722
 #: netbox/ipam/forms/filtersets.py:477
 #: netbox/virtualization/forms/filtersets.py:118
 msgid "Cluster group"
 msgstr "クラスタグループ"
 
-#: netbox/dcim/forms/filtersets.py:1295
+#: netbox/dcim/forms/filtersets.py:1322
 msgid "Cabled"
 msgstr "配線済"
 
-#: netbox/dcim/forms/filtersets.py:1302
+#: netbox/dcim/forms/filtersets.py:1329
 msgid "Occupied"
 msgstr "専有済"
 
-#: netbox/dcim/forms/filtersets.py:1330 netbox/dcim/forms/filtersets.py:1355
-#: netbox/dcim/forms/filtersets.py:1380 netbox/dcim/forms/filtersets.py:1400
-#: netbox/dcim/forms/filtersets.py:1434 netbox/dcim/tables/devices.py:396
+#: netbox/dcim/forms/filtersets.py:1357 netbox/dcim/forms/filtersets.py:1396
+#: netbox/dcim/forms/filtersets.py:1435 netbox/dcim/forms/filtersets.py:1469
+#: netbox/dcim/forms/filtersets.py:1517 netbox/dcim/tables/devices.py:396
 #: netbox/dcim/tables/devices.py:692
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:16
 #: netbox/templates/dcim/consoleport.html:55
 #: netbox/templates/dcim/consoleserverport.html:55
 #: netbox/templates/dcim/frontport.html:69
-#: netbox/templates/dcim/interface.html:197
+#: netbox/templates/dcim/interface.html:210
 #: netbox/templates/dcim/powerfeed.html:110
 #: netbox/templates/dcim/poweroutlet.html:73
 #: netbox/templates/dcim/powerport.html:59
@@ -5597,7 +5617,7 @@ msgstr "専有済"
 msgid "Connection"
 msgstr "接続"
 
-#: netbox/dcim/forms/filtersets.py:1446 netbox/extras/forms/bulk_edit.py:427
+#: netbox/dcim/forms/filtersets.py:1529 netbox/extras/forms/bulk_edit.py:427
 #: netbox/extras/forms/bulk_import.py:298
 #: netbox/extras/forms/filtersets.py:565
 #: netbox/extras/forms/model_forms.py:793 netbox/extras/tables/tables.py:703
@@ -5605,39 +5625,39 @@ msgstr "接続"
 msgid "Kind"
 msgstr "種類"
 
-#: netbox/dcim/forms/filtersets.py:1475
+#: netbox/dcim/forms/filtersets.py:1558
 msgid "Mgmt only"
 msgstr "管理のみ"
 
-#: netbox/dcim/forms/filtersets.py:1487 netbox/dcim/forms/model_forms.py:1561
+#: netbox/dcim/forms/filtersets.py:1570 netbox/dcim/forms/model_forms.py:1561
 #: netbox/dcim/models/device_components.py:735
-#: netbox/templates/dcim/interface.html:142
+#: netbox/templates/dcim/interface.html:155
 msgid "WWN"
 msgstr "WWN"
 
-#: netbox/dcim/forms/filtersets.py:1502
+#: netbox/dcim/forms/filtersets.py:1585
 #: netbox/virtualization/forms/filtersets.py:246
 msgid "802.1Q mode"
 msgstr "802.1Q モード"
 
-#: netbox/dcim/forms/filtersets.py:1517
+#: netbox/dcim/forms/filtersets.py:1600
 msgid "Wireless channel"
 msgstr "無線チャネル"
 
-#: netbox/dcim/forms/filtersets.py:1521
+#: netbox/dcim/forms/filtersets.py:1604
 msgid "Channel frequency (MHz)"
 msgstr "チャネル周波数 (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1525
+#: netbox/dcim/forms/filtersets.py:1608
 msgid "Channel width (MHz)"
 msgstr "チャネル幅 (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1529
+#: netbox/dcim/forms/filtersets.py:1612
 #: netbox/templates/dcim/interface.html:91
 msgid "Transmit power (dBm)"
 msgstr "送信出力 (dBm)"
 
-#: netbox/dcim/forms/filtersets.py:1555 netbox/dcim/forms/filtersets.py:1580
+#: netbox/dcim/forms/filtersets.py:1683 netbox/dcim/forms/filtersets.py:1726
 #: netbox/dcim/tables/devices.py:359 netbox/templates/dcim/cable.html:12
 #: netbox/templates/dcim/cable_trace.html:46
 #: netbox/templates/dcim/frontport.html:77
@@ -5648,23 +5668,23 @@ msgstr "送信出力 (dBm)"
 msgid "Cable"
 msgstr "ケーブル"
 
-#: netbox/dcim/forms/filtersets.py:1659 netbox/dcim/tables/devices.py:1008
+#: netbox/dcim/forms/filtersets.py:1845 netbox/dcim/tables/devices.py:1008
 msgid "Discovered"
 msgstr "自動検出"
 
-#: netbox/dcim/forms/filtersets.py:1704 netbox/ipam/forms/filtersets.py:371
+#: netbox/dcim/forms/filtersets.py:1909 netbox/ipam/forms/filtersets.py:371
 msgid "Assigned Device"
 msgstr "割当デバイス"
 
-#: netbox/dcim/forms/filtersets.py:1709 netbox/ipam/forms/filtersets.py:376
+#: netbox/dcim/forms/filtersets.py:1914 netbox/ipam/forms/filtersets.py:376
 msgid "Assigned VM"
 msgstr "割当VM"
 
-#: netbox/dcim/forms/filtersets.py:1713 netbox/ipam/forms/filtersets.py:390
+#: netbox/dcim/forms/filtersets.py:1918 netbox/ipam/forms/filtersets.py:390
 msgid "Assigned to an interface"
 msgstr "インタフェースに割当済"
 
-#: netbox/dcim/forms/filtersets.py:1720
+#: netbox/dcim/forms/filtersets.py:1925
 msgid "Primary MAC of an interface"
 msgstr "インターフェースのプライマリ MAC"
 
@@ -5831,7 +5851,7 @@ msgstr "コンソールサーバポート"
 #: netbox/templates/dcim/consoleserverport.html:76
 #: netbox/templates/dcim/frontport.html:17
 #: netbox/templates/dcim/frontport.html:115
-#: netbox/templates/dcim/interface.html:244
+#: netbox/templates/dcim/interface.html:257
 #: netbox/templates/dcim/rearport.html:105
 msgid "Front Port"
 msgstr "前面ポート"
@@ -5843,7 +5863,7 @@ msgstr "前面ポート"
 #: netbox/templates/dcim/consoleserverport.html:79
 #: netbox/templates/dcim/frontport.html:50
 #: netbox/templates/dcim/frontport.html:118
-#: netbox/templates/dcim/interface.html:247
+#: netbox/templates/dcim/interface.html:260
 #: netbox/templates/dcim/rearport.html:17
 #: netbox/templates/dcim/rearport.html:108
 msgid "Rear Port"
@@ -7788,7 +7808,7 @@ msgstr "割当電力 (W)"
 #: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:689
 #: netbox/ipam/views.py:790 netbox/netbox/navigation/menu.py:165
 #: netbox/netbox/navigation/menu.py:167
-#: netbox/templates/dcim/interface.html:396
+#: netbox/templates/dcim/interface.html:409
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
 #: netbox/templates/ipam/service.html:42
 #: netbox/templates/virtualization/vminterface.html:107
@@ -7821,7 +7841,7 @@ msgstr "管理のみ"
 msgid "VDCs"
 msgstr "VDC"
 
-#: netbox/dcim/tables/devices.py:681 netbox/templates/dcim/interface.html:163
+#: netbox/dcim/tables/devices.py:681 netbox/templates/dcim/interface.html:176
 msgid "Virtual Circuit"
 msgstr "仮想回線"
 
@@ -8066,31 +8086,31 @@ msgstr "レンダーコンフィグ"
 msgid "Virtual Machines"
 msgstr "仮想マシン"
 
-#: netbox/dcim/views.py:3238
+#: netbox/dcim/views.py:3239
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "インストール済みデバイス {device} イン・ベイ {device_bay}。"
 
-#: netbox/dcim/views.py:3279
+#: netbox/dcim/views.py:3280
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "削除されたデバイス {device} ベイから {device_bay}。"
 
-#: netbox/dcim/views.py:3392 netbox/ipam/tables/ip.py:181
+#: netbox/dcim/views.py:3393 netbox/ipam/tables/ip.py:181
 msgid "Children"
 msgstr "子ども"
 
-#: netbox/dcim/views.py:3865
+#: netbox/dcim/views.py:3866
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "メンバー追加 <a href=\"{url}\">{device}</a>"
 
-#: netbox/dcim/views.py:3910
+#: netbox/dcim/views.py:3911
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "マスターデバイスを削除できません {device} バーチャルシャーシから。"
 
-#: netbox/dcim/views.py:3921
+#: netbox/dcim/views.py:3922
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "削除済み {device} バーチャルシャーシから {chassis}"
@@ -9478,7 +9498,12 @@ msgstr "カスタムフィールド選択肢"
 msgid "Must define base or extra choices."
 msgstr "基本選択肢または追加選択肢を定義する必要があります。"
 
-#: netbox/extras/models/customfields.py:903
+#: netbox/extras/models/customfields.py:888
+#, python-brace-format
+msgid "Duplicate value '{value}' found in extra choices."
+msgstr "値が重複しています '{value}'はその他の選択肢で見つかりました。"
+
+#: netbox/extras/models/customfields.py:913
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -11975,51 +12000,46 @@ msgstr "タグを削除"
 msgid "{class_name} must specify a model class."
 msgstr "{class_name} はモデルクラスを指定する必要があります。"
 
-#: netbox/netbox/models/features.py:294
-#, python-brace-format
-msgid "Unknown field name '{name}' in custom field data."
-msgstr "カスタムフィールドデータに、不明なフィールド名 '{name}'が存在します。"
-
-#: netbox/netbox/models/features.py:300
+#: netbox/netbox/models/features.py:301
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr "カスタムフィールドの値が無効です。'{name}': {error}"
 
-#: netbox/netbox/models/features.py:309
+#: netbox/netbox/models/features.py:310
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr "カスタムフィールド '{name}'には一意の値が必要です。"
 
-#: netbox/netbox/models/features.py:316
+#: netbox/netbox/models/features.py:317
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr "必須カスタムフィールド'{name}'が見つかりません。"
 
-#: netbox/netbox/models/features.py:506
+#: netbox/netbox/models/features.py:507
 msgid "Remote data source"
 msgstr "リモートデータソース"
 
-#: netbox/netbox/models/features.py:516
+#: netbox/netbox/models/features.py:517
 msgid "data path"
 msgstr "データパス"
 
-#: netbox/netbox/models/features.py:520
+#: netbox/netbox/models/features.py:521
 msgid "Path to remote file (relative to data source root)"
 msgstr "リモートファイルへのパス (データソースルートからの相対パス)"
 
-#: netbox/netbox/models/features.py:523
+#: netbox/netbox/models/features.py:524
 msgid "auto sync enabled"
 msgstr "自動同期が有効"
 
-#: netbox/netbox/models/features.py:525
+#: netbox/netbox/models/features.py:526
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr "データファイルの更新時にデータの自動同期を有効にする"
 
-#: netbox/netbox/models/features.py:528
+#: netbox/netbox/models/features.py:529
 msgid "date synced"
 msgstr "同期日付"
 
-#: netbox/netbox/models/features.py:622
+#: netbox/netbox/models/features.py:623
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr "{class_name} はsync_data () メソッドを実装する必要があります。"
@@ -12104,13 +12124,13 @@ msgid "Inventory Item Roles"
 msgstr "在庫品目のロール"
 
 #: netbox/netbox/navigation/menu.py:111
-#: netbox/templates/dcim/interface.html:413
+#: netbox/templates/dcim/interface.html:426
 #: netbox/templates/virtualization/vminterface.html:124
 msgid "MAC Addresses"
 msgstr "MAC アドレス"
 
 #: netbox/netbox/navigation/menu.py:118 netbox/netbox/navigation/menu.py:122
-#: netbox/templates/dcim/interface.html:182
+#: netbox/templates/dcim/interface.html:195
 msgid "Connections"
 msgstr "接続"
 
@@ -12136,7 +12156,7 @@ msgstr "電源接続"
 
 #: netbox/netbox/navigation/menu.py:154
 msgid "Wireless LAN Groups"
-msgstr "無線 LAN グループ"
+msgstr "無線LAN グループ"
 
 #: netbox/netbox/navigation/menu.py:175
 msgid "Prefix & VLAN Roles"
@@ -12415,7 +12435,7 @@ msgstr "設定履歴"
 msgid "Background Tasks"
 msgstr "バックグラウンドタスク"
 
-#: netbox/netbox/object_actions.py:87
+#: netbox/netbox/object_actions.py:88
 #: netbox/templates/circuits/inc/circuit_termination.html:10
 #: netbox/templates/dcim/manufacturer.html:11
 #: netbox/templates/extras/tableconfig_edit.html:29
@@ -12427,12 +12447,12 @@ msgstr "バックグラウンドタスク"
 msgid "Add"
 msgstr "追加"
 
-#: netbox/netbox/object_actions.py:97
+#: netbox/netbox/object_actions.py:98
 #: netbox/utilities/templates/buttons/clone.html:4
 msgid "Clone"
 msgstr "クローン"
 
-#: netbox/netbox/object_actions.py:113
+#: netbox/netbox/object_actions.py:114
 #: netbox/templates/circuits/inc/circuit_termination.html:15
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:37
 #: netbox/templates/dcim/inc/panels/inventory_items.html:32
@@ -12445,7 +12465,7 @@ msgstr "クローン"
 msgid "Edit"
 msgstr "編集"
 
-#: netbox/netbox/object_actions.py:124
+#: netbox/netbox/object_actions.py:125
 #: netbox/templates/circuits/inc/circuit_termination.html:23
 #: netbox/templates/dcim/inc/panels/inventory_items.html:37
 #: netbox/templates/dcim/powerpanel.html:66
@@ -12460,26 +12480,26 @@ msgstr "編集"
 msgid "Delete"
 msgstr "削除"
 
-#: netbox/netbox/object_actions.py:135
+#: netbox/netbox/object_actions.py:136
 #: netbox/utilities/templatetags/buttons.py:190
 msgid "Import"
 msgstr "インポート"
 
-#: netbox/netbox/object_actions.py:145
+#: netbox/netbox/object_actions.py:146
 #: netbox/utilities/templatetags/buttons.py:207
 msgid "Export"
 msgstr "エクスポート"
 
-#: netbox/netbox/object_actions.py:173
+#: netbox/netbox/object_actions.py:174
 #: netbox/utilities/templatetags/buttons.py:227
 msgid "Edit Selected"
 msgstr "選択項目を編集"
 
-#: netbox/netbox/object_actions.py:184
+#: netbox/netbox/object_actions.py:200
 msgid "Rename Selected"
 msgstr "選択項目の名前を変更"
 
-#: netbox/netbox/object_actions.py:195
+#: netbox/netbox/object_actions.py:211
 #: netbox/utilities/templatetags/buttons.py:244
 msgid "Delete Selected"
 msgstr "選択項目を削除"
@@ -12870,18 +12890,22 @@ msgid "None installed"
 msgstr "None installed"
 
 #: netbox/templates/500.html:39
+msgid "The request which yielded the above error is shown below:"
+msgstr "上記のエラーが発生したリクエストを以下に示します。"
+
+#: netbox/templates/500.html:45
 msgid "If further assistance is required, please post to the"
 msgstr "さらにサポートが必要な場合は、以下サイトに投稿してください。"
 
-#: netbox/templates/500.html:39
+#: netbox/templates/500.html:45
 msgid "NetBox discussion forum"
 msgstr "NetBox ディスカッションフォーラム"
 
-#: netbox/templates/500.html:39
+#: netbox/templates/500.html:45
 msgid "on GitHub"
 msgstr "(GitHub)"
 
-#: netbox/templates/500.html:42 netbox/templates/base/40x.html:17
+#: netbox/templates/500.html:48 netbox/templates/base/40x.html:17
 msgid "Home Page"
 msgstr "ホームページ"
 
@@ -13022,7 +13046,7 @@ msgstr "割当グループ"
 #: netbox/templates/core/objectchange.html:148
 #: netbox/templates/dcim/devicebay.html:59
 #: netbox/templates/dcim/inc/panels/inventory_items.html:45
-#: netbox/templates/dcim/interface.html:353
+#: netbox/templates/dcim/interface.html:366
 #: netbox/templates/dcim/modulebay.html:80
 #: netbox/templates/dcim/moduletype.html:90
 #: netbox/templates/extras/configcontext.html:46
@@ -13186,7 +13210,7 @@ msgstr "に"
 #: netbox/templates/dcim/inc/cable_termination.html:48
 #: netbox/templates/dcim/inc/cable_termination.html:66
 #: netbox/templates/dcim/inc/connection_endpoints.html:7
-#: netbox/templates/dcim/interface.html:211
+#: netbox/templates/dcim/interface.html:224
 #: netbox/templates/dcim/rearport.html:76
 msgid "Trace"
 msgstr "トレース"
@@ -13209,8 +13233,8 @@ msgstr "接続解除"
 #: netbox/templates/dcim/consoleport.html:69
 #: netbox/templates/dcim/consoleserverport.html:69
 #: netbox/templates/dcim/frontport.html:102
-#: netbox/templates/dcim/interface.html:237
-#: netbox/templates/dcim/interface.html:257
+#: netbox/templates/dcim/interface.html:250
+#: netbox/templates/dcim/interface.html:270
 #: netbox/templates/dcim/powerfeed.html:123
 #: netbox/templates/dcim/poweroutlet.html:85
 #: netbox/templates/dcim/poweroutlet.html:86
@@ -13749,7 +13773,7 @@ msgstr "不完全"
 #: netbox/templates/dcim/consoleport.html:65
 #: netbox/templates/dcim/consoleserverport.html:65
 #: netbox/templates/dcim/frontport.html:98
-#: netbox/templates/dcim/interface.html:233
+#: netbox/templates/dcim/interface.html:246
 #: netbox/templates/dcim/poweroutlet.html:83
 #: netbox/templates/dcim/powerport.html:69
 msgid "Not Connected"
@@ -13953,7 +13977,7 @@ msgid "Rear Port Position"
 msgstr "背面ポート位置"
 
 #: netbox/templates/dcim/frontport.html:72
-#: netbox/templates/dcim/interface.html:201
+#: netbox/templates/dcim/interface.html:214
 #: netbox/templates/dcim/poweroutlet.html:77
 #: netbox/templates/dcim/powerport.html:63
 #: netbox/templates/dcim/rearport.html:68
@@ -14061,38 +14085,42 @@ msgstr "PoE モード"
 msgid "PoE Type"
 msgstr "PoE タイプ"
 
-#: netbox/templates/dcim/interface.html:156
+#: netbox/templates/dcim/interface.html:116
+msgid "Bridged Interfaces"
+msgstr "ブリッジインターフェイス"
+
+#: netbox/templates/dcim/interface.html:169
 #: netbox/templates/virtualization/vminterface.html:94
 msgid "VLAN Translation"
 msgstr "VLAN トランスレーション"
 
-#: netbox/templates/dcim/interface.html:208
+#: netbox/templates/dcim/interface.html:221
 msgid "Wireless Link"
 msgstr "無線リンク"
 
-#: netbox/templates/dcim/interface.html:287
+#: netbox/templates/dcim/interface.html:300
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:26
 msgid "Channel"
 msgstr "チャネル"
 
-#: netbox/templates/dcim/interface.html:296
+#: netbox/templates/dcim/interface.html:309
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:32
 msgid "Channel Frequency"
 msgstr "チャンネル周波数"
 
-#: netbox/templates/dcim/interface.html:299
-#: netbox/templates/dcim/interface.html:307
-#: netbox/templates/dcim/interface.html:318
-#: netbox/templates/dcim/interface.html:326
+#: netbox/templates/dcim/interface.html:312
+#: netbox/templates/dcim/interface.html:320
+#: netbox/templates/dcim/interface.html:331
+#: netbox/templates/dcim/interface.html:339
 msgid "MHz"
 msgstr "メガヘルツ"
 
-#: netbox/templates/dcim/interface.html:315
+#: netbox/templates/dcim/interface.html:328
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:42
 msgid "Channel Width"
 msgstr "チャンネル幅"
 
-#: netbox/templates/dcim/interface.html:342
+#: netbox/templates/dcim/interface.html:355
 #: netbox/templates/wireless/wirelesslan.html:14
 #: netbox/templates/wireless/wirelesslink.html:21
 #: netbox/wireless/forms/bulk_edit.py:63
@@ -14103,15 +14131,15 @@ msgstr "チャンネル幅"
 msgid "SSID"
 msgstr "SSID"
 
-#: netbox/templates/dcim/interface.html:362
+#: netbox/templates/dcim/interface.html:375
 msgid "LAG Members"
 msgstr "LAG メンバー"
 
-#: netbox/templates/dcim/interface.html:380
+#: netbox/templates/dcim/interface.html:393
 msgid "No member interfaces"
 msgstr "メンバーインタフェースなし"
 
-#: netbox/templates/dcim/interface.html:400
+#: netbox/templates/dcim/interface.html:413
 #: netbox/templates/ipam/fhrpgroup.html:74
 #: netbox/templates/ipam/iprange/ip_addresses.html:7
 #: netbox/templates/ipam/prefix/ip_addresses.html:7
@@ -14119,7 +14147,7 @@ msgstr "メンバーインタフェースなし"
 msgid "Add IP Address"
 msgstr "IP アドレスを追加"
 
-#: netbox/templates/dcim/interface.html:417
+#: netbox/templates/dcim/interface.html:430
 #: netbox/templates/virtualization/vminterface.html:129
 msgid "Add MAC Address"
 msgstr "MAC アドレスを追加"
@@ -16374,7 +16402,7 @@ msgid ""
 "Specify a numeric range to create multiple IPs.<br />Example: "
 "<code>192.0.2.[1,5,100-254]/24</code>"
 msgstr ""
-"複数の IP を作成するには、数値範囲を指定します。<br />例: <code>192.0.2。[1,5,100-254] /24</code>"
+"複数の IP を作成するには、数値範囲を指定します。<br />例: <code>192.0.2.[1,5,100-254] /24</code>"
 
 #: netbox/utilities/forms/fields/fields.py:32
 #, python-brace-format
