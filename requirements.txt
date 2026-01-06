@@ -10,14 +10,14 @@ django-pglocks==1.0.4
 django-prometheus==2.4.1
 django-redis==6.0.0
 django-rich==2.2.0
-django-rq==3.2.1
+django-rq==3.2.2
 django-storages==1.14.6
 django-tables2==2.8.0
 django-taggit==6.1.0
 django-timezone-field==7.2.1
 djangorestframework==3.16.1
 drf-spectacular==0.29.0
-drf-spectacular-sidecar==2025.12.1
+drf-spectacular-sidecar==2026.1.1
 feedparser==6.0.12
 gunicorn==23.0.0
 Jinja2==3.1.6
@@ -28,7 +28,7 @@ mkdocstrings==1.0.0
 mkdocstrings-python==2.0.1
 netaddr==1.3.0
 nh3==0.3.2
-Pillow==12.0.0
+Pillow==12.1.0
 psycopg[c,pool]==3.3.2
 PyYAML==6.0.3
 requests==2.32.5
@@ -36,8 +36,8 @@ rq==2.6.1
 social-auth-app-django==5.7.0
 social-auth-core==4.8.3
 sorl-thumbnail==12.11.0
-strawberry-graphql==0.287.3
-strawberry-graphql-django==0.70.1
+strawberry-graphql==0.288.2
+strawberry-graphql-django==0.73.0
 svgwrite==1.4.3
 tablib==3.9.0
 tzdata==2025.3

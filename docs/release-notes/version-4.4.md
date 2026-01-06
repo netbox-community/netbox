@@ -1,5 +1,25 @@
 # NetBox v4.4
 
+## v4.4.10 (2026-01-06)
+
+### Enhancements
+
+* [#20953](https://github.com/netbox-community/netbox/issues/20953) - Show reverse bridge relationships on interface detail pages
+* [#21071](https://github.com/netbox-community/netbox/issues/21071) - Include request method & URL when displaying server errors
+
+### Bug Fixes
+
+* [#19506](https://github.com/netbox-community/netbox/issues/19506) - Add filter forms for component templates to ensure object selector support
+* [#20044](https://github.com/netbox-community/netbox/issues/20044) - Fix dark mode support for rack elevations
+* [#20320](https://github.com/netbox-community/netbox/issues/20320) - Restore support for selecting related interfaces when bulk editing device interfaces
+* [#20817](https://github.com/netbox-community/netbox/issues/20817) - Re-enable sync button when disabling scheduled syncing for a data source
+* [#21045](https://github.com/netbox-community/netbox/issues/21045) - Fix `ValueError` exception when saving a site with an assigned prefix
+* [#21049](https://github.com/netbox-community/netbox/issues/21049) - Ignore stale custom field data when validating an object
+* [#21063](https://github.com/netbox-community/netbox/issues/21063) - Check for duplicate choice values when validating a custom field choice set
+* [#21064](https://github.com/netbox-community/netbox/issues/21064) - Ensures that extra choices in custom field choice sets preserve escaped colons
+
+---
+
 ## v4.4.9 (2025-12-23)
 
 ### Enhancements
