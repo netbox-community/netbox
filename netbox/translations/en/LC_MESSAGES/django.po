@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-01 05:06+0000\n"
+"POT-Creation-Date: 2026-01-06 05:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -128,7 +128,7 @@ msgid "Decommissioned"
 msgstr ""
 
 #: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1927
-#: netbox/dcim/tables/devices.py:1178 netbox/templates/dcim/interface.html:135
+#: netbox/dcim/tables/devices.py:1178 netbox/templates/dcim/interface.html:148
 #: netbox/templates/virtualization/vminterface.html:83
 #: netbox/tenancy/choices.py:17
 msgid "Primary"
@@ -147,7 +147,7 @@ msgstr ""
 msgid "Inactive"
 msgstr ""
 
-#: netbox/circuits/choices.py:107 netbox/templates/dcim/interface.html:275
+#: netbox/circuits/choices.py:107 netbox/templates/dcim/interface.html:288
 #: netbox/vpn/choices.py:63
 msgid "Peer"
 msgstr ""
@@ -644,7 +644,7 @@ msgstr ""
 #: netbox/templates/circuits/virtualcircuit.html:23
 #: netbox/templates/circuits/virtualcircuittermination.html:26
 #: netbox/templates/dcim/inc/cable_termination.html:58
-#: netbox/templates/dcim/interface.html:166
+#: netbox/templates/dcim/interface.html:179
 msgid "Provider"
 msgstr ""
 
@@ -722,8 +722,8 @@ msgstr ""
 #: netbox/templates/dcim/consoleserverport.html:36
 #: netbox/templates/dcim/frontport.html:36
 #: netbox/templates/dcim/interface.html:46
-#: netbox/templates/dcim/interface.html:226
-#: netbox/templates/dcim/interface.html:368
+#: netbox/templates/dcim/interface.html:239
+#: netbox/templates/dcim/interface.html:381
 #: netbox/templates/dcim/powerfeed.html:32
 #: netbox/templates/dcim/poweroutlet.html:36
 #: netbox/templates/dcim/powerport.html:36
@@ -1065,7 +1065,7 @@ msgstr ""
 #: netbox/circuits/forms/model_forms.py:185
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:55
 #: netbox/templates/dcim/frontport.html:121
-#: netbox/templates/dcim/interface.html:250
+#: netbox/templates/dcim/interface.html:263
 #: netbox/templates/dcim/rearport.html:111
 msgid "Circuit Termination"
 msgstr ""
@@ -1127,8 +1127,8 @@ msgstr ""
 #: netbox/templates/circuits/virtualcircuittermination.html:42
 #: netbox/templates/dcim/device.html:188
 #: netbox/templates/dcim/inc/panels/inventory_items.html:20
-#: netbox/templates/dcim/interface.html:178
-#: netbox/templates/dcim/interface.html:280
+#: netbox/templates/dcim/interface.html:191
+#: netbox/templates/dcim/interface.html:293
 #: netbox/templates/dcim/inventoryitem.html:40
 #: netbox/templates/dcim/rack.html:49 netbox/templates/ipam/ipaddress.html:41
 #: netbox/templates/ipam/iprange.html:57 netbox/templates/ipam/prefix.html:73
@@ -1242,8 +1242,8 @@ msgstr ""
 #: netbox/templates/circuits/virtualcircuittermination.html:60
 #: netbox/templates/dcim/frontport.html:106
 #: netbox/templates/dcim/interface.html:27
-#: netbox/templates/dcim/interface.html:241
-#: netbox/templates/dcim/interface.html:367
+#: netbox/templates/dcim/interface.html:254
+#: netbox/templates/dcim/interface.html:380
 #: netbox/templates/dcim/rearport.html:102
 #: netbox/templates/virtualization/vminterface.html:18
 #: netbox/templates/vpn/tunneltermination.html:31
@@ -1403,7 +1403,7 @@ msgstr ""
 #: netbox/ipam/tables/fhrp.py:67 netbox/ipam/tables/vlans.py:94
 #: netbox/ipam/tables/vlans.py:205
 #: netbox/templates/circuits/circuitgroupassignment.html:22
-#: netbox/templates/dcim/interface.html:341 netbox/templates/dcim/site.html:37
+#: netbox/templates/dcim/interface.html:354 netbox/templates/dcim/site.html:37
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:23
 #: netbox/templates/ipam/vlan.html:27 netbox/templates/tenancy/tenant.html:20
 #: netbox/templates/users/group.html:6 netbox/templates/users/group.html:14
@@ -1769,7 +1769,7 @@ msgstr ""
 #: netbox/templates/dcim/inc/interface_vlans_table.html:5
 #: netbox/templates/dcim/inc/panels/inventory_items.html:18
 #: netbox/templates/dcim/interface.html:38
-#: netbox/templates/dcim/interface.html:222
+#: netbox/templates/dcim/interface.html:235
 #: netbox/templates/dcim/inventoryitem.html:28
 #: netbox/templates/dcim/inventoryitemrole.html:18
 #: netbox/templates/dcim/location.html:29
@@ -1862,7 +1862,7 @@ msgstr ""
 #: netbox/circuits/tables/virtual_circuits.py:42
 #: netbox/templates/circuits/circuit.html:26
 #: netbox/templates/circuits/virtualcircuit.html:35
-#: netbox/templates/dcim/interface.html:174
+#: netbox/templates/dcim/interface.html:187
 msgid "Circuit ID"
 msgstr ""
 
@@ -1940,7 +1940,7 @@ msgstr ""
 #: netbox/templates/circuits/providernetwork.html:17
 #: netbox/templates/circuits/virtualcircuit.html:27
 #: netbox/templates/circuits/virtualcircuittermination.html:30
-#: netbox/templates/dcim/interface.html:170
+#: netbox/templates/dcim/interface.html:183
 msgid "Provider Network"
 msgstr ""
 
@@ -2010,7 +2010,7 @@ msgstr ""
 #: netbox/templates/dcim/devicebay.html:48
 #: netbox/templates/dcim/frontport.html:20
 #: netbox/templates/dcim/interface.html:30
-#: netbox/templates/dcim/interface.html:218
+#: netbox/templates/dcim/interface.html:231
 #: netbox/templates/dcim/inventoryitem.html:20
 #: netbox/templates/dcim/module.html:57 netbox/templates/dcim/modulebay.html:20
 #: netbox/templates/dcim/poweroutlet.html:20
@@ -2212,7 +2212,7 @@ msgstr ""
 
 #: netbox/core/data_backends.py:32 netbox/core/tables/plugins.py:53
 #: netbox/templates/core/plugin.html:88
-#: netbox/templates/dcim/interface.html:273
+#: netbox/templates/dcim/interface.html:286
 msgid "Local"
 msgstr ""
 
@@ -3072,16 +3072,16 @@ msgstr ""
 msgid "Plugin {name} not found"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/device_components.py:263
+#: netbox/dcim/api/serializers_/device_components.py:264
 msgid "Interface mode does not support q-in-q service vlan"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/device_components.py:270
+#: netbox/dcim/api/serializers_/device_components.py:271
 msgid "Interface mode does not support untagged vlan"
 msgstr ""
 
-#: netbox/dcim/api/serializers_/device_components.py:275
-#: netbox/dcim/api/serializers_/device_components.py:280
+#: netbox/dcim/api/serializers_/device_components.py:276
+#: netbox/dcim/api/serializers_/device_components.py:281
 msgid "Interface mode does not support tagged vlans"
 msgstr ""
 
@@ -3205,7 +3205,7 @@ msgstr ""
 #: netbox/ipam/tables/ip.py:336 netbox/ipam/tables/services.py:45
 #: netbox/templates/dcim/devicerole.html:34
 #: netbox/templates/dcim/interface.html:108
-#: netbox/templates/dcim/interface.html:366
+#: netbox/templates/dcim/interface.html:379
 #: netbox/templates/dcim/location.html:41
 #: netbox/templates/dcim/platform.html:37 netbox/templates/dcim/region.html:37
 #: netbox/templates/dcim/sitegroup.html:37
@@ -3334,7 +3334,7 @@ msgstr ""
 #: netbox/dcim/forms/filtersets.py:1635 netbox/dcim/forms/model_forms.py:1130
 #: netbox/dcim/forms/model_forms.py:1583 netbox/netbox/navigation/menu.py:147
 #: netbox/netbox/navigation/menu.py:151
-#: netbox/templates/dcim/interface.html:267
+#: netbox/templates/dcim/interface.html:280
 msgid "Wireless"
 msgstr ""
 
@@ -4017,7 +4017,7 @@ msgstr ""
 #: netbox/ipam/models/ip.py:748 netbox/ipam/models/vrfs.py:61
 #: netbox/ipam/tables/ip.py:189 netbox/ipam/tables/ip.py:262
 #: netbox/ipam/tables/ip.py:318 netbox/ipam/tables/ip.py:418
-#: netbox/templates/dcim/interface.html:152
+#: netbox/templates/dcim/interface.html:165
 #: netbox/templates/ipam/ipaddress.html:18
 #: netbox/templates/ipam/iprange.html:47 netbox/templates/ipam/prefix.html:19
 #: netbox/templates/ipam/vrf.html:7 netbox/templates/ipam/vrf.html:13
@@ -4102,7 +4102,7 @@ msgid "LAG interface (ID)"
 msgstr ""
 
 #: netbox/dcim/filtersets.py:2008 netbox/dcim/tables/devices.py:635
-#: netbox/dcim/tables/devices.py:1164 netbox/templates/dcim/interface.html:131
+#: netbox/dcim/tables/devices.py:1164 netbox/templates/dcim/interface.html:144
 #: netbox/templates/dcim/macaddress.html:11
 #: netbox/templates/dcim/macaddress.html:14
 #: netbox/templates/virtualization/vminterface.html:79
@@ -4721,7 +4721,7 @@ msgid "Module"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1519 netbox/dcim/tables/devices.py:728
-#: netbox/templates/dcim/interface.html:116
+#: netbox/templates/dcim/interface.html:129
 msgid "LAG"
 msgstr ""
 
@@ -4799,7 +4799,7 @@ msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1628 netbox/dcim/forms/model_forms.py:1507
 #: netbox/dcim/tables/devices.py:670 netbox/netbox/navigation/menu.py:153
-#: netbox/templates/dcim/interface.html:337
+#: netbox/templates/dcim/interface.html:350
 #: netbox/wireless/tables/wirelesslan.py:28
 msgid "Wireless LANs"
 msgstr ""
@@ -4808,7 +4808,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:1573 netbox/ipam/forms/bulk_edit.py:269
 #: netbox/ipam/forms/bulk_edit.py:367 netbox/ipam/forms/filtersets.py:177
 #: netbox/netbox/navigation/menu.py:109
-#: netbox/templates/dcim/interface.html:128
+#: netbox/templates/dcim/interface.html:141
 #: netbox/templates/ipam/prefix.html:91
 #: netbox/templates/virtualization/vminterface.html:76
 #: netbox/virtualization/forms/filtersets.py:205
@@ -5563,7 +5563,7 @@ msgstr ""
 #: netbox/templates/dcim/consoleport.html:55
 #: netbox/templates/dcim/consoleserverport.html:55
 #: netbox/templates/dcim/frontport.html:69
-#: netbox/templates/dcim/interface.html:197
+#: netbox/templates/dcim/interface.html:210
 #: netbox/templates/dcim/powerfeed.html:110
 #: netbox/templates/dcim/poweroutlet.html:73
 #: netbox/templates/dcim/powerport.html:59
@@ -5584,7 +5584,7 @@ msgstr ""
 
 #: netbox/dcim/forms/filtersets.py:1570 netbox/dcim/forms/model_forms.py:1561
 #: netbox/dcim/models/device_components.py:735
-#: netbox/templates/dcim/interface.html:142
+#: netbox/templates/dcim/interface.html:155
 msgid "WWN"
 msgstr ""
 
@@ -5798,7 +5798,7 @@ msgstr ""
 #: netbox/templates/dcim/consoleserverport.html:76
 #: netbox/templates/dcim/frontport.html:17
 #: netbox/templates/dcim/frontport.html:115
-#: netbox/templates/dcim/interface.html:244
+#: netbox/templates/dcim/interface.html:257
 #: netbox/templates/dcim/rearport.html:105
 msgid "Front Port"
 msgstr ""
@@ -5810,7 +5810,7 @@ msgstr ""
 #: netbox/templates/dcim/consoleserverport.html:79
 #: netbox/templates/dcim/frontport.html:50
 #: netbox/templates/dcim/frontport.html:118
-#: netbox/templates/dcim/interface.html:247
+#: netbox/templates/dcim/interface.html:260
 #: netbox/templates/dcim/rearport.html:17
 #: netbox/templates/dcim/rearport.html:108
 msgid "Rear Port"
@@ -7730,7 +7730,7 @@ msgstr ""
 #: netbox/ipam/tables/fhrp.py:28 netbox/ipam/views.py:689
 #: netbox/ipam/views.py:790 netbox/netbox/navigation/menu.py:165
 #: netbox/netbox/navigation/menu.py:167
-#: netbox/templates/dcim/interface.html:396
+#: netbox/templates/dcim/interface.html:409
 #: netbox/templates/ipam/ipaddress_bulk_add.html:15
 #: netbox/templates/ipam/service.html:42
 #: netbox/templates/virtualization/vminterface.html:107
@@ -7763,7 +7763,7 @@ msgstr ""
 msgid "VDCs"
 msgstr ""
 
-#: netbox/dcim/tables/devices.py:681 netbox/templates/dcim/interface.html:163
+#: netbox/dcim/tables/devices.py:681 netbox/templates/dcim/interface.html:176
 msgid "Virtual Circuit"
 msgstr ""
 
@@ -8008,31 +8008,31 @@ msgstr ""
 msgid "Virtual Machines"
 msgstr ""
 
-#: netbox/dcim/views.py:3238
+#: netbox/dcim/views.py:3239
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3279
+#: netbox/dcim/views.py:3280
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr ""
 
-#: netbox/dcim/views.py:3392 netbox/ipam/tables/ip.py:181
+#: netbox/dcim/views.py:3393 netbox/ipam/tables/ip.py:181
 msgid "Children"
 msgstr ""
 
-#: netbox/dcim/views.py:3865
+#: netbox/dcim/views.py:3866
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr ""
 
-#: netbox/dcim/views.py:3910
+#: netbox/dcim/views.py:3911
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr ""
 
-#: netbox/dcim/views.py:3921
+#: netbox/dcim/views.py:3922
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr ""
@@ -9394,7 +9394,12 @@ msgstr ""
 msgid "Must define base or extra choices."
 msgstr ""
 
-#: netbox/extras/models/customfields.py:903
+#: netbox/extras/models/customfields.py:888
+#, python-brace-format
+msgid "Duplicate value '{value}' found in extra choices."
+msgstr ""
+
+#: netbox/extras/models/customfields.py:913
 #, python-brace-format
 msgid ""
 "Cannot remove choice {choice} as there are {model} objects which reference "
@@ -11869,51 +11874,46 @@ msgstr ""
 msgid "{class_name} must specify a model class."
 msgstr ""
 
-#: netbox/netbox/models/features.py:294
-#, python-brace-format
-msgid "Unknown field name '{name}' in custom field data."
-msgstr ""
-
-#: netbox/netbox/models/features.py:300
+#: netbox/netbox/models/features.py:301
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr ""
 
-#: netbox/netbox/models/features.py:309
+#: netbox/netbox/models/features.py:310
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr ""
 
-#: netbox/netbox/models/features.py:316
+#: netbox/netbox/models/features.py:317
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr ""
 
-#: netbox/netbox/models/features.py:506
+#: netbox/netbox/models/features.py:507
 msgid "Remote data source"
 msgstr ""
 
-#: netbox/netbox/models/features.py:516
+#: netbox/netbox/models/features.py:517
 msgid "data path"
 msgstr ""
 
-#: netbox/netbox/models/features.py:520
+#: netbox/netbox/models/features.py:521
 msgid "Path to remote file (relative to data source root)"
 msgstr ""
 
-#: netbox/netbox/models/features.py:523
+#: netbox/netbox/models/features.py:524
 msgid "auto sync enabled"
 msgstr ""
 
-#: netbox/netbox/models/features.py:525
+#: netbox/netbox/models/features.py:526
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 
-#: netbox/netbox/models/features.py:528
+#: netbox/netbox/models/features.py:529
 msgid "date synced"
 msgstr ""
 
-#: netbox/netbox/models/features.py:622
+#: netbox/netbox/models/features.py:623
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
@@ -11998,13 +11998,13 @@ msgid "Inventory Item Roles"
 msgstr ""
 
 #: netbox/netbox/navigation/menu.py:111
-#: netbox/templates/dcim/interface.html:413
+#: netbox/templates/dcim/interface.html:426
 #: netbox/templates/virtualization/vminterface.html:124
 msgid "MAC Addresses"
 msgstr ""
 
 #: netbox/netbox/navigation/menu.py:118 netbox/netbox/navigation/menu.py:122
-#: netbox/templates/dcim/interface.html:182
+#: netbox/templates/dcim/interface.html:195
 msgid "Connections"
 msgstr ""
 
@@ -12760,18 +12760,22 @@ msgid "None installed"
 msgstr ""
 
 #: netbox/templates/500.html:39
+msgid "The request which yielded the above error is shown below:"
+msgstr ""
+
+#: netbox/templates/500.html:45
 msgid "If further assistance is required, please post to the"
 msgstr ""
 
-#: netbox/templates/500.html:39
+#: netbox/templates/500.html:45
 msgid "NetBox discussion forum"
 msgstr ""
 
-#: netbox/templates/500.html:39
+#: netbox/templates/500.html:45
 msgid "on GitHub"
 msgstr ""
 
-#: netbox/templates/500.html:42 netbox/templates/base/40x.html:17
+#: netbox/templates/500.html:48 netbox/templates/base/40x.html:17
 msgid "Home Page"
 msgstr ""
 
@@ -12908,7 +12912,7 @@ msgstr ""
 #: netbox/templates/core/objectchange.html:148
 #: netbox/templates/dcim/devicebay.html:59
 #: netbox/templates/dcim/inc/panels/inventory_items.html:45
-#: netbox/templates/dcim/interface.html:353
+#: netbox/templates/dcim/interface.html:366
 #: netbox/templates/dcim/modulebay.html:80
 #: netbox/templates/dcim/moduletype.html:90
 #: netbox/templates/extras/configcontext.html:46
@@ -13072,7 +13076,7 @@ msgstr ""
 #: netbox/templates/dcim/inc/cable_termination.html:48
 #: netbox/templates/dcim/inc/cable_termination.html:66
 #: netbox/templates/dcim/inc/connection_endpoints.html:7
-#: netbox/templates/dcim/interface.html:211
+#: netbox/templates/dcim/interface.html:224
 #: netbox/templates/dcim/rearport.html:76
 msgid "Trace"
 msgstr ""
@@ -13095,8 +13099,8 @@ msgstr ""
 #: netbox/templates/dcim/consoleport.html:69
 #: netbox/templates/dcim/consoleserverport.html:69
 #: netbox/templates/dcim/frontport.html:102
-#: netbox/templates/dcim/interface.html:237
-#: netbox/templates/dcim/interface.html:257
+#: netbox/templates/dcim/interface.html:250
+#: netbox/templates/dcim/interface.html:270
 #: netbox/templates/dcim/powerfeed.html:123
 #: netbox/templates/dcim/poweroutlet.html:85
 #: netbox/templates/dcim/poweroutlet.html:86
@@ -13635,7 +13639,7 @@ msgstr ""
 #: netbox/templates/dcim/consoleport.html:65
 #: netbox/templates/dcim/consoleserverport.html:65
 #: netbox/templates/dcim/frontport.html:98
-#: netbox/templates/dcim/interface.html:233
+#: netbox/templates/dcim/interface.html:246
 #: netbox/templates/dcim/poweroutlet.html:83
 #: netbox/templates/dcim/powerport.html:69
 msgid "Not Connected"
@@ -13837,7 +13841,7 @@ msgid "Rear Port Position"
 msgstr ""
 
 #: netbox/templates/dcim/frontport.html:72
-#: netbox/templates/dcim/interface.html:201
+#: netbox/templates/dcim/interface.html:214
 #: netbox/templates/dcim/poweroutlet.html:77
 #: netbox/templates/dcim/powerport.html:63
 #: netbox/templates/dcim/rearport.html:68
@@ -13945,38 +13949,42 @@ msgstr ""
 msgid "PoE Type"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:156
+#: netbox/templates/dcim/interface.html:116
+msgid "Bridged Interfaces"
+msgstr ""
+
+#: netbox/templates/dcim/interface.html:169
 #: netbox/templates/virtualization/vminterface.html:94
 msgid "VLAN Translation"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:208
+#: netbox/templates/dcim/interface.html:221
 msgid "Wireless Link"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:287
+#: netbox/templates/dcim/interface.html:300
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:26
 msgid "Channel"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:296
+#: netbox/templates/dcim/interface.html:309
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:32
 msgid "Channel Frequency"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:299
-#: netbox/templates/dcim/interface.html:307
-#: netbox/templates/dcim/interface.html:318
-#: netbox/templates/dcim/interface.html:326
+#: netbox/templates/dcim/interface.html:312
+#: netbox/templates/dcim/interface.html:320
+#: netbox/templates/dcim/interface.html:331
+#: netbox/templates/dcim/interface.html:339
 msgid "MHz"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:315
+#: netbox/templates/dcim/interface.html:328
 #: netbox/templates/wireless/inc/wirelesslink_interface.html:42
 msgid "Channel Width"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:342
+#: netbox/templates/dcim/interface.html:355
 #: netbox/templates/wireless/wirelesslan.html:14
 #: netbox/templates/wireless/wirelesslink.html:21
 #: netbox/wireless/forms/bulk_edit.py:63 netbox/wireless/forms/bulk_edit.py:106
@@ -13986,15 +13994,15 @@ msgstr ""
 msgid "SSID"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:362
+#: netbox/templates/dcim/interface.html:375
 msgid "LAG Members"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:380
+#: netbox/templates/dcim/interface.html:393
 msgid "No member interfaces"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:400
+#: netbox/templates/dcim/interface.html:413
 #: netbox/templates/ipam/fhrpgroup.html:74
 #: netbox/templates/ipam/iprange/ip_addresses.html:7
 #: netbox/templates/ipam/prefix/ip_addresses.html:7
@@ -14002,7 +14010,7 @@ msgstr ""
 msgid "Add IP Address"
 msgstr ""
 
-#: netbox/templates/dcim/interface.html:417
+#: netbox/templates/dcim/interface.html:430
 #: netbox/templates/virtualization/vminterface.html:129
 msgid "Add MAC Address"
 msgstr ""
