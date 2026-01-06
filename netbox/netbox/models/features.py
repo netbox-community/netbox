@@ -288,12 +288,13 @@ class CustomFieldsMixin(models.Model):
             cf.name: cf for cf in CustomField.objects.get_for_model(self)
         }
 
+        # Remove any stale custom field data
+        self.custom_field_data = {
+            k: v for k, v in self.custom_field_data.items() if k in custom_fields.keys()
+        }
+
         # Validate all field values
         for field_name, value in self.custom_field_data.items():
-            if field_name not in custom_fields:
-                raise ValidationError(_("Unknown field name '{name}' in custom field data.").format(
-                    name=field_name
-                ))
             try:
                 custom_fields[field_name].validate(value)
             except ValidationError as e:
