@@ -6,12 +6,17 @@ Filter sets define the mechanisms available for filtering or searching through a
 
 To support additional functionality standard to NetBox models, such as tag assignment and custom field support, the `NetBoxModelFilterSet` class is available for use by plugins. This should be used as the base filter set class for plugin models which inherit from `NetBoxModel`. Within this class, individual filters can be declared as directed by the `django-filters` documentation. An example is provided below.
 
+!!! info "New in NetBox v4.5: FilterSet Registration"
+    NetBox v4.5 introduced the `register_filterset()` utility function. This enables plugins to register their filtersets to receive advanced functionality, such as the automatic attachment of field-specific lookup modifiers on the filter form. Registration is optional: Unregistered filtersets will continue to work as before, but will not receive the enhanced functionality.
+
 ```python
 # filtersets.py
 import django_filters
 from netbox.filtersets import NetBoxModelFilterSet
+from utilities.filtersets import register_filterset
 from .models import MyModel
 
+@register_filterset
 class MyFilterSet(NetBoxModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=(
@@ -26,6 +31,14 @@ class MyFilterSet(NetBoxModelFilterSet):
         model = MyModel
         fields = ('some', 'other', 'fields')
 ```
+
+In addition to the base NetBoxModelFilterSet class, the following filterset classes are also available for subclasses of standard base models.
+
+| Model Class           | FilterSet Class                                  |
+|-----------------------|--------------------------------------------------|
+| `PrimaryModel`        | `netbox.filtersets.PrimaryModelFilterSet`        |
+| `OrganizationalModel` | `netbox.filtersets.OrganizationalModelFilterSet` |
+| `NestedGroupModel`    | `netbox.filtersets.NestedGroupModelFilterSet`    |
 
 ### Declaring Filter Sets
 
@@ -42,7 +55,7 @@ class MyModelListView(ObjectListView):
     filterset = MyModelFilterSet
 ```
 
-To enable a filter set on a  REST API endpoint, set the `filterset_class` attribute on the API view:
+To enable a filter set on a REST API endpoint, set the `filterset_class` attribute on the API view:
 
 ```python
 # api/views.py
@@ -62,7 +75,9 @@ The `ObjectListView` has a field called Quick Search. For Quick Search to work t
 ```python
 from django.db.models import Q
 from netbox.filtersets import NetBoxModelFilterSet
+from utilities.filtersets import register_filterset
 
+@register_filterset
 class MyFilterSet(NetBoxModelFilterSet):
     ...
     def search(self, queryset, name, value):
@@ -90,7 +105,9 @@ This class filters `tags` using the `slug` field. For example:
 ```python
 from django_filters import FilterSet
 from extras.filters import TagFilter
+from utilities.filtersets import register_filterset
 
+@register_filterset
 class MyModelFilterSet(FilterSet):
     tag = TagFilter()
 ```
@@ -106,7 +123,9 @@ This class filters `tags` using the `id` field. For example:
 ```python
 from django_filters import FilterSet
 from extras.filters import TagIDFilter
+from utilities.filtersets import register_filterset
 
+@register_filterset
 class MyModelFilterSet(FilterSet):
     tag_id = TagIDFilter()
 ```

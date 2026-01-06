@@ -68,6 +68,16 @@ REDIS = {
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-SECRET_KEY
 SECRET_KEY = ''
 
+# Define a mapping of cryptographic peppers to use when hashing API tokens. A minimum of one pepper is required to
+# enable v2 API tokens (NetBox v4.5+). Define peppers as a mapping of numeric ID to pepper value, as shown below. Each
+# pepper must be at least 50 characters in length.
+#
+#     API_TOKEN_PEPPERS = {
+#         1: "<random string>",
+#         2: "<random string>",
+#     }
+API_TOKEN_PEPPERS = {}
+
 
 #########################
 #                       #
@@ -80,9 +90,6 @@ SECRET_KEY = ''
 ADMINS = [
     # ('John Doe', 'jdoe@example.com'),
 ]
-
-# Permit the retrieval of API tokens after their creation.
-ALLOW_TOKEN_RETRIEVAL = False
 
 # Enable any desired validators for local account passwords below. For a list of included validators, please see the
 # Django documentation at https://docs.djangoproject.com/en/stable/topics/auth/passwords/#password-validation.

@@ -3,9 +3,9 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, VLAN
-from netbox.forms import NetBoxModelImportForm
+from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.models import *
@@ -24,15 +24,14 @@ __all__ = (
 )
 
 
-class TunnelGroupImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+class TunnelGroupImportForm(OrganizationalModelImportForm):
 
     class Meta:
         model = TunnelGroup
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
 
 
-class TunnelImportForm(NetBoxModelImportForm):
+class TunnelImportForm(PrimaryModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=TunnelStatusChoices,
@@ -67,7 +66,7 @@ class TunnelImportForm(NetBoxModelImportForm):
         model = Tunnel
         fields = (
             'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id', 'description',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         )
 
 
@@ -140,7 +139,7 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
         return super().save(*args, **kwargs)
 
 
-class IKEProposalImportForm(NetBoxModelImportForm):
+class IKEProposalImportForm(PrimaryModelImportForm):
     authentication_method = CSVChoiceField(
         label=_('Authentication method'),
         choices=AuthenticationMethodChoices
@@ -163,11 +162,11 @@ class IKEProposalImportForm(NetBoxModelImportForm):
         model = IKEProposal
         fields = (
             'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm',
-            'group', 'sa_lifetime', 'comments', 'tags',
+            'group', 'sa_lifetime', 'owner', 'comments', 'tags',
         )
 
 
-class IKEPolicyImportForm(NetBoxModelImportForm):
+class IKEPolicyImportForm(PrimaryModelImportForm):
     version = CSVChoiceField(
         label=_('Version'),
         choices=IKEVersionChoices
@@ -186,11 +185,11 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
     class Meta:
         model = IKEPolicy
         fields = (
-            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments', 'tags',
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'owner', 'comments', 'tags',
         )
 
 
-class IPSecProposalImportForm(NetBoxModelImportForm):
+class IPSecProposalImportForm(PrimaryModelImportForm):
     encryption_algorithm = CSVChoiceField(
         label=_('Encryption algorithm'),
         choices=EncryptionAlgorithmChoices,
@@ -206,11 +205,11 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
         model = IPSecProposal
         fields = (
             'name', 'description', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
-            'sa_lifetime_data', 'comments', 'tags',
+            'sa_lifetime_data', 'owner', 'comments', 'tags',
         )
 
 
-class IPSecPolicyImportForm(NetBoxModelImportForm):
+class IPSecPolicyImportForm(PrimaryModelImportForm):
     pfs_group = CSVChoiceField(
         label=_('Diffie-Hellman group for Perfect Forward Secrecy'),
         choices=DHGroupChoices,
@@ -225,11 +224,11 @@ class IPSecPolicyImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPSecPolicy
         fields = (
-            'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
+            'name', 'description', 'proposals', 'pfs_group', 'owner', 'comments', 'tags',
         )
 
 
-class IPSecProfileImportForm(NetBoxModelImportForm):
+class IPSecProfileImportForm(PrimaryModelImportForm):
     mode = CSVChoiceField(
         label=_('Mode'),
         choices=IPSecModeChoices,
@@ -249,11 +248,11 @@ class IPSecProfileImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPSecProfile
         fields = (
-            'name', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
+            'name', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'owner', 'comments', 'tags',
         )
 
 
-class L2VPNImportForm(NetBoxModelImportForm):
+class L2VPNImportForm(PrimaryModelImportForm):
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -273,8 +272,9 @@ class L2VPNImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = L2VPN
-        fields = ('identifier', 'name', 'slug', 'tenant', 'type', 'description',
-                  'comments', 'tags')
+        fields = (
+            'identifier', 'name', 'slug', 'tenant', 'type', 'description', 'owner', 'comments', 'tags',
+        )
 
 
 class L2VPNTerminationImportForm(NetBoxModelImportForm):

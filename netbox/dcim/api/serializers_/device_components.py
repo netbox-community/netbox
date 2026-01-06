@@ -1,26 +1,26 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
-    RearPort, VirtualDeviceContext,
+    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PortMapping,
+    PowerOutlet, PowerPort, RearPort, VirtualDeviceContext,
 )
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
-from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
-from utilities.api import get_serializer_for_model
+from netbox.api.gfk_fields import GFKSerializerField
+from netbox.api.serializers import NetBoxModelSerializer
+from users.api.serializers_.mixins import OwnerMixin
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
-from .base import ConnectedEndpointsSerializer
+from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
@@ -41,7 +41,12 @@ __all__ = (
 )
 
 
-class ConsoleServerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
+class ConsoleServerPortSerializer(
+    OwnerMixin,
+    NetBoxModelSerializer,
+    CabledObjectSerializer,
+    ConnectedEndpointsSerializer
+):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -65,13 +70,18 @@ class ConsoleServerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer,
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'speed', 'description',
             'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'connected_endpoints',
-            'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
+            'connected_endpoints_type', 'connected_endpoints_reachable', 'owner', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class ConsolePortSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
+class ConsolePortSerializer(
+    OwnerMixin,
+    NetBoxModelSerializer,
+    CabledObjectSerializer,
+    ConnectedEndpointsSerializer
+):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -95,13 +105,18 @@ class ConsolePortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'speed', 'description',
             'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'connected_endpoints',
-            'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
+            'connected_endpoints_type', 'connected_endpoints_reachable', 'owner', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class PowerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
+class PowerPortSerializer(
+    OwnerMixin,
+    NetBoxModelSerializer,
+    CabledObjectSerializer,
+    ConnectedEndpointsSerializer
+):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -121,13 +136,18 @@ class PowerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'maximum_draw',
             'allocated_draw', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
-            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
-            'created', 'last_updated', '_occupied',
+            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'owner', 'tags',
+            'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
+class PowerOutletSerializer(
+    OwnerMixin,
+    NetBoxModelSerializer,
+    CabledObjectSerializer,
+    ConnectedEndpointsSerializer
+):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -160,12 +180,17 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'status', 'color',
             'power_port', 'feed_leg', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers',
             'link_peers_type', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
-            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
+class InterfaceSerializer(
+    OwnerMixin,
+    NetBoxModelSerializer,
+    CabledObjectSerializer,
+    ConnectedEndpointsSerializer
+):
     device = DeviceSerializer(nested=True)
     vdcs = SerializedPKRelatedField(
         queryset=VirtualDeviceContext.objects.all(),
@@ -228,8 +253,8 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'poe_mode', 'poe_type', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'untagged_vlan',
             'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'mark_connected', 'cable', 'cable_end',
             'wireless_link', 'link_peers', 'link_peers_type', 'wireless_lans', 'vrf', 'l2vpn_termination',
-            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
-            'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
+            'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'owner', 'tags',
+            'custom_fields', 'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
@@ -296,7 +321,20 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         return super().validate(data)
 
 
-class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+class RearPortMappingSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='rear_port_position'
+    )
+    front_port = serializers.PrimaryKeyRelatedField(
+        queryset=FrontPort.objects.all(),
+    )
+
+    class Meta:
+        model = PortMapping
+        fields = ('position', 'front_port', 'front_port_position')
+
+
+class RearPortSerializer(OwnerMixin, NetBoxModelSerializer, CabledObjectSerializer, PortSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -305,28 +343,36 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
+    front_ports = RearPortMappingSerializer(
+        source='mappings',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = RearPort
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions',
-            'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'tags',
-            'custom_fields', 'created', 'last_updated', '_occupied',
+            'front_ports', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class FrontPortRearPortSerializer(WritableNestedSerializer):
-    """
-    NestedRearPortSerializer but with parent device omitted (since front and rear ports must belong to same device)
-    """
+class FrontPortMappingSerializer(serializers.ModelSerializer):
+    position = serializers.IntegerField(
+        source='front_port_position'
+    )
+    rear_port = serializers.PrimaryKeyRelatedField(
+        queryset=RearPort.objects.all(),
+    )
 
     class Meta:
-        model = RearPort
-        fields = ['id', 'url', 'display_url', 'display', 'name', 'label', 'description']
+        model = PortMapping
+        fields = ('position', 'rear_port', 'rear_port_position')
 
 
-class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
+class FrontPortSerializer(OwnerMixin, NetBoxModelSerializer, CabledObjectSerializer, PortSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -335,19 +381,23 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
         allow_null=True
     )
     type = ChoiceField(choices=PortTypeChoices)
-    rear_port = FrontPortRearPortSerializer()
+    rear_ports = FrontPortMappingSerializer(
+        source='mappings',
+        many=True,
+        required=False,
+    )
 
     class Meta:
         model = FrontPort
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'rear_port',
-            'rear_port_position', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers',
-            'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'color', 'positions',
+            'rear_ports', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
+            'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class ModuleBaySerializer(NetBoxModelSerializer):
+class ModuleBaySerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -367,12 +417,12 @@ class ModuleBaySerializer(NetBoxModelSerializer):
         model = ModuleBay
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'installed_module', 'label', 'position',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'installed_module', 'name', 'description')
 
 
-class DeviceBaySerializer(NetBoxModelSerializer):
+class DeviceBaySerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     installed_device = DeviceSerializer(nested=True, required=False, allow_null=True)
 
@@ -380,12 +430,12 @@ class DeviceBaySerializer(NetBoxModelSerializer):
         model = DeviceBay
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'name', 'label', 'description', 'installed_device',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'owner', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
 
 
-class InventoryItemSerializer(NetBoxModelSerializer):
+class InventoryItemSerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     parent = serializers.PrimaryKeyRelatedField(queryset=InventoryItem.objects.all(), allow_null=True, default=None)
     role = InventoryItemRoleSerializer(nested=True, required=False, allow_null=True)
@@ -395,7 +445,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    component = GFKSerializerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
     status = ChoiceField(choices=InventoryItemStatusChoices, required=False)
 
@@ -404,14 +454,6 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'parent', 'name', 'label', 'status', 'role',
             'manufacturer', 'part_id', 'serial', 'asset_tag', 'discovered', 'description', 'component_type',
-            'component_id', 'component', 'tags', 'custom_fields', 'created', 'last_updated', '_depth',
+            'component_id', 'component', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', '_depth')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_component(self, obj):
-        if obj.component is None:
-            return None
-        serializer = get_serializer_for_model(obj.component)
-        context = {'request': self.context['request']}
-        return serializer(obj.component, nested=True, context=context).data

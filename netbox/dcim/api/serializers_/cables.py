@@ -1,13 +1,14 @@
-from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.constants import *
 from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
-from netbox.api.serializers import BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer
+from netbox.api.gfk_fields import GFKSerializerField
+from netbox.api.serializers import (
+    BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer, PrimaryModelSerializer,
+)
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 
@@ -20,19 +21,20 @@ __all__ = (
 )
 
 
-class CableSerializer(NetBoxModelSerializer):
+class CableSerializer(PrimaryModelSerializer):
     a_terminations = GenericObjectSerializer(many=True, required=False)
     b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
+    profile = ChoiceField(choices=CableProfileChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant',
-            'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'profile',
+            'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'label', 'description')
 
@@ -51,22 +53,21 @@ class TracedCableSerializer(BaseModelSerializer):
 
 class CableTerminationSerializer(NetBoxModelSerializer):
     termination_type = ContentTypeField(
-        queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
+        read_only=True,
     )
-    termination = serializers.SerializerMethodField(read_only=True)
+    termination = GFKSerializerField(read_only=True)
 
     class Meta:
         model = CableTermination
         fields = [
             'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id',
-            'termination', 'created', 'last_updated',
+            'termination', 'connector', 'positions', 'created', 'last_updated',
         ]
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_termination(self, obj):
-        serializer = get_serializer_for_model(obj.termination)
-        context = {'request': self.context['request']}
-        return serializer(obj.termination, nested=True, context=context).data
+        read_only_fields = fields
+        brief_fields = (
+            'id', 'url', 'display', 'cable', 'cable_end', 'connector', 'positions', 'termination_type',
+            'termination_id',
+        )
 
 
 class CablePathSerializer(serializers.ModelSerializer):

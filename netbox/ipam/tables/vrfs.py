@@ -1,8 +1,8 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
 from ipam.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin
 
 __all__ = (
@@ -21,7 +21,7 @@ VRF_TARGETS = """
 # VRFs
 #
 
-class VRFTable(TenancyColumnsMixin, NetBoxTable):
+class VRFTable(TenancyColumnsMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -43,14 +43,11 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
         template_code=VRF_TARGETS,
         orderable=False
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = VRF
         fields = (
             'pk', 'id', 'name', 'rd', 'tenant', 'tenant_group', 'enforce_unique', 'import_targets', 'export_targets',
@@ -63,19 +60,16 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
 # Route targets
 #
 
-class RouteTargetTable(TenancyColumnsMixin, NetBoxTable):
+class RouteTargetTable(TenancyColumnsMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
-    )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
     )
     tags = columns.TagColumn(
         url_name='ipam:routetarget_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = RouteTarget
         fields = (
             'pk', 'id', 'name', 'tenant', 'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',

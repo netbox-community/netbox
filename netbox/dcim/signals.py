@@ -1,5 +1,6 @@
 import logging
 
+from django.db.models import Q
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
@@ -9,11 +10,11 @@ from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN
 from .models import (
     Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
-    InventoryItem, Location, ModuleBay, PathEndpoint, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort, Site,
-    VirtualChassis,
+    InventoryItem, Location, ModuleBay, PathEndpoint, PortMapping, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort,
+    Site, VirtualChassis,
 )
 from .models.cables import trace_paths
-from .utils import create_cablepath, rebuild_paths
+from .utils import create_cablepaths, rebuild_paths
 
 COMPONENT_MODELS = (
     ConsolePort,
@@ -125,7 +126,7 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             if not nodes:
                 continue
             if isinstance(nodes[0], PathEndpoint):
-                create_cablepath(nodes)
+                create_cablepaths(nodes)
             else:
                 rebuild_paths(nodes)
 
@@ -146,6 +147,17 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
+@receiver((post_delete, post_save), sender=PortMapping)
+def update_passthrough_port_paths(instance, **kwargs):
+    """
+    When a PortMapping is created or deleted, retrace any CablePaths which traverse its front and/or rear ports.
+    """
+    for cablepath in CablePath.objects.filter(
+        Q(_nodes__contains=instance.front_port) | Q(_nodes__contains=instance.rear_port)
+    ):
+        cablepath.retrace()
+
+
 @receiver(post_delete, sender=CableTermination)
 def nullify_connected_endpoints(instance, **kwargs):
     """
@@ -159,17 +171,6 @@ def nullify_connected_endpoints(instance, **kwargs):
         if instance.termination in cablepath.origins:
             cablepath.origins.remove(instance.termination)
         cablepath.retrace()
-
-
-@receiver(post_save, sender=FrontPort)
-def extend_rearport_cable_paths(instance, created, raw, **kwargs):
-    """
-    When a new FrontPort is created, add it to any CablePaths which end at its corresponding RearPort.
-    """
-    if created and not raw:
-        rearport = instance.rear_port
-        for cablepath in CablePath.objects.filter(_nodes__contains=rearport):
-            cablepath.retrace()
 
 
 @receiver(post_save, sender=Interface)

@@ -6,17 +6,18 @@ from timezone_field import TimeZoneFormField
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.forms.mixins import FrontPortFormMixin
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
-from netbox.forms import NetBoxModelForm
-from netbox.forms.mixins import ChangelogMessageMixin
+from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
+from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
-    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
@@ -75,14 +76,12 @@ __all__ = (
 )
 
 
-class RegionForm(NetBoxModelForm):
+class RegionForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=Region.objects.all(),
         required=False
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -91,18 +90,16 @@ class RegionForm(NetBoxModelForm):
     class Meta:
         model = Region
         fields = (
-            'parent', 'name', 'slug', 'description', 'tags', 'comments',
+            'parent', 'name', 'slug', 'description', 'owner', 'tags', 'comments',
         )
 
 
-class SiteGroupForm(NetBoxModelForm):
+class SiteGroupForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=SiteGroup.objects.all(),
         required=False
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('parent', 'name', 'slug', 'description', 'tags'),
@@ -111,11 +108,11 @@ class SiteGroupForm(NetBoxModelForm):
     class Meta:
         model = SiteGroup
         fields = (
-            'parent', 'name', 'slug', 'description', 'comments', 'tags',
+            'parent', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
         )
 
 
-class SiteForm(TenancyForm, NetBoxModelForm):
+class SiteForm(TenancyForm, PrimaryModelForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
@@ -139,7 +136,6 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -154,7 +150,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         model = Site
         fields = (
             'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
-            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'comments', 'tags',
+            'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'owner', 'comments', 'tags',
         )
         widgets = {
             'physical_address': forms.Textarea(
@@ -170,7 +166,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         }
 
 
-class LocationForm(TenancyForm, NetBoxModelForm):
+class LocationForm(TenancyForm, NestedGroupModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -184,8 +180,6 @@ class LocationForm(TenancyForm, NetBoxModelForm):
             'site_id': '$site'
         }
     )
-    slug = SlugField()
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('site', 'parent', 'name', 'slug', 'status', 'facility', 'description', 'tags', name=_('Location')),
@@ -195,14 +189,12 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Location
         fields = (
-            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant',
-            'facility', 'tags', 'comments',
+            'site', 'parent', 'name', 'slug', 'status', 'description', 'tenant_group', 'tenant', 'facility', 'owner',
+            'comments', 'tags',
         )
 
 
-class RackRoleForm(NetBoxModelForm):
-    slug = SlugField()
-
+class RackRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Rack Role')),
     )
@@ -210,17 +202,16 @@ class RackRoleForm(NetBoxModelForm):
     class Meta:
         model = RackRole
         fields = [
-            'name', 'slug', 'color', 'description', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class RackTypeForm(NetBoxModelForm):
+class RackTypeForm(PrimaryModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
         quick_add=True
     )
-    comments = CommentField()
     slug = SlugField(
         label=_('Slug'),
         slug_source='model'
@@ -242,11 +233,11 @@ class RackTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'comments', 'tags',
+            'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class RackForm(TenancyForm, NetBoxModelForm):
+class RackForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -272,7 +263,6 @@ class RackForm(TenancyForm, NetBoxModelForm):
         selector=True,
         help_text=_("Select a pre-defined rack type, or set physical characteristics below."),
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -289,7 +279,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
-            'weight_unit', 'description', 'comments', 'tags',
+            'weight_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -319,7 +309,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
             )
 
 
-class RackReservationForm(TenancyForm, NetBoxModelForm):
+class RackReservationForm(TenancyForm, PrimaryModelForm):
     rack = DynamicModelChoiceField(
         label=_('Rack'),
         queryset=Rack.objects.all(),
@@ -334,7 +324,6 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         label=_('User'),
         queryset=User.objects.order_by('username')
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('rack', 'units', 'status', 'user', 'description', 'tags', name=_('Reservation')),
@@ -344,13 +333,11 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = RackReservation
         fields = [
-            'rack', 'units', 'status', 'user', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'rack', 'units', 'status', 'user', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class ManufacturerForm(NetBoxModelForm):
-    slug = SlugField()
-
+class ManufacturerForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('Manufacturer')),
     )
@@ -358,11 +345,11 @@ class ManufacturerForm(NetBoxModelForm):
     class Meta:
         model = Manufacturer
         fields = [
-            'name', 'slug', 'description', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class DeviceTypeForm(NetBoxModelForm):
+class DeviceTypeForm(PrimaryModelForm):
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -381,7 +368,6 @@ class DeviceTypeForm(NetBoxModelForm):
         label=_('Slug'),
         slug_source='model'
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
@@ -397,7 +383,7 @@ class DeviceTypeForm(NetBoxModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
             'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
-            'description', 'comments', 'tags',
+            'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={
@@ -409,13 +395,12 @@ class DeviceTypeForm(NetBoxModelForm):
         }
 
 
-class ModuleTypeProfileForm(NetBoxModelForm):
+class ModuleTypeProfileForm(PrimaryModelForm):
     schema = JSONField(
         label=_('Schema'),
         required=False,
         help_text=_("Enter a valid JSON schema to define supported attributes.")
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'description', 'schema', 'tags', name=_('Profile')),
@@ -424,11 +409,11 @@ class ModuleTypeProfileForm(NetBoxModelForm):
     class Meta:
         model = ModuleTypeProfile
         fields = [
-            'name', 'description', 'schema', 'comments', 'tags',
+            'name', 'description', 'schema', 'owner', 'comments', 'tags',
         ]
 
 
-class ModuleTypeForm(NetBoxModelForm):
+class ModuleTypeForm(PrimaryModelForm):
     profile = forms.ModelChoiceField(
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile'),
@@ -439,7 +424,6 @@ class ModuleTypeForm(NetBoxModelForm):
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
     )
-    comments = CommentField()
 
     @property
     def fieldsets(self):
@@ -453,7 +437,7 @@ class ModuleTypeForm(NetBoxModelForm):
         model = ModuleType
         fields = [
             'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'comments', 'tags',
+            'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -508,19 +492,17 @@ class ModuleTypeForm(NetBoxModelForm):
         return super()._post_clean()
 
 
-class DeviceRoleForm(NetBoxModelForm):
+class DeviceRoleForm(NestedGroupModelForm):
     config_template = DynamicModelChoiceField(
         label=_('Config template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
-    slug = SlugField()
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=DeviceRole.objects.all(),
         required=False,
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -532,11 +514,11 @@ class DeviceRoleForm(NetBoxModelForm):
     class Meta:
         model = DeviceRole
         fields = [
-            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'comments', 'tags',
+            'name', 'slug', 'parent', 'color', 'vm_role', 'config_template', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class PlatformForm(NetBoxModelForm):
+class PlatformForm(NestedGroupModelForm):
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=Platform.objects.all(),
@@ -557,7 +539,6 @@ class PlatformForm(NetBoxModelForm):
         label=_('Slug'),
         max_length=64
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -568,11 +549,11 @@ class PlatformForm(NetBoxModelForm):
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'comments', 'tags',
+            'name', 'slug', 'parent', 'manufacturer', 'config_template', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class DeviceForm(TenancyForm, NetBoxModelForm):
+class DeviceForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -642,7 +623,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'site_id': ['$site', 'null']
         },
     )
-    comments = CommentField()
     local_context_data = JSONField(
         required=False,
         label=''
@@ -678,7 +658,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'name', 'role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
             'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
-            'comments', 'tags', 'local_context_data',
+            'owner', 'comments', 'tags', 'local_context_data',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -743,7 +723,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 
-class ModuleForm(ModuleCommonForm, NetBoxModelForm):
+class ModuleForm(ModuleCommonForm, PrimaryModelForm):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -769,7 +749,6 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
         },
         selector=True
     )
-    comments = CommentField()
     replicate_components = forms.BooleanField(
         label=_('Replicate components'),
         required=False,
@@ -792,7 +771,7 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
         model = Module
         fields = [
             'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag', 'tags', 'replicate_components',
-            'adopt_components', 'description', 'comments',
+            'adopt_components', 'description', 'owner', 'comments',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -813,7 +792,7 @@ def get_termination_type_choices():
     ])
 
 
-class CableForm(TenancyForm, NetBoxModelForm):
+class CableForm(TenancyForm, PrimaryModelForm):
     a_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
         required=False,
@@ -826,17 +805,16 @@ class CableForm(TenancyForm, NetBoxModelForm):
         widget=HTMXSelect(),
         label=_('Type')
     )
-    comments = CommentField()
 
     class Meta:
         model = Cable
         fields = [
-            'a_terminations_type', 'b_terminations_type', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'description', 'comments', 'tags',
+            'a_terminations_type', 'b_terminations_type', 'type', 'status', 'profile', 'tenant_group', 'tenant',
+            'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class PowerPanelForm(NetBoxModelForm):
+class PowerPanelForm(PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -850,7 +828,6 @@ class PowerPanelForm(NetBoxModelForm):
             'site_id': '$site'
         }
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet('site', 'location', 'name', 'description', 'tags', name=_('Power Panel')),
@@ -859,11 +836,11 @@ class PowerPanelForm(NetBoxModelForm):
     class Meta:
         model = PowerPanel
         fields = [
-            'site', 'location', 'name', 'description', 'comments', 'tags',
+            'site', 'location', 'name', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class PowerFeedForm(TenancyForm, NetBoxModelForm):
+class PowerFeedForm(TenancyForm, PrimaryModelForm):
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
@@ -876,7 +853,6 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -891,7 +867,7 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
         model = PowerFeed
         fields = [
             'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
+            'max_utilization', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags'
         ]
 
 
@@ -899,18 +875,17 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
 # Virtual chassis
 #
 
-class VirtualChassisForm(NetBoxModelForm):
+class VirtualChassisForm(PrimaryModelForm):
     master = forms.ModelChoiceField(
         label=_('Master'),
         queryset=Device.objects.all(),
         required=False,
     )
-    comments = CommentField()
 
     class Meta:
         model = VirtualChassis
         fields = [
-            'name', 'domain', 'master', 'description', 'comments', 'tags',
+            'name', 'domain', 'master', 'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'master': SelectWithPK(),
@@ -1096,14 +1071,14 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+            'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description',
         ),
     )
 
     class Meta:
         model = PowerOutletTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'power_port', 'feed_leg', 'description',
         ]
 
 
@@ -1138,33 +1113,65 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
         ]
 
 
-class FrontPortTemplateForm(ModularComponentTemplateForm):
-    rear_port = DynamicModelChoiceField(
-        label=_('Rear port'),
-        queryset=RearPortTemplate.objects.all(),
-        required=False,
-        query_params={
-            'device_type_id': '$device_type',
-            'module_type_id': '$module_type',
-        }
-    )
-
+class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
     fieldsets = (
         FieldSet(
             TabbedGroups(
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'description',
+            'name', 'label', 'type', 'positions', 'rear_ports', 'description',
         ),
     )
+
+    # Override FrontPortFormMixin attrs
+    port_mapping_model = PortTemplateMapping
+    parent_field = 'device_type'
 
     class Meta:
         model = FrontPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
-            'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if device_type_id := self.data.get('device_type') or self.initial.get('device_type'):
+            device_type = DeviceType.objects.get(pk=device_type_id)
+        else:
+            return
+
+        # Populate rear port choices
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(device_type, self.instance)
+
+        # Set initial rear port mappings
+        if self.instance.pk:
+            self.initial['rear_ports'] = [
+                f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+                for mapping in PortTemplateMapping.objects.filter(front_port_id=self.instance.pk)
+            ]
+
+    def _get_rear_port_choices(self, device_type, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the device type, excluding
+        those assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in device_type.port_mappings.exclude(front_port=front_port.pk)
+        ]
+
+        choices = []
+        for rear_port in RearPortTemplate.objects.filter(device_type=device_type):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append(
+                        (pair_id, pair_label)
+                    )
+        return choices
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
@@ -1364,7 +1371,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
 # Device components
 #
 
-class DeviceComponentForm(NetBoxModelForm):
+class DeviceComponentForm(OwnerMixin, NetBoxModelForm):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1400,7 +1407,7 @@ class ConsolePortForm(ModularDeviceComponentForm):
     class Meta:
         model = ConsolePort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'owner', 'tags',
         ]
 
 
@@ -1414,7 +1421,7 @@ class ConsoleServerPortForm(ModularDeviceComponentForm):
     class Meta:
         model = ConsoleServerPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'owner', 'tags',
         ]
 
 
@@ -1430,7 +1437,7 @@ class PowerPortForm(ModularDeviceComponentForm):
         model = PowerPort
         fields = [
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
-            'description', 'tags',
+            'description', 'owner', 'tags',
         ]
 
 
@@ -1447,7 +1454,7 @@ class PowerOutletForm(ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'status', 'color', 'power_port', 'feed_leg', 'mark_connected',
-            'description', 'tags',
+            'description', 'owner', 'tags',
         ),
     )
 
@@ -1591,7 +1598,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'lag', 'wwn', 'mtu', 'mgmt_only', 'mark_connected', 'description', 'poe_mode', 'poe_type', 'mode',
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'wireless_lans',
             'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy', 'vrf', 'primary_mac_address',
-            'tags',
+            'owner', 'tags',
         ]
         widgets = {
             'speed': NumberWithOptions(
@@ -1604,17 +1611,10 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         }
 
 
-class FrontPortForm(ModularDeviceComponentForm):
-    rear_port = DynamicModelChoiceField(
-        queryset=RearPort.objects.all(),
-        query_params={
-            'device_id': '$device',
-        }
-    )
-
+class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
             'description', 'tags',
         ),
     )
@@ -1622,9 +1622,48 @@ class FrontPortForm(ModularDeviceComponentForm):
     class Meta:
         model = FrontPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
-            'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner',
+            'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if device_id := self.data.get('device') or self.initial.get('device'):
+            device = Device.objects.get(pk=device_id)
+        else:
+            return
+
+        # Populate rear port choices
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(device, self.instance)
+
+        # Set initial rear port mappings
+        if self.instance.pk:
+            self.initial['rear_ports'] = [
+                f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+                for mapping in PortMapping.objects.filter(front_port_id=self.instance.pk)
+            ]
+
+    def _get_rear_port_choices(self, device, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the device, excluding those
+        assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in device.port_mappings.exclude(front_port=front_port.pk)
+        ]
+
+        choices = []
+        for rear_port in RearPort.objects.filter(device=device):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append(
+                        (pair_id, pair_label)
+                    )
+        return choices
 
 
 class RearPortForm(ModularDeviceComponentForm):
@@ -1637,7 +1676,8 @@ class RearPortForm(ModularDeviceComponentForm):
     class Meta:
         model = RearPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'owner',
+            'tags',
         ]
 
 
@@ -1649,7 +1689,7 @@ class ModuleBayForm(ModularDeviceComponentForm):
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'module', 'name', 'label', 'position', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'position', 'description', 'owner', 'tags',
         ]
 
 
@@ -1661,7 +1701,7 @@ class DeviceBayForm(DeviceComponentForm):
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'label', 'description', 'tags',
+            'device', 'name', 'label', 'description', 'owner', 'tags',
         ]
 
 
@@ -1786,7 +1826,7 @@ class InventoryItemForm(DeviceComponentForm):
         model = InventoryItem
         fields = [
             'device', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'serial', 'asset_tag',
-            'status', 'description', 'tags',
+            'status', 'description', 'owner', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -1832,12 +1872,7 @@ class InventoryItemForm(DeviceComponentForm):
             self.instance.component = None
 
 
-# Device component roles
-#
-
-class InventoryItemRoleForm(NetBoxModelForm):
-    slug = SlugField()
-
+class InventoryItemRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Inventory Item Role')),
     )
@@ -1845,11 +1880,11 @@ class InventoryItemRoleForm(NetBoxModelForm):
     class Meta:
         model = InventoryItemRole
         fields = [
-            'name', 'slug', 'color', 'description', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 
-class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
+class VirtualDeviceContextForm(TenancyForm, PrimaryModelForm):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -1885,7 +1920,7 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = VirtualDeviceContext
         fields = [
-            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant',
+            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tenant_group', 'tenant', 'owner',
             'comments', 'tags'
         ]
 
@@ -1894,7 +1929,7 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
 # Addressing
 #
 
-class MACAddressForm(NetBoxModelForm):
+class MACAddressForm(PrimaryModelForm):
     mac_address = forms.CharField(
         required=True,
         label=_('MAC address')
@@ -1933,7 +1968,7 @@ class MACAddressForm(NetBoxModelForm):
     class Meta:
         model = MACAddress
         fields = [
-            'mac_address', 'interface', 'vminterface', 'description', 'tags',
+            'mac_address', 'interface', 'vminterface', 'description', 'owner', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
@@ -15,14 +14,13 @@ __all__ = (
 
 
 class TokenSerializer(ValidatedModelSerializer):
-    key = serializers.CharField(
-        min_length=40,
-        max_length=40,
-        allow_blank=True,
+    token = serializers.CharField(
         required=False,
-        write_only=not settings.ALLOW_TOKEN_RETRIEVAL
+        default=Token.generate,
     )
-    user = UserSerializer(nested=True)
+    user = UserSerializer(
+        nested=True
+    )
     allowed_ips = serializers.ListField(
         child=IPNetworkSerializer(),
         required=False,
@@ -33,15 +31,20 @@ class TokenSerializer(ValidatedModelSerializer):
     class Meta:
         model = Token
         fields = (
-            'id', 'url', 'display_url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled',
-            'description', 'allowed_ips',
+            'id', 'url', 'display_url', 'display', 'version', 'key', 'user', 'description', 'created', 'expires',
+            'last_used', 'enabled', 'write_enabled', 'pepper_id', 'allowed_ips', 'token',
         )
-        brief_fields = ('id', 'url', 'display', 'key', 'write_enabled', 'description')
+        read_only_fields = ('key',)
+        brief_fields = ('id', 'url', 'display', 'version', 'key', 'enabled', 'write_enabled', 'description')
 
-    def to_internal_value(self, data):
-        if not getattr(self.instance, 'key', None) and 'key' not in data:
-            data['key'] = Token.generate_key()
-        return super().to_internal_value(data)
+    def get_fields(self):
+        fields = super().get_fields()
+
+        # Make user field read-only if updating an existing Token.
+        if self.instance is not None:
+            fields['user'].read_only = True
+
+        return fields
 
     def validate(self, data):
 
@@ -75,8 +78,8 @@ class TokenProvisionSerializer(TokenSerializer):
     class Meta:
         model = Token
         fields = (
-            'id', 'url', 'display_url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled',
-            'description', 'allowed_ips', 'username', 'password',
+            'id', 'url', 'display_url', 'display', 'version', 'user', 'key', 'created', 'expires', 'last_used', 'key',
+            'enabled', 'write_enabled', 'description', 'allowed_ips', 'username', 'password', 'token',
         )
 
     def validate(self, data):

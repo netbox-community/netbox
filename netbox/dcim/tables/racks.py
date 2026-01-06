@@ -1,9 +1,9 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
 from dcim.models import Rack, RackReservation, RackRole, RackType
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import OUTER_UNIT, WEIGHT
 
@@ -15,11 +15,7 @@ __all__ = (
 )
 
 
-#
-# Rack roles
-#
-
-class RackRoleTable(NetBoxTable):
+class RackRoleTable(OrganizationalModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -36,20 +32,16 @@ class RackRoleTable(NetBoxTable):
         url_name='dcim:rackrole_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(OrganizationalModelTable.Meta):
         model = RackRole
         fields = (
-            'pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'tags', 'actions', 'created',
+            'pk', 'id', 'name', 'rack_count', 'color', 'description', 'slug', 'comments', 'tags', 'actions', 'created',
             'last_updated',
         )
         default_columns = ('pk', 'name', 'rack_count', 'color', 'description')
 
 
-#
-# Rack Types
-#
-
-class RackTypeTable(NetBoxTable):
+class RackTypeTable(PrimaryModelTable):
     model = tables.Column(
         verbose_name=_('Model'),
         linkify=True
@@ -84,35 +76,28 @@ class RackTypeTable(NetBoxTable):
         template_code=WEIGHT,
         order_by=('_abs_max_weight', 'weight_unit')
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
-    instance_count = columns.LinkedCountColumn(
+    rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'rack_type_id': 'pk'},
-        verbose_name=_('Instances')
+        verbose_name=_('Rack Count'),
     )
     tags = columns.TagColumn(
         url_name='dcim:rack_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = RackType
         fields = (
             'pk', 'id', 'model', 'manufacturer', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description',
-            'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'outer_height', 'outer_depth', 'mounting_depth', 'weight', 'max_weight', 'description', 'comments',
+            'rack_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'instance_count',
+            'pk', 'model', 'manufacturer', 'type', 'u_height', 'description', 'rack_count',
         )
 
 
-#
-# Racks
-#
-
-class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
+class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -143,9 +128,6 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     u_height = tables.TemplateColumn(
         template_code="{{ value }}U",
         verbose_name=_('Height')
-    )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
     )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
@@ -186,7 +168,7 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         order_by=('_abs_max_weight', 'weight_unit')
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
@@ -201,11 +183,7 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         )
 
 
-#
-# Rack reservations
-#
-
-class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
+class RackReservationTable(TenancyColumnsMixin, PrimaryModelTable):
     reservation = tables.Column(
         verbose_name=_('Reservation'),
         accessor='pk',
@@ -232,14 +210,11 @@ class RackReservationTable(TenancyColumnsMixin, NetBoxTable):
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:rackreservation_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = RackReservation
         fields = (
             'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'status', 'user', 'created', 'tenant',

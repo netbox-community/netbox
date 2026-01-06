@@ -158,7 +158,7 @@ class BackgroundTaskTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.is_active = True
         self.user.save()
 
@@ -171,13 +171,13 @@ class BackgroundTaskTestCase(TestCase):
         url = reverse('core:background_queue_list')
 
         # Attempt to load view without permission
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
         # Load view with permission
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -356,7 +356,7 @@ class SystemTestCase(TestCase):
     def setUp(self):
         super().setUp()
 
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
 
     def test_system_view_default(self):

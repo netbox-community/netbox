@@ -3,7 +3,6 @@ from collections import defaultdict
 
 from django import forms
 from django.apps import apps
-from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
@@ -15,27 +14,27 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.config import get_config
 from netbox.preferences import PREFERENCES
+from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
 from utilities.data import flatten_dict
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField,
-    JSONField,
+    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
 )
-from utilities.string import title
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
 from utilities.permissions import qs_filter_from_constraints
+from utilities.string import title
 
 __all__ = (
     'GroupForm',
     'ObjectPermissionForm',
+    'OwnerForm',
+    'OwnerGroupForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
     'UserTokenForm',
-    'TokenForm',
 )
 
 
@@ -69,8 +68,7 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
             'locale.language', 'ui.copilot_enabled', 'pagination.per_page', 'pagination.placement',
-            'ui.htmx_navigation', 'ui.tables.striping',
-            name=_('User Interface')
+            'ui.tables.striping', name=_('User Interface')
         ),
         FieldSet('data_format', 'csv_delimiter', name=_('Miscellaneous')),
     )
@@ -122,11 +120,11 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
 
 
 class UserTokenForm(forms.ModelForm):
-    key = forms.CharField(
-        label=_('Key'),
+    token = forms.CharField(
+        label=_('Token'),
         help_text=_(
-            'Keys must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
-            'submitting this form, as it may no longer be accessible once the token has been created.'
+            'Tokens must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
+            'submitting this form, as it will no longer be accessible once the token has been created.'
         ),
         widget=forms.TextInput(
             attrs={'data-clipboard': 'true'}
@@ -145,7 +143,7 @@ class UserTokenForm(forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'token', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -154,13 +152,24 @@ class UserTokenForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Omit the key field if token retrieval is not permitted
-        if self.instance.pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-            del self.fields['key']
+        if self.instance.pk:
+            # Disable the version & user fields for existing Tokens
+            self.fields['version'].disabled = True
+            self.fields['user'].disabled = True
+
+            # Omit the key field when editing an existing Token
+            del self.fields['token']
 
         # Generate an initial random key if none has been specified
-        if not self.instance.pk and not self.initial.get('key'):
-            self.initial['key'] = Token.generate_key()
+        elif self.instance._state.adding and not self.initial.get('token'):
+            self.initial['version'] = TokenVersionChoices.V2
+            self.initial['token'] = Token.generate()
+
+    def save(self, commit=True):
+        if self.instance._state.adding and self.cleaned_data.get('token'):
+            self.instance.token = self.cleaned_data['token']
+
+        return super().save(commit=commit)
 
 
 class TokenForm(UserTokenForm):
@@ -169,14 +178,17 @@ class TokenForm(UserTokenForm):
         label=_('User')
     )
 
-    class Meta:
-        model = Token
+    class Meta(UserTokenForm.Meta):
         fields = [
-            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'token', 'user', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
-        widgets = {
-            'expires': DateTimePicker(),
-        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If not creating a new Token, disable the user field
+        if self.instance and not self.instance._state.adding:
+            self.fields['user'].disabled = True
 
 
 class UserForm(forms.ModelForm):
@@ -205,7 +217,7 @@ class UserForm(forms.ModelForm):
     fieldsets = (
         FieldSet('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', name=_('User')),
         FieldSet('groups', name=_('Groups')),
-        FieldSet('is_active', 'is_staff', 'is_superuser', name=_('Status')),
+        FieldSet('is_active', 'is_superuser', name=_('Status')),
         FieldSet('object_permissions', name=_('Permissions')),
     )
 
@@ -213,7 +225,7 @@ class UserForm(forms.ModelForm):
         model = User
         fields = [
             'username', 'first_name', 'last_name', 'email', 'groups', 'object_permissions',
-            'is_active', 'is_staff', 'is_superuser',
+            'is_active', 'is_superuser',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -446,3 +458,47 @@ class ObjectPermissionForm(forms.ModelForm):
         instance.groups.set(self.cleaned_data['groups'])
 
         return instance
+
+
+class OwnerGroupForm(forms.ModelForm):
+
+    fieldsets = (
+        FieldSet('name', 'description', name=_('Owner Group')),
+    )
+
+    class Meta:
+        model = OwnerGroup
+        fields = [
+            'name', 'description',
+        ]
+
+
+class OwnerForm(forms.ModelForm):
+    fieldsets = (
+        FieldSet('name', 'group', 'description', name=_('Owner')),
+        FieldSet('user_groups', name=_('Groups')),
+        FieldSet('users', name=_('Users')),
+    )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=OwnerGroup.objects.all(),
+        required=False,
+        selector=True,
+        quick_add=True
+    )
+    user_groups = DynamicModelMultipleChoiceField(
+        label=_('User groups'),
+        queryset=Group.objects.all(),
+        required=False
+    )
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        queryset=User.objects.all(),
+        required=False
+    )
+
+    class Meta:
+        model = Owner
+        fields = [
+            'name', 'group', 'description', 'user_groups', 'users',
+        ]

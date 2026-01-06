@@ -23,6 +23,31 @@ ALLOWED_HOSTS = ['*']
 
 ---
 
+## API_TOKEN_PEPPERS
+
+!!! info "This parameter was introduced in NetBox v4.5."
+
+[Cryptographic peppers](https://en.wikipedia.org/wiki/Pepper_(cryptography)) are employed to generate hashes of sensitive values on the server. This parameter defines the peppers used to hash v2 API tokens in NetBox. You must define at least one pepper before creating a v2 API token. See the [API documentation](../integrations/rest-api.md#authentication) for further information about how peppers are used.
+
+```python
+API_TOKEN_PEPPERS = {
+    # DO NOT USE THIS EXAMPLE PEPPER IN PRODUCTION
+    1: 'kp7ht*76fiQAhUi5dHfASLlYUE_S^gI^(7J^K5M!LfoH@vl&b_',
+}
+```
+
+!!! warning "Peppers are sensitive"
+    Treat pepper values as extremely sensitive. Consider populating peppers from environment variables at initialization time rather than defining them in the configuration file, if feasible. 
+
+Peppers must be at least 50 characters in length and should comprise a random string with a diverse character set. Consider using the Python script at `$INSTALL_ROOT/netbox/generate_secret_key.py` to generate a pepper value.
+
+It is recommended to start with a pepper ID of `1`. Additional peppers can be introduced later as needed to begin rotating token hashes.
+
+!!! tip
+    Although NetBox will run without `API_TOKEN_PEPPERS` defined, the use of v2 API tokens will be unavailable.
+
+---
+
 ## DATABASE
 
 !!! warning "Legacy Configuration Parameter"

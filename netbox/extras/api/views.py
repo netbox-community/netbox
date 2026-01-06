@@ -16,7 +16,7 @@ from rq import Worker
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
+from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired, TokenWritePermission
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
@@ -238,13 +238,22 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
     serializer_class = serializers.ConfigTemplateSerializer
     filterset_class = filtersets.ConfigTemplateFilterSet
 
+    def get_permissions(self):
+        # For render action, check only token write ability (not model permissions)
+        if self.action == 'render':
+            return [TokenWritePermission()]
+        return super().get_permissions()
+
     @action(detail=True, methods=['post'], renderer_classes=[JSONRenderer, TextRenderer])
     def render(self, request, pk):
         """
         Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
         return the raw rendered content, rather than serialized JSON.
         """
+        # Override restrict() on the default queryset to enforce the render & view actions
+        self.queryset = self.queryset.model.objects.restrict(request.user, 'render').restrict(request.user, 'view')
         configtemplate = self.get_object()
+
         context = request.data
 
         return self.render_configtemplate(request, configtemplate, context)

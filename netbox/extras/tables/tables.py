@@ -10,7 +10,7 @@ from core.tables import JobTable
 from core.models import Job
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.events import get_event_text
-from netbox.tables import BaseTable, NetBoxTable, columns
+from netbox.tables import BaseTable, NetBoxTable, PrimaryModelTable, columns
 from .columns import NotificationActionsColumn
 
 __all__ = (
@@ -109,6 +109,10 @@ class CustomFieldTable(NetBoxTable):
     validation_regex = tables.Column(
         verbose_name=_('Validation Regex'),
     )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
@@ -146,6 +150,10 @@ class CustomFieldChoiceSetTable(NetBoxTable):
         verbose_name=_('Order Alphabetically'),
         false_mark=None
     )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
@@ -170,6 +178,10 @@ class CustomLinkTable(NetBoxTable):
     new_window = columns.BooleanColumn(
         verbose_name=_('New Window'),
         false_mark=None
+    )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -213,6 +225,10 @@ class ExportTemplateTable(NetBoxTable):
     is_synced = columns.BooleanColumn(
         orderable=False,
         verbose_name=_('Synced')
+    )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -293,6 +309,10 @@ class SavedFilterTable(NetBoxTable):
     shared = columns.BooleanColumn(
         verbose_name=_('Shared'),
         false_mark=None
+    )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
     )
 
     def value_parameters(self, value):
@@ -450,6 +470,10 @@ class WebhookTable(NetBoxTable):
     ssl_validation = columns.BooleanColumn(
         verbose_name=_('SSL Validation')
     )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
     tags = columns.TagColumn(
         url_name='extras:webhook_list'
     )
@@ -488,6 +512,10 @@ class EventRuleTable(NetBoxTable):
         func=get_event_text,
         orderable=False
     )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
+    )
     tags = columns.TagColumn(
         url_name='extras:webhook_list'
     )
@@ -513,6 +541,10 @@ class TagTable(NetBoxTable):
     )
     object_types = columns.ContentTypesColumn(
         verbose_name=_('Object Types'),
+    )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -547,7 +579,7 @@ class TaggedItemTable(NetBoxTable):
         fields = ('id', 'content_type', 'content_object')
 
 
-class ConfigContextProfileTable(NetBoxTable):
+class ConfigContextProfileTable(PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -568,7 +600,7 @@ class ConfigContextProfileTable(NetBoxTable):
         url_name='extras:configcontextprofile_list'
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = ConfigContextProfile
         fields = (
             'pk', 'id', 'name', 'description', 'comments', 'data_source', 'data_file', 'is_synced', 'tags', 'created',
@@ -600,6 +632,10 @@ class ConfigContextTable(NetBoxTable):
     is_synced = columns.BooleanColumn(
         orderable=False,
         verbose_name=_('Synced')
+    )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
     )
     tags = columns.TagColumn(
         url_name='extras:configcontext_list'
@@ -648,6 +684,10 @@ class ConfigTemplateTable(NetBoxTable):
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
         false_mark=None
+    )
+    owner = tables.Column(
+        linkify=True,
+        verbose_name=_('Owner')
     )
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from netbox.api.fields import RelatedObjectCountField
-from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
+from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
 from tenancy.models import Tenant, TenantGroup
 from .nested import NestedTenantGroupSerializer
 
@@ -19,12 +19,12 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
         model = TenantGroup
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'tenant_count', 'comments', '_depth',
+            'created', 'last_updated', 'tenant_count', 'owner', 'comments', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tenant_count', '_depth')
 
 
-class TenantSerializer(NetBoxModelSerializer):
+class TenantSerializer(PrimaryModelSerializer):
     group = TenantGroupSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Related object counts
@@ -42,7 +42,7 @@ class TenantSerializer(NetBoxModelSerializer):
     class Meta:
         model = Tenant
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'group', 'description', 'comments', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'group', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count', 'device_count', 'ipaddress_count',
             'prefix_count', 'rack_count', 'site_count', 'virtualmachine_count', 'vlan_count', 'vrf_count',
             'cluster_count',

@@ -433,7 +433,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
 class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CircuitTermination.objects.all()
     filterset = CircuitTerminationFilterSet
-    ignore_fields = ('cable',)
+    ignore_fields = ('cable', 'cable_positions')
 
     @classmethod
     def setUpTestData(cls):

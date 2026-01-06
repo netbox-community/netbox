@@ -5,7 +5,7 @@ from django.views.decorators.cache import cache_page
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from account.views import LoginView, LogoutView
-from netbox.api.views import APIRootView, StatusView
+from netbox.api.views import APIRootView, AuthenticationCheckView, StatusView
 from netbox.graphql.schema import schema
 from netbox.graphql.views import NetBoxGraphQLView
 from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
@@ -40,7 +40,7 @@ _patterns = [
     # HTMX views
     path('htmx/object-selector/', htmx.ObjectSelectorView.as_view(), name='htmx_object_selector'),
 
-    # API
+    # REST API
     path('api/', APIRootView.as_view(), name='api-root'),
     path('api/circuits/', include('circuits.api.urls')),
     path('api/core/', include('core.api.urls')),
@@ -53,7 +53,9 @@ _patterns = [
     path('api/vpn/', include('vpn.api.urls')),
     path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
+    path('api/authentication-check/', AuthenticationCheckView.as_view(), name='api-authentication-check'),
 
+    # REST API schema
     path(
         "api/schema/",
         cache_page(timeout=86400, key_prefix=f"api_schema_{settings.RELEASE.version}")(

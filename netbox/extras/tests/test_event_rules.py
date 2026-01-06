@@ -363,7 +363,7 @@ class EventRuleTest(APITestCase):
             body = json.loads(request.body)
             self.assertEqual(body['event'], 'created')
             self.assertEqual(body['timestamp'], job.kwargs['timestamp'])
-            self.assertEqual(body['model'], 'site')
+            self.assertEqual(body['object_type'], 'dcim.site')
             self.assertEqual(body['username'], 'testuser')
             self.assertEqual(body['request_id'], str(request_id))
             self.assertEqual(body['data']['name'], 'Site 1')

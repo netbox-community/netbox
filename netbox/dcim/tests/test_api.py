@@ -13,7 +13,8 @@ from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
-from users.models import User
+from users.constants import TOKEN_PREFIX
+from users.models import Token, User
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -316,7 +317,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
     model = RackType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'rack_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
     }
@@ -609,7 +610,7 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
     model = ModuleType
-    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'profile', 'url']
+    brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'module_count', 'profile', 'url']
     bulk_update_data = {
         'part_number': 'ABC123',
     }
@@ -972,71 +973,98 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 2', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 3', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 4', type=PortTypeChoices.TYPE_8P8C),
-            RearPortTemplate(module_type=moduletype, name='Rear Port Template 5', type=PortTypeChoices.TYPE_8P8C),
-            RearPortTemplate(module_type=moduletype, name='Rear Port Template 6', type=PortTypeChoices.TYPE_8P8C),
-            RearPortTemplate(module_type=moduletype, name='Rear Port Template 7', type=PortTypeChoices.TYPE_8P8C),
-            RearPortTemplate(module_type=moduletype, name='Rear Port Template 8', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 5', type=PortTypeChoices.TYPE_8P8C),
+            RearPortTemplate(device_type=devicetype, name='Rear Port Template 6', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_port_templates)
-
         front_port_templates = (
-            FrontPortTemplate(
-                device_type=devicetype,
-                name='Front Port Template 1',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[0]
-            ),
-            FrontPortTemplate(
-                device_type=devicetype,
-                name='Front Port Template 2',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[1]
-            ),
-            FrontPortTemplate(
-                module_type=moduletype,
-                name='Front Port Template 5',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[4]
-            ),
-            FrontPortTemplate(
-                module_type=moduletype,
-                name='Front Port Template 6',
-                type=PortTypeChoices.TYPE_8P8C,
-                rear_port=rear_port_templates[5]
-            ),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 3', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPortTemplate.objects.bulk_create(front_port_templates)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(
+                device_type=devicetype,
+                front_port=front_port_templates[0],
+                rear_port=rear_port_templates[0],
+            ),
+            PortTemplateMapping(
+                device_type=devicetype,
+                front_port=front_port_templates[1],
+                rear_port=rear_port_templates[1],
+            ),
+            PortTemplateMapping(
+                module_type=moduletype,
+                front_port=front_port_templates[2],
+                rear_port=rear_port_templates[2],
+            ),
+        ])
 
         cls.create_data = [
             {
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 3',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[2].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'position': 1,
+                        'rear_port': rear_port_templates[3].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Front Port Template 4',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[3].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'position': 1,
+                        'rear_port': rear_port_templates[4].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'module_type': moduletype.pk,
                 'name': 'Front Port Template 7',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[6].pk,
-                'rear_port_position': 1,
-            },
-            {
-                'module_type': moduletype.pk,
-                'name': 'Front Port Template 8',
-                'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_port_templates[7].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'position': 1,
+                        'rear_port': rear_port_templates[5].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
         ]
+
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'rear_ports': [
+                {
+                    'position': 1,
+                    'rear_port': rear_port_templates[3].pk,
+                    'rear_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the front port template
+        front_port_template = FrontPortTemplate.objects.get(name='Front Port Template 1')
+        rear_port_template = RearPortTemplate.objects.get(name='Rear Port Template 4')
+        self.assertTrue(
+            PortTemplateMapping.objects.filter(
+                front_port=front_port_template,
+                front_port_position=1,
+                rear_port=rear_port_template,
+                rear_port_position=1,
+            ).exists()
+        )
 
 
 class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1056,35 +1084,103 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
             manufacturer=manufacturer, model='Module Type 1'
         )
 
+        front_port_templates = (
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(device_type=devicetype, name='Front Port Template 2', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 3', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 4', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 5', type=PortTypeChoices.TYPE_8P8C),
+            FrontPortTemplate(module_type=moduletype, name='Front Port Template 6', type=PortTypeChoices.TYPE_8P8C),
+        )
+        FrontPortTemplate.objects.bulk_create(front_port_templates)
         rear_port_templates = (
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 1', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 2', type=PortTypeChoices.TYPE_8P8C),
             RearPortTemplate(device_type=devicetype, name='Rear Port Template 3', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPortTemplate.objects.bulk_create(rear_port_templates)
+        PortTemplateMapping.objects.bulk_create([
+            PortTemplateMapping(
+                device_type=devicetype,
+                front_port=front_port_templates[0],
+                rear_port=rear_port_templates[0],
+            ),
+            PortTemplateMapping(
+                device_type=devicetype,
+                front_port=front_port_templates[1],
+                rear_port=rear_port_templates[1],
+            ),
+            PortTemplateMapping(
+                module_type=moduletype,
+                front_port=front_port_templates[2],
+                rear_port=rear_port_templates[2],
+            ),
+        ])
 
         cls.create_data = [
             {
                 'device_type': devicetype.pk,
                 'name': 'Rear Port Template 4',
                 'type': PortTypeChoices.TYPE_8P8C,
+                'front_ports': [
+                    {
+                        'position': 1,
+                        'front_port': front_port_templates[3].pk,
+                        'front_port_position': 1,
+                    },
+                ],
             },
             {
                 'device_type': devicetype.pk,
                 'name': 'Rear Port Template 5',
                 'type': PortTypeChoices.TYPE_8P8C,
+                'front_ports': [
+                    {
+                        'position': 1,
+                        'front_port': front_port_templates[4].pk,
+                        'front_port_position': 1,
+                    },
+                ],
             },
             {
                 'module_type': moduletype.pk,
                 'name': 'Rear Port Template 6',
                 'type': PortTypeChoices.TYPE_8P8C,
-            },
-            {
-                'module_type': moduletype.pk,
-                'name': 'Rear Port Template 7',
-                'type': PortTypeChoices.TYPE_8P8C,
+                'front_ports': [
+                    {
+                        'position': 1,
+                        'front_port': front_port_templates[5].pk,
+                        'front_port_position': 1,
+                    },
+                ],
             },
         ]
+
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'front_ports': [
+                {
+                    'position': 1,
+                    'front_port': front_port_templates[3].pk,
+                    'front_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the rear port template
+        front_port_template = FrontPortTemplate.objects.get(name='Front Port Template 4')
+        rear_port_template = RearPortTemplate.objects.get(name='Rear Port Template 1')
+        self.assertTrue(
+            PortTemplateMapping.objects.filter(
+                front_port=front_port_template,
+                front_port_position=1,
+                rear_port=rear_port_template,
+                rear_port_position=1,
+            ).exists()
+        )
 
 
 class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1306,7 +1402,6 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
     }
     user_permissions = (
         'dcim.view_site', 'dcim.view_rack', 'dcim.view_location', 'dcim.view_devicerole', 'dcim.view_devicetype',
-        'extras.view_configtemplate',
     )
 
     @classmethod
@@ -1486,11 +1581,57 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.config_template = configtemplate
         device.save()
 
-        self.add_permissions('dcim.add_device')
-        url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['content'], f'Config for device {device.name}')
+
+    def test_render_config_without_permission(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for device {{ device.name }}'
+        )
+
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        # No permissions added - user has no render_config permission
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_render_config_token_write_enabled(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for device {{ device.name }}'
+        )
+
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        self.add_permissions('dcim.render_config_device', 'dcim.view_device')
+        url = reverse('dcim-api:device-render-config', kwargs={'pk': device.pk})
+
+        # Request without token auth should fail with PermissionDenied
+        response = self.client.post(url, {}, format='json')
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Create token with write_enabled=False
+        token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        token_header = f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'
+
+        # Request with write-disabled token should fail
+        response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Enable write and retry
+        token.write_enabled = True
+        token.save()
+        response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):
@@ -1969,51 +2110,90 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             RearPort(device=device, name='Rear Port 6', type=PortTypeChoices.TYPE_8P8C),
         )
         RearPort.objects.bulk_create(rear_ports)
-
         front_ports = (
-            FrontPort(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[0]),
-            FrontPort(device=device, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[1]),
-            FrontPort(device=device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C, rear_port=rear_ports[2]),
+            FrontPort(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=device, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=device, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=device, front_port=front_ports[2], rear_port=rear_ports[2]),
+        ])
 
         cls.create_data = [
             {
                 'device': device.pk,
                 'name': 'Front Port 4',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_ports[3].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'position': 1,
+                        'rear_port': rear_ports[3].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'device': device.pk,
                 'name': 'Front Port 5',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_ports[4].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'position': 1,
+                        'rear_port': rear_ports[4].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
             {
                 'device': device.pk,
                 'name': 'Front Port 6',
                 'type': PortTypeChoices.TYPE_8P8C,
-                'rear_port': rear_ports[5].pk,
-                'rear_port_position': 1,
+                'rear_ports': [
+                    {
+                        'position': 1,
+                        'rear_port': rear_ports[5].pk,
+                        'rear_port_position': 1,
+                    },
+                ],
             },
         ]
+
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'rear_ports': [
+                {
+                    'position': 1,
+                    'rear_port': rear_ports[3].pk,
+                    'rear_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the front port
+        front_port = FrontPort.objects.get(name='Front Port 1')
+        rear_port = RearPort.objects.get(name='Rear Port 4')
+        self.assertTrue(
+            PortMapping.objects.filter(
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1,
+            ).exists()
+        )
 
     @tag('regression')  # Issue #18991
     def test_front_port_paths(self):
         device = Device.objects.first()
-        rear_port = RearPort.objects.create(
-            device=device, name='Rear Port 10', type=PortTypeChoices.TYPE_8P8C
-        )
         interface1 = Interface.objects.create(device=device, name='Interface 1')
-        front_port = FrontPort.objects.create(
-            device=device,
-            name='Rear Port 10',
-            type=PortTypeChoices.TYPE_8P8C,
-            rear_port=rear_port,
-        )
+        rear_port = RearPort.objects.create(device=device, name='Rear Port 10', type=PortTypeChoices.TYPE_8P8C)
+        front_port = FrontPort.objects.create(device=device, name='Front Port 10', type=PortTypeChoices.TYPE_8P8C)
+        PortMapping.objects.create(device=device, front_port=front_port, rear_port=rear_port)
         Cable.objects.create(a_terminations=[interface1], b_terminations=[front_port])
 
         self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
@@ -2040,6 +2220,15 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
         role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
 
+        front_ports = (
+            FrontPort(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 2', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 3', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 4', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 5', type=PortTypeChoices.TYPE_8P8C),
+            FrontPort(device=device, name='Front Port 6', type=PortTypeChoices.TYPE_8P8C),
+        )
+        FrontPort.objects.bulk_create(front_ports)
         rear_ports = (
             RearPort(device=device, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C),
             RearPort(device=device, name='Rear Port 2', type=PortTypeChoices.TYPE_8P8C),
@@ -2052,18 +2241,65 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
                 'device': device.pk,
                 'name': 'Rear Port 4',
                 'type': PortTypeChoices.TYPE_8P8C,
+                'front_ports': [
+                    {
+                        'position': 1,
+                        'front_port': front_ports[3].pk,
+                        'front_port_position': 1,
+                    },
+                ],
             },
             {
                 'device': device.pk,
                 'name': 'Rear Port 5',
                 'type': PortTypeChoices.TYPE_8P8C,
+                'front_ports': [
+                    {
+                        'position': 1,
+                        'front_port': front_ports[4].pk,
+                        'front_port_position': 1,
+                    },
+                ],
             },
             {
                 'device': device.pk,
                 'name': 'Rear Port 6',
                 'type': PortTypeChoices.TYPE_8P8C,
+                'front_ports': [
+                    {
+                        'position': 1,
+                        'front_port': front_ports[5].pk,
+                        'front_port_position': 1,
+                    },
+                ],
             },
         ]
+
+        cls.update_data = {
+            'type': PortTypeChoices.TYPE_LC,
+            'front_ports': [
+                {
+                    'position': 1,
+                    'front_port': front_ports[3].pk,
+                    'front_port_position': 1,
+                },
+            ],
+        }
+
+    def test_update_object(self):
+        super().test_update_object()
+
+        # Check that the port mapping was updated after modifying the rear port
+        front_port = FrontPort.objects.get(name='Front Port 4')
+        rear_port = RearPort.objects.get(name='Rear Port 1')
+        self.assertTrue(
+            PortMapping.objects.filter(
+                front_port=front_port,
+                front_port_position=1,
+                rear_port=rear_port,
+                rear_port_position=1,
+            ).exists()
+        )
 
     @tag('regression')  # Issue #18991
     def test_rear_port_paths(self):
@@ -2350,6 +2586,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[14].pk,
                 }],
                 'label': 'Cable 4',
+                'profile': CableProfileChoices.SINGLE_1C1P,
             },
             {
                 'a_terminations': [{
@@ -2361,6 +2598,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[15].pk,
                 }],
                 'label': 'Cable 5',
+                'profile': CableProfileChoices.SINGLE_1C1P,
             },
             {
                 'a_terminations': [{
@@ -2372,8 +2610,38 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                     'object_id': interfaces[16].pk,
                 }],
                 'label': 'Cable 6',
+                # No profile (legacy behavior)
             },
         ]
+
+
+class CableTerminationTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+):
+    model = CableTermination
+    brief_fields = [
+        'cable', 'cable_end', 'connector', 'display', 'id', 'positions', 'termination_id', 'termination_type', 'url',
+    ]
+
+    @classmethod
+    def setUpTestData(cls):
+        device1 = create_test_device('Device 1')
+        device2 = create_test_device('Device 2')
+
+        interfaces = []
+        for device in (device1, device2):
+            for i in range(0, 10):
+                interfaces.append(Interface(device=device, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name=f'eth{i}'))
+        Interface.objects.bulk_create(interfaces)
+
+        cables = (
+            Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[10]], label='Cable 1'),
+            Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[11]], label='Cable 2'),
+            Cable(a_terminations=[interfaces[2]], b_terminations=[interfaces[12]], label='Cable 3'),
+        )
+        for cable in cables:
+            cable.save()
 
 
 class ConnectedDeviceTest(APITestCase):

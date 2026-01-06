@@ -5,7 +5,7 @@ from django.utils.timezone import make_aware
 
 from core.models import ObjectType
 from users import filtersets
-from users.models import Group, ObjectPermission, Token, User
+from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.testing import BaseFilterSetTests
 
 
@@ -30,7 +30,6 @@ class UserTestCase(TestCase, BaseFilterSetTests):
                 first_name='Hank',
                 last_name='Hill',
                 email='hank@stricklandpropane.com',
-                is_staff=True,
                 is_superuser=True
             ),
             User(
@@ -97,10 +96,6 @@ class UserTestCase(TestCase, BaseFilterSetTests):
     def test_is_active(self):
         params = {'is_active': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
-    def test_is_staff(self):
-        params = {'is_staff': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_is_superuser(self):
         params = {'is_superuser': True}
@@ -271,7 +266,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
 class TokenTestCase(TestCase, BaseFilterSetTests):
     queryset = Token.objects.all()
     filterset = filtersets.TokenFilterSet
-    ignore_fields = ('allowed_ips',)
+    ignore_fields = ('plaintext', 'hmac_digest', 'allowed_ips')
 
     @classmethod
     def setUpTestData(cls):
@@ -287,20 +282,50 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         past_date = make_aware(datetime.datetime(2000, 1, 1))
         tokens = (
             Token(
-                user=users[0], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar1'
+                version=1,
+                user=users[0],
+                expires=future_date,
+                enabled=True,
+                write_enabled=True,
+                description='foobar1',
             ),
             Token(
-                user=users[1], key=Token.generate_key(), expires=future_date, write_enabled=True, description='foobar2'
+                version=2,
+                user=users[1],
+                expires=future_date,
+                enabled=False,
+                write_enabled=True,
+                description='foobar2',
             ),
             Token(
-                user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False
+                version=2,
+                user=users[2],
+                enabled=True,
+                expires=past_date,
+                write_enabled=False,
             ),
         )
-        Token.objects.bulk_create(tokens)
+        for token in tokens:
+            token.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_version(self):
+        params = {'version': 1}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'version': 2}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_key(self):
+        tokens = Token.objects.filter(version=2)
+        params = {'key': [tokens[0].key, tokens[1].key]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_pepper_id(self):
+        params = {'pepper_id': [1]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
         users = User.objects.order_by('id')[:2]
@@ -317,10 +342,11 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         params = {'expires__lte': '2021-01-01T00:00:00'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_key(self):
-        tokens = Token.objects.all()[:2]
-        params = {'key': [tokens[0].key, tokens[1].key]}
+    def test_enabled(self):
+        params = {'enabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_write_enabled(self):
         params = {'write_enabled': True}
@@ -330,4 +356,107 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class OwnerGroupTestCase(TestCase, BaseFilterSetTests):
+    queryset = OwnerGroup.objects.all()
+    filterset = filtersets.OwnerGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1', description='Foo'),
+            OwnerGroup(name='Owner Group 2', description='Bar'),
+            OwnerGroup(name='Owner Group 3', description='Baz'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+    def test_q(self):
+        params = {'q': 'foo'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Owner Group 1', 'Owner Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['Foo', 'Bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class OwnerTestCase(TestCase, BaseFilterSetTests):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        owner_groups = (
+            OwnerGroup(name='Owner Group 1'),
+            OwnerGroup(name='Owner Group 2'),
+            OwnerGroup(name='Owner Group 3'),
+        )
+        OwnerGroup.objects.bulk_create(owner_groups)
+
+        groups = (
+            Group(name='Group 1'),
+            Group(name='Group 2'),
+            Group(name='Group 3'),
+        )
+        Group.objects.bulk_create(groups)
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        owners = (
+            Owner(name='Owner 1', group=owner_groups[0], description='Foo'),
+            Owner(name='Owner 2', group=owner_groups[1], description='Bar'),
+            Owner(name='Owner 3', group=owner_groups[2], description='Baz'),
+        )
+        Owner.objects.bulk_create(owners)
+
+        # Assign users and groups to owners
+        owners[0].user_groups.add(groups[0])
+        owners[1].user_groups.add(groups[1])
+        owners[2].user_groups.add(groups[2])
+        owners[0].users.add(users[0])
+        owners[1].users.add(users[1])
+        owners[2].users.add(users[2])
+
+    def test_q(self):
+        params = {'q': 'foo'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Owner 1', 'Owner 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['Foo', 'Bar']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_group(self):
+        owner_groups = OwnerGroup.objects.order_by('id')[:2]
+        params = {'group_id': [owner_groups[0].pk, owner_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [owner_groups[0].name, owner_groups[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_user_group(self):
+        group = Group.objects.order_by('id')[:2]
+        params = {'user_group_id': [group[0].pk, group[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user_group': [group[0].name, group[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_user(self):
+        users = User.objects.order_by('id')[:2]
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'user': [users[0].username, users[1].username]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

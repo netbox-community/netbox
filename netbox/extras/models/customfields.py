@@ -21,6 +21,7 @@ from extras.choices import *
 from extras.data import CHOICE_SETS
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
+from netbox.models.mixins import OwnerMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.datetime import datetime_from_timestamp
@@ -70,7 +71,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         }
 
 
-class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
     object_types = models.ManyToManyField(
         to='contenttypes.ContentType',
         related_name='custom_fields',
@@ -797,7 +798,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             raise ValidationError(_("Required field cannot be empty."))
 
 
-class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel):
     """
     Represents a set of choices available for choice and multi-choice custom fields.
     """

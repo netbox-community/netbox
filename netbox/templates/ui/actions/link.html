@@ -1,0 +1,6 @@
+<a {% if url %}href="{{ url }}" {% endif %}class="btn btn-ghost-{{ button_class }} btn-sm">
+  {% if button_icon %}
+    <i class="mdi mdi-{{ button_icon }}" aria-hidden="true"></i>
+  {% endif %}
+  {{ label }}
+</a>

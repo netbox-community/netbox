@@ -12,8 +12,10 @@ from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.fields import CounterCacheField
 from utilities.jsonschema import validate_schema
 from utilities.string import title
+from utilities.tracking import TrackingModelMixin
 from .device_components import *
 
 __all__ = (
@@ -90,6 +92,10 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True,
         verbose_name=_('attributes')
+    )
+    module_count = CounterCacheField(
+        to_model='dcim.Module',
+        to_field='module_type'
     )
 
     clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow')
@@ -185,7 +191,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         return yaml.dump(dict(data), sort_keys=False)
 
 
-class Module(PrimaryModel, ConfigContextModel):
+class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
     """
     A Module represents a field-installable component within a Device which may itself hold multiple device components
     (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.

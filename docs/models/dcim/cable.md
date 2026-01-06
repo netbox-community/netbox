@@ -21,6 +21,21 @@ The cable's operational status. Choices include:
 * Planned
 * Decommissioning
 
+### Profile
+
+!!! note "This field was introduced in NetBox v4.5."
+
+The profile to which the cable conforms. The profile determines the mapping of termination between the two ends and enables logical tracing across complex connections, such as breakout cables. Supported profiles are listed below.
+
+* Straight (single position)
+* Straight (multi-position)
+* Shuffle (2x2 MPO8)
+* Shuffle (4x4 MPO8)
+
+A single-position cable is allowed only one termination point at each end. There is no limit to the number of terminations a multi-position cable may have. Each end of a cable must have the same number of terminations, unless connected to a pass-through port or to a circuit termination.
+
+The assignment of a cable profile is optional. If no profile is assigned, legacy tracing behavior will be preserved.
+
 ### Type
 
 The cable's physical medium or classification.

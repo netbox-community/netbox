@@ -1,12 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
-from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
 
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.gfk_fields import GFKSerializerField
+from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from utilities.api import get_serializer_for_model
 from vpn.choices import *
 from vpn.models import Tunnel, TunnelGroup, TunnelTermination
 from .crypto import IPSecProfileSerializer
@@ -22,7 +20,7 @@ __all__ = (
 # Tunnels
 #
 
-class TunnelGroupSerializer(NetBoxModelSerializer):
+class TunnelGroupSerializer(OrganizationalModelSerializer):
 
     # Related object counts
     tunnel_count = RelatedObjectCountField('tunnels')
@@ -30,13 +28,13 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = TunnelGroup
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
-            'created', 'last_updated', 'tunnel_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'tunnel_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tunnel_count')
 
 
-class TunnelSerializer(NetBoxModelSerializer):
+class TunnelSerializer(PrimaryModelSerializer):
     status = ChoiceField(
         choices=TunnelStatusChoices
     )
@@ -67,8 +65,8 @@ class TunnelSerializer(NetBoxModelSerializer):
         model = Tunnel
         fields = (
             'id', 'url', 'display_url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile',
-            'tenant', 'tunnel_id', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'terminations_count',
+            'tenant', 'tunnel_id', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'terminations_count',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -83,9 +81,7 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
     termination_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    termination = serializers.SerializerMethodField(
-        read_only=True
-    )
+    termination = GFKSerializerField(read_only=True)
     outside_ip = IPAddressSerializer(
         nested=True,
         required=False,
@@ -99,11 +95,3 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
             'termination', 'outside_ip', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display')
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_termination(self, obj):
-        if not obj.termination:
-            return None
-        serializer = get_serializer_for_model(obj.termination)
-        context = {'request': self.context['request']}
-        return serializer(obj.termination, nested=True, context=context).data

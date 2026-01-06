@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
 from dcim.tables.devices import BaseInterfaceTable
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from utilities.templatetags.helpers import humanize_disk_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
@@ -21,13 +21,16 @@ __all__ = (
 # Virtual machines
 #
 
-class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
+class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
+    )
+    start_on_boot = columns.ChoiceFieldColumn(
+        verbose_name=_('Start on boot'),
     )
     site = tables.Column(
         verbose_name=_('Site'),
@@ -47,9 +50,6 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     platform = tables.Column(
         linkify=True,
         verbose_name=_('Platform')
-    )
-    comments = columns.MarkdownColumn(
-        verbose_name=_('Comments'),
     )
     primary_ip4 = tables.Column(
         linkify=True,
@@ -81,12 +81,12 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         verbose_name=_('Disk'),
     )
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'vcpus',
-            'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments', 'config_template',
-            'serial', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'role', 'tenant',
+            'tenant_group', 'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description',
+            'comments', 'config_template', 'serial', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

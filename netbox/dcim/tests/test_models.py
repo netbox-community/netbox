@@ -445,13 +445,19 @@ class DeviceTestCase(TestCase):
         )
         rearport.save()
 
-        FrontPortTemplate(
+        frontport = FrontPortTemplate(
             device_type=device_type,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
+        )
+        frontport.save()
+
+        PortTemplateMapping.objects.create(
+            device_type=device_type,
+            front_port=frontport,
             rear_port=rearport,
-            rear_port_position=2
-        ).save()
+            rear_port_position=2,
+        )
 
         ModuleBayTemplate(
             device_type=device_type,
@@ -529,10 +535,11 @@ class DeviceTestCase(TestCase):
             device=device,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
-            rear_port=rearport,
-            rear_port_position=2
+            positions=1
         )
         self.assertEqual(frontport.cf['cf1'], 'foo')
+
+        self.assertTrue(PortMapping.objects.filter(front_port=frontport, rear_port=rearport).exists())
 
         modulebay = ModuleBay.objects.get(
             device=device,
@@ -908,12 +915,18 @@ class CableTestCase(TestCase):
         )
         RearPort.objects.bulk_create(rear_ports)
         front_ports = (
-            FrontPort(device=patch_panel, name='FP1', type='8p8c', rear_port=rear_ports[0], rear_port_position=1),
-            FrontPort(device=patch_panel, name='FP2', type='8p8c', rear_port=rear_ports[1], rear_port_position=1),
-            FrontPort(device=patch_panel, name='FP3', type='8p8c', rear_port=rear_ports[2], rear_port_position=1),
-            FrontPort(device=patch_panel, name='FP4', type='8p8c', rear_port=rear_ports[3], rear_port_position=1),
+            FrontPort(device=patch_panel, name='FP1', type='8p8c'),
+            FrontPort(device=patch_panel, name='FP2', type='8p8c'),
+            FrontPort(device=patch_panel, name='FP3', type='8p8c'),
+            FrontPort(device=patch_panel, name='FP4', type='8p8c'),
         )
         FrontPort.objects.bulk_create(front_ports)
+        PortMapping.objects.bulk_create([
+            PortMapping(device=patch_panel, front_port=front_ports[0], rear_port=rear_ports[0]),
+            PortMapping(device=patch_panel, front_port=front_ports[1], rear_port=rear_ports[1]),
+            PortMapping(device=patch_panel, front_port=front_ports[2], rear_port=rear_ports[2]),
+            PortMapping(device=patch_panel, front_port=front_ports[3], rear_port=rear_ports[3]),
+        ])
 
         provider = Provider.objects.create(name='Provider 1', slug='provider-1')
         provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=provider)

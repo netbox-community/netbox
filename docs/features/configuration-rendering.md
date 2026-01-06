@@ -90,3 +90,10 @@ http://netbox:8000/api/extras/config-templates/123/render/ \
   "bar": 123
 }'
 ```
+
+!!! note "Permissions"
+    Rendering configuration templates via the REST API requires appropriate permissions for the relevant object type:
+
+    * To render a device's configuration via `/api/dcim/devices/{id}/render-config/`, assign a permission for "DCIM > Device" with the `render_config` action.
+    * To render a virtual machine's configuration via `/api/virtualization/virtual-machines/{id}/render-config/`, assign a permission for "Virtualization > Virtual Machine" with the `render_config` action.
+    * To render a config template directly via `/api/extras/config-templates/{id}/render/`, assign a permission for "Extras > Config Template" with the `render` action.

@@ -11,7 +11,7 @@ class DCIMConfig(AppConfig):
         from netbox.models.features import register_models
         from utilities.counters import connect_counters
         from . import signals, search  # noqa: F401
-        from .models import CableTermination, Device, DeviceType, VirtualChassis
+        from .models import CableTermination, Device, DeviceType, ModuleType, RackType, VirtualChassis
 
         # Register models
         register_models(*self.get_models())
@@ -31,4 +31,4 @@ class DCIMConfig(AppConfig):
         })
 
         # Register counters
-        connect_counters(Device, DeviceType, VirtualChassis)
+        connect_counters(Device, DeviceType, ModuleType, RackType, VirtualChassis)

@@ -1,0 +1,14 @@
+{% if group %}
+  {# Display an object with its parent group #}
+  <ol class="breadcrumb" aria-label="breadcrumbs">
+    <li class="breadcrumb-item">
+      {% if linkify %}{{ group|linkify }}{% else %}{{ group }}{% endif %}
+    </li>
+    <li class="breadcrumb-item">
+      {% if linkify %}{{ value|linkify }}{% else %}{{ value }}{% endif %}
+    </li>
+  </ol>
+{% else %}
+  {# Display only the object #}
+  {% if linkify %}{{ value|linkify }}{% else %}{{ value }}{% endif %}
+{% endif %}

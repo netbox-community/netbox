@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
@@ -31,17 +33,22 @@ def path_node_to_object(repr):
     return ct.model_class().objects.filter(pk=object_id).first()
 
 
-def create_cablepath(terminations):
+def create_cablepaths(objects):
     """
     Create CablePaths for all paths originating from the specified set of nodes.
 
-    :param terminations: Iterable of CableTermination objects
+    :param objects: Iterable of cabled objects (e.g. Interfaces)
     """
     from dcim.models import CablePath
 
-    cp = CablePath.from_origin(terminations)
-    if cp:
-        cp.save()
+    # Arrange objects by cable connector. All objects with a null connector are grouped together.
+    origins = defaultdict(list)
+    for obj in objects:
+        origins[obj.cable_connector].append(obj)
+
+    for connector, objects in origins.items():
+        if cp := CablePath.from_origin(objects):
+            cp.save()
 
 
 def rebuild_paths(terminations):
@@ -56,7 +63,7 @@ def rebuild_paths(terminations):
         with transaction.atomic(using=router.db_for_write(CablePath)):
             for cp in cable_paths:
                 cp.delete()
-                create_cablepath(cp.origins)
+                create_cablepaths(cp.origins)
 
 
 def update_interface_bridges(device, interface_templates, module=None):
@@ -76,3 +83,36 @@ def update_interface_bridges(device, interface_templates, module=None):
             )
             interface.full_clean()
             interface.save()
+
+
+def create_port_mappings(device, device_type, module=None):
+    """
+    Replicate all front/rear port mappings from a DeviceType to the given device.
+    """
+    from dcim.models import FrontPort, PortMapping, RearPort
+
+    templates = device_type.port_mappings.prefetch_related('front_port', 'rear_port')
+
+    # Cache front & rear ports for efficient lookups by name
+    front_ports = {
+        fp.name: fp for fp in FrontPort.objects.filter(device=device)
+    }
+    rear_ports = {
+        rp.name: rp for rp in RearPort.objects.filter(device=device)
+    }
+
+    # Replicate PortMappings
+    mappings = []
+    for template in templates:
+        front_port = front_ports.get(template.front_port.resolve_name(module=module))
+        rear_port = rear_ports.get(template.rear_port.resolve_name(module=module))
+        mappings.append(
+            PortMapping(
+                device_id=front_port.device_id,
+                front_port=front_port,
+                front_port_position=template.front_port_position,
+                rear_port=rear_port,
+                rear_port_position=template.rear_port_position,
+            )
+        )
+    PortMapping.objects.bulk_create(mappings)

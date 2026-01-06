@@ -6,12 +6,15 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from users.models import *
 from utilities.forms import BulkEditForm
+from utilities.forms.fields import DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DateTimePicker
 
 __all__ = (
     'GroupBulkEditForm',
     'ObjectPermissionBulkEditForm',
+    'OwnerBulkEditForm',
+    'OwnerGroupBulkEditForm',
     'UserBulkEditForm',
     'TokenBulkEditForm',
 )
@@ -37,11 +40,6 @@ class UserBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect,
         label=_('Active')
     )
-    is_staff = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect,
-        label=_('Staff status')
-    )
     is_superuser = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
@@ -50,7 +48,7 @@ class UserBulkEditForm(BulkEditForm):
 
     model = User
     fieldsets = (
-        FieldSet('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser'),
+        FieldSet('first_name', 'last_name', 'is_active', 'is_superuser'),
     )
     nullable_fields = ('first_name', 'last_name')
 
@@ -101,6 +99,11 @@ class TokenBulkEditForm(BulkEditForm):
         queryset=Token.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    enabled = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+        label=_('Enabled')
+    )
     write_enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
@@ -124,8 +127,49 @@ class TokenBulkEditForm(BulkEditForm):
 
     model = Token
     fieldsets = (
-        FieldSet('write_enabled', 'description', 'expires', 'allowed_ips'),
+        FieldSet('enabled', 'write_enabled', 'description', 'expires', 'allowed_ips'),
     )
     nullable_fields = (
         'expires', 'description', 'allowed_ips',
     )
+
+
+class OwnerGroupBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=OwnerGroup.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = OwnerGroup
+    fieldsets = (
+        FieldSet('description',),
+    )
+    nullable_fields = ('description',)
+
+
+class OwnerBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Owner.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=OwnerGroup.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = Owner
+    fieldsets = (
+        FieldSet('group', 'description'),
+    )
+    nullable_fields = ('group', 'description',)

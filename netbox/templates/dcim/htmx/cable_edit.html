@@ -53,6 +53,7 @@
     <h2 class="col-9 offset-3">{% trans "Cable" %}</h2>
   </div>
   {% render_field form.status %}
+  {% render_field form.profile %}
   {% render_field form.type %}
   {% render_field form.label %}
   {% render_field form.description %}
@@ -75,6 +76,13 @@
   </div>
   {% render_field form.tenant_group %}
   {% render_field form.tenant %}
+</div>
+
+<div class="field-group mb-5">
+  <div class="row">
+    <h2 class="col-9 offset-3">{% trans "Owner" %}</h2>
+  </div>
+  {% render_field form.owner %}
 </div>
 
 {% if form.custom_fields %}

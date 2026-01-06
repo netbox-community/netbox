@@ -9,7 +9,6 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -24,7 +23,7 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-
+from utilities.api import IsSuperuser
 from . import serializers
 
 
@@ -100,7 +99,7 @@ class BaseRQViewSet(viewsets.ViewSet):
     """
     Base class for RQ view sets. Provides a list() method. Subclasses must implement get_data().
     """
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsSuperuser]
     serializer_class = None
 
     def get_data(self):

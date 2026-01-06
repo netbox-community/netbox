@@ -2,7 +2,7 @@
 
 ## Form Classes
 
-NetBox provides several base form classes for use by plugins.
+NetBox provides several base form classes for use by plugins. Additional form classes are also available for other standard base model classes (PrimaryModel, OrganizationalModel, and NestedGroupModel).
 
 | Form Class                 | Purpose                              |
 |----------------------------|--------------------------------------|
@@ -19,7 +19,17 @@ This is the base form for creating and editing NetBox models. It extends Django'
 |-------------|---------------------------------------------------------------------------------------|
 | `fieldsets` | A tuple of `FieldSet` instances which control how form fields are rendered (optional) |
 
-**Example**
+#### Subclasses
+
+The corresponding model-specific subclasses of `NetBoxModelForm` are documented below.
+
+| Model Class           | Form Class                |
+|-----------------------|---------------------------|
+| `PrimaryModel`        | `PrimaryModelForm`        |
+| `OrganizationalModel` | `OrganizationalModelForm` |
+| `NestedGroupModel`    | `NestedGroupModelForm`    |
+
+#### Example
 
 ```python
 from django.utils.translation import gettext_lazy as _
@@ -49,9 +59,19 @@ class MyModelForm(NetBoxModelForm):
 
 ### `NetBoxModelImportForm`
 
-This form facilitates the bulk import of new objects from CSV, JSON, or YAML data. As with model forms, you'll need to declare a `Meta` subclass specifying the associated `model` and `fields`. NetBox also provides several form fields suitable for import various types of CSV data, listed below.
+This form facilitates the bulk import of new objects from CSV, JSON, or YAML data. As with model forms, you'll need to declare a `Meta` subclass specifying the associated `model` and `fields`. NetBox also provides several form fields suitable for importing various types of CSV data, listed [below](#csv-import-fields).
 
-**Example**
+#### Subclasses
+
+The corresponding model-specific subclasses of `NetBoxModelImportForm` are documented below.
+
+| Model Class           | Form Class                      |
+|-----------------------|---------------------------------|
+| `PrimaryModel`        | `PrimaryModelImportForm`        |
+| `OrganizationalModel` | `OrganizationalModelImportForm` |
+| `NestedGroupModel`    | `NestedGroupModelImportForm`    |
+
+#### Example
 
 ```python
 from django.utils.translation import gettext_lazy as _
@@ -83,7 +103,17 @@ This form facilitates editing multiple objects in bulk. Unlike a model form, thi
 | `fieldsets`       | A tuple of `FieldSet` instances which control how form fields are rendered (optional)       |
 | `nullable_fields` | A tuple of fields which can be nullified (set to empty) using the bulk edit form (optional) |
 
-**Example**
+#### Subclasses
+
+The corresponding model-specific subclasses of `NetBoxModelBulkEditForm` are documented below.
+
+| Model Class           | Form Class                        |
+|-----------------------|-----------------------------------|
+| `PrimaryModel`        | `PrimaryModelBulkEditForm`        |
+| `OrganizationalModel` | `OrganizationalModelBulkEditForm` |
+| `NestedGroupModel`    | `NestedGroupModelBulkEditForm`    |
+
+#### Example
 
 ```python
 from django import forms
@@ -125,7 +155,17 @@ This form class is used to render a form expressly for filtering a list of objec
 | `model`     | The model of object being edited                                                      |
 | `fieldsets` | A tuple of `FieldSet` instances which control how form fields are rendered (optional) |
 
-**Example**
+#### Subclasses
+
+The corresponding model-specific subclasses of `NetBoxModelFilterSetForm` are documented below.
+
+| Model Class           | Form Class                         |
+|-----------------------|------------------------------------|
+| `PrimaryModel`        | `PrimaryModelFilterSetForm`        |
+| `OrganizationalModel` | `OrganizationalModelFilterSetForm` |
+| `NestedGroupModel`    | `NestedGroupModelFilterSetForm`    |
+
+#### Example
 
 ```python
 from dcim.models import Site

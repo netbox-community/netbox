@@ -1,0 +1,60 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.group %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:owner_list' %}?group_id={{ object.group_id }}">{{ object.group }}</a>
+    </li>
+  {% endif %}
+{% endblock %}
+
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <h2 class="card-header">{% trans "Owner" %}</h2>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Group" %}</th>
+            <td>{{ object.group|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="card">
+        <h2 class="card-header">{% trans "Groups" %}</h2>
+        <div class="list-group list-group-flush">
+          {% for group in object.user_groups.all %}
+            <a href="{% url 'users:group' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card-header">{% trans "Users" %}</h2>
+        <div class="list-group list-group-flush">
+          {% for user in object.users.all %}
+            <a href="{% url 'users:user' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      {% include 'inc/panels/related_objects.html' with filter_name='owner_id' %}
+    </div>
+  </div>
+{% endblock %}

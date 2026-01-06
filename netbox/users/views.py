@@ -3,10 +3,13 @@ from django.db.models import Count
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
+from netbox.ui import layout
 from netbox.views import generic
-from utilities.views import register_model_view
+from users.ui import panels
+from utilities.query import count_related
+from utilities.views import GetRelatedModelsMixin, register_model_view
 from . import filtersets, forms, tables
-from .models import Group, User, ObjectPermission, Token
+from .models import Group, User, ObjectPermission, Owner, OwnerGroup, Token
 
 
 #
@@ -25,6 +28,14 @@ class TokenListView(generic.ObjectListView):
 @register_model_view(Token)
 class TokenView(generic.ObjectView):
     queryset = Token.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.TokenPanel(),
+        ],
+        right_panels=[
+            panels.TokenExamplePanel(),
+        ],
+    )
 
 
 @register_model_view(Token, 'add', detail=False)
@@ -234,3 +245,131 @@ class ObjectPermissionBulkDeleteView(generic.BulkDeleteView):
     queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet
     table = tables.ObjectPermissionTable
+
+
+#
+# Owner groups
+#
+
+@register_model_view(OwnerGroup, 'list', path='', detail=False)
+class OwnerGroupListView(generic.ObjectListView):
+    queryset = OwnerGroup.objects.annotate(
+       owner_count=count_related(Owner, 'group')
+    )
+    filterset = filtersets.OwnerGroupFilterSet
+    filterset_form = forms.OwnerGroupFilterForm
+    table = tables.OwnerGroupTable
+
+
+@register_model_view(OwnerGroup)
+class OwnerGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = OwnerGroup.objects.all()
+    template_name = 'users/ownergroup.html'
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(OwnerGroup, 'add', detail=False)
+@register_model_view(OwnerGroup, 'edit')
+class OwnerGroupEditView(generic.ObjectEditView):
+    queryset = OwnerGroup.objects.all()
+    form = forms.OwnerGroupForm
+
+
+@register_model_view(OwnerGroup, 'delete')
+class OwnerGroupDeleteView(generic.ObjectDeleteView):
+    queryset = OwnerGroup.objects.all()
+
+
+@register_model_view(OwnerGroup, 'bulk_import', path='import', detail=False)
+class OwnerGroupBulkImportView(generic.BulkImportView):
+    queryset = OwnerGroup.objects.all()
+    model_form = forms.OwnerGroupImportForm
+
+
+@register_model_view(OwnerGroup, 'bulk_edit', path='edit', detail=False)
+class OwnerGroupBulkEditView(generic.BulkEditView):
+    queryset = OwnerGroup.objects.all()
+    filterset = filtersets.OwnerGroupFilterSet
+    table = tables.OwnerGroupTable
+    form = forms.OwnerGroupBulkEditForm
+
+
+@register_model_view(OwnerGroup, 'bulk_rename', path='rename', detail=False)
+class OwnerGroupBulkRenameView(generic.BulkRenameView):
+    queryset = OwnerGroup.objects.all()
+
+
+@register_model_view(OwnerGroup, 'bulk_delete', path='delete', detail=False)
+class OwnerGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = OwnerGroup.objects.all()
+    filterset = filtersets.OwnerGroupFilterSet
+    table = tables.OwnerGroupTable
+
+
+#
+# Owners
+#
+
+@register_model_view(Owner, 'list', path='', detail=False)
+class OwnerListView(generic.ObjectListView):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+    filterset_form = forms.OwnerFilterForm
+    table = tables.OwnerTable
+
+
+@register_model_view(Owner)
+class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = Owner.objects.all()
+    template_name = 'users/owner.html'
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                omit=(Group, User),
+            ),
+        }
+
+
+@register_model_view(Owner, 'add', detail=False)
+@register_model_view(Owner, 'edit')
+class OwnerEditView(generic.ObjectEditView):
+    queryset = Owner.objects.all()
+    form = forms.OwnerForm
+
+
+@register_model_view(Owner, 'delete')
+class OwnerDeleteView(generic.ObjectDeleteView):
+    queryset = Owner.objects.all()
+
+
+@register_model_view(Owner, 'bulk_import', path='import', detail=False)
+class OwnerBulkImportView(generic.BulkImportView):
+    queryset = Owner.objects.all()
+    model_form = forms.OwnerImportForm
+
+
+@register_model_view(Owner, 'bulk_edit', path='edit', detail=False)
+class OwnerBulkEditView(generic.BulkEditView):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+    table = tables.OwnerTable
+    form = forms.OwnerBulkEditForm
+
+
+@register_model_view(Owner, 'bulk_rename', path='rename', detail=False)
+class OwnerBulkRenameView(generic.BulkRenameView):
+    queryset = Owner.objects.all()
+
+
+@register_model_view(Owner, 'bulk_delete', path='delete', detail=False)
+class OwnerBulkDeleteView(generic.BulkDeleteView):
+    queryset = Owner.objects.all()
+    filterset = filtersets.OwnerFilterSet
+    table = tables.OwnerTable

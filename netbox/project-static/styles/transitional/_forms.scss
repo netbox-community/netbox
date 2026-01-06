@@ -45,3 +45,11 @@ select[multiple] {
     padding-left: 0.5rem;
   }
 }
+
+// Filter modifier dropdown sizing
+.modifier-select {
+  min-width: 10rem;
+  max-width: 15rem;
+  width: auto;
+  white-space: nowrap;
+}

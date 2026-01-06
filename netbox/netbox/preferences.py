@@ -26,16 +26,6 @@ def get_csv_delimiters():
 PREFERENCES = {
 
     # User interface
-    'ui.htmx_navigation': UserPreference(
-        label=_('HTMX Navigation'),
-        choices=(
-            ('', _('Disabled')),
-            ('true', _('Enabled')),
-        ),
-        description=_('Enable dynamic UI navigation'),
-        default=False,
-        warning=_('Experimental feature')
-    ),
     'locale.language': UserPreference(
         label=_('Language'),
         choices=(

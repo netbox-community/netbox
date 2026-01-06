@@ -15,6 +15,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import OwnerMixin
 from utilities.fields import CounterCacheField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -77,6 +78,12 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
         choices=VirtualMachineStatusChoices,
         default=VirtualMachineStatusChoices.STATUS_ACTIVE,
         verbose_name=_('status')
+    )
+    start_on_boot = models.CharField(
+        max_length=32,
+        choices=VirtualMachineStartOnBootChoices,
+        default=VirtualMachineStartOnBootChoices.STATUS_OFF,
+        verbose_name=_('start on boot'),
     )
     role = models.ForeignKey(
         to='dcim.DeviceRole',
@@ -246,6 +253,9 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)
 
+    def get_start_on_boot_color(self):
+        return VirtualMachineStartOnBootChoices.colors.get(self.start_on_boot)
+
     @property
     def primary_ip(self):
         if get_config().PREFER_IPV4 and self.primary_ip4:
@@ -263,7 +273,7 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 #
 
 
-class ComponentModel(NetBoxModel):
+class ComponentModel(OwnerMixin, NetBoxModel):
     """
     An abstract model inherited by any model which has a parent VirtualMachine.
     """

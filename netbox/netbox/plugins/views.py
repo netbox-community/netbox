@@ -3,12 +3,12 @@ from collections import OrderedDict
 from django.apps import apps
 from django.urls.exceptions import NoReverseMatch
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from netbox.registry import registry
+from utilities.api import IsSuperuser
 
 
 @extend_schema(exclude=True)
@@ -16,7 +16,7 @@ class InstalledPluginsAPIView(APIView):
     """
     API view for listing all installed plugins
     """
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsSuperuser]
     _ignore_model_permissions = True
     schema = None
 

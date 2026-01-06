@@ -20,6 +20,7 @@ from netbox.plugins import PluginConfig
 from netbox.registry import registry
 import storages.utils  # type: ignore
 from utilities.release import load_release_data
+from utilities.security import validate_peppers
 from utilities.string import trailing_slash
 from .monkey import get_unique_validators
 
@@ -43,9 +44,9 @@ VERSION = RELEASE.full_version  # Retained for backward compatibility
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if sys.version_info < (3, 10):
+if sys.version_info < (3, 12):
     raise RuntimeError(
-        f"NetBox requires Python 3.10 or later. (Currently installed: Python {platform.python_version()})"
+        f"NetBox requires Python 3.12 or later. (Currently installed: Python {platform.python_version()})"
     )
 
 #
@@ -75,8 +76,8 @@ elif hasattr(configuration, 'DATABASE') and hasattr(configuration, 'DATABASES'):
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
-ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', False)
 ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
+API_TOKEN_PEPPERS = getattr(configuration, 'API_TOKEN_PEPPERS', {})
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -136,6 +137,7 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GRAPHQL_DEFAULT_VERSION = getattr(configuration, 'GRAPHQL_DEFAULT_VERSION', 1)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
@@ -174,8 +176,6 @@ REMOTE_AUTH_SUPERUSERS = getattr(configuration, 'REMOTE_AUTH_SUPERUSERS', [])
 REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL')
 REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
 REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
-REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, 'REMOTE_AUTH_STAFF_GROUPS', [])
-REMOTE_AUTH_STAFF_USERS = getattr(configuration, 'REMOTE_AUTH_STAFF_USERS', [])
 # Required by extras/migrations/0109_script_models.py
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
@@ -228,6 +228,12 @@ if len(SECRET_KEY) < 50:
         f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
         f"  python {BASE_DIR}/generate_secret_key.py"
     )
+
+# Validate API token peppers
+if API_TOKEN_PEPPERS:
+    validate_peppers(API_TOKEN_PEPPERS)
+else:
+    warnings.warn("API_TOKEN_PEPPERS is not defined. v2 API tokens cannot be used.")
 
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:

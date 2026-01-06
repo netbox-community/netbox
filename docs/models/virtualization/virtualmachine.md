@@ -21,6 +21,13 @@ The VM's operational status.
 !!! tip
     Additional statuses may be defined by setting `VirtualMachine.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
+### Start on boot
+
+The start on boot setting from the hypervisor.
+
+!!! tip
+    Additional statuses may be defined by setting `VirtualMachine.start_on_boot` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
 ### Site & Cluster
 
 The [site](../dcim/site.md) and/or [cluster](./cluster.md) to which the VM is assigned.

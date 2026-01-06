@@ -1,6 +1,7 @@
 {
   "name": "netbox",
-  "version": "4.4.0",
+  "type": "module",
+  "version": "4.5.0",
   "main": "dist/netbox.js",
   "license": "Apache-2.0",
   "private": true,
@@ -8,14 +9,14 @@
     "netbox-graphiql"
   ],
   "scripts": {
-    "bundle": "node bundle.js",
-    "bundle:styles": "node bundle.js --styles",
-    "bundle:scripts": "node bundle.js --scripts",
+    "bundle": "node bundle.cjs",
+    "bundle:styles": "node bundle.cjs --styles",
+    "bundle:scripts": "node bundle.cjs --scripts",
     "format": "yarn format:scripts && yarn format:styles",
     "format:scripts": "prettier -w src/**/*.ts",
     "format:styles": "prettier -w styles/**/*.scss",
     "validate": "yarn validate:types && yarn validate:lint",
-    "validate:lint": "eslint -c .eslintrc ./src/**/*.ts",
+    "validate:lint": "eslint ./src/**/*.ts",
     "validate:types": "tsc --noEmit",
     "validate:formatting": "yarn validate:formatting:scripts && yarn validate:formatting:styles",
     "validate:formatting:styles": "prettier -c styles/**/*.scss",
@@ -36,20 +37,24 @@
     "typeface-roboto-mono": "1.1.13"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.0.0",
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^9.39.2",
     "@types/bootstrap": "5.2.10",
-    "@types/cookie": "^0.6.0",
-    "@types/node": "^22.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.37.0",
-    "@typescript-eslint/parser": "^8.37.0",
-    "esbuild": "^0.25.11",
+    "@types/cookie": "^1.0.0",
+    "@types/node": "^24.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "esbuild": "^0.27.1",
     "esbuild-sass-plugin": "^3.3.1",
-    "eslint": "<9.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.1",
-    "prettier": "^3.3.3",
-    "typescript": "<5.5"
+    "globals": "^16.5.0",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3"
   },
   "resolutions": {
     "@types/bootstrap/**/@popperjs/core": "^2.11.6"

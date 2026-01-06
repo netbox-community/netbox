@@ -282,13 +282,10 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
         verbose_name = _('prefix')
         verbose_name_plural = _('prefixes')
-        indexes = [
-            GistIndex(
-                fields=['prefix'],
-                name='ipam_prefix_gist_idx',
-                opclasses=['inet_ops'],
-            ),
-        ]
+        indexes = (
+            models.Index(fields=('scope_type', 'scope_id')),
+            GistIndex(fields=['prefix'], name='ipam_prefix_gist_idx', opclasses=['inet_ops']),
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

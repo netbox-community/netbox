@@ -19,7 +19,7 @@ NetBox requires the following dependencies:
 
 | Dependency | Supported Versions |
 |------------|--------------------|
-| Python     | 3.10, 3.11, 3.12   |
+| Python     | 3.12, 3.13, 3.14   |
 | PostgreSQL | 14+                |
 | Redis      | 4.0+               |
 
@@ -27,6 +27,7 @@ NetBox requires the following dependencies:
 
 | NetBox Version | Python min | Python max | PostgreSQL min | Redis min |                                       Documentation                                       |
 |:--------------:|:----------:|:----------:|:--------------:|:---------:|:-----------------------------------------------------------------------------------------:|
+|      4.5       |    3.12    |    3.14    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.5.0/docs/installation/index.md) |
 |      4.4       |    3.10    |    3.12    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.4.0/docs/installation/index.md) |
 |      4.3       |    3.10    |    3.12    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.3.0/docs/installation/index.md) |
 |      4.2       |    3.10    |    3.12    |       13       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.2.0/docs/installation/index.md) |
@@ -130,7 +131,7 @@ sudo ./upgrade.sh
     If the default version of Python is not at least 3.10, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
 
     ```no-highlight
-    sudo PYTHON=/usr/bin/python3.10 ./upgrade.sh
+    sudo PYTHON=/usr/bin/python3.12 ./upgrade.sh
     ```
 
 !!! note

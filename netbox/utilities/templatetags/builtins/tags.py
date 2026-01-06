@@ -1,9 +1,9 @@
 import logging
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 
 from django import template
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 
 from extras.choices import CustomFieldTypeChoices
 from utilities.querydict import dict_to_querydict
@@ -126,11 +126,9 @@ def htmx_table(context, viewname, return_url=None, **kwargs):
 @register.simple_tag(takes_context=True)
 def formaction(context):
     """
-    Replace the 'formaction' attribute on an HTML element with the appropriate HTMX attributes
-    if HTMX navigation is enabled (per the user's preferences).
+    A hook for overriding the 'formaction' attribute on an HTML element, for example to replace
+    with 'hx-push-url="true" hx-post' for HTMX navigation.
     """
-    if context.get('htmx_navigation', False):
-        return mark_safe('hx-push-url="true" hx-post')
     return 'formaction'
 
 
@@ -182,3 +180,11 @@ def static_with_params(path, **params):
     # Reconstruct the URL with the new query string
     new_parsed = parsed._replace(query=new_query)
     return urlunparse(new_parsed)
+
+
+@register.simple_tag(takes_context=True)
+def render(context, component):
+    """
+    Render a UI component (e.g. a Panel) by calling its render() method and passing the current template context.
+    """
+    return mark_safe(component.render(context))

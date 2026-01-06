@@ -36,10 +36,6 @@
             <td>{% checkmark object.is_active %}</td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Staff" %}</th>
-            <td>{% checkmark object.is_staff %}</td>
-          </tr>
-          <tr>
             <th scope="row">{% trans "Superuser" %}</th>
             <td>{% checkmark object.is_superuser %}</td>
           </tr>
@@ -62,6 +58,16 @@
         <div class="list-group list-group-flush">
           {% for perm in object.object_permissions.all %}
             <a href="{% url 'users:objectpermission' pk=perm.pk %}" class="list-group-item list-group-item-action">{{ perm }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card-header">{% trans "Owner Membership" %}</h2>
+        <div class="list-group list-group-flush">
+          {% for owner in object.owners.all %}
+            <a href="{% url 'users:owner' pk=owner.pk %}" class="list-group-item list-group-item-action">{{ owner }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}

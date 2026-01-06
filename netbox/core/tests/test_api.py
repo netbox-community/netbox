@@ -8,6 +8,7 @@ from rq.job import Job as RQ_Job, JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from rest_framework import status
+from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.testing import APITestCase, APIViewTestCases, TestCase
 from utilities.testing.utils import disable_logging
@@ -107,14 +108,14 @@ class ObjectTypeTest(APITestCase):
     def test_list_objects(self):
         object_type_count = ObjectType.objects.count()
 
-        response = self.client.get(reverse('extras-api:objecttype-list'), **self.header)
+        response = self.client.get(reverse('core-api:objecttype-list'), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], object_type_count)
 
     def test_get_object(self):
         object_type = ObjectType.objects.first()
 
-        url = reverse('extras-api:objecttype-detail', kwargs={'pk': object_type.pk})
+        url = reverse('core-api:objecttype-detail', kwargs={'pk': object_type.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
 
 
@@ -134,12 +135,9 @@ class BackgroundTaskTestCase(TestCase):
         Create a user and token for API calls.
         """
         # Create the test user and assign permissions
-        self.user = User.objects.create_user(username='testuser')
-        self.user.is_staff = True
-        self.user.is_active = True
-        self.user.save()
+        self.user = User.objects.create_user(username='testuser', is_active=True)
         self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Token {self.token.key}'}
+        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
 
         # Clear all queues prior to running each test
         get_queue('default').connection.flushall()
@@ -150,13 +148,11 @@ class BackgroundTaskTestCase(TestCase):
         url = reverse('core-api:rqqueue-list')
 
         # Attempt to load view without permission
-        self.user.is_staff = False
-        self.user.save()
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 403)
 
         # Load view with permission
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
@@ -165,7 +161,16 @@ class BackgroundTaskTestCase(TestCase):
         self.assertIn('low', str(response.content))
 
     def test_background_queue(self):
-        response = self.client.get(reverse('core-api:rqqueue-detail', args=['default']), **self.header)
+        url = reverse('core-api:rqqueue-detail', args=['default'])
+
+        # Attempt to load view without permission
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Load view with permission
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn('default', str(response.content))
         self.assertIn('oldest_job_timestamp', str(response.content))
@@ -174,8 +179,16 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_task_list(self):
         queue = get_queue('default')
         queue.enqueue(self.dummy_job_default)
+        url = reverse('core-api:rqtask-list')
 
-        response = self.client.get(reverse('core-api:rqtask-list'), **self.header)
+        # Attempt to load view without permission
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Load view with permission
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn('origin', str(response.content))
         self.assertIn('core.tests.test_api.BackgroundTaskTestCase.dummy_job_default()', str(response.content))
@@ -183,8 +196,16 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_task(self):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
+        url = reverse('core-api:rqtask-detail', args=[job.id])
 
-        response = self.client.get(reverse('core-api:rqtask-detail', args=[job.id]), **self.header)
+        # Attempt to load view without permission
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Load view with permission
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(job.id), str(response.content))
         self.assertIn('origin', str(response.content))
@@ -194,45 +215,65 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_task_delete(self):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
+        url = reverse('core-api:rqtask-delete', args=[job.id])
 
-        response = self.client.post(reverse('core-api:rqtask-delete', args=[job.id]), **self.header)
+        # Attempt to load view without permission
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Load view with permission
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.post(url, **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(RQ_Job.exists(job.id, connection=queue.connection))
         queue = get_queue('default')
         self.assertNotIn(job.id, queue.job_ids)
 
     def test_background_task_requeue(self):
-        queue = get_queue('default')
-
         # Enqueue & run a job that will fail
+        queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_failing)
         worker = get_worker('default')
         with disable_logging():
             worker.work(burst=True)
         self.assertTrue(job.is_failed)
+        url = reverse('core-api:rqtask-requeue', args=[job.id])
+
+        # Attempt to requeue the job without permission
+        response = self.client.post(url, **self.header)
+        self.assertEqual(response.status_code, 403)
 
         # Re-enqueue the failed job and check that its status has been reset
-        response = self.client.post(reverse('core-api:rqtask-requeue', args=[job.id]), **self.header)
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.post(url, **self.header)
         self.assertEqual(response.status_code, 200)
         job = RQ_Job.fetch(job.id, queue.connection)
         self.assertFalse(job.is_failed)
 
     def test_background_task_enqueue(self):
-        queue = get_queue('default')
-
         # Enqueue some jobs that each depends on its predecessor
+        queue = get_queue('default')
         job = previous_job = None
         for _ in range(0, 3):
             job = queue.enqueue(self.dummy_job_default, depends_on=previous_job)
             previous_job = job
+        url = reverse('core-api:rqtask-enqueue', args=[job.id])
 
         # Check that the last job to be enqueued has a status of deferred
         self.assertIsNotNone(job)
         self.assertEqual(job.get_status(), JobStatus.DEFERRED)
         self.assertIsNone(job.enqueued_at)
 
+        # Attempt to force-enqueue the job without permission
+        response = self.client.post(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
         # Force-enqueue the deferred job
-        response = self.client.post(reverse('core-api:rqtask-enqueue', args=[job.id]), **self.header)
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.post(url, **self.header)
         self.assertEqual(response.status_code, 200)
 
         # Check that job's status is updated correctly
@@ -242,19 +283,27 @@ class BackgroundTaskTestCase(TestCase):
 
     def test_background_task_stop(self):
         queue = get_queue('default')
-
         worker = get_worker('default')
         job = queue.enqueue(self.dummy_job_default)
         worker.prepare_job_execution(job)
-
+        url = reverse('core-api:rqtask-stop', args=[job.id])
         self.assertEqual(job.get_status(), JobStatus.STARTED)
-        response = self.client.post(reverse('core-api:rqtask-stop', args=[job.id]), **self.header)
+
+        # Attempt to stop the task without permission
+        response = self.client.post(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Stop the task
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.post(url, **self.header)
         self.assertEqual(response.status_code, 200)
         with disable_logging():
             worker.monitor_work_horse(job, queue)  # Sets the job as Failed and removes from Started
         started_job_registry = StartedJobRegistry(queue.name, connection=queue.connection)
         self.assertEqual(len(started_job_registry), 0)
 
+        # Verify that the task was cancelled
         canceled_job_registry = FailedJobRegistry(queue.name, connection=queue.connection)
         self.assertEqual(len(canceled_job_registry), 1)
         self.assertIn(job.id, canceled_job_registry)
@@ -262,19 +311,34 @@ class BackgroundTaskTestCase(TestCase):
     def test_worker_list(self):
         worker1 = get_worker('default', name=uuid.uuid4().hex)
         worker1.register_birth()
-
         worker2 = get_worker('high')
         worker2.register_birth()
+        url = reverse('core-api:rqworker-list')
 
-        response = self.client.get(reverse('core-api:rqworker-list'), **self.header)
+        # Attempt to fetch the worker list without permission
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Fetch the worker list
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(worker1.name), str(response.content))
 
     def test_worker(self):
         worker1 = get_worker('default', name=uuid.uuid4().hex)
         worker1.register_birth()
+        url = reverse('core-api:rqworker-detail', args=[worker1.name])
 
-        response = self.client.get(reverse('core-api:rqworker-detail', args=[worker1.name]), **self.header)
+        # Attempt to fetch a worker without permission
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.status_code, 403)
+
+        # Fetch the worker
+        self.user.is_superuser = True
+        self.user.save()
+        response = self.client.get(url, **self.header)
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(worker1.name), str(response.content))
         self.assertIn('birth_date', str(response.content))

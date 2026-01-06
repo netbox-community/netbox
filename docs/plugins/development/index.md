@@ -173,12 +173,12 @@ classifiers=[
     'Intended Audience :: Developers',
     'Natural Language :: English',
     "Programming Language :: Python :: 3 :: Only",
-    'Programming Language :: Python :: 3.10',
-    'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
 ]
 
-requires-python = ">=3.10.0"
+requires-python = ">=3.12.0"
 ```
 
 Many of these are self-explanatory, but for more information, see the [pyproject.toml documentation](https://packaging.python.org/en/latest/specifications/pyproject-toml/).
@@ -208,7 +208,7 @@ python3 -m venv ~/.virtualenvs/my_plugin
 You can make NetBox available within this environment by creating a path file pointing to its location. This will add NetBox to the Python path upon activation. (Be sure to adjust the command below to specify your actual virtual environment path, Python version, and NetBox installation.)
 
 ```shell
-echo /opt/netbox/netbox > $VENV/lib/python3.10/site-packages/netbox.pth
+echo /opt/netbox/netbox > $VENV/lib/python3.12/site-packages/netbox.pth
 ```
 
 ## Development Installation

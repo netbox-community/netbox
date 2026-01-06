@@ -1,0 +1,11 @@
+<ol class="breadcrumb" aria-label="breadcrumbs">
+  {% for node in nodes %}
+    <li class="breadcrumb-item">
+      {% if linkify %}
+        <a href="{{ node.get_absolute_url }}">{{ node }}</a>
+      {% else %}
+        {{ node }}
+      {% endif %}
+    </li>
+  {% endfor %}
+</ol>

@@ -107,6 +107,9 @@ class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
                 name='%(app_label)s_%(class)s_unique__site_name'
             ),
         )
+        indexes = (
+            models.Index(fields=('scope_type', 'scope_id')),
+        )
         verbose_name = _('cluster')
         verbose_name_plural = _('clusters')
 
