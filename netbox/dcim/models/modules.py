@@ -259,11 +259,13 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
         module_bays = []
         modules = []
         while module:
-            if module.pk in modules or module.module_bay.pk in module_bays:
+            module_module_bay = getattr(module, "module_bay", None)
+            if module.pk in modules or (module_module_bay and module_module_bay.pk in module_bays):
                 raise ValidationError(_("A module bay cannot belong to a module installed within it."))
             modules.append(module.pk)
-            module_bays.append(module.module_bay.pk)
-            module = module.module_bay.module if module.module_bay else None
+            if module_module_bay:
+                module_bays.append(module_module_bay.pk)
+            module = module_module_bay.module if module_module_bay else None
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
