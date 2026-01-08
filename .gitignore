@@ -9,7 +9,8 @@ yarn-error.log*
 /netbox/netbox/configuration.py
 /netbox/netbox/ldap_config.py
 /netbox/local/*
-/netbox/media
+/netbox/media/*
+!/netbox/media/.gitkeep
 /netbox/reports/*
 !/netbox/reports/__init__.py
 /netbox/scripts/*
