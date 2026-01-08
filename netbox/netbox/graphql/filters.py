@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import strawberry_django
 from strawberry import ID
-from strawberry_django import FilterLookup
+from strawberry_django import ComparisonFilterLookup, FilterLookup
 
 from core.graphql.filter_mixins import ChangeLoggingMixin
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, JournalEntriesFilterMixin, TagsFilterMixin
@@ -23,7 +23,7 @@ __all__ = (
 
 @dataclass
 class BaseModelFilter:
-    id: FilterLookup[ID] | None = strawberry_django.filter_field()
+    id: ComparisonFilterLookup[ID] | None = strawberry_django.filter_field()
 
 
 class ChangeLoggedModelFilter(ChangeLoggingMixin, BaseModelFilter):
