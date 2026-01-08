@@ -1,20 +1,26 @@
 ---
-name: 🗑️ Deprecation
+name: ⚠️ Deprecation
 type: Deprecation
-description: The removal of an existing feature or resource
+description: Designation of a feature or behavior that will be removed in a future release
 labels: ["netbox", "type: deprecation"]
 body:
   - type: textarea
     attributes:
-      label: Proposed Changes
+      label: Deprecated Functionality
       description: >
-        Describe in detail the proposed changes. What is being removed?
+        Describe the feature(s) and/or behavior that is being flagged for deprecation.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Scheduled removal
+      description: In what future release will the deprecated functionality be removed?
     validations:
       required: true
   - type: textarea
     attributes:
       label: Justification
-      description: Please provide justification for the proposed change(s).
+      description: Please provide justification for the deprecation.
     validations:
       required: true
   - type: textarea
