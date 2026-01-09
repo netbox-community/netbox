@@ -1,6 +1,6 @@
 ---
 name: 🗑️ Feature Removal
-type: Deprecation
+type: Removal
 description: The removal of a deprecated feature or resource
 labels: ["netbox", "type: removal"]
 body:
