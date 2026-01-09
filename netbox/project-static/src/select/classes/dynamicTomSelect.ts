@@ -109,9 +109,11 @@ export class DynamicTomSelect extends TomSelect {
           }
         });
 
-        self.loading = Math.max(self.loading - 1, 0);
-        if (self.loading === 0) {
-          self.wrapper.classList.remove(self.settings.loadingClass as string);
+        if (self.loading > 0) {
+          self.loading--;
+          if (self.loading === 0) {
+            self.wrapper.classList.remove(self.settings.loadingClass as string);
+          }
         }
 
         if (currentValue && !self.items.includes(currentValue as string)) {
