@@ -77,6 +77,8 @@ export class DynamicTomSelect extends TomSelect {
 
     const currentValue = self.getValue();
 
+    // Automatically clear any cached options. (Only options included
+    // in the API response should be present.)
     self.clearOptions();
 
     // Clear user_options to prevent the pre-selected option from being treated specially
@@ -86,6 +88,7 @@ export class DynamicTomSelect extends TomSelect {
       self.addOption(self.nullOption);
     }
 
+    // Get the API request URL. If none is provided, abort as no request can be made.
     const url = self.getRequestUrl(value);
     if (!url) {
       return;
