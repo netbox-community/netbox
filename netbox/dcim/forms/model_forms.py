@@ -733,9 +733,10 @@ class ModuleForm(ModuleCommonForm, PrimaryModelForm):
     )
     module_bay = DynamicModelChoiceField(
         label=_('Module bay'),
-        queryset=ModuleBay.objects.all(),
+        queryset=ModuleBay.objects.order_by('name'),
         query_params={
-            'device_id': '$device'
+            'device_id': '$device',
+            'ordering': 'name',
         },
         context={
             'disabled': 'installed_module',

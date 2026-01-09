@@ -75,16 +75,21 @@ export class DynamicTomSelect extends TomSelect {
   load(value: string) {
     const self = this;
 
-    // Automatically clear any cached options. (Only options included
-    // in the API response should be present.)
+    // Save current selection before clearing
+    const currentValue = self.getValue();
+
+    // Clear cached options (only options from API response should be present)
     self.clearOptions();
 
-    // Populate the null option (if any) if not searching
+    // Clear user_options to prevent the pre-selected option from being treated specially
+    (self as any).user_options = {};
+
+    // Populate the null option if not searching
     if (self.nullOption && !value) {
       self.addOption(self.nullOption);
     }
 
-    // Get the API request URL. If none is provided, abort as no request can be made.
+    // Get the API request URL
     const url = self.getRequestUrl(value);
     if (!url) {
       return;
@@ -98,16 +103,44 @@ export class DynamicTomSelect extends TomSelect {
       .then(response => response.json())
       .then(apiData => {
         const results: Dict[] = apiData.results;
-        const options: Dict[] = [];
-        for (const result of results) {
+
+        // Add each option and then set $order to match API response order
+        results.forEach((result, index) => {
           const option = self.getOptionFromData(result);
-          options.push(option);
+          self.addOption(option);
+          // Set $order AFTER addOption() to prevent it from being overwritten
+          const key = option[self.settings.valueField as string] as string;
+          if (self.options[key]) {
+            (self.options[key] as any).$order = index;
+          }
+        });
+
+        // Debug: log the $order values
+        console.log('Options after adding:');
+        for (const key in self.options) {
+          const opt = self.options[key] as any;
+          console.log(`  ${opt.display} -> $order: ${opt.$order}`);
         }
-        return options;
-      })
-      // Pass the options to the callback function
-      .then(options => {
-        self.loadCallback(options, []);
+
+        // Trigger loading complete
+        self.loading = Math.max(self.loading - 1, 0);
+        if (self.loading === 0) {
+          self.wrapper.classList.remove(self.settings.loadingClass as string);
+        }
+
+        console.log('Before restore - currentValue:', currentValue, 'items:', self.items);
+
+        // Restore the selection
+        if (currentValue && !self.items.includes(currentValue as string)) {
+          self.items.push(currentValue as string);
+        }
+
+        console.log('After restore - items:', self.items);
+
+        // Refresh the dropdown display
+        self.refreshOptions(false);
+
+        console.log('After refreshOptions - items:', self.items);
       })
       .catch(() => {
         self.loadCallback([], []);
