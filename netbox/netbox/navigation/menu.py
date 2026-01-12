@@ -232,7 +232,7 @@ VPN_MENU = Menu(
             label=_('L2VPNs'),
             items=(
                 get_model_item('vpn', 'l2vpn', _('L2VPNs')),
-                get_model_item('vpn', 'l2vpntermination', _('Terminations')),
+                get_model_item('vpn', 'l2vpntermination', _('L2VPN Terminations')),
             ),
         ),
         MenuGroup(
