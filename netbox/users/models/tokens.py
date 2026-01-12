@@ -213,6 +213,9 @@ class Token(models.Model):
     def clean(self):
         super().clean()
 
+        if self.version == TokenVersionChoices.V2 and not settings.API_TOKEN_PEPPERS:
+            raise ValidationError(_("Unable to save v2 tokens: API_TOKEN_PEPPERS is not defined."))
+
         if self._state.adding:
             if self.pepper_id is not None and self.pepper_id not in settings.API_TOKEN_PEPPERS:
                 raise ValidationError(_(
