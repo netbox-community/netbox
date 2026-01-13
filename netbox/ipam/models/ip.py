@@ -940,6 +940,13 @@ class IPAddress(ContactsMixin, PrimaryModel):
                     _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
                 )
 
+            # can't use is_oob_ip as self.assigned_object might be changed
+            if hasattr(original_parent, 'oob_ip') and original_parent.oob_ip_id == self.pk:
+                if parent != original_parent:
+                    raise ValidationError(
+                        _("Cannot reassign IP address while it is designated as the OOB IP for the parent object")
+                    )
+
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
             raise ValidationError({
