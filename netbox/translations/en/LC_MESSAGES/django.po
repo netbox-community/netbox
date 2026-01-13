@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-08 05:04+0000\n"
+"POT-Creation-Date: 2026-01-13 05:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1822,7 +1822,6 @@ msgid "ASN Count"
 msgstr ""
 
 #: netbox/circuits/tables/virtual_circuits.py:64
-#: netbox/netbox/navigation/menu.py:235
 #: netbox/templates/circuits/virtualcircuit.html:87
 #: netbox/templates/vpn/l2vpn.html:60 netbox/templates/vpn/tunnel.html:72
 #: netbox/vpn/tables/tunnels.py:59
@@ -12190,6 +12189,10 @@ msgstr ""
 msgid "L2VPNs"
 msgstr ""
 
+#: netbox/netbox/navigation/menu.py:235
+msgid "L2VPN Terminations"
+msgstr ""
+
 #: netbox/netbox/navigation/menu.py:241
 msgid "IKE Proposals"
 msgstr ""
@@ -15938,7 +15941,7 @@ msgstr ""
 #: netbox/users/forms/model_forms.py:126
 msgid ""
 "Tokens must be at least 40 characters in length. <strong>Be sure to record "
-"your key</strong> prior to submitting this form, as it will no longer be "
+"your token</strong> prior to submitting this form, as it will no longer be "
 "accessible once the token has been created."
 msgstr ""
 
@@ -16077,7 +16080,7 @@ msgid "write enabled"
 msgstr ""
 
 #: netbox/users/models/tokens.py:72
-msgid "Permit create/update/delete operations using this key"
+msgid "Permit create/update/delete operations using this token"
 msgstr ""
 
 #: netbox/users/models/tokens.py:76
@@ -16126,12 +16129,16 @@ msgstr ""
 msgid "tokens"
 msgstr ""
 
-#: netbox/users/models/tokens.py:219
+#: netbox/users/models/tokens.py:217
+msgid "Unable to save v2 tokens: API_TOKEN_PEPPERS is not defined."
+msgstr ""
+
+#: netbox/users/models/tokens.py:222
 #, python-brace-format
 msgid "Invalid pepper ID: {id}. Check configured API_TOKEN_PEPPERS."
 msgstr ""
 
-#: netbox/users/models/tokens.py:232
+#: netbox/users/models/tokens.py:235
 #, python-brace-format
 msgid ""
 "Expiration time must be in the future. Current server time is {current_time} "
