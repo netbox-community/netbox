@@ -69,7 +69,7 @@ class Token(models.Model):
     write_enabled = models.BooleanField(
         verbose_name=_('write enabled'),
         default=True,
-        help_text=_('Permit create/update/delete operations using this key')
+        help_text=_('Permit create/update/delete operations using this token')
     )
     # For legacy v1 tokens, this field stores the plaintext 40-char token value. Not used for v2.
     plaintext = models.CharField(

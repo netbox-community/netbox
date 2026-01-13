@@ -123,7 +123,7 @@ class UserTokenForm(forms.ModelForm):
     token = forms.CharField(
         label=_('Token'),
         help_text=_(
-            'Tokens must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
+            'Tokens must be at least 40 characters in length. <strong>Be sure to record your token</strong> prior to '
             'submitting this form, as it will no longer be accessible once the token has been created.'
         ),
         widget=forms.TextInput(
