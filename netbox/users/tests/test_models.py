@@ -1,9 +1,10 @@
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
+from users.choices import TokenVersionChoices
 from users.models import User, Token
 from utilities.testing import create_test_user
 
@@ -93,6 +94,15 @@ class TokenTest(TestCase):
 
         token.refresh_from_db()
         self.assertEqual(token.description, 'New Description')
+
+    @override_settings(API_TOKEN_PEPPERS={})
+    def test_v2_without_peppers_configured(self):
+        """
+        Attempting to save a v2 token without API_TOKEN_PEPPERS defined should raise a ValidationError.
+        """
+        token = Token(version=TokenVersionChoices.V2)
+        with self.assertRaises(ValidationError):
+            token.clean()
 
 
 class UserConfigTest(TestCase):
