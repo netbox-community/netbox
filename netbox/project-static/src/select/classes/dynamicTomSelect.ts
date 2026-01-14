@@ -102,14 +102,10 @@ export class DynamicTomSelect extends TomSelect {
       .then(apiData => {
         const results: Dict[] = apiData.results;
 
-        // Add options and set $order to preserve API response order
-        results.forEach((result, index) => {
+        // Add options (TomSelect automatically preserves insertion order via $order)
+        results.forEach((result) => {
           const option = self.getOptionFromData(result);
           self.addOption(option);
-          const key = option[self.settings.valueField as string] as string;
-          if (self.options[key]) {
-            (self.options[key] as any).$order = index;
-          }
         });
 
         if (self.loading > 0) {

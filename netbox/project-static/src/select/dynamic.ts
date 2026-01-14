@@ -49,6 +49,9 @@ export function initDynamicSelects(): void {
       labelField: LABEL_FIELD,
       maxOptions: MAX_OPTIONS,
 
+      // Preserve API response order
+      sortField: '$order',
+
       // Disable local search (search is performed on the backend)
       searchField: [],
 
