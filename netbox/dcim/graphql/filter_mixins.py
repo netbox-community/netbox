@@ -38,6 +38,15 @@ class ScopedFilterMixin:
 
 @dataclass
 class ComponentModelFilterMixin:
+    _site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='site')
+    )
+    _location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='location')
+    )
+    _rack: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='rack')
+    )
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()
