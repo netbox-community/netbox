@@ -44,3 +44,4 @@ class DataFileSerializer(NetBoxModelSerializer):
             'id', 'url', 'display_url', 'display', 'source', 'path', 'last_updated', 'size', 'hash',
         ]
         brief_fields = ('id', 'url', 'display', 'path')
+        read_only_fields = ['path', 'last_updated', 'size', 'hash']
