@@ -75,6 +75,9 @@ export class DynamicTomSelect extends TomSelect {
   load(value: string) {
     const self = this;
 
+    // Save current selection before clearing
+    const currentValue = self.getValue();
+
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
     self.clearOptions();
@@ -102,15 +105,25 @@ export class DynamicTomSelect extends TomSelect {
       .then(apiData => {
         const results: Dict[] = apiData.results;
 
-        // Add options directly (TomSelect automatically sets $order based on insertion order)
-        for (const result of results) {
+        // Add options and manually set $order to ensure correct sorting
+        results.forEach((result, index) => {
           const option = self.getOptionFromData(result);
           self.addOption(option);
-        }
+          // Set $order after addOption() to override any special handling of pre-selected items
+          const key = option[self.settings.valueField as string] as string;
+          if (self.options[key]) {
+            (self.options[key] as any).$order = index;
+          }
+        });
 
         self.loading--;
         if (self.loading === 0) {
           self.wrapper.classList.remove(self.settings.loadingClass as string);
+        }
+
+        // Restore the current selection
+        if (currentValue && !self.items.includes(currentValue as string)) {
+          self.items.push(currentValue as string);
         }
 
         self.refreshOptions(false);
