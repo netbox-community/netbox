@@ -28,7 +28,7 @@ class ConfigContextProfileSerializer(PrimaryModelSerializer):
     )
     data_file = DataFileSerializer(
         nested=True,
-        read_only=True
+        required=False
     )
 
     class Meta:
@@ -143,7 +143,7 @@ class ConfigContextSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedM
     )
     data_file = DataFileSerializer(
         nested=True,
-        read_only=True
+        required=False
     )
 
     class Meta:
