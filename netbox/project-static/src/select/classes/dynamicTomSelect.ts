@@ -79,6 +79,9 @@ export class DynamicTomSelect extends TomSelect {
     // in the API response should be present.)
     self.clearOptions();
 
+    // Clear user_options to prevent the pre-selected option from being treated specially
+    (self as any).user_options = {};
+
     // Populate the null option (if any) if not searching
     if (self.nullOption && !value) {
       self.addOption(self.nullOption);
@@ -98,16 +101,19 @@ export class DynamicTomSelect extends TomSelect {
       .then(response => response.json())
       .then(apiData => {
         const results: Dict[] = apiData.results;
-        const options: Dict[] = [];
+
+        // Add options directly (TomSelect automatically sets $order based on insertion order)
         for (const result of results) {
           const option = self.getOptionFromData(result);
-          options.push(option);
+          self.addOption(option);
         }
-        return options;
-      })
-      // Pass the options to the callback function
-      .then(options => {
-        self.loadCallback(options, []);
+
+        self.loading--;
+        if (self.loading === 0) {
+          self.wrapper.classList.remove(self.settings.loadingClass as string);
+        }
+
+        self.refreshOptions(false);
       })
       .catch(() => {
         self.loadCallback([], []);
