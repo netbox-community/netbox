@@ -1124,9 +1124,8 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
         ),
     )
 
-    # Override FrontPortFormMixin attrs
     port_mapping_model = PortTemplateMapping
-    parent_field = 'device_type'
+    rear_port_model = RearPortTemplate
 
     class Meta:
         model = FrontPortTemplate
@@ -1137,13 +1136,14 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Populate rear port choices based on parent DeviceType or ModuleType
         if device_type_id := self.data.get('device_type') or self.initial.get('device_type'):
-            device_type = DeviceType.objects.get(pk=device_type_id)
+            parent_filter = Q(device_type=device_type_id)
+        elif module_type_id := self.data.get('module_type') or self.initial.get('module_type'):
+            parent_filter = Q(module_type=module_type_id)
         else:
             return
-
-        # Populate rear port choices
-        self.fields['rear_ports'].choices = self._get_rear_port_choices(device_type, self.instance)
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(parent_filter, self.instance)
 
         # Set initial rear port mappings
         if self.instance.pk:
@@ -1151,27 +1151,6 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
                 f'{mapping.rear_port_id}:{mapping.rear_port_position}'
                 for mapping in PortTemplateMapping.objects.filter(front_port_id=self.instance.pk)
             ]
-
-    def _get_rear_port_choices(self, device_type, front_port):
-        """
-        Return a list of choices representing each available rear port & position pair on the device type, excluding
-        those assigned to the specified instance.
-        """
-        occupied_rear_port_positions = [
-            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
-            for mapping in device_type.port_mappings.exclude(front_port=front_port.pk)
-        ]
-
-        choices = []
-        for rear_port in RearPortTemplate.objects.filter(device_type=device_type):
-            for i in range(1, rear_port.positions + 1):
-                pair_id = f'{rear_port.pk}:{i}'
-                if pair_id not in occupied_rear_port_positions:
-                    pair_label = f'{rear_port.name}:{i}'
-                    choices.append(
-                        (pair_id, pair_label)
-                    )
-        return choices
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
@@ -1619,6 +1598,9 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
         ),
     )
 
+    port_mapping_model = PortMapping
+    rear_port_model = RearPort
+
     class Meta:
         model = FrontPort
         fields = [
@@ -1629,13 +1611,12 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Populate rear port choices
         if device_id := self.data.get('device') or self.initial.get('device'):
-            device = Device.objects.get(pk=device_id)
+            parent_filter = Q(device=device_id)
         else:
             return
-
-        # Populate rear port choices
-        self.fields['rear_ports'].choices = self._get_rear_port_choices(device, self.instance)
+        self.fields['rear_ports'].choices = self._get_rear_port_choices(parent_filter, self.instance)
 
         # Set initial rear port mappings
         if self.instance.pk:
@@ -1643,27 +1624,6 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
                 f'{mapping.rear_port_id}:{mapping.rear_port_position}'
                 for mapping in PortMapping.objects.filter(front_port_id=self.instance.pk)
             ]
-
-    def _get_rear_port_choices(self, device, front_port):
-        """
-        Return a list of choices representing each available rear port & position pair on the device, excluding those
-        assigned to the specified instance.
-        """
-        occupied_rear_port_positions = [
-            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
-            for mapping in device.port_mappings.exclude(front_port=front_port.pk)
-        ]
-
-        choices = []
-        for rear_port in RearPort.objects.filter(device=device):
-            for i in range(1, rear_port.positions + 1):
-                pair_id = f'{rear_port.pk}:{i}'
-                if pair_id not in occupied_rear_port_positions:
-                    pair_label = f'{rear_port.name}:{i}'
-                    choices.append(
-                        (pair_id, pair_label)
-                    )
-        return choices
 
 
 class RearPortForm(ModularDeviceComponentForm):
