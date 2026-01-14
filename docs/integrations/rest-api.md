@@ -610,9 +610,7 @@ http://netbox/api/dcim/sites/ \
 
 ## Changelog Messages
 
-!!! info "This feature was introduced in NetBox v4.4."
-
-Most objects in NetBox support [change logging](../features/change-logging.md), which generates a detailed record each time an object is created, modified, or deleted. Beginning in NetBox v4.4, users can attach a message to the change record as well. This is accomplished via the REST API by including a `changelog_message` field in the object representation.
+Most objects in NetBox support [change logging](../features/change-logging.md), which generates a detailed record each time an object is created, modified, or deleted. Additionally, users can attach a message to the change record as well. This is accomplished via the REST API by including a `changelog_message` field in the object representation.
 
 For example, the following API request will create a new site and record a message in the resulting changelog entry:
 
@@ -628,7 +626,7 @@ http://netbox/api/dcim/sites/ \
 }'
 ```
 
-This approach works when creating, modifying, or deleting objects, either individually or in bulk.
+This approach works when creating, modifying, or deleting objects, either individually or in bulk. For more information about change logging, see [Change Logging](../features/change-logging.md).
 
 ## Uploading Files
 

@@ -69,7 +69,7 @@ class Token(models.Model):
     write_enabled = models.BooleanField(
         verbose_name=_('write enabled'),
         default=True,
-        help_text=_('Permit create/update/delete operations using this key')
+        help_text=_('Permit create/update/delete operations using this token')
     )
     # For legacy v1 tokens, this field stores the plaintext 40-char token value. Not used for v2.
     plaintext = models.CharField(
@@ -212,6 +212,9 @@ class Token(models.Model):
 
     def clean(self):
         super().clean()
+
+        if self.version == TokenVersionChoices.V2 and not settings.API_TOKEN_PEPPERS:
+            raise ValidationError(_("Unable to save v2 tokens: API_TOKEN_PEPPERS is not defined."))
 
         if self._state.adding:
             if self.pepper_id is not None and self.pepper_id not in settings.API_TOKEN_PEPPERS:

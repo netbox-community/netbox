@@ -10,9 +10,11 @@ Change records are exposed in the API via the read-only endpoint `/api/extras/ob
 
 ## User Messages
 
-!!! info "This feature was introduced in NetBox v4.4."
+When creating, modifying, or deleting an object in NetBox, a user has the option of recording an arbitrary message (up to 200 characters) that will appear in the change record. This can be helpful to capture additional context, such as the reason for a change or a reference to an external ticket.
 
-When creating, modifying, or deleting an object in NetBox, a user has the option of recording an arbitrary message that will appear in the change record. This can be helpful to capture additional context, such as the reason for the change.
+When editing an object via the web UI, the "Changelog message" field appears at the bottom of the form. This field is optional. The changelog message field is available in object create forms, object edit forms, delete confirmation dialogs, and bulk operations.
+
+For information on including changelog messages when making changes via the REST API, see [Changelog Messages](../integrations/rest-api.md#changelog-messages).
 
 ## Correlating Changes by Request
 
