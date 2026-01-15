@@ -722,6 +722,16 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
+    def clean(self):
+        super().clean()
+
+        # If rack is cleared, also clear position and face
+        if not self.cleaned_data.get('rack'):
+            self.cleaned_data['position'] = None
+            self.cleaned_data['face'] = ''
+
+        return self.cleaned_data
+
 
 class ModuleForm(ModuleCommonForm, PrimaryModelForm):
     device = DynamicModelChoiceField(
