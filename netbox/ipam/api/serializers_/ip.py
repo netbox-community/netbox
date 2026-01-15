@@ -145,8 +145,8 @@ class IPRangeSerializer(PrimaryModelSerializer):
         model = IPRange
         fields = [
             'id', 'url', 'display_url', 'display', 'family', 'prefix', 'start_address', 'end_address', 'size', 'vrf',
-            'tenant', 'status', 'role', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'mark_populated', 'mark_utilized',
+            'tenant', 'status', 'role', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'mark_populated', 'mark_utilized',
         ]
         brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'start_address', 'end_address', 'description')
 

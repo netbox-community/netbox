@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0083_ipaddress_iprange_prefix_parent_data'),
+        ('ipam', '0088_ipaddress_iprange_prefix_parent_data'),
     ]
 
     operations = [
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             trigger=pgtrigger.compiler.Trigger(
                 name='ipam_prefix_delete',
                 sql=pgtrigger.compiler.UpsertTriggerSql(
-                    func="\n-- Update Child Prefix's with Prefix's PARENT\nUPDATE ipam_prefix SET parent_id=OLD.parent_id WHERE parent_id=OLD.id;\nRETURN OLD;\n",    # noqa: E501
+                    func="\n-- Update Child Prefix's with Prefix's PARENT\nUPDATE ipam_prefix SET parent_id=OLD.parent_id WHERE parent_id=OLD.id;\nRETURN OLD;\n",  # noqa: E501
                     hash='899e1943cb201118be7ef02f36f49747224774f2',
                     operation='DELETE',
                     pgid='pgtrigger_ipam_prefix_delete_e7810',
@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             trigger=pgtrigger.compiler.Trigger(
                 name='ipam_prefix_insert',
                 sql=pgtrigger.compiler.UpsertTriggerSql(
-                    func="\nUPDATE ipam_prefix\nSET parent_id=NEW.id \nWHERE \n    prefix << NEW.prefix\n    AND\n    (\n        (vrf_id = NEW.vrf_id OR (vrf_id IS NULL AND NEW.vrf_id IS NULL))\n        OR\n        (\n            NEW.vrf_id IS NULL\n            AND\n            NEW.status = 'container'\n            AND\n            NOT EXISTS(\n                SELECT 1 FROM ipam_prefix p WHERE p.prefix >> ipam_prefix.prefix AND p.vrf_id = ipam_prefix.vrf_id\n            )\n        )\n    )\n    AND id != NEW.id\n    AND NOT EXISTS (\n        SELECT 1 FROM ipam_prefix p\n        WHERE\n            p.prefix >> ipam_prefix.prefix\n            AND p.prefix << NEW.prefix\n            AND (\n                (p.vrf_id = ipam_prefix.vrf_id OR (p.vrf_id IS NULL AND ipam_prefix.vrf_id IS NULL))\n                OR\n                (p.vrf_id IS NULL AND p.status = 'container')\n            )\n            AND p.id != NEW.id\n    )\n;\nRETURN NEW;\n",    # noqa: E501
+                    func="\nUPDATE ipam_prefix\nSET parent_id=NEW.id \nWHERE \n    prefix << NEW.prefix\n    AND\n    (\n        (vrf_id = NEW.vrf_id OR (vrf_id IS NULL AND NEW.vrf_id IS NULL))\n        OR\n        (\n            NEW.vrf_id IS NULL\n            AND\n            NEW.status = 'container'\n            AND\n            NOT EXISTS(\n                SELECT 1 FROM ipam_prefix p WHERE p.prefix >> ipam_prefix.prefix AND p.vrf_id = ipam_prefix.vrf_id\n            )\n        )\n    )\n    AND id != NEW.id\n    AND NOT EXISTS (\n        SELECT 1 FROM ipam_prefix p\n        WHERE\n            p.prefix >> ipam_prefix.prefix\n            AND p.prefix << NEW.prefix\n            AND (\n                (p.vrf_id = ipam_prefix.vrf_id OR (p.vrf_id IS NULL AND ipam_prefix.vrf_id IS NULL))\n                OR\n                (p.vrf_id IS NULL AND p.status = 'container')\n            )\n            AND p.id != NEW.id\n    )\n;\nRETURN NEW;\n",  # noqa: E501
                     hash='0e05bbe61861227a9eb710b6c94bae9e0cc7119e',
                     operation='INSERT',
                     pgid='pgtrigger_ipam_prefix_insert_46c72',

@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0082_add_prefix_network_containment_indexes'),
+        ('ipam', '0086_gfk_indexes'),
     ]
 
     operations = [

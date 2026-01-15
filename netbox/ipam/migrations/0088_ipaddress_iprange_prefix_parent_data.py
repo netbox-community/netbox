@@ -95,10 +95,8 @@ def set_prefix_parent(apps, schema_editor):
     for address in addresses:
         i += 1
         prefixes = Prefix.objects.exclude(pk=address.pk).filter(
-            models.Q(
-                vrf=address.vrf,
-                prefix__net_contains=str(address.prefix.ip)
-            ) | models.Q(
+            models.Q(vrf=address.vrf, prefix__net_contains=str(address.prefix.ip))
+            | models.Q(
                 vrf=None,
                 status=PrefixStatusChoices.STATUS_CONTAINER,
                 prefix__net_contains=str(address.prefix.ip),
@@ -123,7 +121,7 @@ def unset_prefix_parent(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0083_ipaddress_iprange_prefix_parent'),
+        ('ipam', '0087_ipaddress_iprange_prefix_parent'),
     ]
 
     operations = [

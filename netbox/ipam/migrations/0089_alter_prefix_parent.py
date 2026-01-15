@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0084_prefix_ipam_prefix_delete_prefix_ipam_prefix_insert'),
+        ('ipam', '0089_prefix_ipam_prefix_delete_prefix_ipam_prefix_insert'),
     ]
 
     operations = [

@@ -369,7 +369,7 @@ class IPAddressTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable
         model = IPAddress
         fields = (
             'pk', 'id', 'address', 'vrf', 'prefix', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside',
-            'nat_outside', 'assigned', 'dns_name', 'description', 'comments', 'contacts','tags', 'created', 
+            'nat_outside', 'assigned', 'dns_name', 'description', 'comments', 'contacts', 'tags', 'created',
             'last_updated',
         )
         default_columns = (
