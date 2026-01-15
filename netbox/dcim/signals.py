@@ -211,12 +211,16 @@ def sync_cached_scope_fields(instance, created, **kwargs):
     for model in (Prefix, Cluster, WirelessLAN):
         qs = model.objects.filter(**filters)
 
+        # Bulk update cached fields to avoid O(N) performance issues with large datasets.
+        # This does not trigger post_save signals, avoiding spurious change log entries.
+        objects_to_update = []
         for obj in qs:
             # Recompute cache using the same logic as save()
             obj.cache_related_objects()
-            obj.save(update_fields=[
-                '_location',
-                '_site',
-                '_site_group',
-                '_region',
-            ])
+            objects_to_update.append(obj)
+
+        if objects_to_update:
+            model.objects.bulk_update(
+                objects_to_update,
+                ['_location', '_site', '_site_group', '_region']
+            )
