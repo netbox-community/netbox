@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-13 05:05+0000\n"
+"POT-Creation-Date: 2026-01-15 05:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12489,8 +12489,8 @@ msgstr ""
 msgid "Delete Selected"
 msgstr ""
 
-#: netbox/netbox/plugins/navigation.py:55
-#: netbox/netbox/plugins/navigation.py:88
+#: netbox/netbox/plugins/navigation.py:53
+#: netbox/netbox/plugins/navigation.py:89
 msgid "Permissions must be passed as a tuple or list."
 msgstr ""
 
@@ -12498,7 +12498,7 @@ msgstr ""
 msgid "Buttons must be passed as a tuple or list."
 msgstr ""
 
-#: netbox/netbox/plugins/navigation.py:92
+#: netbox/netbox/plugins/navigation.py:95
 msgid "Button color must be a choice within ButtonColorChoices."
 msgstr ""
 
