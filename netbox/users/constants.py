@@ -3,9 +3,10 @@ import string
 from django.db.models import Q
 
 
-OBJECTPERMISSION_OBJECT_TYPES = Q(
-    ~Q(app_label__in=['account', 'admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']) |
-    Q(app_label='users', model__in=['objectpermission', 'token', 'group', 'user', 'owner'])
+OBJECTPERMISSION_OBJECT_TYPES = (
+    (Q(public=True) & ~Q(app_label='core', model='objecttype'))
+    | Q(app_label='core', model__in=['managedfile'])
+    | Q(app_label='extras', model__in=['scriptmodule', 'taggeditem'])
 )
 
 CONSTRAINT_TOKEN_USER = '$user'
