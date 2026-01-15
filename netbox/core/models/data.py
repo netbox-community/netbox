@@ -12,7 +12,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
@@ -128,7 +128,9 @@ class DataSource(JobsMixin, PrimaryModel):
         # Ensure URL scheme matches selected type
         if self.backend_class.is_local and self.url_scheme not in ('file', ''):
             raise ValidationError({
-                'source_url': "URLs for local sources must start with file:// (or specify no scheme)"
+                'source_url': _("URLs for local sources must start with {scheme} (or specify no scheme)").format(
+                    scheme='file://'
+                )
             })
 
     def save(self, *args, **kwargs):
