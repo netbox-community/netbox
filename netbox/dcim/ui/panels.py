@@ -31,7 +31,7 @@ class RackDimensionsPanel(panels.ObjectAttributesPanel):
     outer_width = attrs.NumericAttr('outer_width', unit_accessor='get_outer_unit_display')
     outer_height = attrs.NumericAttr('outer_height', unit_accessor='get_outer_unit_display')
     outer_depth = attrs.NumericAttr('outer_depth', unit_accessor='get_outer_unit_display')
-    mounting_depth = attrs.TextAttr('mounting_depth', format_string='{} mm')
+    mounting_depth = attrs.TextAttr('mounting_depth', format_string=_('{} millimeters'))
 
 
 class RackNumberingPanel(panels.ObjectAttributesPanel):
