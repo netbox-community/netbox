@@ -400,7 +400,7 @@ class AvailablePrefixesView(AvailableObjectsView):
 class AvailableIPAddressesView(AvailableObjectsView):
     queryset = IPAddress.objects.all()
     read_serializer_class = serializers.AvailableIPSerializer
-    write_serializer_class = serializers.AvailableIPSerializer
+    write_serializer_class = serializers.PrefixLengthSerializer
     advisory_lock_key = 'available-ips'
 
     def get_available_objects(self, parent, limit=None):
@@ -415,14 +415,17 @@ class AvailableIPAddressesView(AvailableObjectsView):
     def get_extra_context(self, parent):
         return {
             'parent': parent,
+            'prefix': parent,  # Also pass as 'prefix' for PrefixLengthSerializer compatibility
             'vrf': parent.vrf,
         }
 
     def prep_object_data(self, requested_objects, available_objects, parent):
         available_ips = iter(available_objects)
         for i, request_data in enumerate(requested_objects):
+            # Use requested prefix_length if provided, otherwise fall back to parent mask_length
+            prefix_length = request_data.get('prefix_length', parent.mask_length)
             request_data.update({
-                'address': f'{next(available_ips)}/{parent.mask_length}',
+                'address': f'{next(available_ips)}/{prefix_length}',
                 'vrf': parent.vrf.pk if parent.vrf else None,
             })
 
@@ -435,7 +438,7 @@ class AvailableIPAddressesView(AvailableObjectsView):
     @extend_schema(
         methods=["post"],
         responses={201: serializers.IPAddressSerializer(many=True)},
-        request=serializers.IPAddressSerializer(many=True),
+        request=serializers.PrefixLengthSerializer(many=True),
     )
     def post(self, request, pk):
         return super().post(request, pk)
