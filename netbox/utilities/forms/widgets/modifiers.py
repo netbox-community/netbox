@@ -94,8 +94,37 @@ class FilterModifierWidget(forms.Widget):
         # to the original widget before rendering
         self.original_widget.attrs.update(self.attrs)
 
+        # For APISelect widgets, temporarily clear choices to prevent queryset evaluation
+        from utilities.forms.widgets import APISelect
+        original_choices = None
+        if isinstance(self.original_widget, APISelect):
+            original_choices = self.original_widget.choices
+
+            # Only keep selected choices to preserve current selection in HTML
+            if value:
+                values = value if isinstance(value, (list, tuple)) else [value]
+
+                if hasattr(original_choices, 'queryset'):
+                    queryset = original_choices.queryset
+                    selected_objects = queryset.filter(pk__in=values)
+                    # Build minimal choice list with just the selected values
+                    self.original_widget.choices = [
+                        (obj.pk, str(obj)) for obj in selected_objects
+                    ]
+                else:
+                    self.original_widget.choices = [
+                        choice for choice in original_choices if choice[0] in values
+                    ]
+            else:
+                # No selection - render empty select element
+                self.original_widget.choices = []
+
         # Get context from the original widget
         original_context = self.original_widget.get_context(name, value, attrs)
+
+        # Restore original choices if we modified them
+        if original_choices is not None:
+            self.original_widget.choices = original_choices
 
         # Build our wrapper context
         context = super().get_context(name, value, attrs)

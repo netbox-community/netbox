@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from utilities.forms.fields import ColorField, QueryField, TagFilterField
-from utilities.forms.widgets import APISelect, APISelectMultiple, FilterModifierWidget
+from utilities.forms.widgets import FilterModifierWidget
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
@@ -197,11 +197,6 @@ class FilterModifierMixin:
                 lookups = self._verify_lookups_with_filterset(field_name, lookups, filterset)
 
                 if len(lookups) > 1:
-                    # These widgets are designed for client-side API-driven population and should not
-                    # have their choices rendered server-side.
-                    if isinstance(field.widget, (APISelect, APISelectMultiple)):
-                        continue
-
                     field.widget = FilterModifierWidget(
                         widget=field.widget,
                         lookups=lookups
