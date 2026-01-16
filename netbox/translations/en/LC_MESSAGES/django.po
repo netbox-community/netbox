@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-15 05:05+0000\n"
+"POT-Creation-Date: 2026-01-16 05:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2435,7 +2435,7 @@ msgstr ""
 msgid "Change logging is not supported for this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/config.py:21 netbox/core/models/data.py:282
+#: netbox/core/models/config.py:21 netbox/core/models/data.py:284
 #: netbox/core/models/files.py:29 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:847 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
@@ -2541,58 +2541,63 @@ msgstr ""
 msgid "Unknown backend type: {type}"
 msgstr ""
 
-#: netbox/core/models/data.py:180
+#: netbox/core/models/data.py:131
+#, python-brace-format
+msgid "URLs for local sources must start with {scheme} (or specify no scheme)"
+msgstr ""
+
+#: netbox/core/models/data.py:182
 msgid "Cannot initiate sync; syncing already in progress."
 msgstr ""
 
-#: netbox/core/models/data.py:193
+#: netbox/core/models/data.py:195
 msgid ""
 "There was an error initializing the backend. A dependency needs to be "
 "installed: "
 msgstr ""
 
-#: netbox/core/models/data.py:286 netbox/core/models/files.py:33
+#: netbox/core/models/data.py:288 netbox/core/models/files.py:33
 #: netbox/netbox/models/features.py:67
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:296 netbox/dcim/models/cables.py:622
+#: netbox/core/models/data.py:298 netbox/dcim/models/cables.py:622
 msgid "path"
 msgstr ""
 
-#: netbox/core/models/data.py:299
+#: netbox/core/models/data.py:301
 msgid "File path relative to the data source's root"
 msgstr ""
 
-#: netbox/core/models/data.py:303 netbox/ipam/models/ip.py:507
+#: netbox/core/models/data.py:305 netbox/ipam/models/ip.py:507
 msgid "size"
 msgstr ""
 
-#: netbox/core/models/data.py:306
+#: netbox/core/models/data.py:308
 msgid "hash"
 msgstr ""
 
-#: netbox/core/models/data.py:310
+#: netbox/core/models/data.py:312
 msgid "Length must be 64 hexadecimal characters."
 msgstr ""
 
-#: netbox/core/models/data.py:312
+#: netbox/core/models/data.py:314
 msgid "SHA256 hash of the file data"
 msgstr ""
 
-#: netbox/core/models/data.py:326
+#: netbox/core/models/data.py:328
 msgid "data file"
 msgstr ""
 
-#: netbox/core/models/data.py:327
+#: netbox/core/models/data.py:329
 msgid "data files"
 msgstr ""
 
-#: netbox/core/models/data.py:400
+#: netbox/core/models/data.py:402
 msgid "auto sync record"
 msgstr ""
 
-#: netbox/core/models/data.py:401
+#: netbox/core/models/data.py:403
 msgid "auto sync records"
 msgstr ""
 
@@ -11240,7 +11245,13 @@ msgid ""
 "parent object"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:946
+#: netbox/ipam/models/ip.py:947
+msgid ""
+"Cannot reassign IP address while it is designated as the OOB IP for the "
+"parent object"
+msgstr ""
+
+#: netbox/ipam/models/ip.py:953
 msgid "Only IPv6 addresses can be assigned SLAAC status"
 msgstr ""
 
