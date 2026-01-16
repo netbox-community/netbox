@@ -538,7 +538,7 @@ class VLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         FieldSet('qinq_role', 'qinq_svlan_id', name=_('Q-in-Q/802.1ad')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
     )
-    selector_fields = ('filter_id', 'q', 'site_id')
+    selector_fields = ('filter_id', 'q', 'group_id')
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
