@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from utilities.forms.widgets.apiselect import APISelect, APISelectMultiple
+
 __all__ = (
     'FilterModifierWidget',
     'MODIFIER_EMPTY_FALSE',
@@ -94,10 +96,9 @@ class FilterModifierWidget(forms.Widget):
         # to the original widget before rendering
         self.original_widget.attrs.update(self.attrs)
 
-        # For APISelect widgets, temporarily clear choices to prevent queryset evaluation
-        from utilities.forms.widgets import APISelect
+        # For APISelect/APISelectMultiple widgets, temporarily clear choices to prevent queryset evaluation
         original_choices = None
-        if isinstance(self.original_widget, APISelect):
+        if isinstance(self.original_widget, (APISelect, APISelectMultiple)):
             original_choices = self.original_widget.choices
 
             # Only keep selected choices to preserve current selection in HTML
