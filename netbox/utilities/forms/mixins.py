@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from utilities.forms.fields import ColorField, QueryField, TagFilterField
-from utilities.forms.widgets import FilterModifierWidget
+from utilities.forms.widgets import APISelect, APISelectMultiple, FilterModifierWidget
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
@@ -188,15 +188,18 @@ class FilterModifierMixin:
             key = f'{model._meta.app_label}.{model._meta.model_name}'
             filterset_class = registry['filtersets'].get(key)
 
-        filterset = filterset_class() if filterset_class else None
-
         for field_name, field in self.fields.items():
             lookups = self._get_lookup_choices(field)
 
-            if filterset:
-                lookups = self._verify_lookups_with_filterset(field_name, lookups, filterset)
+            if filterset_class:
+                lookups = self._verify_lookups_with_filterset(field_name, lookups, filterset_class)
 
                 if len(lookups) > 1:
+                    # These widgets are designed for client-side API-driven population and should not
+                    # have their choices rendered server-side.
+                    if isinstance(field.widget, (APISelect, APISelectMultiple)):
+                        continue
+
                     field.widget = FilterModifierWidget(
                         widget=field.widget,
                         lookups=lookups
@@ -213,8 +216,14 @@ class FilterModifierMixin:
 
         return []
 
-    def _verify_lookups_with_filterset(self, field_name, lookups, filterset):
-        """Verify which lookups are actually supported by the FilterSet."""
+    def _verify_lookups_with_filterset(self, field_name, lookups, filterset_class):
+        """Verify which lookups are actually supported by the FilterSet.
+
+        Args:
+            field_name: The name of the form field
+            lookups: List of (lookup_code, lookup_label) tuples to verify
+            filterset_class: The FilterSet class (not instance) to check against
+        """
         verified_lookups = []
 
         for lookup_code, lookup_label in lookups:
@@ -223,7 +232,7 @@ class FilterModifierMixin:
             else:
                 filter_key = f'{field_name}__{lookup_code}' if lookup_code != 'exact' else field_name
 
-            if filter_key in filterset.filters:
+            if filter_key in filterset_class.base_filters:
                 verified_lookups.append((lookup_code, lookup_label))
 
         return verified_lookups
