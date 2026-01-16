@@ -224,7 +224,7 @@ class ConsoleServerPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.Device,
-    fields='__all__',
+    exclude=['_virtual_chassis_name', '_primary_ip4_address', '_primary_ip6_address'],
     filters=DeviceFilter,
     pagination=True
 )

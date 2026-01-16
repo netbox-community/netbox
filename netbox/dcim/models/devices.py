@@ -21,6 +21,7 @@ from dcim.fields import MACAddressField
 from dcim.utils import create_port_mappings, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
+from ipam.fields import IPAddressField
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
@@ -671,6 +672,19 @@ class Device(
         content_type_field='parent_object_type',
         object_id_field='parent_object_id',
         related_query_name='device',
+    )
+
+    # Denormalized fields
+    _virtual_chassis_name = models.CharField(
+        blank=True,
+    )
+    _primary_ip4_address = IPAddressField(
+        blank=True,
+        null=True,
+    )
+    _primary_ip6_address = IPAddressField(
+        blank=True,
+        null=True,
     )
 
     # Counter fields

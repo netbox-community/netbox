@@ -1331,13 +1331,14 @@ class DeviceFilterSet(
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(description__icontains=value.strip()) |
             Q(comments__icontains=value) |
-            Q(primary_ip4__address__startswith=value) |
-            Q(primary_ip6__address__startswith=value)
+            # Denormalized fields
+            Q(_virtual_chassis_name__icontains=value) |
+            Q(_primary_ip4_address__startswith=value) |
+            Q(_primary_ip6_address__startswith=value)
         ).distinct()
 
     def _has_primary_ip(self, queryset, name, value):

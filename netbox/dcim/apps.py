@@ -29,6 +29,15 @@ class DCIMConfig(AppConfig):
         denormalized.register(CableTermination, '_location', {
             '_site': 'site',
         })
+        denormalized.register(Device, 'virtual_chassis', {
+            '_virtual_chassis_name': 'name',
+        })
+        denormalized.register(Device, 'primary_ip4', {
+            '_primary_ip4_address': 'address',
+        })
+        denormalized.register(Device, 'primary_ip6', {
+            '_primary_ip6_address': 'address',
+        })
 
         # Register counters
         connect_counters(Device, DeviceType, ModuleType, RackType, VirtualChassis)
