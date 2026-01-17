@@ -1,0 +1,20 @@
+{% load i18n %}
+{% load helpers %}
+
+<div class="dropdown">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="max_depth" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        {% trans "Max Depth" %}{% if "depth__lte" in request.GET %}: {{ request.GET.depth__lte }}{% endif %}
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="max_depth">
+        {% if request.GET.depth__lte %}
+            <li>
+                <a class="dropdown-item" href="{{ request.path }}{% querystring request depth__lte=None page=1 %}">{% trans "Clear" %}</a>
+            </li>
+        {% endif %}
+        {% for i in 16|as_range %}
+            <li><a class="dropdown-item" href="{{ request.path }}{% querystring request depth__lte=i page=1 %}">
+                {{ i }} {% if request.GET.depth__lte == i %}<i class="mdi mdi-check-bold"></i>{% endif %}
+            </a></li>
+        {% endfor %}
+    </ul>
+</div>
