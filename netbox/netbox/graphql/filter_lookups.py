@@ -19,8 +19,11 @@ from strawberry_django import (
     process_filters,
 )
 
+from netbox.graphql.scalars import BigInt
+
 __all__ = (
     'ArrayLookup',
+    'BigIntegerLookup',
     'FloatArrayLookup',
     'FloatLookup',
     'IntegerArrayLookup',
@@ -60,6 +63,29 @@ class IntegerLookup:
     filter_lookup: FilterLookup[int] | None = strawberry_django.filter_field()
     range_lookup: RangeLookup[int] | None = strawberry_django.filter_field()
     comparison_lookup: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
+
+    def get_filter(self):
+        for field in self.__strawberry_definition__.fields:
+            value = getattr(self, field.name, None)
+            if value is not strawberry.UNSET:
+                return value
+        return None
+
+    @strawberry_django.filter_field
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+        filters = self.get_filter()
+
+        if not filters:
+            return queryset, Q()
+
+        return process_filters(filters=filters, queryset=queryset, info=info, prefix=prefix)
+
+
+@strawberry.input(one_of=True, description='Lookup for BigInteger fields. Only one of the lookup fields can be set.')
+class BigIntegerLookup:
+    filter_lookup: FilterLookup[BigInt] | None = strawberry_django.filter_field()
+    range_lookup: RangeLookup[BigInt] | None = strawberry_django.filter_field()
+    comparison_lookup: ComparisonFilterLookup[BigInt] | None = strawberry_django.filter_field()
 
     def get_filter(self):
         for field in self.__strawberry_definition__.fields:
