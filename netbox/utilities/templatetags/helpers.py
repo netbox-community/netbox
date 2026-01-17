@@ -216,17 +216,24 @@ def _humanize_megabytes(mb, divisor=1000):
     if not mb:
         return ""
 
+    if divisor == 1024:
+        unit = 'iB'
+        base_unit = 'MiB'
+    else:
+        unit = 'B'
+        base_unit = 'MB'
+
     PB_SIZE = divisor**3
     TB_SIZE = divisor**2
     GB_SIZE = divisor
 
     if mb >= PB_SIZE:
-        return f"{mb / PB_SIZE:.2f} PB"
+        return f"{mb / PB_SIZE:.2f} P{unit}"
     if mb >= TB_SIZE:
-        return f"{mb / TB_SIZE:.2f} TB"
+        return f"{mb / TB_SIZE:.2f} T{unit}"
     if mb >= GB_SIZE:
-        return f"{mb / GB_SIZE:.2f} GB"
-    return f"{mb} MB"
+        return f"{mb / GB_SIZE:.2f} G{unit}"
+    return f"{mb} {base_unit}"
 
 
 @register.filter()
