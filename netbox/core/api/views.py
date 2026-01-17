@@ -11,7 +11,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet
 from rq.job import Job as RQ_Job
 from rq.worker import Worker
 
@@ -64,7 +63,7 @@ class DataFileViewSet(NetBoxReadOnlyModelViewSet):
     filterset_class = filtersets.DataFileFilterSet
 
 
-class JobViewSet(ReadOnlyModelViewSet):
+class JobViewSet(NetBoxReadOnlyModelViewSet):
     """
     Retrieve a list of job results
     """
@@ -73,19 +72,20 @@ class JobViewSet(ReadOnlyModelViewSet):
     filterset_class = filtersets.JobFilterSet
 
 
-class ObjectChangeViewSet(ReadOnlyModelViewSet):
+class ObjectChangeViewSet(NetBoxReadOnlyModelViewSet):
     """
     Retrieve a list of recent changes.
     """
     metadata_class = ContentTypeMetadata
+    queryset = ObjectChange.objects.all()
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
 
     def get_queryset(self):
-        return ObjectChange.objects.valid_models()
+        return super().get_queryset().valid_models()
 
 
-class ObjectTypeViewSet(ReadOnlyModelViewSet):
+class ObjectTypeViewSet(NetBoxReadOnlyModelViewSet):
     """
     Read-only list of ObjectTypes.
     """
@@ -93,6 +93,16 @@ class ObjectTypeViewSet(ReadOnlyModelViewSet):
     queryset = ObjectType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ObjectTypeSerializer
     filterset_class = filtersets.ObjectTypeFilterSet
+
+    def initial(self, request, *args, **kwargs):
+        """
+        Override initial() to skip the restrict() call since ObjectType (a ContentType proxy)
+        doesn't use RestrictedQuerySet and is publicly accessible metadata.
+        """
+        # Call GenericViewSet.initial() directly, skipping BaseViewSet.initial()
+        # which would try to call restrict() on the queryset
+        from rest_framework.viewsets import GenericViewSet
+        GenericViewSet.initial(self, request, *args, **kwargs)
 
 
 class BaseRQViewSet(viewsets.ViewSet):
