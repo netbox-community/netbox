@@ -4,6 +4,17 @@ from extras.choices import LogLevelChoices
 # Custom fields
 CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 
+# ImageAttachment
+IMAGE_ATTACHMENT_IMAGE_FORMATS = {
+    'avif': 'image/avif',
+    'bmp': 'image/bmp',
+    'gif': 'image/gif',
+    'jpeg': 'image/jpeg',
+    'jpg': 'image/jpeg',
+    'png': 'image/png',
+    'webp': 'image/webp',
+}
+
 # Template Export
 DEFAULT_MIME_TYPE = 'text/plain; charset=utf-8'
 

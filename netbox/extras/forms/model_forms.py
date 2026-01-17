@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms.mixins import SyncedDataMixin
 from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
@@ -784,8 +785,11 @@ class ImageAttachmentForm(forms.ModelForm):
         fields = [
             'image', 'name', 'description',
         ]
-        help_texts = {
-            'name': _("If no name is specified, the file name will be used.")
+        # Explicitly set 'image/avif' to support AVIF selection in Firefox
+        widgets = {
+            'image': forms.ClearableFileInput(
+                attrs={'accept': ','.join(sorted(set(IMAGE_ATTACHMENT_IMAGE_FORMATS.values())))}
+            ),
         }
 
 
