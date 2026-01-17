@@ -722,6 +722,9 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
+        # Clear face field when rack is cleared
+        self.fields['face'].widget.attrs['ts-clear-field'] = 'rack'
+
 
 class ModuleForm(ModuleCommonForm, PrimaryModelForm):
     device = DynamicModelChoiceField(
