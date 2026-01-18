@@ -18,7 +18,17 @@ They can also be used as a mechanism for validating the integrity of data within
 Custom scripts are Python code which exists outside the NetBox code base, so they can be updated and changed without interfering with the core NetBox installation. And because they're completely custom, there is no inherent limitation on what a script can accomplish.
 
 !!! danger "Only install trusted scripts"
-    Custom scripts have unrestricted access to change anything in the databse and are inherently unsafe and should only be installed and run from trusted sources.  You should also review and set permissions for who can run scripts if the script can modify any data.
+    Custom scripts have unrestricted access to change anything in the database and are inherently unsafe and should only be installed and run from trusted sources.  You should also review and set permissions for who can run scripts if the script can modify any data.
+
+!!! tip "Permissions for Custom Scripts"
+    A user can be granted permissions on all Custom Scripts via the "Managed File" object-level permission. To further restrict a user to only be able to access certain scripts, create an additional permission on the "Script" object type, with appropriate queryset-style constraints matching fields available on Script. For example:
+    ```json
+    {
+        "name__in": [
+            "MyScript"
+        ]
+    }
+    ```
 
 ## Writing Custom Scripts
 
