@@ -424,34 +424,40 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
     def save(self, *args, **kwargs):
         ipaddress = super().save(*args, **kwargs)
 
-        # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
         interface = self.instance.assigned_object
         if type(interface) in (Interface, VMInterface):
             parent = interface.parent_object
             parent.snapshot()
+            update_fields = []
+
+            # Assign/clear this IPAddress as the primary for the associated Device/VirtualMachine.
             if self.cleaned_data['primary_for_parent']:
                 if ipaddress.address.version == 4:
                     parent.primary_ip4 = ipaddress
+                    update_fields.append('primary_ip4')
                 else:
                     parent.primary_ip6 = ipaddress
-                parent.save()
+                    update_fields.append('primary_ip6')
             elif ipaddress.address.version == 4 and parent.primary_ip4 == ipaddress:
                 parent.primary_ip4 = None
-                parent.save()
+                update_fields.append('primary_ip4')
             elif ipaddress.address.version == 6 and parent.primary_ip6 == ipaddress:
                 parent.primary_ip6 = None
-                parent.save()
+                update_fields.append('primary_ip6')
 
-        # Assign/clear this IPAddress as the OOB for the associated Device
-        if type(interface) is Interface:
-            parent = interface.parent_object
-            parent.snapshot()
-            if self.cleaned_data['oob_for_parent']:
-                parent.oob_ip = ipaddress
-                parent.save()
-            elif parent.oob_ip == ipaddress:
-                parent.oob_ip = None
-                parent.save()
+            # Assign/clear this IPAddress as the OOB for the associated Device
+            if type(interface) is Interface:
+                if self.cleaned_data['oob_for_parent']:
+                    parent.oob_ip = ipaddress
+                    update_fields.append('oob_ip')
+                elif parent.oob_ip == ipaddress:
+                    parent.oob_ip = None
+                    update_fields.append('oob_ip')
+
+            # Save the parent object if appropriate. Update only the relevant fields to avoid conflicts with e.g.
+            # denormalized data on the parent object.
+            if update_fields:
+                parent.save(update_fields=update_fields)
 
         return ipaddress
 
