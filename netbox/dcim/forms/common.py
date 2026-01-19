@@ -139,14 +139,9 @@ class ModuleCommonForm(forms.Form):
                             )
                         )
 
-                    if token_count == 1:
-                        # Single token: substitute with full path (e.g., "1/1" for depth 2)
-                        full_path = '/'.join([mb.position for mb in module_bays])
-                        resolved_name = resolved_name.replace(MODULE_TOKEN, full_path, 1)
-                    else:
-                        # Multiple tokens: substitute level-by-level (existing behavior)
-                        for mb in module_bays:
-                            resolved_name = resolved_name.replace(MODULE_TOKEN, mb.position, 1)
+                    # Use centralized helper for token substitution
+                    positions = [mb.position for mb in module_bays]
+                    resolved_name = resolve_module_token(resolved_name, positions)
 
                 existing_item = installed_components.get(resolved_name)
 

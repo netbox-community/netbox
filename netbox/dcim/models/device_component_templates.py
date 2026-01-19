@@ -170,41 +170,17 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         return modules
 
     def resolve_name(self, module):
-        if MODULE_TOKEN not in self.name:
-            return self.name
-
+        """Resolve {module} placeholder(s) in component name."""
         if module:
-            modules = self._get_module_tree(module)
-            token_count = self.name.count(MODULE_TOKEN)
-            name = self.name
-            if token_count == 1:
-                # Single token: substitute with full path (e.g., "1/1" for depth 2)
-                full_path = '/'.join([m.module_bay.position for m in modules])
-                name = name.replace(MODULE_TOKEN, full_path, 1)
-            else:
-                # Multiple tokens: substitute level-by-level (existing behavior)
-                for m in modules:
-                    name = name.replace(MODULE_TOKEN, m.module_bay.position, 1)
-            return name
+            positions = [m.module_bay.position for m in self._get_module_tree(module)]
+            return resolve_module_token(self.name, positions)
         return self.name
 
     def resolve_label(self, module):
-        if MODULE_TOKEN not in self.label:
-            return self.label
-
+        """Resolve {module} placeholder(s) in component label."""
         if module:
-            modules = self._get_module_tree(module)
-            token_count = self.label.count(MODULE_TOKEN)
-            label = self.label
-            if token_count == 1:
-                # Single token: substitute with full path (e.g., "1/1" for depth 2)
-                full_path = '/'.join([m.module_bay.position for m in modules])
-                label = label.replace(MODULE_TOKEN, full_path, 1)
-            else:
-                # Multiple tokens: substitute level-by-level (existing behavior)
-                for m in modules:
-                    label = label.replace(MODULE_TOKEN, m.module_bay.position, 1)
-            return label
+            positions = [m.module_bay.position for m in self._get_module_tree(module)]
+            return resolve_module_token(self.label, positions)
         return self.label
 
     def resolve_position(self, position, module):
@@ -216,21 +192,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
         Fixes Issue #20467.
         """
-        if not position or MODULE_TOKEN not in position:
-            return position
-
         if module:
-            modules = self._get_module_tree(module)
-            token_count = position.count(MODULE_TOKEN)
-            if token_count == 1:
-                # Single token: substitute with full path
-                full_path = '/'.join([m.module_bay.position for m in modules])
-                position = position.replace(MODULE_TOKEN, full_path, 1)
-            else:
-                # Multiple tokens: substitute level-by-level
-                for m in modules:
-                    position = position.replace(MODULE_TOKEN, m.module_bay.position, 1)
-            return position
+            positions = [m.module_bay.position for m in self._get_module_tree(module)]
+            return resolve_module_token(position, positions)
         return position
 
 

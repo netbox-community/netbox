@@ -79,6 +79,41 @@ NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
 #
 
 MODULE_TOKEN = '{module}'
+MODULE_TOKEN_SEPARATOR = '/'
+
+
+def resolve_module_token(text, positions):
+    """
+    Substitute {module} tokens in text with position values.
+
+    Args:
+        text: String potentially containing {module} tokens
+        positions: List of position strings from the module tree (root to leaf)
+
+    Returns:
+        Text with {module} tokens replaced according to these rules:
+        - Single token: replaced with full path (positions joined by MODULE_TOKEN_SEPARATOR)
+        - Multiple tokens: replaced level-by-level (first token gets first position, etc.)
+
+    This centralizes the substitution logic used by both ModuleCommonForm.clean()
+    and ModularComponentTemplateModel.resolve_*() methods.
+    """
+    if not text or MODULE_TOKEN not in text:
+        return text
+
+    token_count = text.count(MODULE_TOKEN)
+
+    if token_count == 1:
+        # Single token: substitute with full path (e.g., "1/1" for depth 2)
+        full_path = MODULE_TOKEN_SEPARATOR.join(positions)
+        return text.replace(MODULE_TOKEN, full_path, 1)
+    else:
+        # Multiple tokens: substitute level-by-level (existing behavior)
+        result = text
+        for pos in positions:
+            result = result.replace(MODULE_TOKEN, pos, 1)
+        return result
+
 
 MODULAR_COMPONENT_TEMPLATE_MODELS = Q(
     app_label='dcim',
