@@ -969,6 +969,83 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(interface_2.name, 'SFP 1/2')
         self.assertEqual(interface_2.label, '1/2')
 
+    def test_module_bay_position_resolves_placeholder(self):
+        """
+        Test that the position field of instantiated module bays resolves {module} placeholder.
+        
+        Issue #20467: When a module type has module bay templates with position="{module}/1",
+        the instantiated module bay should have position="A/1" (not literal "{module}/1").
+        
+        This test should:
+        - FAIL on main branch (bug present: position contains "{module}")
+        - PASS after fix (position is resolved to actual value)
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Create device type with module bay at position 'A'
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Position Test Chassis',
+            slug='position-test-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Bay A',
+            position='A'
+        )
+
+        # Create module type with nested bays using {module} in POSITION field
+        extension_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Position Test Extension'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=extension_type,
+            name='Sub Bay {module}-1',
+            label='{module}-1',
+            position='{module}/1'  # This should resolve to "A/1"
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=extension_type,
+            name='Sub Bay {module}-2',
+            label='{module}-2',
+            position='{module}/2'  # This should resolve to "A/2"
+        )
+
+        # Create device
+        device = Device.objects.create(
+            name='Position Test Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        # Install extension module in Bay A
+        parent_bay = device.modulebays.get(name='Bay A')
+        module = Module.objects.create(
+            device=device,
+            module_bay=parent_bay,
+            module_type=extension_type
+        )
+
+        # Verify the nested bays have resolved names (this already works)
+        nested_bay_1 = module.modulebays.get(name='Sub Bay A-1')
+        nested_bay_2 = module.modulebays.get(name='Sub Bay A-2')
+        
+        # Verify labels are resolved (this already works)
+        self.assertEqual(nested_bay_1.label, 'A-1')
+        self.assertEqual(nested_bay_2.label, 'A-2')
+        
+        # Verify POSITION field is resolved (Issue #20467 - this currently fails)
+        self.assertEqual(nested_bay_1.position, 'A/1')
+        self.assertEqual(nested_bay_2.position, 'A/2')
+        
+        # Also verify no {module} literal remains
+        self.assertNotIn('{module}', nested_bay_1.position)
+        self.assertNotIn('{module}', nested_bay_2.position)
+
     def test_single_placeholder_direct_install_depth_1(self):
         """
         Test that installing a module directly at depth=1 with a single {module}

@@ -207,6 +207,32 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             return label
         return self.label
 
+    def resolve_position(self, position, module):
+        """
+        Resolve {module} placeholder in position field.
+        
+        This is used by ModuleBayTemplate to resolve positions like "{module}/1"
+        to actual values like "A/1" when the parent module is installed in bay "A".
+        
+        Fixes Issue #20467.
+        """
+        if not position or MODULE_TOKEN not in position:
+            return position
+
+        if module:
+            modules = self._get_module_tree(module)
+            token_count = position.count(MODULE_TOKEN)
+            if token_count == 1:
+                # Single token: substitute with full path
+                full_path = '/'.join([m.module_bay.position for m in modules])
+                position = position.replace(MODULE_TOKEN, full_path, 1)
+            else:
+                # Multiple tokens: substitute level-by-level
+                for m in modules:
+                    position = position.replace(MODULE_TOKEN, m.module_bay.position, 1)
+            return position
+        return position
+
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
     """
@@ -736,10 +762,11 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('module bay templates')
 
     def instantiate(self, **kwargs):
+        module = kwargs.get('module')
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
-            position=self.position,
+            name=self.resolve_name(module),
+            label=self.resolve_label(module),
+            position=self.resolve_position(self.position, module),
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
