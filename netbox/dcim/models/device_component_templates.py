@@ -210,10 +210,10 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
     def resolve_position(self, position, module):
         """
         Resolve {module} placeholder in position field.
-        
+
         This is used by ModuleBayTemplate to resolve positions like "{module}/1"
         to actual values like "A/1" when the parent module is installed in bay "A".
-        
+
         Fixes Issue #20467.
         """
         if not position or MODULE_TOKEN not in position:

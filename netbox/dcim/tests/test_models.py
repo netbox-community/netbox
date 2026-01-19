@@ -972,10 +972,10 @@ class ModuleBayTestCase(TestCase):
     def test_module_bay_position_resolves_placeholder(self):
         """
         Test that the position field of instantiated module bays resolves {module} placeholder.
-        
+
         Issue #20467: When a module type has module bay templates with position="{module}/1",
         the instantiated module bay should have position="A/1" (not literal "{module}/1").
-        
+
         This test should:
         - FAIL on main branch (bug present: position contains "{module}")
         - PASS after fix (position is resolved to actual value)
@@ -1033,15 +1033,15 @@ class ModuleBayTestCase(TestCase):
         # Verify the nested bays have resolved names (this already works)
         nested_bay_1 = module.modulebays.get(name='Sub Bay A-1')
         nested_bay_2 = module.modulebays.get(name='Sub Bay A-2')
-        
+
         # Verify labels are resolved (this already works)
         self.assertEqual(nested_bay_1.label, 'A-1')
         self.assertEqual(nested_bay_2.label, 'A-2')
-        
+
         # Verify POSITION field is resolved (Issue #20467 - this currently fails)
         self.assertEqual(nested_bay_1.position, 'A/1')
         self.assertEqual(nested_bay_2.position, 'A/2')
-        
+
         # Also verify no {module} literal remains
         self.assertNotIn('{module}', nested_bay_1.position)
         self.assertNotIn('{module}', nested_bay_2.position)
