@@ -127,8 +127,9 @@ class ModuleCommonForm(forms.Form):
                         )
 
                     token_count = template.name.count(MODULE_TOKEN)
-                    # Validate: depth must be >= token_count (can't expand tokens without context)
-                    if len(module_bays) < token_count:
+                    # A single token which gets expanded to the full path is always
+                    # allowed; otherwise the number of tokens needs to match the path length.
+                    if token_count != 1 and token_count != len(module_bays):
                         raise forms.ValidationError(
                             _(
                                 "Cannot install module with placeholder values in a module bay tree {level} in tree "

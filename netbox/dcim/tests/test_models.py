@@ -1171,11 +1171,14 @@ class ModuleBayTestCase(TestCase):
         interface = sfp_module.interfaces.first()
         self.assertEqual(interface.name, 'SFP 1/2')
 
-    def test_multi_token_deeper_tree_only_consumes_tokens(self):
+    def test_mismatched_multi_token_fails_validation(self):
         """
-        T2: Multi-token with deeper tree only consumes tokens (depth=3, tokens=2).
-        2 tokens → 2 levels, even if tree is deeper.
+        T2: Multi-token with mismatched depth fails validation (depth=3, tokens=2).
+        Per sigprof's feedback: allowing this would lose position info for level 3.
+        Only single-token (full path) or exact-match multi-token should be allowed.
         """
+        from dcim.forms import ModuleForm
+
         site = Site.objects.create(name='T2 Site', slug='t2-site')
         manufacturer = Manufacturer.objects.create(name='T2 Manufacturer', slug='t2-manufacturer')
         device_role = DeviceRole.objects.create(name='T2 Role', slug='t2-role')
@@ -1214,7 +1217,7 @@ class ModuleBayTestCase(TestCase):
             position='1'
         )
 
-        # Create leaf module type with 2-token interface template
+        # Create leaf module type with 2-token interface template (mismatched for depth 3)
         leaf_type = ModuleType.objects.create(
             manufacturer=manufacturer,
             model='T2 Leaf'
@@ -1225,7 +1228,7 @@ class ModuleBayTestCase(TestCase):
             type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
         )
 
-        # Create device and install 3 levels of modules
+        # Create device and install first 2 levels of modules
         device = Device.objects.create(
             name='T2 Device',
             device_type=device_type,
@@ -1249,17 +1252,22 @@ class ModuleBayTestCase(TestCase):
             module_type=level3_type
         )
 
-        # Level 3 (leaf)
+        # Attempt to install leaf module at depth=3 with 2 tokens - should fail
         bay3 = module2.modulebays.get(name='Level3 Bay')
-        leaf_module = Module.objects.create(
-            device=device,
-            module_bay=bay3,
-            module_type=leaf_type
-        )
 
-        # Verify: 2 tokens → consumes first 2 levels only: "1/1" (not "1/1/1")
-        interface = leaf_module.interfaces.first()
-        self.assertEqual(interface.name, 'SFP 1/1')
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': bay3.pk,
+            'module_type': leaf_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        # Validation should fail: 2 tokens != 1 and 2 tokens != 3 depth
+        self.assertFalse(form.is_valid())
+        self.assertIn('2', str(form.errors))
+        self.assertIn('3', str(form.errors))
 
     def test_too_many_tokens_fails_validation(self):
         """
