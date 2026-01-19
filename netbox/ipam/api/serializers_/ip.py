@@ -19,6 +19,7 @@ from ..field_serializers import IPAddressField, IPNetworkField
 __all__ = (
     'AggregateSerializer',
     'AvailableIPSerializer',
+    'AvailableIPRequestSerializer',
     'AvailablePrefixSerializer',
     'IPAddressSerializer',
     'IPRangeSerializer',
@@ -162,6 +163,44 @@ class IPRangeSerializer(PrimaryModelSerializer):
 #
 # IP addresses
 #
+
+class AvailableIPRequestSerializer(serializers.Serializer):
+    """
+    Request payload for creating IP addresses from the available-ips endpoint.
+    """
+    description = serializers.CharField(required=False)
+    prefix_length = serializers.IntegerField(required=False)
+
+    def to_internal_value(self, data):
+        data = super().to_internal_value(data)
+
+        prefix_length = data.get('prefix_length')
+        if prefix_length is None:
+            # No override requested; the parent prefix/range mask length will be used.
+            return data
+
+        parent = self.context.get('parent')
+        if parent is None:
+            return data
+
+        if parent.family == 4 and prefix_length > 32:
+            raise serializers.ValidationError({
+                'prefix_length': 'Invalid prefix length ({}) for IPv4'.format(prefix_length)
+            })
+        elif parent.family == 6 and prefix_length > 128:
+            raise serializers.ValidationError({
+                'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(prefix_length)
+            })
+
+        if prefix_length < parent.mask_length:
+            raise serializers.ValidationError({
+                'prefix_length': 'Prefix length must be greater than or equal to the parent mask length ({})'.format(
+                    parent.mask_length
+                )
+            })
+
+        return data
+
 
 class IPAddressSerializer(PrimaryModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
