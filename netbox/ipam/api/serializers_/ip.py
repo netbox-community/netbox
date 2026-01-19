@@ -76,26 +76,20 @@ class PrefixSerializer(PrimaryModelSerializer):
 
 class PrefixLengthSerializer(serializers.Serializer):
 
-    prefix_length = serializers.IntegerField(required=False)
+    prefix_length = serializers.IntegerField()
 
     def to_internal_value(self, data):
         requested_prefix = data.get('prefix_length')
-
-        # If prefix_length is not provided, return data as-is (for backwards compatibility)
         if requested_prefix is None:
-            return data
-
+            raise serializers.ValidationError({
+                'prefix_length': 'this field can not be missing'
+            })
         if not isinstance(requested_prefix, int):
             raise serializers.ValidationError({
                 'prefix_length': 'this field must be int type'
             })
 
-        # Support both 'prefix' (for prefixes) and 'parent' (for IP addresses) context keys
-        prefix = self.context.get('prefix') or self.context.get('parent')
-        if not prefix:
-            # If no prefix/parent in context, skip validation (for backwards compatibility)
-            return data
-
+        prefix = self.context.get('prefix')
         if prefix.family == 4 and requested_prefix > 32:
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv4'.format(requested_prefix)
@@ -104,16 +98,6 @@ class PrefixLengthSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(requested_prefix)
             })
-
-        # Validate that requested prefix length is >= parent mask length
-        if hasattr(prefix, 'mask_length') and requested_prefix < prefix.mask_length:
-            raise serializers.ValidationError({
-                'prefix_length': (
-                    f'Requested prefix length ({requested_prefix}) must be greater than or equal to '
-                    f'parent mask length ({prefix.mask_length})'
-                )
-            })
-
         return data
 
 
