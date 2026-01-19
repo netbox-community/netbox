@@ -570,10 +570,6 @@ class TagForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         queryset=ObjectType.objects.with_feature('tags'),
         required=False
     )
-    weight = forms.IntegerField(
-        label=_('Weight'),
-        required=False
-    )
 
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'weight', 'description', 'object_types', name=_('Tag')),
