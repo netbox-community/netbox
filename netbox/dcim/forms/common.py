@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.utils import resolve_module_placeholders
 from utilities.forms import get_field_value
 
 __all__ = (
