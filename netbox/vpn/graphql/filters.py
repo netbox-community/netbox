@@ -15,7 +15,7 @@ from vpn import models
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
     from ipam.graphql.filters import IPAddressFilter, RouteTargetFilter
-    from netbox.graphql.filter_lookups import IntegerLookup
+    from netbox.graphql.filter_lookups import BigIntegerLookup, IntegerLookup
     from .enums import *
 
 __all__ = (
@@ -75,7 +75,7 @@ class TunnelFilter(TenancyFilterMixin, PrimaryModelFilter):
     ipsec_profile: Annotated['IPSecProfileFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    tunnel_id: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    tunnel_id: Annotated['BigIntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     terminations: Annotated['TunnelTerminationFilter', strawberry.lazy('vpn.graphql.filters')] | None = (
@@ -187,7 +187,7 @@ class L2VPNFilter(ContactFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
     type: BaseFilterLookup[Annotated['L2VPNTypeEnum', strawberry.lazy('vpn.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    identifier: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    identifier: Annotated['BigIntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     import_targets: Annotated['RouteTargetFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
