@@ -170,17 +170,17 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         return modules
 
     def resolve_name(self, module):
-        """Resolve {module} placeholder(s) in component name."""
+        """Resolve {module} and {module_path} placeholders in component name."""
         if module:
             positions = [m.module_bay.position for m in self._get_module_tree(module)]
-            return resolve_module_token(self.name, positions)
+            return resolve_module_placeholders(self.name, positions)
         return self.name
 
     def resolve_label(self, module):
-        """Resolve {module} placeholder(s) in component label."""
+        """Resolve {module} and {module_path} placeholders in component label."""
         if module:
             positions = [m.module_bay.position for m in self._get_module_tree(module)]
-            return resolve_module_token(self.label, positions)
+            return resolve_module_placeholders(self.label, positions)
         return self.label
 
     def resolve_position(self, position, module):
@@ -194,7 +194,7 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         """
         if module:
             positions = [m.module_bay.position for m in self._get_module_tree(module)]
-            return resolve_module_token(position, positions)
+            return resolve_module_placeholders(position, positions)
         return position
 
 

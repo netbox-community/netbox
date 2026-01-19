@@ -119,29 +119,41 @@ class ModuleCommonForm(forms.Form):
             # Get the templates for the module type.
             for template in getattr(module_type, templates).all():
                 resolved_name = template.name
+                has_module_token = MODULE_TOKEN in template.name
+                has_module_path_token = MODULE_PATH_TOKEN in template.name
+
                 # Installing modules with placeholders require that the bay has a position value
-                if MODULE_TOKEN in template.name:
+                if has_module_token or has_module_path_token:
                     if not module_bay.position:
                         raise forms.ValidationError(
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
 
-                    token_count = template.name.count(MODULE_TOKEN)
-                    # A single token which gets expanded to the full path is always
-                    # allowed; otherwise the number of tokens needs to match the path length.
-                    if token_count != 1 and token_count != len(module_bays):
-                        raise forms.ValidationError(
-                            _(
-                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
-                                "but {tokens} placeholders given."
-                            ).format(
-                                level=len(module_bays), tokens=token_count
+                    # Validate {module_path} - can only appear once
+                    if has_module_path_token:
+                        path_token_count = template.name.count(MODULE_PATH_TOKEN)
+                        if path_token_count > 1:
+                            raise forms.ValidationError(
+                                _("The {module_path} placeholder can only be used once per template.")
                             )
-                        )
 
-                    # Use centralized helper for token substitution
+                    # Validate {module} - multi-token must match depth exactly
+                    if has_module_token:
+                        token_count = template.name.count(MODULE_TOKEN)
+                        # Multiple {module} tokens must match the tree depth exactly
+                        if token_count > 1 and token_count != len(module_bays):
+                            raise forms.ValidationError(
+                                _(
+                                    "Cannot install module with placeholder values in a module bay tree {level} deep "
+                                    "but {tokens} placeholders given."
+                                ).format(
+                                    level=len(module_bays), tokens=token_count
+                                )
+                            )
+
+                    # Use centralized helper for placeholder substitution
                     positions = [mb.position for mb in module_bays]
-                    resolved_name = resolve_module_token(resolved_name, positions)
+                    resolved_name = resolve_module_placeholders(resolved_name, positions)
 
                 existing_item = installed_components.get(resolved_name)
 
