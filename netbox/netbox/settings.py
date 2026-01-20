@@ -103,6 +103,8 @@ CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 DATABASE = getattr(configuration, 'DATABASE', None)  # Legacy DB definition
 DATABASE_ROUTERS = getattr(configuration, 'DATABASE_ROUTERS', [])
+DATABASE_ROUTING_ENABLED = getattr(configuration, 'DATABASE_ROUTING_ENABLED', False)
+DATABASE_STICKY_SESSION_DURATION = getattr(configuration, 'DATABASE_STICKY_SESSION_DURATION', 5)
 DATABASES = getattr(configuration, 'DATABASES', {'default': DATABASE})
 DEBUG = getattr(configuration, 'DEBUG', False)
 DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)
@@ -266,6 +268,20 @@ if 'ENGINE' not in DATABASES['default']:
     DATABASES['default'].update({
         'ENGINE': 'django_prometheus.db.backends.postgresql' if METRICS_ENABLED else 'django.db.backends.postgresql'
     })
+
+# Validate database routing configuration
+if DATABASE_ROUTING_ENABLED:
+    if 'replica' not in DATABASES:
+        warnings.warn(
+            "DATABASE_ROUTING_ENABLED is True but no 'replica' database is configured. "
+            "All database operations will use the 'default' database. "
+            "To enable read/write separation, add a 'replica' database to DATABASES."
+        )
+    if 'netbox.db.routers.ReadWriteRouter' not in DATABASE_ROUTERS:
+        warnings.warn(
+            "DATABASE_ROUTING_ENABLED is True but 'netbox.db.routers.ReadWriteRouter' is not in DATABASE_ROUTERS. "
+            "Add 'netbox.db.routers.ReadWriteRouter' to DATABASE_ROUTERS to enable database routing."
+        )
 
 
 #
@@ -486,6 +502,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
+    'netbox.middleware.DatabaseRoutingMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
 ]

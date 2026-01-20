@@ -11,6 +11,7 @@ from django.http import Http404, HttpResponseRedirect
 from django_prometheus import middleware
 
 from netbox.config import clear_config, get_config
+from netbox.db.context_managers import _routing_state
 from netbox.metrics import Metrics
 from netbox.views import handler_500
 from utilities.api import is_api_request, is_graphql_request
@@ -19,6 +20,7 @@ from utilities.request import apply_request_processors
 
 __all__ = (
     'CoreMiddleware',
+    'DatabaseRoutingMiddleware',
     'MaintenanceModeMiddleware',
     'PrometheusAfterMiddleware',
     'PrometheusBeforeMiddleware',
@@ -204,6 +206,78 @@ class PrometheusAfterMiddleware(middleware.PrometheusAfterMiddleware):
         # Increment GraphQL API request counters
         elif is_graphql_request(request):
             self.metrics.graphql_api_requests.inc()
+
+        return response
+
+
+class DatabaseRoutingMiddleware:
+    """
+    Middleware for managing database routing and sticky sessions.
+
+    This middleware implements sticky session support for read/write database
+    separation. After a write operation, subsequent requests from the same user
+    are routed to the primary database for a configurable duration to prevent
+    reading stale data from replicas with replication lag.
+
+    How it works:
+    1. On incoming requests, checks for a sticky session cookie
+    2. If cookie is present and not expired, forces primary database usage
+    3. Tracks if write operations occur during request processing
+    4. On response, sets sticky session cookie if writes occurred
+
+    Configuration:
+        DATABASE_ROUTING_ENABLED: Enable/disable database routing (default: False)
+        DATABASE_STICKY_SESSION_DURATION: Cookie duration in seconds (default: 5)
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # Load configuration
+        self.enabled = getattr(settings, 'DATABASE_ROUTING_ENABLED', False)
+        self.sticky_duration = getattr(settings, 'DATABASE_STICKY_SESSION_DURATION', 5)
+
+    def __call__(self, request):
+        # If routing is disabled, bypass this middleware entirely
+        if not self.enabled:
+            return self.get_response(request)
+
+        # Import time here to avoid circular imports
+        import time
+
+        # Check for existing sticky session cookie
+        sticky_until = request.COOKIES.get('db_sticky_until')
+        if sticky_until:
+            try:
+                sticky_time = float(sticky_until)
+                # If the sticky session hasn't expired, force primary database usage
+                if time.time() < sticky_time:
+                    _routing_state.use_primary = True
+            except (ValueError, TypeError):
+                # Invalid cookie value, ignore it
+                pass
+
+        # Initialize write tracking for this request
+        _routing_state.writes_occurred = False
+
+        # Process the request
+        response = self.get_response(request)
+
+        # If writes occurred during this request, set sticky session cookie
+        if _routing_state.writes_occurred:
+            # Calculate expiry timestamp
+            sticky_until = time.time() + self.sticky_duration
+            response.set_cookie(
+                'db_sticky_until',
+                str(sticky_until),
+                max_age=self.sticky_duration,
+                httponly=True,
+                samesite='Lax',
+                path='/',
+            )
+
+        # Clean up thread-local state to prevent leakage
+        _routing_state.use_primary = False
+        _routing_state.writes_occurred = False
 
         return response
 

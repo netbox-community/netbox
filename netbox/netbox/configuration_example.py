@@ -24,6 +24,49 @@ DATABASES = {
     }
 }
 
+# PostgreSQL read replica configuration (optional). Enables read/write separation for improved performance by routing
+# read operations to one or more replica databases. This is an optional feature that requires a properly configured
+# PostgreSQL streaming replication setup.
+#
+# To enable read/write separation:
+# 1. Configure a read replica database in the DATABASES dict (shown below)
+# 2. Set DATABASE_ROUTING_ENABLED = True
+# 3. Add 'netbox.db.routers.ReadWriteRouter' to DATABASE_ROUTERS
+#
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'netbox',
+#         'USER': 'netbox',
+#         'PASSWORD': '',
+#         'HOST': 'primary.db.example.com',
+#         'PORT': '',
+#         'CONN_MAX_AGE': 300,
+#     },
+#     'replica': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'netbox',
+#         'USER': 'netbox_ro',  # Read-only user recommended
+#         'PASSWORD': '',
+#         'HOST': 'replica.db.example.com',
+#         'PORT': '',
+#         'CONN_MAX_AGE': 300,
+#         # Configure replica as read-only to prevent accidental writes
+#         'OPTIONS': {
+#             'options': '-c default_transaction_read_only=on'
+#         }
+#     }
+# }
+#
+# DATABASE_ROUTERS = ['netbox.db.routers.ReadWriteRouter']
+#
+# Enable database routing for read/write separation (default: False)
+# DATABASE_ROUTING_ENABLED = True
+#
+# Duration in seconds to route reads to primary database after a write operation (default: 5)
+# This prevents reading stale data from replicas with replication lag
+# DATABASE_STICKY_SESSION_DURATION = 5
+
 # Redis database settings. Redis is used for caching and for queuing background tasks such as webhook events. A separate
 # configuration exists for each. Full connection details are required in both sections, and it is strongly recommended
 # to use two separate database IDs.
