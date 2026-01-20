@@ -1,4 +1,41 @@
-## v4.5.0 (FUTURE)
+# NetBox v4.5
+
+## v4.5.1 (2026-01-20)
+
+### Enhancements
+
+* [#21018](https://github.com/netbox-community/netbox/issues/21018) - Enable filtering prefixes by location/site/site group/region directly via GraphQL API
+* [#21142](https://github.com/netbox-community/netbox/issues/21142) - Enable filtering device components by site/location/rack directly via GraphQL API
+* [#21144](https://github.com/netbox-community/netbox/issues/21144) - Enable specifying a prefix length for IP addresses when utilizing the `/api/ipam/prefixes/<id>/available-ips/` REST API endpoint
+* [#21165](https://github.com/netbox-community/netbox/issues/21165) - VLAN selector should default to group (instead of site)
+* [#21178](https://github.com/netbox-community/netbox/issues/21178) - Improve consistency of rack measurements in UI
+
+### Bug Fixes
+
+* [#19901](https://github.com/netbox-community/netbox/issues/19901) - Fix `RelatedObjectDoesNotExist` exception when importing modules into unnamed devices
+* [#20239](https://github.com/netbox-community/netbox/issues/20239) - Prevent shared mutable state in PluginMenuItem & PluginMenuButton
+* [#20933](https://github.com/netbox-community/netbox/issues/20933) - Fix writable `data_file` assignment for ConfigContext and ConfigContextProfile via the REST API
+* [#21039](https://github.com/netbox-community/netbox/issues/21039) - Fix support for AVIF image uploads
+* [#21050](https://github.com/netbox-community/netbox/issues/21050) - Clear device OOB IP assignments when reassigning IP addresses
+* [#21051](https://github.com/netbox-community/netbox/issues/21051) - Remove irrelevant object types from permissions form
+* [#21097](https://github.com/netbox-community/netbox/issues/21097) - Fix comparison lookups for ID filters in GraphQL API
+* [#21102](https://github.com/netbox-community/netbox/issues/21102) - Fix GraphiQL explorer UI
+* [#21117](https://github.com/netbox-community/netbox/issues/21117) - Avoid `ValueError` exception when `API_TOKEN_PEPPERS` is not defined
+* [#21118](https://github.com/netbox-community/netbox/issues/21118) - Address performance issue when saving sites with many assigned objects
+* [#21124](https://github.com/netbox-community/netbox/issues/21124) - Fix front/rear port mapping for module types
+* [#21134](https://github.com/netbox-community/netbox/issues/21134) - Fix bulk renaming for module types
+* [#21139](https://github.com/netbox-community/netbox/issues/21139) - Support `fields` parameter for job, object change, and object type REST API endpoints
+* [#21140](https://github.com/netbox-community/netbox/issues/21140) - Restore translation for object attribute labels on several UI views
+* [#21160](https://github.com/netbox-community/netbox/issues/21160) - Fix performance issue loading UI views caused by unintended `APISelect` choices resolution
+* [#21166](https://github.com/netbox-community/netbox/issues/21166) - Fix support for 32-bit ASN filtering in GraphQL API
+* [#21175](https://github.com/netbox-community/netbox/issues/21175) - Fix pending migrations warning when `DEFAULT_LANGUAGE` is set
+* [#21181](https://github.com/netbox-community/netbox/issues/21181) - Handle `AuthenticationFailed` exception when using an invalid API token to fetch media files
+* [#21213](https://github.com/netbox-community/netbox/issues/21213) - Tag weight field should be marked as required in UI forms
+* [#21231](https://github.com/netbox-community/netbox/issues/21231) - Presence of object types table should be checked only during migration (performance improvement)
+
+---
+
+## v4.5.0 (2026-01-06)
 
 ### Breaking Changes
 
