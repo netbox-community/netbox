@@ -40,6 +40,7 @@
 * [#20912](https://github.com/netbox-community/netbox/issues/20912) - Fix inconsistent clearing of `module` field on ModuleBay
 * [#20944](https://github.com/netbox-community/netbox/issues/20944) - Ensure cached scope is updated on child objects when a parent region/site/location is changed
 * [#20948](https://github.com/netbox-community/netbox/issues/20948) - Handle the deletion of related objects with `on_delete=RESTRICT` the same as `CASCADE`
+* [#20966](https://github.com/netbox-community/netbox/issues/20966) - Fix UI rendering issue when scrolling list of object types in permissions form
 * [#20969](https://github.com/netbox-community/netbox/issues/20969) - Fix querying of front port templates by `rear_port_id`
 * [#21011](https://github.com/netbox-community/netbox/issues/21011) - Avoid writing to the database when loading active ConfigRevision
 * [#21032](https://github.com/netbox-community/netbox/issues/21032) - Avoid SQL subquery in RestrictedQuerySet where unnecessary
