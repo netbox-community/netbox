@@ -35,6 +35,10 @@ class ObjectTypeQuerySet(models.QuerySet):
 
 class ObjectTypeManager(models.Manager):
 
+    # TODO: Remove this in NetBox v5.0
+    # Cache the result of introspection to avoid repeated queries.
+    _table_exists = False
+
     def get_queryset(self):
         return ObjectTypeQuerySet(self.model, using=self._db)
 
@@ -69,10 +73,12 @@ class ObjectTypeManager(models.Manager):
         # TODO: Remove this in NetBox v5.0
         # If the ObjectType table has not yet been provisioned (e.g. because we're in a pre-v4.4 migration),
         # fall back to ContentType.
-        if 'core_objecttype' not in connection.introspection.table_names():
-            ct = ContentType.objects.get_for_model(model, for_concrete_model=for_concrete_model)
-            ct.features = get_model_features(ct.model_class())
-            return ct
+        if not ObjectTypeManager._table_exists:
+            if 'core_objecttype' not in connection.introspection.table_names():
+                ct = ContentType.objects.get_for_model(model, for_concrete_model=for_concrete_model)
+                ct.features = get_model_features(ct.model_class())
+                return ct
+            ObjectTypeManager._table_exists = True
 
         if not inspect.isclass(model):
             model = model.__class__
