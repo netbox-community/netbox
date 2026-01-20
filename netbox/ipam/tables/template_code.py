@@ -31,6 +31,11 @@ IPADDRESS_LINK = """
   <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk}}">{{ record }}</a>
 {% elif record.start_address %}
   <a href="{{ record.get_absolute_url }}">{{ record }}</a>
+  <div class="float-end">
+    <a href="{% url 'ipam:iprange_edit' pk=record.pk %}" class="btn btn-sm btn-warning"><i class="mdi mdi-pencil"></i></a>
+    <a href="{% url 'ipam:iprange_delete' pk=record.pk %}" class="btn btn-sm btn-danger"><i class="mdi mdi-trash-can-outline"></i></a>
+    <a href="{% url 'ipam:iprange_changelog' pk=record.pk %}" class="btn btn-sm btn-primary"><i class="mdi mdi-history"></i></a>
+  </div>
 {% elif perms.ipam.add_ipaddress %}
   <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.first_ip }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}&return_url={% url 'ipam:prefix_ipaddresses' pk=object.pk %}" class="btn btn-sm btn-success">{{ record.title }}</a>
 {% else %}
