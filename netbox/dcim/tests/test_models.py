@@ -2045,6 +2045,61 @@ class ModuleBayTestCase(TestCase):
 
         self.assertFalse(form.is_valid())
 
+    def test_mixed_module_and_module_path_fails_validation(self):
+        """
+        Test that mixing {module} and {module_path} in the same template attribute
+        fails validation. Per sigprof's feedback, these cannot be combined.
+        """
+        from dcim.forms import ModuleForm
+
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Mixed Placeholder Chassis',
+            slug='mixed-placeholder-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Module type with both {module} and {module_path} - should fail
+        bad_module_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Bad Mixed Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=bad_module_type,
+            name='{module_path}-{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='Mixed Placeholder Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        bay = device.modulebays.get(name='Bay 1')
+
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': bay.pk,
+            'module_type': bad_module_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        self.assertFalse(form.is_valid())
+        # Verify it's specifically the mixed placeholder error
+        self.assertIn('Cannot mix', str(form.errors))
+
 
 class CableTestCase(TestCase):
 

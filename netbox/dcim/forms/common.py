@@ -130,6 +130,12 @@ class ModuleCommonForm(forms.Form):
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
 
+                    # Cannot mix {module} and {module_path} in the same attribute
+                    if has_module_token and has_module_path_token:
+                        raise forms.ValidationError(
+                            _("Cannot mix {module} and {module_path} placeholders in the same template attribute.")
+                        )
+
                     # Validate {module_path} - can only appear once
                     if has_module_path_token:
                         path_token_count = template.name.count(MODULE_PATH_TOKEN)
