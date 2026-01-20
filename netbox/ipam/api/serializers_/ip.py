@@ -152,7 +152,6 @@ class AvailableIPRequestSerializer(serializers.Serializer):
     """
     Request payload for creating IP addresses from the available-ips endpoint.
     """
-    description = serializers.CharField(required=False)
     prefix_length = serializers.IntegerField(required=False)
 
     def to_internal_value(self, data):
@@ -167,20 +166,20 @@ class AvailableIPRequestSerializer(serializers.Serializer):
         if parent is None:
             return data
 
-        if parent.family == 4 and prefix_length > 32:
-            raise serializers.ValidationError({
-                'prefix_length': 'Invalid prefix length ({}) for IPv4'.format(prefix_length)
-            })
-        elif parent.family == 6 and prefix_length > 128:
-            raise serializers.ValidationError({
-                'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(prefix_length)
-            })
-
+        # Validate the requested prefix length
         if prefix_length < parent.mask_length:
             raise serializers.ValidationError({
                 'prefix_length': 'Prefix length must be greater than or equal to the parent mask length ({})'.format(
                     parent.mask_length
                 )
+            })
+        elif parent.family == 4 and prefix_length > 32:
+            raise serializers.ValidationError({
+                'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(prefix_length)
+            })
+        elif parent.family == 6 and prefix_length > 128:
+            raise serializers.ValidationError({
+                'prefix_length': 'Invalid prefix length ({}) for IPv4'.format(prefix_length)
             })
 
         return data
