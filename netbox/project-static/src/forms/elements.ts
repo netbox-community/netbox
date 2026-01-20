@@ -1,4 +1,3 @@
-import TomSelect from 'tom-select';
 import { getElements } from '../util';
 
 function handleFormSubmit(): void {
@@ -6,37 +5,6 @@ function handleFormSubmit(): void {
   // multi-select fields that are used to add/remove choices.
   for (const element of getElements<HTMLOptionElement>('select.select-all option')) {
     element.selected = true;
-  }
-}
-
-/**
- * Initialize clear-field dependencies.
- * When a field with ts-clear-field attribute's parent field is cleared, this field will also be cleared.
- */
-function initClearFieldDependencies(): void {
-  // Find all fields with ts-clear-field attribute
-  for (const field of getElements<HTMLSelectElement>('[ts-clear-field]')) {
-    const parentFieldName = field.getAttribute('ts-clear-field');
-    if (!parentFieldName) continue;
-
-    // Find the parent field
-    const parentField = document.querySelector<HTMLSelectElement>(`[name="${parentFieldName}"]`);
-    if (!parentField) continue;
-
-    // Listen for changes on the parent field
-    parentField.addEventListener('change', () => {
-      // If parent field is cleared, also clear this dependent field
-      if (!parentField.value || parentField.value === '') {
-        // Check if this field uses TomSelect
-        const tomselect = (field as HTMLSelectElement & { tomselect?: TomSelect }).tomselect;
-        if (tomselect) {
-          tomselect.clear();
-        } else {
-          // Regular select field
-          field.value = '';
-        }
-      }
-    });
   }
 }
 
@@ -60,7 +28,4 @@ export function initFormElements(): void {
       });
     }
   }
-
-  // Initialize clear-field dependencies
-  initClearFieldDependencies();
 }

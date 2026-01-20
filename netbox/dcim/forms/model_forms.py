@@ -20,7 +20,9 @@ from utilities.forms.fields import (
     DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
-from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
+from utilities.forms.widgets import (
+    APISelect, ClearableFileInput, ClearableSelect, HTMXSelect, NumberWithOptions, SelectWithPK,
+)
 from utilities.jsonschema import JSONSchemaProperty
 from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -592,6 +594,14 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             },
         )
     )
+    face = forms.ChoiceField(
+        label=_('Face'),
+        choices=add_blank_choice(DeviceFaceChoices),
+        required=False,
+        widget=ClearableSelect(
+            requires_fields=['rack']
+        )
+    )
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
@@ -721,9 +731,6 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
         position = self.data.get('position') or self.initial.get('position')
         if position:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
-
-        # Clear face field when rack is cleared
-        self.fields['face'].widget.attrs['ts-clear-field'] = 'rack'
 
 
 class ModuleForm(ModuleCommonForm, PrimaryModelForm):
