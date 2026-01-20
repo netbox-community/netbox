@@ -895,9 +895,18 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                         renamed_pks = self._rename_objects(form, selected_objects)
 
                         if '_apply' in request.POST:
-                            for obj in selected_objects:
-                                setattr(obj, self.field_name, obj.new_name)
-                                obj.save()
+                            # For MPTT models, delay tree updates until all saves are complete
+                            if issubclass(self.queryset.model, MPTTModel):
+                                with self.queryset.model.objects.delay_mptt_updates():
+                                    for obj in selected_objects:
+                                        setattr(obj, self.field_name, obj.new_name)
+                                        obj.save()
+                                # Rebuild the tree to apply order_insertion_by after renaming
+                                self.queryset.model.objects.rebuild()
+                            else:
+                                for obj in selected_objects:
+                                    setattr(obj, self.field_name, obj.new_name)
+                                    obj.save()
 
                             # Enforce constrained permissions
                             if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):

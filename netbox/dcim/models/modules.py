@@ -343,21 +343,42 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                     )
             else:
                 # ModuleBays must be saved individually for MPTT
-                for instance in create_instances:
-                    instance.save()
+                # Use delay_mptt_updates for better performance when creating multiple ModuleBays
+                with ModuleBay.objects.delay_mptt_updates():
+                    for instance in create_instances:
+                        instance.save()
 
             update_fields = ['module']
-            component_model.objects.bulk_update(update_instances, update_fields)
-            # Emit the post_save signal for each updated object
-            for component in update_instances:
-                post_save.send(
-                    sender=component_model,
-                    instance=component,
-                    created=False,
-                    raw=False,
-                    using='default',
-                    update_fields=update_fields
-                )
+
+            if component_model is not ModuleBay:
+                component_model.objects.bulk_update(update_instances, update_fields)
+                # Emit the post_save signal for each updated object
+                for component in update_instances:
+                    post_save.send(
+                        sender=component_model,
+                        instance=component,
+                        created=False,
+                        raw=False,
+                        using='default',
+                        update_fields=update_fields
+                    )
+            else:
+                # ModuleBays must be saved individually to maintain MPTT tree structure
+                # Use delay_mptt_updates for better performance
+                with ModuleBay.objects.delay_mptt_updates():
+                    for component in update_instances:
+                        component.save()
+                        post_save.send(
+                            sender=component_model,
+                            instance=component,
+                            created=False,
+                            raw=False,
+                            using='default',
+                            update_fields=update_fields
+                        )
+                # Rebuild the tree once to apply order_insertion_by after all operations
+                if create_instances or update_instances:
+                    ModuleBay.objects.rebuild()
 
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
