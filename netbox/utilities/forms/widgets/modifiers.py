@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from utilities.forms.widgets.apiselect import APISelect, APISelectMultiple
@@ -101,21 +102,27 @@ class FilterModifierWidget(forms.Widget):
         if isinstance(self.original_widget, (APISelect, APISelectMultiple)):
             original_choices = self.original_widget.choices
 
-            # Only keep selected choices to preserve current selection in HTML
+            # Only keep selected choices to preserve the current selection in HTML
             if value:
                 values = value if isinstance(value, (list, tuple)) else [value]
 
                 if hasattr(original_choices, 'queryset'):
-                    queryset = original_choices.queryset
-                    selected_objects = queryset.filter(pk__in=values)
-                    # Build minimal choice list with just the selected values
-                    self.original_widget.choices = [
-                        (obj.pk, str(obj)) for obj in selected_objects
-                    ]
+                    # Extract valid PKs (exclude special null choice string)
+                    pk_values = [v for v in values if v != settings.FILTERS_NULL_CHOICE_VALUE]
+
+                    # Build a minimal choice list with just the selected values
+                    choices = []
+                    if pk_values:
+                        selected_objects = original_choices.queryset.filter(pk__in=pk_values)
+                        choices = [(obj.pk, str(obj)) for obj in selected_objects]
+
+                    # Re-add the "None" option if it was selected via the null choice value
+                    if settings.FILTERS_NULL_CHOICE_VALUE in values:
+                        choices.append((settings.FILTERS_NULL_CHOICE_VALUE, settings.FILTERS_NULL_CHOICE_LABEL))
+
+                    self.original_widget.choices = choices
                 else:
-                    self.original_widget.choices = [
-                        choice for choice in original_choices if choice[0] in values
-                    ]
+                    self.original_widget.choices = [choice for choice in original_choices if choice[0] in values]
             else:
                 # No selection - render empty select element
                 self.original_widget.choices = []
