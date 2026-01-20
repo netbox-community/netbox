@@ -53,7 +53,7 @@ class TokenConditionalLoginRequiredMixin(ConditionalLoginRequiredMixin):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             authenticator = TokenAuthentication()
             try:
-                if auth_info := authenticator.authenticate(request) is not None:
+                if (auth_info := authenticator.authenticate(request)) is not None:
                     request.user = auth_info[0]  # User object
                     request.auth = auth_info[1]
             except AuthenticationFailed:
