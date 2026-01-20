@@ -75,15 +75,11 @@ export class DynamicTomSelect extends TomSelect {
   load(value: string) {
     const self = this;
 
-    const currentValue = self.getValue();
-
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
     self.clearOptions();
 
-    // Clear user_options to prevent the pre-selected option from being treated specially
-    (self as any).user_options = {};
-
+    // Populate the null option (if any) if not searching
     if (self.nullOption && !value) {
       self.addOption(self.nullOption);
     }
@@ -97,33 +93,21 @@ export class DynamicTomSelect extends TomSelect {
     addClasses(self.wrapper, self.settings.loadingClass);
     self.loading++;
 
+    // Make the API request
     fetch(url)
       .then(response => response.json())
       .then(apiData => {
         const results: Dict[] = apiData.results;
-
-        // Add options and set $order to preserve API response order
-        results.forEach((result, index) => {
+        const options: Dict[] = [];
+        for (const result of results) {
           const option = self.getOptionFromData(result);
-          self.addOption(option);
-          const key = option[self.settings.valueField as string] as string;
-          if (self.options[key]) {
-            (self.options[key] as any).$order = index;
-          }
-        });
-
-        if (self.loading > 0) {
-          self.loading--;
-          if (self.loading === 0) {
-            self.wrapper.classList.remove(self.settings.loadingClass as string);
-          }
+          options.push(option);
         }
-
-        if (currentValue && !self.items.includes(currentValue as string)) {
-          self.items.push(currentValue as string);
-        }
-
-        self.refreshOptions(false);
+        return options;
+      })
+      // Pass the options to the callback function
+      .then(options => {
+        self.loadCallback(options, []);
       })
       .catch(() => {
         self.loadCallback([], []);
