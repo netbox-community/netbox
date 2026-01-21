@@ -281,6 +281,26 @@ def as_range(n):
 
 
 @register.filter()
+def parent_depth(n, parent=None):
+    """
+    Return the depth of a node based on the parent's depth
+    """
+    parent_depth = 0
+    if parent and hasattr(parent, 'depth_count'):
+        parent_depth = parent.depth_count + 1
+    elif parent and hasattr(parent, 'depth'):
+        try:
+            parent_depth = int(parent.depth) + 1
+        except TypeError:
+            pass
+    try:
+        depth = int(n) - int(parent_depth)
+    except TypeError:
+        return n
+    return depth
+
+
+@register.filter()
 def meters_to_feet(n):
     """
     Convert a length from meters to feet.
