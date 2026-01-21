@@ -569,7 +569,6 @@ class SyncedDataMixin(models.Model):
             )
         else:
             AutoSyncRecord.objects.filter(
-                datafile=self.data_file,
                 object_type=object_type,
                 object_id=self.pk
             ).delete()
@@ -582,7 +581,6 @@ class SyncedDataMixin(models.Model):
         # Delete AutoSyncRecord
         object_type = ObjectType.objects.get_for_model(self)
         AutoSyncRecord.objects.filter(
-            datafile=self.data_file,
             object_type=object_type,
             object_id=self.pk
         ).delete()
