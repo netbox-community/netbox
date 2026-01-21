@@ -501,6 +501,7 @@ ADMIN_MENU = Menu(
     ),
 )
 
+
 def get_menus():
     """
     Dynamically build and return the list of navigation menus.
@@ -542,5 +543,5 @@ def get_menus():
 
     # Add the admin menu last
     menus.append(ADMIN_MENU)
-    
+
     return menus
