@@ -13,7 +13,8 @@ def rebuild_mptt(apps, schema_editor):
     class MPTTMeta:
         order_insertion_by = ('module', 'name',)
 
-    ModuleBay._mptt_meta = mptt.models.MPTTOptions(MPTTMeta, ModuleBay)
+    ModuleBay.MPTTMeta = MPTTMeta
+    ModuleBay._mptt_meta = mptt.models.MPTTOptions(MPTTMeta)
 
     manager = mptt.managers.TreeManager()
     manager.model = ModuleBay
