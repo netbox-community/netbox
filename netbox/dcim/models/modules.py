@@ -155,6 +155,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'description': self.description,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'airflow': self.airflow,
+            'attribute_data': self.attribute_data,
             'comments': self.comments,
         }
 
