@@ -1,13 +1,19 @@
 from django.db import migrations
+import mptt
+import mptt.managers
 
 
 def rebuild_mptt(apps, schema_editor):
     """
-    Rebuild the MPTT tree for ModuleBay to apply new ordering by 'name'
+    Rebuild the MPPT tree for ModuleBay to apply new ordering by 'name'
     instead of 'module'.
     """
     ModuleBay = apps.get_model('dcim', 'ModuleBay')
-    ModuleBay.objects.rebuild()
+    manager = mptt.managers.TreeManager()
+    manager.model = ModuleBay
+    mptt.register(ModuleBay)
+    manager.contribute_to_class(ModuleBay, 'objects')
+    manager.rebuild()
 
 
 class Migration(migrations.Migration):
