@@ -102,7 +102,10 @@ class GitBackend(DataBackend):
             clone_args['pool_manager'] = ProxyPoolManager(self.socks_proxy)
 
         if self.url_scheme in ('http', 'https'):
-            if self.params.get('username'):
+            # Only pass explicit credentials if URL doesn't already contain embedded username
+            # to avoid credential conflicts
+            parsed_url = urlparse(self.url)
+            if not parsed_url.username and self.params.get('username'):
                 clone_args.update(
                     {
                         "username": self.params.get('username'),
