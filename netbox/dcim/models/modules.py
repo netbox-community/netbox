@@ -330,54 +330,35 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 component._location = self.device.location
                 component._rack = self.device.rack
 
-            if issubclass(component_model, MPTTModel):
-                # MPTT models must be saved individually to maintain tree structure
-                # Use delay_mptt_updates for better performance
-                with component_model.objects.delay_mptt_updates():
-                    for instance in create_instances:
-                        instance.save()
-            else:
-                component_model.objects.bulk_create(create_instances)
-                # Emit the post_save signal for each newly created object
-                for component in create_instances:
-                    post_save.send(
-                        sender=component_model,
-                        instance=component,
-                        created=True,
-                        raw=False,
-                        using='default',
-                        update_fields=None
-                    )
+            component_model.objects.bulk_create(create_instances)
+            # Emit the post_save signal for each newly created object
+            for component in create_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=True,
+                    raw=False,
+                    using='default',
+                    update_fields=None
+                )
 
             update_fields = ['module']
 
-            if issubclass(component_model, MPTTModel):
-                # MPTT models must be saved individually to maintain tree structure
-                # Use delay_mptt_updates for better performance - could do bulk_update
-                # but then would need to rebuild the tree after the updates.
-                with component_model.objects.delay_mptt_updates():
-                    for component in update_instances:
-                        component.save()
-                        post_save.send(
-                            sender=component_model,
-                            instance=component,
-                            created=False,
-                            raw=False,
-                            using='default',
-                            update_fields=update_fields
-                        )
-            else:
-                component_model.objects.bulk_update(update_instances, update_fields)
-                # Emit the post_save signal for each updated object
-                for component in update_instances:
-                    post_save.send(
-                        sender=component_model,
-                        instance=component,
-                        created=False,
-                        raw=False,
-                        using='default',
-                        update_fields=update_fields
-                    )
+            component_model.objects.bulk_update(update_instances, update_fields)
+            # Emit the post_save signal for each updated object
+            for component in update_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=False,
+                    raw=False,
+                    using='default',
+                    update_fields=update_fields
+                )
+
+            # Rebuild MPTT tree if needed (bulk operations bypass model save)
+            if issubclass(component_model, MPTTModel) and (create_instances or update_instances):
+                component_model.objects.rebuild()
 
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
