@@ -330,17 +330,22 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 component._location = self.device.location
                 component._rack = self.device.rack
 
-            component_model.objects.bulk_create(create_instances)
-            # Emit the post_save signal for each newly created object
-            for component in create_instances:
-                post_save.send(
-                    sender=component_model,
-                    instance=component,
-                    created=True,
-                    raw=False,
-                    using='default',
-                    update_fields=None
-                )
+            if not issubclass(component_model, MPTTModel):
+                component_model.objects.bulk_create(create_instances)
+                # Emit the post_save signal for each newly created object
+                for component in create_instances:
+                    post_save.send(
+                        sender=component_model,
+                        instance=component,
+                        created=True,
+                        raw=False,
+                        using='default',
+                        update_fields=None
+                    )
+            else:
+                # MPTT models must be saved individually to maintain tree structure
+                for instance in create_instances:
+                    instance.save()
 
             update_fields = ['module']
 
@@ -356,8 +361,8 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                     update_fields=update_fields
                 )
 
-            # Rebuild MPTT tree if needed (bulk operations bypass model save)
-            if issubclass(component_model, MPTTModel) and (create_instances or update_instances):
+            # Rebuild MPTT tree if needed (bulk_update bypasses model save)
+            if issubclass(component_model, MPTTModel) and update_instances:
                 component_model.objects.rebuild()
 
         # Interface bridges have to be set after interface instantiation
