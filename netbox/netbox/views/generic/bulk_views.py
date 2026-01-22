@@ -901,7 +901,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                     for obj in selected_objects:
                                         setattr(obj, self.field_name, obj.new_name)
                                         obj.save()
-                                # Rebuild the tree to apply order_insertion_by after renaming
+
                                 self.queryset.model.objects.rebuild()
                             else:
                                 for obj in selected_objects:
