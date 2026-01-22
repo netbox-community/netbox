@@ -134,7 +134,7 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
             # Resolve the script from action parameters
             script = event_rule.action_object.python_class()
 
-            # Retrieve the User if nto already resolved
+            # Retrieve the User if not already resolved
             if user is None:
                 user = User.objects.get(username=username)
 
