@@ -1,3 +1,5 @@
+from functools import cache
+
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
@@ -502,10 +504,12 @@ ADMIN_MENU = Menu(
 )
 
 
+@cache
 def get_menus():
     """
     Dynamically build and return the list of navigation menus.
     This ensures plugin menus registered during app initialization are included.
+    The result is cached since menus don't change without a Django restart.
     """
     menus = [
         ORGANIZATION_MENU,
