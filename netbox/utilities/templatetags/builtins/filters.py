@@ -260,8 +260,8 @@ def truncate_middle(value, length):
         return value
 
     # Calculate split points for the two parts
-    half_len = (length - 3) // 2  # 3 for the '...'
+    half_len = (length - 1) // 2  # 1 for the ellipsis
     first_part = value[:half_len]
-    second_part = value[len(value) - (length - 3 - half_len):]
+    second_part = value[len(value) - (length - 1 - half_len):]
 
     return mark_safe(f"{first_part}&hellip;{second_part}")
