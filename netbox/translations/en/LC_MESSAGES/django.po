@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-21 05:07+0000\n"
+"POT-Creation-Date: 2026-01-22 05:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12037,7 +12037,7 @@ msgstr ""
 msgid "date synced"
 msgstr ""
 
-#: netbox/netbox/models/features.py:623
+#: netbox/netbox/models/features.py:621
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
@@ -13935,8 +13935,8 @@ msgid "No VLANs Assigned"
 msgstr ""
 
 #: netbox/templates/dcim/inc/interface_vlans_table.html:44
-#: netbox/templates/ipam/prefix_list.html:16
-#: netbox/templates/ipam/prefix_list.html:33
+#: netbox/templates/ipam/inc/max_depth.html:11
+#: netbox/templates/ipam/inc/max_length.html:11
 msgid "Clear"
 msgstr ""
 
@@ -15053,8 +15053,8 @@ msgstr ""
 msgid "Date Added"
 msgstr ""
 
-#: netbox/templates/ipam/aggregate/prefixes.html:8
-#: netbox/templates/ipam/prefix/prefixes.html:8
+#: netbox/templates/ipam/aggregate/prefixes.html:10
+#: netbox/templates/ipam/prefix/prefixes.html:10
 #: netbox/templates/ipam/role.html:10
 msgid "Add Prefix"
 msgstr ""
@@ -15081,6 +15081,14 @@ msgstr ""
 
 #: netbox/templates/ipam/inc/ipaddress_edit_header.html:19
 msgid "Bulk Create"
+msgstr ""
+
+#: netbox/templates/ipam/inc/max_depth.html:6
+msgid "Max Depth"
+msgstr ""
+
+#: netbox/templates/ipam/inc/max_length.html:6
+msgid "Max Length"
 msgstr ""
 
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:10
@@ -15182,14 +15190,6 @@ msgstr ""
 
 #: netbox/templates/ipam/prefix_list.html:7
 msgid "Hide Depth Indicators"
-msgstr ""
-
-#: netbox/templates/ipam/prefix_list.html:11
-msgid "Max Depth"
-msgstr ""
-
-#: netbox/templates/ipam/prefix_list.html:28
-msgid "Max Length"
 msgstr ""
 
 #: netbox/templates/ipam/rir.html:10
