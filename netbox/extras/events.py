@@ -86,7 +86,7 @@ def enqueue_event(queue, instance, request, event_type):
 
 
 def process_event_rules(event_rules, object_type, event_type, data, username=None, snapshots=None, request=None):
-    user = User.objects.get(username=username) if username else None
+    user = None  # To be resolved from the username if needed
 
     for event_rule in event_rules:
 
@@ -133,6 +133,10 @@ def process_event_rules(event_rules, object_type, event_type, data, username=Non
         elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
             # Resolve the script from action parameters
             script = event_rule.action_object.python_class()
+
+            # Retrieve the User if not already resolved
+            if user is None:
+                user = User.objects.get(username=username)
 
             # Enqueue a Job to record the script's execution
             from extras.jobs import ScriptJob
