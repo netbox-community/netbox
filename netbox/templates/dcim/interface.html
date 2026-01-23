@@ -143,9 +143,13 @@
           <tr>
             <th scope="row">{% trans "MAC Address" %}</th>
             <td>
-              <span class="font-monospace">{{ object.mac_address_display|linkify }}</span>
-              {% if object.primary_mac_address %}
-                <span class="badge text-bg-primary">{% trans "Primary" %}</span>
+              {% if object.mac_address_display %}
+                <span class="font-monospace">{{ object.mac_address_display|linkify }}</span>
+                {% if object.primary_mac_address %}
+                  <span class="badge text-bg-primary">{% trans "Primary" %}</span>
+                {% endif %}
+              {% else %}
+                {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
