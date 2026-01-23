@@ -616,6 +616,7 @@ class BaseInterfaceTable(NetBoxTable):
     )
     primary_mac_address = tables.Column(
         verbose_name=_('MAC Address'),
+        accessor=Accessor('mac_address_display'),
         linkify=True
     )
 

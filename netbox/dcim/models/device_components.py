@@ -732,6 +732,25 @@ class BaseInterface(models.Model):
         if self.primary_mac_address:
             return self.primary_mac_address.mac_address
 
+    @property
+    def mac_address_display(self):
+        """
+        Rich representation of MAC addresses for use in table columns (e.g. InterfaceTable).
+        Handles various configurations of MAC addresses for an interface:
+        11:22:33:44:55:66      <-- Single MAC address, assigned as primary
+        11:22:33:44:55:66 (2)  <-- Multiple MAC addresses on interface, one assigned as primary
+        2 available            <-- Multiple MAC addresses on interface, none assigned as primary
+        -                      <-- No MAC addresses on interface
+        """
+        available_mac_count = self.mac_addresses.count()
+        if self.primary_mac_address:
+            if available_mac_count > 1:
+                return f"{self.primary_mac_address} ({available_mac_count})"
+            return self.primary_mac_address
+        if available_mac_count:
+            return f"{available_mac_count} available"
+        return None
+
 
 class Interface(
     InterfaceValidationMixin,
