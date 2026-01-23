@@ -41,10 +41,7 @@ class ClearableSelect(forms.Select):
     def __init__(self, *args, requires_fields=None, **kwargs):
         super().__init__(*args, **kwargs)
         if requires_fields:
-            # Convert list to comma-separated string for the data attribute
-            if isinstance(requires_fields, (list, tuple)):
-                requires_fields = ','.join(requires_fields)
-            self.attrs['data-requires-fields'] = requires_fields
+            self.attrs['data-requires-fields'] = ','.join(requires_fields)
 
 
 class ColorSelect(forms.Select):
