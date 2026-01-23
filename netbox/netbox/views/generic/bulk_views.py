@@ -438,29 +438,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         """
         return object_form.save()
 
-    def create_and_update_objects(self, form, request):
+    def _process_import_records(self, form, request, records, prefetched_objects):
+        """
+        Process CSV import records and save objects.
+        """
         saved_objects = []
-
-        records = list(form.cleaned_data['data'])
-
-        # Prefetch objects to be updated, if any
-        prefetch_ids = [int(record['id']) for record in records if record.get('id')]
-
-        # check for duplicate IDs
-        duplicate_pks = [pk for pk, count in Counter(prefetch_ids).items() if count > 1]
-        if duplicate_pks:
-            error_msg = _(
-                "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
-            ).format(
-                model=title(self.queryset.model._meta.verbose_name),
-                ids=', '.join(str(pk) for pk in sorted(duplicate_pks))
-            )
-            raise ValidationError(error_msg)
-
-        prefetched_objects = {
-            obj.pk: obj
-            for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
-        } if prefetch_ids else {}
 
         for i, record in enumerate(records, start=1):
             object_id = int(record.pop('id')) if record.get('id') else None
@@ -523,6 +505,38 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 raise ValidationError(
                     self._compile_form_errors(model_form.errors, index=i)
                 )
+
+        return saved_objects
+
+    def create_and_update_objects(self, form, request):
+        records = list(form.cleaned_data['data'])
+
+        # Prefetch objects to be updated, if any
+        prefetch_ids = [int(record['id']) for record in records if record.get('id')]
+
+        # check for duplicate IDs
+        duplicate_pks = [pk for pk, count in Counter(prefetch_ids).items() if count > 1]
+        if duplicate_pks:
+            error_msg = _(
+                "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
+            ).format(
+                model=title(self.queryset.model._meta.verbose_name),
+                ids=', '.join(str(pk) for pk in sorted(duplicate_pks))
+            )
+            raise ValidationError(error_msg)
+
+        prefetched_objects = {
+            obj.pk: obj
+            for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
+        } if prefetch_ids else {}
+
+        # For MPTT models, delay tree updates until all saves are complete
+        if issubclass(self.queryset.model, MPTTModel):
+            with self.queryset.model.objects.delay_mptt_updates():
+                saved_objects = self._process_import_records(form, request, records, prefetched_objects)
+            self.queryset.model.objects.rebuild()
+        else:
+            saved_objects = self._process_import_records(form, request, records, prefetched_objects)
 
         return saved_objects
 
