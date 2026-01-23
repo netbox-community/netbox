@@ -739,7 +739,7 @@ class BaseInterface(models.Model):
         Handles various configurations of MAC addresses for an interface:
         11:22:33:44:55:66      <-- Single MAC address, assigned as primary
         11:22:33:44:55:66 (2)  <-- Multiple MAC addresses on interface, one assigned as primary
-        2 available            <-- Multiple MAC addresses on interface, none assigned as primary
+        2 available            <-- 1 or more MAC addresses on interface, none assigned as primary
         -                      <-- No MAC addresses on interface
         """
         available_mac_count = self.mac_addresses.count()
