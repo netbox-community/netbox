@@ -15,6 +15,7 @@ from .validators import CustomValidator
 __all__ = (
     'SharedObjectViewMixin',
     'filename_from_model',
+    'get_validators_for_model',
     'image_upload',
     'is_report',
     'is_script',
@@ -128,6 +129,21 @@ def is_report(obj):
         return issubclass(obj, Report) and obj != Report
     except TypeError:
         return False
+
+
+def get_validators_for_model(config_dict, model_name):
+    """
+    Retrieve validators from config dict with case-insensitive model name lookup.
+    Supports both lowercase (e.g. "dcim.site") and PascalCase (e.g. "dcim.Site") keys.
+    """
+    # Try exact match first
+    if model_name in config_dict:
+        return config_dict[model_name]
+    # Try case-insensitive match
+    for key, value in config_dict.items():
+        if key.lower() == model_name:
+            return value
+    return []
 
 
 def run_validators(instance, validators):
