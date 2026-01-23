@@ -1,0 +1,20 @@
+---
+name: 🗑️ Feature Removal
+type: Removal
+description: The removal of a deprecated feature or resource
+labels: ["netbox", "type: removal"]
+body:
+  - type: input
+    attributes:
+      label: Deprecation Issue
+      description: Specify the issue in which this deprecation was announced.
+      placeholder: "#1234"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Summary of Changes
+      description: >
+        List all changes necessary to remove the deprecated feature or resource.
+    validations:
+      required: true

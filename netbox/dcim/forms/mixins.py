@@ -140,9 +140,6 @@ class FrontPortFormMixin(forms.Form):
         widget=forms.SelectMultiple(attrs={'size': 8})
     )
 
-    port_mapping_model = PortMapping
-    parent_field = 'device'
-
     def clean(self):
         super().clean()
 
@@ -203,3 +200,22 @@ class FrontPortFormMixin(forms.Form):
                 using=connection,
                 update_fields=None
             )
+
+    def _get_rear_port_choices(self, parent_filter, front_port):
+        """
+        Return a list of choices representing each available rear port & position pair on the parent object (identified
+        by a Q filter), excluding those assigned to the specified instance.
+        """
+        occupied_rear_port_positions = [
+            f'{mapping.rear_port_id}:{mapping.rear_port_position}'
+            for mapping in self.port_mapping_model.objects.filter(parent_filter).exclude(front_port=front_port.pk)
+        ]
+
+        choices = []
+        for rear_port in self.rear_port_model.objects.filter(parent_filter):
+            for i in range(1, rear_port.positions + 1):
+                pair_id = f'{rear_port.pk}:{i}'
+                if pair_id not in occupied_rear_port_positions:
+                    pair_label = f'{rear_port.name}:{i}'
+                    choices.append((pair_id, pair_label))
+        return choices

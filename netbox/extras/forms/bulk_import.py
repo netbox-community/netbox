@@ -271,10 +271,6 @@ class EventRuleImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
 class TagImportForm(OwnerCSVMixin, CSVModelForm):
     slug = SlugField()
-    weight = forms.IntegerField(
-        label=_('Weight'),
-        required=False
-    )
     object_types = CSVMultipleContentTypeField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('tags'),

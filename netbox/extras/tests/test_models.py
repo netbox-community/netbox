@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.test import tag, TestCase
 
-from core.models import DataSource, ObjectType
+from core.models import AutoSyncRecord, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag, TaggedItem
 from tenancy.models import Tenant, TenantGroup
@@ -754,3 +754,53 @@ class ConfigTemplateTest(TestCase):
     @tag('regression')
     def test_config_template_with_data_source_nested_templates(self):
         self.assertEqual(self.BASE_TEMPLATE, self.main_config_template.render({}))
+
+    @tag('regression')
+    def test_autosyncrecord_cleanup_on_detach(self):
+        """Test that AutoSyncRecord is deleted when detaching from DataSource."""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            templates_dir = Path(temp_dir) / "templates"
+            templates_dir.mkdir(parents=True, exist_ok=True)
+
+            self._create_template_file(templates_dir, 'test.j2', 'Test content')
+
+            data_source = DataSource(
+                name="Test DataSource for Detach",
+                type="local",
+                source_url=str(templates_dir),
+            )
+            data_source.save()
+            data_source.sync()
+
+            data_file = data_source.datafiles.filter(path__endswith='test.j2').first()
+
+            # Create a ConfigTemplate with data_file and auto_sync_enabled
+            config_template = ConfigTemplate(
+                name="TestTemplateForDetach",
+                data_file=data_file,
+                auto_sync_enabled=True
+            )
+            config_template.clean()
+            config_template.save()
+
+            # Verify AutoSyncRecord was created
+            object_type = ObjectType.objects.get_for_model(ConfigTemplate)
+            autosync_records = AutoSyncRecord.objects.filter(
+                object_type=object_type,
+                object_id=config_template.pk
+            )
+            self.assertEqual(autosync_records.count(), 1, "AutoSyncRecord should be created")
+
+            # Detach from DataSource
+            config_template.data_file = None
+            config_template.data_source = None
+            config_template.auto_sync_enabled = False
+            config_template.clean()
+            config_template.save()
+
+            # Verify AutoSyncRecord was deleted
+            autosync_records = AutoSyncRecord.objects.filter(
+                object_type=object_type,
+                object_id=config_template.pk
+            )
+            self.assertEqual(autosync_records.count(), 0, "AutoSyncRecord should be deleted after detaching")

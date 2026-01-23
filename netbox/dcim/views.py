@@ -1845,6 +1845,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 class ModuleTypeBulkRenameView(generic.BulkRenameView):
     queryset = ModuleType.objects.all()
     filterset = filtersets.ModuleTypeFilterSet
+    field_name = 'model'
 
 
 @register_model_view(ModuleType, 'bulk_delete', path='delete', detail=False)

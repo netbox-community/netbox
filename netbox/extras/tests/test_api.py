@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -7,7 +8,7 @@ from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
-from core.models import ObjectType
+from core.models import DataFile, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.choices import *
 from extras.models import *
@@ -731,6 +732,51 @@ class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
         )
         ConfigContextProfile.objects.bulk_create(profiles)
 
+    def test_update_data_source_and_data_file(self):
+        """
+        Regression test: Ensure data_source and data_file can be assigned via the API.
+
+        This specifically covers PATCHing a ConfigContext with integer IDs for both fields.
+        """
+        self.add_permissions(
+            'core.view_datafile',
+            'core.view_datasource',
+            'extras.view_configcontextprofile',
+            'extras.change_configcontextprofile',
+        )
+        config_context_profile = ConfigContextProfile.objects.first()
+
+        # Create a data source and file
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        # Generate a valid dummy YAML file
+        file_data = b'profile: configcontext\n'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='dir1/file1.yml',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        url = self._get_detail_url(config_context_profile)
+        payload = {
+            'data_source': datasource.pk,
+            'data_file': datafile.pk,
+        }
+        response = self.client.patch(url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        config_context_profile.refresh_from_db()
+        self.assertEqual(config_context_profile.data_source_id, datasource.pk)
+        self.assertEqual(config_context_profile.data_file_id, datafile.pk)
+        self.assertEqual(response.data['data_source']['id'], datasource.pk)
+        self.assertEqual(response.data['data_file']['id'], datafile.pk)
+
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
@@ -811,6 +857,51 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         configcontext6.sites.add(site2)
         rendered_context = device.get_config_context()
         self.assertEqual(rendered_context['bar'], 456)
+
+    def test_update_data_source_and_data_file(self):
+        """
+        Regression test: Ensure data_source and data_file can be assigned via the API.
+
+        This specifically covers PATCHing a ConfigContext with integer IDs for both fields.
+        """
+        self.add_permissions(
+            'core.view_datafile',
+            'core.view_datasource',
+            'extras.view_configcontext',
+            'extras.change_configcontext',
+        )
+        config_context = ConfigContext.objects.first()
+
+        # Create a data source and file
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///tmp/netbox-datasource/',
+        )
+        # Generate a valid dummy YAML file
+        file_data = b'context: config\n'
+        datafile = DataFile.objects.create(
+            source=datasource,
+            path='dir1/file1.yml',
+            last_updated=now(),
+            size=len(file_data),
+            hash=hashlib.sha256(file_data).hexdigest(),
+            data=file_data,
+        )
+
+        url = self._get_detail_url(config_context)
+        payload = {
+            'data_source': datasource.pk,
+            'data_file': datafile.pk,
+        }
+        response = self.client.patch(url, payload, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        config_context.refresh_from_db()
+        self.assertEqual(config_context.data_source_id, datasource.pk)
+        self.assertEqual(config_context.data_file_id, datafile.pk)
+        self.assertEqual(response.data['data_source']['id'], datasource.pk)
+        self.assertEqual(response.data['data_file']['id'], datafile.pk)
 
 
 class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):

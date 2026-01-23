@@ -372,8 +372,8 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
                     'virtual_machine_id': instance.assigned_object.virtual_machine.pk,
                 })
 
-        # Disable object assignment fields if the IP address is designated as primary
-        if self.initial.get('primary_for_parent'):
+        # Disable object assignment fields if the IP address is designated as primary or OOB
+        if self.initial.get('primary_for_parent') or self.initial.get('oob_for_parent'):
             self.fields['interface'].disabled = True
             self.fields['vminterface'].disabled = True
             self.fields['fhrpgroup'].disabled = True

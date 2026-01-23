@@ -10,6 +10,7 @@ from taggit.managers import _TaggableManager
 
 from netbox.context import current_request
 
+from .constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from .validators import CustomValidator
 
 __all__ = (
@@ -78,7 +79,7 @@ def image_upload(instance, filename):
     """
     upload_dir = 'image-attachments'
     default_filename = 'unnamed'
-    allowed_img_extensions = ('bmp', 'gif', 'jpeg', 'jpg', 'png', 'webp')
+    allowed_img_extensions = IMAGE_ATTACHMENT_IMAGE_FORMATS.keys()
 
     # Normalize Windows paths and create a Path object.
     normalized_filename = str(filename).replace('\\', '/')

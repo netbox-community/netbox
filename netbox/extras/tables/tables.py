@@ -43,7 +43,7 @@ IMAGEATTACHMENT_IMAGE = """
   <a href="{{ record.image.url }}" target="_blank" class="image-preview" data-bs-placement="top">
     <i class="mdi mdi-image"></i></a>
 {% endif %}
-<a href="{{ record.get_absolute_url }}">{{ record }}</a>
+<a href="{{ record.get_absolute_url }}">{{ record.filename|truncate_middle:16 }}</a>
 """
 
 NOTIFICATION_ICON = """

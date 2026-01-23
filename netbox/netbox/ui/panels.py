@@ -164,7 +164,7 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
         """
         label = name[:1].upper() + name[1:]
         label = label.replace('_', ' ')
-        return label
+        return _(label)
 
     def get_context(self, context):
         # Determine which attributes to display in the panel based on only/exclude args
