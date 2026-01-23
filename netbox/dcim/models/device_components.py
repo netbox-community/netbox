@@ -737,7 +737,7 @@ class BaseInterface(models.Model):
         """
         Rich representation of MAC addresses for use in table columns (e.g. InterfaceTable).
         Handles various configurations of MAC addresses for an interface:
-        11:22:33:44:55:66      <-- Single MAC address, assigned as primary
+        11:22:33:44:55:66      <-- Single MAC address on interface, assigned as primary
         11:22:33:44:55:66 (2)  <-- Multiple MAC addresses on interface, one assigned as primary
         2 available            <-- 1 or more MAC addresses on interface, none assigned as primary
         -                      <-- No MAC addresses on interface
