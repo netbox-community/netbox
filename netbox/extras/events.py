@@ -90,6 +90,7 @@ def enqueue_event(queue, instance, request, event_type):
             event_type=event_type,
             snapshots=get_snapshots(instance, event_type),
             request=request,
+            user=request.user,
             # Legacy request attributes for backward compatibility
             username=request.user.username,
             request_id=request.id,
@@ -152,7 +153,7 @@ def process_event_rules(event_rules, object_type, event):
             params = {
                 "instance": event_rule.action_object,
                 "name": script.name,
-                "user": event['request'].user if 'request' in event else None,
+                "user": event['user'],
                 "data": event_data
             }
             if 'snapshots' in event:
