@@ -59,13 +59,28 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.object_types
 # Custom validation
 #
 
+def _get_validators_for_model(config_dict, model_name):
+    """
+    Retrieve validators from config dict with case-insensitive model name lookup.
+    Supports both lowercase (e.g. "dcim.site") and PascalCase (e.g. "dcim.Site") keys.
+    """
+    # Try exact match first
+    if model_name in config_dict:
+        return config_dict[model_name]
+    # Try case-insensitive match
+    for key, value in config_dict.items():
+        if key.lower() == model_name:
+            return value
+    return []
+
+
 @receiver(post_clean)
 def run_save_validators(sender, instance, **kwargs):
     """
     Run any custom validation rules for the model prior to calling save().
     """
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
+    validators = _get_validators_for_model(get_config().CUSTOM_VALIDATORS, model_name)
 
     run_validators(instance, validators)
 

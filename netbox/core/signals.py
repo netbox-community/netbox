@@ -23,6 +23,22 @@ from netbox.models.features import ChangeLoggingMixin, get_model_features, model
 from utilities.exceptions import AbortRequest
 from .models import ConfigRevision, DataSource, ObjectChange
 
+
+def _get_validators_for_model(config_dict, model_name):
+    """
+    Retrieve validators from config dict with case-insensitive model name lookup.
+    Supports both lowercase (e.g. "dcim.site") and PascalCase (e.g. "dcim.Site") keys.
+    """
+    # Try exact match first
+    if model_name in config_dict:
+        return config_dict[model_name]
+    # Try case-insensitive match
+    for key, value in config_dict.items():
+        if key.lower() == model_name:
+            return value
+    return []
+
+
 __all__ = (
     'clear_events',
     'job_end',
@@ -168,7 +184,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().PROTECTION_RULES.get(model_name, [])
+    validators = _get_validators_for_model(get_config().PROTECTION_RULES, model_name)
     try:
         run_validators(instance, validators)
     except ValidationError as e:
