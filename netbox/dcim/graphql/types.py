@@ -734,7 +734,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
     filters=RackTypeFilter,
     pagination=True
 )
-class RackTypeType(PrimaryObjectType):
+class RackTypeType(ImageAttachmentsMixin, PrimaryObjectType):
     rack_count: BigInt
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
