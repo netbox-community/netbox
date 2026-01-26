@@ -907,7 +907,7 @@ class ScriptValidationErrorTest(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptMixin:
-        bar = IntegerVar(min_value=0, max_value=30, default=30)
+        bar = IntegerVar(min_value=0, max_value=30)
 
     class TestScriptClass(TestScriptMixin, PythonClass):
         class Meta:
@@ -966,8 +966,7 @@ class ScriptValidationErrorTest(TestCase):
         self.assertEqual(len(messages), 0)
 
 
-class ScriptRunAgainDefaultsTest(TestCase):
-    """Test that the "Run Again" button (submission without _schedule_at) uses default values."""
+class ScriptDefaultValuesTest(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptClass(PythonClass):
@@ -990,9 +989,9 @@ class ScriptRunAgainDefaultsTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptRunAgainDefaultsTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptDefaultValuesTest.TestScriptClass)
 
-    def test_run_again_uses_default_values(self):
+    def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
 
         with patch('extras.views.get_workers_for_queue', return_value=['worker']):
