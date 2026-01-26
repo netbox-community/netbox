@@ -1511,7 +1511,13 @@ class ScriptView(BaseScriptView):
                 'script': script,
             })
 
-        form = script_class.as_form(request.POST, request.FILES)
+        # Populate missing variables with their default values when submitted via "Run Again" button.
+        post_data = request.POST.copy()
+        if '_schedule_at' not in request.POST:
+            for name, var in script_class._get_vars().items():
+                post_data[name] = var.field_attrs.get('initial')
+
+        form = script_class.as_form(post_data, request.FILES)
 
         # Allow execution only if RQ worker process is running
         if not get_workers_for_queue('default'):

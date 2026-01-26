@@ -61,7 +61,7 @@ class ScriptVariable:
             self.field_attrs['label'] = label
         if description:
             self.field_attrs['help_text'] = description
-        if default:
+        if default is not None:
             self.field_attrs['initial'] = default
         if widget:
             self.field_attrs['widget'] = widget
