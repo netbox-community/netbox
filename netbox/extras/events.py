@@ -27,11 +27,13 @@ class EventContext(UserDict):
     A custom dictionary that automatically serializes its associated object on demand.
     """
 
+    # We're emulating a dictionary here (rather than using a custom class) because prior to NetBox v4.5.2, events were
+    # queued as dictionaries for processing by handles in EVENTS_PIPELINE. We need to avoid introducing any breaking
+    # changes until a suitable minor release.
     def __getitem__(self, item):
         if item == 'data' and 'data' not in self:
             data = serialize_for_event(self['object'])
             self.__setitem__('data', data)
-            return data
         return super().__getitem__(item)
 
 
