@@ -65,7 +65,7 @@ Download and extract the latest version:
 
 ```no-highlight
 # Set $NEWVER to the NetBox version being installed
-NEWVER=3.5.0
+NEWVER=4.5.0
 wget https://github.com/netbox-community/netbox/archive/v$NEWVER.tar.gz
 sudo tar -xzf v$NEWVER.tar.gz -C /opt
 sudo ln -sfn /opt/netbox-$NEWVER/ /opt/netbox
@@ -75,7 +75,7 @@ Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if pres
 
 ```no-highlight
 # Set $OLDVER to the NetBox version currently installed
-OLDVER=3.4.9
+OLDVER=4.4.10
 sudo cp /opt/netbox-$OLDVER/local_requirements.txt /opt/netbox/
 sudo cp /opt/netbox-$OLDVER/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
 sudo cp /opt/netbox-$OLDVER/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
@@ -116,7 +116,7 @@ Check out the desired release by specifying its tag. For example:
 ```
 cd /opt/netbox && \
 sudo git fetch --tags && \
-sudo git checkout v4.2.7
+sudo git checkout v4.5.0
 ```
 
 ## 4. Run the Upgrade Script
@@ -128,7 +128,7 @@ sudo ./upgrade.sh
 ```
 
 !!! warning
-    If the default version of Python is not at least 3.10, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
+    If the default version of Python is not **at least 3.12**, you'll need to pass the path to a supported Python version as an environment variable when calling the upgrade script. For example:
 
     ```no-highlight
     sudo PYTHON=/usr/bin/python3.12 ./upgrade.sh
