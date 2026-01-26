@@ -1,3 +1,5 @@
+from functools import cache
+
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
@@ -501,40 +503,49 @@ ADMIN_MENU = Menu(
     ),
 )
 
-MENUS = [
-    ORGANIZATION_MENU,
-    RACKS_MENU,
-    DEVICES_MENU,
-    CONNECTIONS_MENU,
-    WIRELESS_MENU,
-    IPAM_MENU,
-    VPN_MENU,
-    VIRTUALIZATION_MENU,
-    CIRCUITS_MENU,
-    POWER_MENU,
-    PROVISIONING_MENU,
-    CUSTOMIZATION_MENU,
-    OPERATIONS_MENU,
-]
 
-# Add top-level plugin menus
-for menu in registry['plugins']['menus']:
-    MENUS.append(menu)
-
-# Add the default "plugins" menu
-if registry['plugins']['menu_items']:
-
-    # Build the default plugins menu
-    groups = [
-        MenuGroup(label=label, items=items)
-        for label, items in registry['plugins']['menu_items'].items()
+@cache
+def get_menus():
+    """
+    Dynamically build and return the list of navigation menus.
+    This ensures plugin menus registered during app initialization are included.
+    The result is cached since menus don't change without a Django restart.
+    """
+    menus = [
+        ORGANIZATION_MENU,
+        RACKS_MENU,
+        DEVICES_MENU,
+        CONNECTIONS_MENU,
+        WIRELESS_MENU,
+        IPAM_MENU,
+        VPN_MENU,
+        VIRTUALIZATION_MENU,
+        CIRCUITS_MENU,
+        POWER_MENU,
+        PROVISIONING_MENU,
+        CUSTOMIZATION_MENU,
+        OPERATIONS_MENU,
     ]
-    plugins_menu = Menu(
-        label=_("Plugins"),
-        icon_class="mdi mdi-puzzle",
-        groups=groups
-    )
-    MENUS.append(plugins_menu)
 
-# Add the admin menu last
-MENUS.append(ADMIN_MENU)
+    # Add top-level plugin menus
+    for menu in registry['plugins']['menus']:
+        menus.append(menu)
+
+    # Add the default "plugins" menu
+    if registry['plugins']['menu_items']:
+        # Build the default plugins menu
+        groups = [
+            MenuGroup(label=label, items=items)
+            for label, items in registry['plugins']['menu_items'].items()
+        ]
+        plugins_menu = Menu(
+            label=_("Plugins"),
+            icon_class="mdi mdi-puzzle",
+            groups=groups
+        )
+        menus.append(plugins_menu)
+
+    # Add the admin menu last
+    menus.append(ADMIN_MENU)
+
+    return menus
