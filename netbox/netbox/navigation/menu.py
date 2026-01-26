@@ -411,60 +411,10 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Authentication'),
             items=(
-                MenuItem(
-                    link='users:user_list',
-                    link_text=_('Users'),
-                    staff_only=True,
-                    permissions=['users.view_user'],
-                    buttons=(
-                        MenuItemButton(
-                            link='users:user_add',
-                            title='Add',
-                            icon_class='mdi mdi-plus-thick',
-                            permissions=['users.add_user']
-                        ),
-                        MenuItemButton(
-                            link='users:user_bulk_import',
-                            title='Import',
-                            icon_class='mdi mdi-upload',
-                            permissions=['users.add_user']
-                        )
-                    )
-                ),
-                MenuItem(
-                    link='users:group_list',
-                    link_text=_('Groups'),
-                    staff_only=True,
-                    permissions=['users.view_group'],
-                    buttons=(
-                        MenuItemButton(
-                            link='users:group_add',
-                            title='Add',
-                            icon_class='mdi mdi-plus-thick',
-                            permissions=['users.add_group']
-                        ),
-                        MenuItemButton(
-                            link='users:group_bulk_import',
-                            title='Import',
-                            icon_class='mdi mdi-upload',
-                            permissions=['users.add_group']
-                        )
-                    )
-                ),
-                MenuItem(
-                    link='users:token_list',
-                    link_text=_('API Tokens'),
-                    staff_only=True,
-                    permissions=['users.view_token'],
-                    buttons=get_model_buttons('users', 'token')
-                ),
-                MenuItem(
-                    link='users:objectpermission_list',
-                    link_text=_('Permissions'),
-                    staff_only=True,
-                    permissions=['users.view_objectpermission'],
-                    buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
-                ),
+                get_model_item('users', 'user', _('Users')),
+                get_model_item('users', 'group', _('Groups')),
+                get_model_item('users', 'token', _('API Tokens')),
+                get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
         MenuGroup(
