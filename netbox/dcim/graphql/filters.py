@@ -551,6 +551,10 @@ class InterfaceFilter(
     )
 
     @strawberry_django.filter_field
+    def cabled(self, value: bool, prefix: str):
+        return Q(**{f'{prefix}cable__isnull': (not value)})
+
+    @strawberry_django.filter_field
     def connected(self, queryset, value: bool, prefix: str):
         if value is True:
             return queryset, Q(**{f"{prefix}_path__is_active": True})
