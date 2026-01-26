@@ -12,12 +12,12 @@
 
 </div>
 
-The installation instructions provided here have been tested to work on Ubuntu 22.04. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
+The installation instructions provided here have been tested to work on Ubuntu 24.04. The particular commands needed to install dependencies on other distributions may vary significantly. Unfortunately, this is outside the control of the NetBox maintainers. Please consult your distribution's documentation for assistance with any errors.
 
 The following sections detail how to set up a new instance of NetBox:
 
 1. [PostgreSQL database](1-postgresql.md)
-1. [Redis](2-redis.md)
+2. [Redis](2-redis.md)
 3. [NetBox components](3-netbox.md)
 4. [Gunicorn](4a-gunicorn.md) or [uWSGI](4b-uwsgi.md)
 5. [HTTP server](5-http-server.md)
