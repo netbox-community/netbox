@@ -130,13 +130,11 @@ def process_event_rules(event_rules, object_type, event):
                 "object_type": object_type,
                 "event_type": event['event_type'],
                 "data": event_data,
-                "snapshots": event['snapshots'],
+                "snapshots": event.get('snapshots'),
                 "timestamp": timezone.now().isoformat(),
                 "username": event['username'],
                 "retry": get_rq_retry()
             }
-            if 'snapshots' in event:
-                params['snapshots'] = event['snapshots']
             if 'request' in event:
                 # Exclude FILES - webhooks don't need uploaded files,
                 # which can cause pickle errors with Pillow.
