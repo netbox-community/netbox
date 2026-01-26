@@ -1511,11 +1511,11 @@ class ScriptView(BaseScriptView):
                 'script': script,
             })
 
-        # Populate missing variables with their default values when submitted via "Run Again" button.
+        # Populate missing variables with their default values, if defined
         post_data = request.POST.copy()
-        if '_schedule_at' not in request.POST:
-            for name, var in script_class._get_vars().items():
-                post_data[name] = var.field_attrs.get('initial')
+        for name, var in script_class._get_vars().items():
+            if name not in post_data and (initial := var.field_attrs.get('initial')) is not None:
+                post_data[name] = initial
 
         form = script_class.as_form(post_data, request.FILES)
 
