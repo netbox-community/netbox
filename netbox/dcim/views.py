@@ -880,6 +880,7 @@ class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
             panels.RackWeightPanel(title=_('Weight'), exclude=['total_weight']),
             CustomFieldsPanel(),
             RelatedObjectsPanel(),
+            ImageAttachmentsPanel(),
         ],
     )
 
