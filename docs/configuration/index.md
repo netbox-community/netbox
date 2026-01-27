@@ -15,7 +15,7 @@ Some configuration parameters may alternatively be defined either in `configurat
 
 ## Dynamic Configuration Parameters
 
-Some configuration parameters are primarily controlled via NetBox's admin interface (under Admin > Extras > Configuration Revisions). These are noted where applicable in the documentation. These settings may also be overridden in `configuration.py` to prevent them from being modified via the UI. A complete list of supported parameters is provided below:
+Some configuration parameters are primarily controlled via NetBox's admin interface (under Admin > System > Configuration History). These are noted where applicable in the documentation. These settings may also be overridden in `configuration.py` to prevent them from being modified via the UI. A complete list of supported parameters is provided below:
 
 * [`ALLOWED_URL_SCHEMES`](./security.md#allowed_url_schemes)
 * [`BANNER_BOTTOM`](./miscellaneous.md#banner_bottom)
