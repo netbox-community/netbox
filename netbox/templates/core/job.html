@@ -59,6 +59,10 @@
             <th scope="row">{% trans "Completed" %}</th>
             <td>{{ object.completed|isodatetime|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Queue" %}</th>
+            <td>{{ object.queue_name|placeholder }}</td>
+          </tr>
         </table>
       </div>
     </div>
