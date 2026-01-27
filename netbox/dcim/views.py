@@ -3135,6 +3135,14 @@ class InterfaceView(generic.ObjectView):
         )
         child_interfaces_table.configure(request)
 
+        # Get LAG interfaces
+        lag_interfaces = Interface.objects.restrict(request.user, 'view').filter(lag=instance)
+        lag_interfaces_table = tables.InterfaceLAGMemberTable(
+            lag_interfaces,
+            orderable=False
+        )
+        lag_interfaces_table.configure(request)
+
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
         if instance.untagged_vlan is not None:
@@ -3164,6 +3172,7 @@ class InterfaceView(generic.ObjectView):
             'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
+            'lag_interfaces_table': lag_interfaces_table,
             'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }

@@ -370,33 +370,6 @@
           </table>
         </div>
       {% endif %}
-      {% if object.is_lag %}
-        <div class="card">
-          <h2 class="card-header">{% trans "LAG Members" %}</h2>
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>{% trans "Parent" %}</th>
-                <th>{% trans "Interface" %}</th>
-                <th>{% trans "Type" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for member in object.member_interfaces.all %}
-                <tr>
-                  <td>{{ member.device|linkify }}</td>
-                  <td>{{ member|linkify }}</td>
-                  <td>{{ member.get_type_display }}</td>
-                </tr>
-              {% empty %}
-                <tr>
-                  <td colspan="3" class="text-muted">{% trans "No member interfaces" %}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% endif %}
       {% include 'ipam/inc/panels/fhrp_groups.html' %}
       {% include 'dcim/inc/panels/inventory_items.html' %}
       {% plugin_right_page object %}
@@ -441,6 +414,13 @@
       {% include 'inc/panel_table.html' with table=vlan_table heading="VLANs" %}
     </div>
   </div>
+  {% if object.is_lag %}
+    <div class="row mb-3">
+      <div class="col col-md-12">
+        {% include 'inc/panel_table.html' with table=lag_interfaces_table heading="LAG Members" %}
+      </div>
+    </div>
+  {% endif %}
   {% if object.vlan_translation_policy %}
     <div class="row mb-3">
       <div class="col col-md-12">
