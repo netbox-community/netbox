@@ -893,7 +893,7 @@ class PowerPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
 
 
 @strawberry_django.filter_type(models.RackType, lookups=True)
-class RackTypeFilter(RackFilterMixin, WeightFilterMixin, PrimaryModelFilter):
+class RackTypeFilter(ImageAttachmentFilterMixin, RackFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     form_factor: BaseFilterLookup[Annotated['RackFormFactorEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
