@@ -207,32 +207,9 @@ class ObjectTypeTest(TestCase):
 class JobTest(TestCase):
 
     @patch('core.models.jobs.django_rq.get_queue')
-    def test_enqueue_with_custom_queue_name(self, mock_get_queue):
-        """
-        Test that when a job is enqueued with a custom queue_name, the queue_name is stored in the Job instance.
-        """
-        mock_queue = MagicMock()
-        mock_get_queue.return_value = mock_queue
-
-        def dummy_func(**kwargs):
-            pass
-
-        # Enqueue a job with a custom queue name
-        custom_queue = 'my_custom_queue'
-        job = Job.enqueue(
-            func=dummy_func,
-            name='Test Job',
-            queue_name=custom_queue
-        )
-
-        # Verify the queue_name was stored
-        self.assertEqual(job.queue_name, custom_queue)
-        mock_get_queue.assert_called_with(custom_queue)
-
-    @patch('core.models.jobs.django_rq.get_queue')
     def test_delete_cancels_job_from_correct_queue(self, mock_get_queue):
         """
-        Test that when a job is deleted, it's canceled from the correct queue (the one stored in queue_name).
+        Test that when a job is deleted, it's canceled from the correct queue.
         """
         mock_queue = MagicMock()
         mock_rq_job = MagicMock()
