@@ -31,8 +31,9 @@ __all__ = (
 class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
     model = TenantGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('parent_id', name=_('Tenant Group')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -45,8 +46,9 @@ class TenantGroupFilterForm(NestedGroupModelFilterSetForm):
 class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
     model = Tenant
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('group_id', name=_('Tenant')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts'))
     )
     group_id = DynamicModelMultipleChoiceField(
@@ -65,8 +67,9 @@ class TenantFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
 class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
     model = ContactGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('parent_id', name=_('Contact Group')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
@@ -79,7 +82,8 @@ class ContactGroupFilterForm(NestedGroupModelFilterSetForm):
 class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
     model = ContactRole
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     tag = TagFilterField(model)
 
@@ -87,8 +91,9 @@ class ContactRoleFilterForm(OrganizationalModelFilterSetForm):
 class ContactFilterForm(PrimaryModelFilterSetForm):
     model = Contact
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('group_id', name=_('Contact')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),

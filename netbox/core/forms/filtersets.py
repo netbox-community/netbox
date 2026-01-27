@@ -26,8 +26,9 @@ __all__ = (
 class DataSourceFilterForm(PrimaryModelFilterSetForm):
     model = DataSource
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('type', 'status', 'enabled', 'sync_interval', name=_('Data Source')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),

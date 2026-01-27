@@ -4,13 +4,14 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
-from users.models import Owner
+from users.models import OwnerGroup, Owner
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'ChangelogMessageMixin',
     'CustomFieldsMixin',
     'OwnerMixin',
+    'OwnerFilterMixin',
     'SavedFiltersMixin',
     'TagsMixin',
 )
@@ -22,7 +23,7 @@ class ChangelogMessageMixin(forms.Form):
     """
     changelog_message = forms.CharField(
         required=False,
-        max_length=200
+        max_length=200,
     )
 
     def __init__(self, *args, **kwargs):
@@ -42,6 +43,7 @@ class CustomFieldsMixin:
     Attributes:
         model: The model class
     """
+
     model = None
 
     def __init__(self, *args, **kwargs):
@@ -86,13 +88,20 @@ class CustomFieldsMixin:
 
 
 class SavedFiltersMixin(forms.Form):
+    """
+    Form mixin for forms that support saved filters.
+
+    Provides a field for selecting a saved filter,
+    with options limited to those applicable to the form's model.
+    """
+
     filter_id = DynamicModelMultipleChoiceField(
         queryset=SavedFilter.objects.all(),
         required=False,
         label=_('Saved Filter'),
         query_params={
             'usable': True,
-        }
+        },
     )
 
     def __init__(self, *args, **kwargs):
@@ -107,6 +116,13 @@ class SavedFiltersMixin(forms.Form):
 
 
 class TagsMixin(forms.Form):
+    """
+    Mixin for forms that support tagging.
+
+    Provides a field for selecting tags,
+    with options limited to those applicable to the form's model.
+    """
+
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False,
@@ -124,10 +140,47 @@ class TagsMixin(forms.Form):
 
 class OwnerMixin(forms.Form):
     """
-    Add an `owner` field to forms for models which support Owner assignment.
+    Mixin for forms which adds ownership fields.
+
+    Include this mixin in forms for models which
+    support owner and/or owner group assignment.
     """
+
+    owner_group = DynamicModelChoiceField(
+        label=_('Owner group'),
+        queryset=OwnerGroup.objects.all(),
+        required=False,
+        null_option='None',
+        initial_params={'members': '$owner'},
+    )
     owner = DynamicModelChoiceField(
         queryset=Owner.objects.all(),
         required=False,
+        query_params={'group_id': '$owner_group'},
+        label=_('Owner'),
+    )
+
+
+class OwnerFilterMixin(forms.Form):
+    """
+    Mixin for filterset forms which adds owner and owner group filtering.
+
+    Include this mixin in filterset forms for models
+    which support owner and/or owner group assignment.
+    """
+
+    owner_group_id = DynamicModelMultipleChoiceField(
+        queryset=OwnerGroup.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Owner Group'),
+    )
+    owner_id = DynamicModelMultipleChoiceField(
+        queryset=Owner.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'group_id': '$owner_group_id'
+        },
         label=_('Owner'),
     )
