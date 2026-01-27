@@ -271,9 +271,14 @@ class NetBoxTable(BaseTable):
 
 
 class PrimaryModelTable(NetBoxTable):
+    owner_group = tables.Column(
+        accessor='owner__group',
+        linkify=True,
+        verbose_name=_('Owner Group'),
+    )
     owner = tables.Column(
         linkify=True,
-        verbose_name=_('Owner')
+        verbose_name=_('Owner'),
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
@@ -281,9 +286,14 @@ class PrimaryModelTable(NetBoxTable):
 
 
 class OrganizationalModelTable(NetBoxTable):
+    owner_group = tables.Column(
+        accessor='owner__group',
+        linkify=True,
+        verbose_name=_('Owner Group'),
+    )
     owner = tables.Column(
         linkify=True,
-        verbose_name=_('Owner')
+        verbose_name=_('Owner'),
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
@@ -291,9 +301,14 @@ class OrganizationalModelTable(NetBoxTable):
 
 
 class NestedGroupModelTable(NetBoxTable):
+    owner_group = tables.Column(
+        accessor='owner__group',
+        linkify=True,
+        verbose_name=_('Owner Group'),
+    )
     owner = tables.Column(
         linkify=True,
-        verbose_name=_('Owner')
+        verbose_name=_('Owner'),
     )
     name = columns.MPTTColumn(
         verbose_name=_('Name'),

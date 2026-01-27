@@ -33,7 +33,8 @@ __all__ = (
 class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSetForm):
     model = TunnelGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     tag = TagFilterField(model)
@@ -42,10 +43,11 @@ class TunnelGroupFilterForm(ContactModelFilterForm, OrganizationalModelFilterSet
 class TunnelFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Tunnel
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('status', 'encapsulation', 'tunnel_id', name=_('Tunnel')),
         FieldSet('ipsec_profile_id', name=_('Security')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenancy')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     status = forms.MultipleChoiceField(
@@ -97,10 +99,11 @@ class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
 class IKEProposalFilterForm(PrimaryModelFilterSetForm):
     model = IKEProposal
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
             'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', name=_('Parameters')
         ),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     authentication_method = forms.MultipleChoiceField(
         label=_('Authentication method'),
@@ -128,8 +131,9 @@ class IKEProposalFilterForm(PrimaryModelFilterSetForm):
 class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
     model = IKEPolicy
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('version', 'mode', 'proposal_id', name=_('Parameters')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     version = forms.MultipleChoiceField(
         label=_('IKE version'),
@@ -152,8 +156,9 @@ class IKEPolicyFilterForm(PrimaryModelFilterSetForm):
 class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
     model = IPSecProposal
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('encryption_algorithm', 'authentication_algorithm', name=_('Parameters')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     encryption_algorithm = forms.MultipleChoiceField(
         label=_('Encryption algorithm'),
@@ -171,8 +176,9 @@ class IPSecProposalFilterForm(PrimaryModelFilterSetForm):
 class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('proposal_id', 'pfs_group', name=_('Parameters')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     proposal_id = DynamicModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
@@ -190,8 +196,9 @@ class IPSecPolicyFilterForm(PrimaryModelFilterSetForm):
 class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('mode', 'ike_policy_id', 'ipsec_policy_id', name=_('Profile')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     mode = forms.MultipleChoiceField(
         label=_('Mode'),
@@ -214,9 +221,10 @@ class IPSecProfileFilterForm(PrimaryModelFilterSetForm):
 class L2VPNFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = L2VPN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('type', 'status', 'import_target_id', 'export_target_id', name=_('Attributes')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     status = forms.MultipleChoiceField(
