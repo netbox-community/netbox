@@ -59,33 +59,37 @@ class BaseViewSet(GenericViewSet):
         serializer_class = self.get_serializer_class()
 
         # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
-        if prefetch := get_prefetches_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+        if prefetch := get_prefetches_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.prefetch_related(*prefetch)
 
         # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
-        if annotations := get_annotations_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.annotate(**annotations)
 
         return qs
 
     def get_serializer(self, *args, **kwargs):
-
-        # If specific fields have been requested, pass them to the serializer
-        if self.requested_fields:
-            kwargs['fields'] = self.requested_fields
-
+        # Pass the fields/omit kwargs (if specified by the request) to the serializer
+        kwargs.update(**self.field_kwargs)
         return super().get_serializer(*args, **kwargs)
 
     @cached_property
-    def requested_fields(self):
+    def field_kwargs(self):
         # An explicit list of fields was requested
         if requested_fields := self.request.query_params.get('fields'):
-            return requested_fields.split(',')
+            return {'fields': requested_fields.split(',')}
+
+        # An explicit list of fields to omit was requested
+        if omit_fields := self.request.query_params.get('omit'):
+            return {'omit': omit_fields.split(',')}
+
         # Brief mode has been enabled for this request
-        elif self.brief:
+        if self.brief:
             serializer_class = self.get_serializer_class()
-            return getattr(serializer_class.Meta, 'brief_fields', None)
-        return None
+            if brief_fields := getattr(serializer_class.Meta, 'brief_fields', None):
+                return {'fields': brief_fields}
+
+        return {}
 
 
 class NetBoxReadOnlyModelViewSet(

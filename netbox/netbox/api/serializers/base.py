@@ -19,7 +19,7 @@ class BaseModelSerializer(serializers.ModelSerializer):
     display_url = NetBoxURLHyperlinkedIdentityField()
     display = serializers.SerializerMethodField(read_only=True)
 
-    def __init__(self, *args, nested=False, fields=None, **kwargs):
+    def __init__(self, *args, nested=False, fields=None, omit=None, **kwargs):
         """
         Extends the base __init__() method to support dynamic fields.
 
@@ -40,6 +40,15 @@ class BaseModelSerializer(serializers.ModelSerializer):
             self._requested_fields = getattr(self.Meta, 'brief_fields', None)
 
         super().__init__(*args, **kwargs)
+
+        # If fields have been specified, remove any default fields not in the list
+        if fields is not None:
+            for field_name in set(fields) - set(self.fields):
+                self.fields.pop(field_name, None)
+        # If omit is specified, remove any fields in the list
+        elif omit is not None:
+            for field_name in set(omit):
+                self.fields.pop(field_name, None)
 
     def to_internal_value(self, data):
 
