@@ -8,6 +8,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
+from dcim.utils import resolve_module_placeholders
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -170,27 +171,17 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         return modules
 
     def resolve_name(self, module):
-        if MODULE_TOKEN not in self.name:
-            return self.name
-
+        """Resolve {module} and {module_path} placeholders in component name."""
         if module:
-            modules = self._get_module_tree(module)
-            name = self.name
-            for module in modules:
-                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return name
+            positions = [m.module_bay.position for m in self._get_module_tree(module)]
+            return resolve_module_placeholders(self.name, positions)
         return self.name
 
     def resolve_label(self, module):
-        if MODULE_TOKEN not in self.label:
-            return self.label
-
+        """Resolve {module} and {module_path} placeholders in component label."""
         if module:
-            modules = self._get_module_tree(module)
-            label = self.label
-            for module in modules:
-                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return label
+            positions = [m.module_bay.position for m in self._get_module_tree(module)]
+            return resolve_module_placeholders(self.label, positions)
         return self.label
 
 
@@ -721,11 +712,26 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
+    def resolve_position(self, module):
+        """
+        Resolve {module} and {module_path} placeholders in position field.
+
+        This allows positions like "{module}/1" to resolve to "A/1" when
+        the parent module is installed in bay "A".
+
+        Fixes Issue #20467.
+        """
+        if module:
+            positions = [m.module_bay.position for m in self._get_module_tree(module)]
+            return resolve_module_placeholders(self.position, positions)
+        return self.position
+
     def instantiate(self, **kwargs):
+        module = kwargs.get('module')
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
-            position=self.position,
+            name=self.resolve_name(module),
+            label=self.resolve_label(module),
+            position=self.resolve_position(module),
             **kwargs
         )
     instantiate.do_not_call_in_templates = True

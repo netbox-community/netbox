@@ -4,6 +4,54 @@ from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
 
+from dcim.constants import MODULE_PATH_TOKEN, MODULE_TOKEN, MODULE_TOKEN_SEPARATOR
+
+
+def resolve_module_placeholders(text, positions):
+    """
+    Substitute {module} and {module_path} placeholders in text with position values.
+
+    Args:
+        text: String potentially containing {module} or {module_path} placeholders
+        positions: List of position strings from the module tree (root to leaf)
+
+    Returns:
+        Text with placeholders replaced according to these rules:
+
+        {module_path}: Always expands to full path (positions joined by MODULE_TOKEN_SEPARATOR).
+                       Can only appear once in the text.
+
+        {module}: If used once, expands to the PARENT module bay position only (last in positions).
+                  If used multiple times, each token is replaced level-by-level.
+
+    This design (Option 2 per sigprof's feedback) allows two approaches:
+    1. Use {module_path} for automatic full-path expansion (hardcodes '/' separator)
+    2. Use {module} in position fields to build custom paths with user-controlled separators
+    """
+    if not text:
+        return text
+
+    result = text
+
+    # Handle {module_path} - always expands to full path
+    if MODULE_PATH_TOKEN in result:
+        full_path = MODULE_TOKEN_SEPARATOR.join(positions) if positions else ''
+        result = result.replace(MODULE_PATH_TOKEN, full_path)
+
+    # Handle {module} - parent-only for single token, level-by-level for multiple
+    if MODULE_TOKEN in result:
+        token_count = result.count(MODULE_TOKEN)
+        if token_count == 1 and positions:
+            # Single {module}: substitute with parent (immediate) bay position only
+            parent_position = positions[-1] if positions else ''
+            result = result.replace(MODULE_TOKEN, parent_position, 1)
+        else:
+            # Multiple {module}: substitute level-by-level (existing behavior)
+            for pos in positions:
+                result = result.replace(MODULE_TOKEN, pos, 1)
+
+    return result
+
 
 def compile_path_node(ct_id, object_id):
     return f'{ct_id}:{object_id}'
