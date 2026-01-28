@@ -129,9 +129,7 @@ class JobFilterSet(BaseFilterSet):
         choices=JobStatusChoices,
         null_value=None
     )
-    queue_name = django_filters.CharFilter(
-        lookup_expr='icontains'
-    )
+    queue_name = django_filters.CharFilter()
 
     class Meta:
         model = Job
