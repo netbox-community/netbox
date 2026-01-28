@@ -5,13 +5,13 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
-from netbox.constants import ADVISORY_LOCK_KEYS
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
+from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from utilities.query import reapply_model_ordering
@@ -59,33 +59,38 @@ class BaseViewSet(GenericViewSet):
         serializer_class = self.get_serializer_class()
 
         # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
-        if prefetch := get_prefetches_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+        if prefetch := get_prefetches_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.prefetch_related(*prefetch)
 
         # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
-        if annotations := get_annotations_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.annotate(**annotations)
 
         return qs
 
     def get_serializer(self, *args, **kwargs):
-
-        # If specific fields have been requested, pass them to the serializer
-        if self.requested_fields:
-            kwargs['fields'] = self.requested_fields
-
+        # Pass the fields/omit kwargs (if specified by the request) to the serializer
+        kwargs.update(**self.field_kwargs)
         return super().get_serializer(*args, **kwargs)
 
     @cached_property
-    def requested_fields(self):
+    def field_kwargs(self):
+        """Return a dictionary of keyword arguments to be passed when instantiating the serializer."""
         # An explicit list of fields was requested
         if requested_fields := self.request.query_params.get('fields'):
-            return requested_fields.split(',')
+            return {'fields': requested_fields.split(',')}
+
+        # An explicit list of fields to omit was requested
+        if omit_fields := self.request.query_params.get('omit'):
+            return {'omit': omit_fields.split(',')}
+
         # Brief mode has been enabled for this request
-        elif self.brief:
+        if self.brief:
             serializer_class = self.get_serializer_class()
-            return getattr(serializer_class.Meta, 'brief_fields', None)
-        return None
+            if brief_fields := getattr(serializer_class.Meta, 'brief_fields', None):
+                return {'fields': brief_fields}
+
+        return {}
 
 
 class NetBoxReadOnlyModelViewSet(
