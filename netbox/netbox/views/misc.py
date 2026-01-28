@@ -53,7 +53,7 @@ class HomeView(ConditionalLoginRequiredMixin, View):
         # Check whether a new release is available. (Only for superusers.)
         new_release = None
         if request.user.is_superuser:
-            # cache.get() can raise if the cached value can't be unpickled after dependency upgrades
+            # cache.get() can raise an exception if the cached value can't be unpickled after dependency upgrades
             try:
                 latest_release = cache.get('latest_release')
             except Exception:
