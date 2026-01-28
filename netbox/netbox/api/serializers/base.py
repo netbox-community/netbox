@@ -42,15 +42,6 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
-        # If fields have been specified, remove any default fields not in the list
-        if fields is not None:
-            for field_name in set(fields) - set(self.fields):
-                self.fields.pop(field_name, None)
-        # If omit is specified, remove any fields in the list
-        elif omit is not None:
-            for field_name in set(omit):
-                self.fields.pop(field_name, None)
-
     def to_internal_value(self, data):
 
         # If initialized as a nested serializer, we should expect to receive the attrs or PK
@@ -70,9 +61,8 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         # Include only requested fields
         if self._include_fields:
-            fields = {
-                k: v for k, v in fields.items() if k in self._include_fields
-            }
+            for field_name in set(fields) - set(self._include_fields):
+                fields.pop(field_name, None)
 
         # Remove omitted fields
         for field_name in set(self._omit_fields):
