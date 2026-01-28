@@ -250,13 +250,16 @@ Similarly, you can opt to omit only specific fields by passing the `omit` parame
 GET /api/dcim/sites/?omit=circuit_count,device_count,virtualmachine_count
 ```
 
-!!! note "The `omit` paramater was introduced in NetBox v4.5.2."
+!!! note "The `omit` parameter was introduced in NetBox v4.5.2."
 
-Strategic use of the `fields` and `omit` parameters can drastically improve REST API performance, as the exclusion of fields which reference related objects reduces the number and compelxity of underlying database queries needed to generate the response.
+Strategic use of the `fields` and `omit` parameters can drastically improve REST API performance, as the exclusion of fields which reference related objects reduces the number and complexity of underlying database queries needed to generate the response.
+
+!!! note
+    The `fields` and `omit` parameters should be considered mutually exclusive. If both are passed, `fields` takes precedence.
 
 #### Brief Format
 
-Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of available objects without any related data, such as when populating a drop-down list in a form. It's also more convenient than listing out individual fileds via the `fields` or `omit` parameters. As an example, the default (complete) format of a prefix looks like this:
+Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of available objects without any related data, such as when populating a drop-down list in a form. It's also more convenient than listing out individual fields via the `fields` or `omit` parameters. As an example, the default (complete) format of a prefix looks like this:
 
 ```no-highlight
 GET /api/ipam/prefixes/13980/

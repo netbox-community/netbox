@@ -5,13 +5,13 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
-from netbox.constants import ADVISORY_LOCK_KEYS
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
+from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from utilities.query import reapply_model_ordering
@@ -75,6 +75,7 @@ class BaseViewSet(GenericViewSet):
 
     @cached_property
     def field_kwargs(self):
+        """Return a dictionary of keyword arguments to be passed when instantiating the serializer."""
         # An explicit list of fields was requested
         if requested_fields := self.request.query_params.get('fields'):
             return {'fields': requested_fields.split(',')}

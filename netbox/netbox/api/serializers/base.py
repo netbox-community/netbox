@@ -1,9 +1,8 @@
 from functools import cached_property
 
-from rest_framework import serializers
-from rest_framework.utils.serializer_helpers import BindingDict
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from rest_framework import serializers
 
 from utilities.api import get_related_object_by_attrs
 from .fields import NetBoxAPIHyperlinkedIdentityField, NetBoxURLHyperlinkedIdentityField
@@ -26,9 +25,11 @@ class BaseModelSerializer(serializers.ModelSerializer):
         :param nested: Set to True if this serializer is being employed within a parent serializer
         :param fields: An iterable of fields to include when rendering the serialized object, If nested is
             True but no fields are specified, Meta.brief_fields will be used.
+        :param omit: An iterable of fields to omit from the serialized object
         """
         self.nested = nested
-        self._requested_fields = fields
+        self._include_fields = fields or []
+        self._omit_fields = omit or []
 
         # Disable validators for nested objects (which already exist)
         if self.nested:
@@ -36,8 +37,8 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         # If this serializer is nested but no fields have been specified,
         # default to using Meta.brief_fields (if set)
-        if self.nested and not fields:
-            self._requested_fields = getattr(self.Meta, 'brief_fields', None)
+        if self.nested and not fields and not omit:
+            self._include_fields = getattr(self.Meta, 'brief_fields', None)
 
         super().__init__(*args, **kwargs)
 
@@ -63,16 +64,20 @@ class BaseModelSerializer(serializers.ModelSerializer):
     @cached_property
     def fields(self):
         """
-        Override the fields property to check for requested fields. If defined,
-        return only the applicable fields.
+        Override the fields property to return only specifically requested fields if needed.
         """
-        if not self._requested_fields:
-            return super().fields
+        fields = super().fields
 
-        fields = BindingDict(self)
-        for key, value in self.get_fields().items():
-            if key in self._requested_fields:
-                fields[key] = value
+        # Include only requested fields
+        if self._include_fields:
+            fields = {
+                k: v for k, v in fields.items() if k in self._include_fields
+            }
+
+        # Remove omitted fields
+        for field_name in set(self._omit_fields):
+            fields.pop(field_name, None)
+
         return fields
 
     @extend_schema_field(OpenApiTypes.STR)
