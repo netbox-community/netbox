@@ -6,7 +6,7 @@
   {% include 'ipam/inc/max_depth.html' %}
   {% include 'ipam/inc/max_length.html' %}  
   {% if perms.ipam.add_prefix and first_available_prefix %}
-    <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}&vrf={{ object.vrf.pk }}&site={{ object.site.pk }}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}" class="btn btn-primary">
+    <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.scope %}&scope_type={{ object.scope_type.pk }}&scope={{ object.scope.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-primary">
       <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Prefix" %}
     </a>
   {% endif %}
