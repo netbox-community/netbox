@@ -35,6 +35,9 @@ def apply_pagination(
     Replacement for the `apply_pagination()` method on StrawberryDjangoField to support cursor-based pagination.
     """
     if pagination is not None:
+        if pagination.start and pagination.offset:
+            raise ValueError('Cannot specify both `start` and `offset` in pagination.')
+
         if pagination.start not in (None, UNSET):
             # Filter the queryset to include only records with a primary key greater than or equal to the start value,
             # and force ordering by primary key to ensure consistent pagination across all records.
