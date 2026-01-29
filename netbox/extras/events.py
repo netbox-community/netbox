@@ -53,9 +53,9 @@ def serialize_for_event(instance):
 def get_snapshots(instance, event_type):
     snapshots = {
         'prechange': getattr(instance, '_prechange_snapshot', None),
-        'postchange': None,
+        'postchange': getattr(instance, '_postchange_snapshot', None),
     }
-    if event_type != OBJECT_DELETED:
+    if snapshots['postchange'] is None and event_type != OBJECT_DELETED:
         # Use model's serialize_object() method if defined; fall back to serialize_object() utility function
         if hasattr(instance, 'serialize_object'):
             snapshots['postchange'] = instance.serialize_object()
