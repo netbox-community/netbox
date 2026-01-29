@@ -3,27 +3,13 @@ import enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from utilities.data import get_config_value_ci
 from utilities.string import enum_key
 
 __all__ = (
     'ChoiceSet',
     'unpack_grouped_choices',
 )
-
-
-def _get_field_choices(config_dict, key):
-    """
-    Retrieve field choices from config dict with case-insensitive lookup.
-    Supports both lowercase (e.g. "dcim.site.status") and PascalCase (e.g. "dcim.Site.status") keys.
-    """
-    # Try exact match first
-    if key in config_dict:
-        return config_dict[key]
-    # Try case-insensitive match
-    for config_key, value in config_dict.items():
-        if config_key.lower() == key.lower():
-            return value
-    return None
 
 
 class ChoiceSetMeta(type):
@@ -39,15 +25,14 @@ class ChoiceSetMeta(type):
             ).format(name=name)
             app = attrs['__module__'].split('.', 1)[0]
             replace_key = f'{app}.{key}'
-            extend_key = f'{replace_key}+'
-            replace_choices = _get_field_choices(settings.FIELD_CHOICES, replace_key)
-            extend_choices = _get_field_choices(settings.FIELD_CHOICES, extend_key)
+            replace_choices = get_config_value_ci(settings.FIELD_CHOICES, replace_key)
             if replace_choices is not None:
-                # Replace the stock choices
                 attrs['CHOICES'] = replace_choices
-            elif extend_choices is not None:
-                # Extend the stock choices
-                attrs['CHOICES'].extend(extend_choices)
+            else:
+                extend_key = f'{replace_key}+'
+                extend_choices = get_config_value_ci(settings.FIELD_CHOICES, extend_key)
+                if extend_choices is not None:
+                    attrs['CHOICES'].extend(extend_choices)
 
         # Define choice tuples and color maps
         attrs['_choices'] = []
