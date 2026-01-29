@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-28 05:07+0000\n"
+"POT-Creation-Date: 2026-01-29 05:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10251,7 +10251,7 @@ msgstr ""
 msgid "Error deleting widget: "
 msgstr ""
 
-#: netbox/extras/views.py:1518
+#: netbox/extras/views.py:1524
 msgid "Unable to run script: RQ worker process not running."
 msgstr ""
 
@@ -12896,7 +12896,7 @@ msgstr ""
 msgid "{class_name} must implement get_children()"
 msgstr ""
 
-#: netbox/netbox/views/misc.py:46
+#: netbox/netbox/views/misc.py:49
 msgid ""
 "There was an error loading the dashboard configuration. A default dashboard "
 "is in use."
@@ -16265,24 +16265,24 @@ msgstr ""
 msgid "Example Usage"
 msgstr ""
 
-#: netbox/utilities/api.py:170
+#: netbox/utilities/api.py:179
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:173
+#: netbox/utilities/api.py:182
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:185
+#: netbox/utilities/api.py:194
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
 "attributes. Received an unrecognized value: {value}"
 msgstr ""
 
-#: netbox/utilities/api.py:194
+#: netbox/utilities/api.py:203
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr ""
