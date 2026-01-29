@@ -534,7 +534,6 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         if issubclass(self.queryset.model, MPTTModel):
             with self.queryset.model.objects.delay_mptt_updates():
                 saved_objects = self._process_import_records(form, request, records, prefetched_objects)
-            self.queryset.model.objects.rebuild()
         else:
             saved_objects = self._process_import_records(form, request, records, prefetched_objects)
 
@@ -915,8 +914,6 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                     for obj in selected_objects:
                                         setattr(obj, self.field_name, obj.new_name)
                                         obj.save()
-
-                                self.queryset.model.objects.rebuild()
                             else:
                                 for obj in selected_objects:
                                     setattr(obj, self.field_name, obj.new_name)

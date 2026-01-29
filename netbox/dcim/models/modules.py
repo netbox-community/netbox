@@ -330,6 +330,7 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 component._location = self.device.location
                 component._rack = self.device.rack
 
+            # we handle create and update separately - this is for create
             if not issubclass(component_model, MPTTModel):
                 component_model.objects.bulk_create(create_instances)
                 # Emit the post_save signal for each newly created object
@@ -349,6 +350,7 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
 
             update_fields = ['module']
 
+            # we handle create and update separately - this is for update
             component_model.objects.bulk_update(update_instances, update_fields)
             # Emit the post_save signal for each updated object
             for component in update_instances:
