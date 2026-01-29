@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
@@ -160,6 +160,13 @@ class CloningMixin(models.Model):
                 attrs[field_name] = json.dumps(field_value)
             elif field_value not in (None, ''):
                 attrs[field_name] = field_value
+
+        # Handle GenericForeignKeys. If the CT and ID fields are being cloned, also
+        # include the name of the GFK attribute itself, as this is what forms expect.
+        for field in self._meta.private_fields:
+            if isinstance(field, GenericForeignKey):
+                if field.ct_field in attrs and field.fk_field in attrs:
+                    attrs[field.name] = attrs[field.fk_field]
 
         # Include tags (if applicable)
         if is_taggable(self):
