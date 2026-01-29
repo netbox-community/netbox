@@ -12,10 +12,13 @@ from django.core.validators import URLValidator
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils import field_mapping
+from strawberry_django import pagination
+from strawberry_django.fields.field import StrawberryDjangoField
 
 from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
+from netbox.graphql.pagination import OffsetPaginationInput, apply_pagination
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 import storages.utils  # type: ignore
@@ -32,6 +35,12 @@ from .monkey import get_unique_validators
 # TODO: Remove this once #20547 has been implemented
 # Override DRF's get_unique_validators() function with our own (see bug #19302)
 field_mapping.get_unique_validators = get_unique_validators
+
+# Override strawberry-django's OffsetPaginationInput class to add the `start` parameter
+pagination.OffsetPaginationInput = OffsetPaginationInput
+
+# Patch StrawberryDjangoField to use our custom `apply_pagination()` method with support for cursor-based pagination
+StrawberryDjangoField.apply_pagination = apply_pagination
 
 
 #
