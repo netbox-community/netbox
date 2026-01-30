@@ -373,15 +373,21 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         super().clean()
 
         # Validate location/site assignment
-        if self.site and self.location and self.location.site != self.site:
+        if getattr(self, 'site', None) and getattr(self, 'location', None) and self.location.site != self.site:
             raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit
-        if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
+        if any(
+                [
+                    getattr(self, 'outer_width', None),
+                    getattr(self, 'outer_depth', None),
+                    getattr(self, 'outer_height', None),
+                ]
+        ) and not getattr(self, 'outer_unit', None):
             raise ValidationError(_("Must specify a unit when setting an outer dimension"))
 
         # Validate max_weight and weight_unit
-        if self.max_weight and not self.weight_unit:
+        if getattr(self, 'max_weight', None) and not getattr(self, 'weight_unit', None):
             raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
         if not self._state.adding:
