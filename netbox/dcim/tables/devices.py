@@ -880,23 +880,45 @@ class DeviceBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
-    role = columns.ColoredLabelColumn(
-        accessor=Accessor('installed_device__role'),
-        verbose_name=_('Role')
-    )
-    device_type = tables.Column(
-        accessor=Accessor('installed_device__device_type'),
-        linkify=True,
-        verbose_name=_('Type')
-    )
     status = tables.TemplateColumn(
         verbose_name=_('Status'),
         template_code=DEVICEBAY_STATUS,
         order_by=Accessor('installed_device__status')
     )
     installed_device = tables.Column(
-        verbose_name=_('Installed device'),
+        verbose_name=_('Installed Device'),
         linkify=True
+    )
+    installed_role = columns.ColoredLabelColumn(
+        accessor=Accessor('installed_device__role'),
+        verbose_name=_('Installed Device Role')
+    )
+    installed_device_type = tables.Column(
+        accessor=Accessor('installed_device__device_type'),
+        linkify=True,
+        verbose_name=_('Installed Device Type')
+    )
+    installed_description = tables.Column(
+        accessor=Accessor('installed_device__description'),
+        verbose_name=_('Installed Device Description')
+    )
+    installed_primary_ip = tables.Column(
+        accessor=Accessor('installed_device__primary_ip'),
+        linkify=True,
+        verbose_name=_('Installed Device IP Address')
+    )
+    installed_platform = tables.Column(
+        accessor=Accessor('installed_device__platform'),
+        linkify=True,
+        verbose_name=_('Installed Device Platform')
+    )
+    installed_serial = tables.Column(
+        accessor=Accessor('installed_device__serial'),
+        verbose_name=_('Installed Device Serial')
+    )
+    installed_asset_tag = tables.Column(
+        accessor=Accessor('installed_device__asset_tag'),
+        verbose_name=_('Installed Device Asset Tag')
     )
     tags = columns.TagColumn(
         url_name='dcim:devicebay_list'
@@ -905,8 +927,9 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'role', 'device_type', 'installed_device', 'description',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'label', 'status', 'installed_role', 'installed_device_type',
+            'installed_device', 'description', 'installed_description', 'installed_primary_ip', 'installed_platform',
+            'installed_serial', 'installed_asset_tag', 'tags', 'created', 'last_updated',
         )
 
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
