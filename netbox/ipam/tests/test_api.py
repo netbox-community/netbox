@@ -595,6 +595,31 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(len(response.data), 8)
 
+    def test_create_available_ip_with_mask(self):
+        """
+        Test the creation of an available IP address with a specific prefix length.
+        """
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
+        url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
+
+        # Create an available IP with a specific prefix length
+        data = {
+            'prefix_length': 32,
+            'description': 'Test IP 1',
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['address'], '192.0.2.1/32')
+        self.assertEqual(response.data['description'], data['description'])
+
+        # Attempt to create an available IP with a prefix length less than its parent prefix
+        data = {
+            'prefix_length': 23,  # Prefix is a /24
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
     @tag('regression')
     def test_graphql_tenant_prefixes_contains_nested_skips_invalid(self):
         """

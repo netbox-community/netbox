@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.db import models
 from django.http import QueryDict
 from django.template import Context
@@ -14,6 +15,7 @@ from utilities.forms.fields import TagFilterField
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.widgets import FilterModifierWidget
 from utilities.templatetags.helpers import applied_filters
+from tenancy.models import Tenant
 
 
 # Test model for FilterModifierMixin tests
@@ -98,6 +100,51 @@ class FilterModifierWidgetTest(TestCase):
         self.assertEqual(context['widget']['field_name'], 'serial')
         self.assertEqual(context['widget']['current_modifier'], 'exact')  # Defaults to exact, JS updates from URL
         self.assertEqual(context['widget']['current_value'], 'test')
+
+    def test_get_context_handles_null_selection(self):
+        """Widget should preserve the 'null' choice when rendering."""
+
+        null_value = settings.FILTERS_NULL_CHOICE_VALUE
+        null_label = settings.FILTERS_NULL_CHOICE_LABEL
+
+        # Simulate a query for objects with no tenant assigned (?tenant_id=null)
+        query_params = QueryDict(f'tenant_id={null_value}')
+        form = DeviceFilterForm(query_params)
+
+        # Rendering the field triggers FilterModifierWidget.get_context()
+        try:
+            html = form['tenant_id'].as_widget()
+        except ValueError as e:
+            # ValueError: Field 'id' expected a number but got 'null'
+            self.fail(f"FilterModifierWidget raised ValueError on 'null' selection: {e}")
+
+        # Verify the "None" option is rendered so user selection is preserved in the UI
+        self.assertIn(f'value="{null_value}"', html)
+        self.assertIn(null_label, html)
+
+    def test_get_context_handles_mixed_selection(self):
+        """Widget should preserve both real objects and the 'null' choice together."""
+
+        null_value = settings.FILTERS_NULL_CHOICE_VALUE
+
+        # Create a tenant to simulate a real object
+        tenant = Tenant.objects.create(name='Tenant A', slug='tenant-a')
+
+        # Simulate a selection containing both a real PK and the null sentinel
+        query_params = QueryDict('', mutable=True)
+        query_params.setlist('tenant_id', [str(tenant.pk), null_value])
+        form = DeviceFilterForm(query_params)
+
+        # Rendering the field triggers FilterModifierWidget.get_context()
+        try:
+            html = form['tenant_id'].as_widget()
+        except ValueError as e:
+            # ValueError: Field 'id' expected a number but got 'null'
+            self.fail(f"FilterModifierWidget raised ValueError on 'null' selection: {e}")
+
+        # Verify both the real object and the null option are present in the output
+        self.assertIn(f'value="{tenant.pk}"', html)
+        self.assertIn(f'value="{null_value}"', html)
 
     def test_widget_renders_modifier_dropdown_and_input(self):
         """Widget should render modifier dropdown alongside original input."""

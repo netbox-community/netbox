@@ -27,6 +27,7 @@ __all__ = (
     'DeviceTable',
     'FrontPortTable',
     'InterfaceTable',
+    'InterfaceLAGMemberTable',
     'InventoryItemRoleTable',
     'InventoryItemTable',
     'MACAddressTable',
@@ -687,6 +688,33 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
             'qinq_svlan', 'inventory_items', 'created', 'last_updated', 'vlan_translation_policy'
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
+
+
+class InterfaceLAGMemberTable(PathEndpointTable, NetBoxTable):
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        accessor=Accessor('device'),
+        linkify=True,
+    )
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True,
+        order_by=('_name',),
+    )
+    connection = columns.TemplateColumn(
+        accessor='connected_endpoints',
+        template_code=INTERFACE_LAG_MEMBERS_LINKTERMINATION,
+        verbose_name=_('Peer'),
+        orderable=False,
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:interface_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = models.Interface
+        fields = ('pk', 'parent', 'name', 'type', 'connection')
+        default_columns = ('pk', 'parent', 'name', 'type', 'connection')
 
 
 class DeviceInterfaceTable(InterfaceTable):

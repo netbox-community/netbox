@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 from core.events import *
 from core.signals import job_end, job_start
-from extras.events import process_event_rules
+from extras.events import EventContext, process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.models.features import has_feature
@@ -102,14 +102,12 @@ def process_job_start_event_rules(sender, **kwargs):
         enabled=True,
         object_types=sender.object_type
     )
-    username = sender.user.username if sender.user else None
-    process_event_rules(
-        event_rules=event_rules,
-        object_type=sender.object_type,
+    event = EventContext(
         event_type=JOB_STARTED,
         data=sender.data,
-        username=username
+        user=sender.user,
     )
+    process_event_rules(event_rules, sender.object_type, event)
 
 
 @receiver(job_end)
@@ -122,14 +120,12 @@ def process_job_end_event_rules(sender, **kwargs):
         enabled=True,
         object_types=sender.object_type
     )
-    username = sender.user.username if sender.user else None
-    process_event_rules(
-        event_rules=event_rules,
-        object_type=sender.object_type,
+    event = EventContext(
         event_type=JOB_COMPLETED,
         data=sender.data,
-        username=username
+        user=sender.user,
     )
+    process_event_rules(event_rules, sender.object_type, event)
 
 
 #

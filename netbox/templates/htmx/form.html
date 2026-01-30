@@ -27,6 +27,9 @@
       <div class="row">
         <h2 class="col-9 offset-3">{% trans "Ownership" %}</h2>
       </div>
+      {% if form.owner_group %}
+        {% render_field form.owner_group %}
+      {% endif %}
       {% render_field form.owner %}
     </div>
   {% endif %}

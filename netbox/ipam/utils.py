@@ -49,6 +49,9 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
     if prefix_list and show_available:
 
         # Find all unallocated space, add fake Prefix objects to child_prefixes.
+        # IMPORTANT: These are unsaved Prefix instances (pk=None). If this is ever changed to use
+        # saved Prefix instances with real pks, bulk delete will fail for mixed-type selections
+        # due to single-model form validation. See: https://github.com/netbox-community/netbox/issues/21176
         available_prefixes = netaddr.IPSet(parent) ^ netaddr.IPSet([p.prefix for p in prefix_list])
         available_prefixes = [Prefix(prefix=p, status=None) for p in available_prefixes.iter_cidrs()]
         child_prefixes = child_prefixes + available_prefixes

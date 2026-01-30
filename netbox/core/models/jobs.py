@@ -112,6 +112,12 @@ class Job(models.Model):
         verbose_name=_('job ID'),
         unique=True
     )
+    queue_name = models.CharField(
+        verbose_name=_('queue name'),
+        max_length=100,
+        blank=True,
+        help_text=_('Name of the queue in which this job was enqueued')
+    )
     log_entries = ArrayField(
         verbose_name=_('log entries'),
         base_field=models.JSONField(
@@ -179,11 +185,15 @@ class Job(models.Model):
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
     def delete(self, *args, **kwargs):
+        # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs
+        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
+        rq_job_id = str(self.job_id)
+
         super().delete(*args, **kwargs)
 
-        rq_queue_name = get_queue_for_model(self.object_type.model if self.object_type else None)
+        # Cancel the RQ job using the stored queue name
         queue = django_rq.get_queue(rq_queue_name)
-        job = queue.fetch_job(str(self.job_id))
+        job = queue.fetch_job(rq_job_id)
 
         if job:
             try:
@@ -288,7 +298,8 @@ class Job(models.Model):
             scheduled=schedule_at,
             interval=interval,
             user=user,
-            job_id=uuid.uuid4()
+            job_id=uuid.uuid4(),
+            queue_name=rq_queue_name
         )
         job.full_clean()
         job.save()

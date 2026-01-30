@@ -215,9 +215,51 @@ http://netbox/api/ipam/ip-addresses/ \
 
 If we wanted to assign this IP address to a virtual machine interface instead, we would have set `assigned_object_type` to `virtualization.vminterface` and updated the object ID appropriately.
 
-### Brief Format
+### Specifying Fields
 
-Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of available objects without any related data, such as when populating a drop-down list in a form. As an example, the default (complete) format of a prefix looks like this:
+A REST API response will include all available fields for the object type by default. If you wish to return only a subset of the available fields, you can append `?fields=` to the URL followed by a comma-separated list of field names. For example, the following request will return only the `id`, `name`, `status`, and `region` fields for each site in the response.
+
+```
+GET /api/dcim/sites/?fields=id,name,status,region
+```
+
+```json
+{
+    "id": 1,
+    "name": "DM-NYC",
+    "status": {
+        "value": "active",
+        "label": "Active"
+    },
+    "region": {
+        "id": 43,
+        "url": "http://netbox:8000/api/dcim/regions/43/",
+        "display": "New York",
+        "name": "New York",
+        "slug": "us-ny",
+        "description": "",
+        "site_count": 0,
+        "_depth": 2
+    }
+}
+```
+
+Similarly, you can opt to omit only specific fields by passing the `omit` parameter:
+
+```
+GET /api/dcim/sites/?omit=circuit_count,device_count,virtualmachine_count
+```
+
+!!! note "The `omit` parameter was introduced in NetBox v4.5.2."
+
+Strategic use of the `fields` and `omit` parameters can drastically improve REST API performance, as the exclusion of fields which reference related objects reduces the number and complexity of underlying database queries needed to generate the response.
+
+!!! note
+    The `fields` and `omit` parameters should be considered mutually exclusive. If both are passed, `fields` takes precedence.
+
+#### Brief Format
+
+Most API endpoints support an optional "brief" format, which returns only a minimal representation of each object in the response. This is useful when you need only a list of available objects without any related data, such as when populating a drop-down list in a form. It's also more convenient than listing out individual fields via the `fields` or `omit` parameters. As an example, the default (complete) format of a prefix looks like this:
 
 ```no-highlight
 GET /api/ipam/prefixes/13980/
@@ -270,10 +312,10 @@ GET /api/ipam/prefixes/13980/
 }
 ```
 
-The brief format is much more terse:
+The brief format includes only a few fields:
 
 ```no-highlight
-GET /api/ipam/prefixes/13980/?brief=1
+GET /api/ipam/prefixes/13980/?brief=true
 ```
 
 ```json

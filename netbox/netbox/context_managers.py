@@ -1,6 +1,7 @@
+from collections import defaultdict
 from contextlib import contextmanager
 
-from netbox.context import current_request, events_queue
+from netbox.context import current_request, events_queue, query_cache
 from netbox.utils import register_request_processor
 from extras.events import flush_events
 
@@ -16,6 +17,7 @@ def event_tracking(request):
     """
     current_request.set(request)
     events_queue.set({})
+    query_cache.set(defaultdict(dict))
 
     yield
 
@@ -26,3 +28,4 @@ def event_tracking(request):
     # Clear context vars
     current_request.set(None)
     events_queue.set({})
+    query_cache.set(None)

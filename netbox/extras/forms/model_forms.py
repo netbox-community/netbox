@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms.mixins import SyncedDataMixin
 from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
@@ -175,6 +176,13 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
             'Enter one choice per line. An optional label may be specified for each choice by appending it with a '
             'colon. Example:'
         ) + ' <code>choice1:First Choice</code>')
+    )
+
+    fieldsets = (
+        FieldSet(
+            'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
+            name=_('Custom Field Choice Set')
+        ),
     )
 
     class Meta:
@@ -570,10 +578,6 @@ class TagForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         queryset=ObjectType.objects.with_feature('tags'),
         required=False
     )
-    weight = forms.IntegerField(
-        label=_('Weight'),
-        required=False
-    )
 
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'weight', 'description', 'object_types', name=_('Tag')),
@@ -784,8 +788,11 @@ class ImageAttachmentForm(forms.ModelForm):
         fields = [
             'image', 'name', 'description',
         ]
-        help_texts = {
-            'name': _("If no name is specified, the file name will be used.")
+        # Explicitly set 'image/avif' to support AVIF selection in Firefox
+        widgets = {
+            'image': forms.ClearableFileInput(
+                attrs={'accept': ','.join(sorted(set(IMAGE_ATTACHMENT_IMAGE_FORMATS.values())))}
+            ),
         }
 
 
