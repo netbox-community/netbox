@@ -208,9 +208,12 @@ class CachedValueSearchBackend(SearchBackend):
                     except KeyError:
                         break
 
-                # Prefetch any associated custom fields
+                # Prefetch any associated custom fields (excluding those with a zero search weight)
                 object_type = ObjectType.objects.get_for_model(indexer.model)
-                custom_fields = CustomField.objects.filter(object_types=object_type).exclude(search_weight=0)
+                custom_fields = [
+                    cf for cf in CustomField.objects.get_for_model(indexer.model)
+                    if cf.search_weight > 0
+                ]
 
             # Wipe out any previously cached values for the object
             if remove_existing:
