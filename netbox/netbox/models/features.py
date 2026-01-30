@@ -125,6 +125,7 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
             objectchange.postchange_data = self._postchange_snapshot
 
         return objectchange
+    to_objectchange.alters_data = True
 
 
 class CloningMixin(models.Model):
