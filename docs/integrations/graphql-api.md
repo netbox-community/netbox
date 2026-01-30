@@ -137,6 +137,8 @@ The GraphQL API supports two types of pagination. Offset-based pagination operat
 
 The alternative approach is cursor-based pagination, which operates using absolute (rather than relative) primary key values. (These are the numeric IDs assigned to each object in the database.) When using cursor-based pagination, the response will contain records with a primary key greater than or equal to the specified start value, up to the maximum number of results. This strategy requires keeping track of the last seen primary key from each response when paginating through data, but is extremely performant. The cursor is specified by passing the starting object ID via the `start` parameter.
 
+To ensure consistent ordering, objects will always be ordered by their primary keys when cursor-based pagination is used.
+
 !!! note "Cursor-based pagination was introduced in NetBox v4.5.2."
 
 Both pagination strategies support passing an optional `limit` parameter. In both approaches, this specifies the maximum number of objects to include in the response. If no limit is specified, a default value of 100 is used.
