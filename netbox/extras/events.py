@@ -51,18 +51,26 @@ def serialize_for_event(instance):
 
 
 def get_snapshots(instance, event_type):
-    snapshots = {
-        'prechange': getattr(instance, '_prechange_snapshot', None),
-        'postchange': None,
-    }
-    if event_type != OBJECT_DELETED:
-        # Use model's serialize_object() method if defined; fall back to serialize_object() utility function
-        if hasattr(instance, 'serialize_object'):
-            snapshots['postchange'] = instance.serialize_object()
-        else:
-            snapshots['postchange'] = serialize_object(instance)
+    """
+    Return a dictionary of pre- and post-change snapshots for the given instance.
+    """
+    if event_type == OBJECT_DELETED:
+        # Post-change snapshot must be empty for deleted objects
+        postchange_snapshot = None
+    elif hasattr(instance, '_postchange_snapshot'):
+        # Use the cached post-change snapshot if one is available
+        postchange_snapshot = instance._postchange_snapshot
+    elif hasattr(instance, 'serialize_object'):
+        # Use model's serialize_object() method if defined
+        postchange_snapshot = instance.serialize_object()
+    else:
+        # Fall back to the serialize_object() utility function
+        postchange_snapshot = serialize_object(instance)
 
-    return snapshots
+    return {
+        'prechange': getattr(instance, '_prechange_snapshot', None),
+        'postchange': postchange_snapshot,
+    }
 
 
 def enqueue_event(queue, instance, request, event_type):

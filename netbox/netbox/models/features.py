@@ -121,9 +121,11 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            objectchange.postchange_data = self.serialize_object(exclude=exclude)
+            self._postchange_snapshot = self.serialize_object(exclude=exclude)
+            objectchange.postchange_data = self._postchange_snapshot
 
         return objectchange
+    to_objectchange.alters_data = True
 
 
 class CloningMixin(models.Model):
