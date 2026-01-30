@@ -180,6 +180,8 @@ class NetBoxModelViewSet(
         # to ensure related objects are prefetched.
         if bulk_create:
             instance_pks = [obj.pk for obj in serializer.instance]
+            # Order by PK to ensure that the ordering of objects in the response
+            # matches the ordering of those in the request.
             qs = self.get_queryset().filter(pk__in=instance_pks).order_by('pk')
         else:
             qs = self.get_queryset().get(pk=serializer.instance.pk)
