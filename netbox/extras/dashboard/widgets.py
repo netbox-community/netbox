@@ -75,10 +75,11 @@ def get_bookmarks_object_type_choices():
 def get_models_from_content_types(content_types):
     """
     Return a list of models corresponding to the given content types, identified by natural key.
+    Accepts both lowercase (e.g. "dcim.site") and PascalCase (e.g. "dcim.Site") model names.
     """
     models = []
     for content_type_id in content_types:
-        app_label, model_name = content_type_id.split('.')
+        app_label, model_name = content_type_id.lower().split('.')
         try:
             content_type = ObjectType.objects.get_by_natural_key(app_label, model_name)
             if content_type.model_class():

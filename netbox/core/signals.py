@@ -18,6 +18,7 @@ from extras.events import enqueue_event
 from extras.models import Tag
 from extras.utils import run_validators
 from netbox.config import get_config
+from utilities.data import get_config_value_ci
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin, get_model_features, model_is_public
 from utilities.exceptions import AbortRequest
@@ -168,7 +169,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().PROTECTION_RULES.get(model_name, [])
+    validators = get_config_value_ci(get_config().PROTECTION_RULES, model_name, default=[])
     try:
         run_validators(instance, validators)
     except ValidationError as e:
