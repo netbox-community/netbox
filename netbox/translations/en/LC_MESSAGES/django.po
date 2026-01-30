@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-29 05:16+0000\n"
+"POT-Creation-Date: 2026-01-30 05:18+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -293,8 +293,8 @@ msgstr ""
 
 #: netbox/circuits/filtersets.py:278 netbox/circuits/filtersets.py:382
 #: netbox/circuits/filtersets.py:547 netbox/core/filtersets.py:85
-#: netbox/core/filtersets.py:150 netbox/core/filtersets.py:176
-#: netbox/core/filtersets.py:216 netbox/dcim/filtersets.py:810
+#: netbox/core/filtersets.py:154 netbox/core/filtersets.py:180
+#: netbox/core/filtersets.py:220 netbox/dcim/filtersets.py:810
 #: netbox/dcim/filtersets.py:1568 netbox/dcim/filtersets.py:2692
 #: netbox/extras/filtersets.py:48 netbox/extras/filtersets.py:71
 #: netbox/extras/filtersets.py:101 netbox/extras/filtersets.py:142
@@ -763,7 +763,7 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:132
 #: netbox/circuits/forms/filtersets.py:322
 #: netbox/circuits/forms/filtersets.py:338 netbox/core/forms/filtersets.py:75
-#: netbox/core/forms/filtersets.py:143 netbox/dcim/forms/bulk_edit.py:818
+#: netbox/core/forms/filtersets.py:147 netbox/dcim/forms/bulk_edit.py:818
 #: netbox/dcim/forms/bulk_import.py:480 netbox/dcim/forms/filtersets.py:199
 #: netbox/dcim/forms/filtersets.py:232 netbox/dcim/forms/filtersets.py:1012
 #: netbox/dcim/forms/filtersets.py:1155 netbox/dcim/forms/filtersets.py:1285
@@ -2189,7 +2189,7 @@ msgstr ""
 msgid "Data source (name)"
 msgstr ""
 
-#: netbox/core/filtersets.py:186 netbox/dcim/filtersets.py:521
+#: netbox/core/filtersets.py:190 netbox/dcim/filtersets.py:521
 #: netbox/extras/filtersets.py:302 netbox/extras/filtersets.py:355
 #: netbox/extras/filtersets.py:401 netbox/extras/filtersets.py:424
 #: netbox/extras/filtersets.py:490 netbox/users/filtersets.py:31
@@ -2197,7 +2197,7 @@ msgstr ""
 msgid "User (ID)"
 msgstr ""
 
-#: netbox/core/filtersets.py:192
+#: netbox/core/filtersets.py:196
 msgid "User name"
 msgstr ""
 
@@ -2277,7 +2277,7 @@ msgstr ""
 msgid "Creation"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:82 netbox/core/forms/filtersets.py:168
+#: netbox/core/forms/filtersets.py:82 netbox/core/forms/filtersets.py:172
 #: netbox/extras/forms/filtersets.py:577 netbox/extras/tables/tables.py:271
 #: netbox/extras/tables/tables.py:338 netbox/extras/tables/tables.py:364
 #: netbox/extras/tables/tables.py:383 netbox/extras/tables/tables.py:415
@@ -2288,39 +2288,44 @@ msgstr ""
 msgid "Object Type"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:92
+#: netbox/core/forms/filtersets.py:92 netbox/core/tables/jobs.py:46
+#: netbox/templates/core/job.html:63 netbox/templates/core/rq_task.html:61
+msgid "Queue"
+msgstr ""
+
+#: netbox/core/forms/filtersets.py:96
 msgid "Created after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:97
+#: netbox/core/forms/filtersets.py:101
 msgid "Created before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:102
+#: netbox/core/forms/filtersets.py:106
 msgid "Scheduled after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:107
+#: netbox/core/forms/filtersets.py:111
 msgid "Scheduled before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:112
+#: netbox/core/forms/filtersets.py:116
 msgid "Started after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:117
+#: netbox/core/forms/filtersets.py:121
 msgid "Started before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:122
+#: netbox/core/forms/filtersets.py:126
 msgid "Completed after"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:127
+#: netbox/core/forms/filtersets.py:131
 msgid "Completed before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:134 netbox/core/forms/filtersets.py:163
+#: netbox/core/forms/filtersets.py:138 netbox/core/forms/filtersets.py:167
 #: netbox/dcim/forms/bulk_edit.py:455 netbox/dcim/forms/filtersets.py:509
 #: netbox/dcim/forms/model_forms.py:326 netbox/extras/forms/filtersets.py:572
 #: netbox/extras/forms/filtersets.py:592 netbox/extras/tables/tables.py:391
@@ -2336,22 +2341,22 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:142 netbox/core/tables/change_logging.py:15
-#: netbox/core/tables/jobs.py:69 netbox/extras/tables/tables.py:773
+#: netbox/core/forms/filtersets.py:146 netbox/core/tables/change_logging.py:15
+#: netbox/core/tables/jobs.py:72 netbox/extras/tables/tables.py:773
 #: netbox/extras/tables/tables.py:828
 #: netbox/templates/core/objectchange.html:32
 msgid "Time"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:147 netbox/extras/forms/filtersets.py:561
+#: netbox/core/forms/filtersets.py:151 netbox/extras/forms/filtersets.py:561
 msgid "After"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:152 netbox/extras/forms/filtersets.py:566
+#: netbox/core/forms/filtersets.py:156 netbox/extras/forms/filtersets.py:566
 msgid "Before"
 msgstr ""
 
-#: netbox/core/forms/filtersets.py:156 netbox/core/tables/change_logging.py:29
+#: netbox/core/forms/filtersets.py:160 netbox/core/tables/change_logging.py:29
 #: netbox/extras/forms/model_forms.py:484
 #: netbox/templates/core/objectchange.html:46
 #: netbox/templates/extras/eventrule.html:71
@@ -2721,28 +2726,36 @@ msgid "job ID"
 msgstr ""
 
 #: netbox/core/models/jobs.py:116
+msgid "queue name"
+msgstr ""
+
+#: netbox/core/models/jobs.py:119
+msgid "Name of the queue in which this job was enqueued"
+msgstr ""
+
+#: netbox/core/models/jobs.py:122
 msgid "log entries"
 msgstr ""
 
-#: netbox/core/models/jobs.py:132
+#: netbox/core/models/jobs.py:138
 msgid "job"
 msgstr ""
 
-#: netbox/core/models/jobs.py:133
+#: netbox/core/models/jobs.py:139
 msgid "jobs"
 msgstr ""
 
-#: netbox/core/models/jobs.py:163
+#: netbox/core/models/jobs.py:169
 #, python-brace-format
 msgid "Jobs cannot be assigned to this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/jobs.py:216
+#: netbox/core/models/jobs.py:226
 #, python-brace-format
 msgid "Invalid status for job termination. Choices are: {choices}"
 msgstr ""
 
-#: netbox/core/models/jobs.py:273
+#: netbox/core/models/jobs.py:283
 msgid ""
 "enqueue() cannot be called with values for both schedule_at and immediate."
 msgstr ""
@@ -2788,7 +2801,7 @@ msgstr ""
 msgid "Request ID"
 msgstr ""
 
-#: netbox/core/tables/change_logging.py:45 netbox/core/tables/jobs.py:76
+#: netbox/core/tables/change_logging.py:45 netbox/core/tables/jobs.py:79
 #: netbox/extras/tables/tables.py:784 netbox/extras/tables/tables.py:841
 #: netbox/templates/core/objectchange.html:68
 msgid "Message"
@@ -2831,16 +2844,16 @@ msgstr ""
 msgid "Interval"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:46
+#: netbox/core/tables/jobs.py:49
 msgid "Log Entries"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:73 netbox/extras/tables/tables.py:778
+#: netbox/core/tables/jobs.py:76 netbox/extras/tables/tables.py:778
 #: netbox/extras/tables/tables.py:832
 msgid "Level"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:80
+#: netbox/core/tables/jobs.py:83
 msgid "No log entries"
 msgstr ""
 
@@ -8873,7 +8886,7 @@ msgstr ""
 
 #: netbox/extras/forms/filtersets.py:176 netbox/extras/forms/filtersets.py:377
 #: netbox/extras/forms/filtersets.py:400 netbox/extras/forms/filtersets.py:496
-#: netbox/extras/forms/model_forms.py:690 netbox/templates/core/job.html:69
+#: netbox/extras/forms/model_forms.py:690 netbox/templates/core/job.html:73
 #: netbox/templates/extras/eventrule.html:84
 msgid "Data"
 msgstr ""
@@ -13572,10 +13585,6 @@ msgstr ""
 
 #: netbox/templates/core/rq_task.html:39
 msgid "Enqueue"
-msgstr ""
-
-#: netbox/templates/core/rq_task.html:61
-msgid "Queue"
 msgstr ""
 
 #: netbox/templates/core/rq_task.html:65
