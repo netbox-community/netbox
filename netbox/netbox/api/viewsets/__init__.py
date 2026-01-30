@@ -170,6 +170,28 @@ class NetBoxModelViewSet(
 
     # Creates
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        bulk_create = getattr(serializer, 'many', False)
+        self.perform_create(serializer)
+
+        # After creating the instance(s), re-initialize the serializer with a queryset
+        # to ensure related objects are prefetched.
+        if bulk_create:
+            instance_pks = [obj.pk for obj in serializer.instance]
+            # Order by PK to ensure that the ordering of objects in the response
+            # matches the ordering of those in the request.
+            qs = self.get_queryset().filter(pk__in=instance_pks).order_by('pk')
+        else:
+            qs = self.get_queryset().get(pk=serializer.instance.pk)
+
+        # Re-serialize the instance(s) with prefetched data
+        serializer = self.get_serializer(qs, many=bulk_create)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def perform_create(self, serializer):
         model = self.queryset.model
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
@@ -186,9 +208,20 @@ class NetBoxModelViewSet(
     # Updates
 
     def update(self, request, *args, **kwargs):
-        # Hotwire get_object() to ensure we save a pre-change snapshot
-        self.get_object = self.get_object_with_snapshot
-        return super().update(request, *args, **kwargs)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object_with_snapshot()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # After updating the instance, re-initialize the serializer with a queryset
+        # to ensure related objects are prefetched.
+        qs = self.get_queryset().get(pk=serializer.instance.pk)
+
+        # Re-serialize the instance(s) with prefetched data
+        serializer = self.get_serializer(qs)
+
+        return Response(serializer.data)
 
     def perform_update(self, serializer):
         model = self.queryset.model
