@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
+
 from dcim.forms.common import InterfaceCommonForm
 from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
@@ -236,6 +238,12 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Set field labels based on base unit
+        if RAM_BASE_UNIT == 1024:
+            self.fields['memory'].label = _('Memory (MiB)')
+        if DISK_BASE_UNIT == 1024:
+            self.fields['disk'].label = _('Disk (MiB)')
+
         if self.instance.pk:
 
             # Disable the disk field if one or more VirtualDisks have been created
@@ -401,3 +409,8 @@ class VirtualDiskForm(VMComponentForm):
         fields = [
             'virtual_machine', 'name', 'size', 'description', 'owner', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if DISK_BASE_UNIT == 1024:
+            self.fields['size'].label = _('Size (MiB)')
