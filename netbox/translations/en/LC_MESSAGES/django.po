@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-30 05:18+0000\n"
+"POT-Creation-Date: 2026-01-31 05:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2772,7 +2772,7 @@ msgstr ""
 msgid "Sync Data"
 msgstr ""
 
-#: netbox/core/signals.py:176
+#: netbox/core/signals.py:177
 #, python-brace-format
 msgid "Deletion is prevented by a protection rule: {message}"
 msgstr ""
@@ -8420,102 +8420,102 @@ msgstr ""
 msgid "Unregistered widget class: {name}"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:148
+#: netbox/extras/dashboard/widgets.py:149
 #, python-brace-format
 msgid "{class_name} must define a render() method."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:167
+#: netbox/extras/dashboard/widgets.py:168
 msgid "Note"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:168
+#: netbox/extras/dashboard/widgets.py:169
 msgid "Display some arbitrary custom content. Markdown is supported."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:181 netbox/templates/core/system.html:34
+#: netbox/extras/dashboard/widgets.py:182 netbox/templates/core/system.html:34
 #: netbox/templates/core/system.html:163
 msgid "Object Counts"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:182
+#: netbox/extras/dashboard/widgets.py:183
 msgid ""
 "Display a set of NetBox models and the number of objects created for each "
 "type."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:192
+#: netbox/extras/dashboard/widgets.py:193
 msgid "Filters to apply when counting the number of objects"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:200
+#: netbox/extras/dashboard/widgets.py:201
 msgid "Invalid format. Object filters must be passed as a dictionary."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:234
+#: netbox/extras/dashboard/widgets.py:235
 msgid "Object List"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:235
+#: netbox/extras/dashboard/widgets.py:236
 msgid "Display an arbitrary list of objects."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:248
+#: netbox/extras/dashboard/widgets.py:249
 msgid "The default number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:260
+#: netbox/extras/dashboard/widgets.py:261
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:269
+#: netbox/extras/dashboard/widgets.py:270
 msgid "Invalid model selection: {self['model'].data} is not supported."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:309
+#: netbox/extras/dashboard/widgets.py:310
 msgid "RSS Feed"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:316
+#: netbox/extras/dashboard/widgets.py:317
 msgid "Embed an RSS feed from an external website."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:323
+#: netbox/extras/dashboard/widgets.py:324
 msgid "Feed URL"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:327
+#: netbox/extras/dashboard/widgets.py:328
 msgid "Requires external connection"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:333
+#: netbox/extras/dashboard/widgets.py:334
 msgid "The maximum number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:338
+#: netbox/extras/dashboard/widgets.py:339
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:344
+#: netbox/extras/dashboard/widgets.py:345
 msgid "Timeout value for fetching the feed (in seconds)"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:401 netbox/templates/account/base.html:10
+#: netbox/extras/dashboard/widgets.py:402 netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:41
 msgid "Bookmarks"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:405
+#: netbox/extras/dashboard/widgets.py:406
 msgid "Show your personal bookmarks"
 msgstr ""
 
-#: netbox/extras/events.py:178
+#: netbox/extras/events.py:186
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr ""
 
-#: netbox/extras/events.py:221
+#: netbox/extras/events.py:229
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
@@ -12075,46 +12075,46 @@ msgstr ""
 msgid "Lookup"
 msgstr ""
 
-#: netbox/netbox/models/features.py:301
+#: netbox/netbox/models/features.py:303
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr ""
 
-#: netbox/netbox/models/features.py:310
+#: netbox/netbox/models/features.py:312
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr ""
 
-#: netbox/netbox/models/features.py:317
+#: netbox/netbox/models/features.py:319
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr ""
 
-#: netbox/netbox/models/features.py:507
+#: netbox/netbox/models/features.py:509
 msgid "Remote data source"
 msgstr ""
 
-#: netbox/netbox/models/features.py:517
+#: netbox/netbox/models/features.py:519
 msgid "data path"
 msgstr ""
 
-#: netbox/netbox/models/features.py:521
+#: netbox/netbox/models/features.py:523
 msgid "Path to remote file (relative to data source root)"
 msgstr ""
 
-#: netbox/netbox/models/features.py:524
+#: netbox/netbox/models/features.py:526
 msgid "auto sync enabled"
 msgstr ""
 
-#: netbox/netbox/models/features.py:526
+#: netbox/netbox/models/features.py:528
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 
-#: netbox/netbox/models/features.py:529
+#: netbox/netbox/models/features.py:531
 msgid "date synced"
 msgstr ""
 
-#: netbox/netbox/models/features.py:621
+#: netbox/netbox/models/features.py:623
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr ""
@@ -12702,67 +12702,67 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:828
+#: netbox/netbox/settings.py:837
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:829
+#: netbox/netbox/settings.py:838
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:830
+#: netbox/netbox/settings.py:839
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:831
+#: netbox/netbox/settings.py:840
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:832
+#: netbox/netbox/settings.py:841
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:833
+#: netbox/netbox/settings.py:842
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:834
+#: netbox/netbox/settings.py:843
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:835
+#: netbox/netbox/settings.py:844
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:836
+#: netbox/netbox/settings.py:845
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:837
+#: netbox/netbox/settings.py:846
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:838
+#: netbox/netbox/settings.py:847
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:839
+#: netbox/netbox/settings.py:848
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:840
+#: netbox/netbox/settings.py:849
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:841
+#: netbox/netbox/settings.py:850
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:842
+#: netbox/netbox/settings.py:851
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:843
+#: netbox/netbox/settings.py:852
 msgid "Chinese"
 msgstr ""
 
@@ -16296,7 +16296,7 @@ msgstr ""
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr ""
 
-#: netbox/utilities/choices.py:23
+#: netbox/utilities/choices.py:24
 #, python-brace-format
 msgid "{name} has a key defined but CHOICES is not a list"
 msgstr ""
