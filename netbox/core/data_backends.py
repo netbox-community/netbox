@@ -21,9 +21,22 @@ __all__ = (
     'GitBackend',
     'LocalBackend',
     'S3Backend',
+    'url_has_embedded_credentials',
 )
 
 logger = logging.getLogger('netbox.data_backends')
+
+
+def url_has_embedded_credentials(url):
+    """
+    Check if a URL contains embedded credentials (username in the URL).
+
+    URLs like 'https://user@bitbucket.org/...' have embedded credentials.
+    This is used to avoid passing explicit credentials to dulwich when the
+    URL already contains them, which would cause authentication conflicts.
+    """
+    parsed = urlparse(url)
+    return bool(parsed.username)
 
 
 @register_data_backend()
@@ -103,9 +116,8 @@ class GitBackend(DataBackend):
 
         if self.url_scheme in ('http', 'https'):
             # Only pass explicit credentials if URL doesn't already contain embedded username
-            # to avoid credential conflicts
-            parsed_url = urlparse(self.url)
-            if not parsed_url.username and self.params.get('username'):
+            # to avoid credential conflicts (see #20902)
+            if not url_has_embedded_credentials(self.url) and self.params.get('username'):
                 clone_args.update(
                     {
                         "username": self.params.get('username'),
