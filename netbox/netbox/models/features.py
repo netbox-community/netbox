@@ -326,9 +326,11 @@ class CustomFieldsMixin(models.Model):
                 raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
 
     def save(self, *args, **kwargs):
-        # Populate default values if omitted
-        for cf in self.custom_fields.filter(default__isnull=False):
-            if cf.name not in self.custom_field_data:
+        from extras.models import CustomField
+
+        # Populate default values for custom fields not already present in the object data
+        for cf in CustomField.objects.get_for_model(self):
+            if cf.name not in self.custom_field_data and cf.default is not None:
                 self.custom_field_data[cf.name] = cf.default
 
         super().save(*args, **kwargs)

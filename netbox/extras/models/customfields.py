@@ -19,6 +19,7 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.data import CHOICE_SETS
+from netbox.context import query_cache
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.models.mixins import OwnerMixin
@@ -58,8 +59,20 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         """
         Return all CustomFields assigned to the given model.
         """
+        # Check the request cache before hitting the database
+        cache = query_cache.get()
+        if cache is not None:
+            if custom_fields := cache['custom_fields'].get(model._meta.model):
+                return custom_fields
+
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        return self.get_queryset().filter(object_types=content_type)
+        custom_fields = self.get_queryset().filter(object_types=content_type)
+
+        # Populate the request cache to avoid redundant lookups
+        if cache is not None:
+            cache['custom_fields'][model._meta.model] = custom_fields
+
+        return custom_fields
 
     def get_defaults_for_model(self, model):
         """
