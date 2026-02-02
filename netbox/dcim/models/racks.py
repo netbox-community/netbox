@@ -373,7 +373,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         super().clean()
 
         # Validate location/site assignment
-        if self.site and self.location and self.location.site != self.site:
+        if self.site_id and self.location_id and self.location.site_id != self.site_id:
             raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit
