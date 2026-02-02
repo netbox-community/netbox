@@ -187,7 +187,6 @@ class CachedValueSearchBackend(SearchBackend):
         return ret
 
     def cache(self, instances, indexer=None, remove_existing=True):
-        object_type = None
         custom_fields = None
 
         # Convert a single instance to an iterable
@@ -209,7 +208,6 @@ class CachedValueSearchBackend(SearchBackend):
                         break
 
                 # Prefetch any associated custom fields (excluding those with a zero search weight)
-                object_type = ObjectType.objects.get_for_model(indexer.model)
                 custom_fields = [
                     cf for cf in CustomField.objects.get_for_model(indexer.model)
                     if cf.search_weight > 0
@@ -220,6 +218,7 @@ class CachedValueSearchBackend(SearchBackend):
                 self.remove(instance)
 
             # Generate cache data
+            object_type = ObjectType.objects.get_for_model(indexer.model)
             for field in indexer.to_cache(instance, custom_fields=custom_fields):
                 buffer.append(
                     CachedValue(

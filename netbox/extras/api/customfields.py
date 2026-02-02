@@ -23,12 +23,9 @@ class CustomFieldDefaultValues:
     def __call__(self, serializer_field):
         self.model = serializer_field.parent.Meta.model
 
-        # Retrieve the CustomFields for the parent model
-        fields = CustomField.objects.get_for_model(self.model)
-
-        # Populate the default value for each CustomField
+        # Populate the default value for each CustomField on the model
         value = {}
-        for field in fields:
+        for field in CustomField.objects.get_for_model(self.model):
             if field.default is not None:
                 value[field.name] = field.default
             else:

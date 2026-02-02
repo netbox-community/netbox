@@ -242,8 +242,7 @@ class NetBoxTable(BaseTable):
                 (name, deepcopy(column)) for name, column in registered_columns.items()
             ])
 
-        # Add custom field & custom link columns
-        object_type = ObjectType.objects.get_for_model(self._meta.model)
+        # Add columns for custom fields
         custom_fields = [
             cf for cf in CustomField.objects.get_for_model(self._meta.model)
             if cf.ui_visible != CustomFieldUIVisibleChoices.HIDDEN
@@ -251,6 +250,9 @@ class NetBoxTable(BaseTable):
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])
+
+        # Add columns for custom links
+        object_type = ObjectType.objects.get_for_model(self._meta.model)
         custom_links = CustomLink.objects.filter(object_types=object_type, enabled=True)
         extra_columns.extend([
             (f'cl_{cl.name}', columns.CustomLinkColumn(cl)) for cl in custom_links

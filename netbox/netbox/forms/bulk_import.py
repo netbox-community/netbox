@@ -31,6 +31,7 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     )
 
     def _get_custom_fields(self, content_type):
+        # Return only custom fields that are editable in the UI
         return [
             cf for cf in CustomField.objects.get_for_model(content_type.model_class())
             if cf.ui_editable == CustomFieldUIEditableChoices.YES

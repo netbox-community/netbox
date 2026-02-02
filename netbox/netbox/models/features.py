@@ -321,7 +321,7 @@ class CustomFieldsMixin(models.Model):
     def save(self, *args, **kwargs):
         from extras.models import CustomField
 
-        # Populate default values if omitted
+        # Populate default values for custom fields not already present in the object data
         for cf in CustomField.objects.get_for_model(self):
             if cf.name not in self.custom_field_data and cf.default is not None:
                 self.custom_field_data[cf.name] = cf.default

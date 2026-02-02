@@ -483,12 +483,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             else:
                 instance = self.queryset.model()
 
-                # For newly created objects, apply any default custom field values
-                custom_fields = [
-                    cf for cf in CustomField.objects.get_for_model(self.queryset.model)
-                    if cf.ui_editable == CustomFieldUIEditableChoices.YES
-                ]
-                for cf in custom_fields:
+                # For newly created objects, apply any default values for custom fields
+                for cf in CustomField.objects.get_for_model(self.queryset.model):
+                    if cf.ui_editable != CustomFieldUIEditableChoices.YES:
+                        # Skip custom fields which are not editable via the UI
+                        continue
                     field_name = f'cf_{cf.name}'
                     if field_name not in record:
                         record[field_name] = cf.default

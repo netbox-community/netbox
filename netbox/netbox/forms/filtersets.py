@@ -34,6 +34,7 @@ class NetBoxModelFilterSetForm(FilterModifierMixin, CustomFieldsMixin, SavedFilt
     selector_fields = ('filter_id', 'q')
 
     def _get_custom_fields(self, content_type):
+        # Return only non-hidden custom fields for which filtering is enabled (excluding JSON fields)
         return [
             cf for cf in super()._get_custom_fields(content_type) if (
                 cf.filter_logic != CustomFieldFilterLogicChoices.FILTER_DISABLED and
