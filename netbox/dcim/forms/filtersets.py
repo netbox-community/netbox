@@ -1863,7 +1863,8 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
             'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
-            'installed_type_id', 'installed_role_id', 'installed_platform_id', 'installed_serial', 'installed_asset_tag', name=_('Device')
+            'installed_type_id', 'installed_role_id', 'installed_platform_id', 'installed_serial',
+            'installed_asset_tag', name=_('Device')
         ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
