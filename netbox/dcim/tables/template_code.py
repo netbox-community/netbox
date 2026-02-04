@@ -80,16 +80,6 @@ INTERFACE_IPADDRESSES = """
   {% endif %}
 """
 
-INTERFACE_MACADDRESSES = """
-  {% if value.count > 3 %}
-    <a href="{% url 'ipam:macaddress_list' %}?{{ record|meta:"model_name" }}_id={{ record.pk }}">{{ value.count }}</a>
-  {% else %}
-    {% for mac in value.all %}
-      <a href="{{ mac.get_absolute_url }}">{{ mac }}</a>
-    {% endfor %}
-  {% endif %}
-"""
-
 INTERFACE_FHRPGROUPS = """
   {% for assignment in value.all %}
     <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group }}</a>

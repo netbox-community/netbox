@@ -585,12 +585,12 @@ class BaseInterfaceTable(NetBoxTable):
         verbose_name=_('IP Addresses')
     )
     primary_mac_address = tables.Column(
-        verbose_name=_('MAC Address'),
+        verbose_name=_('Primary MAC'),
         linkify=True
     )
-    mac_addresses = tables.TemplateColumn(
-        template_code=INTERFACE_MACADDRESSES,
+    mac_addresses = columns.ManyToManyColumn(
         orderable=False,
+        linkify_item=True,
         verbose_name=_('MAC Addresses')
     )
     fhrp_groups = tables.TemplateColumn(
