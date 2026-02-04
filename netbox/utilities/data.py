@@ -10,6 +10,7 @@ __all__ = (
     'deepmerge',
     'drange',
     'flatten_dict',
+    'get_config_value_ci',
     'ranges_to_string',
     'ranges_to_string_list',
     'resolve_attr_path',
@@ -21,6 +22,19 @@ __all__ = (
 #
 # Dictionary utilities
 #
+
+def get_config_value_ci(config_dict, key, default=None):
+    """
+    Retrieve a value from a dictionary using case-insensitive key matching.
+    """
+    if key in config_dict:
+        return config_dict[key]
+    key_lower = key.lower()
+    for config_key, value in config_dict.items():
+        if config_key.lower() == key_lower:
+            return value
+    return default
+
 
 def deepmerge(original, new):
     """

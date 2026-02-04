@@ -24,6 +24,24 @@ INTERFACE_LINKTERMINATION = """
 {% else %}""" + LINKTERMINATION + """{% endif %}
 """
 
+INTERFACE_LAG_MEMBERS_LINKTERMINATION = """
+{% for termination in value %}
+  {% if termination.parent_object %}
+    <a href="{{ termination.parent_object.get_absolute_url }}">{{ termination.parent_object }}</a>
+    <i class="mdi mdi-chevron-right"></i>
+  {% endif %}
+  <a href="{{ termination.get_absolute_url }}">{{ termination }}</a>
+  {% if termination.lag %}
+    <i class="mdi mdi-chevron-right"></i>
+    <a href="{{ termination.lag.get_absolute_url }}">{{ termination.lag }}</a>
+    <span class="text-muted">(LAG)</span>
+  {% endif %}
+  {% if not forloop.last %}<br />{% endif %}
+{% empty %}
+  {{ ''|placeholder }}
+{% endfor %}
+"""
+
 CABLE_LENGTH = """
 {% load helpers %}
 {% if record.length %}{{ record.length|floatformat:"-2" }} {{ record.length_unit }}{% endif %}

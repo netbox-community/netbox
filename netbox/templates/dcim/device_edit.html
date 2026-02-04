@@ -101,8 +101,9 @@
 
     <div class="field-group mb-5">
       <div class="row">
-        <h2 class="col-9 offset-3">{% trans "Owner" %}</h2>
+        <h2 class="col-9 offset-3">{% trans "Ownership" %}</h2>
       </div>
+      {% render_field form.owner_group %}
       {% render_field form.owner %}
     </div>
 

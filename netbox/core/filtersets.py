@@ -129,10 +129,14 @@ class JobFilterSet(BaseFilterSet):
         choices=JobStatusChoices,
         null_value=None
     )
+    queue_name = django_filters.CharFilter()
 
     class Meta:
         model = Job
-        fields = ('id', 'object_type', 'object_type_id', 'object_id', 'name', 'interval', 'status', 'user', 'job_id')
+        fields = (
+            'id', 'object_type', 'object_type_id', 'object_id', 'name', 'interval', 'status', 'user', 'job_id',
+            'queue_name',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():

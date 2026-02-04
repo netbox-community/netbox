@@ -22,8 +22,9 @@ __all__ = (
 class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
     model = WirelessLANGroup
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('parent_id', name=_('Wireless LAN group')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
@@ -36,11 +37,12 @@ class WirelessLANGroupFilterForm(NestedGroupModelFilterSetForm):
 class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('ssid', 'group_id', 'status', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Scope')),
-        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     ssid = forms.CharField(
         required=False,
@@ -102,10 +104,11 @@ class WirelessLANFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
 class WirelessLinkFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet('q', 'filter_id', 'tag'),
         FieldSet('ssid', 'status', 'distance', 'distance_unit', name=_('Attributes')),
-        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     ssid = forms.CharField(
         required=False,

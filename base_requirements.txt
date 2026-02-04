@@ -85,7 +85,7 @@ drf-spectacular-sidecar
 feedparser
 
 # WSGI HTTP server
-# https://docs.gunicorn.org/en/latest/news.html
+# https://gunicorn.org/news/
 gunicorn
 
 # Platform-agnostic template rendering engine

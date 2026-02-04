@@ -1,6 +1,6 @@
 from django import template
 
-from netbox.navigation.menu import MENUS
+from netbox.navigation.menu import get_menus
 
 __all__ = (
     'nav',
@@ -19,7 +19,7 @@ def nav(context):
     nav_items = []
 
     # Construct the navigation menu based upon the current user's permissions
-    for menu in MENUS:
+    for menu in get_menus():
         groups = []
         for group in menu.groups:
             items = []

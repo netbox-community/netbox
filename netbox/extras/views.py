@@ -1511,7 +1511,13 @@ class ScriptView(BaseScriptView):
                 'script': script,
             })
 
-        form = script_class.as_form(request.POST, request.FILES)
+        # Populate missing variables with their default values, if defined
+        post_data = request.POST.copy()
+        for name, var in script_class._get_vars().items():
+            if name not in post_data and (initial := var.field_attrs.get('initial')) is not None:
+                post_data[name] = initial
+
+        form = script_class.as_form(post_data, request.FILES)
 
         # Allow execution only if RQ worker process is running
         if not get_workers_for_queue('default'):

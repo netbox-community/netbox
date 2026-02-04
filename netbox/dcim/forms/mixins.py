@@ -75,7 +75,7 @@ class ScopedForm(forms.Form):
             except ObjectDoesNotExist:
                 pass
 
-            if self.instance and scope_type_id != self.instance.scope_type_id:
+            if self.instance and self.instance.pk and scope_type_id != self.instance.scope_type_id:
                 self.initial['scope'] = None
 
         else:

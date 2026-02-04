@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import tag
+from unittest.mock import patch, PropertyMock
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
@@ -906,7 +907,7 @@ class ScriptValidationErrorTest(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptMixin:
-        bar = IntegerVar(min_value=0, max_value=30, default=30)
+        bar = IntegerVar(min_value=0, max_value=30)
 
     class TestScriptClass(TestScriptMixin, PythonClass):
         class Meta:
@@ -930,8 +931,6 @@ class ScriptValidationErrorTest(TestCase):
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
-        from unittest.mock import patch
-
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
 
         with patch('extras.views.get_workers_for_queue', return_value=['worker']):
@@ -944,8 +943,6 @@ class ScriptValidationErrorTest(TestCase):
 
     @tag('regression')
     def test_script_validation_error_no_toast_for_fieldset_fields(self):
-        from unittest.mock import patch, PropertyMock
-
         class FieldsetScript(PythonClass):
             class Meta:
                 name = 'Fieldset test'
@@ -967,3 +964,42 @@ class ScriptValidationErrorTest(TestCase):
         self.assertEqual(response.status_code, 200)
         messages = list(response.context['messages'])
         self.assertEqual(len(messages), 0)
+
+
+class ScriptDefaultValuesTest(TestCase):
+    user_permissions = ['extras.view_script', 'extras.run_script']
+
+    class TestScriptClass(PythonClass):
+        class Meta:
+            name = 'Test script'
+            commit_default = False
+
+        bool_default_true = BooleanVar(default=True)
+        bool_default_false = BooleanVar(default=False)
+        int_with_default = IntegerVar(default=0)
+        int_without_default = IntegerVar(required=False)
+
+        def run(self, data, commit):
+            return "Complete"
+
+    @classmethod
+    def setUpTestData(cls):
+        module = ScriptModule.objects.create(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='test_script.py')
+        cls.script = Script.objects.create(module=module, name='Test script', is_executable=True)
+
+    def setUp(self):
+        super().setUp()
+        Script.python_class = property(lambda self: ScriptDefaultValuesTest.TestScriptClass)
+
+    def test_default_values_are_used(self):
+        url = reverse('extras:script', kwargs={'pk': self.script.pk})
+
+        with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+            with patch('extras.jobs.ScriptJob.enqueue') as mock_enqueue:
+                mock_enqueue.return_value.pk = 1
+                self.client.post(url, {})
+                call_kwargs = mock_enqueue.call_args.kwargs
+                self.assertEqual(call_kwargs['data']['bool_default_true'], True)
+                self.assertEqual(call_kwargs['data']['bool_default_false'], False)
+                self.assertEqual(call_kwargs['data']['int_with_default'], 0)
+                self.assertIsNone(call_kwargs['data']['int_without_default'])

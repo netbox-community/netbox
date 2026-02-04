@@ -2,6 +2,7 @@ from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase
 from utilities.data import (
     check_ranges_overlap,
+    get_config_value_ci,
     ranges_to_string,
     ranges_to_string_list,
     string_to_ranges,
@@ -96,3 +97,25 @@ class RangeFunctionsTestCase(TestCase):
             string_to_ranges('2-10, a-b'),
             None  # Fails to convert
         )
+
+
+class GetConfigValueCITestCase(TestCase):
+
+    def test_exact_match(self):
+        config = {'dcim.site': 'value1', 'dcim.Device': 'value2'}
+        self.assertEqual(get_config_value_ci(config, 'dcim.site'), 'value1')
+        self.assertEqual(get_config_value_ci(config, 'dcim.Device'), 'value2')
+
+    def test_case_insensitive_match(self):
+        config = {'dcim.Site': 'value1', 'ipam.IPAddress': 'value2'}
+        self.assertEqual(get_config_value_ci(config, 'dcim.site'), 'value1')
+        self.assertEqual(get_config_value_ci(config, 'ipam.ipaddress'), 'value2')
+
+    def test_default_value(self):
+        config = {'dcim.site': 'value1'}
+        self.assertIsNone(get_config_value_ci(config, 'nonexistent'))
+        self.assertEqual(get_config_value_ci(config, 'nonexistent', default=[]), [])
+
+    def test_empty_dict(self):
+        self.assertIsNone(get_config_value_ci({}, 'any.key'))
+        self.assertEqual(get_config_value_ci({}, 'any.key', default=[]), [])

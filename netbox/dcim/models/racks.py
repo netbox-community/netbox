@@ -122,7 +122,7 @@ class RackBase(WeightMixin, PrimaryModel):
         abstract = True
 
 
-class RackType(RackBase):
+class RackType(ImageAttachmentsMixin, RackBase):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -373,7 +373,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         super().clean()
 
         # Validate location/site assignment
-        if self.site and self.location and self.location.site != self.site:
+        if self.site_id and self.location_id and self.location.site_id != self.site_id:
             raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit

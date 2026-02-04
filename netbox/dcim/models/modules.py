@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from dcim.choices import *
-from dcim.utils import update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
@@ -155,6 +155,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'description': self.description,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'airflow': self.airflow,
+            'attribute_data': self.attribute_data,
             'comments': self.comments,
         }
 
@@ -359,5 +361,7 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                     update_fields=update_fields
                 )
 
+        # Replicate any front/rear port mappings from the ModuleType
+        create_port_mappings(self.device, self.module_type, self)
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)

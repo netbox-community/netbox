@@ -2,7 +2,7 @@ import json
 from collections import defaultdict
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
@@ -121,9 +121,11 @@ class ChangeLoggingMixin(DeleteMixin, models.Model):
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            objectchange.postchange_data = self.serialize_object(exclude=exclude)
+            self._postchange_snapshot = self.serialize_object(exclude=exclude)
+            objectchange.postchange_data = self._postchange_snapshot
 
         return objectchange
+    to_objectchange.alters_data = True
 
 
 class CloningMixin(models.Model):
@@ -158,6 +160,13 @@ class CloningMixin(models.Model):
                 attrs[field_name] = json.dumps(field_value)
             elif field_value not in (None, ''):
                 attrs[field_name] = field_value
+
+        # Handle GenericForeignKeys. If the CT and ID fields are being cloned, also
+        # include the name of the GFK attribute itself, as this is what forms expect.
+        for field in self._meta.private_fields:
+            if isinstance(field, GenericForeignKey):
+                if field.ct_field in attrs and field.fk_field in attrs:
+                    attrs[field.name] = attrs[field.fk_field]
 
         # Include tags (if applicable)
         if is_taggable(self):
@@ -317,9 +326,11 @@ class CustomFieldsMixin(models.Model):
                 raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
 
     def save(self, *args, **kwargs):
-        # Populate default values if omitted
-        for cf in self.custom_fields.filter(default__isnull=False):
-            if cf.name not in self.custom_field_data:
+        from extras.models import CustomField
+
+        # Populate default values for custom fields not already present in the object data
+        for cf in CustomField.objects.get_for_model(self):
+            if cf.name not in self.custom_field_data and cf.default is not None:
                 self.custom_field_data[cf.name] = cf.default
 
         super().save(*args, **kwargs)

@@ -121,6 +121,7 @@
           <div class="alert alert-warning" role="alert">
             <i class="mdi mdi-alert"></i>
             {% blocktrans with module=module.name %}Could not load scripts from module {{ module }}{% endblocktrans %}
+            {% if module.error %}<code>{{ module.error }}</code>{% endif %}
           </div>
         </div>
       {% endif %}

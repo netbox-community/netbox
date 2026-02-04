@@ -5,7 +5,6 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
@@ -484,12 +483,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             else:
                 instance = self.queryset.model()
 
-                # For newly created objects, apply any default custom field values
-                custom_fields = CustomField.objects.filter(
-                    object_types=ContentType.objects.get_for_model(self.queryset.model),
-                    ui_editable=CustomFieldUIEditableChoices.YES
-                )
-                for cf in custom_fields:
+                # For newly created objects, apply any default values for custom fields
+                for cf in CustomField.objects.get_for_model(self.queryset.model):
+                    if cf.ui_editable != CustomFieldUIEditableChoices.YES:
+                        # Skip custom fields which are not editable via the UI
+                        continue
                     field_name = f'cf_{cf.name}'
                     if field_name not in record:
                         record[field_name] = cf.default

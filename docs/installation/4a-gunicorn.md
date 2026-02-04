@@ -43,16 +43,22 @@ You should see output similar to the following:
 
 ```no-highlight
 ● netbox.service - NetBox WSGI Service
-     Loaded: loaded (/etc/systemd/system/netbox.service; enabled; vendor preset: enabled)
-     Active: active (running) since Mon 2021-08-30 04:02:36 UTC; 14h ago
+     Loaded: loaded (/etc/systemd/system/netbox.service; enabled; preset: enabled)
+     Active: active (running) since Mon 2026-01-26 11:00:00 CST; 7s ago
        Docs: https://docs.netbox.dev/
-   Main PID: 1140492 (gunicorn)
-      Tasks: 19 (limit: 4683)
-     Memory: 666.2M
+   Main PID: 7283 (gunicorn)
+      Tasks: 6 (limit: 4545)
+     Memory: 556.1M (peak: 556.3M)
+        CPU: 3.387s
      CGroup: /system.slice/netbox.service
-             ├─1140492 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /va>
-             ├─1140513 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /va>
-             ├─1140514 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /va>
+             ├─7283 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+             ├─7285 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+             ├─7286 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+             ├─7287 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+             ├─7288 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+             └─7289 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox>
+
+Jan 26 11:00:00 netbox systemd[1]: Started netbox.service - NetBox WSGI Service.
 ...
 ```
 

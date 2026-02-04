@@ -1,8 +1,10 @@
+from unittest.mock import patch, MagicMock
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
-from core.models import DataSource, ObjectType
+from core.models import DataSource, Job, ObjectType
 from core.choices import ObjectChangeActionChoices
 from dcim.models import Site, Location, Device
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
@@ -200,3 +202,38 @@ class ObjectTypeTest(TestCase):
         bookmarks_ots = ObjectType.objects.with_feature('bookmarks')
         self.assertIn(ObjectType.objects.get_by_natural_key('dcim', 'site'), bookmarks_ots)
         self.assertNotIn(ObjectType.objects.get_by_natural_key('dcim', 'cabletermination'), bookmarks_ots)
+
+
+class JobTest(TestCase):
+
+    @patch('core.models.jobs.django_rq.get_queue')
+    def test_delete_cancels_job_from_correct_queue(self, mock_get_queue):
+        """
+        Test that when a job is deleted, it's canceled from the correct queue.
+        """
+        mock_queue = MagicMock()
+        mock_rq_job = MagicMock()
+        mock_queue.fetch_job.return_value = mock_rq_job
+        mock_get_queue.return_value = mock_queue
+
+        def dummy_func(**kwargs):
+            pass
+
+        # Enqueue a job with a custom queue name
+        custom_queue = 'my_custom_queue'
+        job = Job.enqueue(
+            func=dummy_func,
+            name='Test Job',
+            queue_name=custom_queue
+        )
+
+        # Reset mock to clear enqueue call
+        mock_get_queue.reset_mock()
+
+        # Delete the job
+        job.delete()
+
+        # Verify the correct queue was used for cancellation
+        mock_get_queue.assert_called_with(custom_queue)
+        mock_queue.fetch_job.assert_called_with(str(job.job_id))
+        mock_rq_job.cancel.assert_called_once()

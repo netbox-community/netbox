@@ -178,6 +178,13 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
         ) + ' <code>choice1:First Choice</code>')
     )
 
+    fieldsets = (
+        FieldSet(
+            'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
+            name=_('Custom Field Choice Set')
+        ),
+    )
+
     class Meta:
         model = CustomFieldChoiceSet
         fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically', 'owner')
