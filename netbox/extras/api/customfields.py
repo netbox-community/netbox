@@ -4,7 +4,6 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework.fields import Field
 from rest_framework.serializers import ValidationError
 
-from core.models import ObjectType
 from extras.choices import CustomFieldTypeChoices
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.models import CustomField
@@ -24,13 +23,9 @@ class CustomFieldDefaultValues:
     def __call__(self, serializer_field):
         self.model = serializer_field.parent.Meta.model
 
-        # Retrieve the CustomFields for the parent model
-        object_type = ObjectType.objects.get_for_model(self.model)
-        fields = CustomField.objects.filter(object_types=object_type)
-
-        # Populate the default value for each CustomField
+        # Populate the default value for each CustomField on the model
         value = {}
-        for field in fields:
+        for field in CustomField.objects.get_for_model(self.model):
             if field.default is not None:
                 value[field.name] = field.default
             else:
@@ -47,8 +42,7 @@ class CustomFieldsDataField(Field):
         Cache CustomFields assigned to this model to avoid redundant database queries
         """
         if not hasattr(self, '_custom_fields'):
-            object_type = ObjectType.objects.get_for_model(self.parent.Meta.model)
-            self._custom_fields = CustomField.objects.filter(object_types=object_type)
+            self._custom_fields = CustomField.objects.get_for_model(self.parent.Meta.model)
         return self._custom_fields
 
     def to_representation(self, obj):

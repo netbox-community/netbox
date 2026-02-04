@@ -4,11 +4,12 @@ from django.dispatch import receiver
 
 from core.events import *
 from core.signals import job_end, job_start
-from extras.events import process_event_rules
+from extras.events import EventContext, process_event_rules
 from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.models.features import has_feature
 from netbox.signals import post_clean
+from utilities.data import get_config_value_ci
 from utilities.exceptions import AbortRequest
 from .models import CustomField, TaggedItem
 from .utils import run_validators
@@ -65,7 +66,7 @@ def run_save_validators(sender, instance, **kwargs):
     Run any custom validation rules for the model prior to calling save().
     """
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
+    validators = get_config_value_ci(get_config().CUSTOM_VALIDATORS, model_name, default=[])
 
     run_validators(instance, validators)
 
@@ -102,14 +103,12 @@ def process_job_start_event_rules(sender, **kwargs):
         enabled=True,
         object_types=sender.object_type
     )
-    username = sender.user.username if sender.user else None
-    process_event_rules(
-        event_rules=event_rules,
-        object_type=sender.object_type,
+    event = EventContext(
         event_type=JOB_STARTED,
         data=sender.data,
-        username=username
+        user=sender.user,
     )
+    process_event_rules(event_rules, sender.object_type, event)
 
 
 @receiver(job_end)
@@ -122,14 +121,12 @@ def process_job_end_event_rules(sender, **kwargs):
         enabled=True,
         object_types=sender.object_type
     )
-    username = sender.user.username if sender.user else None
-    process_event_rules(
-        event_rules=event_rules,
-        object_type=sender.object_type,
+    event = EventContext(
         event_type=JOB_COMPLETED,
         data=sender.data,
-        username=username
+        user=sender.user,
     )
+    process_event_rules(event_rules, sender.object_type, event)
 
 
 #

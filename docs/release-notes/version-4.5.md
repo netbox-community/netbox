@@ -1,5 +1,53 @@
 # NetBox v4.5
 
+## v4.5.2 (2026-02-03)
+
+### Enhancements
+
+* [#15801](https://github.com/netbox-community/netbox/issues/15801) - Add link peer and connection columns to the VLAN device interfaces table
+* [#19221](https://github.com/netbox-community/netbox/issues/19221) - Truncate long image attachment filenames in the UI
+* [#19869](https://github.com/netbox-community/netbox/issues/19869) - Display peer connections for LAG member interfaces
+* [#20052](https://github.com/netbox-community/netbox/issues/20052) - Increase logging level of error message when a custom script fails to load
+* [#20172](https://github.com/netbox-community/netbox/issues/20172) - Add `cabled` filter for interfaces in GraphQL API
+* [#21081](https://github.com/netbox-community/netbox/issues/21081) - Add owner group table columns & filters across all supported object list views
+* [#21088](https://github.com/netbox-community/netbox/issues/21088) - Add max depth and max length dropdowns for child prefix views
+* [#21110](https://github.com/netbox-community/netbox/issues/21110) - Support cursor-based pagination in GraphQL API
+* [#21201](https://github.com/netbox-community/netbox/issues/21201) - Pre-populate GenericForeignKey form fields when cloning
+* [#21209](https://github.com/netbox-community/netbox/issues/21209) - Ignore case sensitivity for configuration parameters which specify an app label and model name
+* [#21228](https://github.com/netbox-community/netbox/issues/21228) - Support image attachments for rack types
+* [#21244](https://github.com/netbox-community/netbox/issues/21244) - Enable omitting specific fields from REST API responses with `?omit=` parameter
+
+### Performance Improvements
+
+* [#21249](https://github.com/netbox-community/netbox/issues/21249) - Avoid extraneous user query when no event rules are present
+* [#21259](https://github.com/netbox-community/netbox/issues/21259) - Cache ObjectType lookups for the duration of a request
+* [#21260](https://github.com/netbox-community/netbox/issues/21260) - Defer object serialization for events pipeline processing
+* [#21263](https://github.com/netbox-community/netbox/issues/21263) - Prefetch related objects after creating/updating objects via REST API
+* [#21300](https://github.com/netbox-community/netbox/issues/21300) - Cache custom field lookups for the duration of a request
+* [#21302](https://github.com/netbox-community/netbox/issues/21302) - Avoid redundant uniqueness checks in ValidatedModelSerializer
+* [#21303](https://github.com/netbox-community/netbox/issues/21303) - Cache post-change snapshot on each instance after serialization
+* [#21327](https://github.com/netbox-community/netbox/issues/21327) - Always leverage `get_by_natural_key()` to resolve ContentTypes
+
+### Bug Fixes
+
+* [#20212](https://github.com/netbox-community/netbox/issues/20212) - Fix support for image attachment thumbnails when using S3 storage
+* [#20383](https://github.com/netbox-community/netbox/issues/20383) - When editing a device, clearing the assigned unit should also clear the rack face selection
+* [#20902](https://github.com/netbox-community/netbox/issues/20902) - Avoid `SyncError` exception when Git URL contains an embedded username
+* [#20977](https://github.com/netbox-community/netbox/issues/20977) - "Run again" button should respect script variable defaults
+* [#21115](https://github.com/netbox-community/netbox/issues/21115) - Include `attribute_data` in ModuleType YAML export
+* [#21129](https://github.com/netbox-community/netbox/issues/21129) - Store queue name on the Job model to ensure deletion of associated RQ task when a non-default queue is used
+* [#21168](https://github.com/netbox-community/netbox/issues/21168) - Fix Application Service cloning to preserve parent object
+* [#21173](https://github.com/netbox-community/netbox/issues/21173) - Ensure all plugin menu items are registered regardless of initialization order
+* [#21176](https://github.com/netbox-community/netbox/issues/21176) - Remove checkboxes from IP ranges in mixed-type tables
+* [#21202](https://github.com/netbox-community/netbox/issues/21202) - Fix scoped form cloning clearing the `scope` field when `scope_type` changes
+* [#21214](https://github.com/netbox-community/netbox/issues/21214) - Clean up AutoSyncRecord when detaching from DataSource
+* [#21242](https://github.com/netbox-community/netbox/issues/21242) - Navigation menu items for authentication should not require `staff_only` permission
+* [#21254](https://github.com/netbox-community/netbox/issues/21254) - Fix `AttributeError` exception when checking for latest release
+* [#21262](https://github.com/netbox-community/netbox/issues/21262) - Assigned scope should be replicated when cloning a prefix
+* [#21269](https://github.com/netbox-community/netbox/issues/21269) - Fix replication of front/rear port assignments from the module type when installing a module
+
+---
+
 ## v4.5.1 (2026-01-20)
 
 ### Enhancements

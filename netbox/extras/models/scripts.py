@@ -137,7 +137,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
             module = self.get_module()
         except Exception as e:
             self.error = e
-            logger.debug(f"Failed to load script: {self.python_name} error: {e}")
+            logger.error(f"Failed to load script: {self.python_name} error: {e}")
             module = None
 
         scripts = {}

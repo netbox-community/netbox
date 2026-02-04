@@ -8,7 +8,7 @@ from jsonschema.exceptions import ValidationError as JSONValidationError
 from mptt.models import MPTTModel
 
 from dcim.choices import *
-from dcim.utils import update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
@@ -156,6 +156,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'description': self.description,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'airflow': self.airflow,
+            'attribute_data': self.attribute_data,
             'comments': self.comments,
         }
 
@@ -366,6 +368,9 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
             # Rebuild MPTT tree if needed (bulk_update bypasses model save)
             if issubclass(component_model, MPTTModel) and update_instances:
                 component_model.objects.rebuild()
+
+        # Replicate any front/rear port mappings from the ModuleType
+        create_port_mappings(self.device, self.module_type, self)
 
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)

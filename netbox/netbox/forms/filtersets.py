@@ -1,12 +1,10 @@
 from django import forms
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
-from users.models import Owner
-from utilities.forms.fields import DynamicModelChoiceField, QueryField
+from utilities.forms.fields import QueryField
 from utilities.forms.mixins import FilterModifierMixin
-from .mixins import CustomFieldsMixin, SavedFiltersMixin
+from .mixins import CustomFieldsMixin, OwnerFilterMixin, SavedFiltersMixin
 
 __all__ = (
     'NestedGroupModelFilterSetForm',
@@ -36,23 +34,18 @@ class NetBoxModelFilterSetForm(FilterModifierMixin, CustomFieldsMixin, SavedFilt
     selector_fields = ('filter_id', 'q')
 
     def _get_custom_fields(self, content_type):
-        return super()._get_custom_fields(content_type).exclude(
-            Q(filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED) |
-            Q(type=CustomFieldTypeChoices.TYPE_JSON)
-        )
+        # Return only non-hidden custom fields for which filtering is enabled (excluding JSON fields)
+        return [
+            cf for cf in super()._get_custom_fields(content_type) if (
+                cf.filter_logic != CustomFieldFilterLogicChoices.FILTER_DISABLED and
+                cf.type != CustomFieldTypeChoices.TYPE_JSON
+            )
+        ]
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field(
             set_initial=False, enforce_required=False, enforce_visibility=False, for_filterset_form=True
         )
-
-
-class OwnerFilterMixin(forms.Form):
-    owner_id = DynamicModelChoiceField(
-        queryset=Owner.objects.all(),
-        required=False,
-        label=_('Owner'),
-    )
 
 
 class PrimaryModelFilterSetForm(OwnerFilterMixin, NetBoxModelFilterSetForm):

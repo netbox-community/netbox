@@ -370,6 +370,11 @@ class AnnotatedIPAddressTable(IPAddressTable):
         verbose_name=_('IP Address')
     )
 
+    def render_pk(self, value, record, bound_column):
+        if type(record) is not self._meta.model:
+            return ''
+        return bound_column.column.render(value, bound_column, record)
+
     class Meta(IPAddressTable.Meta):
         pass
 

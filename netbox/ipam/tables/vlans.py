@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
+from dcim.tables.template_code import INTERFACE_LINKTERMINATION, LINKTERMINATION
 from ipam.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin, TenantColumn
@@ -159,11 +160,26 @@ class VLANDevicesTable(VLANMembersTable):
     actions = columns.ActionsColumn(
         actions=('edit',)
     )
+    link_peer = columns.TemplateColumn(
+        accessor='link_peers',
+        template_code=LINKTERMINATION,
+        orderable=False,
+        verbose_name=_('Link Peers'),
+    )
+
+    # Override PathEndpointTable.connection to accommodate virtual circuits
+    connection = columns.TemplateColumn(
+        accessor='_path__destinations',
+        template_code=INTERFACE_LINKTERMINATION,
+        orderable=False,
+        verbose_name=_('Connection'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Interface
-        fields = ('device', 'name', 'tagged', 'actions')
-        exclude = ('id', )
+        fields = ('device', 'name', 'link_peer', 'connection', 'tagged', 'actions')
+        default_columns = ('device', 'name', 'connection', 'tagged', 'actions')
+        exclude = ('id',)
 
 
 class VLANVirtualMachinesTable(VLANMembersTable):

@@ -93,18 +93,23 @@ def get_view_name(view):
     return drf_get_view_name(view)
 
 
-def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
+def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
     """
     Compile and return a list of fields which should be prefetched on the queryset for a serializer.
     """
+    if fields is not None and omit is not None:
+        raise TypeError("Cannot specify both 'fields' and 'omit' parameters.")
+
     model = serializer_class.Meta.model
 
     # If fields are not specified, default to all
-    if not fields_to_include:
-        fields_to_include = serializer_class.Meta.fields
+    fields_to_include = fields or serializer_class.Meta.fields
+    fields_to_omit = omit or []
 
     prefetch_fields = []
     for field_name in fields_to_include:
+        if field_name in fields_to_omit:
+            continue
         serializer_field = serializer_class._declared_fields.get(field_name)
 
         # Determine the name of the model field referenced by the serializer field
@@ -132,19 +137,23 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
     return prefetch_fields
 
 
-def get_annotations_for_serializer(serializer_class, fields_to_include=None):
+def get_annotations_for_serializer(serializer_class, fields=None, omit=None):
     """
     Return a mapping of field names to annotations to be applied to the queryset for a serializer.
     """
-    annotations = {}
-
-    # If specific fields are not specified, default to all
-    if not fields_to_include:
-        fields_to_include = serializer_class.Meta.fields
+    if fields is not None and omit is not None:
+        raise TypeError("Cannot specify both 'fields' and 'omit' parameters.")
 
     model = serializer_class.Meta.model
 
+    # If fields are not specified, default to all
+    fields_to_include = fields or serializer_class.Meta.fields
+    fields_to_omit = omit or []
+
+    annotations = {}
     for field_name, field in serializer_class._declared_fields.items():
+        if field_name in fields_to_omit:
+            continue
         if field_name in fields_to_include and type(field) is RelatedObjectCountField:
             related_field = getattr(model, field.relation).field
             annotations[field_name] = count_related(related_field.model, related_field.name)

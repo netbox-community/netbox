@@ -9,6 +9,7 @@ from django.db import connection, models
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from netbox.context import query_cache
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from utilities.string import title
@@ -70,6 +71,12 @@ class ObjectTypeManager(models.Manager):
         """
         from netbox.models.features import get_model_features, model_is_public
 
+        # Check the request cache before hitting the database
+        cache = query_cache.get()
+        if cache is not None:
+            if ot := cache['object_types'].get((model._meta.model, for_concrete_model)):
+                return ot
+
         # TODO: Remove this in NetBox v5.0
         # If the ObjectType table has not yet been provisioned (e.g. because we're in a pre-v4.4 migration),
         # fall back to ContentType.
@@ -95,6 +102,10 @@ class ObjectTypeManager(models.Manager):
                 public=model_is_public(model),
                 features=get_model_features(model),
             )[0]
+
+        # Populate the request cache to avoid redundant lookups
+        if cache is not None:
+            cache['object_types'][(model._meta.model, for_concrete_model)] = ot
 
         return ot
 
