@@ -24,9 +24,11 @@ from extras.utils import SharedObjectViewMixin
 from netbox.object_actions import *
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
+from users.models import ObjectPermission
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_partial, htmx_maybe_redirect_current_page
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.permissions import qs_filter_from_constraints
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
@@ -1441,12 +1443,24 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
+        # Permissions for the Scripts page are given via the "Managed File" object permission. To further restrict
+        # users to access only specified scripts, create permissions on the "Script" object with appropriate
+        # queryset-style constraints matching fields available on Script.
         script_modules = ScriptModule.objects.restrict(request.user).prefetch_related(
             'data_source', 'data_file', 'jobs'
         )
+        script_ct = ContentType.objects.get_for_model(Script)
+        script_permissions = qs_filter_from_constraints(
+            ObjectPermission.objects.filter(
+                users=self.request.user, object_types=script_ct
+            ).values_list("constraints", flat=True)
+        )
+        available_scripts = Script.objects.filter(script_permissions, module__in=script_modules)
+
         context = {
             'model': ScriptModule,
             'script_modules': script_modules,
+            'available_scripts': available_scripts,
         }
 
         # Use partial template for dashboard widgets
