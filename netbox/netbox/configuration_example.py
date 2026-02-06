@@ -43,6 +43,16 @@ REDIS = {
         # 'INSECURE_SKIP_TLS_VERIFY': False,
         # Set a path to a certificate authority, typically used with a self signed certificate.
         # 'CA_CERT_PATH': '/etc/ssl/certs/ca.crt',
+        # Advanced Redis client parameters (SSL/TLS, timeouts, etc.)
+        # Passed directly to redis-py. See: https://redis-py.readthedocs.io/en/stable/connections.html
+        # NOTE: The CA_CERT_PATH setting above is already mapped to 'ssl_ca_certs' in KWARGS.
+        #       Only override these parameters in KWARGS if you have a specific reason to do so.
+        # 'KWARGS': {
+        #     'ssl_certfile': '/path/to/client-cert.pem',
+        #     'ssl_keyfile': '/path/to/client-key.pem',
+        #     'ssl_min_version': ssl.TLSVersion.TLSv1_2,
+        #     'ssl_ciphers': 'HIGH:!aNULL',
+        # },
     },
     'caching': {
         'HOST': 'localhost',
@@ -59,6 +69,17 @@ REDIS = {
         # 'INSECURE_SKIP_TLS_VERIFY': False,
         # Set a path to a certificate authority, typically used with a self signed certificate.
         # 'CA_CERT_PATH': '/etc/ssl/certs/ca.crt',
+        # Advanced Redis client parameters (SSL/TLS, timeouts, etc.)
+        # Passed directly to Redis connection pool. See: https://github.com/jazzband/django-redis#configure-as-cache-backend
+        # NOTE: The INSECURE_SKIP_TLS_VERIFY setting above is already mapped to 'ssl_cert_reqs' and
+        #       CA_CERT_PATH is mapped to 'ssl_ca_certs' in KWARGS. Only override these parameters
+        #       in KWARGS if you have a specific reason to do so.
+        # 'KWARGS': {
+        #     'ssl_certfile': '/path/to/client-cert.pem',
+        #     'ssl_keyfile': '/path/to/client-key.pem',
+        #     'ssl_min_version': ssl.TLSVersion.TLSv1_2,
+        #     'ssl_ciphers': 'HIGH:!aNULL',
+        # },
     }
 }
 

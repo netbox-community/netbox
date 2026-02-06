@@ -401,12 +401,20 @@ if CACHING_REDIS_SENTINELS:
     CACHES['default']['LOCATION'] = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_SENTINEL_SERVICE}/{CACHING_REDIS_DATABASE}'
     CACHES['default']['OPTIONS']['CLIENT_CLASS'] = 'django_redis.client.SentinelClient'
     CACHES['default']['OPTIONS']['SENTINELS'] = CACHING_REDIS_SENTINELS
+
+# Backwards compatibility: map existing SSL parameters
 if CACHING_REDIS_SKIP_TLS_VERIFY:
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_cert_reqs'] = False
 if CACHING_REDIS_CA_CERT_PATH:
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_ca_certs'] = CACHING_REDIS_CA_CERT_PATH
+
+# Merge in KWARGS for additional parameters (additive, can override existing)
+caching_redis_kwargs = REDIS['caching'].get('KWARGS')
+if caching_redis_kwargs:
+    CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS'].update(caching_redis_kwargs)
 
 
 #
@@ -813,9 +821,17 @@ RQ_PARAMS.update({
     'PASSWORD': TASKS_REDIS_PASSWORD,
     'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
 })
+
+# Backwards compatibility: map existing SSL parameters
 if TASKS_REDIS_CA_CERT_PATH:
     RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
     RQ_PARAMS['REDIS_CLIENT_KWARGS']['ssl_ca_certs'] = TASKS_REDIS_CA_CERT_PATH
+
+# Merge in KWARGS for additional parameters (additive, can override existing)
+tasks_redis_kwargs = TASKS_REDIS.get('KWARGS')
+if tasks_redis_kwargs:
+    RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
+    RQ_PARAMS['REDIS_CLIENT_KWARGS'].update(tasks_redis_kwargs)
 
 # Define named RQ queues
 RQ_QUEUES = {
