@@ -125,7 +125,7 @@ class DeviceManagementPanel(panels.ObjectAttributesPanel):
 class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
     title = _('Dimensions')
 
-    height = attrs.TextAttr('device_type.u_height', format_string='{}U')
+    height = attrs.TemplatedAttr('device_type.u_height', template_name='dcim/devicetype/attrs/height.html')
     total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
 
 
@@ -135,7 +135,7 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     part_number = attrs.TextAttr('part_number')
     default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
     description = attrs.TextAttr('description')
-    height = attrs.TextAttr('u_height', format_string='{}U', label=_('Height'))
+    height = attrs.TemplatedAttr('u_height', template_name='dcim/devicetype/attrs/height.html')
     exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization')
     full_depth = attrs.BooleanAttr('is_full_depth')
     weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
