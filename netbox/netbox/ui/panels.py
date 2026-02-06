@@ -43,15 +43,18 @@ class Panel:
     Parameters:
         title (str): The human-friendly title of the panel
         actions (list): An iterable of PanelActions to include in the panel header
+        template_name (str): Overrides the default template name, if defined
     """
     template_name = None
     title = None
     actions = None
 
-    def __init__(self, title=None, actions=None):
+    def __init__(self, title=None, actions=None, template_name=None):
         if title is not None:
             self.title = title
         self.actions = actions or self.actions or []
+        if template_name is not None:
+            self.template_name = template_name
 
     def get_context(self, context):
         """
@@ -316,9 +319,8 @@ class TemplatePanel(Panel):
     Parameters:
         template_name (str): The name of the template to render
     """
-    def __init__(self, template_name, **kwargs):
-        super().__init__(**kwargs)
-        self.template_name = template_name
+    def __init__(self, template_name):
+        super().__init__(template_name=template_name)
 
     def render(self, context):
         # Pass the entire context to the template

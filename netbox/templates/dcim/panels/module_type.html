@@ -1,0 +1,27 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "Manufacturer" %}</th>
+      <td>{{ object.module_type.manufacturer|linkify }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Model" %}</th>
+      <td>{{ object.module_type|linkify }}</td>
+    </tr>
+    {% for k, v in object.module_type.attributes.items %}
+      <tr>
+        <th scope="row">{{ k }}</th>
+        <td>
+          {% if v is True or v is False %}
+            {% checkmark v %}
+          {% else %}
+            {{ v|placeholder }}
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock panel_content %}
