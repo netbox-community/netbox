@@ -421,6 +421,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
+        # TODO: Alter for prefix
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
             'scope_type': ContentType.objects.get_for_model(Site).pk,
@@ -436,6 +437,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         site = sites[0].pk
+        # TODO: Alter for prefix
         cls.csv_data = (
             "vrf,prefix,status,scope_type,scope_id",
             f"VRF 1,10.4.0.0/16,active,dcim.site,{site}",
@@ -443,6 +445,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"VRF 1,10.6.0.0/16,active,dcim.site,{site}",
         )
 
+        # TODO: Alter for prefix
         cls.csv_update_data = (
             "id,description,status",
             f"{prefixes[0].pk},New description 7,{PrefixStatusChoices.STATUS_RESERVED}",
@@ -450,6 +453,7 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{prefixes[2].pk},New description 9,{PrefixStatusChoices.STATUS_RESERVED}",
         )
 
+        # TODO: Alter for prefix
         cls.bulk_edit_data = {
             'vrf': vrfs[1].pk,
             'tenant': None,
@@ -477,9 +481,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_prefix_ipranges(self):
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_ranges = (
-            IPRange(start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
-            IPRange(start_address='192.168.1.1/24', end_address='192.168.1.100/24', size=99),
-            IPRange(start_address='192.168.2.1/24', end_address='192.168.2.100/24', size=99),
+            IPRange(prefix=prefix, start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
+            IPRange(prefix=prefix, start_address='192.168.1.1/24', end_address='192.168.1.100/24', size=99),
+            IPRange(prefix=prefix, start_address='192.168.2.1/24', end_address='192.168.2.100/24', size=99),
         )
         IPRange.objects.bulk_create(ip_ranges)
         self.assertEqual(prefix.get_child_ranges().count(), 3)
@@ -491,12 +495,12 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def test_prefix_ipaddresses(self):
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_addresses = (
-            IPAddress(address=IPNetwork('192.168.0.1/16')),
-            IPAddress(address=IPNetwork('192.168.0.2/16')),
-            IPAddress(address=IPNetwork('192.168.0.3/16')),
+            IPAddress(prefix=prefix, address=IPNetwork('192.168.0.1/16')),
+            IPAddress(prefix=prefix, address=IPNetwork('192.168.0.2/16')),
+            IPAddress(prefix=prefix, address=IPNetwork('192.168.0.3/16')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
-        self.assertEqual(prefix.get_child_ips().count(), 3)
+        self.assertEqual(prefix.ip_addresses.all().count(), 3)
 
         url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
         self.assertHttpStatus(self.client.get(url), 200)
@@ -670,6 +674,7 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
+        # TODO: Alter for prefix
         cls.form_data = {
             'start_address': IPNetwork('192.0.5.10/24'),
             'end_address': IPNetwork('192.0.5.100/24'),
@@ -683,6 +688,7 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
+        # TODO: Alter for prefix
         cls.csv_data = (
             "vrf,start_address,end_address,status",
             "VRF 1,10.1.0.1/16,10.1.9.254/16,active",
@@ -690,6 +696,7 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,10.3.0.1/16,10.3.9.254/16,active",
         )
 
+        # TODO: Alter for prefix
         cls.csv_update_data = (
             "id,description,status",
             f"{ip_ranges[0].pk},New description 7,{IPRangeStatusChoices.STATUS_RESERVED}",
@@ -697,6 +704,7 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{ip_ranges[2].pk},New description 9,{IPRangeStatusChoices.STATUS_RESERVED}",
         )
 
+        # TODO: Alter for prefix
         cls.bulk_edit_data = {
             'vrf': vrfs[1].pk,
             'tenant': None,
@@ -763,6 +771,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             ),
         )
         FHRPGroup.objects.bulk_create(fhrp_groups)
+        # TODO: Alter for prefix
         cls.form_data = {
             'vrf': vrfs[1].pk,
             'address': IPNetwork('192.0.2.99/24'),
@@ -775,6 +784,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
+        # TODO: Alter for prefix
         cls.csv_data = (
             "vrf,address,status,fhrp_group",
             "VRF 1,192.0.2.4/24,active,FHRP Group 1",
@@ -782,6 +792,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,192.0.2.6/24,active,FHRP Group 3",
         )
 
+        # TODO: Alter for prefix
         cls.csv_update_data = (
             "id,description,status",
             f"{ipaddresses[0].pk},New description 7,{IPAddressStatusChoices.STATUS_RESERVED}",
@@ -789,6 +800,7 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f"{ipaddresses[2].pk},New description 9,{IPAddressStatusChoices.STATUS_RESERVED}",
         )
 
+        # TODO: Alter for prefix
         cls.bulk_edit_data = {
             'vrf': vrfs[1].pk,
             'tenant': None,

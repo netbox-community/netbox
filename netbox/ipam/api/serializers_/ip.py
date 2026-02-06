@@ -60,18 +60,24 @@ class PrefixSerializer(PrimaryModelSerializer):
     vlan = VLANSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=PrefixStatusChoices, required=False)
     role = RoleSerializer(nested=True, required=False, allow_null=True)
-    children = serializers.IntegerField(read_only=True)
+    _children = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(read_only=True)
     prefix = IPNetworkField()
 
     class Meta:
         model = Prefix
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'vrf', 'scope_type', 'scope_id', 'scope',
-            'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'owner', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'children', '_depth',
+            'id', 'url', 'display_url', 'display', 'family', 'aggregate', 'parent', 'prefix', 'vrf', 'scope_type',
+            'scope_id', 'scope', 'tenant', 'vlan', 'status', 'role', 'is_pool', 'mark_utilized', 'description',
+            'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', '_children', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
+        brief_fields = ('id', 'url', 'display', 'family', 'aggregate', 'parent', 'prefix', 'description', '_depth')
+
+    def get_fields(self):
+        fields = super(PrefixSerializer, self).get_fields()
+        fields['parent'] = PrefixSerializer(nested=True, read_only=True)
+
+        return fields
 
 
 class PrefixLengthSerializer(serializers.Serializer):
@@ -125,7 +131,9 @@ class AvailablePrefixSerializer(serializers.Serializer):
 # IP ranges
 #
 
+
 class IPRangeSerializer(PrimaryModelSerializer):
+    prefix = PrefixSerializer(nested=True, required=False, allow_null=True)
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     start_address = IPAddressField()
     end_address = IPAddressField()
@@ -137,11 +145,11 @@ class IPRangeSerializer(PrimaryModelSerializer):
     class Meta:
         model = IPRange
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'start_address', 'end_address', 'size', 'vrf', 'tenant',
-            'status', 'role', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
-            'mark_populated', 'mark_utilized',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'start_address', 'end_address', 'size', 'vrf',
+            'tenant', 'status', 'role', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated', 'mark_populated', 'mark_utilized',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'start_address', 'end_address', 'description')
+        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'start_address', 'end_address', 'description')
 
 
 #
@@ -186,6 +194,7 @@ class AvailableIPRequestSerializer(serializers.Serializer):
 
 
 class IPAddressSerializer(PrimaryModelSerializer):
+    prefix = PrefixSerializer(nested=True, required=False, allow_null=True)
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     address = IPAddressField()
     vrf = VRFSerializer(nested=True, required=False, allow_null=True)
@@ -204,11 +213,11 @@ class IPAddressSerializer(PrimaryModelSerializer):
     class Meta:
         model = IPAddress
         fields = [
-            'id', 'url', 'display_url', 'display', 'family', 'address', 'vrf', 'tenant', 'status', 'role',
+            'id', 'url', 'display_url', 'display', 'family', 'prefix', 'address', 'vrf', 'tenant', 'status', 'role',
             'assigned_object_type', 'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside',
             'dns_name', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'address', 'description')
+        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'address', 'description')
 
 
 class AvailableIPSerializer(serializers.Serializer):

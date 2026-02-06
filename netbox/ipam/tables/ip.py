@@ -152,6 +152,10 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 
 class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
+    parent = tables.Column(
+        verbose_name=_('Parent'),
+        linkify=True
+    )
     prefix = columns.TemplateColumn(
         verbose_name=_('Prefix'),
         template_code=PREFIX_LINK_WITH_DEPTH,
@@ -230,9 +234,9 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Prefix
         fields = (
-            'pk', 'id', 'prefix', 'prefix_flat', 'status', 'children', 'vrf', 'utilization', 'tenant', 'tenant_group',
-            'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized', 'description', 'contacts',
-            'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'prefix', 'status', 'parent', 'prefix', 'prefix_flat', 'children', 'vrf', 'utilization',
+            'tenant', 'tenant_group', 'scope', 'scope_type', 'vlan_group', 'vlan', 'role', 'is_pool', 'mark_utilized',
+             'contacts', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'prefix', 'status', 'children', 'vrf', 'utilization', 'tenant', 'scope', 'vlan', 'role',
@@ -246,8 +250,11 @@ class PrefixTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
 #
 # IP ranges
 #
-
 class IPRangeTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
+    prefix = tables.Column(
+        verbose_name=_('Prefix'),
+        linkify=True
+    )
     start_address = tables.Column(
         verbose_name=_('Start address'),
         linkify=True
@@ -284,9 +291,9 @@ class IPRangeTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = IPRange
         fields = (
-            'pk', 'id', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'tenant_group',
-            'mark_populated', 'mark_utilized', 'utilization', 'description', 'contacts', 'comments', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'start_address', 'end_address', 'prefix', 'size', 'vrf', 'status', 'role', 'tenant',
+            'tenant_group', 'mark_populated', 'mark_utilized', 'utilization', 'description', 'contacts',
+            'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'start_address', 'end_address', 'size', 'vrf', 'status', 'role', 'tenant', 'description',
@@ -301,9 +308,17 @@ class IPRangeTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
 #
 
 class IPAddressTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
+    prefix = tables.Column(
+        verbose_name=_('Prefix'),
+        linkify=True
+    )
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
         verbose_name=_('IP Address')
+    )
+    prefix = tables.Column(
+        linkify=True,
+        verbose_name=_('Prefix')
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
@@ -353,8 +368,9 @@ class IPAddressTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable
     class Meta(PrimaryModelTable.Meta):
         model = IPAddress
         fields = (
-            'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside',
-            'assigned', 'dns_name', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'address', 'vrf', 'prefix', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside',
+            'nat_outside', 'assigned', 'dns_name', 'description', 'comments', 'contacts', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',

@@ -11,6 +11,7 @@ preview = true
 
 [lint.per-file-ignores]
 "template_code.py" = ["E501"]
+"*/migrations/*.py" = ["E501"]
 
 [format]
 quote-style = "single"

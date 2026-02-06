@@ -16,12 +16,20 @@ PREFIX_COPY_BUTTON = """
 
 PREFIX_LINK_WITH_DEPTH = """
 {% load helpers %}
-{% if record.depth %}
-    <div class="record-depth">
-        {% for i in record.depth|as_range %}
-            <span>•</span>
-        {% endfor %}
-    </div>
+{% if record.depth_count %}
+    {% if object %}
+        <div class="record-depth">
+            {% for i in record.depth_count|parent_depth:object|as_range %}
+                <span>•</span>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="record-depth">
+            {% for i in record.depth_count|as_range %}
+                <span>•</span>
+            {% endfor %}
+        </div>
+    {% endif %}
 {% endif %}
 """ + PREFIX_LINK
 

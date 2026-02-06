@@ -340,6 +340,26 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
         field_name='prefix',
         lookup_expr='net_mask_length__lte'
     )
+    aggregate_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Aggregate.objects.all(),
+        label=_('Aggregate'),
+    )
+    aggregate = django_filters.ModelMultipleChoiceFilter(
+        field_name='aggregate__prefix',
+        queryset=Aggregate.objects.all(),
+        to_field_name='prefix',
+        label=_('Aggregate (Prefix)'),
+    )
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label=_('Parent Prefix'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__prefix',
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        label=_('Parent Prefix (Prefix)'),
+    )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
         label=_('VRF'),
@@ -484,6 +504,16 @@ class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
         method='search_contains',
         label=_('Ranges which contain this prefix or IP'),
     )
+    prefix_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label=_('Prefix (ID)'),
+    )
+    prefix = django_filters.ModelMultipleChoiceFilter(
+        field_name='prefix__prefix',
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        label=_('Prefix'),
+    )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
         label=_('VRF'),
@@ -568,6 +598,16 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     parent = MultiValueCharFilter(
         method='search_by_parent',
         label=_('Parent prefix'),
+    )
+    prefix_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label=_('Prefix (ID)'),
+    )
+    prefix = django_filters.ModelMultipleChoiceFilter(
+        field_name='prefix__prefix',
+        queryset=Prefix.objects.all(),
+        to_field_name='prefix',
+        label=_('Prefix (prefix)'),
     )
     address = MultiValueCharFilter(
         method='filter_address',
