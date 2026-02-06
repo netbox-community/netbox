@@ -13,7 +13,6 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
 from circuits.models import Circuit, CircuitTermination
-from dcim.ui import panels
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
@@ -44,6 +43,7 @@ from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *
 from .models.device_components import PortMapping
 from .object_actions import BulkAddComponents, BulkDisconnect
+from .ui import panels
 
 CABLE_TERMINATION_TYPES = {
     'dcim.consoleport': ConsolePort,

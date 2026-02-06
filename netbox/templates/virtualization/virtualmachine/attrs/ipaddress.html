@@ -1,0 +1,10 @@
+{% load i18n %}
+<a href="{{ value.get_absolute_url }}"{% if name %} id="attr_{{ name }}"{% endif %}>{{ value.address.ip }}</a>
+{% if value.nat_inside %}
+  ({% trans "NAT for" %} <a href="{{ value.nat_inside.get_absolute_url }}">{{ value.nat_inside.address.ip }}</a>)
+{% elif value.nat_outside.exists %}
+  ({% trans "NAT" %}: {% for nat in value.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+{% endif %}
+<a class="btn btn-sm btn-primary copy-content" data-clipboard-target="#attr_{{ name }}" title="{% trans "Copy to clipboard" %}">
+  <i class="mdi mdi-content-copy"></i>
+</a>
