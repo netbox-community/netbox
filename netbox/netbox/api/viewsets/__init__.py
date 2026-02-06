@@ -5,13 +5,13 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django_pglocks import advisory_lock
-from netbox.constants import ADVISORY_LOCK_KEYS
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
+from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from utilities.query import reapply_model_ordering
@@ -59,33 +59,38 @@ class BaseViewSet(GenericViewSet):
         serializer_class = self.get_serializer_class()
 
         # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
-        if prefetch := get_prefetches_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+        if prefetch := get_prefetches_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.prefetch_related(*prefetch)
 
         # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
-        if annotations := get_annotations_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+        if annotations := get_annotations_for_serializer(serializer_class, **self.field_kwargs):
             qs = qs.annotate(**annotations)
 
         return qs
 
     def get_serializer(self, *args, **kwargs):
-
-        # If specific fields have been requested, pass them to the serializer
-        if self.requested_fields:
-            kwargs['fields'] = self.requested_fields
-
+        # Pass the fields/omit kwargs (if specified by the request) to the serializer
+        kwargs.update(**self.field_kwargs)
         return super().get_serializer(*args, **kwargs)
 
     @cached_property
-    def requested_fields(self):
+    def field_kwargs(self):
+        """Return a dictionary of keyword arguments to be passed when instantiating the serializer."""
         # An explicit list of fields was requested
         if requested_fields := self.request.query_params.get('fields'):
-            return requested_fields.split(',')
+            return {'fields': requested_fields.split(',')}
+
+        # An explicit list of fields to omit was requested
+        if omit_fields := self.request.query_params.get('omit'):
+            return {'omit': omit_fields.split(',')}
+
         # Brief mode has been enabled for this request
-        elif self.brief:
+        if self.brief:
             serializer_class = self.get_serializer_class()
-            return getattr(serializer_class.Meta, 'brief_fields', None)
-        return None
+            if brief_fields := getattr(serializer_class.Meta, 'brief_fields', None):
+                return {'fields': brief_fields}
+
+        return {}
 
 
 class NetBoxReadOnlyModelViewSet(
@@ -165,6 +170,28 @@ class NetBoxModelViewSet(
 
     # Creates
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        bulk_create = getattr(serializer, 'many', False)
+        self.perform_create(serializer)
+
+        # After creating the instance(s), re-initialize the serializer with a queryset
+        # to ensure related objects are prefetched.
+        if bulk_create:
+            instance_pks = [obj.pk for obj in serializer.instance]
+            # Order by PK to ensure that the ordering of objects in the response
+            # matches the ordering of those in the request.
+            qs = self.get_queryset().filter(pk__in=instance_pks).order_by('pk')
+        else:
+            qs = self.get_queryset().get(pk=serializer.instance.pk)
+
+        # Re-serialize the instance(s) with prefetched data
+        serializer = self.get_serializer(qs, many=bulk_create)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def perform_create(self, serializer):
         model = self.queryset.model
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
@@ -181,9 +208,20 @@ class NetBoxModelViewSet(
     # Updates
 
     def update(self, request, *args, **kwargs):
-        # Hotwire get_object() to ensure we save a pre-change snapshot
-        self.get_object = self.get_object_with_snapshot
-        return super().update(request, *args, **kwargs)
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object_with_snapshot()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # After updating the instance, re-initialize the serializer with a queryset
+        # to ensure related objects are prefetched.
+        qs = self.get_queryset().get(pk=serializer.instance.pk)
+
+        # Re-serialize the instance(s) with prefetched data
+        serializer = self.get_serializer(qs)
+
+        return Response(serializer.data)
 
     def perform_update(self, serializer):
         model = self.queryset.model

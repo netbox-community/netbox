@@ -50,21 +50,21 @@ class RestrictedQuerySet(QuerySet):
 
         # Bypass restriction for superusers and exempt views
         if user and user.is_superuser or permission_is_exempt(permission_required):
-            qs = self
+            return self
 
         # User is anonymous or has not been granted the requisite permission
-        elif user is None or not user.is_authenticated or permission_required not in user.get_all_permissions():
-            qs = self.none()
+        if user is None or not user.is_authenticated or permission_required not in user.get_all_permissions():
+            return self.none()
 
         # Filter the queryset to include only objects with allowed attributes
-        else:
-            tokens = {
-                CONSTRAINT_TOKEN_USER: user,
-            }
-            attrs = qs_filter_from_constraints(user._object_perm_cache[permission_required], tokens)
+        constraints = user._object_perm_cache[permission_required]
+        tokens = {
+            CONSTRAINT_TOKEN_USER: user,
+        }
+        if attrs := qs_filter_from_constraints(constraints, tokens):
             # #8715: Avoid duplicates when JOIN on many-to-many fields without using DISTINCT.
             # DISTINCT acts globally on the entire request, which may not be desirable.
             allowed_objects = self.model.objects.filter(attrs)
-            qs = self.filter(pk__in=allowed_objects)
+            return self.filter(pk__in=allowed_objects)
 
-        return qs
+        return self

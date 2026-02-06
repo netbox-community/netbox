@@ -63,16 +63,20 @@ class ConfigRevision(models.Model):
             return reverse('core:config')  # Default config view
         return reverse('core:configrevision', args=[self.pk])
 
-    def activate(self):
+    def activate(self, update_db=True):
         """
         Cache the configuration data.
+
+        Parameters:
+            update_db: Mark the ConfigRevision as active in the database (default: True)
         """
         cache.set('config', self.data, None)
         cache.set('config_version', self.pk, None)
 
-        # Set all instances of ConfigRevision to false and set this instance to true
-        ConfigRevision.objects.all().update(active=False)
-        ConfigRevision.objects.filter(pk=self.pk).update(active=True)
+        if update_db:
+            # Set all instances of ConfigRevision to false and set this instance to true
+            ConfigRevision.objects.all().update(active=False)
+            ConfigRevision.objects.filter(pk=self.pk).update(active=True)
 
     activate.alters_data = True
 

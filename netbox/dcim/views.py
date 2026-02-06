@@ -16,7 +16,7 @@ from circuits.models import Circuit, CircuitTermination
 from dcim.ui import panels
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import ASN, IPAddress, Prefix, VLANGroup, VLAN
+from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
@@ -880,6 +880,7 @@ class RackTypeView(GetRelatedModelsMixin, generic.ObjectView):
             panels.RackWeightPanel(title=_('Weight'), exclude=['total_weight']),
             CustomFieldsPanel(),
             RelatedObjectsPanel(),
+            ImageAttachmentsPanel(),
         ],
     )
 
@@ -1845,6 +1846,7 @@ class ModuleTypeBulkEditView(generic.BulkEditView):
 class ModuleTypeBulkRenameView(generic.BulkRenameView):
     queryset = ModuleType.objects.all()
     filterset = filtersets.ModuleTypeFilterSet
+    field_name = 'model'
 
 
 @register_model_view(ModuleType, 'bulk_delete', path='delete', detail=False)
@@ -2714,11 +2716,12 @@ class DeviceBulkImportView(generic.BulkImportView):
     model_form = forms.DeviceImportForm
 
     def save_object(self, object_form, request):
+        parent_bay = getattr(object_form.instance, 'parent_bay', None)
         obj = object_form.save()
 
         # For child devices, save the reverse relation to the parent device bay
-        if getattr(obj, 'parent_bay', None):
-            device_bay = obj.parent_bay
+        if parent_bay:
+            device_bay = parent_bay
             device_bay.installed_device = obj
             device_bay.save()
 
@@ -3133,6 +3136,14 @@ class InterfaceView(generic.ObjectView):
         )
         child_interfaces_table.configure(request)
 
+        # Get LAG interfaces
+        lag_interfaces = Interface.objects.restrict(request.user, 'view').filter(lag=instance)
+        lag_interfaces_table = tables.InterfaceLAGMemberTable(
+            lag_interfaces,
+            orderable=False
+        )
+        lag_interfaces_table.configure(request)
+
         # Get assigned VLANs and annotate whether each is tagged or untagged
         vlans = []
         if instance.untagged_vlan is not None:
@@ -3159,8 +3170,10 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
+            'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
+            'lag_interfaces_table': lag_interfaces_table,
             'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }

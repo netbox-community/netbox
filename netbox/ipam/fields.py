@@ -16,6 +16,7 @@ __all__ = (
 # BGP ASN bounds
 BGP_ASN_MIN = 1
 BGP_ASN_MAX = 2**32 - 1
+BGP_ASN_ASDOT_BASE = 2**16
 
 
 class BaseIPField(models.Field):
@@ -126,3 +127,16 @@ class ASNField(models.BigIntegerField):
         }
         defaults.update(**kwargs)
         return super().formfield(**defaults)
+
+    @staticmethod
+    def to_asdot(value) -> str:
+        """
+        Return ASDOT notation for AS numbers greater than 16 bits.
+        """
+        if value is None:
+            return ''
+
+        if value >= BGP_ASN_ASDOT_BASE:
+            hi, lo = divmod(value, BGP_ASN_ASDOT_BASE)
+            return f'{hi}.{lo}'
+        return str(value)

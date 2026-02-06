@@ -51,14 +51,14 @@ You can verify that authentication works by executing the `psql` command and pas
 
 ```no-highlight
 $ psql --username netbox --password --host localhost netbox
-Password for user netbox: 
-psql (12.5 (Ubuntu 12.5-0ubuntu0.20.04.1))
-SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+Password:
+psql (16.11 (Ubuntu 16.11-0ubuntu0.24.04.1))
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, compression: off)
 Type "help" for help.
 
 netbox=> \conninfo
 You are connected to database "netbox" as user "netbox" on host "localhost" (address "127.0.0.1") at port "5432".
-SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, compression: off)
 netbox=> \q
 ```
 

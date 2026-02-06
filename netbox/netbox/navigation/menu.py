@@ -1,3 +1,5 @@
+from functools import cache
+
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
@@ -232,7 +234,7 @@ VPN_MENU = Menu(
             label=_('L2VPNs'),
             items=(
                 get_model_item('vpn', 'l2vpn', _('L2VPNs')),
-                get_model_item('vpn', 'l2vpntermination', _('Terminations')),
+                get_model_item('vpn', 'l2vpntermination', _('L2VPN Terminations')),
             ),
         ),
         MenuGroup(
@@ -409,60 +411,10 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Authentication'),
             items=(
-                MenuItem(
-                    link='users:user_list',
-                    link_text=_('Users'),
-                    staff_only=True,
-                    permissions=['users.view_user'],
-                    buttons=(
-                        MenuItemButton(
-                            link='users:user_add',
-                            title='Add',
-                            icon_class='mdi mdi-plus-thick',
-                            permissions=['users.add_user']
-                        ),
-                        MenuItemButton(
-                            link='users:user_bulk_import',
-                            title='Import',
-                            icon_class='mdi mdi-upload',
-                            permissions=['users.add_user']
-                        )
-                    )
-                ),
-                MenuItem(
-                    link='users:group_list',
-                    link_text=_('Groups'),
-                    staff_only=True,
-                    permissions=['users.view_group'],
-                    buttons=(
-                        MenuItemButton(
-                            link='users:group_add',
-                            title='Add',
-                            icon_class='mdi mdi-plus-thick',
-                            permissions=['users.add_group']
-                        ),
-                        MenuItemButton(
-                            link='users:group_bulk_import',
-                            title='Import',
-                            icon_class='mdi mdi-upload',
-                            permissions=['users.add_group']
-                        )
-                    )
-                ),
-                MenuItem(
-                    link='users:token_list',
-                    link_text=_('API Tokens'),
-                    staff_only=True,
-                    permissions=['users.view_token'],
-                    buttons=get_model_buttons('users', 'token')
-                ),
-                MenuItem(
-                    link='users:objectpermission_list',
-                    link_text=_('Permissions'),
-                    staff_only=True,
-                    permissions=['users.view_objectpermission'],
-                    buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
-                ),
+                get_model_item('users', 'user', _('Users')),
+                get_model_item('users', 'group', _('Groups')),
+                get_model_item('users', 'token', _('API Tokens')),
+                get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
         MenuGroup(
@@ -501,40 +453,49 @@ ADMIN_MENU = Menu(
     ),
 )
 
-MENUS = [
-    ORGANIZATION_MENU,
-    RACKS_MENU,
-    DEVICES_MENU,
-    CONNECTIONS_MENU,
-    WIRELESS_MENU,
-    IPAM_MENU,
-    VPN_MENU,
-    VIRTUALIZATION_MENU,
-    CIRCUITS_MENU,
-    POWER_MENU,
-    PROVISIONING_MENU,
-    CUSTOMIZATION_MENU,
-    OPERATIONS_MENU,
-]
 
-# Add top-level plugin menus
-for menu in registry['plugins']['menus']:
-    MENUS.append(menu)
-
-# Add the default "plugins" menu
-if registry['plugins']['menu_items']:
-
-    # Build the default plugins menu
-    groups = [
-        MenuGroup(label=label, items=items)
-        for label, items in registry['plugins']['menu_items'].items()
+@cache
+def get_menus():
+    """
+    Dynamically build and return the list of navigation menus.
+    This ensures plugin menus registered during app initialization are included.
+    The result is cached since menus don't change without a Django restart.
+    """
+    menus = [
+        ORGANIZATION_MENU,
+        RACKS_MENU,
+        DEVICES_MENU,
+        CONNECTIONS_MENU,
+        WIRELESS_MENU,
+        IPAM_MENU,
+        VPN_MENU,
+        VIRTUALIZATION_MENU,
+        CIRCUITS_MENU,
+        POWER_MENU,
+        PROVISIONING_MENU,
+        CUSTOMIZATION_MENU,
+        OPERATIONS_MENU,
     ]
-    plugins_menu = Menu(
-        label=_("Plugins"),
-        icon_class="mdi mdi-puzzle",
-        groups=groups
-    )
-    MENUS.append(plugins_menu)
 
-# Add the admin menu last
-MENUS.append(ADMIN_MENU)
+    # Add top-level plugin menus
+    for menu in registry['plugins']['menus']:
+        menus.append(menu)
+
+    # Add the default "plugins" menu
+    if registry['plugins']['menu_items']:
+        # Build the default plugins menu
+        groups = [
+            MenuGroup(label=label, items=items)
+            for label, items in registry['plugins']['menu_items'].items()
+        ]
+        plugins_menu = Menu(
+            label=_("Plugins"),
+            icon_class="mdi mdi-puzzle",
+            groups=groups
+        )
+        menus.append(plugins_menu)
+
+    # Add the admin menu last
+    menus.append(ADMIN_MENU)
+
+    return menus

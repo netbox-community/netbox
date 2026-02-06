@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import IntegerLookup
     from extras.graphql.filters import ConfigTemplateFilter
     from ipam.graphql.filters import VLANFilter, VLANTranslationPolicyFilter
+    from dcim.graphql.filters import LocationFilter, RegionFilter, SiteFilter, SiteGroupFilter
     from .filters import *
 
 __all__ = (
@@ -35,9 +36,32 @@ class ScopedFilterMixin:
     )
     scope_id: ID | None = strawberry_django.filter_field()
 
+    # Cached relations
+    _location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='location')
+    )
+    _region: Annotated['RegionFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='region')
+    )
+    _site_group: Annotated['SiteGroupFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='site_group')
+    )
+    _site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='site')
+    )
+
 
 @dataclass
 class ComponentModelFilterMixin:
+    _site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='site')
+    )
+    _location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='location')
+    )
+    _rack: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='rack')
+    )
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
     name: FilterLookup[str] | None = strawberry_django.filter_field()

@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from core.forms.mixins import SyncedDataMixin
 from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.choices import *
 from extras.models import *
 from netbox.events import get_event_type_choices
@@ -177,6 +178,13 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
         ) + ' <code>choice1:First Choice</code>')
     )
 
+    fieldsets = (
+        FieldSet(
+            'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
+            name=_('Custom Field Choice Set')
+        ),
+    )
+
     class Meta:
         model = CustomFieldChoiceSet
         fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically', 'owner')
@@ -189,22 +197,22 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
         # if standardize these, we can simplify this code
 
         # Convert extra_choices Array Field from model to CharField for form
-        if 'extra_choices' in self.initial and self.initial['extra_choices']:
-            extra_choices = self.initial['extra_choices']
+        if extra_choices := self.initial.get('extra_choices', None):
             if isinstance(extra_choices, str):
                 extra_choices = [extra_choices]
-            choices = ""
+            choices = []
             for choice in extra_choices:
                 # Setup choices in Add Another use case
                 if isinstance(choice, str):
                     choice_str = ":".join(choice.replace("'", "").replace(" ", "")[1:-1].split(","))
-                    choices += choice_str + "\n"
+                    choices.append(choice_str)
                 # Setup choices in Edit use case
                 elif isinstance(choice, list):
-                    choice_str = ":".join(choice)
-                    choices += choice_str + "\n"
+                    value = choice[0].replace(':', '\\:')
+                    label = choice[1].replace(':', '\\:')
+                    choices.append(f'{value}:{label}')
 
-            self.initial['extra_choices'] = choices
+            self.initial['extra_choices'] = '\n'.join(choices)
 
     def clean_extra_choices(self):
         data = []
@@ -570,10 +578,6 @@ class TagForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         queryset=ObjectType.objects.with_feature('tags'),
         required=False
     )
-    weight = forms.IntegerField(
-        label=_('Weight'),
-        required=False
-    )
 
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'weight', 'description', 'object_types', name=_('Tag')),
@@ -784,8 +788,11 @@ class ImageAttachmentForm(forms.ModelForm):
         fields = [
             'image', 'name', 'description',
         ]
-        help_texts = {
-            'name': _("If no name is specified, the file name will be used.")
+        # Explicitly set 'image/avif' to support AVIF selection in Firefox
+        widgets = {
+            'image': forms.ClearableFileInput(
+                attrs={'accept': ','.join(sorted(set(IMAGE_ATTACHMENT_IMAGE_FORMATS.values())))}
+            ),
         }
 
 

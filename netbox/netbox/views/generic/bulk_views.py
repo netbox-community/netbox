@@ -1,10 +1,10 @@
 import logging
 import re
+from collections import Counter
 from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
@@ -33,6 +33,7 @@ from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
 from utilities.request import safe_for_redirect
+from utilities.string import title
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_action_url
 from .base import BaseMultiObjectView
@@ -443,6 +444,18 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
 
         # Prefetch objects to be updated, if any
         prefetch_ids = [int(record['id']) for record in records if record.get('id')]
+
+        # check for duplicate IDs
+        duplicate_pks = [pk for pk, count in Counter(prefetch_ids).items() if count > 1]
+        if duplicate_pks:
+            error_msg = _(
+                "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
+            ).format(
+                model=title(self.queryset.model._meta.verbose_name),
+                ids=', '.join(str(pk) for pk in sorted(duplicate_pks))
+            )
+            raise ValidationError(error_msg)
+
         prefetched_objects = {
             obj.pk: obj
             for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
@@ -470,12 +483,11 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             else:
                 instance = self.queryset.model()
 
-                # For newly created objects, apply any default custom field values
-                custom_fields = CustomField.objects.filter(
-                    object_types=ContentType.objects.get_for_model(self.queryset.model),
-                    ui_editable=CustomFieldUIEditableChoices.YES
-                )
-                for cf in custom_fields:
+                # For newly created objects, apply any default values for custom fields
+                for cf in CustomField.objects.get_for_model(self.queryset.model):
+                    if cf.ui_editable != CustomFieldUIEditableChoices.YES:
+                        # Skip custom fields which are not editable via the UI
+                        continue
                     field_name = f'cf_{cf.name}'
                     if field_name not in record:
                         record[field_name] = cf.default

@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
+from netbox.forms.mixins import OwnerMixin
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
 from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets import APISelect
@@ -271,7 +272,7 @@ class InventoryItemCreateForm(ComponentCreateForm, model_forms.InventoryItemForm
 # Virtual chassis
 #
 
-class VirtualChassisCreateForm(NetBoxModelForm):
+class VirtualChassisCreateForm(OwnerMixin, NetBoxModelForm):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),

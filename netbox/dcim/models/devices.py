@@ -959,6 +959,11 @@ class Device(
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:
                     component.custom_field_data = cf_defaults
+            # Set denormalized references
+            for component in components:
+                component._site = self.site
+                component._location = self.location
+                component._rack = self.rack
             components = model.objects.bulk_create(components)
             # Prefetch related objects to minimize queries needed during post_save
             prefetch_fields = get_prefetchable_fields(model)

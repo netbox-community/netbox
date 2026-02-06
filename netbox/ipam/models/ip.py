@@ -1042,13 +1042,13 @@ class IPAddress(ContactsMixin, PrimaryModel):
                     })
 
             # Disallow the creation of IPAddresses within an IPRange with mark_populated=True
-            parent_range = IPRange.objects.filter(
+            parent_range_qs = IPRange.objects.filter(
                 start_address__lte=self.address,
                 end_address__gte=self.address,
                 vrf=self.vrf,
                 mark_populated=True
-            ).first()
-            if parent_range:
+            )
+            if not self.pk and (parent_range := parent_range_qs.first()):
                 raise ValidationError({
                     'address': _(
                         "Cannot create IP address {ip} inside range {range}."
@@ -1074,6 +1074,13 @@ class IPAddress(ContactsMixin, PrimaryModel):
                 raise ValidationError(
                     _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
                 )
+
+            # can't use is_oob_ip as self.assigned_object might be changed
+            if hasattr(original_parent, 'oob_ip') and original_parent.oob_ip_id == self.pk:
+                if parent != original_parent:
+                    raise ValidationError(
+                        _("Cannot reassign IP address while it is designated as the OOB IP for the parent object")
+                    )
 
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:

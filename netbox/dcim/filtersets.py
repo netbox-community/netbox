@@ -905,7 +905,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
         field_name='mappings__rear_port',
-        queryset=RearPort.objects.all(),
+        queryset=RearPortTemplate.objects.all(),
         to_field_name='rear_port',
         label=_('Rear port (ID)'),
     )

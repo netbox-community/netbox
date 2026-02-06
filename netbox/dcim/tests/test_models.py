@@ -6,6 +6,7 @@ from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
+from ipam.models import Prefix
 from netbox.choices import WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
@@ -848,6 +849,168 @@ class ModuleBayTestCase(TestCase):
         nested_bay = module.modulebays.get(name='SFP A-21')
         self.assertEqual(nested_bay.label, 'A-21')
 
+    @tag('regression')  # #20912
+    def test_module_bay_parent_cleared_when_module_removed(self):
+        """Test that the parent field is properly cleared when a module bay's module assignment is removed"""
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module Type')
+        bay1 = ModuleBay.objects.create(device=device, name='Test Bay 1')
+        bay2 = ModuleBay.objects.create(device=device, name='Test Bay 2')
+
+        # Install a module in bay1
+        module1 = Module.objects.create(device=device, module_bay=bay1, module_type=module_type)
+
+        # Assign bay2 to module1 and verify parent is now set to bay1 (module1's bay)
+        bay2.module = module1
+        bay2.save()
+        bay2.refresh_from_db()
+        self.assertEqual(bay2.parent, bay1)
+        self.assertEqual(bay2.module, module1)
+
+        # Clear the module assignment (return bay2 to device level) Verify parent is cleared
+        bay2.module = None
+        bay2.save()
+        bay2.refresh_from_db()
+        self.assertIsNone(bay2.parent)
+        self.assertIsNone(bay2.module)
+
+    def test_module_installation_creates_port_mappings(self):
+        """
+        Test that installing a module with front/rear port templates correctly
+        creates PortMapping instances for the device.
+        """
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        module_bay = ModuleBay.objects.create(device=device, name='Test Bay PortMapping 1')
+
+        # Create a module type with a rear port template
+        module_type_with_mappings = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Module Type With Mappings',
+        )
+
+        # Create a rear port template with 12 positions (splice)
+        rear_port_template = RearPortTemplate.objects.create(
+            module_type=module_type_with_mappings,
+            name='Rear Port 1',
+            type=PortTypeChoices.TYPE_SPLICE,
+            positions=12,
+        )
+
+        # Create 12 front port templates mapped to the rear port
+        front_port_templates = []
+        for i in range(1, 13):
+            front_port_template = FrontPortTemplate.objects.create(
+                module_type=module_type_with_mappings,
+                name=f'port {i}',
+                type=PortTypeChoices.TYPE_LC,
+                positions=1,
+            )
+            front_port_templates.append(front_port_template)
+
+            # Create port template mapping
+            PortTemplateMapping.objects.create(
+                device_type=None,
+                module_type=module_type_with_mappings,
+                front_port=front_port_template,
+                front_port_position=1,
+                rear_port=rear_port_template,
+                rear_port_position=i,
+            )
+
+        # Install the module
+        module = Module.objects.create(
+            device=device,
+            module_bay=module_bay,
+            module_type=module_type_with_mappings,
+            status=ModuleStatusChoices.STATUS_ACTIVE,
+        )
+
+        # Verify that front ports were created
+        front_ports = FrontPort.objects.filter(device=device, module=module)
+        self.assertEqual(front_ports.count(), 12)
+
+        # Verify that the rear port was created
+        rear_ports = RearPort.objects.filter(device=device, module=module)
+        self.assertEqual(rear_ports.count(), 1)
+        rear_port = rear_ports.first()
+        self.assertEqual(rear_port.positions, 12)
+
+        # Verify that port mappings were created
+        port_mappings = PortMapping.objects.filter(front_port__module=module)
+        self.assertEqual(port_mappings.count(), 12)
+
+        # Verify each mapping is correct
+        for i, front_port_template in enumerate(front_port_templates, start=1):
+            front_port = FrontPort.objects.get(
+                device=device,
+                name=front_port_template.name,
+                module=module,
+            )
+
+            # Check that a mapping exists for this front port
+            mapping = PortMapping.objects.get(
+                device=device,
+                front_port=front_port,
+                front_port_position=1,
+            )
+
+            self.assertEqual(mapping.rear_port, rear_port)
+            self.assertEqual(mapping.front_port_position, 1)
+            self.assertEqual(mapping.rear_port_position, i)
+
+    def test_module_installation_without_mappings(self):
+        """
+        Test that installing a module without port template mappings
+        doesn't create any PortMapping instances.
+        """
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        module_bay = ModuleBay.objects.create(device=device, name='Test Bay PortMapping 2')
+
+        # Create a module type without any port template mappings
+        module_type_no_mappings = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Module Type Without Mappings',
+        )
+
+        # Create a rear port template
+        RearPortTemplate.objects.create(
+            module_type=module_type_no_mappings,
+            name='Rear Port 1',
+            type=PortTypeChoices.TYPE_SPLICE,
+            positions=12,
+        )
+
+        # Create front port templates but DO NOT create PortTemplateMapping rows
+        for i in range(1, 13):
+            FrontPortTemplate.objects.create(
+                module_type=module_type_no_mappings,
+                name=f'port {i}',
+                type=PortTypeChoices.TYPE_LC,
+                positions=1,
+            )
+
+        # Install the module
+        module = Module.objects.create(
+            device=device,
+            module_bay=module_bay,
+            module_type=module_type_no_mappings,
+            status=ModuleStatusChoices.STATUS_ACTIVE,
+        )
+
+        # Verify no port mappings were created for this module
+        port_mappings = PortMapping.objects.filter(
+            device=device,
+            front_port__module=module,
+            front_port_position=1,
+        )
+        self.assertEqual(port_mappings.count(), 0)
+        self.assertEqual(FrontPort.objects.filter(module=module).count(), 12)
+        self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
+        self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
+
 
 class CableTestCase(TestCase):
 
@@ -1179,3 +1342,14 @@ class VirtualChassisTestCase(TestCase):
         device2.vc_position = 1
         with self.assertRaises(ValidationError):
             device2.full_clean()
+
+
+class SiteSignalTestCase(TestCase):
+
+    @tag('regression')
+    def test_edit_site_with_prefix_no_vrf(self):
+        site = Site.objects.create(name='Test Site', slug='test-site')
+        Prefix.objects.create(prefix='192.0.2.0/24', scope=site, vrf=None)
+
+        # Regression test for #21045: should not raise ValueError
+        site.save()

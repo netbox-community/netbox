@@ -1,0 +1,43 @@
+---
+name: 🏁 Performance
+type: Performance
+description: An opportunity to improve application performance
+labels: ["netbox", "type: performance", "status: needs triage"]
+body:
+  - type: input
+    attributes:
+      label: NetBox Version
+      description: What version of NetBox are you currently running?
+      placeholder: v4.5.2
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Python Version
+      description: What version of Python are you currently running?
+      options:
+        - "3.12"
+        - "3.13"
+        - "3.14"
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Area(s) of Concern
+      description: Which application interface(s) are affected?
+      options:
+        - label: User Interface
+        - label: REST API
+        - label: GraphQL API
+        - label: Python ORM
+        - label: Other
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Details
+      description: >
+        Describe in detail the operations being performed and the indications of a performance issue.
+        Include any relevant testing parameters, benchmarks, and expected results.
+    validations:
+      required: true

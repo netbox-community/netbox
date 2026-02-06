@@ -551,6 +551,10 @@ class InterfaceFilter(
     )
 
     @strawberry_django.filter_field
+    def cabled(self, value: bool, prefix: str):
+        return Q(**{f'{prefix}cable__isnull': (not value)})
+
+    @strawberry_django.filter_field
     def connected(self, queryset, value: bool, prefix: str):
         if value is True:
             return queryset, Q(**{f"{prefix}_path__is_active": True})
@@ -889,7 +893,7 @@ class PowerPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
 
 
 @strawberry_django.filter_type(models.RackType, lookups=True)
-class RackTypeFilter(RackFilterMixin, WeightFilterMixin, PrimaryModelFilter):
+class RackTypeFilter(ImageAttachmentFilterMixin, RackFilterMixin, WeightFilterMixin, PrimaryModelFilter):
     form_factor: BaseFilterLookup[Annotated['RackFormFactorEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )

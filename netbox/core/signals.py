@@ -3,7 +3,7 @@ from threading import local
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import CASCADE
+from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
 from django.dispatch import receiver, Signal
@@ -18,6 +18,7 @@ from extras.events import enqueue_event
 from extras.models import Tag
 from extras.utils import run_validators
 from netbox.config import get_config
+from utilities.data import get_config_value_ci
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin, get_model_features, model_is_public
 from utilities.exceptions import AbortRequest
@@ -168,7 +169,7 @@ def handle_deleted_object(sender, instance, **kwargs):
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().PROTECTION_RULES.get(model_name, [])
+    validators = get_config_value_ci(get_config().PROTECTION_RULES, model_name, default=[])
     try:
         run_validators(instance, validators)
     except ValidationError as e:
@@ -221,7 +222,7 @@ def handle_deleted_object(sender, instance, **kwargs):
             obj.snapshot()  # Ensure the change record includes the "before" state
             if type(relation) is ManyToManyRel:
                 getattr(obj, related_field_name).remove(instance)
-            elif type(relation) is ManyToOneRel and relation.null and relation.on_delete is not CASCADE:
+            elif type(relation) is ManyToOneRel and relation.null and relation.on_delete not in (CASCADE, RESTRICT):
                 setattr(obj, related_field_name, None)
                 obj.save()
 

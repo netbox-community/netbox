@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from dcim.choices import *
-from dcim.utils import update_interface_bridges
+from dcim.utils import create_port_mappings, update_interface_bridges
 from extras.models import ConfigContextModel, CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
@@ -155,6 +155,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'description': self.description,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'airflow': self.airflow,
+            'attribute_data': self.attribute_data,
             'comments': self.comments,
         }
 
@@ -259,11 +261,13 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
         module_bays = []
         modules = []
         while module:
-            if module.pk in modules or module.module_bay.pk in module_bays:
+            module_module_bay = getattr(module, "module_bay", None)
+            if module.pk in modules or (module_module_bay and module_module_bay.pk in module_bays):
                 raise ValidationError(_("A module bay cannot belong to a module installed within it."))
             modules.append(module.pk)
-            module_bays.append(module.module_bay.pk)
-            module = module.module_bay.module if module.module_bay else None
+            if module_module_bay:
+                module_bays.append(module_module_bay.pk)
+            module = module_module_bay.module if module_module_bay else None
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -321,6 +325,12 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 for component in create_instances:
                     component.custom_field_data = cf_defaults
 
+            # Set denormalized references
+            for component in create_instances:
+                component._site = self.device.site
+                component._location = self.device.location
+                component._rack = self.device.rack
+
             if component_model is not ModuleBay:
                 component_model.objects.bulk_create(create_instances)
                 # Emit the post_save signal for each newly created object
@@ -351,5 +361,7 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                     update_fields=update_fields
                 )
 
+        # Replicate any front/rear port mappings from the ModuleType
+        create_port_mappings(self.device, self.module_type, self)
         # Interface bridges have to be set after interface instantiation
         update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
