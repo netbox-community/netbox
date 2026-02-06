@@ -262,15 +262,6 @@ class TestPrefix(TestCase):
         # Global container should return all children
         self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk, ips[2].pk, ips[3].pk})
 
-        parent_prefix.vrf = vrfs[0]
-        parent_prefix.save()
-
-        parent_prefix.refresh_from_db()
-        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
-
-        # VRF container is limited to its own VRF
-        self.assertSetEqual(child_ip_pks, {ips[1].pk})
-
     def test_get_available_prefixes(self):
 
         prefixes = Prefix.objects.bulk_create((
@@ -416,6 +407,63 @@ class TestPrefix(TestCase):
         Prefix.objects.create(vrf=vrf, prefix=IPNetwork('192.0.2.0/24'))
         duplicate_prefix = Prefix(vrf=vrf, prefix=IPNetwork('192.0.2.0/24'))
         self.assertRaises(ValidationError, duplicate_prefix.clean)
+
+    def test_parent_container_prefix_change(self):
+        vrfs = VRF.objects.bulk_create((
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        ))
+        parent_prefix = Prefix.objects.create(
+            prefix=IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER
+        )
+        ips = IPAddress.objects.bulk_create((
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.0.1/24'), vrf=None),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.1.1/24'), vrf=vrfs[0]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
+        ))
+        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
+
+        # Global container should return all children
+        self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk, ips[2].pk, ips[3].pk})
+
+        parent_prefix.vrf = vrfs[0]
+        parent_prefix.save()
+
+        parent_prefix.refresh_from_db()
+        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
+
+        # VRF container is limited to its own VRF
+        self.assertSetEqual(child_ip_pks, {ips[1].pk})
+
+    def test_parent_container_vrf_change(self):
+        vrfs = VRF.objects.bulk_create((
+            VRF(name='VRF 1'),
+            VRF(name='VRF 2'),
+            VRF(name='VRF 3'),
+        ))
+        parent_prefix = Prefix.objects.create(
+            prefix=IPNetwork('10.0.0.0/16'), status=PrefixStatusChoices.STATUS_CONTAINER
+        )
+        ips = IPAddress.objects.bulk_create((
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.0.1/24'), vrf=None),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.1.1/24'), vrf=vrfs[0]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.2.1/24'), vrf=vrfs[1]),
+            IPAddress(prefix=parent_prefix, address=IPNetwork('10.0.3.1/24'), vrf=vrfs[2]),
+        ))
+        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
+
+        # Global container should return all children
+        self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk, ips[2].pk, ips[3].pk})
+
+        parent_prefix.prefix = '10.0.0.0/25'
+        parent_prefix.save()
+
+        parent_prefix.refresh_from_db()
+        child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
+
+        self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk})
 
 
 class TestPrefixHierarchy(TestCase):
