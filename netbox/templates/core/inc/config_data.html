@@ -116,7 +116,7 @@
   <tr>
     <th scope="row" class="border-0 ps-3">{% trans "Default preferences" %}</th>
     {% if config.DEFAULT_USER_PREFERENCES %}
-      <td class="border-0"><pre>{{ config.DEFAULT_USER_PREFERENCES|json }}</pre></td>
+      <td class="border-0"><pre>{{ config.DEFAULT_USER_PREFERENCES }}</pre></td>
     {% else %}
       <td class="border-0">{{ ''|placeholder }}</td>
     {% endif %}
