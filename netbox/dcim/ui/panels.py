@@ -90,7 +90,6 @@ class DevicePanel(panels.ObjectAttributesPanel):
     parent_device = attrs.TemplatedAttr('parent_bay', template_name='dcim/device/attrs/parent_device.html')
     gps_coordinates = attrs.GPSCoordinatesAttr()
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    device_type = attrs.RelatedObjectAttr('device_type', linkify=True, grouped_by='manufacturer')
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
@@ -122,10 +121,19 @@ class DeviceManagementPanel(panels.ObjectAttributesPanel):
     cluster = attrs.RelatedObjectAttr('cluster', linkify=True)
 
 
+class DeviceDeviceTypePanel(panels.ObjectAttributesPanel):
+    title = _('Device Type')
+
+    manufacturer = attrs.RelatedObjectAttr('device_type.manufacturer', linkify=True)
+    model = attrs.RelatedObjectAttr('device_type', linkify=True)
+    height = attrs.TextAttr('device_type.u_height', format_string='{}U')
+    front_image = attrs.ImageAttr('device_type.front_image')
+    rear_image = attrs.ImageAttr('device_type.rear_image')
+
+
 class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
     title = _('Dimensions')
 
-    height = attrs.TextAttr('device_type.u_height', format_string='{}U')
     total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
 
 
