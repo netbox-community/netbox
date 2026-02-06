@@ -408,6 +408,12 @@ if CACHING_REDIS_CA_CERT_PATH:
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_ca_certs'] = CACHING_REDIS_CA_CERT_PATH
 
+# Merge in KWARGS for additional parameters
+caching_redis_kwargs = REDIS['caching'].get('KWARGS')
+if caching_redis_kwargs:
+    CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS'].update(caching_redis_kwargs)
+
 
 #
 # Sessions
@@ -816,6 +822,12 @@ RQ_PARAMS.update({
 if TASKS_REDIS_CA_CERT_PATH:
     RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
     RQ_PARAMS['REDIS_CLIENT_KWARGS']['ssl_ca_certs'] = TASKS_REDIS_CA_CERT_PATH
+
+# Merge in KWARGS for additional parameters
+tasks_redis_kwargs = TASKS_REDIS.get('KWARGS')
+if tasks_redis_kwargs:
+    RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
+    RQ_PARAMS['REDIS_CLIENT_KWARGS'].update(tasks_redis_kwargs)
 
 # Define named RQ queues
 RQ_QUEUES = {
