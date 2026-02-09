@@ -1,6 +1,7 @@
 import json
 import platform
 
+from copy import deepcopy
 from django import __version__ as django_version
 from django.conf import settings
 from django.contrib import messages
@@ -310,6 +311,22 @@ class ConfigRevisionListView(generic.ObjectListView):
 class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
+    def get_extra_context(self, request, instance):
+        """
+        Retrieve additional context for a given request and instance.
+        """
+        # Copy the revision data to avoid modifying the original
+        config = deepcopy(instance.data or {})
+
+        # Serialize any JSON-based classes
+        for attr in ['CUSTOM_VALIDATORS', 'DEFAULT_USER_PREFERENCES', 'PROTECTION_RULES']:
+            if attr in config:
+                config[attr] = json.dumps(config[attr], cls=ConfigJSONEncoder, indent=4)
+
+        return {
+            'config': config,
+        }
+
 
 @register_model_view(ConfigRevision, 'add', detail=False)
 class ConfigRevisionEditView(generic.ObjectEditView):
@@ -617,8 +634,8 @@ class SystemView(UserPassesTestMixin, View):
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
 
-        # Serialize any CustomValidator classes
-        for attr in ['CUSTOM_VALIDATORS', 'PROTECTION_RULES']:
+        # Serialize any JSON-based classes
+        for attr in ['CUSTOM_VALIDATORS', 'DEFAULT_USER_PREFERENCES', 'PROTECTION_RULES']:
             if hasattr(config, attr) and getattr(config, attr, None):
                 setattr(config, attr, json.dumps(getattr(config, attr), cls=ConfigJSONEncoder, indent=4))
 
