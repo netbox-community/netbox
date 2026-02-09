@@ -335,17 +335,6 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                     'prefix': _("Cannot create prefix with /0 mask.")
                 })
 
-            if self.parent:
-                if self.prefix not in self.parent.prefix:
-                    raise ValidationError({
-                        'parent': _("Prefix must be part of parent prefix.")
-                    })
-
-                if self.parent.status != PrefixStatusChoices.STATUS_CONTAINER and self.vrf != self.parent.vrf:
-                    raise ValidationError({
-                        'vrf': _("VRF must match the parent VRF.")
-                    })
-
             # Enforce unique IP space (if applicable)
             if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
@@ -359,13 +348,9 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                     })
 
     def save(self, *args, **kwargs):
-        vrf_id = self.vrf.pk if self.vrf else None
 
-        if not self.pk and not self.parent:
-            parent = self.find_parent_prefix(self)
-            self.parent = parent
-        elif self.parent and (self.prefix != self._prefix or vrf_id != self._vrf_id):
-            parent = self.find_parent_prefix(self)
+        if not self.pk or not self.parent or (self.prefix != self._prefix) or (self.vrf_id != self._vrf_id):
+            parent = self.find_parent_prefix(network=self.prefix, vrf=self.vrf, exclude=self.pk)
             self.parent = parent
 
         if isinstance(self.prefix, netaddr.IPNetwork):
@@ -537,17 +522,40 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         return min(utilization, 100)
 
     @classmethod
-    def find_parent_prefix(cls, network):
+    def find_parent_prefix(cls, network, vrf=None, exclude=None):
         prefixes = Prefix.objects.filter(
             models.Q(
-                vrf=network.vrf,
-                prefix__net_contains=str(network.prefix)
+                vrf=vrf,
+                prefix__net_contains=str(network)
             ) | models.Q(
                 vrf=None,
                 status=PrefixStatusChoices.STATUS_CONTAINER,
-                prefix__net_contains=str(network.prefix),
+                prefix__net_contains=str(network),
             )
         )
+        if exclude:
+            prefixes = prefixes.exclude(pk=exclude)
+        return prefixes.last()
+
+    @classmethod
+    def find_parent_prefix_range(cls, networks, vrf=None, exclude=None):
+        network_filter = models.Q()
+        for network in networks:
+            network_filter &= models.Q(
+                prefix__net_contains=network
+            )
+        prefixes = Prefix.objects.filter(
+            models.Q(
+                network_filter,
+                vrf=vrf
+            ) | models.Q(
+                network_filter,
+                vrf=None,
+                status=PrefixStatusChoices.STATUS_CONTAINER,
+            )
+        )
+        if exclude:
+            prefixes = prefixes.exclude(pk=exclude)
         return prefixes.last()
 
 
@@ -734,6 +742,12 @@ class IPRange(ContactsMixin, PrimaryModel):
         # Record the range's size (number of IP addresses)
         self.size = int(self.end_address.ip - self.start_address.ip) + 1
 
+        # Set the parent prefix
+        self.prefix = Prefix.find_parent_prefix_range(
+            networks=[self.start_address.ip, self.end_address.ip],
+            vrf=self.vrf
+        )
+
         super().save(*args, **kwargs)
 
     @property
@@ -827,14 +841,6 @@ class IPRange(ContactsMixin, PrimaryModel):
         ]).size
 
         return min(float(child_count) / self.size * 100, 100)
-
-    @classmethod
-    def find_prefix(self, address):
-        prefixes = Prefix.objects.filter(
-            models.Q(prefix__net_contains=address.start_address) & Q(prefix__net_contains=address.end_address),
-            vrf=address.vrf,
-        )
-        return prefixes.last()
 
 
 class IPAddress(ContactsMixin, PrimaryModel):
@@ -1092,6 +1098,9 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
         # Force dns_name to lowercase
         self.dns_name = self.dns_name.lower()
+
+        # Set the parent prefix
+        self.prefix = Prefix.find_parent_prefix(self.address.ip, vrf=self.vrf)
 
         super().save(*args, **kwargs)
 

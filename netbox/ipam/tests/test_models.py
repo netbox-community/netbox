@@ -457,12 +457,11 @@ class TestPrefix(TestCase):
         # Global container should return all children
         self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk, ips[2].pk, ips[3].pk})
 
-        parent_prefix.prefix = '10.0.0.0/25'
+        parent_prefix.prefix = '10.0.0.0/23'
         parent_prefix.save()
 
         parent_prefix.refresh_from_db()
         child_ip_pks = {p.pk for p in parent_prefix.ip_addresses.all()}
-
         self.assertSetEqual(child_ip_pks, {ips[0].pk, ips[1].pk})
 
 
@@ -853,7 +852,7 @@ class TestIPAddress(TestCase):
             IPAddress(address=IPNetwork('192.0.2.1/24'), prefix=self.prefixes[1]),
             IPAddress(address=IPNetwork('192.0.2.1/24'), vrf=self.vrf, prefix=self.prefixes[2]),
             IPAddress(address=IPNetwork('2001:db8::/64'), prefix=self.prefixes[4]),
-            IPAddress(address=IPNetwork('2001:db8:2::/64'), prefix=self.prefixes[3]),
+            IPAddress(address=IPNetwork('2001:db8:2::/64')),
         )
 
         for ip in ips:
