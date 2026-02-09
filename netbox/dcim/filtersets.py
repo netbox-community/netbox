@@ -2225,29 +2225,6 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
         to_field_name='name',
         label=_('Installed device (name)'),
     )
-    installed_type_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DeviceType.objects.all(),
-        field_name='installed_device__device_type',
-        label=_('Installed device type (ID)'),
-    )
-    installed_role_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=DeviceRole.objects.all(),
-        field_name='installed_device__role',
-        label=_('Installed device role (ID)'),
-    )
-    installed_platform_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Platform.objects.all(),
-        field_name='installed_device__platform',
-        label=_('Installed device platform (ID)'),
-    )
-    installed_serial = MultiValueCharFilter(
-        field_name='installed_device__serial',
-        lookup_expr='iexact',
-    )
-    installed_asset_tag = MultiValueCharFilter(
-        field_name='installed_device__asset_tag',
-        lookup_expr='iexact',
-    )
 
     class Meta:
         model = DeviceBay

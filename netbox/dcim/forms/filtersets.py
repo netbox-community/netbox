@@ -1863,33 +1863,9 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
             'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
-            'installed_type_id', 'installed_role_id', 'installed_platform_id', 'installed_serial',
-            'installed_asset_tag', name=_('Device')
+            name=_('Device')
         ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
-    )
-    installed_type_id = DynamicModelMultipleChoiceField(
-        queryset=DeviceType.objects.all(),
-        required=False,
-        label=_('Installed device type')
-    )
-    installed_role_id = DynamicModelMultipleChoiceField(
-        queryset=DeviceRole.objects.all(),
-        required=False,
-        label=_('Installed device role')
-    )
-    installed_platform_id = DynamicModelMultipleChoiceField(
-        queryset=Platform.objects.all(),
-        required=False,
-        label=_('Installed device platform')
-    )
-    installed_serial = forms.CharField(
-        label=_('Installed device serial'),
-        required=False
-    )
-    installed_asset_tag = forms.CharField(
-        label=_('Installed device asset tag'),
-        required=False
     )
     tag = TagFilterField(model)
 
