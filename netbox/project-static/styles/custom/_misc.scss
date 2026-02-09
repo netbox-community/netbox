@@ -89,6 +89,29 @@ img.plugin-icon {
   }
 }
 
+// Image preview popover (rendered for <a.image-preview> by initImagePreview())
+.image-preview-popover {
+  --bs-popover-max-width: clamp(240px, 25vw, 640px);
+
+  .popover-header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .popover-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  img {
+    display: block;
+    max-width: 100%;
+    max-height: clamp(160px, 33vh, 640px);
+    height: auto;
+  }
+}
+
+
 body[data-bs-theme=dark] {
   // Assuming icon is black/white line art, invert it and tone down brightness
   img.plugin-icon {
