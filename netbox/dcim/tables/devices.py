@@ -893,7 +893,7 @@ class DeviceBayTable(DeviceComponentTable):
         accessor=Accessor('installed_device__role'),
         verbose_name=_('Installed Role')
     )
-    installed_type = tables.Column(
+    installed_device_type = tables.Column(
         accessor=Accessor('installed_device__device_type'),
         linkify=True,
         verbose_name=_('Installed Type')
@@ -918,8 +918,8 @@ class DeviceBayTable(DeviceComponentTable):
         model = models.DeviceBay
         fields = (
             'pk', 'id', 'name', 'device', 'label', 'status', 'description', 'installed_device', 'installed_role',
-            'installed_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags', 'created',
-            'last_updated',
+            'installed_device_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags',
+            'created', 'last_updated',
         )
 
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
