@@ -744,7 +744,7 @@ class IPRange(ContactsMixin, PrimaryModel):
 
         # Set the parent prefix
         self.prefix = Prefix.find_parent_prefix_range(
-            networks=[self.start_address.ip, self.end_address.ip],
+            networks=[netaddr.IPAddress(self.start_address), netaddr.IPAddress(self.end_address)],
             vrf=self.vrf
         )
 
@@ -1100,7 +1100,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
         self.dns_name = self.dns_name.lower()
 
         # Set the parent prefix
-        self.prefix = Prefix.find_parent_prefix(self.address.ip, vrf=self.vrf)
+        self.prefix = Prefix.find_parent_prefix(netaddr.IPAddress(self.address), vrf=self.vrf)
 
         super().save(*args, **kwargs)
 
