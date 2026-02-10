@@ -280,6 +280,10 @@ class IPRangeTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     tags = columns.TagColumn(
         url_name='ipam:iprange_list'
     )
+    
+    actions = columns.ActionsColumn(
+        extra_buttons=IPADDRESS_COPY_BUTTON
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = IPRange
@@ -355,6 +359,7 @@ class IPAddressTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable
         fields = (
             'pk', 'id', 'address', 'vrf', 'status', 'role', 'tenant', 'tenant_group', 'nat_inside', 'nat_outside',
             'assigned', 'dns_name', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'actions',
         )
         default_columns = (
             'pk', 'address', 'vrf', 'status', 'role', 'tenant', 'assigned', 'dns_name', 'description',
@@ -366,10 +371,13 @@ class IPAddressTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable
 
 class AnnotatedIPAddressTable(IPAddressTable):
     address = tables.TemplateColumn(
-        template_code=IPADDRESS_LINK,
+        template_code=ANNOTATED_IPADDRESS_LINK
         verbose_name=_('IP Address')
     )
-
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+        extra_buttons=IPADDRESS_COPY_BUTTON
+    )
     class Meta(IPAddressTable.Meta):
         pass
 

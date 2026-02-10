@@ -38,6 +38,18 @@ IPADDRESS_LINK = """
 {% endif %}
 """
 
+ANNOTATED_IPADDRESS_LINK = """
+{% if record.address %}
+  <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk}}">{{ record.address.ip }}</a>/{{ record.address.prefix_length }}
+{% elif record.start_address %}
+  <a href="{{ record.get_absolute_url }}">{{ record }}</a>
+{% elif perms.ipam.add_ipaddress %}
+  <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.first_ip }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}&return_url={% url 'ipam:prefix_ipaddresses' pk=object.pk %}" class="btn btn-sm btn-success">{{ record.title }}</a>
+{% else %}
+  {{ record.title }}
+{% endif %}
+"""
+
 IPADDRESS_COPY_BUTTON = """
 {% if record.address %}
   {% copy_content record.pk prefix="ipaddress_" %}
