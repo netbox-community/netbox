@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-06 05:22+0000\n"
+"POT-Creation-Date: 2026-02-10 05:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2959,7 +2959,7 @@ msgstr ""
 msgid "No workers found"
 msgstr ""
 
-#: netbox/core/utils.py:84 netbox/core/utils.py:150 netbox/core/views.py:428
+#: netbox/core/utils.py:84 netbox/core/utils.py:150 netbox/core/views.py:445
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr ""
@@ -2969,55 +2969,55 @@ msgstr ""
 msgid "Job {id} not found."
 msgstr ""
 
-#: netbox/core/views.py:92
+#: netbox/core/views.py:93
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr ""
 
-#: netbox/core/views.py:196 netbox/templates/extras/htmx/script_result.html:43
+#: netbox/core/views.py:197 netbox/templates/extras/htmx/script_result.html:43
 msgid "Log"
 msgstr ""
 
-#: netbox/core/views.py:364
+#: netbox/core/views.py:381
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr ""
 
-#: netbox/core/views.py:467
+#: netbox/core/views.py:484
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr ""
 
-#: netbox/core/views.py:469
+#: netbox/core/views.py:486
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr ""
 
-#: netbox/core/views.py:478
+#: netbox/core/views.py:495
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr ""
 
-#: netbox/core/views.py:487
+#: netbox/core/views.py:504
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr ""
 
-#: netbox/core/views.py:496
+#: netbox/core/views.py:513
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr ""
 
-#: netbox/core/views.py:498
+#: netbox/core/views.py:515
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr ""
 
-#: netbox/core/views.py:652
+#: netbox/core/views.py:669
 msgid "Plugins catalog could not be loaded"
 msgstr ""
 
-#: netbox/core/views.py:688
+#: netbox/core/views.py:705
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr ""
