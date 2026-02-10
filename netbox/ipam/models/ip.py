@@ -350,7 +350,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     def save(self, *args, **kwargs):
 
         if not self.pk or not self.parent or (self.prefix != self._prefix) or (self.vrf_id != self._vrf_id):
-            parent = self.find_parent_prefix(network=self.prefix, vrf=self.vrf, exclude=self.pk)
+            parent = self.find_parent_prefix(networks=self.prefix, vrf=self.vrf, exclude=self.pk)
             self.parent = parent
 
         if isinstance(self.prefix, netaddr.IPNetwork):
@@ -522,27 +522,15 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         return min(utilization, 100)
 
     @classmethod
-    def find_parent_prefix(cls, network, vrf=None, exclude=None):
-        prefixes = Prefix.objects.filter(
-            models.Q(
-                vrf=vrf,
-                prefix__net_contains=str(network)
-            ) | models.Q(
-                vrf=None,
-                status=PrefixStatusChoices.STATUS_CONTAINER,
-                prefix__net_contains=str(network),
-            )
-        )
-        if exclude:
-            prefixes = prefixes.exclude(pk=exclude)
-        return prefixes.last()
+    def find_parent_prefix(cls, networks, vrf=None, exclude=None):
+        # TODO: Document
+        if type(networks) in [netaddr.IPAddress, netaddr.IPNetwork, str]:
+            networks = [networks, ]
 
-    @classmethod
-    def find_parent_prefix_range(cls, networks, vrf=None, exclude=None):
         network_filter = models.Q()
         for network in networks:
             network_filter &= models.Q(
-                prefix__net_contains=network
+                prefix__net_contains_or_equals=network
             )
         prefixes = Prefix.objects.filter(
             models.Q(
@@ -743,8 +731,8 @@ class IPRange(ContactsMixin, PrimaryModel):
         self.size = int(self.end_address.ip - self.start_address.ip) + 1
 
         # Set the parent prefix
-        self.prefix = Prefix.find_parent_prefix_range(
-            networks=[netaddr.IPAddress(self.start_address), netaddr.IPAddress(self.end_address)],
+        self.prefix = Prefix.find_parent_prefix(
+            networks=[self.start_address, self.end_address],
             vrf=self.vrf
         )
 
@@ -1100,7 +1088,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
         self.dns_name = self.dns_name.lower()
 
         # Set the parent prefix
-        self.prefix = Prefix.find_parent_prefix(netaddr.IPAddress(self.address), vrf=self.vrf)
+        self.prefix = Prefix.find_parent_prefix(networks=self.address, vrf=self.vrf)
 
         super().save(*args, **kwargs)
 
