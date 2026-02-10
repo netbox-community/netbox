@@ -2470,6 +2470,7 @@ class DeviceView(generic.ObjectView):
                 ],
             ),
             ImageAttachmentsPanel(),
+            panels.DeviceDeviceTypePanel(),
             panels.DeviceDimensionsPanel(),
             TemplatePanel('dcim/panels/device_rack_elevations.html'),
         ],
