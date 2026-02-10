@@ -891,24 +891,24 @@ class DeviceBayTable(DeviceComponentTable):
     )
     installed_role = columns.ColoredLabelColumn(
         accessor=Accessor('installed_device__role'),
-        verbose_name=_('Installed Device Role')
+        verbose_name=_('Installed Role')
     )
-    installed_device_type = tables.Column(
+    installed_type = tables.Column(
         accessor=Accessor('installed_device__device_type'),
         linkify=True,
-        verbose_name=_('Installed Device Type')
+        verbose_name=_('Installed Type')
     )
     installed_description = tables.Column(
         accessor=Accessor('installed_device__description'),
-        verbose_name=_('Installed Device Description')
+        verbose_name=_('Installed Description')
     )
     installed_serial = tables.Column(
         accessor=Accessor('installed_device__serial'),
-        verbose_name=_('Installed Device Serial')
+        verbose_name=_('Installed Serial')
     )
     installed_asset_tag = tables.Column(
         accessor=Accessor('installed_device__asset_tag'),
-        verbose_name=_('Installed Device Asset Tag')
+        verbose_name=_('Installed Asset Tag')
     )
     tags = columns.TagColumn(
         url_name='dcim:devicebay_list'
@@ -917,9 +917,9 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'installed_role', 'installed_device_type',
-            'installed_device', 'description', 'installed_description', 'installed_serial', 'installed_asset_tag',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'label', 'status', 'installed_role', 'installed_type', 'installed_device',
+            'description', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags', 'created',
+            'last_updated',
         )
 
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
