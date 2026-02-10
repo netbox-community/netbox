@@ -918,7 +918,7 @@ class DeviceBayTable(DeviceComponentTable):
         model = models.DeviceBay
         fields = (
             'pk', 'id', 'name', 'device', 'label', 'status', 'description', 'installed_device', 'installed_role',
-            'installed_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags', 'created',
+            'installed_device_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags', 'created',
             'last_updated',
         )
 
