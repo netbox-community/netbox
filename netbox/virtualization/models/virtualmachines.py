@@ -121,12 +121,12 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     memory = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('memory (MB)')
+        verbose_name=_('Memory (MiB)')
     )
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('disk (MB)')
+        verbose_name=_('Disk (GiB)')
     )
     serial = models.CharField(
         verbose_name=_('serial number'),
