@@ -100,10 +100,11 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
 
     def render_memory(self, value):
         return f"{value} MiB"
-    
+
 #
 # VM components
 #
+
 
 class VMInterfaceTable(BaseInterfaceTable):
     virtual_machine = tables.Column(
