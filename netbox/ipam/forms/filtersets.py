@@ -219,6 +219,12 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
         choices=PREFIX_MASK_LENGTH_CHOICES,
         label=_('Mask length')
     )
+    aggregate_id = DynamicModelMultipleChoiceField(
+        queryset=Aggregate.objects.all(),
+        required=False,
+        label=_('Aggregate'),
+        null_option='Global'
+    )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -292,11 +298,19 @@ class PrefixFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFi
 class IPRangeFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = IPRange
     fieldsets = (
-        FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('family', 'vrf_id', 'status', 'role_id', 'mark_populated', 'mark_utilized', name=_('Attributes')),
+        FieldSet('q', 'filter_id', 'tag', 'owner_id'),
+        FieldSet(
+            'prefix', 'family', 'vrf_id', 'status', 'role_id', 'mark_populated', 'mark_utilized', name=_('Attributes')
+        ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+    )
+    prefix = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix'),
+        null_option='None'
     )
     family = forms.ChoiceField(
         required=False,
@@ -342,7 +356,7 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
-            'parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface', 'dns_name',
+            'prefix', 'parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface', 'dns_name',
             name=_('Attributes')
         ),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
@@ -351,7 +365,7 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
-    selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'parent', 'status', 'role')
+    selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'prefix_id', 'parent', 'status', 'role')
     parent = forms.CharField(
         required=False,
         widget=forms.TextInput(
@@ -370,6 +384,11 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
         required=False,
         choices=IPADDRESS_MASK_LENGTH_CHOICES,
         label=_('Mask length')
+    )
+    prefix_id = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix'),
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),

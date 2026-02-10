@@ -109,7 +109,7 @@
             {% endif %}
           </td>
         </tr>
-        {% with child_ip_count=object.get_child_ips.count %}
+        {% with child_ip_count=object.ip_addresses.count %}
           <tr>
             <th scope="row">{% trans "Child IPs" %}</th>
             <td>

@@ -14,6 +14,10 @@
             <td>IPv{{ object.family }}</td>
         </tr>
         <tr>
+            <th scope="row">{% trans "Prefix" %}</th>
+            <td>{{ object.prefix|linkify|placeholder }}</td>
+        </tr>
+        <tr>
             <th scope="row">{% trans "Starting Address" %}</th>
             <td>{{ object.start_address }}</td>
         </tr>

@@ -168,6 +168,11 @@ class RoleBulkEditForm(OrganizationalModelBulkEditForm):
 
 
 class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
+    parent = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Parent Prefix')
+    )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
@@ -221,7 +226,7 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     model = Prefix
     fieldsets = (
         FieldSet('tenant', 'status', 'role', 'description'),
-        FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
+        FieldSet('parent', 'vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
         FieldSet('scope_type', 'scope', name=_('Scope')),
         FieldSet('vlan_group', 'vlan', name=_('VLAN Assignment')),
     )
@@ -231,6 +236,11 @@ class PrefixBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
 
 
 class IPRangeBulkEditForm(PrimaryModelBulkEditForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -272,6 +282,16 @@ class IPRangeBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
+    prefix = DynamicModelChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label=_('Prefix')
+    )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -307,10 +327,10 @@ class IPAddressBulkEditForm(PrimaryModelBulkEditForm):
     model = IPAddress
     fieldsets = (
         FieldSet('status', 'role', 'tenant', 'description'),
-        FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
+        FieldSet('prefix', 'vrf', 'mask_length', 'dns_name', name=_('Addressing')),
     )
     nullable_fields = (
-        'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
+        'prefix', 'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
     )
 
 

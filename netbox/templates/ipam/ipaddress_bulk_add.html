@@ -14,6 +14,7 @@
         <div class="row">
           <h2 class="col-9 offset-3">{% trans "IP Addresses" %}</h2>
         </div>
+        {% render_field model_form.prefix %}
         {% render_field form.pattern %}
         {% render_field model_form.status %}
         {% render_field model_form.role %}

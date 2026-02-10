@@ -143,6 +143,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
 )
 class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     address: str
+    prefix: Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     nat_inside: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
@@ -167,6 +168,7 @@ class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     pagination=True
 )
 class IPRangeType(ContactsMixin, PrimaryObjectType):
+    prefix: Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')] | None
     start_address: str
     end_address: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
@@ -181,6 +183,8 @@ class IPRangeType(ContactsMixin, PrimaryObjectType):
     pagination=True
 )
 class PrefixType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
+    aggregate: Annotated["AggregateType", strawberry.lazy('ipam.graphql.types')] | None
+    parent: Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')] | None
     prefix: str
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None

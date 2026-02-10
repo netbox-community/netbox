@@ -343,8 +343,8 @@ class IPAddressImportForm(PrimaryModelImportForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface', 'fhrp_group',
-            'is_primary', 'is_oob', 'dns_name', 'description', 'owner', 'comments', 'tags',
+            'prefix', 'address', 'vrf', 'tenant', 'status', 'role', 'device', 'virtual_machine', 'interface',
+            'fhrp_group', 'is_primary', 'is_oob', 'dns_name', 'owner', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):

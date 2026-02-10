@@ -463,6 +463,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'taggit',
     'timezone_field',
+    'pgtrigger',
     'core',
     'account',
     'circuits',

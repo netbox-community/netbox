@@ -255,8 +255,8 @@ class IPRangeForm(TenancyForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet(
-            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized', 'description',
-            'tags', name=_('IP Range')
+            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_populated', 'mark_utilized',
+            'description', 'tags', name=_('IP Range')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -264,8 +264,8 @@ class IPRangeForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = IPRange
         fields = [
-            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant', 'mark_populated',
-            'mark_utilized', 'description', 'owner', 'comments', 'tags',
+            'vrf', 'start_address', 'end_address', 'status', 'role', 'tenant_group', 'tenant',
+            'mark_populated', 'mark_utilized', 'description', 'owner', 'comments', 'tags',
         ]
 
 
@@ -331,8 +331,8 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'oob_for_parent', 'nat_inside',
-            'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'oob_for_parent',
+            'nat_inside', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
