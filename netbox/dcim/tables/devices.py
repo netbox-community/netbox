@@ -893,7 +893,7 @@ class DeviceBayTable(DeviceComponentTable):
         accessor=Accessor('installed_device__role'),
         verbose_name=_('Installed Role')
     )
-    installed_type = tables.Column(
+    installed_device_type = tables.Column(
         accessor=Accessor('installed_device__device_type'),
         linkify=True,
         verbose_name=_('Installed Type')
