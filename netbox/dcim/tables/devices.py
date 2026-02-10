@@ -918,13 +918,8 @@ class DeviceBayTable(DeviceComponentTable):
         model = models.DeviceBay
         fields = (
             'pk', 'id', 'name', 'device', 'label', 'status', 'description', 'installed_device', 'installed_role',
-<<<<<<< HEAD
             'installed_device_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags',
             'created', 'last_updated',
-=======
-            'installed_device_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags', 'created',
-            'last_updated',
->>>>>>> dd9c14b9c9622e4a6587ad1714b215c12e80fe24
         )
 
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
