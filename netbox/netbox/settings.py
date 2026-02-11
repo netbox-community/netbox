@@ -773,7 +773,7 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
     'SERVERS': [{
-        'url': BASE_PATH,
+        'url': '',
         'description': 'NetBox',
     }],
     'SWAGGER_UI_DIST': 'SIDECAR',
