@@ -200,6 +200,48 @@ REDIS = {
 !!! note
     It is permissible to use Sentinel for only one database and not the other.
 
+### SSL Configuration
+
+If you need to configure SSL/TLS for Redis beyond the basic `SSL`, `CA_CERT_PATH`, and `INSECURE_SKIP_TLS_VERIFY` options (for example, client certificates, a specific TLS version, or custom ciphers), you can pass additional parameters via the `KWARGS` key in either the `tasks` or `caching` subsection.
+
+NetBox already maps `CA_CERT_PATH` to `ssl_ca_certs` and (for caching) `INSECURE_SKIP_TLS_VERIFY` to `ssl_cert_reqs`; only add `KWARGS` when you need to override or extend those settings (for example, to supply client certificates or restrict TLS version or ciphers).
+
+* `KWARGS` - Optional dictionary of additional SSL/TLS (or other) parameters passed to the Redis client. These are passed directly to the underlying Redis client: for `tasks` to [redis-py](https://redis-py.readthedocs.io/en/stable/connections.html), and for `caching` to the [django-redis](https://github.com/jazzband/django-redis#configure-as-cache-backend) connection pool.
+
+Example:
+
+```python
+REDIS = {
+    'tasks': {
+        'HOST': 'redis.example.com',
+        'PORT': 1234,
+        'SSL': True,
+        'CA_CERT_PATH': '/etc/ssl/certs/ca.crt',
+        'KWARGS': {
+            'ssl_certfile': '/path/to/client-cert.pem',
+            'ssl_keyfile': '/path/to/client-key.pem',
+            'ssl_min_version': ssl.TLSVersion.TLSv1_2,
+            'ssl_ciphers': 'HIGH:!aNULL',
+        },
+    },
+    'caching': {
+        'HOST': 'redis.example.com',
+        'PORT': 1234,
+        'SSL': True,
+        'CA_CERT_PATH': '/etc/ssl/certs/ca.crt',
+        'KWARGS': {
+            'ssl_certfile': '/path/to/client-cert.pem',
+            'ssl_keyfile': '/path/to/client-key.pem',
+            'ssl_min_version': ssl.TLSVersion.TLSv1_2,
+            'ssl_ciphers': 'HIGH:!aNULL',
+        },
+    }
+}
+```
+
+!!! note
+    If you use `ssl.TLSVersion` in your configuration (e.g. `ssl_min_version`), add `import ssl` at the top of your configuration file.
+
 ---
 
 ## SECRET_KEY
