@@ -91,13 +91,13 @@ class ProviderNetworkForm(PrimaryModelForm):
 
 class CircuitTypeForm(OrganizationalModelForm):
     fieldsets = (
-        FieldSet('name', 'slug', 'color', 'description', 'owner', 'tags'),
+        FieldSet('name', 'slug', 'color', 'description', 'tags'),
     )
 
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug', 'color', 'description', 'comments', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 
