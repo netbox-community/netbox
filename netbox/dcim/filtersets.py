@@ -1,8 +1,10 @@
 import django_filters
+import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from netaddr.core import AddrFormatError
 
 from circuits.models import CircuitTermination, VirtualCircuit, VirtualCircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
@@ -1329,16 +1331,24 @@ class DeviceFilterSet(
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
+        qs_filter = (
             Q(name__icontains=value) |
             Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(description__icontains=value.strip()) |
-            Q(comments__icontains=value) |
-            Q(primary_ip4__address__startswith=value) |
-            Q(primary_ip6__address__startswith=value)
-        ).distinct()
+            Q(comments__icontains=value)
+        )
+        # If the given value looks like an IP address, look for primary IPv4/IPv6 assignments
+        try:
+            ipaddress = netaddr.IPNetwork(value)
+            if ipaddress.version == 4:
+                qs_filter |= Q(primary_ip4__address__host__inet=ipaddress.ip)
+            elif ipaddress.version == 6:
+                qs_filter |= Q(primary_ip6__address__host__inet=ipaddress.ip)
+        except (AddrFormatError, ValueError):
+            pass
+        return queryset.filter(qs_filter)
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
