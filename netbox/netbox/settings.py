@@ -409,8 +409,7 @@ if CACHING_REDIS_CA_CERT_PATH:
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_ca_certs'] = CACHING_REDIS_CA_CERT_PATH
 
 # Merge in KWARGS for additional parameters
-caching_redis_kwargs = REDIS['caching'].get('KWARGS')
-if caching_redis_kwargs:
+if caching_redis_kwargs := REDIS['caching'].get('KWARGS'):
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS'].update(caching_redis_kwargs)
 
