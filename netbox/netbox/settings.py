@@ -823,8 +823,7 @@ if TASKS_REDIS_CA_CERT_PATH:
     RQ_PARAMS['REDIS_CLIENT_KWARGS']['ssl_ca_certs'] = TASKS_REDIS_CA_CERT_PATH
 
 # Merge in KWARGS for additional parameters
-tasks_redis_kwargs = TASKS_REDIS.get('KWARGS')
-if tasks_redis_kwargs:
+if tasks_redis_kwargs := TASKS_REDIS.get('KWARGS'):
     RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
     RQ_PARAMS['REDIS_CLIENT_KWARGS'].update(tasks_redis_kwargs)
 
