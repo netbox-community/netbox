@@ -4,8 +4,8 @@ from users.models import Token
 from users.tables import TokenTable
 
 
-@tag('regression')
 class TokenTableTest(TestCase):
+    @tag('regression')
     def test_every_orderable_field_does_not_throw_exception(self):
         tokens = Token.objects.all()
         disallowed = {'actions'}
@@ -17,7 +17,8 @@ class TokenTableTest(TestCase):
         fake_request = RequestFactory().get("/")
 
         for col in orderable_columns:
-            for dir in ('-', ''):
-                table = TokenTable(tokens)
-                table.order_by = f'{dir}{col}'
-                table.as_html(fake_request)
+            for direction in ('-', ''):
+                with self.subTest(col=col, direction=direction):
+                    table = TokenTable(tokens)
+                    table.order_by = f'{direction}{col}'
+                    table.as_html(fake_request)
