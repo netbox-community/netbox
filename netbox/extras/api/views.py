@@ -264,6 +264,7 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 #
 
 @extend_schema_view(
+    create=extend_schema(exclude=True),  # Hide POST from list endpoint in Swagger
     update=extend_schema(request=serializers.ScriptInputSerializer),
     partial_update=extend_schema(request=serializers.ScriptInputSerializer),
 )
