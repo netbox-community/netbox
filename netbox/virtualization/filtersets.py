@@ -231,7 +231,7 @@ class VirtualMachineFilterSet(
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = queryset.filter(
+        qs_filter = Q(
             Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value) |
@@ -246,7 +246,7 @@ class VirtualMachineFilterSet(
                 qs_filter |= Q(primary_ip6__address__host__inet=ipaddress.ip)
         except (AddrFormatError, ValueError):
             pass
-        return qs_filter
+        return queryset.filter(qs_filter)
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
