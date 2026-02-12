@@ -265,8 +265,48 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 
 @extend_schema_view(
     create=extend_schema(exclude=True),  # Hide POST from list endpoint in Swagger
-    update=extend_schema(request=serializers.ScriptInputSerializer),
-    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
+    update=extend_schema(
+        request=serializers.ScriptInputSerializer,
+        examples=[
+            OpenApiExample(
+                'Script with no variables',
+                value={'data': {}, 'commit': True},
+                request_only=True,
+            ),
+            OpenApiExample(
+                'Script with variables',
+                value={
+                    'data': {
+                        'variable_name': 'example_value',
+                        'another_variable': 123
+                    },
+                    'commit': True
+                },
+                request_only=True,
+            ),
+        ]
+    ),
+    partial_update=extend_schema(
+        request=serializers.ScriptInputSerializer,
+        examples=[
+            OpenApiExample(
+                'Script with no variables',
+                value={'data': {}, 'commit': True},
+                request_only=True,
+            ),
+            OpenApiExample(
+                'Script with variables',
+                value={
+                    'data': {
+                        'variable_name': 'example_value',
+                        'another_variable': 123
+                    },
+                    'commit': True
+                },
+                request_only=True,
+            ),
+        ]
+    ),
 )
 class ScriptViewSet(
     ListModelMixin,
@@ -334,7 +374,7 @@ class ScriptViewSet(
     )
     def post(self, request, pk):
         """
-        Run a Script (via POST) identified by its numeric PK or module & name and return the pending Job as the result
+        Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
         script = self._get_script(pk)
 
