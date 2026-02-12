@@ -27,6 +27,11 @@ router.register('config-context-profiles', views.ConfigContextProfileViewSet)
 router.register('config-templates', views.ConfigTemplateViewSet)
 router.register('scripts', views.ScriptViewSet, basename='script')
 
+# Map POST to the script detail route for running scripts (without affecting the list route)
+for route in router.routes:
+    if route.name == '{basename}-detail':
+        route.mapping['post'] = 'post'
+
 app_name = 'extras-api'
 urlpatterns = [
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),

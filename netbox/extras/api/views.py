@@ -1,16 +1,16 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet
 from rq import Worker
 
 from extras import filtersets
@@ -267,7 +267,13 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
     update=extend_schema(request=serializers.ScriptInputSerializer),
     partial_update=extend_schema(request=serializers.ScriptInputSerializer),
 )
-class ScriptViewSet(ModelViewSet):
+class ScriptViewSet(
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+    GenericViewSet
+):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
@@ -303,11 +309,32 @@ class ScriptViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
+    @extend_schema(
+        request=serializers.ScriptInputSerializer,
+        responses={200: serializers.ScriptDetailSerializer},
+        examples=[
+            OpenApiExample(
+                'Script with no variables',
+                value={'data': {}, 'commit': True},
+                request_only=True,
+            ),
+            OpenApiExample(
+                'Script with variables',
+                value={
+                    'data': {
+                        'variable_name': 'example_value',
+                        'another_variable': 123
+                    },
+                    'commit': True
+                },
+                request_only=True,
+            ),
+        ]
+    )
     def post(self, request, pk):
         """
-        Run a Script identified by its numeric PK or module & name and return the pending Job as the result
+        Run a Script (via POST) identified by its numeric PK or module & name and return the pending Job as the result
         """
-
         script = self._get_script(pk)
 
         if not request.user.has_perm('extras.run_script', obj=script):
