@@ -13,8 +13,9 @@ from django.utils.translation import gettext_lazy as _
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
 from extras.utils import is_script
-from netbox.models.features import JobsMixin, EventRulesMixin
+from netbox.models.features import EventRulesMixin, JobsMixin
 from utilities.querysets import RestrictedQuerySet
+
 from .mixins import PythonModuleMixin
 
 __all__ = (

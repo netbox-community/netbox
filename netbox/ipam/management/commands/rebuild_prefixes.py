@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from ipam.models import Prefix, VRF
+from ipam.models import VRF, Prefix
 from ipam.utils import rebuild_prefixes
 
 

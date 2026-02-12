@@ -7,7 +7,7 @@ from netaddr import IPNetwork
 
 from core.models import ObjectType
 from dcim.constants import InterfaceTypeChoices
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Interface
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import *
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices

@@ -4,6 +4,7 @@ import strawberry_django
 
 from netbox.graphql.types import BaseObjectType
 from users.models import Group, Owner, OwnerGroup, User
+
 from .filters import *
 
 __all__ = (

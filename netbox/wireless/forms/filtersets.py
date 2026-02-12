@@ -9,8 +9,9 @@ from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
-from wireless.choices import *
-from wireless.models import *
+
+from ..choices import *
+from ..models import *
 
 __all__ = (
     'WirelessLANFilterForm',

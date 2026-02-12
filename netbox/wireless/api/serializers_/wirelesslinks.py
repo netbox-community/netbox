@@ -4,8 +4,9 @@ from netbox.api.fields import ChoiceField
 from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
 from tenancy.api.serializers_.tenants import TenantSerializer
-from wireless.choices import *
-from wireless.models import WirelessLink
+
+from ...choices import *
+from ...models import WirelessLink
 
 __all__ = (
     'WirelessLinkSerializer',

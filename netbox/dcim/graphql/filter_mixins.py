@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -7,13 +7,15 @@ from strawberry import ID
 from strawberry_django import BaseFilterLookup, FilterLookup
 
 from core.graphql.filters import ContentTypeFilter
+
 from .enums import *
 
 if TYPE_CHECKING:
-    from netbox.graphql.filter_lookups import IntegerLookup
+    from dcim.graphql.filters import LocationFilter, RegionFilter, SiteFilter, SiteGroupFilter
     from extras.graphql.filters import ConfigTemplateFilter
     from ipam.graphql.filters import VLANFilter, VLANTranslationPolicyFilter
-    from dcim.graphql.filters import LocationFilter, RegionFilter, SiteFilter, SiteGroupFilter
+    from netbox.graphql.filter_lookups import IntegerLookup
+
     from .filters import *
 
 __all__ = (

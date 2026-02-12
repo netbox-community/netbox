@@ -2,12 +2,12 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_ipv4_address, validate_ipv6_address
 from django.utils.translation import gettext_lazy as _
-from netaddr import IPAddress, IPNetwork, AddrFormatError
-
+from netaddr import AddrFormatError, IPAddress, IPNetwork
 
 #
 # Form fields
 #
+
 
 class IPAddressFormField(forms.Field):
     default_error_messages = {

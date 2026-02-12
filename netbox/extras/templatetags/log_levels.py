@@ -2,7 +2,6 @@ from django import template
 
 from extras.choices import LogLevelChoices
 
-
 register = template.Library()
 
 

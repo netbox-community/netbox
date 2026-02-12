@@ -1,10 +1,10 @@
 import logging
-
 from urllib.parse import urlparse
-from urllib3 import PoolManager, HTTPConnectionPool, HTTPSConnectionPool
-from urllib3.connection import HTTPConnection, HTTPSConnection
-from .constants import HTTP_PROXY_SOCK_RDNS_SCHEMAS
 
+from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
+from urllib3.connection import HTTPConnection, HTTPSConnection
+
+from .constants import HTTP_PROXY_SOCK_RDNS_SCHEMAS
 
 logger = logging.getLogger('netbox.utilities')
 

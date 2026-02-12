@@ -6,7 +6,6 @@ from core.models import ObjectType
 from extras.models import CustomLink
 from netbox.choices import ButtonColorChoices
 
-
 register = template.Library()
 
 LINK_BUTTON = '<a href="{}"{} class="btn btn-sm btn-{}">{}</a>\n'

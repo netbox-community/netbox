@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
-from ipam.models import IPAddress, RouteTarget, VLAN
+from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
@@ -11,8 +11,9 @@ from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import VirtualMachine, VMInterface
-from vpn.choices import *
-from vpn.models import *
+
+from ..choices import *
+from ..models import *
 
 __all__ = (
     'IKEPolicyForm',

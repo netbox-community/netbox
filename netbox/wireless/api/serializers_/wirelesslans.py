@@ -7,8 +7,9 @@ from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NestedGroupModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from wireless.choices import *
-from wireless.models import WirelessLAN, WirelessLANGroup
+
+from ...choices import *
+from ...models import WirelessLAN, WirelessLANGroup
 from .nested import NestedWirelessLANGroupSerializer
 
 __all__ = (

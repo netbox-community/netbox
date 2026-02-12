@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
 
 from netbox.registry import registry
+
 from .constants import HTTP_REQUEST_META_SAFE_COPY
 
 __all__ = (

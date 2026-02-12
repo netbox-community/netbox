@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
-from django.core.serializers.json import Deserializer, Serializer as Serializer_  # noqa: F401
+from django.core.serializers.json import Deserializer  # noqa: F401
+from django.core.serializers.json import Serializer as Serializer_
 from django.utils.encoding import is_protected_type
 
 # NOTE: Module must contain both Serializer and Deserializer

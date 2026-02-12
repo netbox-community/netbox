@@ -1,6 +1,6 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-from django.contrib import messages
 from django.db import router, transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -12,12 +12,13 @@ from core.tables import JobTable, ObjectChangeTable
 from extras.forms import JournalEntryForm
 from extras.models import ImageAttachment, JournalEntry
 from extras.tables import JournalEntryTable
-from tenancy.models import ContactAssignment
-from tenancy.tables import ContactAssignmentTable
 from tenancy.filtersets import ContactAssignmentFilterSet
 from tenancy.forms import ContactAssignmentFilterForm
+from tenancy.models import ContactAssignment
+from tenancy.tables import ContactAssignmentTable
 from utilities.permissions import get_permission_for_model
 from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab
+
 from .base import BaseMultiObjectView
 from .object_views import ObjectChildrenView
 

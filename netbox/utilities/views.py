@@ -14,10 +14,11 @@ from rest_framework.exceptions import AuthenticationFailed
 from netbox.api.authentication import TokenAuthentication
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
-from utilities.relations import get_related_models
-from utilities.request import safe_for_redirect
-from utilities.string import title
+
 from .permissions import resolve_permission
+from .relations import get_related_models
+from .request import safe_for_redirect
+from .string import title
 
 __all__ = (
     'ConditionalLoginRequiredMixin',

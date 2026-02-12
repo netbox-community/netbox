@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from extras.choices import *
 from utilities.forms.fields import CommentField, SlugField
 from utilities.forms.mixins import CheckLastUpdatedMixin
+
 from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin, TagsMixin
 
 __all__ = (

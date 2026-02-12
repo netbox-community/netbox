@@ -1,6 +1,7 @@
 from django.urls import include, path
 
 from netbox.api.routers import NetBoxRouter
+
 from . import views
 
 router = NetBoxRouter()

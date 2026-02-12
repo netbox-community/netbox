@@ -10,9 +10,10 @@ from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField
 from utilities.forms.rendering import FieldSet
-from wireless.choices import *
-from wireless.constants import SSID_MAX_LENGTH
-from wireless.models import *
+
+from ..choices import *
+from ..constants import SSID_MAX_LENGTH
+from ..models import *
 
 __all__ = (
     'WirelessLANBulkEditForm',

@@ -3,6 +3,7 @@ from dcim.models import PowerFeed, PowerPanel
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
+
 from .base import ConnectedEndpointsSerializer
 from .cables import CabledObjectSerializer
 from .racks import RackSerializer

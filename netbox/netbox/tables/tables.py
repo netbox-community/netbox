@@ -23,6 +23,7 @@ from utilities.html import highlight
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.string import title
 from utilities.views import get_action_url
+
 from .template_code import *
 
 __all__ = (

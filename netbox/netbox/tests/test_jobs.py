@@ -4,11 +4,12 @@ from django.test import TestCase
 from django.utils import timezone
 from django_rq import get_queue
 
-from ..jobs import *
-from core.models import DataSource, Job
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
+from core.models import DataSource, Job
 from utilities.testing import disable_warnings
+
+from ..jobs import *
 
 
 class TestJobRunner(JobRunner):

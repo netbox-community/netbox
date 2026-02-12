@@ -1,12 +1,13 @@
 import logging
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from django import template
 from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from extras.choices import CustomFieldTypeChoices
-from utilities.querydict import dict_to_querydict
+
+from ...querydict import dict_to_querydict
 
 __all__ = (
     'badge',

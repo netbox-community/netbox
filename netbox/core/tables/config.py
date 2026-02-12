@@ -1,7 +1,8 @@
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ConfigRevision
 from netbox.tables import NetBoxTable, columns
+
+from ..models import ConfigRevision
 
 __all__ = (
     'ConfigRevisionTable',

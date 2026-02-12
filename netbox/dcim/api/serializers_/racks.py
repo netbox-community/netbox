@@ -10,6 +10,7 @@ from netbox.choices import *
 from netbox.config import ConfigItem
 from tenancy.api.serializers_.tenants import TenantSerializer
 from users.api.serializers_.users import UserSerializer
+
 from .manufacturers import ManufacturerSerializer
 from .sites import LocationSerializer, SiteSerializer
 

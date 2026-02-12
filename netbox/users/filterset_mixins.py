@@ -1,7 +1,7 @@
 import django_filters
 from django.utils.translation import gettext as _
 
-from users.models import OwnerGroup, Owner
+from users.models import Owner, OwnerGroup
 
 __all__ = (
     'OwnerFilterMixin',

@@ -3,7 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin
-from wireless.models import *
+
+from ..models import *
 
 __all__ = (
     'WirelessLinkTable',

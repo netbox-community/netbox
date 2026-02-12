@@ -14,15 +14,16 @@ from rest_framework.routers import APIRootView
 from rq.job import Job as RQ_Job
 from rq.worker import Worker
 
-from core import filtersets
-from core.jobs import SyncDataSourceJob
-from core.models import *
-from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from utilities.api import IsSuperuser
+
+from .. import filtersets
+from ..jobs import SyncDataSourceJob
+from ..models import *
+from ..utils import delete_rq_job, enqueue_rq_job, get_rq_jobs, requeue_rq_job, stop_rq_job
 from . import serializers
 
 

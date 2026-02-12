@@ -2,8 +2,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from core.choices import JobIntervalChoices
-from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 from utilities.datetime import local_now
+from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 
 __all__ = (
     'ReportForm',

@@ -9,10 +9,11 @@ from rest_framework import status
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
 from core.models import DataFile, DataSource, ObjectType
-from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
+from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Rack, RackRole, Site
 from extras.choices import *
 from extras.models import *
-from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
+from extras.scripts import BooleanVar, IntegerVar, StringVar
+from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
 from users.models import Group, Token, User
 from utilities.testing import APITestCase, APIViewTestCases

@@ -5,12 +5,13 @@ from django.utils import timezone
 from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
-from rest_framework.permissions import BasePermission, DjangoObjectPermissions, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission, DjangoObjectPermissions
 
-from netbox.config import get_config
 from users.constants import TOKEN_PREFIX
 from users.models import Token
 from utilities.request import get_client_ip
+
+from ..config import get_config
 
 V1_KEYWORD = 'Token'
 V2_KEYWORD = 'Bearer'

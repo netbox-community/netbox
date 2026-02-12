@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from utilities.forms import form_from_model
 from utilities.forms.fields import ExpandableNameField
-from virtualization.models import VirtualDisk, VMInterface, VirtualMachine
+from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 __all__ = (
     'VirtualDiskBulkCreateForm',

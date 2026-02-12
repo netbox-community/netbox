@@ -5,6 +5,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Rack, RackReservation, RackRole, RackType
 from netbox.tables import OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from .template_code import OUTER_UNIT, WEIGHT
 
 __all__ = (

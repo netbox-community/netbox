@@ -5,6 +5,7 @@ from django_tables2.utils import Accessor
 from dcim import models
 from netbox.tables import NestedGroupModelTable, NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from .template_code import *
 
 __all__ = (

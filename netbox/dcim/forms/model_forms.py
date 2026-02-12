@@ -10,22 +10,32 @@ from dcim.forms.mixins import FrontPortFormMixin
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
+from ipam.models import ASN, VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.forms import TenancyForm
 from users.models import User
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
-    DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+    NumericArrayField,
+    SlugField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import (
-    APISelect, ClearableFileInput, ClearableSelect, HTMXSelect, NumberWithOptions, SelectWithPK,
+    APISelect,
+    ClearableFileInput,
+    ClearableSelect,
+    HTMXSelect,
+    NumberWithOptions,
+    SelectWithPK,
 )
 from utilities.jsonschema import JSONSchemaProperty
 from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN, WirelessLANGroup
+
 from .common import InterfaceCommonForm, ModuleCommonForm
 
 __all__ = (

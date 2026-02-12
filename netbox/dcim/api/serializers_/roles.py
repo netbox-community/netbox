@@ -4,6 +4,7 @@ from dcim.models import DeviceRole, InventoryItemRole
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import NestedGroupModelSerializer, OrganizationalModelSerializer
+
 from .nested import NestedDeviceRoleSerializer
 
 __all__ = (

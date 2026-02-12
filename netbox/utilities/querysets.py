@@ -1,7 +1,8 @@
 from django.db.models import Prefetch, QuerySet
 
 from users.constants import CONSTRAINT_TOKEN_USER
-from utilities.permissions import get_permission_for_model, permission_is_exempt, qs_filter_from_constraints
+
+from .permissions import get_permission_for_model, permission_is_exempt, qs_filter_from_constraints
 
 __all__ = (
     'RestrictedPrefetch',

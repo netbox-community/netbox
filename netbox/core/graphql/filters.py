@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -7,8 +7,9 @@ from django.contrib.contenttypes.models import ContentType as DjangoContentType
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup
 
-from core import models
 from netbox.graphql.filters import BaseModelFilter, PrimaryModelFilter
+
+from .. import models
 from .enums import *
 
 if TYPE_CHECKING:

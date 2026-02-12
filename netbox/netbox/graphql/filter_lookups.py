@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TypeVar, Tuple, Generic
+from typing import Generic, Tuple, TypeVar
 
 import strawberry
 import strawberry_django

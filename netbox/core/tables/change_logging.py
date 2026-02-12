@@ -1,8 +1,9 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectChange
 from netbox.tables import NetBoxTable, columns
+
+from ..models import ObjectChange
 from .template_code import *
 
 __all__ = (

@@ -3,8 +3,8 @@ import re
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from utilities.forms.constants import *
-from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
+from ..constants import *
+from ..utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 __all__ = (
     'ExpandableIPAddressField',

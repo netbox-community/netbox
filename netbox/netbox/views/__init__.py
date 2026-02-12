@@ -1,2 +1,2 @@
-from .misc import *
 from .errors import *
+from .misc import *

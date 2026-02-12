@@ -3,7 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from vpn.models import L2VPN, L2VPNTermination
+
+from ..models import L2VPN, L2VPNTermination
 
 __all__ = (
     'L2VPNTable',

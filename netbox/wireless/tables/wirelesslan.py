@@ -4,7 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Interface
 from netbox.tables import NestedGroupModelTable, NetBoxTable, PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin
-from wireless.models import *
+
+from ..models import *
 
 __all__ = (
     'WirelessLANGroupTable',

@@ -6,6 +6,7 @@ from extras.models import Tag
 from netbox.forms.mixins import CustomFieldsMixin
 from utilities.forms import form_from_model
 from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField
+
 from .object_create import ComponentCreateForm
 
 __all__ = (

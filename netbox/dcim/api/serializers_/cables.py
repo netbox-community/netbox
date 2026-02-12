@@ -7,7 +7,10 @@ from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
-    BaseModelSerializer, GenericObjectSerializer, NetBoxModelSerializer, PrimaryModelSerializer,
+    BaseModelSerializer,
+    GenericObjectSerializer,
+    NetBoxModelSerializer,
+    PrimaryModelSerializer,
 )
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model

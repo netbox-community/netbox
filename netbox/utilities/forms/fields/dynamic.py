@@ -3,8 +3,8 @@ from django import forms
 from django.conf import settings
 from django.forms import BoundField
 
-from utilities.forms import widgets
-from utilities.views import get_action_url
+from ...views import get_action_url
+from .. import widgets
 
 __all__ = (
     'DynamicChoiceField',

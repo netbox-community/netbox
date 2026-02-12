@@ -1,5 +1,6 @@
-import core.models.object_types
 from django.db import migrations
+
+import core.models.object_types
 
 
 class Migration(migrations.Migration):

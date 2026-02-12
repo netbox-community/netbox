@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -7,6 +7,7 @@ from strawberry import ID
 
 if TYPE_CHECKING:
     from netbox.graphql.filter_lookups import TreeNodeFilter
+
     from .filters import ContactAssignmentFilter, TenantFilter, TenantGroupFilter
 
 __all__ = (

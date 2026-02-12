@@ -2,7 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext as _
-from netaddr import AddrFormatError, EUI, eui64_unix_expanded, mac_unix_expanded
+from netaddr import EUI, AddrFormatError, eui64_unix_expanded, mac_unix_expanded
 
 from .lookups import PathContains
 

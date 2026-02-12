@@ -1,6 +1,6 @@
 import strawberry
 
-from vpn.choices import *
+from ..choices import *
 
 __all__ = (
     'AuthenticationAlgorithmEnum',

@@ -1,15 +1,15 @@
 from collections import defaultdict
 
+import netaddr
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import F, Window, Q, prefetch_related_objects
+from django.db.models import F, Q, Window, prefetch_related_objects
 from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
 from django.db.models.signals import post_delete, post_save
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-import netaddr
 from netaddr.core import AddrFormatError
 
 from core.models import ObjectType
@@ -18,6 +18,7 @@ from netbox.registry import registry
 from utilities.object_types import object_type_identifier
 from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
+
 from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL

@@ -8,6 +8,7 @@ from jinja2.exceptions import TemplateError
 
 from netbox.registry import registry
 from utilities.proxy import resolve_proxies
+
 from .constants import WEBHOOK_EVENT_TYPES
 
 __all__ = (

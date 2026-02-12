@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import netaddr
 import strawberry
@@ -7,24 +7,28 @@ import strawberry_django
 from django.db.models import Q
 from netaddr.core import AddrFormatError
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, FilterLookup, DateFilterLookup
+from strawberry_django import BaseFilterLookup, DateFilterLookup, FilterLookup
 
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
 from ipam import models
 from ipam.graphql.filter_mixins import ServiceFilterMixin
 from netbox.graphql.filters import (
-    ChangeLoggedModelFilter, NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
+    ChangeLoggedModelFilter,
+    NetBoxModelFilter,
+    OrganizationalModelFilter,
+    PrimaryModelFilter,
 )
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization.models import VMInterface
 
 if TYPE_CHECKING:
-    from netbox.graphql.filter_lookups import BigIntegerLookup, IntegerLookup, IntegerRangeArrayLookup
     from circuits.graphql.filters import ProviderFilter
     from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import SiteFilter
+    from netbox.graphql.filter_lookups import BigIntegerLookup, IntegerLookup, IntegerRangeArrayLookup
     from vpn.graphql.filters import L2VPNFilter
+
     from .enums import *
 
 __all__ = (

@@ -5,9 +5,10 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.models import ObjectType
 from netbox.api.serializers import BaseModelSerializer
 from utilities.views import get_action_url
+
+from ...models import ObjectType
 
 __all__ = (
     'ObjectTypeSerializer',

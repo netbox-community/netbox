@@ -9,7 +9,8 @@ from tenancy.forms import TenancyForm
 from utilities.forms.fields import DynamicModelChoiceField
 from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields
-from wireless.models import *
+
+from ..models import *
 
 __all__ = (
     'WirelessLANForm',

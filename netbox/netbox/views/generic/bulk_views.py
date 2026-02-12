@@ -36,6 +36,7 @@ from utilities.request import safe_for_redirect
 from utilities.string import title
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_action_url
+
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model

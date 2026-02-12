@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.search.utils import get_indexer
 from utilities.fields import RestrictedGenericForeignKey
+
 from ..fields import CachedValueField
 
 __all__ = (

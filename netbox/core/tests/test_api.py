@@ -1,17 +1,19 @@
 import uuid
 
-from django_rq import get_queue
-from django_rq.workers import get_worker
 from django.urls import reverse
 from django.utils import timezone
-from rq.job import Job as RQ_Job, JobStatus
+from django_rq import get_queue
+from django_rq.workers import get_worker
+from rest_framework import status
+from rq.job import Job as RQ_Job
+from rq.job import JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
-from rest_framework import status
 from users.constants import TOKEN_PREFIX
 from users.models import Token, User
 from utilities.testing import APITestCase, APIViewTestCases, TestCase
 from utilities.testing.utils import disable_logging
+
 from ..models import *
 
 

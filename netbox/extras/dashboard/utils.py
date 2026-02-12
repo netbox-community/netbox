@@ -4,8 +4,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
-from netbox.registry import registry
 from extras.constants import DEFAULT_DASHBOARD
+from netbox.registry import registry
 
 __all__ = (
     'get_dashboard',

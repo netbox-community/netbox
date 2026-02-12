@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import PowerFeed, PowerPanel
 from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from .devices import CableTerminationTable
 
 __all__ = (

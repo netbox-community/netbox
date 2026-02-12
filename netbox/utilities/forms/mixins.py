@@ -6,9 +6,10 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
-from utilities.forms.fields import ColorField, QueryField, TagFilterField
-from utilities.forms.widgets import FilterModifierWidget
-from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
+
+from .fields import ColorField, QueryField, TagFilterField
+from .widgets import FilterModifierWidget
+from .widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
     'BackgroundJobMixin',

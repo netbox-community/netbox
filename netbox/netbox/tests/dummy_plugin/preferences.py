@@ -1,6 +1,5 @@
 from users.preferences import UserPreference
 
-
 preferences = {
     'pref1': UserPreference(
         label='First preference',

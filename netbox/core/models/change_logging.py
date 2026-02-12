@@ -8,11 +8,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel
 
-from core.choices import ObjectChangeActionChoices
-from core.querysets import ObjectChangeQuerySet
-from netbox.models.features import ChangeLoggingMixin
-from netbox.models.features import has_feature
+from netbox.models.features import ChangeLoggingMixin, has_feature
 from utilities.data import shallow_compare_dict
+
+from ..choices import ObjectChangeActionChoices
+from ..querysets import ObjectChangeQuerySet
 
 __all__ = (
     'ObjectChange',

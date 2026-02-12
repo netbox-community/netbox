@@ -2,7 +2,7 @@ from django.contrib.contenttypes.prefetch import GenericPrefetch
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -16,11 +16,12 @@ from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
-from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin, NetBoxReadOnlyModelViewSet
+from netbox.api.viewsets import MPTTLockedMixin, NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from utilities.api import get_serializer_for_model
 from utilities.query_functions import CollateAsChar
 from virtualization.models import VirtualMachine
+
 from . import serializers
 from .exceptions import MissingFilterException
 

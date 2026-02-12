@@ -9,8 +9,7 @@ from core.choices import ManagedFileRootPathChoices, ObjectChangeActionChoices
 from core.events import *
 from core.models import ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
-from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
-from dcim.models import Location
+from dcim.models import DeviceRole, DeviceType, Location, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import *
 from extras.filtersets import *
 from extras.models import *

@@ -8,8 +8,9 @@ from netbox.choices import *
 from netbox.forms import NestedGroupModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField
-from wireless.choices import *
-from wireless.models import *
+
+from ..choices import *
+from ..models import *
 
 __all__ = (
     'WirelessLANImportForm',

@@ -2,10 +2,14 @@ import re
 import typing
 from collections import OrderedDict
 
-from drf_spectacular.extensions import OpenApiSerializerFieldExtension, OpenApiSerializerExtension, _SchemaType
+from drf_spectacular.extensions import OpenApiSerializerExtension, OpenApiSerializerFieldExtension, _SchemaType
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
-    build_basic_type, build_choice_field, build_media_type_object, build_object_type, get_doc,
+    build_basic_type,
+    build_choice_field,
+    build_media_type_object,
+    build_object_type,
+    get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import Direction

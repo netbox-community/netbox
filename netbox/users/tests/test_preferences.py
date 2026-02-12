@@ -8,7 +8,6 @@ from users.models import User
 from users.preferences import UserPreference
 from utilities.testing import TestCase
 
-
 DEFAULT_USER_PREFERENCES = {
     'pagination': {
         'per_page': 250,

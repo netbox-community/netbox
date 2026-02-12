@@ -1,4 +1,4 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -7,14 +7,18 @@ from strawberry_django import BaseFilterLookup, FilterLookup
 
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filters import (
-    ChangeLoggedModelFilter, NestedGroupModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
+    ChangeLoggedModelFilter,
+    NestedGroupModelFilter,
+    OrganizationalModelFilter,
+    PrimaryModelFilter,
 )
 from tenancy import models
+
 from .filter_mixins import ContactFilterMixin
 
 if TYPE_CHECKING:
-    from core.graphql.filters import ContentTypeFilter
     from circuits.graphql.filters import CircuitFilter, CircuitGroupFilter, VirtualCircuitFilter
+    from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import (
         CableFilter,
         DeviceFilter,
@@ -38,9 +42,10 @@ if TYPE_CHECKING:
         VRFFilter,
     )
     from netbox.graphql.filter_lookups import TreeNodeFilter
-    from wireless.graphql.filters import WirelessLANFilter, WirelessLinkFilter
     from virtualization.graphql.filters import ClusterFilter, VirtualMachineFilter
     from vpn.graphql.filters import L2VPNFilter, TunnelFilter
+    from wireless.graphql.filters import WirelessLANFilter, WirelessLinkFilter
+
     from .enums import *
 
 __all__ = (

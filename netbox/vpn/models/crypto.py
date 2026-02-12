@@ -3,7 +3,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import PrimaryModel
-from vpn.choices import *
+
+from ..choices import *
 
 __all__ = (
     'IKEPolicy',

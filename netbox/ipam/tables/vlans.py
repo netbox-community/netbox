@@ -9,6 +9,7 @@ from ipam.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin, TenantColumn
 from virtualization.models import VMInterface
+
 from .template_code import *
 
 __all__ = (

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ObjectType, DataFile, DataSource
+from core.models import DataFile, DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
@@ -12,7 +12,10 @@ from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
+    ContentTypeChoiceField,
+    ContentTypeMultipleChoiceField,
+    DynamicModelMultipleChoiceField,
+    TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker

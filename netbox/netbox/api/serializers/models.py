@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
-from .features import NetBoxModelSerializer
 from users.api.serializers_.mixins import OwnerMixin
+
+from .features import NetBoxModelSerializer
 
 __all__ = (
     'NestedGroupModelSerializer',

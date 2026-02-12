@@ -10,8 +10,8 @@ from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import SchemaError
 from jsonschema.validators import validator_for
 
-from utilities.string import title
-from utilities.validators import MultipleOfValidator
+from .string import title
+from .validators import MultipleOfValidator
 
 __all__ = (
     'JSONSchemaProperty',

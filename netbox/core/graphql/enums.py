@@ -1,6 +1,6 @@
 import strawberry
 
-from core.choices import *
+from ..choices import *
 
 __all__ = (
     'DataSourceStatusEnum',

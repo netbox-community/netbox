@@ -1,4 +1,4 @@
-from typing import Annotated, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Annotated, List, Union
 
 import strawberry
 import strawberry_django
@@ -9,6 +9,7 @@ from extras.graphql.mixins import ContactsMixin
 from ipam import models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
+
 from .filters import *
 from .mixins import IPAddressesMixin
 
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
         SiteType,
     )
     from tenancy.graphql.types import TenantType
-    from virtualization.graphql.types import ClusterGroupType, ClusterType, VMInterfaceType, VirtualMachineType
+    from virtualization.graphql.types import ClusterGroupType, ClusterType, VirtualMachineType, VMInterfaceType
     from vpn.graphql.types import L2VPNType, TunnelTerminationType
     from wireless.graphql.types import WirelessLANType
 

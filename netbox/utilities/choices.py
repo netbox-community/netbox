@@ -3,8 +3,8 @@ import enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from utilities.data import get_config_value_ci
-from utilities.string import enum_key
+from .data import get_config_value_ci
+from .string import enum_key
 
 __all__ = (
     'ChoiceSet',

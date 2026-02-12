@@ -1,4 +1,4 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -13,13 +13,20 @@ from netbox.graphql.filters import ChangeLoggedModelFilter, PrimaryModelFilter
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
     from dcim.graphql.filters import (
-        DeviceRoleFilter, DeviceTypeFilter, LocationFilter, PlatformFilter, RegionFilter, SiteFilter, SiteGroupFilter,
+        DeviceRoleFilter,
+        DeviceTypeFilter,
+        LocationFilter,
+        PlatformFilter,
+        RegionFilter,
+        SiteFilter,
+        SiteGroupFilter,
     )
-    from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
     from netbox.graphql.enums import ColorEnum
     from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
+    from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
     from users.graphql.filters import GroupFilter, UserFilter
     from virtualization.graphql.filters import ClusterFilter, ClusterGroupFilter, ClusterTypeFilter
+
     from .enums import *
 
 __all__ = (

@@ -6,7 +6,7 @@ from typing import Union
 import yaml
 from django.core.exceptions import ImproperlyConfigured
 
-from utilities.datetime import datetime_from_timestamp
+from .datetime import datetime_from_timestamp
 
 RELEASE_PATH = 'release.yaml'
 LOCAL_RELEASE_PATH = 'local/release.yaml'

@@ -3,16 +3,21 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from netbox.forms import (
-    NestedGroupModelFilterSetForm, NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm,
+    NestedGroupModelFilterSetForm,
+    NetBoxModelFilterSetForm,
+    OrganizationalModelFilterSetForm,
     PrimaryModelFilterSetForm,
 )
-from tenancy.choices import *
-from tenancy.models import *
-from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
+    ContentTypeMultipleChoiceField,
+    DynamicModelMultipleChoiceField,
+    TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
+
+from ..choices import *
+from ..models import *
+from .forms import ContactModelFilterForm
 
 __all__ = (
     'ContactAssignmentFilterForm',

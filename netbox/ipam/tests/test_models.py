@@ -2,11 +2,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
-from utilities.data import string_to_ranges
 
 from dcim.models import Site, SiteGroup
 from ipam.choices import *
 from ipam.models import *
+from utilities.data import string_to_ranges
 
 
 class TestAggregate(TestCase):

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from core.choices import DataSourceStatusChoices
-from core.models import DataSource
+from ...choices import DataSourceStatusChoices
+from ...models import DataSource
 
 
 class Command(BaseCommand):

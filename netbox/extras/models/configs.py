@@ -1,12 +1,12 @@
-import jsonschema
 from collections import defaultdict
-from jsonschema.exceptions import ValidationError as JSONValidationError
 
+import jsonschema
 from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from core.models import ObjectType
 from extras.models.mixins import RenderTemplateMixin

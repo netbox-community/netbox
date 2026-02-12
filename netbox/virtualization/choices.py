@@ -2,10 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from utilities.choices import ChoiceSet
 
-
 #
 # Clusters
 #
+
 
 class ClusterStatusChoices(ChoiceSet):
     key = 'Cluster.status'

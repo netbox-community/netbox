@@ -6,6 +6,7 @@ from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from utilities.templatetags.helpers import humanize_disk_megabytes
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
+
 from .template_code import *
 
 __all__ = (

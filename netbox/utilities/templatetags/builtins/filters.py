@@ -13,9 +13,10 @@ from markdown import markdown
 from markdown.extensions.tables import TableExtension
 
 from netbox.config import get_config
-from utilities.html import clean_html, foreground_color
-from utilities.markdown import StrikethroughExtension
-from utilities.string import title
+
+from ...html import clean_html, foreground_color
+from ...markdown import StrikethroughExtension
+from ...string import title
 
 __all__ = (
     'bettertitle',

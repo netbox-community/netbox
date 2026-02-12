@@ -9,6 +9,7 @@ from netbox.filtersets import NestedGroupModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import TreeNodeMultipleChoiceFilter
 from utilities.filtersets import register_filterset
+
 from .choices import *
 from .models import *
 

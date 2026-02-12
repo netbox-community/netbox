@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpResponseNotFound, HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.exceptions import AuthenticationFailed

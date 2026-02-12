@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from circuits.models import *
 from core.models import ObjectType

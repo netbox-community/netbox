@@ -11,10 +11,11 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rq.worker import Worker
 
-from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
-from netbox.plugins.utils import get_installed_plugins
 from users.api.serializers import UserSerializer
 from utilities.apps import get_installed_apps
+
+from ..plugins.utils import get_installed_plugins
+from .authentication import IsAuthenticatedOrLoginNotRequired
 
 
 class APIRootView(APIView):

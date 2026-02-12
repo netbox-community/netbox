@@ -1,8 +1,12 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import (
     GroupManager as DjangoGroupManager,
+)
+from django.contrib.auth.models import (
     Permission,
     PermissionsMixin,
+)
+from django.contrib.auth.models import (
     UserManager as DjangoUserManager,
 )
 from django.contrib.auth.validators import UnicodeUsernameValidator

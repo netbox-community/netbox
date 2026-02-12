@@ -1,4 +1,5 @@
 from rest_framework.serializers import ModelSerializer
+
 from netbox.tests.dummy_plugin.models import DummyModel
 
 

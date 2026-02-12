@@ -10,6 +10,7 @@ from core.exceptions import IncompatiblePluginError
 from netbox.registry import registry
 from netbox.search import register_search
 from netbox.utils import register_data_backend
+
 from .navigation import *
 from .registration import *
 from .templates import *

@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
-from users.models import OwnerGroup, Owner
+from users.models import Owner, OwnerGroup
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (

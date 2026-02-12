@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from utilities.forms.widgets.apiselect import APISelect, APISelectMultiple
+from .apiselect import APISelect, APISelectMultiple
 
 __all__ = (
     'FilterModifierWidget',

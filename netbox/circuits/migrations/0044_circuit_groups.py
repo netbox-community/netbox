@@ -1,7 +1,8 @@
 import django.db.models.deletion
 import taggit.managers
-import utilities.json
 from django.db import migrations, models
+
+import utilities.json
 
 
 class Migration(migrations.Migration):

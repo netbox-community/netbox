@@ -18,16 +18,17 @@ from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.forms import VMInterfaceFilterForm
 from virtualization.models import VirtualMachine, VMInterface
+
 from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
-from .utils import add_requested_prefixes, add_available_vlans, annotate_ip_space
-
+from .utils import add_available_vlans, add_requested_prefixes, annotate_ip_space
 
 #
 # VRFs
 #
+
 
 @register_model_view(VRF, 'list', path='', detail=False)
 class VRFListView(generic.ObjectListView):

@@ -11,7 +11,7 @@ from dcim.models import Interface, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANGroupQuerySet, VLANQuerySet
-from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
+from netbox.models import NetBoxModel, OrganizationalModel, PrimaryModel
 from utilities.data import check_ranges_overlap, ranges_to_string, ranges_to_string_list
 from virtualization.models import VMInterface
 

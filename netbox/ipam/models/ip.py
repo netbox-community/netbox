@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models.mixins import CachedScopeMixin
 from ipam.choices import *
 from ipam.constants import *
-from ipam.fields import IPNetworkField, IPAddressField
+from ipam.fields import IPAddressField, IPNetworkField
 from ipam.lookups import Host
 from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet

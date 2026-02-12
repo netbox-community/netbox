@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, Interface, Site
-from ipam.models import IPAddress, VLAN, RouteTarget
+from ipam.models import VLAN, IPAddress, RouteTarget
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *

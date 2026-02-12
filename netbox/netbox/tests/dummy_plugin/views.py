@@ -7,14 +7,16 @@ from django.views.generic import View
 from dcim.models import Site
 from netbox.views import generic
 from utilities.views import register_model_view
+
 from .models import DummyModel, DummyNetBoxModel
+
 # Trigger registration of custom column
 from .tables import mycol  # noqa: F401
-
 
 #
 # DummyModel
 #
+
 
 class DummyModelsView(View):
 

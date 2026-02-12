@@ -6,9 +6,7 @@ from django.conf import settings
 from django.forms.fields import JSONField as _JSONField
 from django.utils.translation import gettext_lazy as _
 
-from core.forms.mixins import SyncedDataMixin
-from core.models import *
-from netbox.config import get_config, PARAMS
+from netbox.config import PARAMS, get_config
 from netbox.forms import NetBoxModelForm, PrimaryModelForm
 from netbox.registry import registry
 from netbox.utils import get_data_backend_choices
@@ -16,6 +14,9 @@ from utilities.forms import get_field_value
 from utilities.forms.fields import JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
+
+from ..forms.mixins import SyncedDataMixin
+from ..models import *
 
 __all__ = (
     'ConfigRevisionForm',

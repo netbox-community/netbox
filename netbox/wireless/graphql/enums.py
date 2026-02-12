@@ -1,6 +1,6 @@
 import strawberry
 
-from wireless.choices import *
+from ..choices import *
 
 __all__ = (
     'WirelessAuthCipherEnum',

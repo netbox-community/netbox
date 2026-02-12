@@ -1,6 +1,6 @@
-from django.core.checks import Error, register, Tags
-from django.db.models import Index, UniqueConstraint
 from django.apps import apps
+from django.core.checks import Error, Tags, register
+from django.db.models import Index, UniqueConstraint
 
 __all__ = (
     'check_duplicate_indexes',

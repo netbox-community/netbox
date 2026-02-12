@@ -1,8 +1,8 @@
 from django.db.models import QuerySet
 from rest_framework.pagination import LimitOffsetPagination
 
-from netbox.api.exceptions import QuerySetNotOrdered
-from netbox.config import get_config
+from ..config import get_config
+from .exceptions import QuerySetNotOrdered
 
 
 class OptionalLimitOffsetPagination(LimitOffsetPagination):

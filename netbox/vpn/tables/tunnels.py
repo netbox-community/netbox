@@ -4,7 +4,8 @@ from django_tables2.utils import Accessor
 
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from vpn.models import *
+
+from ..models import *
 
 __all__ = (
     'TunnelTable',

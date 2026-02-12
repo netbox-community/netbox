@@ -9,13 +9,13 @@ import dcim.filtersets  # noqa: F401 - Import to register Device filterset
 from dcim.forms.filtersets import DeviceFilterForm
 from dcim.models import Device
 from netbox.filtersets import BaseFilterSet
-from utilities.filtersets import register_filterset
+from tenancy.models import Tenant
 from users.models import User
+from utilities.filtersets import register_filterset
 from utilities.forms.fields import TagFilterField
 from utilities.forms.mixins import FilterModifierMixin
 from utilities.forms.widgets import FilterModifierWidget
 from utilities.templatetags.helpers import applied_filters
-from tenancy.models import Tenant
 
 
 # Test model for FilterModifierMixin tests

@@ -4,8 +4,9 @@ import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType as DjangoContentType
 
-from core import models
 from netbox.graphql.types import BaseObjectType, PrimaryObjectType
+
+from .. import models
 from .filters import *
 
 __all__ = (

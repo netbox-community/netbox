@@ -5,7 +5,7 @@ from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, IPAddress, RIR, VLAN, VLANTranslationPolicy, VRF
+from ipam.models import ASN, RIR, VLAN, VRF, IPAddress, VLANTranslationPolicy
 from netbox.choices import ColorChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User

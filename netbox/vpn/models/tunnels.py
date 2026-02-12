@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, TagsMixin
-from vpn.choices import *
+
+from ..choices import *
 
 __all__ = (
     'Tunnel',

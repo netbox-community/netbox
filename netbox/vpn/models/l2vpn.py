@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ObjectType
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
-from vpn.choices import L2VPNStatusChoices, L2VPNTypeChoices
+
+from ..choices import L2VPNStatusChoices, L2VPNTypeChoices
 
 __all__ = (
     'L2VPN',

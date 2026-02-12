@@ -4,8 +4,9 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from netbox.models.features import ChangeLoggingMixin
-from utilities.forms.fields import QueryField
-from utilities.forms.mixins import BackgroundJobMixin, FilterModifierMixin
+
+from .fields import QueryField
+from .mixins import BackgroundJobMixin, FilterModifierMixin
 
 __all__ = (
     'BulkDeleteForm',

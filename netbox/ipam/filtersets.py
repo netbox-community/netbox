@@ -12,15 +12,23 @@ from circuits.models import Provider
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
-    ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
+    ChangeLoggedModelFilterSet,
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
+    PrimaryModelFilterSet,
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    ContentTypeFilter,
+    MultiValueCharFilter,
+    MultiValueNumberFilter,
+    NumericArrayFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.models import L2VPN
+
 from .choices import *
 from .models import *
 

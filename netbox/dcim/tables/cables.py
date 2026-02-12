@@ -7,6 +7,7 @@ from django_tables2.utils import Accessor
 from dcim.models import Cable
 from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin
+
 from .template_code import CABLE_LENGTH
 
 __all__ = (

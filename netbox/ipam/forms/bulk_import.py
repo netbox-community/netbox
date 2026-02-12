@@ -2,16 +2,20 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, Interface, Site
 from dcim.forms.mixins import ScopedImportForm
+from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
 from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField,
+    CSVChoiceField,
+    CSVContentTypeField,
+    CSVModelChoiceField,
+    CSVModelMultipleChoiceField,
     NumericRangeArrayField,
+    SlugField,
 )
 from virtualization.models import VirtualMachine, VMInterface
 

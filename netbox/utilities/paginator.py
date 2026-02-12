@@ -1,4 +1,4 @@
-from django.core.paginator import Paginator, Page
+from django.core.paginator import Page, Paginator
 
 from netbox.config import get_config
 

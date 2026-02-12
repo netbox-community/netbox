@@ -1,13 +1,14 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.choices import *
-from core.models import Job
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import BaseModelSerializer
 from users.api.serializers_.users import UserSerializer
 from utilities.api import get_serializer_for_model
+
+from ...choices import *
+from ...models import Job
 
 __all__ = (
     'JobSerializer',

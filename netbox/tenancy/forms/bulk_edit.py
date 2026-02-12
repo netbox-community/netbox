@@ -2,13 +2,17 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import (
-    NestedGroupModelBulkEditForm, NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm,
+    NestedGroupModelBulkEditForm,
+    NetBoxModelBulkEditForm,
+    OrganizationalModelBulkEditForm,
+    PrimaryModelBulkEditForm,
 )
-from tenancy.choices import ContactPriorityChoices
-from tenancy.models import *
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
+
+from ..choices import ContactPriorityChoices
+from ..models import *
 
 __all__ = (
     'ContactAssignmentBulkEditForm',

@@ -3,7 +3,8 @@ from django.urls.exceptions import NoReverseMatch
 from django.utils.module_loading import import_string
 
 from netbox.registry import registry
-from utilities.views import get_action_url
+
+from ..views import get_action_url
 
 __all__ = (
     'model_view_tabs',

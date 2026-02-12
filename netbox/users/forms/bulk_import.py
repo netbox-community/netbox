@@ -1,10 +1,10 @@
 from django import forms
 from django.utils.translation import gettext as _
-from users.models import *
+
 from users.choices import TokenVersionChoices
+from users.models import *
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVModelChoiceField, CSVModelMultipleChoiceField
-
 
 __all__ = (
     'GroupImportForm',

@@ -9,8 +9,8 @@ from django.utils.translation import gettext_lazy as _
 from core.forms.mixins import SyncedDataMixin
 from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
-from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.choices import *
+from extras.constants import IMAGE_ATTACHMENT_IMAGE_FORMATS
 from extras.models import *
 from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelForm, PrimaryModelForm
@@ -19,8 +19,13 @@ from tenancy.models import Tenant, TenantGroup
 from users.models import Group, User
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, JSONField, SlugField,
+    CommentField,
+    ContentTypeChoiceField,
+    ContentTypeMultipleChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+    SlugField,
 )
 from utilities.forms.rendering import FieldSet, ObjectAttribute
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect

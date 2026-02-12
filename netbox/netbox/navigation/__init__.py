@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Sequence, Optional
+from typing import Optional, Sequence
 
 from django.urls import reverse_lazy
-
 
 __all__ = (
     'get_model_item',

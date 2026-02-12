@@ -1,5 +1,5 @@
 from django.contrib.postgres.aggregates import JSONBAgg
-from django.db.models import OuterRef, Subquery, Q
+from django.db.models import OuterRef, Q, Subquery
 
 from extras.models.tags import TaggedItem
 from utilities.query_functions import EmptyGroupByJSONBAgg

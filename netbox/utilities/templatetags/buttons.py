@@ -7,8 +7,9 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate, Subscription
 from netbox.models.features import NotificationsMixin
-from utilities.querydict import prepare_cloned_fields
-from utilities.views import get_action_url
+
+from ..querydict import prepare_cloned_fields
+from ..views import get_action_url
 
 __all__ = (
     'action_buttons',

@@ -13,16 +13,24 @@ from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, IPAddress, VLANGroup
 from netbox.choices import *
 from netbox.forms import (
-    NestedGroupModelImportForm, NetBoxModelImportForm, OrganizationalModelImportForm, OwnerCSVMixin,
+    NestedGroupModelImportForm,
+    NetBoxModelImportForm,
+    OrganizationalModelImportForm,
+    OwnerCSVMixin,
     PrimaryModelImportForm,
 )
 from tenancy.models import Tenant
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVTypedChoiceField,
+    CSVChoiceField,
+    CSVContentTypeField,
+    CSVModelChoiceField,
+    CSVModelMultipleChoiceField,
+    CSVTypedChoiceField,
     SlugField,
 )
 from virtualization.models import Cluster, VirtualMachine, VMInterface
 from wireless.choices import WirelessRoleChoices
+
 from .common import ModuleCommonForm
 
 __all__ = (

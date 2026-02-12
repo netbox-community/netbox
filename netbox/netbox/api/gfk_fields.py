@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+
 from utilities.api import get_serializer_for_model
 
 __all__ = (

@@ -9,10 +9,12 @@ from dcim.constants import LOCATION_SCOPE_TYPES
 from dcim.models import PortMapping, PortTemplateMapping, Site
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
-    ContentTypeChoiceField, CSVContentTypeField, DynamicModelChoiceField,
+    ContentTypeChoiceField,
+    CSVContentTypeField,
+    DynamicModelChoiceField,
 )
-from utilities.templatetags.builtins.filters import bettertitle
 from utilities.forms.widgets import HTMXSelect
+from utilities.templatetags.builtins.filters import bettertitle
 
 __all__ = (
     'FrontPortFormMixin',

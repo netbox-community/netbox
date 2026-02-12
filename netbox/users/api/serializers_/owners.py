@@ -1,6 +1,7 @@
 from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
 from users.models import Group, Owner, OwnerGroup, User
+
 from .users import GroupSerializer, UserSerializer
 
 __all__ = (

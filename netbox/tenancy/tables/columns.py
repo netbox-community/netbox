@@ -1,7 +1,8 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import columns
+
 from .template_code import *
 
 __all__ = (

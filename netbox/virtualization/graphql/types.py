@@ -1,4 +1,4 @@
-from typing import Annotated, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Annotated, List, Union
 
 import strawberry
 import strawberry_django
@@ -6,9 +6,10 @@ import strawberry_django
 from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import OrganizationalObjectType, PrimaryObjectType, NetBoxObjectType
+from netbox.graphql.types import NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
 from users.graphql.mixins import OwnerMixin
 from virtualization import models
+
 from .filters import *
 
 if TYPE_CHECKING:

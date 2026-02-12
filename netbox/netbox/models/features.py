@@ -16,15 +16,16 @@ from core.models import ObjectType
 from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.utils import is_taggable
-from netbox.config import get_config
-from netbox.constants import CORE_APPS
-from netbox.models.deletion import DeleteMixin
-from netbox.plugins import PluginConfig
-from netbox.registry import registry
-from netbox.signals import post_clean
-from netbox.utils import register_model_feature
 from utilities.json import CustomFieldJSONEncoder
 from utilities.serialization import serialize_object
+
+from ..config import get_config
+from ..constants import CORE_APPS
+from ..models.deletion import DeleteMixin
+from ..plugins import PluginConfig
+from ..registry import registry
+from ..signals import post_clean
+from ..utils import register_model_feature
 
 __all__ = (
     'BookmarksMixin',
@@ -405,6 +406,7 @@ class ContactsMixin(models.Model):
             inherited: If `True`, inherited contacts from parent objects are included.
         """
         from tenancy.models import ContactAssignment
+
         from . import NestedGroupModel
 
         filter = Q(

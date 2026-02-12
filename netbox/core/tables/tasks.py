@@ -2,9 +2,10 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import A
 
-from core.constants import RQ_TASK_STATUSES
-from core.tables.columns import BadgeColumn
 from netbox.tables import BaseTable, columns
+
+from ..constants import RQ_TASK_STATUSES
+from .columns import BadgeColumn
 
 
 class BackgroundQueueTable(BaseTable):

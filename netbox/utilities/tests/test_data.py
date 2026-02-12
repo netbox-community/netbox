@@ -1,5 +1,6 @@
 from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase
+
 from utilities.data import (
     check_ranges_overlap,
     get_config_value_ci,

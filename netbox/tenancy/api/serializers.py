@@ -1,2 +1,2 @@
-from .serializers_.tenants import *
 from .serializers_.contacts import *
+from .serializers_.tenants import *

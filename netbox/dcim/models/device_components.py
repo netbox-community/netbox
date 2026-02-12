@@ -15,7 +15,7 @@ from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
-from netbox.models import OrganizationalModel, NetBoxModel
+from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager

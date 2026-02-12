@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
+from dcim.models import Device, Location, Rack, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -10,7 +10,7 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
-from virtualization.models import VirtualMachine, ClusterGroup, Cluster
+from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from vpn.models import L2VPN
 
 __all__ = (

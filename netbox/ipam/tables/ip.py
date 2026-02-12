@@ -6,6 +6,7 @@ from django_tables2.utils import Accessor
 from ipam.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin, TenantColumn
+
 from .template_code import *
 
 __all__ = (

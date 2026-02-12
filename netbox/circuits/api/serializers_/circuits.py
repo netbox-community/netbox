@@ -4,18 +4,28 @@ from rest_framework import serializers
 from circuits.choices import CircuitPriorityChoices, CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.constants import CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS, CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import (
-    Circuit, CircuitGroup, CircuitGroupAssignment, CircuitTermination, CircuitType, VirtualCircuit,
-    VirtualCircuitTermination, VirtualCircuitType,
+    Circuit,
+    CircuitGroup,
+    CircuitGroupAssignment,
+    CircuitTermination,
+    CircuitType,
+    VirtualCircuit,
+    VirtualCircuitTermination,
+    VirtualCircuitType,
 )
-from dcim.api.serializers_.device_components import InterfaceSerializer
 from dcim.api.serializers_.cables import CabledObjectSerializer
+from dcim.api.serializers_.device_components import InterfaceSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
-    NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer, WritableNestedSerializer,
+    NetBoxModelSerializer,
+    OrganizationalModelSerializer,
+    PrimaryModelSerializer,
+    WritableNestedSerializer,
 )
 from netbox.choices import DistanceUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
+
 from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, ProviderSerializer
 
 __all__ = (

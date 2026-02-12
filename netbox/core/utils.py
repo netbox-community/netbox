@@ -1,11 +1,12 @@
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
-from django_rq.settings import QUEUES_MAP, QUEUES_LIST
+from django_rq.settings import QUEUES_LIST, QUEUES_MAP
 from django_rq.utils import get_jobs, stop_jobs
 from rq import requeue_job
 from rq.exceptions import NoSuchJobError
-from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
+from rq.job import Job as RQ_Job
+from rq.job import JobStatus as RQJobStatus
 from rq.registry import (
     DeferredJobRegistry,
     FailedJobRegistry,

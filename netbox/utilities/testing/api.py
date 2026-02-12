@@ -20,6 +20,7 @@ from netbox.models.features import ChangeLoggingMixin
 from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
+
 from .base import ModelTestCase
 from .utils import disable_logging, disable_warnings, get_random_string
 

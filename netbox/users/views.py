@@ -8,13 +8,14 @@ from netbox.views import generic
 from users.ui import panels
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
-from . import filtersets, forms, tables
-from .models import Group, User, ObjectPermission, Owner, OwnerGroup, Token
 
+from . import filtersets, forms, tables
+from .models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 
 #
 # Tokens
 #
+
 
 @register_model_view(Token, 'list', path='', detail=False)
 class TokenListView(generic.ObjectListView):

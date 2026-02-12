@@ -1,5 +1,6 @@
-from core.models import *
 from netbox.forms import PrimaryModelImportForm
+
+from ..models import *
 
 __all__ = (
     'DataSourceImportForm',

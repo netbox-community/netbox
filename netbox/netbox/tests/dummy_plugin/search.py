@@ -1,4 +1,5 @@
 from netbox.search import SearchIndex
+
 from .models import DummyModel
 
 

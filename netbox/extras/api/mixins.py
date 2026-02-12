@@ -6,6 +6,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from netbox.api.authentication import TokenWritePermission
 from netbox.api.renderers import TextRenderer
+
 from .serializers import ConfigTemplateSerializer
 
 __all__ = (

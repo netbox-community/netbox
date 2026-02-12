@@ -1,7 +1,8 @@
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import PrimaryModelSerializer
-from vpn.choices import *
-from vpn.models import IKEPolicy, IKEProposal, IPSecPolicy, IPSecProfile, IPSecProposal
+
+from ...choices import *
+from ...models import IKEPolicy, IKEProposal, IPSecPolicy, IPSecProfile, IPSecProposal
 
 __all__ = (
     'IKEPolicySerializer',

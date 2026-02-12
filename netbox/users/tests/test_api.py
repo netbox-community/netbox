@@ -5,7 +5,7 @@ from core.models import ObjectType
 from users.constants import TOKEN_DEFAULT_LENGTH
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 from utilities.data import deepmerge
-from utilities.testing import APIViewTestCases, APITestCase, create_test_user
+from utilities.testing import APITestCase, APIViewTestCases, create_test_user
 
 
 class AppTest(APITestCase):

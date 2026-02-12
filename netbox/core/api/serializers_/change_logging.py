@@ -1,11 +1,12 @@
 from rest_framework import serializers
 
-from core.choices import *
-from core.models import ObjectChange
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import BaseModelSerializer
 from users.api.serializers_.users import UserSerializer
+
+from ...choices import *
+from ...models import ObjectChange
 
 __all__ = (
     'ObjectChangeSerializer',

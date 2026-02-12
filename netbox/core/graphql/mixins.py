@@ -1,14 +1,14 @@
-from typing import Annotated, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, List
 
 import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType
 from strawberry.types import Info
 
-from core.models import ObjectChange
+from ..models import ObjectChange
 
 if TYPE_CHECKING:
-    from core.graphql.types import DataFileType, DataSourceType, ObjectChangeType
+    from .types import DataFileType, DataSourceType, ObjectChangeType
 
 __all__ = (
     'ChangelogMixin',

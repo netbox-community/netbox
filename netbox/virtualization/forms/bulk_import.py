@@ -7,8 +7,7 @@ from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import VLAN, VRF, VLANGroup
-from netbox.forms import NetBoxModelImportForm
-from netbox.forms import OrganizationalModelImportForm, OwnerCSVMixin, PrimaryModelImportForm
+from netbox.forms import NetBoxModelImportForm, OrganizationalModelImportForm, OwnerCSVMixin, PrimaryModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
 from virtualization.choices import *

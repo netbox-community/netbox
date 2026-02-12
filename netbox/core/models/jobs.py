@@ -16,16 +16,17 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from rq.exceptions import InvalidJobOperation
 
-from core.choices import JobStatusChoices
-from core.dataclasses import JobLogEntry
-from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
-from core.models import ObjectType
-from core.signals import job_end, job_start
 from extras.models import Notification
 from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
+
+from ..choices import JobStatusChoices
+from ..dataclasses import JobLogEntry
+from ..events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
+from ..models import ObjectType
+from ..signals import job_end, job_start
 
 __all__ = (
     'Job',

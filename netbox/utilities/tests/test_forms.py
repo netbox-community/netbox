@@ -6,7 +6,7 @@ from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.forms import BulkRenameForm
-from utilities.forms.utils import get_field_value, expand_alphanumeric_pattern, expand_ipaddress_pattern
+from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern, get_field_value
 from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
 
 

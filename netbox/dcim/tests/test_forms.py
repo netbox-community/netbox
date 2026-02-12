@@ -1,7 +1,11 @@
 from django.test import TestCase
 
 from dcim.choices import (
-    DeviceFaceChoices, DeviceStatusChoices, InterfaceModeChoices, InterfaceTypeChoices, PortTypeChoices,
+    DeviceFaceChoices,
+    DeviceStatusChoices,
+    InterfaceModeChoices,
+    InterfaceTypeChoices,
+    PortTypeChoices,
     PowerOutletStatusChoices,
 )
 from dcim.forms import *

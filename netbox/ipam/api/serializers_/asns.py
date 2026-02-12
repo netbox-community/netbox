@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.models import Site
-from ipam.models import ASN, ASNRange, RIR
+from ipam.models import ASN, RIR, ASNRange
 from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer

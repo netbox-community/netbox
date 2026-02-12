@@ -5,8 +5,9 @@ from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountF
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from vpn.choices import *
-from vpn.models import Tunnel, TunnelGroup, TunnelTermination
+
+from ...choices import *
+from ...models import Tunnel, TunnelGroup, TunnelTermination
 from .crypto import IPSecProfileSerializer
 
 __all__ = (

@@ -2,10 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from utilities.choices import ChoiceSet
 
-
 #
 # Contacts
 #
+
 
 class ContactPriorityChoices(ChoiceSet):
     PRIORITY_PRIMARY = 'primary'

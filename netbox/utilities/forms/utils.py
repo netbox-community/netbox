@@ -4,8 +4,8 @@ from django import forms
 from django.forms.models import fields_for_model
 from django.utils.translation import gettext as _
 
-from utilities.choices import unpack_grouped_choices
-from utilities.querysets import RestrictedQuerySet
+from ..choices import unpack_grouped_choices
+from ..querysets import RestrictedQuerySet
 from .constants import *
 
 __all__ = (

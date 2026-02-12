@@ -5,13 +5,14 @@ from netbox.object_actions import BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
+
 from . import filtersets, forms, tables
 from .models import *
-
 
 #
 # Tenant groups
 #
+
 
 @register_model_view(TenantGroup, 'list', path='', detail=False)
 class TenantGroupListView(generic.ObjectListView):

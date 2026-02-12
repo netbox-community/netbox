@@ -6,6 +6,7 @@ from ipam.models import IPAddress, Service, ServiceTemplate
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
+
 from .ip import IPAddressSerializer
 
 __all__ = (

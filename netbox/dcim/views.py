@@ -15,12 +15,17 @@ from django.views.generic import View
 from circuits.models import Circuit, CircuitTermination
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
-from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
+from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
-    CommentsPanel, JSONPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, RelatedObjectsPanel,
+    CommentsPanel,
+    JSONPanel,
+    NestedGroupObjectPanel,
+    ObjectsTablePanel,
+    OrganizationalObjectPanel,
+    RelatedObjectsPanel,
     TemplatePanel,
 )
 from netbox.views import generic
@@ -31,13 +36,18 @@ from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.request import safe_for_redirect
 from utilities.views import (
-    GetRelatedModelsMixin, GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
+    GetRelatedModelsMixin,
+    GetReturnURLMixin,
+    ObjectPermissionRequiredMixin,
+    ViewTab,
+    register_model_view,
 )
 from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.forms import VirtualMachineFilterForm
 from virtualization.models import Cluster, VirtualMachine
 from virtualization.tables import VirtualMachineTable
 from wireless.models import WirelessLAN
+
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices, InterfaceModeChoices
 from .models import *

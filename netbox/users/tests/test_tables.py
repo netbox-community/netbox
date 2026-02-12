@@ -1,4 +1,4 @@
-from django.test import RequestFactory, tag, TestCase
+from django.test import RequestFactory, TestCase, tag
 
 from users.models import Token
 from users.tables import TokenTable

@@ -3,13 +3,14 @@ from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, B
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
+
 from . import filtersets, forms, tables
 from .models import *
-
 
 #
 # Tunnel groups
 #
+
 
 @register_model_view(TunnelGroup, 'list', path='', detail=False)
 class TunnelGroupListView(generic.ObjectListView):

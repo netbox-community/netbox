@@ -6,8 +6,9 @@ from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelated
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
-from vpn.choices import *
-from vpn.models import L2VPN, L2VPNTermination
+
+from ...choices import *
+from ...models import L2VPN, L2VPNTermination
 
 __all__ = (
     'L2VPNSerializer',

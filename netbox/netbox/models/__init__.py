@@ -7,10 +7,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
-from netbox.models.features import *
-from netbox.models.mixins import OwnerMixin
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
+
+from .features import *
+from .mixins import OwnerMixin
 
 __all__ = (
     'AdminModel',

@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from .columns import CommitRateColumn
 
 __all__ = (

@@ -4,14 +4,15 @@ from functools import cached_property
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.core.files.storage import storages
+from django.db import models
 from django.utils.translation import gettext as _
 
-from ..choices import ManagedFileRootPathChoices
 from extras.storage import ScriptFileSystemStorage
 from netbox.models.features import SyncedDataMixin
 from utilities.querysets import RestrictedQuerySet
+
+from ..choices import ManagedFileRootPathChoices
 
 __all__ = (
     'ManagedFile',

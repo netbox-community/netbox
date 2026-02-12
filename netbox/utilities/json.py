@@ -3,7 +3,7 @@ import json
 
 from django.core.serializers.json import DjangoJSONEncoder
 
-from utilities.datetime import datetime_from_timestamp
+from .datetime import datetime_from_timestamp
 
 __all__ = (
     'ConfigJSONEncoder',

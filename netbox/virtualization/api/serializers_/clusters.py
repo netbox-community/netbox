@@ -1,6 +1,7 @@
-from dcim.constants import LOCATION_SCOPE_TYPES
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
+
+from dcim.constants import LOCATION_SCOPE_TYPES
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer

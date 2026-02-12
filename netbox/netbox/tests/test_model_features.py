@@ -2,13 +2,13 @@ from unittest import skipIf
 
 from django.conf import settings
 from django.test import TestCase
+from taggit.models import Tag
 
 from core.models import AutoSyncRecord, DataSource
 from dcim.models import Site
 from extras.models import CustomLink
 from ipam.models import Prefix
 from netbox.models.features import get_model_features, has_feature, model_is_public
-from taggit.models import Tag
 
 
 class ModelFeaturesTestCase(TestCase):

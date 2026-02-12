@@ -8,7 +8,8 @@ from django.utils import timezone
 from django_rq import get_queue
 from django_rq.settings import QUEUES_MAP
 from django_rq.workers import get_worker
-from rq.job import Job as RQ_Job, JobStatus
+from rq.job import Job as RQ_Job
+from rq.job import JobStatus
 from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, StartedJobRegistry
 
 from core.choices import ObjectChangeActionChoices

@@ -6,8 +6,9 @@ from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
-from vpn.choices import *
-from vpn.models import *
+
+from ..choices import *
+from ..models import *
 
 __all__ = (
     'IKEPolicyBulkEditForm',

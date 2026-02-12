@@ -1,4 +1,4 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -14,8 +14,6 @@ from virtualization import models
 from virtualization.graphql.filter_mixins import VMComponentFilterMixin
 
 if TYPE_CHECKING:
-    from .enums import *
-    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup
     from dcim.graphql.filters import DeviceFilter, DeviceRoleFilter, MACAddressFilter, PlatformFilter, SiteFilter
     from ipam.graphql.filters import (
         FHRPGroupAssignmentFilter,
@@ -24,7 +22,10 @@ if TYPE_CHECKING:
         VLANGroupFilter,
         VRFFilter,
     )
+    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup
     from vpn.graphql.filters import L2VPNFilter, TunnelTerminationFilter
+
+    from .enums import *
 
 __all__ = (
     'ClusterFilter',

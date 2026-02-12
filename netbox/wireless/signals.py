@@ -1,18 +1,19 @@
 import logging
 
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.exceptions import UnsupportedCablePath
 from dcim.models import CablePath, Interface
 from dcim.utils import create_cablepaths
 from utilities.exceptions import AbortRequest
-from .models import WirelessLink
 
+from .models import WirelessLink
 
 #
 # Wireless links
 #
+
 
 @receiver(post_save, sender=WirelessLink)
 def update_connected_interfaces(instance, created, raw=False, **kwargs):

@@ -38,8 +38,8 @@ def is_script(obj):
     """
     Returns True if the passed Python object is a Script or Report.
     """
-    from extras.scripts import Script
     from extras.reports import Report
+    from extras.scripts import Script
 
     try:
         if issubclass(obj, Report) and obj != Report:

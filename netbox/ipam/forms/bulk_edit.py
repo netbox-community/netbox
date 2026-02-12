@@ -13,7 +13,10 @@ from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditFor
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
-    ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    ContentTypeChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    NumericArrayField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet

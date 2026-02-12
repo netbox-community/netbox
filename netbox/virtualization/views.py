@@ -15,7 +15,14 @@ from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import (
-    AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename, DeleteObject, EditObject,
+    AddObject,
+    BulkDelete,
+    BulkEdit,
+    BulkExport,
+    BulkImport,
+    BulkRename,
+    DeleteObject,
+    EditObject,
 )
 from netbox.ui import actions, layout
 from netbox.ui.panels import CommentsPanel, ObjectsTablePanel, TemplatePanel
@@ -23,15 +30,16 @@ from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
+
 from . import filtersets, forms, tables
 from .models import *
 from .object_actions import BulkAddComponents
 from .ui import panels
 
-
 #
 # Cluster types
 #
+
 
 @register_model_view(ClusterType, 'list', path='', detail=False)
 class ClusterTypeListView(generic.ObjectListView):
