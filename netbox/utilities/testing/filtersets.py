@@ -10,7 +10,7 @@ from mptt.models import MPTTModel
 from taggit.managers import TaggableManager
 
 from extras.filters import TagFilter
-from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 
 __all__ = (
     'BaseFilterSetTests',
@@ -75,7 +75,7 @@ class BaseFilterSetTests:
                 # Standardize on object_type for filter name even though it's technically a ContentType
                 filter_name = 'object_type'
                 return [
-                    (filter_name, ContentTypeFilter),
+                    (filter_name, MultiValueContentTypeFilter),
                     (f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter),
                 ]
 

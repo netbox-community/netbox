@@ -9,7 +9,7 @@ from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from .choices import *
@@ -281,7 +281,7 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         queryset=Circuit.objects.all(),
         label=_('Circuit'),
     )
-    termination_type = ContentTypeFilter()
+    termination_type = MultiValueContentTypeFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='_region',
@@ -381,7 +381,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    member_type = ContentTypeFilter()
+    member_type = MultiValueContentTypeFilter()
     circuit = MultiValueCharFilter(
         method='filter_circuit',
         field_name='cid',

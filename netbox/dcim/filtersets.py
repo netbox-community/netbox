@@ -19,8 +19,8 @@ from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
-    NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
+    MultiValueWWNFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
@@ -975,7 +975,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
         to_field_name='slug',
         label=_('Role (slug)'),
     )
-    component_type = ContentTypeFilter()
+    component_type = MultiValueContentTypeFilter()
     component_id = MultiValueNumberFilter()
 
     class Meta:
@@ -1812,7 +1812,7 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 @register_filterset
 class MACAddressFilterSet(PrimaryModelFilterSet):
     mac_address = MultiValueMACAddressFilter()
-    assigned_object_type = ContentTypeFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -2257,7 +2257,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet):
         to_field_name='slug',
         label=_('Role (slug)'),
     )
-    component_type = ContentTypeFilter()
+    component_type = MultiValueContentTypeFilter()
     component_id = MultiValueNumberFilter()
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
@@ -2371,14 +2371,14 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
 
 @register_filterset
 class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
-    termination_a_type = ContentTypeFilter(
+    termination_a_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
     )
     termination_a_id = MultiValueNumberFilter(
         method='filter_by_cable_end_a',
         field_name='terminations__termination_id'
     )
-    termination_b_type = ContentTypeFilter(
+    termination_b_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
     )
     termination_b_id = MultiValueNumberFilter(
@@ -2544,7 +2544,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
 
 @register_filterset
 class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
-    termination_type = ContentTypeFilter()
+    termination_type = MultiValueContentTypeFilter()
 
     class Meta:
         model = CableTermination

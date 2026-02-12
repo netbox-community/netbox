@@ -10,7 +10,7 @@ from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+    MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, ClusterType
@@ -104,7 +104,7 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
     event_type = MultiValueCharFilter(
@@ -113,7 +113,7 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     action_type = django_filters.MultipleChoiceFilter(
         choices=EventRuleActionChoices
     )
-    action_object_type = ContentTypeFilter()
+    action_object_type = MultiValueContentTypeFilter()
     action_object_id = MultiValueNumberFilter()
 
     class Meta:
@@ -148,14 +148,14 @@ class CustomFieldFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
     related_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.all(),
         field_name='related_object_type'
     )
-    related_object_type = ContentTypeFilter()
+    related_object_type = MultiValueContentTypeFilter()
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CustomFieldChoiceSet.objects.all()
     )
@@ -224,7 +224,7 @@ class CustomLinkFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
 
@@ -255,7 +255,7 @@ class ExportTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
@@ -294,7 +294,7 @@ class SavedFilterFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
@@ -347,7 +347,7 @@ class TableConfigFilterSet(ChangeLoggedModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_type'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_type'
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
@@ -395,7 +395,7 @@ class TableConfigFilterSet(ChangeLoggedModelFilterSet):
 class BookmarkFilterSet(BaseFilterSet):
     created = django_filters.DateTimeFilter()
     object_type_id = MultiValueNumberFilter()
-    object_type = ContentTypeFilter()
+    object_type = MultiValueContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),
@@ -462,7 +462,7 @@ class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type = ContentTypeFilter()
+    object_type = MultiValueContentTypeFilter()
 
     class Meta:
         model = ImageAttachment
@@ -481,7 +481,7 @@ class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):
 @register_filterset
 class JournalEntryFilterSet(NetBoxModelFilterSet):
     created = django_filters.DateTimeFromToRangeFilter()
-    assigned_object_type = ContentTypeFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
     assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContentType.objects.all()
     )
@@ -576,7 +576,7 @@ class TaggedItemFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='content_type'
     )
     object_type_id = django_filters.ModelMultipleChoiceFilter(

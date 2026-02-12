@@ -16,7 +16,8 @@ from netbox.filtersets import (
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter, NumericArrayFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
@@ -607,7 +608,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
-    assigned_object_type = ContentTypeFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -846,7 +847,7 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
 
 @register_filterset
 class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
-    interface_type = ContentTypeFilter()
+    interface_type = MultiValueContentTypeFilter()
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=FHRPGroup.objects.all(),
         label=_('Group (ID)'),
@@ -901,7 +902,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 
 @register_filterset
 class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
-    scope_type = ContentTypeFilter()
+    scope_type = MultiValueContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
     )
@@ -1173,7 +1174,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
 
 @register_filterset
 class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
-    parent_object_type = ContentTypeFilter()
+    parent_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',

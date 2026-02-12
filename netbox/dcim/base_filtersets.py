@@ -2,7 +2,7 @@ import django_filters
 
 from django.utils.translation import gettext as _
 from netbox.filtersets import BaseFilterSet
-from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
 
 __all__ = (
@@ -14,7 +14,7 @@ class ScopedFilterSet(BaseFilterSet):
     """
     Provides additional filtering functionality for location, site, etc.. for Scoped models.
     """
-    scope_type = ContentTypeFilter()
+    scope_type = MultiValueContentTypeFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='_region',
