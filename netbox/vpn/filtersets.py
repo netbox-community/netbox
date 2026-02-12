@@ -38,7 +38,8 @@ class TunnelGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 @register_filterset
 class TunnelFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
-        choices=TunnelStatusChoices
+        choices=TunnelStatusChoices,
+        distinct=False,
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TunnelGroup.objects.all(),
@@ -53,7 +54,8 @@ class TunnelFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilte
         label=_('Tunnel group (slug)'),
     )
     encapsulation = django_filters.MultipleChoiceFilter(
-        choices=TunnelEncapsulationChoices
+        choices=TunnelEncapsulationChoices,
+        distinct=False,
     )
     ipsec_profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IPSecProfile.objects.all(),
@@ -98,7 +100,8 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         label=_('Tunnel (name)'),
     )
     role = django_filters.MultipleChoiceFilter(
-        choices=TunnelTerminationRoleChoices
+        choices=TunnelTerminationRoleChoices,
+        distinct=False,
     )
     termination_type = ContentTypeFilter()
     interface = django_filters.ModelMultipleChoiceFilter(
@@ -149,16 +152,20 @@ class IKEProposalFilterSet(PrimaryModelFilterSet):
         label=_('IKE policy (name)'),
     )
     authentication_method = django_filters.MultipleChoiceFilter(
-        choices=AuthenticationMethodChoices
+        choices=AuthenticationMethodChoices,
+        distinct=False,
     )
     encryption_algorithm = django_filters.MultipleChoiceFilter(
-        choices=EncryptionAlgorithmChoices
+        choices=EncryptionAlgorithmChoices,
+        distinct=False,
     )
     authentication_algorithm = django_filters.MultipleChoiceFilter(
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        distinct=False,
     )
     group = django_filters.MultipleChoiceFilter(
-        choices=DHGroupChoices
+        choices=DHGroupChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -178,10 +185,12 @@ class IKEProposalFilterSet(PrimaryModelFilterSet):
 @register_filterset
 class IKEPolicyFilterSet(PrimaryModelFilterSet):
     version = django_filters.MultipleChoiceFilter(
-        choices=IKEVersionChoices
+        choices=IKEVersionChoices,
+        distinct=False,
     )
     mode = django_filters.MultipleChoiceFilter(
-        choices=IKEModeChoices
+        choices=IKEModeChoices,
+        distinct=False,
     )
     ike_proposal_id = django_filters.ModelMultipleChoiceFilter(
         field_name='proposals',
@@ -221,10 +230,12 @@ class IPSecProposalFilterSet(PrimaryModelFilterSet):
         label=_('IPSec policy (name)'),
     )
     encryption_algorithm = django_filters.MultipleChoiceFilter(
-        choices=EncryptionAlgorithmChoices
+        choices=EncryptionAlgorithmChoices,
+        distinct=False,
     )
     authentication_algorithm = django_filters.MultipleChoiceFilter(
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -244,7 +255,8 @@ class IPSecProposalFilterSet(PrimaryModelFilterSet):
 @register_filterset
 class IPSecPolicyFilterSet(PrimaryModelFilterSet):
     pfs_group = django_filters.MultipleChoiceFilter(
-        choices=DHGroupChoices
+        choices=DHGroupChoices,
+        distinct=False,
     )
     ipsec_proposal_id = django_filters.ModelMultipleChoiceFilter(
         field_name='proposals',
@@ -273,7 +285,8 @@ class IPSecPolicyFilterSet(PrimaryModelFilterSet):
 @register_filterset
 class IPSecProfileFilterSet(PrimaryModelFilterSet):
     mode = django_filters.MultipleChoiceFilter(
-        choices=IPSecModeChoices
+        choices=IPSecModeChoices,
+        distinct=False,
     )
     ike_policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IKEPolicy.objects.all(),
@@ -318,10 +331,12 @@ class IPSecProfileFilterSet(PrimaryModelFilterSet):
 class L2VPNFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=L2VPNTypeChoices,
+        distinct=False,
         null_value=None
     )
     status = django_filters.MultipleChoiceFilter(
         choices=L2VPNStatusChoices,
+        distinct=False,
     )
     import_target_id = django_filters.ModelMultipleChoiceFilter(
         field_name='import_targets',

@@ -72,7 +72,8 @@ class WebhookFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         label=_('Search'),
     )
     http_method = django_filters.MultipleChoiceFilter(
-        choices=WebhookHttpMethodChoices
+        choices=WebhookHttpMethodChoices,
+        distinct=False,
     )
     payload_url = MultiValueCharFilter(
         lookup_expr='icontains'
@@ -112,7 +113,8 @@ class EventRuleFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
         method='filter_event_type'
     )
     action_type = django_filters.MultipleChoiceFilter(
-        choices=EventRuleActionChoices
+        choices=EventRuleActionChoices,
+        distinct=False,
     )
     action_object_type = ContentTypeFilter()
     action_object_id = MultiValueNumberFilter()
@@ -143,7 +145,8 @@ class CustomFieldFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
         label=_('Search'),
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=CustomFieldTypeChoices
+        choices=CustomFieldTypeChoices,
+        distinct=False,
     )
     object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.all(),
@@ -512,7 +515,8 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
         label=_('User (name)'),
     )
     kind = django_filters.MultipleChoiceFilter(
-        choices=JournalEntryKindChoices
+        choices=JournalEntryKindChoices,
+        distinct=False,
     )
 
     class Meta:

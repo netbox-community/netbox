@@ -155,6 +155,7 @@ class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
 class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
+        distinct=False,
         null_value=None
     )
     region_id = TreeNodeMultipleChoiceFilter(
@@ -283,6 +284,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
     )
     status = django_filters.MultipleChoiceFilter(
         choices=LocationStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -323,10 +325,12 @@ class RackTypeFilterSet(PrimaryModelFilterSet):
         label=_('Manufacturer (slug)'),
     )
     form_factor = django_filters.MultipleChoiceFilter(
-        choices=RackFormFactorChoices
+        choices=RackFormFactorChoices,
+        distinct=False,
     )
     width = django_filters.MultipleChoiceFilter(
-        choices=RackWidthChoices
+        choices=RackWidthChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -429,13 +433,16 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackStatusChoices,
+        distinct=False,
         null_value=None
     )
     form_factor = django_filters.MultipleChoiceFilter(
-        choices=RackFormFactorChoices
+        choices=RackFormFactorChoices,
+        distinct=False,
     )
     width = django_filters.MultipleChoiceFilter(
-        choices=RackWidthChoices
+        choices=RackWidthChoices,
+        distinct=False,
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RackRole.objects.all(),
@@ -535,6 +542,7 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackReservationStatusChoices,
+        distinct=False,
         null_value=None
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
@@ -891,6 +899,7 @@ class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
+        distinct=False,
         null_value=None
     )
     power_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -908,6 +917,7 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
+        distinct=False,
         null_value=None
     )
     bridge_id = django_filters.ModelMultipleChoiceFilter(
@@ -916,13 +926,16 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
         distinct=False,
     )
     poe_mode = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoEModeChoices
+        choices=InterfacePoEModeChoices,
+        distinct=False,
     )
     poe_type = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoETypeChoices
+        choices=InterfacePoETypeChoices,
+        distinct=False,
     )
     rf_role = django_filters.MultipleChoiceFilter(
-        choices=WirelessRoleChoices
+        choices=WirelessRoleChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -934,6 +947,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -952,6 +966,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     front_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -1288,6 +1303,7 @@ class DeviceFilterSet(
     )
     status = django_filters.MultipleChoiceFilter(
         choices=DeviceStatusChoices,
+        distinct=False,
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
@@ -1469,7 +1485,8 @@ class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, Pri
         label=_('Interface (ID)')
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VirtualDeviceContextStatusChoices
+        choices=VirtualDeviceContextStatusChoices,
+        distinct=False,
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
@@ -1614,6 +1631,7 @@ class ModuleFilterSet(PrimaryModelFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=ModuleStatusChoices,
+        distinct=False,
         null_value=None
     )
     serial = MultiValueCharFilter(
@@ -1759,6 +1777,7 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     )
     device_status = django_filters.MultipleChoiceFilter(
         choices=DeviceStatusChoices,
+        distinct=False,
         field_name='device__status',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
@@ -1835,6 +1854,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
 class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1849,6 +1869,7 @@ class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1863,6 +1884,7 @@ class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFi
 class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1878,10 +1900,12 @@ class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet,
 class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
+        distinct=False,
         null_value=None
     )
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
+        distinct=False,
         null_value=None
     )
     power_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -1891,6 +1915,7 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
     )
     status = django_filters.MultipleChoiceFilter(
         choices=PowerOutletStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -2019,6 +2044,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
 class CommonInterfaceFilterSet(django_filters.FilterSet):
     mode = django_filters.MultipleChoiceFilter(
         choices=InterfaceModeChoices,
+        distinct=False,
         label=_('802.1Q Mode')
     )
     vlan_id = django_filters.CharFilter(
@@ -2139,7 +2165,8 @@ class InterfaceFilterSet(
     )
     speed = MultiValueNumberFilter()
     duplex = django_filters.MultipleChoiceFilter(
-        choices=InterfaceDuplexChoices
+        choices=InterfaceDuplexChoices,
+        distinct=False,
     )
     mac_address = MultiValueMACAddressFilter(
         field_name='mac_addresses__mac_address',
@@ -2160,20 +2187,25 @@ class InterfaceFilterSet(
     )
     wwn = MultiValueWWNFilter()
     poe_mode = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoEModeChoices
+        choices=InterfacePoEModeChoices,
+        distinct=False,
     )
     poe_type = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoETypeChoices
+        choices=InterfacePoETypeChoices,
+        distinct=False,
     )
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
+        distinct=False,
         null_value=None
     )
     rf_role = django_filters.MultipleChoiceFilter(
-        choices=WirelessRoleChoices
+        choices=WirelessRoleChoices,
+        distinct=False,
     )
     rf_channel = django_filters.MultipleChoiceFilter(
-        choices=WirelessChannelChoices
+        choices=WirelessChannelChoices,
+        distinct=False,
     )
     vdc_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs',
@@ -2261,6 +2293,7 @@ class InterfaceFilterSet(
 class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -2282,6 +2315,7 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
 class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     front_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -2375,6 +2409,7 @@ class InventoryItemFilterSet(DeviceComponentFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=InventoryItemStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -2507,16 +2542,20 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         label=_('Unterminated'),
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=CableTypeChoices
+        choices=CableTypeChoices,
+        distinct=False,
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=LinkStatusChoices
+        choices=LinkStatusChoices,
+        distinct=False,
     )
     profile = django_filters.MultipleChoiceFilter(
-        choices=CableProfileChoices
+        choices=CableProfileChoices,
+        distinct=False,
     )
     color = django_filters.MultipleChoiceFilter(
-        choices=ColorChoices
+        choices=ColorChoices,
+        distinct=False,
     )
     device_id = MultiValueNumberFilter(
         method='filter_by_termination'
@@ -2783,6 +2822,7 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpo
     )
     status = django_filters.MultipleChoiceFilter(
         choices=PowerFeedStatusChoices,
+        distinct=False,
         null_value=None
     )
 

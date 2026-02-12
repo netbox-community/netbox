@@ -62,7 +62,8 @@ class WirelessLANFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilter
         to_field_name='slug'
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=WirelessLANStatusChoices
+        choices=WirelessLANStatusChoices,
+        distinct=False,
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
@@ -73,10 +74,12 @@ class WirelessLANFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilter
         field_name='interfaces'
     )
     auth_type = django_filters.MultipleChoiceFilter(
-        choices=WirelessAuthTypeChoices
+        choices=WirelessAuthTypeChoices,
+        distinct=False,
     )
     auth_cipher = django_filters.MultipleChoiceFilter(
-        choices=WirelessAuthCipherChoices
+        choices=WirelessAuthCipherChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -104,13 +107,16 @@ class WirelessLinkFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         distinct=False,
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=LinkStatusChoices
+        choices=LinkStatusChoices,
+        distinct=False,
     )
     auth_type = django_filters.MultipleChoiceFilter(
-        choices=WirelessAuthTypeChoices
+        choices=WirelessAuthTypeChoices,
+        distinct=False,
     )
     auth_cipher = django_filters.MultipleChoiceFilter(
-        choices=WirelessAuthCipherChoices
+        choices=WirelessAuthCipherChoices,
+        distinct=False,
     )
 
     class Meta:

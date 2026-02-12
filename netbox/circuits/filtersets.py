@@ -209,6 +209,7 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CircuitStatusChoices,
+        distinct=False,
         null_value=None
     )
     region_id = TreeNodeMultipleChoiceFilter(
@@ -550,6 +551,7 @@ class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CircuitStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -580,6 +582,7 @@ class VirtualCircuitTerminationFilterSet(NetBoxModelFilterSet):
     )
     role = django_filters.MultipleChoiceFilter(
         choices=VirtualCircuitTerminationRoleChoices,
+        distinct=False,
         null_value=None
     )
     provider_id = django_filters.ModelMultipleChoiceFilter(

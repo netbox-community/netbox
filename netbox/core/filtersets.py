@@ -25,14 +25,17 @@ __all__ = (
 class DataSourceFilterSet(PrimaryModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=get_data_backend_choices,
+        distinct=False,
         null_value=None
     )
     status = django_filters.MultipleChoiceFilter(
         choices=DataSourceStatusChoices,
+        distinct=False,
         null_value=None
     )
     sync_interval = django_filters.MultipleChoiceFilter(
         choices=JobIntervalChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -130,6 +133,7 @@ class JobFilterSet(BaseFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=JobStatusChoices,
+        distinct=False,
         null_value=None
     )
     queue_name = django_filters.CharFilter()

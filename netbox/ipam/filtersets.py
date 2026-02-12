@@ -406,6 +406,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     )
     status = django_filters.MultipleChoiceFilter(
         choices=PrefixStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -523,6 +524,7 @@ class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPRangeStatusChoices,
+        distinct=False,
         null_value=None
     )
     parent = MultiValueCharFilter(
@@ -684,10 +686,12 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPAddressStatusChoices,
+        distinct=False,
         null_value=None
     )
     role = django_filters.MultipleChoiceFilter(
-        choices=IPAddressRoleChoices
+        choices=IPAddressRoleChoices,
+        distinct=False,
     )
     service_id = django_filters.ModelMultipleChoiceFilter(
         field_name='services',
@@ -819,10 +823,12 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
 @register_filterset
 class FHRPGroupFilterSet(PrimaryModelFilterSet):
     protocol = django_filters.MultipleChoiceFilter(
-        choices=FHRPGroupProtocolChoices
+        choices=FHRPGroupProtocolChoices,
+        distinct=False,
     )
     auth_type = django_filters.MultipleChoiceFilter(
-        choices=FHRPGroupAuthTypeChoices
+        choices=FHRPGroupAuthTypeChoices,
+        distinct=False,
     )
     related_ip = django_filters.ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
@@ -1036,6 +1042,7 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=VLANStatusChoices,
+        distinct=False,
         null_value=None
     )
     available_at_site = django_filters.ModelChoiceFilter(
@@ -1051,7 +1058,8 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         method='get_for_virtualmachine'
     )
     qinq_role = django_filters.MultipleChoiceFilter(
-        choices=VLANQinQRoleChoices
+        choices=VLANQinQRoleChoices,
+        distinct=False,
     )
     qinq_svlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),

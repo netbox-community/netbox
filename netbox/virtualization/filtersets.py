@@ -71,6 +71,7 @@ class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ScopedFilterSet,
     )
     status = django_filters.MultipleChoiceFilter(
         choices=ClusterStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -98,10 +99,12 @@ class VirtualMachineFilterSet(
 ):
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
+        distinct=False,
         null_value=None
     )
     start_on_boot = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStartOnBootChoices,
+        distinct=False,
         null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
