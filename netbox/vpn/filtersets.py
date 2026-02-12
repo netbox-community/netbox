@@ -42,11 +42,13 @@ class TunnelFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilte
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TunnelGroup.objects.all(),
+        distinct=False,
         label=_('Tunnel group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__slug',
         queryset=TunnelGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Tunnel group (slug)'),
     )
@@ -55,11 +57,13 @@ class TunnelFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilte
     )
     ipsec_profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IPSecProfile.objects.all(),
+        distinct=False,
         label=_('IPSec profile (ID)'),
     )
     ipsec_profile = django_filters.ModelMultipleChoiceFilter(
         field_name='ipsec_profile__name',
         queryset=IPSecProfile.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('IPSec profile (name)'),
     )
@@ -83,11 +87,13 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     tunnel_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tunnel',
         queryset=Tunnel.objects.all(),
+        distinct=False,
         label=_('Tunnel (ID)'),
     )
     tunnel = django_filters.ModelMultipleChoiceFilter(
         field_name='tunnel__name',
         queryset=Tunnel.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Tunnel (name)'),
     )
@@ -120,6 +126,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     outside_ip_id = django_filters.ModelMultipleChoiceFilter(
         field_name='outside_ip',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         label=_('Outside IP (ID)'),
     )
 
@@ -270,21 +277,25 @@ class IPSecProfileFilterSet(PrimaryModelFilterSet):
     )
     ike_policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IKEPolicy.objects.all(),
+        distinct=False,
         label=_('IKE policy (ID)'),
     )
     ike_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ike_policy__name',
         queryset=IKEPolicy.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('IKE policy (name)'),
     )
     ipsec_policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IPSecPolicy.objects.all(),
+        distinct=False,
         label=_('IPSec policy (ID)'),
     )
     ipsec_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ipsec_policy__name',
         queryset=IPSecPolicy.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('IPSec policy (name)'),
     )
@@ -354,11 +365,13 @@ class L2VPNFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilter
 class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
     l2vpn_id = django_filters.ModelMultipleChoiceFilter(
         queryset=L2VPN.objects.all(),
+        distinct=False,
         label=_('L2VPN (ID)'),
     )
     l2vpn = django_filters.ModelMultipleChoiceFilter(
         field_name='l2vpn__slug',
         queryset=L2VPN.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('L2VPN (slug)'),
     )
@@ -443,6 +456,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
     )
     assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.all(),
+        distinct=False,
         field_name='assigned_object_type'
     )
     assigned_object_type = ContentTypeFilter()

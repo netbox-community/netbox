@@ -43,12 +43,14 @@ class ScopedFilterSet(BaseFilterSet):
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         field_name='_site',
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='_site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )

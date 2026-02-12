@@ -57,11 +57,13 @@ class DataFileFilterSet(ChangeLoggedModelFilterSet):
     )
     source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data source (ID)'),
     )
     source = django_filters.ModelMultipleChoiceFilter(
         field_name='source__name',
         queryset=DataSource.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Data source (name)'),
     )
@@ -86,6 +88,7 @@ class JobFilterSet(BaseFilterSet):
     )
     object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.with_feature('jobs'),
+        distinct=False,
         field_name='object_type_id',
     )
     object_type = ContentTypeFilter()
@@ -182,16 +185,19 @@ class ObjectChangeFilterSet(BaseFilterSet):
     time = django_filters.DateTimeFromToRangeFilter()
     changed_object_type = ContentTypeFilter()
     changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=ContentType.objects.all()
+        queryset=ContentType.objects.all(),
+        distinct=False,
     )
     related_object_type = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User name'),
     )

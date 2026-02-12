@@ -22,11 +22,13 @@ __all__ = (
 @register_filterset
 class WirelessLANGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=WirelessLANGroup.objects.all()
+        queryset=WirelessLANGroup.objects.all(),
+        distinct=False,
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=WirelessLANGroup.objects.all(),
+        distinct=False,
         to_field_name='slug'
     )
     ancestor_id = TreeNodeMultipleChoiceFilter(
@@ -63,7 +65,8 @@ class WirelessLANFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilter
         choices=WirelessLANStatusChoices
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=VLAN.objects.all()
+        queryset=VLAN.objects.all(),
+        distinct=False,
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Interface.objects.all(),
@@ -93,10 +96,12 @@ class WirelessLANFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilter
 @register_filterset
 class WirelessLinkFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     interface_a_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Interface.objects.all()
+        queryset=Interface.objects.all(),
+        distinct=False,
     )
     interface_b_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Interface.objects.all()
+        queryset=Interface.objects.all(),
+        distinct=False,
     )
     status = django_filters.MultipleChoiceFilter(
         choices=LinkStatusChoices

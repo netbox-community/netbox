@@ -49,6 +49,7 @@ class ScriptFilterSet(BaseFilterSet):
     )
     module_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ScriptModule.objects.all(),
+        distinct=False,
         label=_('Script module (ID)'),
     )
 
@@ -153,15 +154,18 @@ class CustomFieldFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     )
     related_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.all(),
+        distinct=False,
         field_name='related_object_type'
     )
     related_object_type = ContentTypeFilter()
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=CustomFieldChoiceSet.objects.all()
+        queryset=CustomFieldChoiceSet.objects.all(),
+        distinct=False,
     )
     choice_set = django_filters.ModelMultipleChoiceFilter(
         field_name='choice_set__name',
         queryset=CustomFieldChoiceSet.objects.all(),
+        distinct=False,
         to_field_name='name'
     )
 
@@ -260,10 +264,12 @@ class ExportTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data file (ID)'),
     )
 
@@ -299,11 +305,13 @@ class SavedFilterFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -345,6 +353,7 @@ class TableConfigFilterSet(ChangeLoggedModelFilterSet):
     )
     object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.all(),
+        distinct=False,
         field_name='object_type'
     )
     object_type = ContentTypeFilter(
@@ -352,11 +361,13 @@ class TableConfigFilterSet(ChangeLoggedModelFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -398,11 +409,13 @@ class BookmarkFilterSet(BaseFilterSet):
     object_type = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -483,15 +496,18 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
     created = django_filters.DateTimeFromToRangeFilter()
     assigned_object_type = ContentTypeFilter()
     assigned_object_type_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=ContentType.objects.all()
+        queryset=ContentType.objects.all(),
+        distinct=False,
     )
     created_by_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     created_by = django_filters.ModelMultipleChoiceFilter(
         field_name='created_by__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -581,14 +597,17 @@ class TaggedItemFilterSet(BaseFilterSet):
     )
     object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContentType.objects.all(),
+        distinct=False,
         field_name='content_type_id'
     )
     tag_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=Tag.objects.all()
+        queryset=Tag.objects.all(),
+        distinct=False,
     )
     tag = django_filters.ModelMultipleChoiceFilter(
         field_name='tag__slug',
         queryset=Tag.objects.all(),
+        distinct=False,
         to_field_name='slug',
     )
 
@@ -614,10 +633,12 @@ class ConfigContextProfileFilterSet(PrimaryModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data file (ID)'),
     )
 
@@ -645,11 +666,13 @@ class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     )
     profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigContextProfile.objects.all(),
+        distinct=False,
         label=_('Profile (ID)'),
     )
     profile = django_filters.ModelMultipleChoiceFilter(
         field_name='profile__name',
         queryset=ConfigContextProfile.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Profile (name)'),
     )
@@ -786,10 +809,12 @@ class ConfigContextFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data file (ID)'),
     )
 
@@ -815,10 +840,12 @@ class ConfigTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data file (ID)'),
     )
     tag = TagFilter()
