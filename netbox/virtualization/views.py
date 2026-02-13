@@ -320,6 +320,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
 
                 # Assign the selected Devices to the Cluster
                 for device in Device.objects.filter(pk__in=device_pks):
+                    device.snapshot()
                     device.cluster = cluster
                     device.save()
 
