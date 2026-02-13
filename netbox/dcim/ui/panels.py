@@ -137,6 +137,12 @@ class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
     total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
 
 
+class DeviceRolePanel(panels.NestedGroupObjectPanel):
+    color = attrs.ColorAttr('color')
+    vm_role = attrs.BooleanAttr('vm_role', label=_('VM role'))
+    config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
+
+
 class DeviceTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
@@ -153,9 +159,34 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     rear_image = attrs.ImageAttr('rear_image')
 
 
+class ModulePanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    device_type = attrs.RelatedObjectAttr('device.device_type', linkify=True, grouped_by='manufacturer')
+    module_bay = attrs.NestedObjectAttr('module_bay')
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
+    asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
+
+
 class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
+
+
+class ModuleTypePanel(panels.ObjectAttributesPanel):
+    profile = attrs.RelatedObjectAttr('profile', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    model = attrs.TextAttr('name')
+    part_number = attrs.TextAttr('part_number')
+    description = attrs.TextAttr('description')
+    airflow = attrs.ChoiceAttr('airflow')
+    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
+
+
+class PlatformPanel(panels.NestedGroupObjectPanel):
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
 
 
 class VirtualChassisMembersPanel(panels.ObjectPanel):
