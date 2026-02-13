@@ -13,10 +13,11 @@ def set_vid_ranges(apps, schema_editor):
     VLANGroup = apps.get_model('ipam', 'VLANGroup')
     db_alias = schema_editor.connection.alias
 
-    for group in VLANGroup.objects.using(db_alias).all():
+    vlan_groups = VLANGroup.objects.using(db_alias).only('id', 'min_vid', 'max_vid')
+    for group in vlan_groups:
         group.vid_ranges = [NumericRange(group.min_vid, group.max_vid, bounds='[]')]
         group._total_vlan_ids = group.max_vid - group.min_vid + 1
-        group.save()
+    VLANGroup.objects.using(db_alias).bulk_update(vlan_groups, ['vid_ranges', '_total_vlan_ids'], batch_size=100)
 
 
 class Migration(migrations.Migration):
