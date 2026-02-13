@@ -268,9 +268,9 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_termination_type(self):
-        params = {'termination_type': 'dcim.interface'}
+        params = {'termination_type': ['dcim.interface']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {'termination_type': 'virtualization.vminterface'}
+        params = {'termination_type': ['virtualization.vminterface']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_interface(self):
@@ -902,7 +902,7 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_termination_type(self):
-        params = {'assigned_object_type': 'ipam.vlan'}
+        params = {'assigned_object_type': ['ipam.vlan']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_interface(self):

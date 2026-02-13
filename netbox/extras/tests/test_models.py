@@ -17,7 +17,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 class ImageAttachmentTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.ct_rack = ContentType.objects.get(app_label='dcim', model='rack')
+        cls.ct_rack = ContentType.objects.get_by_natural_key('dcim', 'rack')
         cls.image_content = b''
 
     def _stub_image_attachment(self, object_id, image_filename, name=None):

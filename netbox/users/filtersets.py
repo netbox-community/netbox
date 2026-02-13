@@ -6,7 +6,7 @@ from core.models import ObjectType
 from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
-from utilities.filters import ContentTypeFilter
+from utilities.filters import MultiValueContentTypeFilter
 from utilities.filtersets import register_filterset
 
 __all__ = (
@@ -194,7 +194,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
     can_view = django_filters.BooleanFilter(

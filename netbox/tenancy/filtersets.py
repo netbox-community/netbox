@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from netbox.filtersets import (
     NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
-from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 from utilities.filtersets import register_filterset
 from .models import *
 
@@ -110,7 +110,7 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type = ContentTypeFilter()
+    object_type = MultiValueContentTypeFilter()
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
         label=_('Contact (ID)'),

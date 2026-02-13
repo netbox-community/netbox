@@ -6251,7 +6251,7 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_component_type(self):
-        params = {'component_type': 'dcim.interface'}
+        params = {'component_type': ['dcim.interface']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_status(self):
@@ -6723,10 +6723,8 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_termination_types(self):
-        params = {'termination_a_type': 'dcim.consoleport'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        # params = {'termination_b_type': 'dcim.consoleserverport'}
-        # self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'termination_a_type': ['dcim.consoleport', 'dcim.consoleserverport']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_termination_ids(self):
         interface_ids = CableTermination.objects.filter(
@@ -6734,7 +6732,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
             cable_end='A'
         ).values_list('termination_id', flat=True)
         params = {
-            'termination_a_type': 'dcim.interface',
+            'termination_a_type': ['dcim.interface'],
             'termination_a_id': list(interface_ids),
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)

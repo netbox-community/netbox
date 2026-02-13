@@ -1572,12 +1572,12 @@ class FHRPGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_interface_type(self):
-        params = {'interface_type': 'dcim.interface'}
+        params = {'interface_type': ['dcim.interface']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_interface(self):
         interfaces = Interface.objects.all()[:2]
-        params = {'interface_type': 'dcim.interface', 'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        params = {'interface_type': ['dcim.interface'], 'interface_id': [interfaces[0].pk, interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_priority(self):

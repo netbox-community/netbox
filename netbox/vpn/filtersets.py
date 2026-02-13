@@ -7,7 +7,7 @@ from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
-from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
+from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
@@ -94,7 +94,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=TunnelTerminationRoleChoices
     )
-    termination_type = ContentTypeFilter()
+    termination_type = MultiValueContentTypeFilter()
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
@@ -445,7 +445,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='assigned_object_type'
     )
-    assigned_object_type = ContentTypeFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
 
     class Meta:
         model = L2VPNTermination

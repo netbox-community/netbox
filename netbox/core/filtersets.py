@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, PrimaryModelFilterSet
 from netbox.utils import get_data_backend_choices
 from users.models import User
-from utilities.filters import ContentTypeFilter
+from utilities.filters import MultiValueContentTypeFilter
 from utilities.filtersets import register_filterset
 from .choices import *
 from .models import *
@@ -88,7 +88,7 @@ class JobFilterSet(BaseFilterSet):
         queryset=ObjectType.objects.with_feature('jobs'),
         field_name='object_type_id',
     )
-    object_type = ContentTypeFilter()
+    object_type = MultiValueContentTypeFilter()
     created = django_filters.DateTimeFilter()
     created__before = django_filters.DateTimeFilter(
         field_name='created',
@@ -180,11 +180,11 @@ class ObjectChangeFilterSet(BaseFilterSet):
         label=_('Search'),
     )
     time = django_filters.DateTimeFromToRangeFilter()
-    changed_object_type = ContentTypeFilter()
+    changed_object_type = MultiValueContentTypeFilter()
     changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContentType.objects.all()
     )
-    related_object_type = ContentTypeFilter()
+    related_object_type = MultiValueContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
         label=_('User (ID)'),

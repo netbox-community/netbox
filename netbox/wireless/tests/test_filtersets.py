@@ -305,7 +305,7 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_scope_type(self):
-        params = {'scope_type': 'dcim.location'}
+        params = {'scope_type': ['dcim.location']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
