@@ -2806,7 +2806,6 @@ class LegacyCablePathTests(CablePathTestCase):
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
 
-        # Create cables 1
         cable1 = Cable(
             a_terminations=[interface1],
             b_terminations=[interface2, interface3]
@@ -2837,6 +2836,10 @@ class LegacyCablePathTests(CablePathTestCase):
             is_complete=True,
             is_active=True
         )
+
+        # Verify _path is cleared on removed interface (#21127)
+        interface3.refresh_from_db()
+        self.assertPathIsNotSet(interface3)
 
     def test_401_exclude_midspan_devices(self):
         """

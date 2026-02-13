@@ -657,6 +657,16 @@ class CablePath(models.Model):
         origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
         origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
 
+    def delete(self, *args, **kwargs):
+        # Mirror save() - clear _path on origins to prevent stale references
+        # in table views that render _path.destinations
+        if self.path:
+            origin_model = self.origin_type.model_class()
+            origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
+            origin_model.objects.filter(pk__in=origin_ids, _path=self.pk).update(_path=None)
+
+        super().delete(*args, **kwargs)
+
     @property
     def origin_type(self):
         if self.path:
