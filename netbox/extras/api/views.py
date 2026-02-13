@@ -1,16 +1,16 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiExample
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ModelViewSet
 from rq import Worker
 
 from extras import filtersets
@@ -264,57 +264,10 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 #
 
 @extend_schema_view(
-    create=extend_schema(exclude=True),  # Hide POST from list endpoint in Swagger
-    update=extend_schema(
-        request=serializers.ScriptInputSerializer,
-        examples=[
-            OpenApiExample(
-                'Script with no variables',
-                value={'data': {}, 'commit': True},
-                request_only=True,
-            ),
-            OpenApiExample(
-                'Script with variables',
-                value={
-                    'data': {
-                        'variable_name': 'example_value',
-                        'another_variable': 123
-                    },
-                    'commit': True
-                },
-                request_only=True,
-            ),
-        ]
-    ),
-    partial_update=extend_schema(
-        request=serializers.ScriptInputSerializer,
-        examples=[
-            OpenApiExample(
-                'Script with no variables',
-                value={'data': {}, 'commit': True},
-                request_only=True,
-            ),
-            OpenApiExample(
-                'Script with variables',
-                value={
-                    'data': {
-                        'variable_name': 'example_value',
-                        'another_variable': 123
-                    },
-                    'commit': True
-                },
-                request_only=True,
-            ),
-        ]
-    ),
+    update=extend_schema(request=serializers.ScriptInputSerializer),
+    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
 )
-class ScriptViewSet(
-    ListModelMixin,
-    RetrieveModelMixin,
-    UpdateModelMixin,
-    DestroyModelMixin,
-    GenericViewSet
-):
+class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()
     serializer_class = serializers.ScriptSerializer
@@ -350,28 +303,6 @@ class ScriptViewSet(
 
         return Response(serializer.data)
 
-    @extend_schema(
-        request=serializers.ScriptInputSerializer,
-        responses={200: serializers.ScriptDetailSerializer},
-        examples=[
-            OpenApiExample(
-                'Script with no variables',
-                value={'data': {}, 'commit': True},
-                request_only=True,
-            ),
-            OpenApiExample(
-                'Script with variables',
-                value={
-                    'data': {
-                        'variable_name': 'example_value',
-                        'another_variable': 123
-                    },
-                    'commit': True
-                },
-                request_only=True,
-            ),
-        ]
-    )
     def post(self, request, pk):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
