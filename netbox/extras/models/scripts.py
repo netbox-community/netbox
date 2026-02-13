@@ -178,9 +178,11 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
                 name=name,
                 is_executable=True,
             )
+    sync_classes.alters_data = True
 
     def sync_data(self):
         super().sync_data()
+    sync_data.alters_data = True
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
