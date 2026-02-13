@@ -131,11 +131,13 @@ class TokenFilterSet(BaseFilterSet):
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -280,11 +282,13 @@ class OwnerFilterSet(BaseFilterSet):
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=OwnerGroup.objects.all(),
+        distinct=False,
         label=_('Group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__name',
         queryset=OwnerGroup.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Group (name)'),
     )

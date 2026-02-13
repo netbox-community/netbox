@@ -25,14 +25,17 @@ __all__ = (
 class DataSourceFilterSet(PrimaryModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=get_data_backend_choices,
+        distinct=False,
         null_value=None
     )
     status = django_filters.MultipleChoiceFilter(
         choices=DataSourceStatusChoices,
+        distinct=False,
         null_value=None
     )
     sync_interval = django_filters.MultipleChoiceFilter(
         choices=JobIntervalChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -57,11 +60,13 @@ class DataFileFilterSet(ChangeLoggedModelFilterSet):
     )
     source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
+        distinct=False,
         label=_('Data source (ID)'),
     )
     source = django_filters.ModelMultipleChoiceFilter(
         field_name='source__name',
         queryset=DataSource.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Data source (name)'),
     )
@@ -86,6 +91,7 @@ class JobFilterSet(BaseFilterSet):
     )
     object_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ObjectType.objects.with_feature('jobs'),
+        distinct=False,
         field_name='object_type_id',
     )
     object_type = MultiValueContentTypeFilter()
@@ -127,6 +133,7 @@ class JobFilterSet(BaseFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=JobStatusChoices,
+        distinct=False,
         null_value=None
     )
     queue_name = django_filters.CharFilter()
@@ -182,16 +189,19 @@ class ObjectChangeFilterSet(BaseFilterSet):
     time = django_filters.DateTimeFromToRangeFilter()
     changed_object_type = MultiValueContentTypeFilter()
     changed_object_type_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=ContentType.objects.all()
+        queryset=ContentType.objects.all(),
+        distinct=False,
     )
     related_object_type = MultiValueContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User name'),
     )

@@ -49,26 +49,31 @@ class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
 class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ScopedFilterSet, ContactModelFilterSet):
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterGroup.objects.all(),
+        distinct=False,
         label=_('Parent group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__slug',
         queryset=ClusterGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent group (slug)'),
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterType.objects.all(),
+        distinct=False,
         label=_('Cluster type (ID)'),
     )
     type = django_filters.ModelMultipleChoiceFilter(
         field_name='type__slug',
         queryset=ClusterType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Cluster type (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=ClusterStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -96,51 +101,61 @@ class VirtualMachineFilterSet(
 ):
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
+        distinct=False,
         null_value=None
     )
     start_on_boot = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStartOnBootChoices,
+        distinct=False,
         null_value=None
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group',
         queryset=ClusterGroup.objects.all(),
+        distinct=False,
         label=_('Cluster group (ID)'),
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group__slug',
         queryset=ClusterGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Cluster group (slug)'),
     )
     cluster_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type',
         queryset=ClusterType.objects.all(),
+        distinct=False,
         label=_('Cluster type (ID)'),
     )
     cluster_type = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type__slug',
         queryset=ClusterType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Cluster type (slug)'),
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
+        distinct=False,
         label=_('Cluster (ID)'),
     )
     cluster = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__name',
         queryset=Cluster.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Cluster'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('Device (ID)'),
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Device'),
     )
@@ -172,11 +187,13 @@ class VirtualMachineFilterSet(
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )
@@ -218,6 +235,7 @@ class VirtualMachineFilterSet(
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
+        distinct=False,
         label=_('Config template (ID)'),
     )
 
@@ -260,33 +278,39 @@ class VMInterfaceFilterSet(CommonInterfaceFilterSet, OwnerFilterMixin, NetBoxMod
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__cluster',
         queryset=Cluster.objects.all(),
+        distinct=False,
         label=_('Cluster (ID)'),
     )
     cluster = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__cluster__name',
         queryset=Cluster.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Cluster'),
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),
+        distinct=False,
         label=_('Virtual machine (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Virtual machine'),
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         field_name='parent',
         queryset=VMInterface.objects.all(),
+        distinct=False,
         label=_('Parent interface (ID)'),
     )
     bridge_id = django_filters.ModelMultipleChoiceFilter(
         field_name='bridge',
         queryset=VMInterface.objects.all(),
+        distinct=False,
         label=_('Bridged interface (ID)'),
     )
     mac_address = MultiValueMACAddressFilter(
@@ -296,11 +320,13 @@ class VMInterfaceFilterSet(CommonInterfaceFilterSet, OwnerFilterMixin, NetBoxMod
     primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_mac_address',
         queryset=MACAddress.objects.all(),
+        distinct=False,
         label=_('Primary MAC address (ID)'),
     )
     primary_mac_address = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_mac_address__mac_address',
         queryset=MACAddress.objects.all(),
+        distinct=False,
         to_field_name='mac_address',
         label=_('Primary MAC address'),
     )
@@ -323,11 +349,13 @@ class VirtualDiskFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),
+        distinct=False,
         label=_('Virtual machine (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Virtual machine'),
     )
