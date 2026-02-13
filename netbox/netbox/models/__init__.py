@@ -143,6 +143,10 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
+
+    Note: django-mptt injects the (tree_id, lft) index dynamically, but Django's migration autodetector won't
+    detect it unless concrete subclasses explicitly declare Meta.indexes (even as an empty tuple). See #21016
+    and django-mptt/django-mptt#682.
     """
     parent = TreeForeignKey(
         to='self',

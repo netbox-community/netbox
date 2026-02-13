@@ -5,7 +5,7 @@ django-debug-toolbar==6.2.0
 django-filter==25.2
 django-graphiql-debug-toolbar==0.2.0
 django-htmx==1.27.0
-django-mptt==0.17.0
+django-mptt==0.18.0
 django-pglocks==1.0.4
 django-prometheus==2.4.1
 django-redis==6.0.0
