@@ -1,6 +1,8 @@
 import django_filters
+import netaddr
 from django.db.models import Q
 from django.utils.translation import gettext as _
+from netaddr.core import AddrFormatError
 
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.filtersets import CommonInterfaceFilterSet
@@ -229,14 +231,22 @@ class VirtualMachineFilterSet(
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
+        qs_filter = Q(
             Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(comments__icontains=value) |
-            Q(primary_ip4__address__startswith=value) |
-            Q(primary_ip6__address__startswith=value) |
             Q(serial__icontains=value)
         )
+        # If the given value looks like an IP address, look for primary IPv4/IPv6 assignments
+        try:
+            ipaddress = netaddr.IPNetwork(value)
+            if ipaddress.version == 4:
+                qs_filter |= Q(primary_ip4__address__host__inet=ipaddress.ip)
+            elif ipaddress.version == 6:
+                qs_filter |= Q(primary_ip6__address__host__inet=ipaddress.ip)
+        except (AddrFormatError, ValueError):
+            pass
+        return queryset.filter(qs_filter)
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
