@@ -16,9 +16,26 @@ Note that device bays and module bays may _not_ be added to modules.
 
 ## Automatic Component Renaming
 
-When adding component templates to a module type, the string `{module}` can be used to reference the `position` field of the module bay into which an instance of the module type is being installed.
+When adding component templates to a module type, placeholders can be used in the template name and label to dynamically incorporate module bay position values. Two placeholders are available:
 
-For example, you can create a module type with interface templates named `Gi{module}/0/[1-48]`. When a new module of this type is "installed" to a module bay with a position of "3", NetBox will automatically name these interfaces `Gi3/0/[1-48]`.
+### `{module}`
+
+Each `{module}` token is replaced with a position value from the module bay tree, level by level. The number of `{module}` tokens must match the nesting depth.
+
+For example, a module type with interface templates named `Gi{module}/0/[1-48]`, installed in a module bay with position "3", will create interfaces named `Gi3/0/[1-48]`.
+
+### `{module_path}`
+
+The `{module_path}` placeholder expands to the full path from the root device to the current module, with positions joined by `/`. This is useful for modules that can be installed at any nesting depth without modification.
+
+For example, an SFP module type with an interface template named `eth{module_path}`:
+
+* Installed directly in slot 2: creates interface `eth2`
+* Installed in slot 1's nested bay 1: creates interface `eth1/1`
+* Installed in slot 1's nested bay 2's sub-bay 3: creates interface `eth1/2/3`
+
+!!! note
+    `{module_path}` can only be used once per template attribute, and cannot be mixed with `{module}` in the same attribute.
 
 Automatic renaming is supported for all modular component types (those listed above).
 
