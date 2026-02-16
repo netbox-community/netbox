@@ -165,12 +165,12 @@ class ContentTypeFilter(django_filters.CharFilter):
 
         try:
             app_label, model = value.lower().split('.')
-        except ValueError:
+            content_type = ContentType.objects.get_by_natural_key(app_label, model)
+        except (ValueError, ContentType.DoesNotExist):
             return qs.none()
         return qs.filter(
             **{
-                f'{self.field_name}__app_label': app_label,
-                f'{self.field_name}__model': model
+                f'{self.field_name}': content_type,
             }
         )
 
