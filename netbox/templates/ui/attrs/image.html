@@ -1,3 +1,3 @@
 <a href="{{ value.url }}">
-  <img src="{{ value.url }}" alt="{{ value.name }}" class="img-fluid" />
+  <img src="{{ value.url }}" alt="{{ value.name }}" class="img-fluid" {% if load_lazy %}loading="lazy" {% endif %} {% if decoding %}decoding="{{ decoding }}" {% endif %}/>
 </a>
