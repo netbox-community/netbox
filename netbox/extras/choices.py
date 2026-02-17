@@ -5,10 +5,10 @@ from django.utils.translation import gettext_lazy as _
 from netbox.choices import ButtonColorChoices
 from utilities.choices import ChoiceSet
 
-
 #
 # CustomFields
 #
+
 
 class CustomFieldTypeChoices(ChoiceSet):
 

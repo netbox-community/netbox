@@ -4,7 +4,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import (
-    CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices, VirtualCircuitTerminationRoleChoices,
+    CircuitCommitRateChoices,
+    CircuitPriorityChoices,
+    CircuitStatusChoices,
+    VirtualCircuitTerminationRoleChoices,
 )
 from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import *
@@ -15,7 +18,10 @@ from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditFor
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
-    ColorField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField,
+    ColorField,
+    ContentTypeChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, HTMXSelect, NumberWithOptions

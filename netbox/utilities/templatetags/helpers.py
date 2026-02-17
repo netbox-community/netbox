@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 from urllib.parse import quote
 
 from django import template
@@ -8,10 +8,10 @@ from django.utils.html import conditional_escape
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
-from utilities.forms import get_selected_values, TableConfigForm
-from utilities.forms.mixins import FORM_FIELD_LOOKUPS
-from utilities.views import get_viewname, get_action_url
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
+from utilities.forms import TableConfigForm, get_selected_values
+from utilities.forms.mixins import FORM_FIELD_LOOKUPS
+from utilities.views import get_action_url, get_viewname
 
 __all__ = (
     'action_url',

@@ -8,10 +8,29 @@ from dcim.choices import CableEndChoices, LinkStatusChoices
 from ipam.models import Prefix
 from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN
+
 from .models import (
-    Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
-    InventoryItem, Location, ModuleBay, PathEndpoint, PortMapping, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort,
-    Site, VirtualChassis,
+    Cable,
+    CablePath,
+    CableTermination,
+    ConsolePort,
+    ConsoleServerPort,
+    Device,
+    DeviceBay,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    Location,
+    ModuleBay,
+    PathEndpoint,
+    PortMapping,
+    PowerOutlet,
+    PowerPanel,
+    PowerPort,
+    Rack,
+    RearPort,
+    Site,
+    VirtualChassis,
 )
 from .models.cables import trace_paths
 from .utils import create_cablepaths, rebuild_paths

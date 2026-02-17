@@ -1,4 +1,4 @@
-from typing import Annotated, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, List
 
 import strawberry
 import strawberry_django
@@ -8,6 +8,7 @@ from extras import models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, ContentTypeType, ObjectType, PrimaryObjectType
 from users.graphql.mixins import OwnerMixin
+
 from .filters import *
 
 if TYPE_CHECKING:

@@ -10,6 +10,7 @@ from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
+
 from .nested import NestedVLANSerializer
 from .roles import RoleSerializer
 

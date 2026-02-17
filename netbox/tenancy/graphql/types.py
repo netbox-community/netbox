@@ -1,11 +1,12 @@
-from typing import Annotated, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated, List
 
 import strawberry
 import strawberry_django
 
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
+from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, NestedGroupObjectType, OrganizationalObjectType, PrimaryObjectType
 from tenancy import models
+
 from .filters import *
 from .mixins import ContactAssignmentsMixin
 
@@ -16,15 +17,15 @@ if TYPE_CHECKING:
         DeviceType,
         LocationType,
         PowerFeedType,
-        RackType,
         RackReservationType,
+        RackType,
         SiteType,
         VirtualDeviceContextType,
     )
     from ipam.graphql.types import (
         AggregateType,
-        ASNType,
         ASNRangeType,
+        ASNType,
         IPAddressType,
         IPRangeType,
         PrefixType,
@@ -33,9 +34,9 @@ if TYPE_CHECKING:
         VRFType,
     )
     from netbox.graphql.types import ContentTypeType
-    from wireless.graphql.types import WirelessLANType, WirelessLinkType
     from virtualization.graphql.types import ClusterType, VirtualMachineType
     from vpn.graphql.types import L2VPNType, TunnelType
+    from wireless.graphql.types import WirelessLANType, WirelessLinkType
 
 __all__ = (
     'ContactAssignmentType',

@@ -6,6 +6,7 @@ from extras.choices import *
 from extras.models import Tag
 from utilities.forms import BulkEditForm
 from utilities.forms.fields import CommentField, DynamicModelMultipleChoiceField
+
 from .mixins import ChangelogMessageMixin, CustomFieldsMixin, OwnerMixin
 
 __all__ = (

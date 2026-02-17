@@ -8,6 +8,7 @@ from netbox.utils import get_data_backend_choices
 from users.models import User
 from utilities.filters import MultiValueContentTypeFilter
 from utilities.filtersets import register_filterset
+
 from .choices import *
 from .models import *
 

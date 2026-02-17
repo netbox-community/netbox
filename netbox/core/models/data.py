@@ -19,6 +19,7 @@ from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
 from utilities.querysets import RestrictedQuerySet
+
 from ..choices import *
 from ..exceptions import SyncError
 

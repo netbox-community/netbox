@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Location, Region, Site, SiteGroup
 from netbox.tables import NestedGroupModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from .template_code import LOCATION_BUTTONS
 
 __all__ = (

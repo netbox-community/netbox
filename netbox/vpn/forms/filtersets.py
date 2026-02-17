@@ -3,11 +3,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Region, Site
-from ipam.models import RouteTarget, VLAN
+from ipam.models import VLAN, RouteTarget
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
+    ContentTypeMultipleChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import add_blank_choice

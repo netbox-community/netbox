@@ -1,8 +1,9 @@
 import django_filters
-
 from django.utils.translation import gettext as _
+
 from netbox.filtersets import BaseFilterSet
 from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
+
 from .models import *
 
 __all__ = (

@@ -1,8 +1,8 @@
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
-from netbox.api.serializers import WritableNestedSerializer
 from dcim import models
+from netbox.api.serializers import WritableNestedSerializer
 
 __all__ = (
     'NestedDeviceBaySerializer',

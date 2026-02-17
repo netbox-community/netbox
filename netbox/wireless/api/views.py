@@ -1,8 +1,9 @@
 from rest_framework.routers import APIRootView
 
-from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
+from netbox.api.viewsets import MPTTLockedMixin, NetBoxModelViewSet
 from wireless import filtersets
 from wireless.models import *
+
 from . import serializers
 
 

@@ -4,10 +4,14 @@ from rest_framework import serializers
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
-    NestedGroupModelSerializer, NetBoxModelSerializer, OrganizationalModelSerializer, PrimaryModelSerializer,
+    NestedGroupModelSerializer,
+    NetBoxModelSerializer,
+    OrganizationalModelSerializer,
+    PrimaryModelSerializer,
 )
 from tenancy.choices import ContactPriorityChoices
-from tenancy.models import ContactAssignment, Contact, ContactGroup, ContactRole
+from tenancy.models import Contact, ContactAssignment, ContactGroup, ContactRole
+
 from .nested import NestedContactGroupSerializer
 
 __all__ = (

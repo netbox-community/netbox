@@ -10,25 +10,36 @@ from circuits.models import CircuitTermination, VirtualCircuit, VirtualCircuitTe
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
+from ipam.models import ASN, VRF, IPAddress, VLANTranslationPolicy
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
-    AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
-    OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
+    AttributeFiltersMixin,
+    BaseFilterSet,
+    ChangeLoggedModelFilterSet,
+    NestedGroupModelFilterSet,
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
+    PrimaryModelFilterSet,
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueMACAddressFilter, MultiValueNumberFilter,
-    MultiValueWWNFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    MultiValueMACAddressFilter,
+    MultiValueNumberFilter,
+    MultiValueWWNFilter,
+    NumericArrayFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLAN, WirelessLink
+
 from .choices import *
 from .constants import *
 from .models import *

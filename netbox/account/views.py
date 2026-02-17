@@ -2,14 +2,15 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
-from django.shortcuts import render, resolve_url
+from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import urlencode
@@ -35,10 +36,10 @@ from utilities.request import safe_for_redirect
 from utilities.string import remove_linebreaks
 from utilities.views import register_model_view
 
-
 #
 # Login/logout
 #
+
 
 class LoginView(View):
     """

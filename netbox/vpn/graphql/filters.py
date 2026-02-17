@@ -1,4 +1,4 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -7,7 +7,10 @@ from strawberry_django import BaseFilterLookup, FilterLookup
 
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filters import (
-    ChangeLoggedModelFilter, NetBoxModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
+    ChangeLoggedModelFilter,
+    NetBoxModelFilter,
+    OrganizationalModelFilter,
+    PrimaryModelFilter,
 )
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from vpn import models
@@ -16,6 +19,7 @@ if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
     from ipam.graphql.filters import IPAddressFilter, RouteTargetFilter
     from netbox.graphql.filter_lookups import BigIntegerLookup, IntegerLookup
+
     from .enums import *
 
 __all__ = (

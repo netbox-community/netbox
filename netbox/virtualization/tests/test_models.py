@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from dcim.models import Site
-from virtualization.models import *
 from tenancy.models import Tenant
+from virtualization.models import *
 
 
 class VirtualMachineTestCase(TestCase):

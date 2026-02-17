@@ -1,11 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
-from wireless.choices import *
-from wireless.models import *
+
 from dcim.choices import InterfaceTypeChoices, LinkStatusChoices
 from dcim.models import Interface, Site
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_tags, create_test_device
+from wireless.choices import *
+from wireless.models import *
 
 
 class WirelessLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):

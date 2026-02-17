@@ -1,5 +1,6 @@
-import utilities.fields
 from django.db import migrations
+
+import utilities.fields
 
 
 class Migration(migrations.Migration):

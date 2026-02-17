@@ -6,7 +6,7 @@ from django.db.migrations.operations import AlterModelOptions
 from django.utils.translation import gettext as _
 
 from core.events import *
-from netbox.events import EventType, EVENT_TYPE_KIND_DANGER, EVENT_TYPE_KIND_SUCCESS, EVENT_TYPE_KIND_WARNING
+from netbox.events import EVENT_TYPE_KIND_DANGER, EVENT_TYPE_KIND_SUCCESS, EVENT_TYPE_KIND_WARNING, EventType
 from utilities.migration import custom_deconstruct
 
 # Ignore verbose_name & verbose_name_plural Meta options when calculating model migrations
@@ -23,9 +23,10 @@ class CoreConfig(AppConfig):
     def ready(self):
         from core.api import schema  # noqa: F401
         from core.checks import check_duplicate_indexes  # noqa: F401
-        from netbox.models.features import register_models
-        from . import data_backends, events, search  # noqa: F401
         from netbox import context_managers  # noqa: F401
+        from netbox.models.features import register_models
+
+        from . import data_backends, events, search  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

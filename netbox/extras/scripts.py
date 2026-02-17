@@ -17,8 +17,8 @@ from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, 
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DatePicker, DateTimePicker
-from .forms import ScriptForm
 
+from .forms import ScriptForm
 
 __all__ = (
     'BaseScript',

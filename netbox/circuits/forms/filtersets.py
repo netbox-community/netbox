@@ -2,7 +2,10 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from circuits.choices import (
-    CircuitCommitRateChoices, CircuitPriorityChoices, CircuitStatusChoices, CircuitTerminationSideChoices,
+    CircuitCommitRateChoices,
+    CircuitPriorityChoices,
+    CircuitStatusChoices,
+    CircuitTerminationSideChoices,
     VirtualCircuitTerminationRoleChoices,
 )
 from circuits.models import *
@@ -10,7 +13,7 @@ from dcim.models import Location, Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm, PrimaryModelFilterSetForm
-from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
+from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet

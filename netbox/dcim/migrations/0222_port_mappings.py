@@ -1,8 +1,8 @@
+from itertools import islice
+
 import django.core.validators
 import django.db.models.deletion
-from django.db import migrations
-from django.db import models
-from itertools import islice
+from django.db import migrations, models
 
 
 def chunked(iterable, size):

@@ -1,8 +1,8 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist, FieldError
+from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 
 from utilities.choices import unpack_grouped_choices
 from utilities.object_types import object_type_identifier

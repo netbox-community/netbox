@@ -1,6 +1,6 @@
-from django.db import migrations, models
 import django.db.models.deletion
 import taggit.managers
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

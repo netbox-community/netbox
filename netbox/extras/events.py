@@ -16,6 +16,7 @@ from utilities.api import get_serializer_for_model
 from utilities.request import copy_safe_request
 from utilities.rqworker import get_rq_retry
 from utilities.serialization import serialize_object
+
 from .choices import EventRuleActionChoices
 from .models import EventRule
 

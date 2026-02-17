@@ -8,10 +8,16 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
-from netbox.models.mixins import DistanceMixin
 from netbox.models.features import (
-    ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, ImageAttachmentsMixin, TagsMixin,
+    ContactsMixin,
+    CustomFieldsMixin,
+    CustomLinksMixin,
+    ExportTemplatesMixin,
+    ImageAttachmentsMixin,
+    TagsMixin,
 )
+from netbox.models.mixins import DistanceMixin
+
 from .base import BaseCircuitType
 
 __all__ = (

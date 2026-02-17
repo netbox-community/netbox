@@ -405,6 +405,7 @@ class ContactsMixin(models.Model):
             inherited: If `True`, inherited contacts from parent objects are included.
         """
         from tenancy.models import ContactAssignment
+
         from . import NestedGroupModel
 
         filter = Q(

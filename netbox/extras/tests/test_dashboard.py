@@ -1,4 +1,4 @@
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from extras.dashboard.widgets import ObjectListWidget
 

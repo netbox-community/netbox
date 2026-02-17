@@ -22,6 +22,7 @@ from utilities.proxy import resolve_proxies
 from utilities.querydict import dict_to_querydict
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import get_action_url
+
 from .utils import register_widget
 
 __all__ = (

@@ -6,6 +6,7 @@ import platform
 import sys
 import warnings
 
+import storages.utils  # type: ignore
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
@@ -17,12 +18,11 @@ from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from netbox.registry import registry
-import storages.utils  # type: ignore
 from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
-from .monkey import get_unique_validators
 
+from .monkey import get_unique_validators
 
 #
 # Environment setup
@@ -957,6 +957,7 @@ for plugin_name in PLUGINS:
 from rest_framework.utils import field_mapping  # noqa: E402
 from strawberry_django import pagination  # noqa: E402
 from strawberry_django.fields.field import StrawberryDjangoField  # noqa: E402
+
 from netbox.graphql.pagination import OffsetPaginationInput, apply_pagination  # noqa: E402
 
 # TODO: Remove this once #20547 has been implemented

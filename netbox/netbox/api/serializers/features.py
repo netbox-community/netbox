@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault
 
-from extras.api.customfields import CustomFieldsDataField, CustomFieldDefaultValues
+from extras.api.customfields import CustomFieldDefaultValues, CustomFieldsDataField
+
 from .base import ValidatedModelSerializer
 from .nested import NestedTagSerializer
 

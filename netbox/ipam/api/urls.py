@@ -1,8 +1,8 @@
 from django.urls import path
 
 from netbox.api.routers import NetBoxRouter
-from . import views
 
+from . import views
 
 router = NetBoxRouter()
 router.APIRootView = views.IPAMRootView

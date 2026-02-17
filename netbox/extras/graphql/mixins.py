@@ -14,8 +14,9 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
-    from .types import ImageAttachmentType, JournalEntryType, TagType
     from tenancy.graphql.types import ContactAssignmentType
+
+    from .types import ImageAttachmentType, JournalEntryType, TagType
 
 
 @strawberry.type

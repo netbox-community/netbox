@@ -1,13 +1,13 @@
 import json
+from copy import deepcopy
 
 import django_filters
-from copy import deepcopy
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
+from django.utils.translation import gettext as _
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
-from django.utils.translation import gettext as _
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
@@ -15,12 +15,14 @@ from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter, TagIDFilter
 from extras.models import CustomField, SavedFilter
 from users.filterset_mixins import OwnerFilterMixin
+from utilities import filters
 from utilities.constants import (
-    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
-    FILTER_NUMERIC_BASED_LOOKUP_MAP
+    FILTER_CHAR_BASED_LOOKUP_MAP,
+    FILTER_NEGATION_LOOKUP_MAP,
+    FILTER_NUMERIC_BASED_LOOKUP_MAP,
+    FILTER_TREENODE_NEGATION_LOOKUP_MAP,
 )
 from utilities.forms.fields import MACAddressField
-from utilities import filters
 
 __all__ = (
     'AttributeFiltersMixin',

@@ -4,12 +4,13 @@ from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from dcim.models import Device, Interface
-from ipam.models import IPAddress, RouteTarget, VLAN
+from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
+
 from .choices import *
 from .models import *
 

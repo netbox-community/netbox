@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-import netaddr
 
+import netaddr
 from django.utils.translation import gettext_lazy as _
 
 from .constants import *
-from .models import Prefix, VLAN
+from .models import VLAN, Prefix
 
 __all__ = (
     'AvailableIPSpace',

@@ -2,7 +2,6 @@ from django.db.models import Q
 
 from .choices import FHRPGroupProtocolChoices, IPAddressRoleChoices
 
-
 #
 # VRFs
 #

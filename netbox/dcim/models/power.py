@@ -8,6 +8,7 @@ from netbox.config import ConfigItem
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.validators import ExclusionValidator
+
 from .device_components import CabledObjectModel, PathEndpoint
 
 __all__ = (

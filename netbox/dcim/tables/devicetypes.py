@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim import models
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin
+
 from .template_code import MODULAR_COMPONENT_TEMPLATE_BUTTONS, WEIGHT
 
 __all__ = (

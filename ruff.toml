@@ -36,6 +36,7 @@ extend-select = [
     "E3",    # pycodestyle errors: blank lines / spacing around definitions
     "E501",  # pycodestyle: line too long (enforced with `line-length` above)
     "W",     # pycodestyle warnings (various style warnings, often whitespace/newlines)
+    "I",     # import sorting (isort-equivalent)
 ]
 ignore = [
     "F403",  # pyflakes: `from ... import *` used; unable to detect undefined names
@@ -43,6 +44,23 @@ ignore = [
     "UP032", # pyupgrade: prefer f-strings over `str.format(...)`
 ]
 preview = true
+
+[lint.isort]
+known-first-party = [
+    "account",
+    "circuits",
+    "core",
+    "dcim",
+    "extras",
+    "ipam",
+    "netbox",
+    "tenancy",
+    "users",
+    "utilities",
+    "virtualization",
+    "vpn",
+    "wireless",
+]
 
 [lint.per-file-ignores]
 "template_code.py" = ["E501"]

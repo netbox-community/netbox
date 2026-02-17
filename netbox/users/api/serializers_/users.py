@@ -6,6 +6,7 @@ from rest_framework import serializers
 from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
 from users.models import Group, ObjectPermission, User
+
 from .permissions import ObjectPermissionSerializer
 
 __all__ = (
