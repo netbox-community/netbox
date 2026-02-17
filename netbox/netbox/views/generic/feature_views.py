@@ -68,7 +68,6 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
         objectchanges_table = ObjectChangeTable(
             data=objectchanges,
             orderable=False,
-            user=request.user
         )
         objectchanges_table.configure(request)
 

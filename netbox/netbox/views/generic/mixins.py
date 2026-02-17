@@ -92,7 +92,7 @@ class TableMixin:
                 request.user.config.set(f'tables.{table}.columns', tableconfig.columns)
                 request.user.config.set(f'tables.{table}.ordering', tableconfig.ordering, commit=True)
 
-        table = self.table(data, user=request.user)
+        table = self.table(data)
         if 'pk' in table.base_columns and bulk_actions:
             table.columns.show('pk')
         table.configure(request)

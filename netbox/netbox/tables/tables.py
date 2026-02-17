@@ -52,42 +52,13 @@ class BaseTable(tables.Table):
             'class': 'table table-hover object-list',
         }
 
-    def __init__(self, *args, user=None, **kwargs):
-
+    # TODO: Remove user kwarg in NetBox v4.7
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
             self.empty_text = _("No {model_name} found").format(model_name=self._meta.model._meta.verbose_name_plural)
-
-        # Dynamically update the table's QuerySet to ensure related fields are pre-fetched
-        if isinstance(self.data, TableQuerysetData):
-
-            prefetch_fields = []
-            for column in self.columns:
-                if column.visible:
-                    model = getattr(self.Meta, 'model')
-                    accessor = column.accessor
-                    if accessor.startswith('custom_field_data__'):
-                        # Ignore custom field references
-                        continue
-                    prefetch_path = []
-                    for field_name in accessor.split(accessor.SEPARATOR):
-                        try:
-                            field = model._meta.get_field(field_name)
-                        except FieldDoesNotExist:
-                            break
-                        if isinstance(field, (RelatedField, ManyToOneRel)):
-                            # Follow ForeignKeys to the related model
-                            prefetch_path.append(field_name)
-                            model = field.remote_field.model
-                        elif isinstance(field, GenericForeignKey):
-                            # Can't prefetch beyond a GenericForeignKey
-                            prefetch_path.append(field_name)
-                            break
-                    if prefetch_path:
-                        prefetch_fields.append('__'.join(prefetch_path))
-            self.data.data = self.data.data.prefetch_related(*prefetch_fields)
 
     def _get_columns(self, visible=True):
         columns = []
@@ -144,6 +115,41 @@ class BaseTable(tables.Table):
             self.sequence.remove('actions')
             self.sequence.append('actions')
 
+    def _apply_prefetching(self):
+        """
+        Dynamically update the table's QuerySet to ensure related fields are pre-fetched
+        """
+        if not isinstance(self.data, TableQuerysetData):
+            return
+
+        prefetch_fields = []
+        for column in self.columns:
+            if not column.visible:
+                # Skip hidden columns
+                continue
+            model = getattr(self.Meta, 'model')  # Must be called *after* resolving columns
+            accessor = column.accessor
+            if accessor.startswith('custom_field_data__'):
+                # Ignore custom field references
+                continue
+            prefetch_path = []
+            for field_name in accessor.split(accessor.SEPARATOR):
+                try:
+                    field = model._meta.get_field(field_name)
+                except FieldDoesNotExist:
+                    break
+                if isinstance(field, (RelatedField, ManyToOneRel)):
+                    # Follow ForeignKeys to the related model
+                    prefetch_path.append(field_name)
+                    model = field.remote_field.model
+                elif isinstance(field, GenericForeignKey):
+                    # Can't prefetch beyond a GenericForeignKey
+                    prefetch_path.append(field_name)
+                    break
+            if prefetch_path:
+                prefetch_fields.append('__'.join(prefetch_path))
+        self.data.data = self.data.data.prefetch_related(*prefetch_fields)
+
     def configure(self, request):
         """
         Configure the table for a specific request context. This performs pagination and records
@@ -178,6 +184,7 @@ class BaseTable(tables.Table):
             columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
 
         self._set_columns(columns)
+        self._apply_prefetching()
         if ordering is not None:
             self.order_by = ordering
 
