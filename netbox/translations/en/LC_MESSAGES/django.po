@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-14 05:17+0000\n"
+"POT-Creation-Date: 2026-02-17 05:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8037,7 +8037,7 @@ msgid "Racks"
 msgstr ""
 
 #: netbox/dcim/tables/racks.py:55 netbox/dcim/tables/racks.py:130
-#: netbox/dcim/ui/panels.py:30 netbox/dcim/ui/panels.py:146
+#: netbox/dcim/ui/panels.py:30
 #: netbox/templates/dcim/inc/panels/racktype_dimensions.html:14
 msgid "Height"
 msgstr ""
@@ -12716,67 +12716,67 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:847
+#: netbox/netbox/settings.py:828
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:848
+#: netbox/netbox/settings.py:829
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:849
+#: netbox/netbox/settings.py:830
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:850
+#: netbox/netbox/settings.py:831
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:851
+#: netbox/netbox/settings.py:832
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:852
+#: netbox/netbox/settings.py:833
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:853
+#: netbox/netbox/settings.py:834
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:854
+#: netbox/netbox/settings.py:835
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:855
+#: netbox/netbox/settings.py:836
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:856
+#: netbox/netbox/settings.py:837
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:857
+#: netbox/netbox/settings.py:838
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:858
+#: netbox/netbox/settings.py:839
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:859
+#: netbox/netbox/settings.py:840
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:860
+#: netbox/netbox/settings.py:841
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:861
+#: netbox/netbox/settings.py:842
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:862
+#: netbox/netbox/settings.py:843
 msgid "Chinese"
 msgstr ""
 
