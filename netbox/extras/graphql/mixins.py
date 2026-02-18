@@ -21,6 +21,13 @@ if TYPE_CHECKING:
 @strawberry.type
 class ConfigContextMixin:
 
+    @classmethod
+    def get_queryset(cls, queryset, info: Info, **kwargs):
+        queryset = super().get_queryset(queryset, info, **kwargs)
+        if hasattr(queryset, 'annotate_config_context_data'):
+            return queryset.annotate_config_context_data()
+        return queryset
+
     @strawberry_django.field
     def config_context(self) -> strawberry.scalars.JSON:
         return self.get_config_context()
