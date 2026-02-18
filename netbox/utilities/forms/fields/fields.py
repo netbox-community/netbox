@@ -3,10 +3,11 @@ import json
 from django import forms
 from django.conf import settings
 from django.db.models import Count
-from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
+from django.forms.fields import InvalidJSONInput
+from django.forms.fields import JSONField as _JSONField
 from django.templatetags.static import static
 from django.utils.translation import gettext_lazy as _
-from netaddr import AddrFormatError, EUI
+from netaddr import EUI, AddrFormatError
 
 from utilities.forms import widgets
 from utilities.validators import EnhancedURLValidator

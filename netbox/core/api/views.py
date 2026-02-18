@@ -23,6 +23,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from utilities.api import IsSuperuser
+
 from . import serializers
 
 
@@ -284,5 +285,4 @@ class BackgroundTaskViewSet(BaseRQViewSet):
         stopped_jobs = stop_rq_job(id)
         if len(stopped_jobs) == 1:
             return HttpResponse(status=200)
-        else:
-            return HttpResponse(status=204)
+        return HttpResponse(status=204)

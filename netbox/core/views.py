@@ -1,27 +1,29 @@
 import json
 import platform
+from copy import deepcopy
 
 from django import __version__ as django_version
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
-from django.db import connection, ProgrammingError
-from django.http import HttpResponse, HttpResponseForbidden, Http404
+from django.db import ProgrammingError, connection
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
-from django_rq.settings import QUEUES_MAP, QUEUES_LIST
+from django_rq.settings import QUEUES_LIST, QUEUES_MAP
 from django_rq.utils import get_statistics
 from rq.exceptions import NoSuchJobError
-from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
+from rq.job import Job as RQ_Job
+from rq.job import JobStatus as RQJobStatus
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
-from netbox.config import get_config, PARAMS
+from netbox.config import PARAMS, get_config
 from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObject
 from netbox.plugins.utils import get_installed_plugins
 from netbox.views import generic
@@ -40,16 +42,17 @@ from utilities.views import (
     ViewTab,
     register_model_view,
 )
+
 from . import filtersets, forms, tables
 from .jobs import SyncDataSourceJob
 from .models import *
 from .plugins import get_catalog_plugins, get_local_plugins
 from .tables import CatalogPluginTable, JobLogEntryTable, PluginVersionTable
 
-
 #
 # Data sources
 #
+
 
 @register_model_view(DataSource, 'list', path='', detail=False)
 class DataSourceListView(generic.ObjectListView):
@@ -309,6 +312,22 @@ class ConfigRevisionListView(generic.ObjectListView):
 @register_model_view(ConfigRevision)
 class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
+
+    def get_extra_context(self, request, instance):
+        """
+        Retrieve additional context for a given request and instance.
+        """
+        # Copy the revision data to avoid modifying the original
+        config = deepcopy(instance.data or {})
+
+        # Serialize any JSON-based classes
+        for attr in ['CUSTOM_VALIDATORS', 'DEFAULT_USER_PREFERENCES', 'PROTECTION_RULES']:
+            if attr in config:
+                config[attr] = json.dumps(config[attr], cls=ConfigJSONEncoder, indent=4)
+
+        return {
+            'config': config,
+        }
 
 
 @register_model_view(ConfigRevision, 'add', detail=False)
@@ -617,8 +636,8 @@ class SystemView(UserPassesTestMixin, View):
             response['Content-Disposition'] = 'attachment; filename="netbox.json"'
             return response
 
-        # Serialize any CustomValidator classes
-        for attr in ['CUSTOM_VALIDATORS', 'PROTECTION_RULES']:
+        # Serialize any JSON-based classes
+        for attr in ['CUSTOM_VALIDATORS', 'DEFAULT_USER_PREFERENCES', 'PROTECTION_RULES']:
             if hasattr(config, attr) and getattr(config, attr, None):
                 setattr(config, attr, json.dumps(getattr(config, attr), cls=ConfigJSONEncoder, indent=4))
 

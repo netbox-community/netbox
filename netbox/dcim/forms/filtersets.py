@@ -9,7 +9,9 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, VRF, VLANTranslationPolicy
 from netbox.choices import *
 from netbox.forms import (
-    NestedGroupModelFilterSetForm, NetBoxModelFilterSetForm, OrganizationalModelFilterSetForm,
+    NestedGroupModelFilterSetForm,
+    NetBoxModelFilterSetForm,
+    OrganizationalModelFilterSetForm,
     PrimaryModelFilterSetForm,
 )
 from netbox.forms.mixins import OwnerFilterMixin

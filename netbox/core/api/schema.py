@@ -2,10 +2,14 @@ import re
 import typing
 from collections import OrderedDict
 
-from drf_spectacular.extensions import OpenApiSerializerFieldExtension, OpenApiSerializerExtension, _SchemaType
+from drf_spectacular.extensions import OpenApiSerializerExtension, OpenApiSerializerFieldExtension, _SchemaType
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
-    build_basic_type, build_choice_field, build_media_type_object, build_object_type, get_doc,
+    build_basic_type,
+    build_choice_field,
+    build_media_type_object,
+    build_object_type,
+    get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import Direction
@@ -35,7 +39,7 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
         if direction == 'request':
             return build_cf
 
-        elif direction == "response":
+        if direction == "response":
             value = build_cf
             label = {
                 **build_basic_type(OpenApiTypes.STR),
@@ -48,6 +52,10 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
                     "label": label
                 }
             )
+
+        # TODO: This function should never implicitly/explicitly return `None`
+        # The fallback should be well-defined (drf-spectacular expects request/response naming).
+        return None
 
 
 def viewset_handles_bulk_create(view):
@@ -71,8 +79,7 @@ class NetBoxAutoSchema(AutoSchema):
     def is_bulk_action(self):
         if hasattr(self.view, "action") and self.view.action in BULK_ACTIONS:
             return True
-        else:
-            return False
+        return False
 
     def get_operation_id(self):
         """
@@ -312,8 +319,7 @@ class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
         if direction == "response":
             component = auto_schema.resolve_serializer(self.target.serializer, direction)
             return component.ref if component else None
-        else:
-            return build_basic_type(OpenApiTypes.INT)
+        return build_basic_type(OpenApiTypes.INT)
 
 
 class FixIntegerRangeSerializerSchema(OpenApiSerializerExtension):

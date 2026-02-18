@@ -23,7 +23,13 @@ from netbox.config import get_config
 from netbox.events import get_event_type_choices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
-    CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin, has_feature
+    CloningMixin,
+    CustomFieldsMixin,
+    CustomLinksMixin,
+    ExportTemplatesMixin,
+    SyncedDataMixin,
+    TagsMixin,
+    has_feature,
 )
 from netbox.models.mixins import OwnerMixin
 from utilities.html import clean_html
@@ -285,8 +291,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         """
         if self.body_template:
             return render_jinja2(self.body_template, context)
-        else:
-            return json.dumps(context, cls=JSONEncoder)
+        return json.dumps(context, cls=JSONEncoder)
 
     def render_payload_url(self, context):
         """

@@ -1,5 +1,42 @@
 # NetBox v4.5
 
+## v4.5.3 (2026-02-17)
+
+### Enhancements
+
+* [#19129](https://github.com/netbox-community/netbox/issues/19129) - Improve display of multiple MAC addresses within interfaces table
+* [#20981](https://github.com/netbox-community/netbox/issues/20981) - Enhance JSON rendering for custom validators and protection rules in config revision view
+* [#21240](https://github.com/netbox-community/netbox/issues/21240) - Add support for configuring Redis `KWARGS` parameters
+* [#21257](https://github.com/netbox-community/netbox/issues/21257) - `ContentTypeFilter` now accepts multiple values
+* [#21266](https://github.com/netbox-community/netbox/issues/21266) - Add table columns representing installed devices to the device bays table
+* [#21267](https://github.com/netbox-community/netbox/issues/21267) - Normalize device height formatting in rack units (display "0U")
+* [#21268](https://github.com/netbox-community/netbox/issues/21268) - Add device type details panel to device view
+* [#21337](https://github.com/netbox-community/netbox/issues/21337) - Show the assigned platform's parent on the virtual machine UI view
+
+### Performance Improvements
+
+* [#20211](https://github.com/netbox-community/netbox/issues/20211) - Use thumbnails for image attachment hover previews to improve page load performance
+* [#21016](https://github.com/netbox-community/netbox/issues/21016) - Restore missing SQL indexes for MPTT fields
+* [#21196](https://github.com/netbox-community/netbox/issues/21196) - `q` filter should match on primary IP only for IP address values when filtering devices/VMs
+* [#21420](https://github.com/netbox-community/netbox/issues/21420) - Improve query performance of `ContentTypeFilter`
+* [#21421](https://github.com/netbox-community/netbox/issues/21421) - Eliminate extraneous application of `DISTINCT` to queries for `MultipleChoiceFilter`
+
+### Bug Fixes
+
+* [#20435](https://github.com/netbox-community/netbox/issues/20435) - Fix navigation menu margin issue when scrollbar appears
+* [#21127](https://github.com/netbox-community/netbox/issues/21127) - Ensure assigned cable paths are cleared when removing terminations from a cable
+* [#21277](https://github.com/netbox-community/netbox/issues/21277) - Record pre-change snapshot when adding cluster members via UI
+* [#21320](https://github.com/netbox-community/netbox/issues/21320) - Avoid validation failures when site or optional fields are missing during rack import
+* [#21354](https://github.com/netbox-community/netbox/issues/21354) - Fix base URL in Swagger when `BASE_PATH` is set
+* [#21358](https://github.com/netbox-community/netbox/issues/21358) - Token list in UI cannot be ordered by token value
+* [#21371](https://github.com/netbox-community/netbox/issues/21371) - Fix `KeyError` exception when triggering a webhook from an event rule
+* [#21375](https://github.com/netbox-community/netbox/issues/21375) - Address failure condition in `ipam.0070_vlangroup_vlan_id_ranges` migration
+* [#21390](https://github.com/netbox-community/netbox/issues/21390) - Avoid creating "empty" changelog records for related objects when processing manyo-to-many relations
+* [#21397](https://github.com/netbox-community/netbox/issues/21397) - Correct rendering of owner field in CircuitType edit form
+* [#21412](https://github.com/netbox-community/netbox/issues/21412) - Avoid `AttributeError` exception on initialization when a plugin has local imports in `__init__.py`
+
+---
+
 ## v4.5.2 (2026-02-03)
 
 ### Enhancements

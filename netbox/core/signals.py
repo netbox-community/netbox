@@ -3,11 +3,11 @@ from threading import local
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.signals import request_finished
 from django.db.models import CASCADE, RESTRICT
 from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 from django.db.models.signals import m2m_changed, post_migrate, post_save, pre_delete
-from django.dispatch import receiver, Signal
-from django.core.signals import request_finished
+from django.dispatch import Signal, receiver
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
@@ -18,10 +18,11 @@ from extras.events import enqueue_event
 from extras.models import Tag
 from extras.utils import run_validators
 from netbox.config import get_config
-from utilities.data import get_config_value_ci
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin, get_model_features, model_is_public
+from utilities.data import get_config_value_ci
 from utilities.exceptions import AbortRequest
+
 from .models import ConfigRevision, DataSource, ObjectChange
 
 __all__ = (
@@ -209,22 +210,28 @@ def handle_deleted_object(sender, instance, **kwargs):
     # for the forward direction of the relationship, ensuring that the change is recorded.
     # Similarly, for many-to-one relationships, we set the value on the related object to None
     # and save it to trigger a change record on that object.
-    for relation in instance._meta.related_objects:
-        if type(relation) not in [ManyToManyRel, ManyToOneRel]:
-            continue
-        related_model = relation.related_model
-        related_field_name = relation.remote_field.name
-        if not issubclass(related_model, ChangeLoggingMixin):
-            # We only care about triggering the m2m_changed signal for models which support
-            # change logging
-            continue
-        for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
-            obj.snapshot()  # Ensure the change record includes the "before" state
-            if type(relation) is ManyToManyRel:
-                getattr(obj, related_field_name).remove(instance)
-            elif type(relation) is ManyToOneRel and relation.null and relation.on_delete not in (CASCADE, RESTRICT):
-                setattr(obj, related_field_name, None)
-                obj.save()
+    #
+    # Skip this for private models (e.g. CablePath) whose lifecycle is an internal
+    # implementation detail. Django's on_delete handlers (e.g. SET_NULL) already take
+    # care of the database integrity; recording changelog entries for the related
+    # objects would be spurious. (Ref: #21390)
+    if not getattr(instance, '_netbox_private', False):
+        for relation in instance._meta.related_objects:
+            if type(relation) not in [ManyToManyRel, ManyToOneRel]:
+                continue
+            related_model = relation.related_model
+            related_field_name = relation.remote_field.name
+            if not issubclass(related_model, ChangeLoggingMixin):
+                # We only care about triggering the m2m_changed signal for models which support
+                # change logging
+                continue
+            for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
+                obj.snapshot()  # Ensure the change record includes the "before" state
+                if type(relation) is ManyToManyRel:
+                    getattr(obj, related_field_name).remove(instance)
+                elif type(relation) is ManyToOneRel and relation.null and relation.on_delete not in (CASCADE, RESTRICT):
+                    setattr(obj, related_field_name, None)
+                    obj.save()
 
     # Enqueue the object for event processing
     queue = events_queue.get()

@@ -1,4 +1,4 @@
-from django.test import RequestFactory, tag, TestCase
+from django.test import RequestFactory, TestCase, tag
 
 from vpn.models import TunnelTermination
 from vpn.tables import TunnelTerminationTable

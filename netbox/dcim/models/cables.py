@@ -24,6 +24,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
+
 from .device_components import FrontPort, PathEndpoint, PortMapping, RearPort
 
 __all__ = (
@@ -657,17 +658,29 @@ class CablePath(models.Model):
         origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
         origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
 
+    def delete(self, *args, **kwargs):
+        # Mirror save() - clear _path on origins to prevent stale references
+        # in table views that render _path.destinations
+        if self.path:
+            origin_model = self.origin_type.model_class()
+            origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
+            origin_model.objects.filter(pk__in=origin_ids, _path=self.pk).update(_path=None)
+
+        super().delete(*args, **kwargs)
+
     @property
     def origin_type(self):
         if self.path:
             ct_id, _ = decompile_path_node(self.path[0][0])
             return ContentType.objects.get_for_id(ct_id)
+        return None
 
     @property
     def destination_type(self):
         if self.is_complete:
             ct_id, _ = decompile_path_node(self.path[-1][0])
             return ContentType.objects.get_for_id(ct_id)
+        return None
 
     @property
     def _path_decompiled(self):
@@ -708,7 +721,7 @@ class CablePath(models.Model):
         Cable or WirelessLink connects (interfaces, console ports, circuit termination, etc.). All terminations must be
         of the same type and must belong to the same parent object.
         """
-        from circuits.models import CircuitTermination, Circuit
+        from circuits.models import Circuit, CircuitTermination
 
         if not terminations:
             return None
@@ -910,7 +923,7 @@ class CablePath(models.Model):
 
                 if not circuit_terminations.exists():
                     break
-                elif all([ct._provider_network for ct in circuit_terminations]):
+                if all([ct._provider_network for ct in circuit_terminations]):
                     # Circuit terminates to a ProviderNetwork
                     path.extend([
                         [object_to_path_node(ct) for ct in circuit_terminations],
@@ -918,14 +931,14 @@ class CablePath(models.Model):
                     ])
                     is_complete = True
                     break
-                elif all([ct.termination and not ct.cable for ct in circuit_terminations]):
+                if all([ct.termination and not ct.cable for ct in circuit_terminations]):
                     # Circuit terminates to a Region/Site/etc.
                     path.extend([
                         [object_to_path_node(ct) for ct in circuit_terminations],
                         [object_to_path_node(ct.termination) for ct in circuit_terminations],
                     ])
                     break
-                elif any([ct.cable in links for ct in circuit_terminations]):
+                if any([ct.cable in links for ct in circuit_terminations]):
                     # No valid path
                     is_split = True
                     break

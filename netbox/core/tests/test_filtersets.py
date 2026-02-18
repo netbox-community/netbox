@@ -8,6 +8,7 @@ from dcim.models import Site
 from ipam.models import IPAddress
 from users.models import User
 from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
+
 from ..choices import *
 from ..filtersets import *
 from ..models import *
@@ -237,9 +238,9 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_changed_object_type(self):
-        params = {'changed_object_type': 'dcim.site'}
+        params = {'changed_object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {'changed_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
+        params = {'changed_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 

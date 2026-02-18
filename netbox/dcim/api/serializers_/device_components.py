@@ -5,8 +5,18 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PortMapping,
-    PowerOutlet, PowerPort, RearPort, VirtualDeviceContext,
+    ConsolePort,
+    ConsoleServerPort,
+    DeviceBay,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    ModuleBay,
+    PortMapping,
+    PowerOutlet,
+    PowerPort,
+    RearPort,
+    VirtualDeviceContext,
 )
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
@@ -20,6 +30,7 @@ from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
 from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
+
 from .base import ConnectedEndpointsSerializer, PortSerializer
 from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, VirtualDeviceContextSerializer

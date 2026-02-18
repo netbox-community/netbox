@@ -8,6 +8,7 @@ from dcim.models import DeviceType, ModuleType, ModuleTypeProfile
 from netbox.api.fields import AttributesField, ChoiceField
 from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import *
+
 from .manufacturers import ManufacturerSerializer
 from .platforms import PlatformSerializer
 

@@ -6,6 +6,7 @@ from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.query_functions import CollateAsChar
 from virtualization import filtersets
 from virtualization.models import *
+
 from . import serializers
 
 

@@ -58,8 +58,7 @@ class PythonModuleMixin:
         if name == '__init__':
             # File is a package
             return os.path.basename(path)
-        else:
-            return name
+        return name
 
     def get_module(self):
         """

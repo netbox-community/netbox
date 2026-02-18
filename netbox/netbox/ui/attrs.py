@@ -103,7 +103,7 @@ class TextAttr(ObjectAttribute):
     def get_value(self, obj):
         value = resolve_attr_path(obj, self.accessor)
         # Apply format string (if any)
-        if value and self.format_string:
+        if value is not None and value != '' and self.format_string:
             return self.format_string.format(value)
         return value
 

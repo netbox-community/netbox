@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any
+from typing import Any, Dict
 from urllib.parse import quote
 
 from django import template
@@ -8,10 +8,10 @@ from django.utils.html import conditional_escape
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
-from utilities.forms import get_selected_values, TableConfigForm
-from utilities.forms.mixins import FORM_FIELD_LOOKUPS
-from utilities.views import get_viewname, get_action_url
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
+from utilities.forms import TableConfigForm, get_selected_values
+from utilities.forms.mixins import FORM_FIELD_LOOKUPS
+from utilities.views import get_action_url, get_viewname
 
 __all__ = (
     'action_url',
@@ -199,14 +199,13 @@ def humanize_speed(speed):
         return ''
     if speed >= 1000000000 and speed % 1000000000 == 0:
         return '{} Tbps'.format(int(speed / 1000000000))
-    elif speed >= 1000000 and speed % 1000000 == 0:
+    if speed >= 1000000 and speed % 1000000 == 0:
         return '{} Gbps'.format(int(speed / 1000000))
-    elif speed >= 1000 and speed % 1000 == 0:
+    if speed >= 1000 and speed % 1000 == 0:
         return '{} Mbps'.format(int(speed / 1000))
-    elif speed >= 1000:
+    if speed >= 1000:
         return '{} Mbps'.format(float(speed) / 1000)
-    else:
-        return '{} Kbps'.format(speed)
+    return '{} Kbps'.format(speed)
 
 
 def _humanize_megabytes(mb, divisor=1000):
@@ -373,8 +372,7 @@ def querystring(request, **kwargs):
     querystring = querydict.urlencode(safe='/')
     if querystring:
         return '?' + querystring
-    else:
-        return ''
+    return ''
 
 
 @register.inclusion_tag('helpers/utilization_graph.html')

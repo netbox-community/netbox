@@ -2,7 +2,8 @@ import logging
 from collections import defaultdict
 
 from django.conf import settings
-from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
+from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.backends import RemoteUserBackend as _RemoteUserBackend
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
@@ -11,8 +12,12 @@ from django.utils.translation import gettext_lazy as _
 from users.constants import CONSTRAINT_TOKEN_USER
 from users.models import Group, ObjectPermission, User
 from utilities.permissions import (
-    permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_type,
+    permission_is_exempt,
+    qs_filter_from_constraints,
+    resolve_permission,
+    resolve_permission_type,
 )
+
 from .misc import _mirror_groups
 
 AUTH_BACKEND_ATTRS = {
@@ -206,7 +211,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         logger.debug(
             f"trying to authenticate {remote_user} with groups {remote_groups}")
         if not remote_user:
-            return
+            return None
         user = None
         username = self.clean_username(remote_user)
 
@@ -230,8 +235,7 @@ class RemoteUserBackend(_RemoteUserBackend):
                     return self.configure_groups(user, remote_groups)
             else:
                 return user
-        else:
-            return None
+        return None
 
     def _is_superuser(self, user):
         logger = logging.getLogger('netbox.auth.RemoteUserBackend')
@@ -302,7 +306,8 @@ class RemoteUserBackend(_RemoteUserBackend):
 
 # Create a new instance of django-auth-ldap's LDAPBackend with our own ObjectPermissions
 try:
-    from django_auth_ldap.backend import _LDAPUser, LDAPBackend as LDAPBackend_
+    from django_auth_ldap.backend import LDAPBackend as LDAPBackend_
+    from django_auth_ldap.backend import _LDAPUser
 
     class NBLDAPBackend(ObjectPermissionMixin, LDAPBackend_):
         def get_permission_filter(self, user_obj):
@@ -324,8 +329,8 @@ class LDAPBackend:
 
     def __new__(cls, *args, **kwargs):
         try:
-            from django_auth_ldap.backend import LDAPSettings
             import ldap
+            from django_auth_ldap.backend import LDAPSettings
         except ModuleNotFoundError as e:
             if getattr(e, 'name') == 'django_auth_ldap':
                 raise ImproperlyConfigured(

@@ -2,8 +2,7 @@ import logging
 import traceback
 from contextlib import ExitStack
 
-from django.db import router, transaction
-from django.db import DEFAULT_DB_ALIAS
+from django.db import DEFAULT_DB_ALIAS, router, transaction
 from django.utils.translation import gettext as _
 
 from core.signals import clear_events
@@ -13,6 +12,7 @@ from netbox.context_managers import event_tracking
 from netbox.jobs import JobRunner
 from netbox.registry import registry
 from utilities.exceptions import AbortScript, AbortTransaction
+
 from .utils import is_report
 
 

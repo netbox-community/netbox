@@ -1,8 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
+
 from ipam.models import FHRPGroup, FHRPGroupAssignment
 from netbox.api.fields import ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
+
 from .ip import IPAddressSerializer
 
 __all__ = (

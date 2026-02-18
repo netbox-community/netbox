@@ -2,9 +2,10 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
-from tenancy.models import *
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 from utilities.forms.rendering import FieldSet, ObjectAttribute
+
+from ..models import *
 
 __all__ = (
     'ContactAssignmentForm',

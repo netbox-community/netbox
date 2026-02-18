@@ -13,6 +13,7 @@ from netbox.config import Config
 from netbox.jobs import JobRunner, system_job
 from netbox.search.backends import search_backend
 from utilities.proxy import resolve_proxies
+
 from .choices import DataSourceStatusChoices, JobIntervalChoices
 from .models import DataSource
 

@@ -4,15 +4,15 @@ from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from dcim.api.serializers_.devicetypes import DeviceTypeSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
-from dcim.api.serializers_.sites import LocationSerializer, RegionSerializer, SiteSerializer, SiteGroupSerializer
+from dcim.api.serializers_.sites import LocationSerializer, RegionSerializer, SiteGroupSerializer, SiteSerializer
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, ConfigContextProfile, Tag
 from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import ChangeLogMessageSerializer, PrimaryModelSerializer, ValidatedModelSerializer
-from users.api.serializers_.mixins import OwnerMixin
-from tenancy.api.serializers_.tenants import TenantSerializer, TenantGroupSerializer
+from tenancy.api.serializers_.tenants import TenantGroupSerializer, TenantSerializer
 from tenancy.models import Tenant, TenantGroup
-from virtualization.api.serializers_.clusters import ClusterSerializer, ClusterGroupSerializer, ClusterTypeSerializer
+from users.api.serializers_.mixins import OwnerMixin
+from virtualization.api.serializers_.clusters import ClusterGroupSerializer, ClusterSerializer, ClusterTypeSerializer
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (

@@ -70,7 +70,7 @@ class FormClassesTestCase(TestCase):
         Return the base form class for creating/editing the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelForm
         if issubclass(model, OrganizationalModel):
@@ -79,6 +79,7 @@ class FormClassesTestCase(TestCase):
             return NestedGroupModelForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelForm
+        return None
 
     @staticmethod
     def get_bulk_edit_form_base_class(model):
@@ -86,7 +87,7 @@ class FormClassesTestCase(TestCase):
         Return the base form class for bulk editing the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelBulkEditForm
         if issubclass(model, OrganizationalModel):
@@ -95,6 +96,7 @@ class FormClassesTestCase(TestCase):
             return NestedGroupModelBulkEditForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelBulkEditForm
+        return None
 
     @staticmethod
     def get_import_form_base_class(model):
@@ -102,7 +104,7 @@ class FormClassesTestCase(TestCase):
         Return the base form class for importing the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelImportForm
         if issubclass(model, OrganizationalModel):
@@ -111,6 +113,7 @@ class FormClassesTestCase(TestCase):
             return NestedGroupModelImportForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelImportForm
+        return None
 
     @staticmethod
     def get_filterset_form_base_class(model):
@@ -118,7 +121,7 @@ class FormClassesTestCase(TestCase):
         Return the base form class for the given model's FilterSet.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelFilterSetForm
         if issubclass(model, OrganizationalModel):
@@ -127,6 +130,7 @@ class FormClassesTestCase(TestCase):
             return NestedGroupModelFilterSetForm
         if issubclass(model, NetBoxModel):
             return NetBoxModelFilterSetForm
+        return None
 
     def test_model_form_base_classes(self):
         """
@@ -182,7 +186,7 @@ class FilterSetClassesTestCase(TestCase):
         Return the base FilterSet class for the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelFilterSet
         if issubclass(model, OrganizationalModel):
@@ -191,6 +195,7 @@ class FilterSetClassesTestCase(TestCase):
             return NestedGroupModelFilterSet
         if issubclass(model, NetBoxModel):
             return NetBoxModelFilterSet
+        return None
 
     def test_model_filterset_base_classes(self):
         """
@@ -222,7 +227,7 @@ class TableClassesTestCase(TestCase):
         Return the base table class for the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelTable
         if issubclass(model, OrganizationalModel):
@@ -231,6 +236,7 @@ class TableClassesTestCase(TestCase):
             return NestedGroupModelTable
         if issubclass(model, NetBoxModel):
             return NetBoxTable
+        return None
 
     def test_model_table_base_classes(self):
         """
@@ -266,7 +272,7 @@ class SerializerClassesTestCase(TestCase):
         Return the base serializer class for the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryModelSerializer
         if issubclass(model, OrganizationalModel):
@@ -275,6 +281,7 @@ class SerializerClassesTestCase(TestCase):
             return NestedGroupModelSerializer
         if issubclass(model, NetBoxModel):
             return NetBoxModelSerializer
+        return None
 
     def test_model_serializer_base_classes(self):
         """
@@ -306,7 +313,7 @@ class GraphQLTypeClassesTestCase(TestCase):
         Return the base GraphQL type for the given model.
         """
         if model._meta.app_label == 'dummy_plugin':
-            return
+            return None
         if issubclass(model, PrimaryModel):
             return PrimaryObjectType
         if issubclass(model, OrganizationalModel):
@@ -315,6 +322,7 @@ class GraphQLTypeClassesTestCase(TestCase):
             return NestedGroupObjectType
         if issubclass(model, NetBoxModel):
             return NetBoxObjectType
+        return None
 
     def test_model_type_base_classes(self):
         """

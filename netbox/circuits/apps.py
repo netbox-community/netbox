@@ -9,7 +9,8 @@ class CircuitsConfig(AppConfig):
 
     def ready(self):
         from netbox.models.features import register_models
-        from . import signals, search  # noqa: F401
+
+        from . import search, signals  # noqa: F401
         from .models import CircuitTermination
 
         # Register models

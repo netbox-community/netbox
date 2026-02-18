@@ -6,9 +6,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField, RangeField
 from django.core.exceptions import FieldDoesNotExist
 from django.db import transaction
-from django.db.models import ManyToManyField, ManyToManyRel, JSONField
+from django.db.models import JSONField, ManyToManyField, ManyToManyRel
 from django.forms.models import model_to_dict
-from django.test import Client, TestCase as _TestCase
+from django.test import Client
+from django.test import TestCase as _TestCase
 from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
@@ -17,6 +18,7 @@ from users.models import ObjectPermission, User
 from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
 from utilities.permissions import resolve_permission_type
+
 from .utils import DUMMY_CF_DATA, extract_form_failures
 
 __all__ = (

@@ -1,6 +1,6 @@
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
-from ipam.models import RouteTarget, VLAN
+from ipam.models import VLAN, RouteTarget
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 from vpn.choices import *
 from vpn.models import *

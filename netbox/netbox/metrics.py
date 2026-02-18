@@ -1,5 +1,5 @@
-from django_prometheus.conf import NAMESPACE
 from django_prometheus import middleware
+from django_prometheus.conf import NAMESPACE
 from prometheus_client import Counter
 
 __all__ = (

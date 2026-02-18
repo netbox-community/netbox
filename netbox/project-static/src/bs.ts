@@ -150,20 +150,22 @@ function initSidebarAccordions(): void {
  */
 function initImagePreview(): void {
   for (const element of getElements<HTMLAnchorElement>('a.image-preview')) {
-    // Generate a max-width that's a quarter of the screen's width (note - the actual element
-    // width will be slightly larger due to the popover body's padding).
-    const maxWidth = `${Math.round(window.innerWidth / 4)}px`;
+    // Prefer a thumbnail URL for the popover (so we don't preload full-size images),
+    // but fall back to the link target if no thumbnail was provided.
+    const previewUrl = element.dataset.previewUrl ?? element.href;
+    const image = createElement('img', { src: previewUrl });
 
-    // Create an image element that uses the linked image as its `src`.
-    const image = createElement('img', { src: element.href });
-    image.style.maxWidth = maxWidth;
+    // Ensure lazy loading and async decoding
+    image.loading = 'lazy';
+    image.decoding = 'async';
 
     // Create a container for the image.
     const content = createElement('div', null, null, [image]);
 
     // Initialize the Bootstrap Popper instance.
     new Popover(element, {
-      // Attach this custom class to the popover so that it styling can be controlled via CSS.
+      // Attach this custom class to the popover so that its styling
+      // can be controlled via CSS.
       customClass: 'image-preview-popover',
       trigger: 'hover',
       html: true,

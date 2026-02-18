@@ -19,6 +19,7 @@ from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
 from utilities.querysets import RestrictedQuerySet
+
 from ..choices import *
 from ..exceptions import SyncError
 
@@ -97,6 +98,7 @@ class DataSource(JobsMixin, PrimaryModel):
     def get_type_display(self):
         if backend := registry['data_backends'].get(self.type):
             return backend.label
+        return None
 
     def get_status_color(self):
         return DataSourceStatusChoices.colors.get(self.status)

@@ -1,32 +1,45 @@
 import django_filters
+import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from netaddr.core import AddrFormatError
 
 from circuits.models import CircuitTermination, VirtualCircuit, VirtualCircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from ipam.models import ASN, IPAddress, VLANTranslationPolicy, VRF
+from ipam.models import ASN, VRF, IPAddress, VLANTranslationPolicy
 from netbox.choices import ColorChoices
 from netbox.filtersets import (
-    AttributeFiltersMixin, BaseFilterSet, ChangeLoggedModelFilterSet, NestedGroupModelFilterSet,
-    OrganizationalModelFilterSet, PrimaryModelFilterSet, NetBoxModelFilterSet,
+    AttributeFiltersMixin,
+    BaseFilterSet,
+    ChangeLoggedModelFilterSet,
+    NestedGroupModelFilterSet,
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
+    PrimaryModelFilterSet,
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueMACAddressFilter, MultiValueNumberFilter, MultiValueWWNFilter,
-    NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    MultiValueMACAddressFilter,
+    MultiValueNumberFilter,
+    MultiValueWWNFilter,
+    NumericArrayFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 from vpn.models import L2VPN
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLAN, WirelessLink
+
 from .choices import *
 from .constants import *
 from .models import *
@@ -89,11 +102,13 @@ __all__ = (
 class RegionFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Region.objects.all(),
+        distinct=False,
         label=_('Parent region (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=Region.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent region (slug)'),
     )
@@ -120,11 +135,13 @@ class RegionFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
 class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
+        distinct=False,
         label=_('Parent site group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=SiteGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent site group (slug)'),
     )
@@ -151,6 +168,7 @@ class SiteGroupFilterSet(NestedGroupModelFilterSet, ContactModelFilterSet):
 class SiteFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=SiteStatusChoices,
+        distinct=False,
         null_value=None
     )
     region_id = TreeNodeMultipleChoiceFilter(
@@ -242,21 +260,25 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Location.objects.all(),
+        distinct=False,
         label=_('Parent location (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=Location.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent location (slug)'),
     )
@@ -275,6 +297,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
     )
     status = django_filters.MultipleChoiceFilter(
         choices=LocationStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -304,19 +327,23 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
 class RackTypeFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
     form_factor = django_filters.MultipleChoiceFilter(
-        choices=RackFormFactorChoices
+        choices=RackFormFactorChoices,
+        distinct=False,
     )
     width = django_filters.MultipleChoiceFilter(
-        choices=RackWidthChoices
+        choices=RackWidthChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -369,11 +396,13 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )
@@ -393,41 +422,50 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack_type__manufacturer',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='rack_type__manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
     rack_type = django_filters.ModelMultipleChoiceFilter(
         field_name='rack_type__slug',
         queryset=RackType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Rack type (slug)'),
     )
     rack_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RackType.objects.all(),
+        distinct=False,
         label=_('Rack type (ID)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackStatusChoices,
+        distinct=False,
         null_value=None
     )
     form_factor = django_filters.MultipleChoiceFilter(
-        choices=RackFormFactorChoices
+        choices=RackFormFactorChoices,
+        distinct=False,
     )
     width = django_filters.MultipleChoiceFilter(
-        choices=RackWidthChoices
+        choices=RackWidthChoices,
+        distinct=False,
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RackRole.objects.all(),
+        distinct=False,
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=RackRole.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Role (slug)'),
     )
@@ -460,16 +498,19 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
 class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     rack_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Rack.objects.all(),
+        distinct=False,
         label=_('Rack (ID)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack__site',
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='rack__site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )
@@ -514,15 +555,18 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackReservationStatusChoices,
+        distinct=False,
         null_value=None
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -558,11 +602,13 @@ class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
 class DeviceTypeFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
@@ -658,14 +704,12 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
     def _has_front_image(self, queryset, name, value):
         if value:
             return queryset.exclude(front_image='')
-        else:
-            return queryset.filter(front_image='')
+        return queryset.filter(front_image='')
 
     def _has_rear_image(self, queryset, name, value):
         if value:
             return queryset.exclude(rear_image='')
-        else:
-            return queryset.filter(rear_image='')
+        return queryset.filter(rear_image='')
 
     def _console_ports(self, queryset, name, value):
         return queryset.exclude(consoleporttemplates__isnull=value)
@@ -719,21 +763,25 @@ class ModuleTypeProfileFilterSet(PrimaryModelFilterSet):
 class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
     profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleTypeProfile.objects.all(),
+        distinct=False,
         label=_('Profile (ID)'),
     )
     profile = django_filters.ModelMultipleChoiceFilter(
         field_name='profile__name',
         queryset=ModuleTypeProfile.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Profile (name)'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
@@ -811,6 +859,7 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
+        distinct=False,
         field_name='device_type_id',
         label=_('Device type (ID)'),
     )
@@ -827,6 +876,7 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
 class ModularDeviceTypeComponentFilterSet(DeviceTypeComponentFilterSet):
     module_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleType.objects.all(),
+        distinct=False,
         field_name='module_type_id',
         label=_('Module type (ID)'),
     )
@@ -860,10 +910,12 @@ class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
+        distinct=False,
         null_value=None
     )
     power_port_id = django_filters.ModelMultipleChoiceFilter(
         queryset=PowerPortTemplate.objects.all(),
+        distinct=False,
         label=_('Power port (ID)'),
     )
 
@@ -876,20 +928,25 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
+        distinct=False,
         null_value=None
     )
     bridge_id = django_filters.ModelMultipleChoiceFilter(
         field_name='bridge',
-        queryset=InterfaceTemplate.objects.all()
+        queryset=InterfaceTemplate.objects.all(),
+        distinct=False,
     )
     poe_mode = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoEModeChoices
+        choices=InterfacePoEModeChoices,
+        distinct=False,
     )
     poe_type = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoETypeChoices
+        choices=InterfacePoETypeChoices,
+        distinct=False,
     )
     rf_role = django_filters.MultipleChoiceFilter(
-        choices=WirelessRoleChoices
+        choices=WirelessRoleChoices,
+        distinct=False,
     )
 
     class Meta:
@@ -901,6 +958,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -919,6 +977,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     front_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -953,29 +1012,34 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItemTemplate.objects.all(),
+        distinct=False,
         label=_('Parent inventory item (ID)'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItemRole.objects.all(),
+        distinct=False,
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=InventoryItemRole.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Role (slug)'),
     )
-    component_type = ContentTypeFilter()
+    component_type = MultiValueContentTypeFilter()
     component_id = MultiValueNumberFilter()
 
     class Meta:
@@ -997,15 +1061,18 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
 class DeviceRoleFilterSet(NestedGroupModelFilterSet):
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
+        distinct=False,
         label=_('Config template (ID)'),
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceRole.objects.all(),
+        distinct=False,
         label=_('Parent device role (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=DeviceRole.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent device role (slug)'),
     )
@@ -1032,11 +1099,13 @@ class DeviceRoleFilterSet(NestedGroupModelFilterSet):
 class PlatformFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
+        distinct=False,
         label=_('Immediate parent platform (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=Platform.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Immediate parent platform (slug)'),
     )
@@ -1056,11 +1125,13 @@ class PlatformFilterSet(NestedGroupModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
@@ -1070,6 +1141,7 @@ class PlatformFilterSet(NestedGroupModelFilterSet):
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
+        distinct=False,
         label=_('Config template (ID)'),
     )
 
@@ -1097,22 +1169,26 @@ class DeviceFilterSet(
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
     device_type = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__slug',
         queryset=DeviceType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Device type (slug)'),
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
+        distinct=False,
         label=_('Device type (ID)'),
     )
     role_id = TreeNodeMultipleChoiceFilter(
@@ -1174,11 +1250,13 @@ class DeviceFilterSet(
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
@@ -1198,6 +1276,7 @@ class DeviceFilterSet(
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
+        distinct=False,
         label=_('Rack (ID)'),
     )
     parent_bay_id = django_filters.ModelMultipleChoiceFilter(
@@ -1207,22 +1286,26 @@ class DeviceFilterSet(
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
+        distinct=False,
         label=_('VM cluster (ID)'),
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group__slug',
         queryset=ClusterGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Cluster group (slug)'),
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group',
         queryset=ClusterGroup.objects.all(),
+        distinct=False,
         label=_('Cluster group (ID)'),
     )
     model = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__slug',
         queryset=DeviceType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Device model (slug)'),
     )
@@ -1231,6 +1314,7 @@ class DeviceFilterSet(
     )
     status = django_filters.MultipleChoiceFilter(
         choices=DeviceStatusChoices,
+        distinct=False,
         null_value=None
     )
     is_full_depth = django_filters.BooleanFilter(
@@ -1255,6 +1339,7 @@ class DeviceFilterSet(
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_chassis',
         queryset=VirtualChassis.objects.all(),
+        distinct=False,
         label=_('Virtual chassis (ID)'),
     )
     virtual_chassis_member = django_filters.BooleanFilter(
@@ -1263,6 +1348,7 @@ class DeviceFilterSet(
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
+        distinct=False,
         label=_('Config template (ID)'),
     )
     console_ports = django_filters.BooleanFilter(
@@ -1300,6 +1386,7 @@ class DeviceFilterSet(
     oob_ip_id = django_filters.ModelMultipleChoiceFilter(
         field_name='oob_ip',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         label=_('OOB IP (ID)'),
     )
     has_virtual_device_context = django_filters.BooleanFilter(
@@ -1329,16 +1416,24 @@ class DeviceFilterSet(
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
+        qs_filter = (
             Q(name__icontains=value) |
             Q(virtual_chassis__name__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
             Q(description__icontains=value.strip()) |
-            Q(comments__icontains=value) |
-            Q(primary_ip4__address__startswith=value) |
-            Q(primary_ip6__address__startswith=value)
-        ).distinct()
+            Q(comments__icontains=value)
+        )
+        # If the given value looks like an IP address, look for primary IPv4/IPv6 assignments
+        try:
+            ipaddress = netaddr.IPNetwork(value)
+            if ipaddress.version == 4:
+                qs_filter |= Q(primary_ip4__address__host__inet=ipaddress.ip)
+            elif ipaddress.version == 6:
+                qs_filter |= Q(primary_ip6__address__host__inet=ipaddress.ip)
+        except (AddrFormatError, ValueError):
+            pass
+        return queryset.filter(qs_filter)
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
@@ -1394,11 +1489,13 @@ class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, Pri
     device_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('VDC (ID)')
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('Device model')
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
@@ -1407,7 +1504,8 @@ class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, Pri
         label=_('Interface (ID)')
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=VirtualDeviceContextStatusChoices
+        choices=VirtualDeviceContextStatusChoices,
+        distinct=False,
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
@@ -1444,22 +1542,26 @@ class ModuleFilterSet(PrimaryModelFilterSet):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
     module_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type',
         queryset=ModuleType.objects.all(),
+        distinct=False,
         label=_('Module type (ID)'),
     )
     module_type = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__model',
         queryset=ModuleType.objects.all(),
+        distinct=False,
         to_field_name='model',
         label=_('Module type (model)'),
     )
@@ -1498,48 +1600,57 @@ class ModuleFilterSet(PrimaryModelFilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site',
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
     location_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__location',
         queryset=Location.objects.all(),
+        distinct=False,
         label=_('Location (ID)'),
     )
     location = django_filters.ModelMultipleChoiceFilter(
         field_name='device__location__slug',
         queryset=Location.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Location (slug)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__rack',
         queryset=Rack.objects.all(),
+        distinct=False,
         label=_('Rack (ID)'),
     )
     rack = django_filters.ModelMultipleChoiceFilter(
         field_name='device__rack__name',
         queryset=Rack.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Rack (name)'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('Device (ID)'),
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Device (name)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=ModuleStatusChoices,
+        distinct=False,
         null_value=None
     )
     serial = MultiValueCharFilter(
@@ -1596,91 +1707,108 @@ class DeviceComponentFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='_site',
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='_site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
     location_id = django_filters.ModelMultipleChoiceFilter(
         field_name='_location',
         queryset=Location.objects.all(),
+        distinct=False,
         label=_('Location (ID)'),
     )
     location = django_filters.ModelMultipleChoiceFilter(
         field_name='_location__slug',
         queryset=Location.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Location (slug)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='_rack',
         queryset=Rack.objects.all(),
+        distinct=False,
         label=_('Rack (ID)'),
     )
     rack = django_filters.ModelMultipleChoiceFilter(
         field_name='_rack__name',
         queryset=Rack.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Rack (name)'),
     )
     device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('Device (ID)'),
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device__name',
         queryset=Device.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Device (name)'),
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__device_type',
         queryset=DeviceType.objects.all(),
+        distinct=False,
         label=_('Device type (ID)'),
     )
     device_type = django_filters.ModelMultipleChoiceFilter(
         field_name='device__device_type__model',
         queryset=DeviceType.objects.all(),
+        distinct=False,
         to_field_name='model',
         label=_('Device type (model)'),
     )
     device_role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role',
         queryset=DeviceRole.objects.all(),
+        distinct=False,
         label=_('Device role (ID)'),
     )
     device_role = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role__slug',
         queryset=DeviceRole.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Device role (slug)'),
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__virtual_chassis',
         queryset=VirtualChassis.objects.all(),
+        distinct=False,
         label=_('Virtual Chassis (ID)')
     )
     virtual_chassis = django_filters.ModelMultipleChoiceFilter(
         field_name='device__virtual_chassis__name',
         queryset=VirtualChassis.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Virtual Chassis'),
     )
     device_status = django_filters.MultipleChoiceFilter(
         choices=DeviceStatusChoices,
+        distinct=False,
         field_name='device__status',
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__tenant',
         queryset=Tenant.objects.all(),
+        distinct=False,
         label=_('Tenant (ID)'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         field_name='device__tenant__slug',
         queryset=Tenant.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Tenant (slug)'),
     )
@@ -1702,6 +1830,7 @@ class ModularDeviceComponentFilterSet(DeviceComponentFilterSet):
     """
     module_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Module.objects.all(),
+        distinct=False,
         label=_('Module (ID)'),
     )
 
@@ -1709,6 +1838,7 @@ class ModularDeviceComponentFilterSet(DeviceComponentFilterSet):
 class CabledObjectFilterSet(django_filters.FilterSet):
     cable_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cable.objects.all(),
+        distinct=False,
         label=_('Cable (ID)'),
     )
     cabled = django_filters.BooleanFilter(
@@ -1723,8 +1853,7 @@ class CabledObjectFilterSet(django_filters.FilterSet):
     def filter_occupied(self, queryset, name, value):
         if value:
             return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
-        else:
-            return queryset.filter(cable__isnull=True, mark_connected=False)
+        return queryset.filter(cable__isnull=True, mark_connected=False)
 
 
 class PathEndpointFilterSet(django_filters.FilterSet):
@@ -1735,14 +1864,14 @@ class PathEndpointFilterSet(django_filters.FilterSet):
     def filter_connected(self, queryset, name, value):
         if value:
             return queryset.filter(_path__is_active=True)
-        else:
-            return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
+        return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
 
 
 @register_filterset
 class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1757,6 +1886,7 @@ class ConsolePortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=ConsolePortTypeChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1771,6 +1901,7 @@ class ConsoleServerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFi
 class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerPortTypeChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1786,18 +1917,22 @@ class PowerPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet,
 class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PowerOutletTypeChoices,
+        distinct=False,
         null_value=None
     )
     feed_leg = django_filters.MultipleChoiceFilter(
         choices=PowerOutletFeedLegChoices,
+        distinct=False,
         null_value=None
     )
     power_port_id = django_filters.ModelMultipleChoiceFilter(
         queryset=PowerPort.objects.all(),
+        distinct=False,
         label=_('Power port (ID)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=PowerOutletStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -1812,7 +1947,7 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 @register_filterset
 class MACAddressFilterSet(PrimaryModelFilterSet):
     mac_address = MultiValueMACAddressFilter()
-    assigned_object_type = ContentTypeFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -1906,8 +2041,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         }
         if value:
             return queryset.exclude(**params)
-        else:
-            return queryset.filter(**params)
+        return queryset.filter(**params)
 
     def filter_primary(self, queryset, name, value):
         interface_mac_ids = Interface.objects.filter(primary_mac_address_id__isnull=False).values_list(
@@ -1919,13 +2053,13 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         query = Q(pk__in=interface_mac_ids) | Q(pk__in=vminterface_mac_ids)
         if value:
             return queryset.filter(query)
-        else:
-            return queryset.exclude(query)
+        return queryset.exclude(query)
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):
     mode = django_filters.MultipleChoiceFilter(
         choices=InterfaceModeChoices,
+        distinct=False,
         label=_('802.1Q Mode')
     )
     vlan_id = django_filters.CharFilter(
@@ -1939,11 +2073,13 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vrf',
         queryset=VRF.objects.all(),
+        distinct=False,
         label=_('VRF'),
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
         field_name='vrf__rd',
         queryset=VRF.objects.all(),
+        distinct=False,
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
@@ -1961,11 +2097,13 @@ class CommonInterfaceFilterSet(django_filters.FilterSet):
     vlan_translation_policy_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan_translation_policy',
         queryset=VLANTranslationPolicy.objects.all(),
+        distinct=False,
         label=_('VLAN Translation Policy (ID)'),
     )
     vlan_translation_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan_translation_policy__name',
         queryset=VLANTranslationPolicy.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('VLAN Translation Policy'),
     )
@@ -2025,21 +2163,25 @@ class InterfaceFilterSet(
     parent_id = django_filters.ModelMultipleChoiceFilter(
         field_name='parent',
         queryset=Interface.objects.all(),
+        distinct=False,
         label=_('Parent interface (ID)'),
     )
     bridge_id = django_filters.ModelMultipleChoiceFilter(
         field_name='bridge',
         queryset=Interface.objects.all(),
+        distinct=False,
         label=_('Bridged interface (ID)'),
     )
     lag_id = django_filters.ModelMultipleChoiceFilter(
         field_name='lag',
         queryset=Interface.objects.all(),
+        distinct=False,
         label=_('LAG interface (ID)'),
     )
     speed = MultiValueNumberFilter()
     duplex = django_filters.MultipleChoiceFilter(
-        choices=InterfaceDuplexChoices
+        choices=InterfaceDuplexChoices,
+        distinct=False,
     )
     mac_address = MultiValueMACAddressFilter(
         field_name='mac_addresses__mac_address',
@@ -2048,30 +2190,37 @@ class InterfaceFilterSet(
     primary_mac_address_id = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_mac_address',
         queryset=MACAddress.objects.all(),
+        distinct=False,
         label=_('Primary MAC address (ID)'),
     )
     primary_mac_address = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_mac_address__mac_address',
         queryset=MACAddress.objects.all(),
+        distinct=False,
         to_field_name='mac_address',
         label=_('Primary MAC address'),
     )
     wwn = MultiValueWWNFilter()
     poe_mode = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoEModeChoices
+        choices=InterfacePoEModeChoices,
+        distinct=False,
     )
     poe_type = django_filters.MultipleChoiceFilter(
-        choices=InterfacePoETypeChoices
+        choices=InterfacePoETypeChoices,
+        distinct=False,
     )
     type = django_filters.MultipleChoiceFilter(
         choices=InterfaceTypeChoices,
+        distinct=False,
         null_value=None
     )
     rf_role = django_filters.MultipleChoiceFilter(
-        choices=WirelessRoleChoices
+        choices=WirelessRoleChoices,
+        distinct=False,
     )
     rf_channel = django_filters.MultipleChoiceFilter(
-        choices=WirelessChannelChoices
+        choices=WirelessChannelChoices,
+        distinct=False,
     )
     vdc_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs',
@@ -2097,6 +2246,7 @@ class InterfaceFilterSet(
     )
     wireless_link_id = django_filters.ModelMultipleChoiceFilter(
         queryset=WirelessLink.objects.all(),
+        distinct=False,
         label=_('Wireless link')
     )
     virtual_circuit_id = django_filters.ModelMultipleChoiceFilter(
@@ -2146,18 +2296,18 @@ class InterfaceFilterSet(
                 Q(wireless_link__isnull=False) |
                 Q(mark_connected=True)
             )
-        else:
-            return queryset.filter(
-                cable__isnull=True,
-                wireless_link__isnull=True,
-                mark_connected=False
-            )
+        return queryset.filter(
+            cable__isnull=True,
+            wireless_link__isnull=True,
+            mark_connected=False
+        )
 
 
 @register_filterset
 class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     rear_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -2179,6 +2329,7 @@ class FrontPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet)
 class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
+        distinct=False,
         null_value=None
     )
     front_port_id = django_filters.ModelMultipleChoiceFilter(
@@ -2200,6 +2351,7 @@ class RearPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet):
 class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ModuleBay.objects.all(),
+        distinct=False,
         label=_('Parent module bay (ID)'),
     )
     installed_module_id = django_filters.ModelMultipleChoiceFilter(
@@ -2217,11 +2369,13 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
 class DeviceBayFilterSet(DeviceComponentFilterSet):
     installed_device_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('Installed device (ID)'),
     )
     installed_device = django_filters.ModelMultipleChoiceFilter(
         field_name='installed_device__name',
         queryset=Device.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Installed device (name)'),
     )
@@ -2235,35 +2389,41 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
 class InventoryItemFilterSet(DeviceComponentFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItem.objects.all(),
+        distinct=False,
         label=_('Parent inventory item (ID)'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         label=_('Manufacturer (ID)'),
     )
     manufacturer = django_filters.ModelMultipleChoiceFilter(
         field_name='manufacturer__slug',
         queryset=Manufacturer.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=InventoryItemRole.objects.all(),
+        distinct=False,
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=InventoryItemRole.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Role (slug)'),
     )
-    component_type = ContentTypeFilter()
+    component_type = MultiValueContentTypeFilter()
     component_id = MultiValueNumberFilter()
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
     status = django_filters.MultipleChoiceFilter(
         choices=InventoryItemStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -2296,11 +2456,13 @@ class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
 class VirtualChassisFilterSet(PrimaryModelFilterSet):
     master_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
+        distinct=False,
         label=_('Master (ID)'),
     )
     master = django_filters.ModelMultipleChoiceFilter(
         field_name='master__name',
         queryset=Device.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Master (name)'),
     )
@@ -2333,22 +2495,26 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='master__site',
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='master__site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         field_name='master__tenant',
         queryset=Tenant.objects.all(),
+        distinct=False,
         label=_('Tenant (ID)'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         field_name='master__tenant__slug',
         queryset=Tenant.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Tenant (slug)'),
     )
@@ -2371,14 +2537,14 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
 
 @register_filterset
 class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
-    termination_a_type = ContentTypeFilter(
+    termination_a_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
     )
     termination_a_id = MultiValueNumberFilter(
         method='filter_by_cable_end_a',
         field_name='terminations__termination_id'
     )
-    termination_b_type = ContentTypeFilter(
+    termination_b_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
     )
     termination_b_id = MultiValueNumberFilter(
@@ -2390,16 +2556,20 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
         label=_('Unterminated'),
     )
     type = django_filters.MultipleChoiceFilter(
-        choices=CableTypeChoices
+        choices=CableTypeChoices,
+        distinct=False,
     )
     status = django_filters.MultipleChoiceFilter(
-        choices=LinkStatusChoices
+        choices=LinkStatusChoices,
+        distinct=False,
     )
     profile = django_filters.MultipleChoiceFilter(
-        choices=CableProfileChoices
+        choices=CableProfileChoices,
+        distinct=False,
     )
     color = django_filters.MultipleChoiceFilter(
-        choices=ColorChoices
+        choices=ColorChoices,
+        distinct=False,
     )
     device_id = MultiValueNumberFilter(
         method='filter_by_termination'
@@ -2500,10 +2670,9 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
                 .values("id")
             )
             return queryset.exclude(id__in=terminated_ids)
-        else:
-            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
-                terminations__cable_end=CableEndChoices.SIDE_B
-            )
+        return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
+            terminations__cable_end=CableEndChoices.SIDE_B
+        )
 
     def filter_by_termination_object(self, queryset, model, value):
         # Filter by specific termination object(s)
@@ -2544,7 +2713,7 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
 
 @register_filterset
 class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
-    termination_type = ContentTypeFilter()
+    termination_type = MultiValueContentTypeFilter()
 
     class Meta:
         model = CableTermination
@@ -2581,11 +2750,13 @@ class PowerPanelFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
@@ -2641,25 +2812,30 @@ class PowerFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpo
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='power_panel__site',
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='power_panel__site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site name (slug)'),
     )
     power_panel_id = django_filters.ModelMultipleChoiceFilter(
         queryset=PowerPanel.objects.all(),
+        distinct=False,
         label=_('Power panel (ID)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',
         queryset=Rack.objects.all(),
+        distinct=False,
         label=_('Rack (ID)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=PowerFeedStatusChoices,
+        distinct=False,
         null_value=None
     )
 

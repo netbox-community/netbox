@@ -1,8 +1,9 @@
-from utilities.json import CustomFieldJSONEncoder
-from django.db import migrations, models
 import django.db.models.deletion
 import mptt.fields
 import taggit.managers
+from django.db import migrations, models
+
+from utilities.json import CustomFieldJSONEncoder
 
 
 class Migration(migrations.Migration):

@@ -146,7 +146,7 @@ class Job(models.Model):
         if self.object_type:
             if self.object_type.model == 'reportmodule':
                 return reverse('extras:report_result', kwargs={'job_pk': self.pk})
-            elif self.object_type.model == 'scriptmodule':
+            if self.object_type.model == 'scriptmodule':
                 return reverse('extras:script_result', kwargs={'job_pk': self.pk})
         return reverse('core:job', args=[self.pk])
 
@@ -216,6 +216,7 @@ class Job(models.Model):
 
         # Send signal
         job_start.send(self)
+    start.alters_data = True
 
     def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):
         """
@@ -245,6 +246,7 @@ class Job(models.Model):
 
         # Send signal
         job_end.send(self)
+    terminate.alters_data = True
 
     def log(self, record: logging.LogRecord):
         """

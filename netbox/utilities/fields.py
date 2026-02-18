@@ -133,15 +133,14 @@ class RestrictedGenericForeignKey(GenericForeignKey):
             ct_id = getattr(obj, ct_attname)
             if ct_id is None:
                 return None
-            else:
-                if model := self.get_content_type(
-                    id=ct_id, using=obj._state.db
-                ).model_class():
-                    return (
-                        model._meta.pk.get_prep_value(getattr(obj, self.fk_field)),
-                        model,
-                    )
-                return None
+            if model := self.get_content_type(
+                id=ct_id, using=obj._state.db
+            ).model_class():
+                return (
+                    model._meta.pk.get_prep_value(getattr(obj, self.fk_field)),
+                    model,
+                )
+            return None
 
         return (
             ret_val,

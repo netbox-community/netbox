@@ -37,10 +37,9 @@ def widget_type(field):
     """
     if hasattr(field, 'widget'):
         return field.widget.__class__.__name__.lower()
-    elif hasattr(field, 'field'):
+    if hasattr(field, 'field'):
         return field.field.widget.__class__.__name__.lower()
-    else:
-        return None
+    return None
 
 
 #

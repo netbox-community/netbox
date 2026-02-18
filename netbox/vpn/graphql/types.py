@@ -1,11 +1,12 @@
-from typing import Annotated, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Annotated, List, Union
 
 import strawberry
 import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType, PrimaryObjectType
+from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType, PrimaryObjectType
 from vpn import models
+
 from .filters import *
 
 if TYPE_CHECKING:

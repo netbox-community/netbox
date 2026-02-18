@@ -13,8 +13,13 @@ from netbox.forms import NetBoxModelImportForm, OwnerCSVMixin, PrimaryModelImpor
 from users.models import Group, User
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField,
-    CSVMultipleContentTypeField, SlugField,
+    CSVChoiceField,
+    CSVContentTypeField,
+    CSVModelChoiceField,
+    CSVModelMultipleChoiceField,
+    CSVMultipleChoiceField,
+    CSVMultipleContentTypeField,
+    SlugField,
 )
 
 __all__ = (
@@ -112,6 +117,7 @@ class CustomFieldChoiceSetImportForm(OwnerCSVMixin, CSVModelForm):
                     value, label = line, line
                 data.append((value, label))
             return data
+        return None
 
 
 class CustomLinkImportForm(OwnerCSVMixin, CSVModelForm):

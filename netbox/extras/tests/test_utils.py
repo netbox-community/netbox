@@ -27,7 +27,7 @@ class ImageUploadTests(TestCase):
     def setUpTestData(cls):
         # We only need a ContentType with model="rack" for the prefix;
         # this doesn't require creating a Rack object.
-        cls.ct_rack = ContentType.objects.get(app_label='dcim', model='rack')
+        cls.ct_rack = ContentType.objects.get_by_natural_key('dcim', 'rack')
 
     def _stub_instance(self, object_id=12, name=None):
         """

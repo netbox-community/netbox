@@ -95,7 +95,7 @@
   <tr>
     <th scope="row" class="ps-3">{% trans "Custom validators" %}</th>
     {% if config.CUSTOM_VALIDATORS %}
-      <td><pre>{{ config.CUSTOM_VALIDATORS }}</pre></td>
+      <td><pre class="p-0">{{ config.CUSTOM_VALIDATORS }}</pre></td>
     {% else %}
       <td>{{ ''|placeholder }}</td>
     {% endif %}
@@ -103,7 +103,7 @@
   <tr>
     <th scope="row" class="border-0 ps-3">{% trans "Protection rules" %}</th>
     {% if config.PROTECTION_RULES %}
-      <td class="border-0"><pre>{{ config.PROTECTION_RULES }}</pre></td>
+      <td class="border-0"><pre class="p-0">{{ config.PROTECTION_RULES }}</pre></td>
     {% else %}
       <td class="border-0">{{ ''|placeholder }}</td>
     {% endif %}
@@ -116,7 +116,7 @@
   <tr>
     <th scope="row" class="border-0 ps-3">{% trans "Default preferences" %}</th>
     {% if config.DEFAULT_USER_PREFERENCES %}
-      <td class="border-0"><pre>{{ config.DEFAULT_USER_PREFERENCES|json }}</pre></td>
+      <td class="border-0"><pre class="p-0">{{ config.DEFAULT_USER_PREFERENCES }}</pre></td>
     {% else %}
       <td class="border-0">{{ ''|placeholder }}</td>
     {% endif %}

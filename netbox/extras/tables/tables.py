@@ -5,12 +5,13 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from extras.models import *
-from core.tables import JobTable
 from core.models import Job
+from core.tables import JobTable
+from extras.models import *
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.events import get_event_text
 from netbox.tables import BaseTable, NetBoxTable, PrimaryModelTable, columns
+
 from .columns import NotificationActionsColumn
 
 __all__ = (
@@ -39,9 +40,20 @@ __all__ = (
 )
 
 IMAGEATTACHMENT_IMAGE = """
+{% load thumbnail %}
 {% if record.image %}
-  <a href="{{ record.image.url }}" target="_blank" class="image-preview" data-bs-placement="top">
-    <i class="mdi mdi-image"></i></a>
+  {% thumbnail record.image "400x400" as tn %}
+    <a href="{{ record.get_absolute_url }}"
+       class="image-preview"
+       data-preview-url="{{ tn.url }}"
+       data-bs-placement="left"
+       title="{{ record.filename }}"
+       rel="noopener noreferrer"
+       target="_blank"
+       aria-label="{{ record.filename }}">
+      <i class="mdi mdi-image"></i>
+    </a>
+  {% endthumbnail %}
 {% endif %}
 <a href="{{ record.get_absolute_url }}">{{ record.filename|truncate_middle:16 }}</a>
 """

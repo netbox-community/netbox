@@ -23,6 +23,7 @@ from utilities.querydict import normalize_querydict, prepare_cloned_fields
 from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_action_url
+
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -412,8 +413,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             return HttpResponse(headers={
                 'HX-Redirect': obj.get_absolute_url(),
             })
-        else:
-            return redirect(obj.get_absolute_url())
+        return redirect(obj.get_absolute_url())
 
     #
     # Request handlers
@@ -498,8 +498,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 return redirect(return_url)
             return redirect(self.get_return_url(request, obj))
 
-        else:
-            logger.debug("Form validation failed")
+        logger.debug("Form validation failed")
 
         return render(request, self.template_name, {
             'object': obj,
@@ -606,8 +605,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                         # Redirect user on success
                         if '_addanother' in request.POST and safe_for_redirect(request.get_full_path()):
                             return redirect(request.get_full_path())
-                        else:
-                            return redirect(self.get_return_url(request))
+                        return redirect(self.get_return_url(request))
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)

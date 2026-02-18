@@ -37,8 +37,7 @@ def foreground_color(bg_color, dark='000000', light='ffffff'):
     r, g, b = [int(bg_color[c:c + 2], 16) for c in (0, 2, 4)]
     if r * 0.299 + g * 0.587 + b * 0.114 > THRESHOLD:
         return dark
-    else:
-        return light
+    return light
 
 
 def highlight(value, highlight, trim_pre=None, trim_post=None, trim_placeholder='...'):

@@ -9,9 +9,13 @@ from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    MultiValueNumberFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
+
 from .choices import *
 from .models import *
 
@@ -99,11 +103,13 @@ class ProviderFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
 class ProviderAccountFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
+        distinct=False,
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='provider__slug',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
@@ -127,11 +133,13 @@ class ProviderAccountFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
 class ProviderNetworkFilterSet(PrimaryModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
+        distinct=False,
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='provider__slug',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
@@ -163,22 +171,26 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Provider.objects.all(),
+        distinct=False,
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='provider__slug',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
     provider_account_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account',
         queryset=ProviderAccount.objects.all(),
+        distinct=False,
         label=_('Provider account (ID)'),
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account__account',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='account',
         label=_('Provider account (account)'),
     )
@@ -189,16 +201,19 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitType.objects.all(),
+        distinct=False,
         label=_('Circuit type (ID)'),
     )
     type = django_filters.ModelMultipleChoiceFilter(
         field_name='type__slug',
         queryset=CircuitType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Circuit type (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CircuitStatusChoices,
+        distinct=False,
         null_value=None
     )
     region_id = TreeNodeMultipleChoiceFilter(
@@ -245,10 +260,12 @@ class CircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     )
     termination_a_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitTermination.objects.all(),
+        distinct=False,
         label=_('Termination A (ID)'),
     )
     termination_z_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitTermination.objects.all(),
+        distinct=False,
         label=_('Termination A (ID)'),
     )
 
@@ -279,9 +296,10 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     )
     circuit_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Circuit.objects.all(),
+        distinct=False,
         label=_('Circuit'),
     )
-    termination_type = ContentTypeFilter()
+    termination_type = MultiValueContentTypeFilter()
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='_region',
@@ -310,12 +328,14 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         field_name='_site',
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='_site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )
@@ -334,17 +354,20 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
+        distinct=False,
         field_name='_provider_network',
         label=_('ProviderNetwork (ID)'),
     )
     provider_id = django_filters.ModelMultipleChoiceFilter(
         field_name='circuit__provider_id',
         queryset=Provider.objects.all(),
+        distinct=False,
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='circuit__provider__slug',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
@@ -381,7 +404,7 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    member_type = ContentTypeFilter()
+    member_type = MultiValueContentTypeFilter()
     circuit = MultiValueCharFilter(
         method='filter_circuit',
         field_name='cid',
@@ -414,11 +437,13 @@ class CircuitGroupAssignmentFilterSet(NetBoxModelFilterSet):
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitGroup.objects.all(),
+        distinct=False,
         label=_('Circuit group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__slug',
         queryset=CircuitGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Circuit group (slug)'),
     )
@@ -488,41 +513,49 @@ class VirtualCircuitFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     provider_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_network__provider',
         queryset=Provider.objects.all(),
+        distinct=False,
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_network__provider__slug',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
     provider_account_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account',
         queryset=ProviderAccount.objects.all(),
+        distinct=False,
         label=_('Provider account (ID)'),
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account__account',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='account',
         label=_('Provider account (account)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
+        distinct=False,
         label=_('Provider network (ID)'),
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VirtualCircuitType.objects.all(),
+        distinct=False,
         label=_('Virtual circuit type (ID)'),
     )
     type = django_filters.ModelMultipleChoiceFilter(
         field_name='type__slug',
         queryset=VirtualCircuitType.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Virtual circuit type (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=CircuitStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -548,41 +581,49 @@ class VirtualCircuitTerminationFilterSet(NetBoxModelFilterSet):
     )
     virtual_circuit_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VirtualCircuit.objects.all(),
+        distinct=False,
         label=_('Virtual circuit'),
     )
     role = django_filters.MultipleChoiceFilter(
         choices=VirtualCircuitTerminationRoleChoices,
+        distinct=False,
         null_value=None
     )
     provider_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_circuit__provider_network__provider',
         queryset=Provider.objects.all(),
+        distinct=False,
         label=_('Provider (ID)'),
     )
     provider = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_circuit__provider_network__provider__slug',
         queryset=Provider.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
     provider_account_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_circuit__provider_account',
         queryset=ProviderAccount.objects.all(),
+        distinct=False,
         label=_('Provider account (ID)'),
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_circuit__provider_account__account',
         queryset=ProviderAccount.objects.all(),
+        distinct=False,
         to_field_name='account',
         label=_('Provider account (account)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
+        distinct=False,
         field_name='virtual_circuit__provider_network',
         label=_('Provider network (ID)'),
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Interface.objects.all(),
+        distinct=False,
         field_name='interface',
         label=_('Interface (ID)'),
     )

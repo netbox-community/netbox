@@ -33,13 +33,13 @@ def get_table_for_model(model, name=None):
     try:
         return import_string(f'{model._meta.app_label}.tables.{name}')
     except ImportError:
-        return
+        return None
 
 
 def get_table_ordering(request, table):
     """
-    Given a request, return the prescribed table ordering, if any. This may be necessary to determine prior to rendering
-    the table itself.
+    Given a request, return the prescribed table ordering, if any.
+    This may be necessary to determine before rendering the table itself.
     """
     # Check for an explicit ordering
     if 'sort' in request.GET:
@@ -49,6 +49,7 @@ def get_table_ordering(request, table):
     if request.user.is_authenticated:
         if preference := request.user.config.get(f'tables.{table.__name__}.ordering'):
             return preference
+    return None
 
 
 def linkify_phone(value):

@@ -5,8 +5,8 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import LocationStatusChoices
-from dcim.models import Site, Location
-from utilities.testing import disable_warnings, APITestCase, TestCase
+from dcim.models import Location, Site
+from utilities.testing import APITestCase, TestCase, disable_warnings
 
 
 class GraphQLTestCase(TestCase):

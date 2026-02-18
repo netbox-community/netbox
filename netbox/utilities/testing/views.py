@@ -13,6 +13,7 @@ from core.models import ObjectChange, ObjectType
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
+
 from .base import ModelTestCase
 from .utils import add_custom_field_data, disable_warnings, get_random_string, post_data
 
@@ -634,10 +635,9 @@ class ViewTestCases:
                     available = ', '.join(self.csv_data.keys())
                     raise ValueError(f"Scenario '{scenario_name}' not found in csv_data. Available: {available}")
                 return '\n'.join(self.csv_data[scenario_name])
-            elif isinstance(self.csv_data, (tuple, list)):
+            if isinstance(self.csv_data, (tuple, list)):
                 return '\n'.join(self.csv_data)
-            else:
-                raise TypeError(f'csv_data must be a tuple, list, or dictionary, got {type(self.csv_data)}')
+            raise TypeError(f'csv_data must be a tuple, list, or dictionary, got {type(self.csv_data)}')
 
         def _get_update_csv_data(self):
             return self.csv_update_data, '\n'.join(self.csv_update_data)

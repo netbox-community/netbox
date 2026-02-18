@@ -1,9 +1,8 @@
 import svgwrite
+from django.conf import settings
 from svgwrite.container import Group, Hyperlink
 from svgwrite.shapes import Line, Polyline, Rect
 from svgwrite.text import Text
-
-from django.conf import settings
 
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from utilities.html import foreground_color
@@ -191,11 +190,10 @@ class CableTraceSVG:
         if hasattr(instance, 'role'):
             # Device
             return instance.role.color
-        elif instance._meta.model_name == 'circuit' and instance.type.color:
+        if instance._meta.model_name == 'circuit' and instance.type.color:
             return instance.type.color
-        else:
-            # Other parent object
-            return 'e0e0e0'
+        # Other parent object
+        return 'e0e0e0'
 
     def draw_parent_objects(self, obj_list):
         """

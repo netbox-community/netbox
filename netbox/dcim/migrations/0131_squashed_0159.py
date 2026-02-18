@@ -1,9 +1,10 @@
-import dcim.fields
 import django.core.validators
-from django.db import migrations, models
 import django.db.models.deletion
 import mptt.fields
 import taggit.managers
+from django.db import migrations, models
+
+import dcim.fields
 import utilities.fields
 import utilities.json
 import utilities.ordering

@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType as DjangoContentType
 
 from core import models
 from netbox.graphql.types import BaseObjectType, PrimaryObjectType
+
 from .filters import *
 
 __all__ = (

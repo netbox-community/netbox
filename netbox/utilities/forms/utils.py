@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 
 from utilities.choices import unpack_grouped_choices
 from utilities.querysets import RestrictedQuerySet
+
 from .constants import *
 
 __all__ = (
@@ -138,7 +139,7 @@ def get_field_value(form, field_name):
 
     if form.is_bound and field_name in form.data:
         if (value := form.data[field_name]) is None:
-            return
+            return None
         if hasattr(field, 'valid_value') and field.valid_value(value):
             return value
 

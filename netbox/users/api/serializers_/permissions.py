@@ -2,6 +2,7 @@ from core.models import ObjectType
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
 from users.models import Group, ObjectPermission, User
+
 from .nested import NestedGroupSerializer, NestedUserSerializer
 
 __all__ = (

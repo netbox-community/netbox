@@ -1,8 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from tenancy.models import *
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+
+from ..models import *
 
 __all__ = (
     'ContactModelFilterForm',

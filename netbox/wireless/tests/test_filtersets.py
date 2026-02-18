@@ -5,10 +5,10 @@ from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
+from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from wireless.choices import *
 from wireless.filtersets import *
 from wireless.models import *
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 
 
 class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -305,7 +305,7 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_scope_type(self):
-        params = {'scope_type': 'dcim.location'}
+        params = {'scope_type': ['dcim.location']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

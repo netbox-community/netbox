@@ -6,7 +6,7 @@ from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.forms.mixins import ScopedBulkEditForm
 from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
-from ipam.models import VLAN, VLANGroup, VLANTranslationPolicy, VRF
+from ipam.models import VLAN, VRF, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.models import Tenant

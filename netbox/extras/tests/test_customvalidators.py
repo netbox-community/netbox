@@ -4,7 +4,7 @@ from django.db import transaction
 from django.test import TestCase, override_settings
 
 from dcim.choices import SiteStatusChoices
-from dcim.models import Site, Region
+from dcim.models import Region, Site
 from extras.validators import CustomValidator
 from ipam.models import ASN, RIR
 from users.models import User

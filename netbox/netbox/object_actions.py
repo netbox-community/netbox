@@ -49,7 +49,7 @@ class ObjectAction:
         try:
             return get_action_url(obj, action=cls.name, kwargs=kwargs)
         except NoReverseMatch:
-            return
+            return None
 
     @classmethod
     def get_url_params(cls, context):
