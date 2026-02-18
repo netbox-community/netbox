@@ -278,7 +278,7 @@ class ObjectListWidget(DashboardWidget):
         model = ObjectType.objects.get_by_natural_key(app_label, model_name).model_class()
         if not model:
             logger.debug(f"Dashboard Widget model_class not found: {app_label}:{model_name}")
-            return
+            return None
 
         # Evaluate user's permission. Note that this controls only whether the HTMX element is
         # embedded on the page: The view itself will also evaluate permissions separately.

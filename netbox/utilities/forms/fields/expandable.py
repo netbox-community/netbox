@@ -50,6 +50,6 @@ class ExpandableIPAddressField(forms.CharField):
         # Hackish address family detection but it's all we have to work with
         if '.' in value and re.search(IP4_EXPANSION_PATTERN, value):
             return list(expand_ipaddress_pattern(value, 4))
-        elif ':' in value and re.search(IP6_EXPANSION_PATTERN, value):
+        if ':' in value and re.search(IP6_EXPANSION_PATTERN, value):
             return list(expand_ipaddress_pattern(value, 6))
         return [value]

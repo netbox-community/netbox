@@ -246,7 +246,7 @@ class CustomFieldsMixin(models.Model):
             # Skip hidden fields if 'omit_hidden' is True
             if omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.HIDDEN:
                 continue
-            elif omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.IF_SET and not value:
+            if omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.IF_SET and not value:
                 continue
 
             data[field] = field.deserialize(value)
@@ -611,6 +611,7 @@ class SyncedDataMixin(models.Model):
                 return DataFile.objects.get(source=self.data_source, path=self.data_path)
             except DataFile.DoesNotExist:
                 pass
+        return None
 
     def sync(self, save=False):
         """

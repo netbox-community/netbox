@@ -32,8 +32,7 @@ class ScriptSerializer(ValidatedModelSerializer):
             return {
                 k: v.__class__.__name__ for k, v in obj.python_class()._get_vars().items()
             }
-        else:
-            return {}
+        return {}
 
     @extend_schema_field(serializers.CharField())
     def get_display(self, obj):
@@ -43,8 +42,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     def get_description(self, obj):
         if obj.python_class:
             return obj.python_class().description
-        else:
-            return None
+        return None
 
 
 class ScriptDetailSerializer(ScriptSerializer):

@@ -211,7 +211,7 @@ class RemoteUserBackend(_RemoteUserBackend):
         logger.debug(
             f"trying to authenticate {remote_user} with groups {remote_groups}")
         if not remote_user:
-            return
+            return None
         user = None
         username = self.clean_username(remote_user)
 
@@ -235,8 +235,7 @@ class RemoteUserBackend(_RemoteUserBackend):
                     return self.configure_groups(user, remote_groups)
             else:
                 return user
-        else:
-            return None
+        return None
 
     def _is_superuser(self, user):
         logger = logging.getLogger('netbox.auth.RemoteUserBackend')

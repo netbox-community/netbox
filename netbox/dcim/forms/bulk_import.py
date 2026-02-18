@@ -796,8 +796,7 @@ class ModuleImportForm(ModuleCommonForm, PrimaryModelImportForm):
         # Make sure replicate_components is True when it's not included in the uploaded data
         if 'replicate_components' not in self.data:
             return True
-        else:
-            return self.cleaned_data['replicate_components']
+        return self.cleaned_data['replicate_components']
 
 
 #
@@ -1079,8 +1078,7 @@ class InterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:
             return True
-        else:
-            return self.cleaned_data['enabled']
+        return self.cleaned_data['enabled']
 
     def clean_vdcs(self):
         for vdc in self.cleaned_data['vdcs']:

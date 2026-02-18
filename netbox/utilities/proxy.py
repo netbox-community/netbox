@@ -54,3 +54,4 @@ def resolve_proxies(url=None, protocol=None, context=None):
         router = import_string(item) if type(item) is str else item
         if proxies := router().route(url=url, protocol=protocol, context=context):
             return proxies
+    return None

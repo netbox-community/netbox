@@ -392,7 +392,7 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
             raise forms.ValidationError({
                 selected_objects[1]: _("An IP address can only be assigned to a single object.")
             })
-        elif selected_objects:
+        if selected_objects:
             assigned_object = self.cleaned_data[selected_objects[0]]
             if self.instance.pk and self.instance.assigned_object and assigned_object != self.instance.assigned_object:
                 if self.cleaned_data['primary_for_parent']:

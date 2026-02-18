@@ -66,7 +66,7 @@ class BaseFilterSetTests:
             return [(f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter)]
 
         # Many-to-many relationships (forward & backward)
-        elif type(field) in (ManyToManyField, ManyToManyRel):
+        if type(field) in (ManyToManyField, ManyToManyRel):
             filter_name = self.get_m2m_filter_name(field)
             filter_name = self.filter_name_map.get(filter_name, filter_name)
 

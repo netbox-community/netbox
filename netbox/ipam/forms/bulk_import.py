@@ -372,15 +372,13 @@ class IPAddressImportForm(PrimaryModelImportForm):
         # Make sure is_primary is None when it's not included in the uploaded data
         if 'is_primary' not in self.data:
             return None
-        else:
-            return self.cleaned_data['is_primary']
+        return self.cleaned_data['is_primary']
 
     def clean_is_oob(self):
         # Make sure is_oob is None when it's not included in the uploaded data
         if 'is_oob' not in self.data:
             return None
-        else:
-            return self.cleaned_data['is_oob']
+        return self.cleaned_data['is_oob']
 
     def clean(self):
         super().clean()

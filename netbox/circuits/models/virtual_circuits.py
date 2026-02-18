@@ -185,6 +185,8 @@ class VirtualCircuitTermination(
             return self.virtual_circuit.terminations.filter(
                 role=VirtualCircuitTerminationRoleChoices.ROLE_HUB
             )
+        # Fallback for unexpected roles
+        return self.virtual_circuit.terminations.none()
 
     def clean(self):
         super().clean()

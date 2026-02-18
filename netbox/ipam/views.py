@@ -923,7 +923,7 @@ class IPAddressEditView(generic.ObjectEditView):
     def get_extra_addanother_params(self, request):
         if 'interface' in request.GET:
             return {'interface': request.GET['interface']}
-        elif 'vminterface' in request.GET:
+        if 'vminterface' in request.GET:
             return {'vminterface': request.GET['vminterface']}
         return {}
 

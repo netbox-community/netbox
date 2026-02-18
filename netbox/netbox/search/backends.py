@@ -248,7 +248,7 @@ class CachedValueSearchBackend(SearchBackend):
         try:
             get_indexer(instance)
         except KeyError:
-            return
+            return None
 
         ct = ContentType.objects.get_for_model(instance)
         qs = CachedValue.objects.filter(object_type=ct, object_id=instance.pk)

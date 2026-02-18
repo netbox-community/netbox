@@ -486,8 +486,7 @@ class MACAddressFilter(PrimaryModelFilter):
         query = Q(**{f'{prefix}pk__in': interface_mac_ids}) | Q(**{f'{prefix}pk__in': vminterface_mac_ids})
         if value:
             return Q(query)
-        else:
-            return ~Q(query)
+        return ~Q(query)
 
 
 @strawberry_django.filter_type(models.Interface, lookups=True)
@@ -571,8 +570,7 @@ class InterfaceFilter(
     def connected(self, queryset, value: bool, prefix: str):
         if value is True:
             return queryset, Q(**{f"{prefix}_path__is_active": True})
-        else:
-            return queryset, Q(**{f"{prefix}_path__isnull": True}) | Q(**{f"{prefix}_path__is_active": False})
+        return queryset, Q(**{f"{prefix}_path__isnull": True}) | Q(**{f"{prefix}_path__is_active": False})
 
     @strawberry_django.filter_field
     def kind(
@@ -583,10 +581,11 @@ class InterfaceFilter(
     ):
         if value == InterfaceKindEnum.KIND_PHYSICAL:
             return queryset, ~Q(**{f"{prefix}type__in": NONCONNECTABLE_IFACE_TYPES})
-        elif value == InterfaceKindEnum.KIND_VIRTUAL:
+        if value == InterfaceKindEnum.KIND_VIRTUAL:
             return queryset, Q(**{f"{prefix}type__in": VIRTUAL_IFACE_TYPES})
-        elif value == InterfaceKindEnum.KIND_WIRELESS:
+        if value == InterfaceKindEnum.KIND_WIRELESS:
             return queryset, Q(**{f"{prefix}type__in": WIRELESS_IFACE_TYPES})
+        return queryset, Q()
 
 
 @strawberry_django.filter_type(models.InterfaceTemplate, lookups=True)

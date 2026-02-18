@@ -390,6 +390,7 @@ class TableConfigForm(forms.ModelForm):
             return columns.split(',') if type(columns) is str else columns
         if self.instance is not None:
             return self.instance.columns
+        return None
 
 
 class BookmarkForm(forms.ModelForm):

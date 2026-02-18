@@ -146,7 +146,7 @@ class Job(models.Model):
         if self.object_type:
             if self.object_type.model == 'reportmodule':
                 return reverse('extras:report_result', kwargs={'job_pk': self.pk})
-            elif self.object_type.model == 'scriptmodule':
+            if self.object_type.model == 'scriptmodule':
                 return reverse('extras:script_result', kwargs={'job_pk': self.pk})
         return reverse('core:job', args=[self.pk])
 

@@ -84,6 +84,7 @@ class SearchIndex:
         """
         if value := getattr(instance, field_name):
             return str(value)
+        return None
 
     @classmethod
     def get_category(cls):

@@ -45,8 +45,7 @@ class Empty(Lookup):
         sql, params = compiler.compile(self.lhs)
         if self.rhs:
             return f"CAST(LENGTH({sql}) AS BOOLEAN) IS NOT TRUE", params
-        else:
-            return f"CAST(LENGTH({sql}) AS BOOLEAN) IS TRUE", params
+        return f"CAST(LENGTH({sql}) AS BOOLEAN) IS TRUE", params
 
 
 class JSONEmpty(Lookup):

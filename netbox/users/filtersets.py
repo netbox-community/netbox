@@ -250,8 +250,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
         action = name.split('_')[1]
         if value:
             return queryset.filter(actions__contains=[action])
-        else:
-            return queryset.exclude(actions__contains=[action])
+        return queryset.exclude(actions__contains=[action])
 
 
 @register_filterset

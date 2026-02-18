@@ -139,7 +139,7 @@ def get_field_value(form, field_name):
 
     if form.is_bound and field_name in form.data:
         if (value := form.data[field_name]) is None:
-            return
+            return None
         if hasattr(field, 'valid_value') and field.valid_value(value):
             return value
 

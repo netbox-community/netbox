@@ -762,11 +762,11 @@ class Device(
     def __str__(self):
         if self.label and self.asset_tag:
             return f'{self.label} ({self.asset_tag})'
-        elif self.label:
+        if self.label:
             return self.label
-        elif self.device_type and self.asset_tag:
+        if self.device_type and self.asset_tag:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.asset_tag})'
-        elif self.device_type:
+        if self.device_type:
             return f'{self.device_type.manufacturer} {self.device_type.model} ({self.pk})'
         return super().__str__()
 
@@ -1046,6 +1046,7 @@ class Device(
             return self.name
         if self.virtual_chassis:
             return f'{self.virtual_chassis.name}:{self.vc_position}'
+        return None
 
     @property
     def identifier(self):
@@ -1058,12 +1059,11 @@ class Device(
     def primary_ip(self):
         if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
             return self.primary_ip4
-        elif self.primary_ip6:
+        if self.primary_ip6:
             return self.primary_ip6
-        elif self.primary_ip4:
+        if self.primary_ip4:
             return self.primary_ip4
-        else:
-            return None
+        return None
 
     @property
     def interfaces_count(self):
@@ -1278,12 +1278,11 @@ class VirtualDeviceContext(PrimaryModel):
     def primary_ip(self):
         if ConfigItem('PREFER_IPV4')() and self.primary_ip4:
             return self.primary_ip4
-        elif self.primary_ip6:
+        if self.primary_ip6:
             return self.primary_ip6
-        elif self.primary_ip4:
+        if self.primary_ip4:
             return self.primary_ip4
-        else:
-            return None
+        return None
 
     def clean(self):
         super().clean()
@@ -1369,7 +1368,7 @@ class MACAddress(PrimaryModel):
                     raise ValidationError(
                         _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
                     )
-                elif original_assigned_object != assigned_object:
+                if original_assigned_object != assigned_object:
                     raise ValidationError(
                         _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
                     )

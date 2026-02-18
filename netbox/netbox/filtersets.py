@@ -138,13 +138,13 @@ class BaseFilterSet(django_filters.FilterSet):
         )):
             return FILTER_NUMERIC_BASED_LOOKUP_MAP
 
-        elif isinstance(existing_filter, (
+        if isinstance(existing_filter, (
             filters.TreeNodeMultipleChoiceFilter,
         )):
             # TreeNodeMultipleChoiceFilter only support negation but must maintain the `in` lookup expression
             return FILTER_TREENODE_NEGATION_LOOKUP_MAP
 
-        elif isinstance(existing_filter, (
+        if isinstance(existing_filter, (
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
             TagFilter
@@ -152,7 +152,7 @@ class BaseFilterSet(django_filters.FilterSet):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
 
-        elif isinstance(existing_filter, (
+        if isinstance(existing_filter, (
             django_filters.filters.CharFilter,
             django_filters.ChoiceFilter,
             django_filters.MultipleChoiceFilter,
@@ -387,7 +387,7 @@ class AttributeFiltersMixin:
 
     def _get_field_lookup(self, key):
         if not key.startswith(self.attribute_filter_prefix):
-            return
+            return None
         lookup = key.split(self.attribute_filter_prefix, 1)[1]  # Strip prefix
         return f'{self.attributes_field_name}__{lookup}'
 

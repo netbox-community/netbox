@@ -98,6 +98,7 @@ class DataSource(JobsMixin, PrimaryModel):
     def get_type_display(self):
         if backend := registry['data_backends'].get(self.type):
             return backend.label
+        return None
 
     def get_status_color(self):
         return DataSourceStatusChoices.colors.get(self.status)

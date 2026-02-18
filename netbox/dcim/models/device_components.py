@@ -731,6 +731,7 @@ class BaseInterface(models.Model):
     def mac_address(self):
         if self.primary_mac_address:
             return self.primary_mac_address.mac_address
+        return None
 
 
 class Interface(
@@ -943,7 +944,7 @@ class Interface(
                         "The selected parent interface ({interface}) belongs to a different device ({device})"
                     ).format(interface=self.parent, device=self.parent.device)
                 })
-            elif self.parent.device.virtual_chassis != self.device.virtual_chassis:
+            if self.parent.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
                     'parent': _(
                         "The selected parent interface ({interface}) belongs to {device}, which is not part of "
@@ -965,7 +966,7 @@ class Interface(
                         "The selected bridge interface ({bridge}) belongs to a different device ({device})."
                     ).format(bridge=self.bridge, device=self.bridge.device)
                 })
-            elif self.bridge.device.virtual_chassis != self.device.virtual_chassis:
+            if self.bridge.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
                     'bridge': _(
                         "The selected bridge interface ({interface}) belongs to {device}, which is not part of virtual "
@@ -993,7 +994,7 @@ class Interface(
                         "The selected LAG interface ({lag}) belongs to a different device ({device})."
                     ).format(lag=self.lag, device=self.lag.device)
                 })
-            elif self.lag.device.virtual_chassis != self.device.virtual_chassis:
+            if self.lag.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
                     'lag': _(
                         "The selected LAG interface ({lag}) belongs to {device}, which is not part of virtual chassis "
@@ -1085,8 +1086,7 @@ class Interface(
             # Return the opposite side of the attached wireless link
             if self.wireless_link.interface_a == self:
                 return [self.wireless_link.interface_b]
-            else:
-                return [self.wireless_link.interface_a]
+            return [self.wireless_link.interface_a]
         return []
 
     @property

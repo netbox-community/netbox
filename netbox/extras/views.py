@@ -1470,10 +1470,9 @@ class BaseScriptView(generic.ObjectView):
     def get_object(self, **kwargs):
         if pk := kwargs.get('pk', False):
             return get_object_or_404(self.queryset, pk=pk)
-        elif (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
+        if (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
             return get_object_or_404(self.queryset, module__file_path=f'{module}.py', name=name)
-        else:
-            raise Http404
+        raise Http404
 
     def _get_script_class(self, script):
         """
@@ -1481,6 +1480,7 @@ class BaseScriptView(generic.ObjectView):
         """
         if script_class := script.python_class:
             return script_class()
+        return None
 
 
 class ScriptView(BaseScriptView):
@@ -1674,7 +1674,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
 
-        elif job.completed:
+        if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
         log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)

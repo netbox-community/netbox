@@ -167,6 +167,7 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     def ipv6_full(self):
         if self.prefix and self.prefix.version == 6:
             return netaddr.IPAddress(self.prefix).format(netaddr.ipv6_full)
+        return None
 
     def get_child_prefixes(self):
         """
@@ -344,6 +345,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     def ipv6_full(self):
         if self.prefix and self.prefix.version == 6:
             return netaddr.IPAddress(self.prefix).format(netaddr.ipv6_full)
+        return None
 
     @property
     def depth(self):
@@ -395,8 +397,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
-        else:
-            return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
+        return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
     def get_child_ranges(self, **kwargs):
         """
@@ -416,8 +417,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         """
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
-        else:
-            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
+        return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
     def get_available_ips(self):
         """
@@ -827,6 +827,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
     def ipv6_full(self):
         if self.address and self.address.version == 6:
             return netaddr.IPAddress(self.address).format(netaddr.ipv6_full)
+        return None
 
     def get_duplicates(self):
         return IPAddress.objects.filter(
@@ -852,6 +853,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
                 ])
                 if available_ips:
                     return next(iter(available_ips))
+        return None
 
     def get_related_ips(self):
         """

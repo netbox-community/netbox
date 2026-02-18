@@ -37,10 +37,12 @@ extend-select = [
     "E501",  # pycodestyle: line too long (enforced with `line-length` above)
     "W",     # pycodestyle warnings (various style warnings, often whitespace/newlines)
     "I",     # import sorting (isort-equivalent)
+    "RET",   # return semantics (flake8-return family)
 ]
 ignore = [
     "F403",  # pyflakes: `from ... import *` used; unable to detect undefined names
     "F405",  # pyflakes: name may be undefined or defined from star imports
+    "RET504",  # return: unnecessary assignment before `return` (e.g., `x = expr; return x` -> `return expr`)
     "UP032", # pyupgrade: prefer f-strings over `str.format(...)`
 ]
 preview = true

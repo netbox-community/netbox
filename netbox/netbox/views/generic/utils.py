@@ -11,3 +11,4 @@ def get_prerequisite_model(queryset):
             model = apps.get_model(prereq)
             if not model.objects.exists():
                 return model
+    return None

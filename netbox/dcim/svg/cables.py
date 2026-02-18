@@ -190,11 +190,10 @@ class CableTraceSVG:
         if hasattr(instance, 'role'):
             # Device
             return instance.role.color
-        elif instance._meta.model_name == 'circuit' and instance.type.color:
+        if instance._meta.model_name == 'circuit' and instance.type.color:
             return instance.type.color
-        else:
-            # Other parent object
-            return 'e0e0e0'
+        # Other parent object
+        return 'e0e0e0'
 
     def draw_parent_objects(self, obj_list):
         """

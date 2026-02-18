@@ -23,6 +23,7 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
     def get_connected_endpoints_type(self, obj):
         if endpoints := obj.connected_endpoints:
             return f'{endpoints[0]._meta.app_label}.{endpoints[0]._meta.model_name}'
+        return None
 
     @extend_schema_field(serializers.ListField(allow_null=True))
     def get_connected_endpoints(self, obj):
@@ -33,6 +34,7 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
             serializer = get_serializer_for_model(endpoints[0])
             context = {'request': self.context['request']}
             return serializer(endpoints, nested=True, many=True, context=context).data
+        return None
 
     @extend_schema_field(serializers.BooleanField)
     def get_connected_endpoints_reachable(self, obj):
