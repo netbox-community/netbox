@@ -1443,12 +1443,16 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
-        script_modules = ScriptModule.objects.restrict(request.user).prefetch_related(
-            'data_source', 'data_file', 'jobs'
+        available_scripts = Script.objects.restrict(request.user)
+        module_ids = {s.module_id for s in available_scripts}
+        script_modules = ScriptModule.objects.restrict(request.user).filter(pk__in=module_ids).prefetch_related(
+            'data_source', 'data_file',
         )
+
         context = {
             'model': ScriptModule,
             'script_modules': script_modules,
+            'available_scripts': available_scripts,
         }
 
         # Use partial template for dashboard widgets

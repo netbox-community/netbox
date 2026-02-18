@@ -328,7 +328,7 @@ class ObjectPermissionForm(forms.ModelForm):
         widget=SplitMultiSelectWidget(
             choices=get_object_types_choices
         ),
-        help_text=_('Select the types of objects to which the permission will appy.')
+        help_text=_('Select the types of objects to which the permission will apply.')
     )
     can_view = forms.BooleanField(
         required=False
