@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Dict, Any
 from urllib.parse import quote
 
@@ -12,6 +13,8 @@ from utilities.forms import get_selected_values, TableConfigForm
 from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_viewname, get_action_url
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
+
+logger = logging.getLogger("netbox.utilities.templatetags.helpers")
 
 __all__ = (
     'action_url',
@@ -364,6 +367,10 @@ def querystring(request, **kwargs):
     """
     Append or update the page number in a querystring.
     """
+    logger.warning(
+        'The querystring template tag is deprecated and will be removed in a future release. Use '
+        'the built-in Django querystring tag instead.',
+    )
     querydict = request.GET.copy()
     for k, v in kwargs.items():
         if v is not None:
