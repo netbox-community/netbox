@@ -37,7 +37,6 @@ class NetBoxGraphQLView(GraphQLView):
         if settings.LOGIN_REQUIRED and not request.user.is_authenticated:
             if request.accepts("text/html"):
                 return redirect_to_login(reverse('graphql'))
-            else:
-                return HttpResponseForbidden("No credentials provided.")
+            return HttpResponseForbidden("No credentials provided.")
 
         return super().dispatch(request, *args, **kwargs)

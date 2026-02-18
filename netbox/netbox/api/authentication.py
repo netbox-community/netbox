@@ -25,10 +25,10 @@ class TokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         # Authorization header is not present; ignore
         if not (auth := get_authorization_header(request).split()):
-            return
+            return None
         # Unrecognized header; ignore
         if auth[0].lower() not in (V1_KEYWORD.lower().encode(), V2_KEYWORD.lower().encode()):
-            return
+            return None
         # Check for extraneous token content
         if len(auth) != 2:
             raise exceptions.AuthenticationFailed(
@@ -150,6 +150,7 @@ class TokenPermissions(DjangoObjectPermissions):
         # If token authentication is in use, verify that the token allows write operations (for unsafe methods).
         if request.method in SAFE_METHODS or request.auth.write_enabled:
             return True
+        return False
 
     def has_permission(self, request, view):
 

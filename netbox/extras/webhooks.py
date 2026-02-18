@@ -124,8 +124,7 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
     if 200 <= response.status_code <= 299:
         logger.info(f"Request succeeded; response status {response.status_code}")
         return f"Status {response.status_code} returned, webhook successfully processed."
-    else:
-        logger.warning(f"Request failed; response status {response.status_code}: {response.content}")
-        raise requests.exceptions.RequestException(
-            f"Status {response.status_code} returned with content '{response.content}', webhook FAILED to process."
-        )
+    logger.warning(f"Request failed; response status {response.status_code}: {response.content}")
+    raise requests.exceptions.RequestException(
+        f"Status {response.status_code} returned with content '{response.content}', webhook FAILED to process."
+    )

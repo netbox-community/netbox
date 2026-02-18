@@ -61,15 +61,18 @@ class DateColumn(tables.Column):
     def render(self, value):
         if value:
             return value.isoformat()
+        return None
 
     def value(self, value):
         if value:
             return value.isoformat()
+        return None
 
     @classmethod
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateField):
             return cls(**kwargs)
+        return None
 
 
 @library.register
@@ -89,15 +92,18 @@ class DateTimeColumn(tables.Column):
             current_tz = zoneinfo.ZoneInfo(settings.TIME_ZONE)
             value = value.astimezone(current_tz)
             return f"{value.date().isoformat()} {value.time().isoformat(timespec=self.timespec)}"
+        return None
 
     def value(self, value):
         if value:
             return value.isoformat()
+        return None
 
     @classmethod
     def from_field(cls, field, **kwargs):
         if isinstance(field, DateTimeField):
             return cls(**kwargs)
+        return None
 
 
 class DurationColumn(tables.Column):

@@ -291,8 +291,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
         """
         if self.body_template:
             return render_jinja2(self.body_template, context)
-        else:
-            return json.dumps(context, cls=JSONEncoder)
+        return json.dumps(context, cls=JSONEncoder)
 
     def render_payload_url(self, context):
         """

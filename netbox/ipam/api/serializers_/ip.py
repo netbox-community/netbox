@@ -95,7 +95,7 @@ class PrefixLengthSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv4'.format(requested_prefix)
             })
-        elif prefix.family == 6 and requested_prefix > 128:
+        if prefix.family == 6 and requested_prefix > 128:
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(requested_prefix)
             })
@@ -174,11 +174,11 @@ class AvailableIPRequestSerializer(serializers.Serializer):
                     parent.mask_length
                 )
             })
-        elif parent.family == 4 and prefix_length > 32:
+        if parent.family == 4 and prefix_length > 32:
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv6'.format(prefix_length)
             })
-        elif parent.family == 6 and prefix_length > 128:
+        if parent.family == 6 and prefix_length > 128:
             raise serializers.ValidationError({
                 'prefix_length': 'Invalid prefix length ({}) for IPv4'.format(prefix_length)
             })

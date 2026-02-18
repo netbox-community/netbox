@@ -227,12 +227,11 @@ def isodate(value):
     if type(value) is datetime.date:
         text = value.isoformat()
         return mark_safe(f'<span title="{naturalday(value)}">{text}</span>')
-    elif type(value) is datetime.datetime:
+    if type(value) is datetime.datetime:
         local_value = localtime(value) if value.tzinfo else value
         text = local_value.date().isoformat()
         return mark_safe(f'<span title="{naturaltime(value)}">{text}</span>')
-    else:
-        return ''
+    return ''
 
 
 @register.filter()

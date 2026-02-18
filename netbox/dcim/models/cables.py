@@ -673,12 +673,14 @@ class CablePath(models.Model):
         if self.path:
             ct_id, _ = decompile_path_node(self.path[0][0])
             return ContentType.objects.get_for_id(ct_id)
+        return None
 
     @property
     def destination_type(self):
         if self.is_complete:
             ct_id, _ = decompile_path_node(self.path[-1][0])
             return ContentType.objects.get_for_id(ct_id)
+        return None
 
     @property
     def _path_decompiled(self):
@@ -921,7 +923,7 @@ class CablePath(models.Model):
 
                 if not circuit_terminations.exists():
                     break
-                elif all([ct._provider_network for ct in circuit_terminations]):
+                if all([ct._provider_network for ct in circuit_terminations]):
                     # Circuit terminates to a ProviderNetwork
                     path.extend([
                         [object_to_path_node(ct) for ct in circuit_terminations],
@@ -929,14 +931,14 @@ class CablePath(models.Model):
                     ])
                     is_complete = True
                     break
-                elif all([ct.termination and not ct.cable for ct in circuit_terminations]):
+                if all([ct.termination and not ct.cable for ct in circuit_terminations]):
                     # Circuit terminates to a Region/Site/etc.
                     path.extend([
                         [object_to_path_node(ct) for ct in circuit_terminations],
                         [object_to_path_node(ct.termination) for ct in circuit_terminations],
                     ])
                     break
-                elif any([ct.cable in links for ct in circuit_terminations]):
+                if any([ct.cable in links for ct in circuit_terminations]):
                     # No valid path
                     is_split = True
                     break

@@ -140,9 +140,8 @@ class LoginView(View):
 
             return response
 
-        else:
-            username = form['username'].value()
-            logger.debug(f"Login form validation failed for username: {remove_linebreaks(username)}")
+        username = form['username'].value()
+        logger.debug(f"Login form validation failed for username: {remove_linebreaks(username)}")
 
         return render(request, self.template_name, {
             'form': form,

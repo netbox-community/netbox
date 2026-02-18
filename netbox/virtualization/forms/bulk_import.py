@@ -252,8 +252,7 @@ class VMInterfaceImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         # Make sure enabled is True when it's not included in the uploaded data
         if 'enabled' not in self.data:
             return True
-        else:
-            return self.cleaned_data['enabled']
+        return self.cleaned_data['enabled']
 
 
 class VirtualDiskImportForm(OwnerCSVMixin, NetBoxModelImportForm):

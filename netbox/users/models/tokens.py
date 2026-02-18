@@ -209,6 +209,7 @@ class Token(models.Model):
             return 'Token '
         if self.v2:
             return f'Bearer {TOKEN_PREFIX}{self.key}.'
+        return None
 
     def clean(self):
         super().clean()
@@ -288,6 +289,7 @@ class Token(models.Model):
                 return False
             digest = hmac.new(pepper.encode('utf-8'), token.encode('utf-8'), hashlib.sha256).hexdigest()
             return digest == self.hmac_digest
+        return False
 
     def validate_client_ip(self, client_ip):
         """

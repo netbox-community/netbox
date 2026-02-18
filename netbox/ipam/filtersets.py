@@ -473,8 +473,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
             if '/' in value:
                 return queryset.filter(prefix__net_contains_or_equals=str(netaddr.IPNetwork(value).cidr))
             # Searching by IP address
-            else:
-                return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
+            return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
         except (AddrFormatError, ValueError):
             return queryset.none()
 
@@ -809,11 +808,10 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
                 assigned_object_type__in=content_types,
                 assigned_object_id__isnull=False
             )
-        else:
-            return queryset.exclude(
-                assigned_object_type__in=content_types,
-                assigned_object_id__isnull=False
-            )
+        return queryset.exclude(
+            assigned_object_type__in=content_types,
+            assigned_object_id__isnull=False
+        )
 
     def _assigned(self, queryset, name, value):
         if value:
@@ -821,11 +819,10 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
                 assigned_object_type__isnull=True,
                 assigned_object_id__isnull=True
             )
-        else:
-            return queryset.filter(
-                assigned_object_type__isnull=True,
-                assigned_object_id__isnull=True
-            )
+        return queryset.filter(
+            assigned_object_type__isnull=True,
+            assigned_object_id__isnull=True
+        )
 
 
 @register_filterset

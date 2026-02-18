@@ -122,7 +122,7 @@ class NetIn(Lookup):
 
         if with_mask and not without_mask:
             return address_in_clause, with_mask
-        elif not with_mask and without_mask:
+        if not with_mask and without_mask:
             return host_in_clause, without_mask
 
         in_clause = '({}) OR ({})'.format(address_in_clause, host_in_clause)

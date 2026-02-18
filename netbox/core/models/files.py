@@ -79,8 +79,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
                 'scripts': settings.SCRIPTS_ROOT,
                 'reports': settings.REPORTS_ROOT,
             }[self.file_root]
-        else:
-            return ""
+        return ""
 
     def sync_data(self):
         if self.data_file:

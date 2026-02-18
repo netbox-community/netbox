@@ -34,8 +34,7 @@ class BaseObjectType:
         # Enforce object permissions on the queryset
         if hasattr(queryset, 'restrict'):
             return queryset.restrict(info.context.request.user, 'view')
-        else:
-            return queryset
+        return queryset
 
     @strawberry_django.field
     def display(self) -> str:

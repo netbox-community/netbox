@@ -117,6 +117,7 @@ class CustomFieldChoiceSetImportForm(OwnerCSVMixin, CSVModelForm):
                     value, label = line, line
                 data.append((value, label))
             return data
+        return None
 
 
 class CustomLinkImportForm(OwnerCSVMixin, CSVModelForm):

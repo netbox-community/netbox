@@ -199,14 +199,13 @@ def humanize_speed(speed):
         return ''
     if speed >= 1000000000 and speed % 1000000000 == 0:
         return '{} Tbps'.format(int(speed / 1000000000))
-    elif speed >= 1000000 and speed % 1000000 == 0:
+    if speed >= 1000000 and speed % 1000000 == 0:
         return '{} Gbps'.format(int(speed / 1000000))
-    elif speed >= 1000 and speed % 1000 == 0:
+    if speed >= 1000 and speed % 1000 == 0:
         return '{} Mbps'.format(int(speed / 1000))
-    elif speed >= 1000:
+    if speed >= 1000:
         return '{} Mbps'.format(float(speed) / 1000)
-    else:
-        return '{} Kbps'.format(speed)
+    return '{} Kbps'.format(speed)
 
 
 def _humanize_megabytes(mb, divisor=1000):
@@ -373,8 +372,7 @@ def querystring(request, **kwargs):
     querystring = querydict.urlencode(safe='/')
     if querystring:
         return '?' + querystring
-    else:
-        return ''
+    return ''
 
 
 @register.inclusion_tag('helpers/utilization_graph.html')

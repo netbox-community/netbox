@@ -47,8 +47,7 @@ class ChoiceField(serializers.Field):
         if data is None:
             if self.allow_null:
                 return True, None
-            else:
-                data = ''
+            data = ''
         return super().validate_empty_values(data)
 
     def to_representation(self, obj):
@@ -59,6 +58,7 @@ class ChoiceField(serializers.Field):
                 'value': obj,
                 'label': self._choices.get(obj, ''),
             }
+        return None
 
     def to_internal_value(self, data):
         if data == '':

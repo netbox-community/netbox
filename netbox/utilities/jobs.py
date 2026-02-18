@@ -25,7 +25,7 @@ def process_request_as_job(view, request, name=None):
 
     # Check that the request that is not already being processed as a background job (would be a loop)
     if is_background_request(request):
-        return
+        return None
 
     # Create a serializable copy of the original request
     request_copy = copy_safe_request(request)

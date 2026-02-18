@@ -222,24 +222,26 @@ class RackViewSet(NetBoxModelViewSet):
             )
             return HttpResponse(drawing.tostring(), content_type='image/svg+xml')
 
-        else:
-            # Return a JSON representation of the rack units in the elevation
-            elevation = rack.get_rack_units(
-                face=data['face'],
-                user=request.user,
-                exclude=data['exclude'],
-                expand_devices=data['expand_devices']
-            )
+        # Return a JSON representation of the rack units in the elevation
+        elevation = rack.get_rack_units(
+            face=data['face'],
+            user=request.user,
+            exclude=data['exclude'],
+            expand_devices=data['expand_devices']
+        )
 
-            # Enable filtering rack units by ID
-            if q := data['q']:
-                q = q.lower()
-                elevation = [u for u in elevation if q in str(u['id']) or q in str(u['name']).lower()]
+        # Enable filtering rack units by ID
+        if q := data['q']:
+            q = q.lower()
+            elevation = [u for u in elevation if q in str(u['id']) or q in str(u['name']).lower()]
 
-            page = self.paginate_queryset(elevation)
-            if page is not None:
-                rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
-                return self.get_paginated_response(rack_units.data)
+        page = self.paginate_queryset(elevation)
+        if page is not None:
+            rack_units = serializers.RackUnitSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(rack_units.data)
+
+        # TODO: This endpoint should always return an HttpResponse/DRF Response; `None` is not a meaningful result.
+        return None
 
 
 #

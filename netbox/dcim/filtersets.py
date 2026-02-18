@@ -704,14 +704,12 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
     def _has_front_image(self, queryset, name, value):
         if value:
             return queryset.exclude(front_image='')
-        else:
-            return queryset.filter(front_image='')
+        return queryset.filter(front_image='')
 
     def _has_rear_image(self, queryset, name, value):
         if value:
             return queryset.exclude(rear_image='')
-        else:
-            return queryset.filter(rear_image='')
+        return queryset.filter(rear_image='')
 
     def _console_ports(self, queryset, name, value):
         return queryset.exclude(consoleporttemplates__isnull=value)
@@ -1855,8 +1853,7 @@ class CabledObjectFilterSet(django_filters.FilterSet):
     def filter_occupied(self, queryset, name, value):
         if value:
             return queryset.filter(Q(cable__isnull=False) | Q(mark_connected=True))
-        else:
-            return queryset.filter(cable__isnull=True, mark_connected=False)
+        return queryset.filter(cable__isnull=True, mark_connected=False)
 
 
 class PathEndpointFilterSet(django_filters.FilterSet):
@@ -1867,8 +1864,7 @@ class PathEndpointFilterSet(django_filters.FilterSet):
     def filter_connected(self, queryset, name, value):
         if value:
             return queryset.filter(_path__is_active=True)
-        else:
-            return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
+        return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
 
 
 @register_filterset
@@ -2045,8 +2041,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         }
         if value:
             return queryset.exclude(**params)
-        else:
-            return queryset.filter(**params)
+        return queryset.filter(**params)
 
     def filter_primary(self, queryset, name, value):
         interface_mac_ids = Interface.objects.filter(primary_mac_address_id__isnull=False).values_list(
@@ -2058,8 +2053,7 @@ class MACAddressFilterSet(PrimaryModelFilterSet):
         query = Q(pk__in=interface_mac_ids) | Q(pk__in=vminterface_mac_ids)
         if value:
             return queryset.filter(query)
-        else:
-            return queryset.exclude(query)
+        return queryset.exclude(query)
 
 
 class CommonInterfaceFilterSet(django_filters.FilterSet):
@@ -2302,12 +2296,11 @@ class InterfaceFilterSet(
                 Q(wireless_link__isnull=False) |
                 Q(mark_connected=True)
             )
-        else:
-            return queryset.filter(
-                cable__isnull=True,
-                wireless_link__isnull=True,
-                mark_connected=False
-            )
+        return queryset.filter(
+            cable__isnull=True,
+            wireless_link__isnull=True,
+            mark_connected=False
+        )
 
 
 @register_filterset
@@ -2677,10 +2670,9 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
                 .values("id")
             )
             return queryset.exclude(id__in=terminated_ids)
-        else:
-            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
-                terminations__cable_end=CableEndChoices.SIDE_B
-            )
+        return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
+            terminations__cable_end=CableEndChoices.SIDE_B
+        )
 
     def filter_by_termination_object(self, queryset, model, value):
         # Filter by specific termination object(s)
