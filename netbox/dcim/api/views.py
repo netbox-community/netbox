@@ -519,7 +519,7 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 
 
 class ModuleBayViewSet(NetBoxModelViewSet):
-    queryset = ModuleBay.objects.order_by('device', 'module', 'name')
+    queryset = ModuleBay.objects.all()
     serializer_class = serializers.ModuleBaySerializer
     filterset_class = filtersets.ModuleBayFilterSet
 

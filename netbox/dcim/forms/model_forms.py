@@ -756,7 +756,6 @@ class ModuleForm(ModuleCommonForm, PrimaryModelForm):
         queryset=ModuleBay.objects.all(),
         query_params={
             'device_id': '$device',
-            'ordering': 'module,name',
         },
         context={
             'disabled': 'installed_module',
