@@ -1,6 +1,7 @@
 import django_filters
 from django import forms
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django_filters.constants import EMPTY_VALUES
 from drf_spectacular.types import OpenApiTypes
@@ -10,6 +11,7 @@ __all__ = (
     'ContentTypeFilter',
     'MultiValueArrayFilter',
     'MultiValueCharFilter',
+    'MultiValueContentTypeFilter',
     'MultiValueDateFilter',
     'MultiValueDateTimeFilter',
     'MultiValueDecimalFilter',
@@ -163,11 +165,35 @@ class ContentTypeFilter(django_filters.CharFilter):
 
         try:
             app_label, model = value.lower().split('.')
-        except ValueError:
+            content_type = ContentType.objects.get_by_natural_key(app_label, model)
+        except (ValueError, ContentType.DoesNotExist):
             return qs.none()
         return qs.filter(
             **{
-                f'{self.field_name}__app_label': app_label,
-                f'{self.field_name}__model': model
+                f'{self.field_name}': content_type,
+            }
+        )
+
+
+class MultiValueContentTypeFilter(MultiValueCharFilter):
+    """
+    A multi-value version of ContentTypeFilter.
+    """
+    def filter(self, qs, value):
+        if value in EMPTY_VALUES:
+            return qs
+
+        content_types = []
+        for key in value:
+            try:
+                app_label, model = key.lower().split('.')
+                ct = ContentType.objects.get_by_natural_key(app_label, model)
+                content_types.append(ct)
+            except (ValueError, ContentType.DoesNotExist):
+                continue
+
+        return qs.filter(
+            **{
+                f'{self.field_name}__in': content_types,
             }
         )

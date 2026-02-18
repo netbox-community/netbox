@@ -11,7 +11,6 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-from rest_framework.utils import field_mapping
 
 from core.exceptions import IncompatiblePluginError
 from netbox.config import PARAMS as CONFIG_PARAMS
@@ -23,15 +22,6 @@ from utilities.release import load_release_data
 from utilities.security import validate_peppers
 from utilities.string import trailing_slash
 from .monkey import get_unique_validators
-
-
-#
-# Monkey-patching
-#
-
-# TODO: Remove this once #20547 has been implemented
-# Override DRF's get_unique_validators() function with our own (see bug #19302)
-field_mapping.get_unique_validators = get_unique_validators
 
 
 #
@@ -399,6 +389,11 @@ if CACHING_REDIS_CA_CERT_PATH:
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_ca_certs'] = CACHING_REDIS_CA_CERT_PATH
 
+# Merge in KWARGS for additional parameters
+if caching_redis_kwargs := REDIS['caching'].get('KWARGS'):
+    CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
+    CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS'].update(caching_redis_kwargs)
+
 
 #
 # Sessions
@@ -764,7 +759,7 @@ SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
     'SERVERS': [{
-        'url': BASE_PATH,
+        'url': '',
         'description': 'NetBox',
     }],
     'SWAGGER_UI_DIST': 'SIDECAR',
@@ -807,6 +802,11 @@ RQ_PARAMS.update({
 if TASKS_REDIS_CA_CERT_PATH:
     RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
     RQ_PARAMS['REDIS_CLIENT_KWARGS']['ssl_ca_certs'] = TASKS_REDIS_CA_CERT_PATH
+
+# Merge in KWARGS for additional parameters
+if tasks_redis_kwargs := TASKS_REDIS.get('KWARGS'):
+    RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
+    RQ_PARAMS['REDIS_CLIENT_KWARGS'].update(tasks_redis_kwargs)
 
 # Define named RQ queues
 RQ_QUEUES = {
@@ -948,6 +948,26 @@ for plugin_name in PLUGINS:
             EVENTS_PIPELINE.extend(events_pipeline)
         else:
             raise ImproperlyConfigured(f"events_pipline in plugin: {plugin_name} must be a list or tuple")
+
+
+#
+# Monkey-patching
+#
+
+from rest_framework.utils import field_mapping  # noqa: E402
+from strawberry_django import pagination  # noqa: E402
+from strawberry_django.fields.field import StrawberryDjangoField  # noqa: E402
+from netbox.graphql.pagination import OffsetPaginationInput, apply_pagination  # noqa: E402
+
+# TODO: Remove this once #20547 has been implemented
+# Override DRF's get_unique_validators() function with our own (see bug #19302)
+field_mapping.get_unique_validators = get_unique_validators
+
+# Override strawberry-django's OffsetPaginationInput class to add the `start` parameter
+pagination.OffsetPaginationInput = OffsetPaginationInput
+
+# Patch StrawberryDjangoField to use our custom `apply_pagination()` method with support for cursor-based pagination
+StrawberryDjangoField.apply_pagination = apply_pagination
 
 
 # UNSUPPORTED FUNCTIONALITY: Import any local overrides.

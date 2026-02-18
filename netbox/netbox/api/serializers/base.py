@@ -112,6 +112,7 @@ class ValidatedModelSerializer(BaseModelSerializer):
             for k, v in attrs.items():
                 setattr(instance, k, v)
         instance._m2m_values = m2m_values
-        instance.full_clean()
+        # Skip uniqueness validation of individual fields inside `full_clean()` (this is handled by the serializer)
+        instance.full_clean(validate_unique=False)
 
         return data

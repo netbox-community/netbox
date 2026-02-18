@@ -1263,6 +1263,9 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     clone_fields = ('device',)
 
     class Meta(ModularComponentModel.Meta):
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'module', 'name'),

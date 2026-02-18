@@ -65,9 +65,11 @@ class CustomFieldsMixin:
         return ObjectType.objects.get_for_model(self.model)
 
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(object_types=content_type).exclude(
-            ui_editable=CustomFieldUIEditableChoices.HIDDEN
-        )
+        # Return only custom fields that are not hidden from the UI
+        return [
+            cf for cf in CustomField.objects.get_for_model(content_type.model_class())
+            if cf.ui_editable != CustomFieldUIEditableChoices.HIDDEN
+        ]
 
     def _get_form_field(self, customfield):
         return customfield.to_form_field()

@@ -355,6 +355,8 @@ class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         ContactAssignment.objects.bulk_create(assignments)
 
     def test_object_type(self):
+        params = {'object_type': ['dcim.site']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'object_type_id': ObjectType.objects.get_by_natural_key('dcim', 'site')}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 

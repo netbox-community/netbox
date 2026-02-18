@@ -6,7 +6,7 @@ from core.models import ObjectType
 from extras.models import NotificationGroup
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
-from utilities.filters import ContentTypeFilter
+from utilities.filters import MultiValueContentTypeFilter
 from utilities.filtersets import register_filterset
 
 __all__ = (
@@ -131,11 +131,13 @@ class TokenFilterSet(BaseFilterSet):
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
         queryset=User.objects.all(),
+        distinct=False,
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
         queryset=User.objects.all(),
+        distinct=False,
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -194,7 +196,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
         queryset=ObjectType.objects.all(),
         field_name='object_types'
     )
-    object_type = ContentTypeFilter(
+    object_type = MultiValueContentTypeFilter(
         field_name='object_types'
     )
     can_view = django_filters.BooleanFilter(
@@ -280,11 +282,13 @@ class OwnerFilterSet(BaseFilterSet):
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=OwnerGroup.objects.all(),
+        distinct=False,
         label=_('Group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__name',
         queryset=OwnerGroup.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('Group (name)'),
     )

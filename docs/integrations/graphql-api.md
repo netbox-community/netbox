@@ -133,23 +133,67 @@ The field "class_type" is an easy way to distinguish what type of object it is w
 
 ## Pagination
 
-Queries can be paginated by specifying pagination in the query and supplying an offset and optionaly a limit in the query.  If no limit is given, a default of 100 is used.  Queries are not paginated unless requested in the query. An example paginated query is shown below:
+The GraphQL API supports two types of pagination. Offset-based pagination operates using an offset relative to the first record in a set, specified by the `offset` parameter. For example, the response to a request specifying an offset of 100 will contain the 101st and later matching records. Offset-based pagination feels very natural, but its performance can suffer when dealing with large data sets due to the overhead involved in calculating the relative offset.
+
+The alternative approach is cursor-based pagination, which operates using absolute (rather than relative) primary key values. (These are the numeric IDs assigned to each object in the database.) When using cursor-based pagination, the response will contain records with a primary key greater than or equal to the specified start value, up to the maximum number of results. This strategy requires keeping track of the last seen primary key from each response when paginating through data, but is extremely performant. The cursor is specified by passing the starting object ID via the `start` parameter.
+
+To ensure consistent ordering, objects will always be ordered by their primary keys when cursor-based pagination is used.
+
+!!! note "Cursor-based pagination was introduced in NetBox v4.5.2."
+
+Both pagination strategies support passing an optional `limit` parameter. In both approaches, this specifies the maximum number of objects to include in the response. If no limit is specified, a default value of 100 is used.
+
+### Offset Pagination
+
+The first page will have an `offset` of zero, or the `offset` parameter will be omitted:
 
 ```
 query {
-  device_list(pagination: { offset: 0, limit: 20 }) {
+  device_list(pagination: {offset: 0, limit: 20}) {
     id
   }
 }
 ```
 
+The second page will have an offset equal to the size of the first page. If the number of records is less than the specified limit, there are no more records to process. For example, if a request specifies a `limit` of 20 but returns only 13 records, we can conclude that this is the final page of records.
+
+```
+query {
+  device_list(pagination: {offset: 20, limit: 20}) {
+    id
+  }
+}
+```
+
+### Cursor Pagination
+
+Set the `start` value to zero to fetch the first page. Note that if the `start` parameter is omitted, offset-based pagination will be used by default.
+
+```
+query {
+  device_list(pagination: {start: 0, limit: 20}) {
+    id
+  }
+}
+```
+
+To determine the `start` value for the next page, add 1 to the primary key (`id`) of the last record in the previous page.
+
+For example, if the ID of the last record in the previous response was 123, we would specify a `start` value of 124:
+
+```
+query {
+  device_list(pagination: {start: 124, limit: 20}) {
+    id
+  }
+}
+```
+
+This will return up to 20 records with an ID greater than or equal to 124.
+
 ## Authentication
 
-NetBox's GraphQL API uses the same API authentication tokens as its REST API. Authentication tokens are included with requests by attaching an `Authorization` HTTP header in the following form:
-
-```
-Authorization: Token $TOKEN
-```
+NetBox's GraphQL API uses the same API authentication tokens as its REST API. See the [REST API authentication](./rest-api.md#authentication) documentation for further detail.
 
 ## Disabling the GraphQL API
 

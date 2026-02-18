@@ -44,6 +44,9 @@ class Region(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -100,6 +103,9 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -318,6 +324,9 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
 
     class Meta:
         ordering = ['site', 'name']
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         constraints = (
             models.UniqueConstraint(
                 fields=('site', 'parent', 'name'),

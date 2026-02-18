@@ -3,6 +3,7 @@ import enum
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from utilities.data import get_config_value_ci
 from utilities.string import enum_key
 
 __all__ = (
@@ -24,13 +25,14 @@ class ChoiceSetMeta(type):
             ).format(name=name)
             app = attrs['__module__'].split('.', 1)[0]
             replace_key = f'{app}.{key}'
-            extend_key = f'{replace_key}+' if replace_key else None
-            if replace_key and replace_key in settings.FIELD_CHOICES:
-                # Replace the stock choices
-                attrs['CHOICES'] = settings.FIELD_CHOICES[replace_key]
-            elif extend_key and extend_key in settings.FIELD_CHOICES:
-                # Extend the stock choices
-                attrs['CHOICES'].extend(settings.FIELD_CHOICES[extend_key])
+            replace_choices = get_config_value_ci(settings.FIELD_CHOICES, replace_key)
+            if replace_choices is not None:
+                attrs['CHOICES'] = replace_choices
+            else:
+                extend_key = f'{replace_key}+'
+                extend_choices = get_config_value_ci(settings.FIELD_CHOICES, extend_key)
+                if extend_choices is not None:
+                    attrs['CHOICES'].extend(extend_choices)
 
         # Define choice tuples and color maps
         attrs['_choices'] = []

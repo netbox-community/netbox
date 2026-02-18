@@ -39,9 +39,20 @@ __all__ = (
 )
 
 IMAGEATTACHMENT_IMAGE = """
+{% load thumbnail %}
 {% if record.image %}
-  <a href="{{ record.image.url }}" target="_blank" class="image-preview" data-bs-placement="top">
-    <i class="mdi mdi-image"></i></a>
+  {% thumbnail record.image "400x400" as tn %}
+    <a href="{{ record.get_absolute_url }}"
+       class="image-preview"
+       data-preview-url="{{ tn.url }}"
+       data-bs-placement="left"
+       title="{{ record.filename }}"
+       rel="noopener noreferrer"
+       target="_blank"
+       aria-label="{{ record.filename }}">
+      <i class="mdi mdi-image"></i>
+    </a>
+  {% endthumbnail %}
 {% endif %}
 <a href="{{ record.get_absolute_url }}">{{ record.filename|truncate_middle:16 }}</a>
 """

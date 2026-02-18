@@ -401,6 +401,9 @@ class DeviceRole(NestedGroupModel):
 
     class Meta:
         ordering = ('name',)
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -452,6 +455,9 @@ class Platform(NestedGroupModel):
 
     class Meta:
         ordering = ('name',)
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
         constraints = (

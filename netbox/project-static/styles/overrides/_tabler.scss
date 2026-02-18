@@ -5,6 +5,16 @@
   font-variant-ligatures: none;
 }
 
+// TODO: Remove when Tabler releases fix for https://github.com/tabler/tabler/issues/2271
+// and NetBox upgrades to that version. Fix merged to Tabler dev branch in PR #2548.
+:root,
+:host {
+  @include media-breakpoint-up(lg) {
+    margin-left: 0;
+    scrollbar-gutter: stable;
+  }
+}
+
 // Restore default foreground & background colors for <pre> blocks
 pre {
   background-color: transparent;

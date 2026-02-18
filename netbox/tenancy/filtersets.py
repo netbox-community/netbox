@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from netbox.filtersets import (
     NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
 )
-from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
+from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 from utilities.filtersets import register_filterset
 from .models import *
 
@@ -29,11 +29,13 @@ __all__ = (
 class ContactGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
+        distinct=False,
         label=_('Parent contact group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=ContactGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent contact group (slug)'),
     )
@@ -110,9 +112,10 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type = ContentTypeFilter()
+    object_type = MultiValueContentTypeFilter()
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
+        distinct=False,
         label=_('Contact (ID)'),
     )
     group_id = TreeNodeMultipleChoiceFilter(
@@ -130,11 +133,13 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactRole.objects.all(),
+        distinct=False,
         label=_('Contact role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=ContactRole.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Contact role (slug)'),
     )
@@ -179,11 +184,13 @@ class ContactModelFilterSet(django_filters.FilterSet):
 class TenantGroupFilterSet(NestedGroupModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
+        distinct=False,
         label=_('Parent tenant group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=TenantGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Parent tenant group (slug)'),
     )
@@ -256,10 +263,12 @@ class TenancyFilterSet(django_filters.FilterSet):
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
+        distinct=False,
         label=_('Tenant (ID)'),
     )
     tenant = django_filters.ModelMultipleChoiceFilter(
         queryset=Tenant.objects.all(),
+        distinct=False,
         field_name='tenant__slug',
         to_field_name='slug',
         label=_('Tenant (slug)'),

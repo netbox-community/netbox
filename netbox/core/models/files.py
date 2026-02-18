@@ -89,6 +89,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
 
             with storage.open(self.full_path, 'wb+') as new_file:
                 new_file.write(self.data_file.data)
+    sync_data.alters_data = True
 
     @cached_property
     def storage(self):

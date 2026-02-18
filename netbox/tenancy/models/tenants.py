@@ -29,6 +29,9 @@ class TenantGroup(NestedGroupModel):
 
     class Meta:
         ordering = ['name']
+        # Empty tuple triggers Django migration detection for MPTT indexes
+        # (see #21016, django-mptt/django-mptt#682)
+        indexes = ()
         verbose_name = _('tenant group')
         verbose_name_plural = _('tenant groups')
 

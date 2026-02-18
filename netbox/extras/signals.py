@@ -9,6 +9,7 @@ from extras.models import EventRule, Notification, Subscription
 from netbox.config import get_config
 from netbox.models.features import has_feature
 from netbox.signals import post_clean
+from utilities.data import get_config_value_ci
 from utilities.exceptions import AbortRequest
 from .models import CustomField, TaggedItem
 from .utils import run_validators
@@ -65,7 +66,7 @@ def run_save_validators(sender, instance, **kwargs):
     Run any custom validation rules for the model prior to calling save().
     """
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
+    validators = get_config_value_ci(get_config().CUSTOM_VALIDATORS, model_name, default=[])
 
     run_validators(instance, validators)
 
