@@ -1,6 +1,6 @@
-from django.db import migrations
 import mptt.managers
 import mptt.models
+from django.db import migrations
 
 
 def rebuild_mptt(apps, schema_editor):
@@ -11,7 +11,7 @@ def rebuild_mptt(apps, schema_editor):
 
     # Set MPTTMeta with the correct order_insertion_by
     class MPTTMeta:
-        order_insertion_by = ('module', 'name',)
+        order_insertion_by = ('name',)
 
     ModuleBay.MPTTMeta = MPTTMeta
     ModuleBay._mptt_meta = mptt.models.MPTTOptions(MPTTMeta)
@@ -24,7 +24,7 @@ def rebuild_mptt(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0225_gfk_indexes'),
+        ('dcim', '0226_add_mptt_tree_indexes'),
     ]
 
     operations = [
