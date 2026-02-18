@@ -1,4 +1,4 @@
-from django.db.models import Count, OuterRef, Subquery, QuerySet
+from django.db.models import Count, OuterRef, QuerySet, Subquery
 from django.db.models.functions import Coalesce
 
 from utilities.mptt import TreeManager

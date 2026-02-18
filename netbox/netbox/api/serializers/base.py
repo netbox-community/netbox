@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from utilities.api import get_related_object_by_attrs
+
 from .fields import NetBoxAPIHyperlinkedIdentityField, NetBoxURLHyperlinkedIdentityField
 
 __all__ = (

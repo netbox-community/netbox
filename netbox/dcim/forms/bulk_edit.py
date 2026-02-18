@@ -8,10 +8,13 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, VLAN, VLANGroup, VRF
+from ipam.models import ASN, VLAN, VRF, VLANGroup
 from netbox.choices import *
 from netbox.forms import (
-    NestedGroupModelBulkEditForm, NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm,
+    NestedGroupModelBulkEditForm,
+    NetBoxModelBulkEditForm,
+    OrganizationalModelBulkEditForm,
+    PrimaryModelBulkEditForm,
 )
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant

@@ -8,6 +8,7 @@ from dcim.models import Site
 from ipam.models import IPAddress
 from users.models import User
 from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests
+
 from ..choices import *
 from ..filtersets import *
 from ..models import *

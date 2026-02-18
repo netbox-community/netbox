@@ -1,10 +1,11 @@
 from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, Http404
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -25,7 +26,7 @@ from netbox.object_actions import *
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
-from utilities.htmx import htmx_partial, htmx_maybe_redirect_current_page
+from utilities.htmx import htmx_maybe_redirect_current_page, htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
@@ -34,15 +35,16 @@ from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_action_url, register_model_view
 from virtualization.models import VirtualMachine
+
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
 from .models import *
-from .tables import ReportResultsTable, ScriptResultsTable, ScriptJobTable
-
+from .tables import ReportResultsTable, ScriptJobTable, ScriptResultsTable
 
 #
 # Custom fields
 #
+
 
 @register_model_view(CustomField, 'list', path='', detail=False)
 class CustomFieldListView(generic.ObjectListView):

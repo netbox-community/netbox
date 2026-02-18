@@ -7,6 +7,7 @@ from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
 from netbox.models import NestedGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
+
 from .choices import *
 from .constants import *
 

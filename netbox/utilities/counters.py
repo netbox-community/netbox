@@ -1,8 +1,9 @@
 from django.apps import apps
-from django.db.models import F, Count, OuterRef, Subquery
+from django.db.models import Count, F, OuterRef, Subquery
 from django.db.models.signals import post_delete, post_save, pre_delete
 
 from netbox.registry import registry
+
 from .fields import CounterCacheField
 
 

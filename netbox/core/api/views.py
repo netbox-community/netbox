@@ -23,6 +23,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import LimitOffsetListPagination
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from utilities.api import IsSuperuser
+
 from . import serializers
 
 

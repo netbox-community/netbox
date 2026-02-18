@@ -3,10 +3,14 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from netbox.filtersets import (
-    NestedGroupModelFilterSet, NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet,
+    NestedGroupModelFilterSet,
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
+    PrimaryModelFilterSet,
 )
 from utilities.filters import MultiValueContentTypeFilter, TreeNodeMultipleChoiceFilter
 from utilities.filtersets import register_filterset
+
 from .models import *
 
 __all__ = (

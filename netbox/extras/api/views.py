@@ -23,6 +23,7 @@ from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
+
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
 

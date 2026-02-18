@@ -1,7 +1,8 @@
+from unittest.mock import PropertyMock, patch
+
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
 from django.test import tag
-from unittest.mock import patch, PropertyMock
+from django.urls import reverse
 
 from core.choices import ManagedFileRootPathChoices
 from core.events import *
@@ -9,9 +10,10 @@ from core.models import ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
-from extras.scripts import Script as PythonClass, IntegerVar, BooleanVar
+from extras.scripts import BooleanVar, IntegerVar
+from extras.scripts import Script as PythonClass
 from users.models import Group, User
-from utilities.testing import ViewTestCases, TestCase
+from utilities.testing import TestCase, ViewTestCases
 
 
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):

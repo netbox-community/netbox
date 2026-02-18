@@ -6,16 +6,16 @@ from netaddr.core import AddrFormatError
 
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.filtersets import CommonInterfaceFilterSet
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
-from dcim.models import MACAddress
+from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
-from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from users.filterset_mixins import OwnerFilterMixin
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from utilities.filtersets import register_filterset
+
 from .choices import *
 from .models import *
 

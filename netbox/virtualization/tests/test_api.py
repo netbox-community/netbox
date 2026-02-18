@@ -11,11 +11,15 @@ from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import ConfigTemplate, CustomField
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import Prefix, VLAN, VRF
+from ipam.models import VLAN, VRF, Prefix
 from users.constants import TOKEN_PREFIX
 from users.models import Token
 from utilities.testing import (
-    APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine, disable_logging,
+    APITestCase,
+    APIViewTestCases,
+    create_test_device,
+    create_test_virtualmachine,
+    disable_logging,
 )
 from virtualization.choices import *
 from virtualization.models import *

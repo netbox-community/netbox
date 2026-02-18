@@ -19,7 +19,10 @@ from users.constants import *
 from users.models import *
 from utilities.data import flatten_dict
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
+    ContentTypeMultipleChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget

@@ -1,4 +1,4 @@
-from django.test import RequestFactory, tag, TestCase
+from django.test import RequestFactory, TestCase, tag
 
 from circuits.models import CircuitTermination
 from circuits.tables import CircuitTerminationTable

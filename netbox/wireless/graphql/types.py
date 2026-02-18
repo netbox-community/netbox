@@ -1,10 +1,11 @@
-from typing import Annotated, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Annotated, List, Union
 
 import strawberry
 import strawberry_django
 
 from netbox.graphql.types import NestedGroupObjectType, PrimaryObjectType
 from wireless import models
+
 from .filters import *
 
 if TYPE_CHECKING:

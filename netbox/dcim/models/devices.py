@@ -29,6 +29,7 @@ from netbox.models.mixins import WeightMixin
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
+
 from .device_components import *
 from .mixins import RenderConfigMixin
 from .modules import Module

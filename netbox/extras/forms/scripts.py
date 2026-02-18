@@ -1,8 +1,9 @@
-from core.choices import JobIntervalChoices
-from core.forms import ManagedFileForm
 from django import forms
 from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
+
+from core.choices import JobIntervalChoices
+from core.forms import ManagedFileForm
 from utilities.datetime import local_now
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 

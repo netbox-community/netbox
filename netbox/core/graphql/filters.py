@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -9,6 +9,7 @@ from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLook
 
 from core import models
 from netbox.graphql.filters import BaseModelFilter, PrimaryModelFilter
+
 from .enums import *
 
 if TYPE_CHECKING:

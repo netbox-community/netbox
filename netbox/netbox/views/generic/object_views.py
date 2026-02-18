@@ -23,6 +23,7 @@ from utilities.querydict import normalize_querydict, prepare_cloned_fields
 from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_action_url
+
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model

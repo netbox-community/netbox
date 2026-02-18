@@ -9,9 +9,13 @@ from ipam.models import ASN
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet, PrimaryModelFilterSet
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
-    MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    MultiValueNumberFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
+
 from .choices import *
 from .models import *
 

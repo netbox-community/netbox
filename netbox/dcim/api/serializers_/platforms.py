@@ -3,6 +3,7 @@ from rest_framework import serializers
 from dcim.models import Platform
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from netbox.api.serializers import NestedGroupModelSerializer
+
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedPlatformSerializer
 

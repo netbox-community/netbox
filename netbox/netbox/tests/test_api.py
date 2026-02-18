@@ -6,8 +6,8 @@ from rest_framework.request import Request
 
 from netbox.api.exceptions import QuerySetNotOrdered
 from netbox.api.pagination import OptionalLimitOffsetPagination
-from utilities.testing import APITestCase
 from users.models import Token
+from utilities.testing import APITestCase
 
 
 class AppTest(APITestCase):

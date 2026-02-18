@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from utilities.data import ranges_to_string, string_to_ranges
 
 from ..utils import parse_numeric_range

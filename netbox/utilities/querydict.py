@@ -2,6 +2,7 @@ from urllib.parse import urlencode
 
 from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
+
 from netbox.models.features import CloningMixin
 
 __all__ = (

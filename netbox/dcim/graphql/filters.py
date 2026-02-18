@@ -1,8 +1,8 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
-from django.db.models import Q
 import strawberry
 import strawberry_django
+from django.db.models import Q
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, FilterLookup
 
@@ -10,14 +10,21 @@ from dcim import models
 from dcim.constants import *
 from dcim.graphql.enums import InterfaceKindEnum
 from dcim.graphql.filter_mixins import (
-    ComponentModelFilterMixin, ComponentTemplateFilterMixin, ModularComponentFilterMixin,
-    ModularComponentTemplateFilterMixin, RackFilterMixin,
+    ComponentModelFilterMixin,
+    ComponentTemplateFilterMixin,
+    ModularComponentFilterMixin,
+    ModularComponentTemplateFilterMixin,
+    RackFilterMixin,
 )
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
 from netbox.graphql.filter_mixins import ImageAttachmentFilterMixin, WeightFilterMixin
 from netbox.graphql.filters import (
-    BaseModelFilter, ChangeLoggedModelFilter, NestedGroupModelFilter, OrganizationalModelFilter, PrimaryModelFilter,
+    BaseModelFilter,
+    ChangeLoggedModelFilter,
+    NestedGroupModelFilter,
     NetBoxModelFilter,
+    OrganizationalModelFilter,
+    PrimaryModelFilter,
 )
 from tenancy.graphql.filter_mixins import ContactFilterMixin, TenancyFilterMixin
 from virtualization.models import VMInterface
@@ -32,7 +39,12 @@ if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
     from extras.graphql.filters import ConfigTemplateFilter, ImageAttachmentFilter
     from ipam.graphql.filters import (
-        ASNFilter, FHRPGroupAssignmentFilter, IPAddressFilter, PrefixFilter, VLANGroupFilter, VRFFilter,
+        ASNFilter,
+        FHRPGroupAssignmentFilter,
+        IPAddressFilter,
+        PrefixFilter,
+        VLANGroupFilter,
+        VRFFilter,
     )
     from netbox.graphql.enums import ColorEnum
     from netbox.graphql.filter_lookups import FloatLookup, IntegerArrayLookup, IntegerLookup, TreeNodeFilter
@@ -41,6 +53,7 @@ if TYPE_CHECKING:
     from vpn.graphql.filters import L2VPNFilter, TunnelTerminationFilter
     from wireless.graphql.enums import WirelessChannelEnum, WirelessRoleEnum
     from wireless.graphql.filters import WirelessLANFilter, WirelessLinkFilter
+
     from .enums import *
 
 __all__ = (

@@ -24,6 +24,7 @@ from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_serializer_for_model
 from virtualization.models import VMInterface
+
 from . import serializers
 
 

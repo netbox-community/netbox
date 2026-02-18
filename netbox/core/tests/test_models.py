@@ -1,12 +1,12 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
-from core.models import DataSource, Job, ObjectType
 from core.choices import ObjectChangeActionChoices
-from dcim.models import Site, Location, Device
+from core.models import DataSource, Job, ObjectType
+from dcim.models import Device, Location, Site
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 
 

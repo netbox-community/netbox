@@ -1,6 +1,7 @@
-import utilities.fields
 from django.db import migrations
 from django.db.models import Count, OuterRef, Subquery
+
+import utilities.fields
 
 
 def _populate_count_for_type(

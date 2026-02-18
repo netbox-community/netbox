@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.choices import *
 from utilities.forms.fields import QueryField
 from utilities.forms.mixins import FilterModifierMixin
+
 from .mixins import CustomFieldsMixin, OwnerFilterMixin, SavedFiltersMixin
 
 __all__ = (

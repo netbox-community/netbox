@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Module, ModuleType, ModuleTypeProfile
 from netbox.tables import PrimaryModelTable, columns
+
 from .template_code import MODULETYPEPROFILE_ATTRIBUTES, WEIGHT
 
 __all__ = (

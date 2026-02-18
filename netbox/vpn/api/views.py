@@ -3,6 +3,7 @@ from rest_framework.routers import APIRootView
 from netbox.api.viewsets import NetBoxModelViewSet
 from vpn import filtersets
 from vpn.models import *
+
 from . import serializers
 
 __all__ = (

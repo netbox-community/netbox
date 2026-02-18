@@ -9,10 +9,10 @@ from extras.constants import CUSTOMFIELD_EMPTY_VALUES
 from extras.models import CustomField
 from utilities.api import get_serializer_for_model
 
-
 #
 # Custom fields
 #
+
 
 class CustomFieldDefaultValues:
     """

@@ -1,24 +1,23 @@
 import decimal
-import svgwrite
-from svgwrite.container import Hyperlink
-from svgwrite.image import Image
-from svgwrite.gradients import LinearGradient
-from svgwrite.masking import ClipPath
-from svgwrite.shapes import Rect
-from svgwrite.text import Text
 
+import svgwrite
 from django.conf import settings
 from django.core.exceptions import FieldError
 from django.db.models import Q
 from django.template.defaultfilters import floatformat
 from django.urls import reverse
 from django.utils.http import urlencode
+from svgwrite.container import Hyperlink
+from svgwrite.gradients import LinearGradient
+from svgwrite.image import Image
+from svgwrite.masking import ClipPath
+from svgwrite.shapes import Rect
+from svgwrite.text import Text
 
+from dcim.constants import RACK_ELEVATION_BORDER_WIDTH
 from netbox.config import get_config
 from utilities.data import array_to_ranges
 from utilities.html import foreground_color
-from dcim.constants import RACK_ELEVATION_BORDER_WIDTH
-
 
 __all__ = (
     'RackElevationSVG',

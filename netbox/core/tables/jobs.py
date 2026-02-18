@@ -1,10 +1,10 @@
 import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import BaseTable, NetBoxTable, columns
 from core.constants import JOB_LOG_ENTRY_LEVELS
 from core.models import Job
 from core.tables.columns import BadgeColumn
+from netbox.tables import BaseTable, NetBoxTable, columns
 
 
 class JobTable(NetBoxTable):

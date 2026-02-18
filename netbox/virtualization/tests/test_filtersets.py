@@ -3,7 +3,7 @@ from django.test import TestCase
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Device, DeviceRole, MACAddress, Platform, Region, Site, SiteGroup
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import IPAddress, VLAN, VLANTranslationPolicy, VRF
+from ipam.models import VLAN, VRF, IPAddress, VLANTranslationPolicy
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.choices import *

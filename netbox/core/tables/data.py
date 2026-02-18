@@ -1,8 +1,9 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
 from core.models import *
 from netbox.tables import NetBoxTable, PrimaryModelTable, columns
+
 from .columns import BackendTypeColumn
 from .template_code import DATA_SOURCE_SYNC_BUTTON
 

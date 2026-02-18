@@ -1,7 +1,7 @@
 import urllib.parse
 
-from django.urls import reverse
 from django.test import Client, override_settings
+from django.urls import reverse
 
 from dcim.models import Site
 from netbox.constants import EMPTY_TABLE_TEXT

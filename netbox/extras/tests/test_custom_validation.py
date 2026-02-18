@@ -1,5 +1,4 @@
-from django.test import TestCase
-from django.test import override_settings
+from django.test import TestCase, override_settings
 
 from circuits.api.serializers import ProviderSerializer
 from circuits.forms import ProviderForm

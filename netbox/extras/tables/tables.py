@@ -5,12 +5,13 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
-from extras.models import *
-from core.tables import JobTable
 from core.models import Job
+from core.tables import JobTable
+from extras.models import *
 from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.events import get_event_text
 from netbox.tables import BaseTable, NetBoxTable, PrimaryModelTable, columns
+
 from .columns import NotificationActionsColumn
 
 __all__ = (

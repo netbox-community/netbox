@@ -3,7 +3,7 @@ import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from jinja2 import FileSystemLoader, Environment
+from jinja2 import Environment, FileSystemLoader
 
 from dcim.choices import *
 from netbox.choices import WeightUnitChoices

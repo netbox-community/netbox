@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin
+
 from .base import BaseCircuitType
 
 __all__ = (

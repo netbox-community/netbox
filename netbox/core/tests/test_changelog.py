@@ -7,7 +7,16 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.choices import InterfaceTypeChoices, ModuleStatusChoices, SiteStatusChoices
 from dcim.models import (
-    Cable, CableTermination, Device, DeviceRole, DeviceType, Manufacturer, Module, ModuleBay, ModuleType, Interface,
+    Cable,
+    CableTermination,
+    Device,
+    DeviceRole,
+    DeviceType,
+    Interface,
+    Manufacturer,
+    Module,
+    ModuleBay,
+    ModuleType,
     Site,
 )
 from extras.choices import *

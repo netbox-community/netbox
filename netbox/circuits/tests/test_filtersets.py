@@ -5,7 +5,16 @@ from circuits.filtersets import *
 from circuits.models import *
 from dcim.choices import InterfaceTypeChoices, LocationStatusChoices
 from dcim.models import (
-    Cable, Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
+    Cable,
+    Device,
+    DeviceRole,
+    DeviceType,
+    Interface,
+    Location,
+    Manufacturer,
+    Region,
+    Site,
+    SiteGroup,
 )
 from ipam.models import ASN, RIR
 from netbox.choices import DistanceUnitChoices

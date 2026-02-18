@@ -10,8 +10,7 @@ from mptt.models import MPTTModel
 
 from core.choices import ObjectChangeActionChoices
 from core.querysets import ObjectChangeQuerySet
-from netbox.models.features import ChangeLoggingMixin
-from netbox.models.features import has_feature
+from netbox.models.features import ChangeLoggingMixin, has_feature
 from utilities.data import shallow_compare_dict
 
 __all__ = (

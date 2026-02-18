@@ -15,11 +15,19 @@ from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.tracking import TrackingModelMixin
 from wireless.choices import WirelessRoleChoices
+
 from .device_components import (
-    ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
+    ConsolePort,
+    ConsoleServerPort,
+    DeviceBay,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    ModuleBay,
+    PowerOutlet,
+    PowerPort,
     RearPort,
 )
-
 
 __all__ = (
     'ConsolePortTemplate',

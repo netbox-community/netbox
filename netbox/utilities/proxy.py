@@ -1,6 +1,7 @@
+from urllib.parse import urlparse
+
 from django.conf import settings
 from django.utils.module_loading import import_string
-from urllib.parse import urlparse
 
 __all__ = (
     'DefaultProxyRouter',

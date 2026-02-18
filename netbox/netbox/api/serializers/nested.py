@@ -1,5 +1,6 @@
 from extras.models import Tag
 from utilities.api import get_related_object_by_attrs
+
 from .base import BaseModelSerializer
 
 __all__ = (

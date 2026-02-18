@@ -24,6 +24,7 @@ from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
 from utilities.serialization import deserialize_object, serialize_object
 from wireless.models import WirelessLink
+
 from .device_components import FrontPort, PathEndpoint, PortMapping, RearPort
 
 __all__ = (
@@ -718,7 +719,7 @@ class CablePath(models.Model):
         Cable or WirelessLink connects (interfaces, console ports, circuit termination, etc.). All terminations must be
         of the same type and must belong to the same parent object.
         """
-        from circuits.models import CircuitTermination, Circuit
+        from circuits.models import Circuit, CircuitTermination
 
         if not terminations:
             return None

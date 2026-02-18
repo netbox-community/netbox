@@ -13,6 +13,7 @@ from core.models import ObjectChange, ObjectType
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
+
 from .base import ModelTestCase
 from .utils import add_custom_field_data, disable_warnings, get_random_string, post_data
 

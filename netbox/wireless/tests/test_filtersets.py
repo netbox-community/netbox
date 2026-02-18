@@ -5,10 +5,10 @@ from dcim.models import Interface, Location, Region, Site, SiteGroup
 from ipam.models import VLAN
 from netbox.choices import DistanceUnitChoices
 from tenancy.models import Tenant
+from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from wireless.choices import *
 from wireless.filtersets import *
 from wireless.models import *
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 
 
 class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):

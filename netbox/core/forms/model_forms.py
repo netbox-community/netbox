@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
 from core.models import *
-from netbox.config import get_config, PARAMS
+from netbox.config import PARAMS, get_config
 from netbox.forms import NetBoxModelForm, PrimaryModelForm
 from netbox.registry import registry
 from netbox.utils import get_data_backend_choices

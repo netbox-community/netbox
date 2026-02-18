@@ -9,12 +9,13 @@ from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
+
+from ..field_serializers import IPAddressField, IPNetworkField
 from .asns import RIRSerializer
 from .nested import NestedIPAddressSerializer
 from .roles import RoleSerializer
 from .vlans import VLANSerializer
 from .vrfs import VRFSerializer
-from ..field_serializers import IPAddressField, IPNetworkField
 
 __all__ = (
     'AggregateSerializer',
