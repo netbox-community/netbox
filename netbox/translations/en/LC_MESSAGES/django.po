@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-17 05:26+0000\n"
+"POT-Creation-Date: 2026-02-18 05:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -8531,12 +8531,12 @@ msgstr ""
 msgid "Show your personal bookmarks"
 msgstr ""
 
-#: netbox/extras/events.py:186
+#: netbox/extras/events.py:204
 #, python-brace-format
 msgid "Unknown action type for an event rule: {action_type}"
 msgstr ""
 
-#: netbox/extras/events.py:229
+#: netbox/extras/events.py:247
 #, python-brace-format
 msgid "Cannot import events pipeline {name} error: {error}"
 msgstr ""
