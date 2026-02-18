@@ -1442,7 +1442,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request):
         available_scripts = Script.objects.restrict(request.user)
-        script_modules = [s.module for s in available_scripts]
+        script_modules = {s.module for s in available_scripts}
 
         context = {
             'model': ScriptModule,
