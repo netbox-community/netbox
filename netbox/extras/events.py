@@ -102,8 +102,8 @@ def enqueue_event(queue, instance, request, event_type):
             request=request,
             user=request.user,
             # Legacy request attributes for backward compatibility
-            username=request.user.username,
-            request_id=request.id,
+            username=request.user.username,  # DEPRECATED, will be removed in NetBox v4.7.0
+            request_id=request.id,           # DEPRECATED, will be removed in NetBox v4.7.0
         )
     # Force serialization of objects prior to them actually being deleted
     if event_type == OBJECT_DELETED:
