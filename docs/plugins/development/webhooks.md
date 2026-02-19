@@ -43,6 +43,9 @@ The resulting webhook payload will look like the following:
 }
 ```
 
+!!! note "Deprecation of legacy fields"
+    The "request_id" and "username" fields in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in a future release.
+
 !!! note "Consider namespacing webhook data"
     The data returned from all webhook callbacks will be compiled into a single `context` dictionary. Any existing keys within this dictionary will be overwritten by subsequent callbacks which include those keys. To avoid collisions with webhook data provided by other plugins, consider namespacing your plugin's data within a nested dictionary as such:
     
