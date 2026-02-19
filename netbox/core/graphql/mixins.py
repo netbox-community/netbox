@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated, List
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -20,7 +20,7 @@ __all__ = (
 class ChangelogMixin:
 
     @strawberry_django.field
-    def changelog(self, info: Info) -> List[Annotated['ObjectChangeType', strawberry.lazy('.types')]]:  # noqa: F821
+    def changelog(self, info: Info) -> list[Annotated['ObjectChangeType', strawberry.lazy('.types')]]:  # noqa: F821
         content_type = ContentType.objects.get_for_model(self)
         object_changes = ObjectChange.objects.filter(
             changed_object_type=content_type,

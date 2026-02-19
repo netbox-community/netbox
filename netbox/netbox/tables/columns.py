@@ -1,6 +1,5 @@
 import zoneinfo
 from dataclasses import dataclass
-from typing import Optional
 from urllib.parse import quote
 
 import django_tables2 as tables
@@ -229,8 +228,8 @@ class BooleanColumn(tables.Column):
 class ActionsItem:
     title: str
     icon: str
-    permission: Optional[str] = None
-    css_class: Optional[str] = 'secondary'
+    permission: str | None = None
+    css_class: str | None = 'secondary'
 
 
 class ActionsColumn(tables.Column):

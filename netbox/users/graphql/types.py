@@ -1,4 +1,3 @@
-from typing import List
 
 import strawberry_django
 
@@ -34,7 +33,7 @@ class GroupType(BaseObjectType):
     pagination=True
 )
 class UserType(BaseObjectType):
-    groups: List[GroupType]
+    groups: list[GroupType]
 
 
 @strawberry_django.type(

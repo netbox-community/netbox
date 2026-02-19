@@ -66,7 +66,7 @@ class Tag(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel, Tag
         # Allow Unicode in Tag slugs (avoids empty slugs for Tags with all-Unicode names)
         slug = slugify(tag, allow_unicode=True)
         if i is not None:
-            slug += "_%d" % i
+            slug += f'_{i}'
         return slug
 
 

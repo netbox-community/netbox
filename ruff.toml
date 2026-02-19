@@ -37,7 +37,8 @@ extend-select = [
     "E501",  # pycodestyle: line too long (enforced with `line-length` above)
     "W",     # pycodestyle warnings (various style warnings, often whitespace/newlines)
     "I",     # import sorting (isort-equivalent)
-    "RET",   # return semantics (flake8-return family)
+    "RET",   # return semantics (flake8-return family: consistent/explicit returns; remove redundant else/assign before return)
+    "UP",    # pyupgrade: modernize syntax for your target Python (e.g., f-strings, built-in generics, newer stdlib idioms)
 ]
 ignore = [
     "F403",  # pyflakes: `from ... import *` used; unable to detect undefined names
@@ -66,6 +67,8 @@ known-first-party = [
 
 [lint.per-file-ignores]
 "template_code.py" = ["E501"]
+"netbox/netbox/graphql/filter_lookups.py" = ["UP046"]  # Strawberry typing: keep `Generic[T]` for now
+"netbox/netbox/graphql/scalars.py" = ["UP007"]         # Strawberry scalar typing: `Union[...]` required
 
 [format]
 # Use single quotes for strings.

@@ -1,19 +1,19 @@
 from django.db.models import IntegerField, Lookup, Transform, lookups
 
 
-class NetFieldDecoratorMixin(object):
+class NetFieldDecoratorMixin:
 
     def process_lhs(self, qn, connection, lhs=None):
         lhs = lhs or self.lhs
         lhs_string, lhs_params = qn.compile(lhs)
-        lhs_string = 'TEXT(%s)' % lhs_string
+        lhs_string = f'TEXT({lhs_string})'
         return lhs_string, lhs_params
 
 
 class IExact(NetFieldDecoratorMixin, lookups.IExact):
 
     def get_rhs_op(self, connection, rhs):
-        return '= LOWER(%s)' % rhs
+        return f'= LOWER({rhs})'
 
 
 class EndsWith(NetFieldDecoratorMixin, lookups.EndsWith):
@@ -24,7 +24,7 @@ class IEndsWith(NetFieldDecoratorMixin, lookups.IEndsWith):
     pass
 
     def get_rhs_op(self, connection, rhs):
-        return 'LIKE LOWER(%s)' % rhs
+        return f'LIKE LOWER({rhs})'
 
 
 class StartsWith(NetFieldDecoratorMixin, lookups.StartsWith):
@@ -35,7 +35,7 @@ class IStartsWith(NetFieldDecoratorMixin, lookups.IStartsWith):
     pass
 
     def get_rhs_op(self, connection, rhs):
-        return 'LIKE LOWER(%s)' % rhs
+        return f'LIKE LOWER({rhs})'
 
 
 class Regex(NetFieldDecoratorMixin, lookups.Regex):
@@ -53,7 +53,7 @@ class NetContainsOrEquals(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
-        return '%s >>= %s' % (lhs, rhs), params
+        return f'{lhs} >>= {rhs}', params
 
 
 class NetContains(Lookup):
@@ -63,7 +63,7 @@ class NetContains(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
-        return '%s >> %s' % (lhs, rhs), params
+        return f'{lhs} >> {rhs}', params
 
 
 class NetContained(Lookup):
@@ -73,7 +73,7 @@ class NetContained(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
-        return '%s << %s' % (lhs, rhs), params
+        return f'{lhs} << {rhs}', params
 
 
 class NetContainedOrEqual(Lookup):
@@ -83,7 +83,7 @@ class NetContainedOrEqual(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
-        return '%s <<= %s' % (lhs, rhs), params
+        return f'{lhs} <<= {rhs}', params
 
 
 class NetHost(Lookup):
@@ -97,7 +97,7 @@ class NetHost(Lookup):
         if rhs_params:
             rhs_params[0] = rhs_params[0].split('/')[0]
         params = lhs_params + rhs_params
-        return 'HOST(%s) = %s' % (lhs, rhs), params
+        return f'HOST({lhs}) = {rhs}', params
 
 
 class NetIn(Lookup):
@@ -151,7 +151,7 @@ class NetHostContained(Lookup):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
-        return 'CAST(HOST(%s) AS INET) <<= %s' % (lhs, rhs), params
+        return f'CAST(HOST({lhs}) AS INET) <<= {rhs}', params
 
 
 class NetFamily(Transform):

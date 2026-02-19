@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import quote
 
 from django import template
@@ -306,7 +306,7 @@ def startswith(text: str, starts: str) -> bool:
 
 
 @register.filter
-def get_key(value: Dict, arg: str) -> Any:
+def get_key(value: dict, arg: str) -> Any:
     """
     Template implementation of `dict.get()`, for accessing dict values
     by key when the key is not able to be used in a template. For

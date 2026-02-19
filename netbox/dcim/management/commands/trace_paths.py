@@ -57,7 +57,7 @@ class Command(BaseCommand):
             # Delete all existing CablePath instances
             self.stdout.write(f"Deleting {paths_count} existing cable paths...")
             deleted_count, _ = CablePath.objects.all().delete()
-            self.stdout.write((self.style.SUCCESS(f'  Deleted {deleted_count} paths')))
+            self.stdout.write(self.style.SUCCESS(f'  Deleted {deleted_count} paths'))
 
             # Reinitialize the model's PK sequence
             self.stdout.write('Resetting database sequence for CablePath model')

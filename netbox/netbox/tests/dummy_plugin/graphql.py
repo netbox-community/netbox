@@ -1,4 +1,3 @@
-from typing import List
 
 import strawberry
 import strawberry_django
@@ -17,7 +16,7 @@ class DummyModelType:
 @strawberry.type(name="Query")
 class DummyQuery:
     dummymodel: DummyModelType = strawberry_django.field()
-    dummymodel_list: List[DummyModelType] = strawberry_django.field()
+    dummymodel_list: list[DummyModelType] = strawberry_django.field()
 
 
 schema = [

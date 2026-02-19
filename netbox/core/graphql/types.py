@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 import strawberry
 import strawberry_django
@@ -34,7 +34,7 @@ class DataFileType(BaseObjectType):
     pagination=True
 )
 class DataSourceType(PrimaryObjectType):
-    datafiles: List[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]
+    datafiles: list[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]
 
 
 @strawberry_django.type(
