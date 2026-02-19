@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.stdout.write(
+            "DEPRECATION WARNING\n"
             "Running this command is no longer necessary: All housekeeping tasks\n"
             "are addressed automatically via NetBox's built-in job scheduler. It\n"
             "will be removed in a future release.",
