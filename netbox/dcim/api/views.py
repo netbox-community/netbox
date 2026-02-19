@@ -36,7 +36,7 @@ class DCIMRootView(APIRootView):
 
 # Mixins
 
-class PathEndpointMixin(object):
+class PathEndpointMixin:
 
     @action(detail=True, url_path='trace')
     def trace(self, request, pk):
@@ -76,7 +76,7 @@ class PathEndpointMixin(object):
         return Response(path)
 
 
-class PassThroughPortMixin(object):
+class PassThroughPortMixin:
 
     @action(detail=True, url_path='paths')
     def paths(self, request, pk):

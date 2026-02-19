@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
@@ -862,7 +862,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_created(self):
         pk_list = self.queryset.values_list('pk', flat=True)[:2]
-        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc))
+        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=UTC))
         params = {
             'created_after': '2020-12-31T00:00:00',
             'created_before': '2021-01-02T00:00:00',

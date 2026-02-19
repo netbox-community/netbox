@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 from django.conf import settings
 from django.contrib.auth.mixins import AccessMixin

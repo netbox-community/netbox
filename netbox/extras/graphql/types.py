@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated, List
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -65,19 +65,19 @@ class ConfigContextProfileType(SyncedDataMixin, PrimaryObjectType):
 )
 class ConfigContextType(SyncedDataMixin, OwnerMixin, ObjectType):
     profile: ConfigContextProfileType | None
-    roles: List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
-    device_types: List[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]
-    tags: List[Annotated["TagType", strawberry.lazy('extras.graphql.types')]]
-    platforms: List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
-    regions: List[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]
-    cluster_groups: List[Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')]]
-    tenant_groups: List[Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')]]
-    cluster_types: List[Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')]]
-    clusters: List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
-    locations: List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]
-    sites: List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
-    tenants: List[Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')]]
-    site_groups: List[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]
+    roles: list[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
+    device_types: list[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]
+    tags: list[Annotated["TagType", strawberry.lazy('extras.graphql.types')]]
+    platforms: list[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
+    regions: list[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]
+    cluster_groups: list[Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')]]
+    tenant_groups: list[Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')]]
+    cluster_types: list[Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')]]
+    clusters: list[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
+    locations: list[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]
+    sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
+    tenants: list[Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')]]
+    site_groups: list[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -87,10 +87,10 @@ class ConfigContextType(SyncedDataMixin, OwnerMixin, ObjectType):
     pagination=True
 )
 class ConfigTemplateType(SyncedDataMixin, OwnerMixin, TagsMixin, ObjectType):
-    virtualmachines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
-    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
-    platforms: List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
-    device_roles: List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
+    virtualmachines: list[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
+    devices: list[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    platforms: list[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
+    device_roles: list[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -112,8 +112,8 @@ class CustomFieldType(OwnerMixin, ObjectType):
 )
 class CustomFieldChoiceSetType(OwnerMixin, ObjectType):
 
-    choices_for: List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]
-    extra_choices: List[List[str]] | None
+    choices_for: list[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]
+    extra_choices: list[list[str]] | None
 
 
 @strawberry_django.type(
@@ -172,8 +172,8 @@ class NotificationType(ObjectType):
     pagination=True
 )
 class NotificationGroupType(ObjectType):
-    users: List[Annotated["UserType", strawberry.lazy('users.graphql.types')]]
-    groups: List[Annotated["GroupType", strawberry.lazy('users.graphql.types')]]
+    users: list[Annotated["UserType", strawberry.lazy('users.graphql.types')]]
+    groups: list[Annotated["GroupType", strawberry.lazy('users.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -214,7 +214,7 @@ class TableConfigType(ObjectType):
 class TagType(OwnerMixin, ObjectType):
     color: str
 
-    object_types: List[ContentTypeType]
+    object_types: list[ContentTypeType]
 
 
 @strawberry_django.type(

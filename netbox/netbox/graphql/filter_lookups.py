@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generic, Tuple, TypeVar
+from typing import Generic, TypeVar
 
 import strawberry
 import strawberry_django
@@ -72,7 +72,7 @@ class IntegerLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -95,7 +95,7 @@ class BigIntegerLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -118,7 +118,7 @@ class FloatLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -137,7 +137,7 @@ class JSONFilter:
     lookup: JSONLookup
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.lookup.get_filter()
 
         if not filters:
@@ -164,7 +164,7 @@ class TreeNodeFilter:
     match_type: TreeNodeMatch
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         model_field_name = prefix.removesuffix('__').removesuffix('_id')
         model_field = None
         try:
@@ -257,7 +257,7 @@ class RangeArrayValueLookup(Generic[T]):
     )
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> tuple[QuerySet, Q]:
         """
         Map GraphQL: { <field>: { contains: <T> } } To Django ORM: <field>__range_contains=<T>
         """

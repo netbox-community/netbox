@@ -37,7 +37,7 @@ class Node(Hyperlink):
     object = None
 
     def __init__(self, position, width, url, color, labels, radius=10, object=object, **extra):
-        super(Node, self).__init__(href=url, target='_parent', **extra)
+        super().__init__(href=url, target='_parent', **extra)
 
         # Save object for reference by cable systems
         self.object = object
