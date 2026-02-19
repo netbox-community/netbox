@@ -8,10 +8,29 @@ from dcim.choices import CableEndChoices, LinkStatusChoices
 from ipam.models import Prefix
 from virtualization.models import Cluster, VMInterface
 from wireless.models import WirelessLAN
+
 from .models import (
-    Cable, CablePath, CableTermination, ConsolePort, ConsoleServerPort, Device, DeviceBay, FrontPort, Interface,
-    InventoryItem, Location, ModuleBay, PathEndpoint, PortMapping, PowerOutlet, PowerPanel, PowerPort, Rack, RearPort,
-    Site, VirtualChassis,
+    Cable,
+    CablePath,
+    CableTermination,
+    ConsolePort,
+    ConsoleServerPort,
+    Device,
+    DeviceBay,
+    FrontPort,
+    Interface,
+    InventoryItem,
+    Location,
+    ModuleBay,
+    PathEndpoint,
+    PortMapping,
+    PowerOutlet,
+    PowerPanel,
+    PowerPort,
+    Rack,
+    RearPort,
+    Site,
+    VirtualChassis,
 )
 from .models.cables import trace_paths
 from .utils import create_cablepaths, rebuild_paths
@@ -170,6 +189,8 @@ def nullify_connected_endpoints(instance, **kwargs):
         # Remove the deleted CableTermination if it's one of the path's originating nodes
         if instance.termination in cablepath.origins:
             cablepath.origins.remove(instance.termination)
+            # Clear _path on the removed origin to prevent stale connection display
+            model.objects.filter(pk=instance.termination_id, _path=cablepath.pk).update(_path=None)
         cablepath.retrace()
 
 

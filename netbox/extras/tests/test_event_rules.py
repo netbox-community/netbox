@@ -1,6 +1,6 @@
 import json
 import uuid
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import django_rq
 from django.http import HttpResponse
@@ -15,7 +15,8 @@ from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import EventRuleActionChoices
 from extras.events import enqueue_event, flush_events, serialize_for_event
-from extras.models import EventRule, Tag, Webhook
+from extras.models import EventRule, Script, Tag, Webhook
+from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
 from netbox.context_managers import event_tracking
 from utilities.testing import APITestCase
@@ -394,6 +395,36 @@ class EventRuleTest(APITestCase):
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, 'send', dummy_send):
             send_webhook(**job.kwargs)
+
+    def test_job_completed_webhook_username_fallback(self):
+        """
+        Ensure job_end event processing can enqueue a webhook even when the EventContext
+        lacks legacy request attributes (e.g. `username`).
+
+        The job_start/job_end signal receivers only populate `user` and `data`, so webhook
+        processing must derive the username from the user object (or tolerate it being unset).
+        """
+        script_type = ObjectType.objects.get_for_model(Script)
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+        webhook = Webhook.objects.get(name='Webhook 1')
+        event_rule = EventRule.objects.create(
+            name='Event Rule Job Completed',
+            event_types=[JOB_COMPLETED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+        )
+        event_rule.object_types.set([script_type])
+        # Mimic the `core.job_end` signal sender expected by extras.signals.process_job_end_event_rules
+        # (notably: no request, and thus no legacy `username`)
+        sender = Mock(object_type=script_type, data={}, user=self.user)
+        process_job_end_event_rules(sender)
+        self.assertEqual(self.queue.count, 1)
+        job = self.queue.jobs[0]
+        self.assertEqual(job.kwargs['event_rule'], event_rule)
+        self.assertEqual(job.kwargs['event_type'], JOB_COMPLETED)
+        self.assertEqual(job.kwargs['object_type'], script_type)
+        self.assertEqual(job.kwargs['username'], self.user.username)
 
     def test_duplicate_triggers(self):
         """

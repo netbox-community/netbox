@@ -3,7 +3,6 @@ from django.urls import include, path
 from extras import views
 from utilities.urls import get_model_urls
 
-
 app_name = 'extras'
 urlpatterns = [
 

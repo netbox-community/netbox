@@ -7,14 +7,14 @@ from django.urls import reverse
 
 from core.choices import JobIntervalChoices
 from core.models import ObjectType
+from netbox.graphql.schema import Query
+from netbox.plugins.navigation import PluginMenu, PluginMenuButton, PluginMenuItem
+from netbox.plugins.utils import get_plugin_config
+from netbox.registry import registry
 from netbox.tests.dummy_plugin import config as dummy_config
 from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.tests.dummy_plugin.jobs import DummySystemJob
 from netbox.tests.dummy_plugin.webhook_callbacks import set_context
-from netbox.plugins.navigation import PluginMenu, PluginMenuItem, PluginMenuButton
-from netbox.plugins.utils import get_plugin_config
-from netbox.graphql.schema import Query
-from netbox.registry import registry
 
 
 @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")

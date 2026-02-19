@@ -9,7 +9,7 @@ from dcim.forms.mixins import ScopedForm
 from dcim.models import Device, DeviceRole, MACAddress, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import IPAddress, VLAN, VLANGroup, VLANTranslationPolicy, VRF
+from ipam.models import VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import TenancyForm

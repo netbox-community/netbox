@@ -1,5 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
+
 from netbox.tests.dummy_plugin.models import DummyModel
+
 from .serializers import DummySerializer
 
 

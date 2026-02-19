@@ -1,5 +1,6 @@
-from django.test import TestCase
 from django.db.backends.postgresql.psycopg_any import NumericRange
+from django.test import TestCase
+
 from ipam.models import VLANGroup
 
 

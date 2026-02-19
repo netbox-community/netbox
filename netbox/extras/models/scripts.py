@@ -13,8 +13,9 @@ from django.utils.translation import gettext_lazy as _
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
 from extras.utils import is_script
-from netbox.models.features import JobsMixin, EventRulesMixin
+from netbox.models.features import EventRulesMixin, JobsMixin
 from utilities.querysets import RestrictedQuerySet
+
 from .mixins import PythonModuleMixin
 
 __all__ = (
@@ -178,9 +179,11 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
                 name=name,
                 is_executable=True,
             )
+    sync_classes.alters_data = True
 
     def sync_data(self):
         super().sync_data()
+    sync_data.alters_data = True
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS

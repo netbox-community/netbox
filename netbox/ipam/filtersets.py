@@ -12,15 +12,23 @@ from circuits.models import Provider
 from dcim.base_filtersets import ScopedFilterSet
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import (
-    ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet, PrimaryModelFilterSet,
+    ChangeLoggedModelFilterSet,
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
+    PrimaryModelFilterSet,
 )
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 from utilities.filters import (
-    ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter,
+    MultiValueContentTypeFilter,
+    MultiValueNumberFilter,
+    NumericArrayFilter,
+    TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.models import L2VPN
+
 from .choices import *
 from .models import *
 
@@ -166,11 +174,13 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
+        distinct=False,
         label=_('RIR (ID)'),
     )
     rir = django_filters.ModelMultipleChoiceFilter(
         field_name='rir__slug',
         queryset=RIR.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('RIR (slug)'),
     )
@@ -206,11 +216,13 @@ class AggregateFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
 class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
+        distinct=False,
         label=_('RIR (ID)'),
     )
     rir = django_filters.ModelMultipleChoiceFilter(
         field_name='rir__slug',
         queryset=RIR.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('RIR (slug)'),
     )
@@ -232,11 +244,13 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 class ASNFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     rir_id = django_filters.ModelMultipleChoiceFilter(
         queryset=RIR.objects.all(),
+        distinct=False,
         label=_('RIR (ID)'),
     )
     rir = django_filters.ModelMultipleChoiceFilter(
         field_name='rir__slug',
         queryset=RIR.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('RIR (slug)'),
     )
@@ -342,11 +356,13 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
+        distinct=False,
         label=_('VRF'),
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
         field_name='vrf__rd',
         queryset=VRF.objects.all(),
+        distinct=False,
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
@@ -364,17 +380,20 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     vlan_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan__group',
         queryset=VLANGroup.objects.all(),
+        distinct=False,
         to_field_name='id',
         label=_('VLAN Group (ID)'),
     )
     vlan_group = django_filters.ModelMultipleChoiceFilter(
         field_name='vlan__group__slug',
         queryset=VLANGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('VLAN Group (slug)'),
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
+        distinct=False,
         label=_('VLAN (ID)'),
     )
     vlan_vid = django_filters.NumberFilter(
@@ -383,16 +402,19 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Role.objects.all(),
+        distinct=False,
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=Role.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Role (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=PrefixStatusChoices,
+        distinct=False,
         null_value=None
     )
 
@@ -451,8 +473,7 @@ class PrefixFilterSet(PrimaryModelFilterSet, ScopedFilterSet, TenancyFilterSet, 
             if '/' in value:
                 return queryset.filter(prefix__net_contains_or_equals=str(netaddr.IPNetwork(value).cidr))
             # Searching by IP address
-            else:
-                return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
+            return queryset.filter(prefix__net_contains=str(netaddr.IPAddress(value)))
         except (AddrFormatError, ValueError):
             return queryset.none()
 
@@ -486,26 +507,31 @@ class IPRangeFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilt
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
+        distinct=False,
         label=_('VRF'),
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
         field_name='vrf__rd',
         queryset=VRF.objects.all(),
+        distinct=False,
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Role.objects.all(),
+        distinct=False,
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=Role.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Role (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPRangeStatusChoices,
+        distinct=False,
         null_value=None
     )
     parent = MultiValueCharFilter(
@@ -588,11 +614,13 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
+        distinct=False,
         label=_('VRF'),
     )
     vrf = django_filters.ModelMultipleChoiceFilter(
         field_name='vrf__rd',
         queryset=VRF.objects.all(),
+        distinct=False,
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
@@ -607,7 +635,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
         to_field_name='rd',
         label=_('VRF (RD)'),
     )
-    assigned_object_type = ContentTypeFilter()
+    assigned_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -665,10 +693,12 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPAddressStatusChoices,
+        distinct=False,
         null_value=None
     )
     role = django_filters.MultipleChoiceFilter(
-        choices=IPAddressRoleChoices
+        choices=IPAddressRoleChoices,
+        distinct=False,
     )
     service_id = django_filters.ModelMultipleChoiceFilter(
         field_name='services',
@@ -678,6 +708,7 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
     nat_inside_id = django_filters.ModelMultipleChoiceFilter(
         field_name='nat_inside',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         label=_('NAT inside IP address (ID)'),
     )
 
@@ -777,11 +808,10 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
                 assigned_object_type__in=content_types,
                 assigned_object_id__isnull=False
             )
-        else:
-            return queryset.exclude(
-                assigned_object_type__in=content_types,
-                assigned_object_id__isnull=False
-            )
+        return queryset.exclude(
+            assigned_object_type__in=content_types,
+            assigned_object_id__isnull=False
+        )
 
     def _assigned(self, queryset, name, value):
         if value:
@@ -789,20 +819,21 @@ class IPAddressFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFi
                 assigned_object_type__isnull=True,
                 assigned_object_id__isnull=True
             )
-        else:
-            return queryset.filter(
-                assigned_object_type__isnull=True,
-                assigned_object_id__isnull=True
-            )
+        return queryset.filter(
+            assigned_object_type__isnull=True,
+            assigned_object_id__isnull=True
+        )
 
 
 @register_filterset
 class FHRPGroupFilterSet(PrimaryModelFilterSet):
     protocol = django_filters.MultipleChoiceFilter(
-        choices=FHRPGroupProtocolChoices
+        choices=FHRPGroupProtocolChoices,
+        distinct=False,
     )
     auth_type = django_filters.MultipleChoiceFilter(
-        choices=FHRPGroupAuthTypeChoices
+        choices=FHRPGroupAuthTypeChoices,
+        distinct=False,
     )
     related_ip = django_filters.ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
@@ -846,9 +877,10 @@ class FHRPGroupFilterSet(PrimaryModelFilterSet):
 
 @register_filterset
 class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
-    interface_type = ContentTypeFilter()
+    interface_type = MultiValueContentTypeFilter()
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=FHRPGroup.objects.all(),
+        distinct=False,
         label=_('Group (ID)'),
     )
     device = MultiValueCharFilter(
@@ -901,7 +933,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 
 @register_filterset
 class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
-    scope_type = ContentTypeFilter()
+    scope_type = MultiValueContentTypeFilter()
     region = django_filters.NumberFilter(
         method='filter_scope'
     )
@@ -979,36 +1011,43 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
+        distinct=False,
         label=_('Site (ID)'),
     )
     site = django_filters.ModelMultipleChoiceFilter(
         field_name='site__slug',
         queryset=Site.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Site (slug)'),
     )
     group_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLANGroup.objects.all(),
+        distinct=False,
         label=_('Group (ID)'),
     )
     group = django_filters.ModelMultipleChoiceFilter(
         field_name='group__slug',
         queryset=VLANGroup.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Group'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Role.objects.all(),
+        distinct=False,
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='role__slug',
         queryset=Role.objects.all(),
+        distinct=False,
         to_field_name='slug',
         label=_('Role (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=VLANStatusChoices,
+        distinct=False,
         null_value=None
     )
     available_at_site = django_filters.ModelChoiceFilter(
@@ -1024,10 +1063,12 @@ class VLANFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         method='get_for_virtualmachine'
     )
     qinq_role = django_filters.MultipleChoiceFilter(
-        choices=VLANQinQRoleChoices
+        choices=VLANQinQRoleChoices,
+        distinct=False,
     )
     qinq_svlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all(),
+        distinct=False,
         label=_('Q-in-Q SVLAN (ID)'),
     )
     qinq_svlan_vid = MultiValueNumberFilter(
@@ -1122,11 +1163,13 @@ class VLANTranslationPolicyFilterSet(PrimaryModelFilterSet):
 class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
     policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLANTranslationPolicy.objects.all(),
+        distinct=False,
         label=_('VLAN Translation Policy (ID)'),
     )
     policy = django_filters.ModelMultipleChoiceFilter(
         field_name='policy__name',
         queryset=VLANTranslationPolicy.objects.all(),
+        distinct=False,
         to_field_name='name',
         label=_('VLAN Translation Policy (name)'),
     )
@@ -1173,7 +1216,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
 
 @register_filterset
 class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
-    parent_object_type = ContentTypeFilter()
+    parent_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
         field_name='name',
@@ -1265,22 +1308,26 @@ class PrimaryIPFilterSet(django_filters.FilterSet):
     primary_ip4_id = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_ip4',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         label=_('Primary IPv4 (ID)'),
     )
     primary_ip4 = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_ip4__address',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         to_field_name='address',
         label=_('Primary IPv4 (address)'),
     )
     primary_ip6_id = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_ip6',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         label=_('Primary IPv6 (ID)'),
     )
     primary_ip6 = django_filters.ModelMultipleChoiceFilter(
         field_name='primary_ip6__address',
         queryset=IPAddress.objects.all(),
+        distinct=False,
         to_field_name='address',
         label=_('Primary IPv6 (address)'),
     )

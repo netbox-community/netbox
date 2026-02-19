@@ -1,10 +1,11 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, Interface, Site
 from dcim.forms.mixins import ScopedForm
+from dcim.models import Device, Interface, Site
 from ipam.choices import *
 from ipam.constants import *
 from ipam.formfields import IPNetworkFormField
@@ -14,15 +15,17 @@ from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
-    ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    ContentTypeChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    NumericArrayField,
     NumericRangeArrayField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.utils import get_field_value
 from utilities.forms.widgets import DatePicker, HTMXSelect
-from django.utils.safestring import mark_safe
 from utilities.templatetags.builtins.filters import bettertitle
-from virtualization.models import VMInterface, VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
     'AggregateForm',
@@ -389,7 +392,7 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
             raise forms.ValidationError({
                 selected_objects[1]: _("An IP address can only be assigned to a single object.")
             })
-        elif selected_objects:
+        if selected_objects:
             assigned_object = self.cleaned_data[selected_objects[0]]
             if self.instance.pk and self.instance.assigned_object and assigned_object != self.instance.assigned_object:
                 if self.cleaned_data['primary_for_parent']:

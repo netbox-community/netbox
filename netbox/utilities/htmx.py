@@ -1,6 +1,7 @@
+from urllib.parse import urlsplit
+
 from django.http import HttpResponse
 from django.urls import reverse
-from urllib.parse import urlsplit
 
 __all__ = (
     'htmx_current_url',

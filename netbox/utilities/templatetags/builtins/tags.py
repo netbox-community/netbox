@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from django import template
 from django.templatetags.static import static

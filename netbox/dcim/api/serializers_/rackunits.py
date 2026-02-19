@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from netbox.api.fields import ChoiceField
+
 from .devices import DeviceSerializer
 
 __all__ = (

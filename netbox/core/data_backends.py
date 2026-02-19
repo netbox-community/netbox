@@ -15,6 +15,7 @@ from netbox.utils import register_data_backend
 from utilities.constants import HTTP_PROXY_SUPPORTED_SCHEMAS, HTTP_PROXY_SUPPORTED_SOCK_SCHEMAS
 from utilities.proxy import resolve_proxies
 from utilities.socks import ProxyPoolManager
+
 from .exceptions import SyncError
 
 __all__ = (

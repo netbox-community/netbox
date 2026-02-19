@@ -8,10 +8,13 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, VLAN, VLANGroup, VRF
+from ipam.models import ASN, VLAN, VRF, VLANGroup
 from netbox.choices import *
 from netbox.forms import (
-    NestedGroupModelBulkEditForm, NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm,
+    NestedGroupModelBulkEditForm,
+    NetBoxModelBulkEditForm,
+    OrganizationalModelBulkEditForm,
+    PrimaryModelBulkEditForm,
 )
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant
@@ -1595,7 +1598,7 @@ class InterfaceBulkEditForm(
         if not self.cleaned_data['mode']:
             if self.cleaned_data['untagged_vlan']:
                 raise forms.ValidationError({'untagged_vlan': _("Interface mode must be specified to assign VLANs")})
-            elif self.cleaned_data['tagged_vlans']:
+            if self.cleaned_data['tagged_vlans']:
                 raise forms.ValidationError({'tagged_vlans': _("Interface mode must be specified to assign VLANs")})
 
         # Untagged interfaces cannot be assigned tagged VLANs

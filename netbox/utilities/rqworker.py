@@ -34,3 +34,4 @@ def get_rq_retry():
     retry_interval = get_config().RQ_RETRY_INTERVAL
     if retry_max:
         return Retry(max=retry_max, interval=retry_interval)
+    return None

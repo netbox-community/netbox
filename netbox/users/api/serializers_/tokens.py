@@ -5,6 +5,7 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 from netbox.api.fields import IPNetworkSerializer
 from netbox.api.serializers import ValidatedModelSerializer
 from users.models import Token
+
 from .users import *
 
 __all__ = (

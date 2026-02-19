@@ -1,4 +1,4 @@
-from ipam.models import RouteTarget, VRF
+from ipam.models import VRF, RouteTarget
 from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer

@@ -1,13 +1,13 @@
 import json
+from copy import deepcopy
 
 import django_filters
-from copy import deepcopy
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import Q
+from django.utils.translation import gettext as _
 from django_filters.exceptions import FieldLookupError
 from django_filters.utils import get_model_field, resolve_field
-from django.utils.translation import gettext as _
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
@@ -15,12 +15,14 @@ from extras.choices import CustomFieldFilterLogicChoices
 from extras.filters import TagFilter, TagIDFilter
 from extras.models import CustomField, SavedFilter
 from users.filterset_mixins import OwnerFilterMixin
+from utilities import filters
 from utilities.constants import (
-    FILTER_CHAR_BASED_LOOKUP_MAP, FILTER_NEGATION_LOOKUP_MAP, FILTER_TREENODE_NEGATION_LOOKUP_MAP,
-    FILTER_NUMERIC_BASED_LOOKUP_MAP
+    FILTER_CHAR_BASED_LOOKUP_MAP,
+    FILTER_NEGATION_LOOKUP_MAP,
+    FILTER_NUMERIC_BASED_LOOKUP_MAP,
+    FILTER_TREENODE_NEGATION_LOOKUP_MAP,
 )
 from utilities.forms.fields import MACAddressField
-from utilities import filters
 
 __all__ = (
     'AttributeFiltersMixin',
@@ -136,13 +138,13 @@ class BaseFilterSet(django_filters.FilterSet):
         )):
             return FILTER_NUMERIC_BASED_LOOKUP_MAP
 
-        elif isinstance(existing_filter, (
+        if isinstance(existing_filter, (
             filters.TreeNodeMultipleChoiceFilter,
         )):
             # TreeNodeMultipleChoiceFilter only support negation but must maintain the `in` lookup expression
             return FILTER_TREENODE_NEGATION_LOOKUP_MAP
 
-        elif isinstance(existing_filter, (
+        if isinstance(existing_filter, (
             django_filters.ModelChoiceFilter,
             django_filters.ModelMultipleChoiceFilter,
             TagFilter
@@ -150,7 +152,7 @@ class BaseFilterSet(django_filters.FilterSet):
             # These filter types support only negation
             return FILTER_NEGATION_LOOKUP_MAP
 
-        elif isinstance(existing_filter, (
+        if isinstance(existing_filter, (
             django_filters.filters.CharFilter,
             django_filters.ChoiceFilter,
             django_filters.MultipleChoiceFilter,
@@ -385,7 +387,7 @@ class AttributeFiltersMixin:
 
     def _get_field_lookup(self, key):
         if not key.startswith(self.attribute_filter_prefix):
-            return
+            return None
         lookup = key.split(self.attribute_filter_prefix, 1)[1]  # Strip prefix
         return f'{self.attributes_field_name}__{lookup}'
 

@@ -1,6 +1,6 @@
-from django.test import TestCase, RequestFactory
-
+from django.test import RequestFactory, TestCase
 from netaddr import IPAddress
+
 from utilities.request import get_client_ip
 
 

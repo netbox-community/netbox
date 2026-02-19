@@ -3,11 +3,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import (
-    NestedGroupModelImportForm, NetBoxModelImportForm, OrganizationalModelImportForm,
+    NestedGroupModelImportForm,
+    NetBoxModelImportForm,
+    OrganizationalModelImportForm,
     PrimaryModelImportForm,
 )
-from tenancy.models import *
 from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
+
+from ..models import *
 
 __all__ = (
     'ContactAssignmentImportForm',

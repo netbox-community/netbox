@@ -2,7 +2,6 @@ import string
 
 from django.db.models import Q
 
-
 OBJECTPERMISSION_OBJECT_TYPES = (
     (Q(public=True) & ~Q(app_label='core', model='objecttype'))
     | Q(app_label='core', model__in=['managedfile'])

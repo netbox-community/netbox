@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
@@ -9,8 +9,7 @@ from core.choices import ManagedFileRootPathChoices, ObjectChangeActionChoices
 from core.events import *
 from core.models import ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
-from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
-from dcim.models import Location
+from dcim.models import DeviceRole, DeviceType, Location, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.choices import *
 from extras.filtersets import *
 from extras.models import *
@@ -111,13 +110,13 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_related_object_type(self):
-        params = {'related_object_type': 'dcim.site'}
+        params = {'related_object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'related_object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -348,7 +347,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.region'}
+        params = {'object_type': ['dcim.region']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_for_model(Region).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -417,7 +416,7 @@ class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -508,7 +507,7 @@ class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -600,7 +599,7 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
         Bookmark.objects.bulk_create(bookmarks)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'object_type_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
@@ -663,7 +662,7 @@ class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -697,8 +696,8 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
-        site_ct = ContentType.objects.get(app_label='dcim', model='site')
-        rack_ct = ContentType.objects.get(app_label='dcim', model='rack')
+        site_ct = ContentType.objects.get_by_natural_key('dcim', 'site')
+        rack_ct = ContentType.objects.get_by_natural_key('dcim', 'rack')
 
         sites = (
             Site(name='Site 1', slug='site-1'),
@@ -757,12 +756,12 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type(self):
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_type_id_and_object_id(self):
         params = {
-            'object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk,
+            'object_type_id': ContentType.objects.get_by_natural_key('dcim', 'site').pk,
             'object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -845,14 +844,14 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_assigned_object_type(self):
-        params = {'assigned_object_type': 'dcim.site'}
+        params = {'assigned_object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {'assigned_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
+        params = {'assigned_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_assigned_object(self):
         params = {
-            'assigned_object_type': 'dcim.site',
+            'assigned_object_type': ['dcim.site'],
             'assigned_object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -863,7 +862,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_created(self):
         pk_list = self.queryset.values_list('pk', flat=True)[:2]
-        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc))
+        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=UTC))
         params = {
             'created_after': '2020-12-31T00:00:00',
             'created_before': '2021-01-02T00:00:00',
@@ -1426,15 +1425,15 @@ class TaggedItemFilterSetTestCase(TestCase):
 
     def test_object_type(self):
         object_type = ObjectType.objects.get_for_model(Site)
-        params = {'object_type': 'dcim.site'}
+        params = {'object_type': ['dcim.site']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'object_type_id': [object_type.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
-    def test_object_id(self):
+    def test_object(self):
         site_ids = Site.objects.values_list('pk', flat=True)
         params = {
-            'object_type': 'dcim.site',
+            'object_type': ['dcim.site'],
             'object_id': site_ids[:2],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

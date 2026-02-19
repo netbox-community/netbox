@@ -1,11 +1,12 @@
 import django.contrib.postgres.fields
-from utilities.json import CustomFieldJSONEncoder
 import django.core.validators
-from django.db import migrations, models
 import django.db.models.deletion
 import django.db.models.expressions
-import ipam.fields
 import taggit.managers
+from django.db import migrations, models
+
+import ipam.fields
+from utilities.json import CustomFieldJSONEncoder
 
 
 class Migration(migrations.Migration):

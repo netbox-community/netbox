@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
 
 from django.conf import settings
 from django.contrib.auth.mixins import AccessMixin
@@ -17,6 +17,7 @@ from netbox.registry import registry
 from utilities.relations import get_related_models
 from utilities.request import safe_for_redirect
 from utilities.string import title
+
 from .permissions import resolve_permission
 
 __all__ = (

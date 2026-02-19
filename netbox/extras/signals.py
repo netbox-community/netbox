@@ -11,13 +11,14 @@ from netbox.models.features import has_feature
 from netbox.signals import post_clean
 from utilities.data import get_config_value_ci
 from utilities.exceptions import AbortRequest
+
 from .models import CustomField, TaggedItem
 from .utils import run_validators
-
 
 #
 # Custom fields
 #
+
 
 def handle_cf_added_obj_types(instance, action, pk_set, **kwargs):
     """

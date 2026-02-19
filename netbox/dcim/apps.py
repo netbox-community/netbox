@@ -10,7 +10,8 @@ class DCIMConfig(AppConfig):
     def ready(self):
         from netbox.models.features import register_models
         from utilities.counters import connect_counters
-        from . import signals, search  # noqa: F401
+
+        from . import search, signals  # noqa: F401
         from .models import CableTermination, Device, DeviceType, ModuleType, RackType, VirtualChassis
 
         # Register models

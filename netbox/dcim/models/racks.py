@@ -15,12 +15,13 @@ from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
-from netbox.models.mixins import WeightMixin
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import WeightMixin
 from utilities.conversion import to_grams
 from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, CounterCacheField
 from utilities.tracking import TrackingModelMixin
+
 from .device_components import PowerPort
 from .devices import Device
 from .modules import Module
@@ -373,7 +374,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         super().clean()
 
         # Validate location/site assignment
-        if self.site and self.location and self.location.site != self.site:
+        if self.site_id and self.location_id and self.location.site_id != self.site_id:
             raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit

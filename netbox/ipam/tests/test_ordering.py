@@ -1,9 +1,8 @@
+import netaddr
 from django.test import TestCase
 
 from ipam.choices import IPAddressStatusChoices, PrefixStatusChoices
-from ipam.models import IPAddress, Prefix, VRF
-
-import netaddr
+from ipam.models import VRF, IPAddress, Prefix
 
 
 class OrderingTestBase(TestCase):

@@ -15,6 +15,7 @@ from users import filtersets
 from users.models import Group, ObjectPermission, Owner, OwnerGroup, Token, User, UserConfig
 from utilities.data import deepmerge
 from utilities.querysets import RestrictedQuerySet
+
 from . import serializers
 
 

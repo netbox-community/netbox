@@ -1,7 +1,6 @@
 import datetime
 import os
 from dataclasses import asdict, dataclass, field
-from typing import Union
 
 import yaml
 from django.core.exceptions import ImproperlyConfigured
@@ -28,9 +27,9 @@ class FeatureSet:
 class ReleaseInfo:
     version: str
     edition: str
-    published: Union[datetime.date, None] = None
-    designation: Union[str, None] = None
-    build: Union[str, None] = None
+    published: datetime.date | None = None
+    designation: str | None = None
+    build: str | None = None
     features: FeatureSet = field(default_factory=FeatureSet)
 
     @property
@@ -57,12 +56,12 @@ def load_release_data():
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     # Load canonical release attributes
-    with open(os.path.join(base_path, RELEASE_PATH), 'r') as release_file:
+    with open(os.path.join(base_path, RELEASE_PATH)) as release_file:
         data = yaml.safe_load(release_file)
 
     # Overlay any local release date (if defined)
     try:
-        with open(os.path.join(base_path, LOCAL_RELEASE_PATH), 'r') as release_file:
+        with open(os.path.join(base_path, LOCAL_RELEASE_PATH)) as release_file:
             local_data = yaml.safe_load(release_file)
     except FileNotFoundError:
         local_data = {}

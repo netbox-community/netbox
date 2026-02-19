@@ -1,9 +1,9 @@
-from typing import List
 
 import strawberry_django
 
 from netbox.graphql.types import BaseObjectType
 from users.models import Group, Owner, OwnerGroup, User
+
 from .filters import *
 
 __all__ = (
@@ -33,7 +33,7 @@ class GroupType(BaseObjectType):
     pagination=True
 )
 class UserType(BaseObjectType):
-    groups: List[GroupType]
+    groups: list[GroupType]
 
 
 @strawberry_django.type(

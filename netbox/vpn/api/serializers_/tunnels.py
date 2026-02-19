@@ -7,6 +7,7 @@ from netbox.api.serializers import NetBoxModelSerializer, OrganizationalModelSer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from vpn.choices import *
 from vpn.models import Tunnel, TunnelGroup, TunnelTermination
+
 from .crypto import IPSecProfileSerializer
 
 __all__ = (

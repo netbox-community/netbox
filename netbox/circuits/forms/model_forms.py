@@ -4,7 +4,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import (
-    CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices, VirtualCircuitTerminationRoleChoices,
+    CircuitCommitRateChoices,
+    CircuitTerminationPortSpeedChoices,
+    VirtualCircuitTerminationRoleChoices,
 )
 from circuits.constants import *
 from circuits.models import *
@@ -14,7 +16,10 @@ from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelF
 from tenancy.forms import TenancyForm
 from utilities.forms import get_field_value
 from utilities.forms.fields import (
-    ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField,
+    ContentTypeChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    SlugField,
 )
 from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields
@@ -91,13 +96,13 @@ class ProviderNetworkForm(PrimaryModelForm):
 
 class CircuitTypeForm(OrganizationalModelForm):
     fieldsets = (
-        FieldSet('name', 'slug', 'color', 'description', 'owner', 'tags'),
+        FieldSet('name', 'slug', 'color', 'description', 'tags'),
     )
 
     class Meta:
         model = CircuitType
         fields = [
-            'name', 'slug', 'color', 'description', 'comments', 'tags',
+            'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
         ]
 
 

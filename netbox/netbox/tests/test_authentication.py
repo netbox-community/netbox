@@ -97,7 +97,7 @@ class TokenAuthenticationTestCase(APITestCase):
         url = reverse('dcim-api:site-list')
 
         # Create v1 & v2 tokens
-        future = datetime.datetime(2100, 1, 1, tzinfo=datetime.timezone.utc)
+        future = datetime.datetime(2100, 1, 1, tzinfo=datetime.UTC)
         token1 = Token.objects.create(version=1, user=self.user, expires=future)
         token2 = Token.objects.create(version=2, user=self.user, expires=future)
 
@@ -108,7 +108,7 @@ class TokenAuthenticationTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
 
         # Request with an expired token should fail
-        past = datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
+        past = datetime.datetime(2020, 1, 1, tzinfo=datetime.UTC)
         token1.expires = past
         token1.save()
         token2.expires = past

@@ -10,24 +10,36 @@ from dcim.filtersets import DeviceFilterSet
 from dcim.forms import DeviceFilterForm
 from dcim.models import Device
 from dcim.tables import DeviceTable
+from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
 from netbox.object_actions import (
-    AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename, DeleteObject, EditObject,
+    AddObject,
+    BulkDelete,
+    BulkEdit,
+    BulkExport,
+    BulkImport,
+    BulkRename,
+    DeleteObject,
+    EditObject,
 )
+from netbox.ui import actions, layout
+from netbox.ui.panels import CommentsPanel, ObjectsTablePanel, TemplatePanel
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
+
 from . import filtersets, forms, tables
 from .models import *
 from .object_actions import BulkAddComponents
-
+from .ui import panels
 
 #
 # Cluster types
 #
+
 
 @register_model_view(ClusterType, 'list', path='', detail=False)
 class ClusterTypeListView(generic.ObjectListView):
@@ -316,6 +328,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
 
                 # Assign the selected Devices to the Cluster
                 for device in Device.objects.filter(pk__in=device_pks):
+                    device.snapshot()
                     device.cluster = cluster
                     device.save()
 
@@ -336,6 +349,7 @@ class ClusterAddDevicesView(generic.ObjectEditView):
 # Virtual machines
 #
 
+
 @register_model_view(VirtualMachine, 'list', path='', detail=False)
 class VirtualMachineListView(generic.ObjectListView):
     queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
@@ -348,6 +362,44 @@ class VirtualMachineListView(generic.ObjectListView):
 @register_model_view(VirtualMachine)
 class VirtualMachineView(generic.ObjectView):
     queryset = VirtualMachine.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualMachinePanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            panels.VirtualMachineClusterPanel(),
+            TemplatePanel('virtualization/panels/virtual_machine_resources.html'),
+            ObjectsTablePanel(
+                model='ipam.Service',
+                title=_('Application Services'),
+                filters={'virtual_machine_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'ipam.Service',
+                        url_params={
+                            'parent_object_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                            'parent': lambda ctx: ctx['object'].pk,
+                        },
+                    ),
+                ],
+            ),
+            ImageAttachmentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='virtualization.VirtualDisk',
+                filters={'virtual_machine_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'virtualization.VirtualDisk', url_params={'virtual_machine': lambda ctx: ctx['object'].pk}
+                    ),
+                ],
+            ),
+        ],
+    )
 
 
 @register_model_view(VirtualMachine, 'interfaces')

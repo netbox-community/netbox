@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from users.choices import TokenVersionChoices
-from users.models import User, Token
+from users.models import Token, User
 from utilities.testing import create_test_user
 
 

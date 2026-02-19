@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.functional import classproperty
 from django.utils import timezone
+from django.utils.functional import classproperty
 from django_pglocks import advisory_lock
 from rq.timeouts import JobTimeoutException
 

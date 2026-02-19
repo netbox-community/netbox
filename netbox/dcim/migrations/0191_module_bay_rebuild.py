@@ -1,6 +1,6 @@
-from django.db import migrations
 import mptt
 import mptt.managers
+from django.db import migrations
 
 
 def rebuild_mptt(apps, schema_editor):

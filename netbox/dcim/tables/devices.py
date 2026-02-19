@@ -5,6 +5,7 @@ from django_tables2.utils import Accessor
 from dcim import models
 from netbox.tables import NestedGroupModelTable, NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+
 from .template_code import *
 
 __all__ = (
@@ -584,6 +585,15 @@ class BaseInterfaceTable(NetBoxTable):
         orderable=False,
         verbose_name=_('IP Addresses')
     )
+    primary_mac_address = tables.Column(
+        verbose_name=_('Primary MAC'),
+        linkify=True
+    )
+    mac_addresses = columns.ManyToManyColumn(
+        orderable=False,
+        linkify_item=True,
+        verbose_name=_('MAC Addresses')
+    )
     fhrp_groups = tables.TemplateColumn(
         accessor=Accessor('fhrp_group_assignments'),
         template_code=INTERFACE_FHRPGROUPS,
@@ -613,10 +623,6 @@ class BaseInterfaceTable(NetBoxTable):
     )
     qinq_svlan = tables.Column(
         verbose_name=_('Q-in-Q SVLAN'),
-        linkify=True
-    )
-    primary_mac_address = tables.Column(
-        verbose_name=_('MAC Address'),
         linkify=True
     )
 
@@ -681,11 +687,12 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'speed_formatted', 'duplex', 'mode', 'primary_mac_address', 'wwn', 'poe_mode', 'poe_type',
-            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description',
-            'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection',
-            'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans',
-            'qinq_svlan', 'inventory_items', 'created', 'last_updated', 'vlan_translation_policy'
+            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn',
+            'poe_mode', 'poe_type', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
+            'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link', 'wireless_lans', 'link_peer',
+            'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups',
+            'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'inventory_items', 'created', 'last_updated',
+            'vlan_translation_policy',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -746,10 +753,11 @@ class DeviceInterfaceTable(InterfaceTable):
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
-            'mgmt_only', 'mtu', 'mode', 'primary_mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
-            'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
-            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'actions',
+            'mgmt_only', 'mtu', 'mode', 'mac_addresses', 'primary_mac_address', 'wwn', 'rf_role', 'rf_channel',
+            'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
+            'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf',
+            'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan',
+            'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
@@ -880,23 +888,35 @@ class DeviceBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
-    role = columns.ColoredLabelColumn(
-        accessor=Accessor('installed_device__role'),
-        verbose_name=_('Role')
-    )
-    device_type = tables.Column(
-        accessor=Accessor('installed_device__device_type'),
-        linkify=True,
-        verbose_name=_('Type')
-    )
     status = tables.TemplateColumn(
         verbose_name=_('Status'),
         template_code=DEVICEBAY_STATUS,
         order_by=Accessor('installed_device__status')
     )
     installed_device = tables.Column(
-        verbose_name=_('Installed device'),
+        verbose_name=_('Installed Device'),
         linkify=True
+    )
+    installed_role = columns.ColoredLabelColumn(
+        accessor=Accessor('installed_device__role'),
+        verbose_name=_('Installed Role')
+    )
+    installed_device_type = tables.Column(
+        accessor=Accessor('installed_device__device_type'),
+        linkify=True,
+        verbose_name=_('Installed Type')
+    )
+    installed_description = tables.Column(
+        accessor=Accessor('installed_device__description'),
+        verbose_name=_('Installed Description')
+    )
+    installed_serial = tables.Column(
+        accessor=Accessor('installed_device__serial'),
+        verbose_name=_('Installed Serial')
+    )
+    installed_asset_tag = tables.Column(
+        accessor=Accessor('installed_device__asset_tag'),
+        verbose_name=_('Installed Asset Tag')
     )
     tags = columns.TagColumn(
         url_name='dcim:devicebay_list'
@@ -905,8 +925,9 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'role', 'device_type', 'installed_device', 'description',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'label', 'status', 'description', 'installed_device', 'installed_role',
+            'installed_device_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags',
+            'created', 'last_updated',
         )
 
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
@@ -1199,4 +1220,6 @@ class MACAddressTable(PrimaryModelTable):
             'pk', 'id', 'mac_address', 'assigned_object_parent', 'assigned_object', 'description', 'is_primary',
             'comments', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'mac_address', 'assigned_object_parent', 'assigned_object', 'description')
+        default_columns = (
+            'pk', 'mac_address', 'is_primary', 'assigned_object_parent', 'assigned_object', 'description',
+        )

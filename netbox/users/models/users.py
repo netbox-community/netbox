@@ -1,8 +1,12 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import (
     GroupManager as DjangoGroupManager,
+)
+from django.contrib.auth.models import (
     Permission,
     PermissionsMixin,
+)
+from django.contrib.auth.models import (
     UserManager as DjangoUserManager,
 )
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -185,7 +189,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         Return the first_name plus the last_name, with a space in between.
         """
-        full_name = "%s %s" % (self.first_name, self.last_name)
+        full_name = f"{self.first_name} {self.last_name}"
         return full_name.strip()
 
     def get_short_name(self):

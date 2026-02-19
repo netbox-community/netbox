@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
-from django.db import connection, ProgrammingError
+from django.db import ProgrammingError, connection
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 from django_prometheus import middleware
@@ -71,7 +71,7 @@ class CoreMiddleware:
         """
         # Don't catch exceptions when in debug mode
         if settings.DEBUG:
-            return
+            return None
 
         # Cleanly handle exceptions that occur from REST API requests
         if is_api_request(request):
@@ -79,7 +79,7 @@ class CoreMiddleware:
 
         # Ignore Http404s (defer to Django's built-in 404 handling)
         if isinstance(exception, Http404):
-            return
+            return None
 
         # Determine the type of exception. If it's a common issue, return a custom error page with instructions.
         custom_template = None
@@ -93,6 +93,7 @@ class CoreMiddleware:
         # Return a custom error message, or fall back to Django's default 500 error handling
         if custom_template:
             return handler_500(request, template_name=custom_template)
+        return None
 
 
 class RemoteUserMiddleware(RemoteUserMiddleware_):
@@ -139,10 +140,9 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
         if request.user.is_authenticated:
             if request.user.get_username() == self.clean_username(username, request):
                 return self.get_response(request)
-            else:
-                # An authenticated user is associated with the request, but
-                # it does not match the authorized user in the header.
-                self._remove_invalid_user(request)
+            # An authenticated user is associated with the request, but
+            # it does not match the authorized user in the header.
+            self._remove_invalid_user(request)
 
         # We are seeing this user for the first time in this session, attempt
         # to authenticate the user.
@@ -250,3 +250,4 @@ class MaintenanceModeMiddleware:
 
             messages.error(request, error_message)
             return HttpResponseRedirect(request.path_info)
+        return None

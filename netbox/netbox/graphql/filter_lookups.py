@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TypeVar, Tuple, Generic
+from typing import Generic, TypeVar
 
 import strawberry
 import strawberry_django
@@ -72,7 +72,7 @@ class IntegerLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -95,7 +95,7 @@ class BigIntegerLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -118,7 +118,7 @@ class FloatLookup:
         return None
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.get_filter()
 
         if not filters:
@@ -137,7 +137,7 @@ class JSONFilter:
     lookup: JSONLookup
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         filters = self.lookup.get_filter()
 
         if not filters:
@@ -164,7 +164,7 @@ class TreeNodeFilter:
     match_type: TreeNodeMatch
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: DirectiveValue[str] = '') -> tuple[QuerySet, Q]:
         model_field_name = prefix.removesuffix('__').removesuffix('_id')
         model_field = None
         try:
@@ -186,12 +186,11 @@ class TreeNodeFilter:
         # Handle different relationship types
         if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
             return queryset, Q(**{f'{model_field_name}__in': related_model.objects.filter(q_filter)})
-        elif isinstance(model_field, ForeignKey):
+        if isinstance(model_field, ForeignKey):
             return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
-        elif isinstance(model_field, ManyToOneRel):
+        if isinstance(model_field, ManyToOneRel):
             return queryset, Q(**{f'{model_field_name}__in': related_model.objects.filter(q_filter)})
-        else:
-            return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
+        return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
 
 
 def generate_tree_node_q_filter(model_class, filter_value: TreeNodeFilter) -> Q:
@@ -205,17 +204,17 @@ def generate_tree_node_q_filter(model_class, filter_value: TreeNodeFilter) -> Q:
 
     if filter_value.match_type == TreeNodeMatch.EXACT:
         return Q(id=filter_value.id)
-    elif filter_value.match_type == TreeNodeMatch.DESCENDANTS:
+    if filter_value.match_type == TreeNodeMatch.DESCENDANTS:
         return Q(tree_id=node.tree_id, lft__gt=node.lft, rght__lt=node.rght)
-    elif filter_value.match_type == TreeNodeMatch.SELF_AND_DESCENDANTS:
+    if filter_value.match_type == TreeNodeMatch.SELF_AND_DESCENDANTS:
         return Q(tree_id=node.tree_id, lft__gte=node.lft, rght__lte=node.rght)
-    elif filter_value.match_type == TreeNodeMatch.CHILDREN:
+    if filter_value.match_type == TreeNodeMatch.CHILDREN:
         return Q(tree_id=node.tree_id, level=node.level + 1, lft__gt=node.lft, rght__lt=node.rght)
-    elif filter_value.match_type == TreeNodeMatch.SIBLINGS:
+    if filter_value.match_type == TreeNodeMatch.SIBLINGS:
         return Q(tree_id=node.tree_id, level=node.level, parent=node.parent) & ~Q(id=node.id)
-    elif filter_value.match_type == TreeNodeMatch.ANCESTORS:
+    if filter_value.match_type == TreeNodeMatch.ANCESTORS:
         return Q(tree_id=node.tree_id, lft__lt=node.lft, rght__gt=node.rght)
-    elif filter_value.match_type == TreeNodeMatch.PARENT:
+    if filter_value.match_type == TreeNodeMatch.PARENT:
         return Q(id=node.parent_id) if node.parent_id else Q(pk__in=[])
     return Q()
 
@@ -258,7 +257,7 @@ class RangeArrayValueLookup(Generic[T]):
     )
 
     @strawberry_django.filter_field
-    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> Tuple[QuerySet, Q]:
+    def filter(self, info: Info, queryset: QuerySet, prefix: str = '') -> tuple[QuerySet, Q]:
         """
         Map GraphQL: { <field>: { contains: <T> } } To Django ORM: <field>__range_contains=<T>
         """

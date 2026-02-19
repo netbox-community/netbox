@@ -36,6 +36,7 @@ from utilities.request import safe_for_redirect
 from utilities.string import title
 from utilities.tables import get_table_configs
 from utilities.views import GetReturnURLMixin, get_action_url
+
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -168,22 +169,21 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
                 return self.export_table(table, columns, delimiter=delimiter)
 
             # Render an ExportTemplate
-            elif request.GET['export']:
+            if request.GET['export']:
                 template = get_object_or_404(ExportTemplate, object_types=object_type, name=request.GET['export'])
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model
-            elif hasattr(model, 'to_yaml'):
+            if hasattr(model, 'to_yaml'):
                 response = HttpResponse(self.export_yaml(), content_type='text/yaml')
                 filename = 'netbox_{}.yaml'.format(self.queryset.model._meta.verbose_name_plural)
                 response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
                 return response
 
             # Fall back to default table/YAML export
-            else:
-                table = self.get_table(self.queryset, request, has_table_actions)
-                delimiter = request.user.config.get('csv_delimiter')
-                return self.export_table(table, delimiter=delimiter)
+            table = self.get_table(self.queryset, request, has_table_actions)
+            delimiter = request.user.config.get('csv_delimiter')
+            return self.export_table(table, delimiter=delimiter)
 
         # Render the objects table
         table = self.get_table(self.queryset, request, has_table_actions)
@@ -352,7 +352,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         for field in form.visible_fields():
             if field.is_hidden:
                 continue
-            elif field.field.required:
+            if field.field.required:
                 required_fields[field.name] = field.field
             else:
                 optional_fields[field.name] = field.field
@@ -580,7 +580,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 # Handle background job
                 if is_background_request(request):
                     request.job.logger.info(msg)
-                    return
+                    return None
 
                 messages.success(request, msg)
                 return redirect(f"{redirect_url}?modified_by_request={request.id}")
@@ -786,7 +786,7 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     # Handle background job
                     if is_background_request(request):
                         request.job.logger.info(msg)
-                        return
+                        return None
 
                     messages.success(self.request, msg)
                     return redirect(self.get_return_url(request))
@@ -1009,7 +1009,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                     # Handle background job
                     if is_background_request(request):
                         request.job.logger.info(msg)
-                        return
+                        return None
 
                     messages.success(request, msg)
 
@@ -1031,8 +1031,7 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
 
                 return redirect(self.get_return_url(request))
 
-            else:
-                logger.debug("Form validation failed")
+            logger.debug("Form validation failed")
 
         else:
             form = BulkDeleteForm(model, initial={

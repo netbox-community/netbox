@@ -1,10 +1,11 @@
-from typing import Annotated, List, TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
 
 from netbox.graphql.types import NestedGroupObjectType, PrimaryObjectType
 from wireless import models
+
 from .filters import *
 
 if TYPE_CHECKING:
@@ -28,8 +29,8 @@ __all__ = (
 class WirelessLANGroupType(NestedGroupObjectType):
     parent: Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')] | None
 
-    wireless_lans: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
-    children: List[Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')]]
+    wireless_lans: list[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
+    children: list[Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -43,15 +44,16 @@ class WirelessLANType(PrimaryObjectType):
     vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    interfaces: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
     @strawberry_django.field
-    def scope(self) -> Annotated[Union[
-        Annotated["LocationType", strawberry.lazy('dcim.graphql.types')],
-        Annotated["RegionType", strawberry.lazy('dcim.graphql.types')],
-        Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
-        Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("WirelessLANScopeType")] | None:
+    def scope(self) -> Annotated[
+        Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['SiteGroupType', strawberry.lazy('dcim.graphql.types')]
+        | Annotated['SiteType', strawberry.lazy('dcim.graphql.types')],
+        strawberry.union('WirelessLANScopeType'),
+    ] | None:
         return self.scope
 
 

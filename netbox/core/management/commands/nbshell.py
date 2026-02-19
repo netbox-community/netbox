@@ -144,7 +144,7 @@ class Command(BaseCommand):
         # If Python code has been passed, execute it and exit.
         if options['command']:
             exec(options['command'], namespace)
-            return
+            return None
 
         # Try to enable tab-complete
         try:

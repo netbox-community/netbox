@@ -1,10 +1,11 @@
 from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, Http404
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -25,7 +26,7 @@ from netbox.object_actions import *
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
-from utilities.htmx import htmx_partial, htmx_maybe_redirect_current_page
+from utilities.htmx import htmx_maybe_redirect_current_page, htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
@@ -34,15 +35,16 @@ from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_action_url, register_model_view
 from virtualization.models import VirtualMachine
+
 from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
 from .models import *
-from .tables import ReportResultsTable, ScriptResultsTable, ScriptJobTable
-
+from .tables import ReportResultsTable, ScriptJobTable, ScriptResultsTable
 
 #
 # Custom fields
 #
+
 
 @register_model_view(CustomField, 'list', path='', detail=False)
 class CustomFieldListView(generic.ObjectListView):
@@ -1441,12 +1443,16 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
-        script_modules = ScriptModule.objects.restrict(request.user).prefetch_related(
-            'data_source', 'data_file', 'jobs'
+        available_scripts = Script.objects.restrict(request.user)
+        module_ids = {s.module_id for s in available_scripts}
+        script_modules = ScriptModule.objects.restrict(request.user).filter(pk__in=module_ids).prefetch_related(
+            'data_source', 'data_file',
         )
+
         context = {
             'model': ScriptModule,
             'script_modules': script_modules,
+            'available_scripts': available_scripts,
         }
 
         # Use partial template for dashboard widgets
@@ -1464,10 +1470,9 @@ class BaseScriptView(generic.ObjectView):
     def get_object(self, **kwargs):
         if pk := kwargs.get('pk', False):
             return get_object_or_404(self.queryset, pk=pk)
-        elif (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
+        if (module := kwargs.get('module')) and (name := kwargs.get('name', False)):
             return get_object_or_404(self.queryset, module__file_path=f'{module}.py', name=name)
-        else:
-            raise Http404
+        raise Http404
 
     def _get_script_class(self, script):
         """
@@ -1475,6 +1480,7 @@ class BaseScriptView(generic.ObjectView):
         """
         if script_class := script.python_class:
             return script_class()
+        return None
 
 
 class ScriptView(BaseScriptView):
@@ -1668,7 +1674,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
             return response
 
-        elif job.completed:
+        if job.completed:
             table = self.get_table(job, request, bulk_actions=False)
 
         log_threshold = request.GET.get('log_threshold', LogLevelChoices.LOG_INFO)

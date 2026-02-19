@@ -6,7 +6,8 @@ from extras.choices import *
 from extras.models import CustomField, Tag
 from users.models import Owner
 from utilities.forms import CSVModelForm
-from utilities.forms.fields import CSVModelMultipleChoiceField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
+
 from .model_forms import NetBoxModelForm
 
 __all__ = (

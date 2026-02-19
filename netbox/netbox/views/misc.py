@@ -1,6 +1,6 @@
+import logging
 import re
 from collections import namedtuple
-import logging
 
 from django.conf import settings
 from django.contrib import messages

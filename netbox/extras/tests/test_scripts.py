@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -381,7 +381,7 @@ class ScriptVariablesTest(TestCase):
         self.assertIn('var1', form.errors)
 
         # Validate valid data
-        input_datetime = datetime(2024, 4, 1, 8, 0, 0, 0, timezone.utc)
+        input_datetime = datetime(2024, 4, 1, 8, 0, 0, 0, UTC)
         data = {'var1': input_datetime}
         form = TestScript().as_form(data, None)
         self.assertTrue(form.is_valid())

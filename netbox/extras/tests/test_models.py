@@ -4,7 +4,7 @@ from pathlib import Path
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from core.models import AutoSyncRecord, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
@@ -17,7 +17,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMac
 class ImageAttachmentTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.ct_rack = ContentType.objects.get(app_label='dcim', model='rack')
+        cls.ct_rack = ContentType.objects.get_by_natural_key('dcim', 'rack')
         cls.image_content = b''
 
     def _stub_image_attachment(self, object_id, image_filename, name=None):

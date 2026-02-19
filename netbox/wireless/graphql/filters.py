@@ -1,4 +1,4 @@
-from typing import Annotated, TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
@@ -7,14 +7,16 @@ from strawberry_django import BaseFilterLookup, FilterLookup
 
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from netbox.graphql.filter_mixins import DistanceFilterMixin
-from netbox.graphql.filters import PrimaryModelFilter, NestedGroupModelFilter
+from netbox.graphql.filters import NestedGroupModelFilter, PrimaryModelFilter
 from tenancy.graphql.filter_mixins import TenancyFilterMixin
 from wireless import models
+
 from .filter_mixins import WirelessAuthenticationFilterMixin
 
 if TYPE_CHECKING:
     from dcim.graphql.filters import InterfaceFilter
     from ipam.graphql.filters import VLANFilter
+
     from .enums import *
 
 __all__ = (

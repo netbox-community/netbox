@@ -34,14 +34,14 @@ class ObjectTypeSerializer(BaseModelSerializer):
     @extend_schema_field(OpenApiTypes.STR)
     def get_rest_api_endpoint(self, obj):
         if not (model := obj.model_class()):
-            return
+            return None
         try:
             return get_action_url(model, action='list', rest_api=True)
         except NoReverseMatch:
-            return
+            return None
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_description(self, obj):
         if not (model := obj.model_class()):
-            return
+            return None
         return inspect.getdoc(model)

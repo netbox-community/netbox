@@ -1,6 +1,10 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import (
-    FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
+    FieldDoesNotExist,
+    FieldError,
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+    ValidationError,
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
 from django.urls import reverse
@@ -13,6 +17,7 @@ from rest_framework.views import get_view_name as drf_get_view_name
 from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from netbox.api.fields import RelatedObjectCountField
+
 from .query import count_related, dict_to_filter_params
 from .string import title
 

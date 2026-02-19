@@ -4,14 +4,23 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import (
-    ConsolePortTemplate, ConsoleServerPortTemplate, DeviceBayTemplate, FrontPortTemplate, InterfaceTemplate,
-    InventoryItemTemplate, ModuleBayTemplate, PortTemplateMapping, PowerOutletTemplate, PowerPortTemplate,
+    ConsolePortTemplate,
+    ConsoleServerPortTemplate,
+    DeviceBayTemplate,
+    FrontPortTemplate,
+    InterfaceTemplate,
+    InventoryItemTemplate,
+    ModuleBayTemplate,
+    PortTemplateMapping,
+    PowerOutletTemplate,
+    PowerPortTemplate,
     RearPortTemplate,
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from wireless.choices import *
+
 from .base import PortSerializer
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
 from .manufacturers import ManufacturerSerializer

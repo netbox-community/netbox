@@ -3,7 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-from taggit.models import TagBase, GenericTaggedItemBase
+from taggit.models import GenericTaggedItemBase, TagBase
 
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel
@@ -66,7 +66,7 @@ class Tag(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel, Tag
         # Allow Unicode in Tag slugs (avoids empty slugs for Tags with all-Unicode names)
         slug = slugify(tag, allow_unicode=True)
         if i is not None:
-            slug += "_%d" % i
+            slug += f'_{i}'
         return slug
 
 

@@ -1,8 +1,7 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence, Optional
 
 from django.urls import reverse_lazy
-
 
 __all__ = (
     'get_model_item',
@@ -24,9 +23,9 @@ class MenuItemButton:
     link: str
     title: str
     icon_class: str
-    _url: Optional[str] = None
-    permissions: Optional[Sequence[str]] = ()
-    color: Optional[str] = None
+    _url: str | None = None
+    permissions: Sequence[str] | None = ()
+    color: str | None = None
 
     def __post_init__(self):
         if self.link:
@@ -46,11 +45,11 @@ class MenuItem:
 
     link: str
     link_text: str
-    _url: Optional[str] = None
-    permissions: Optional[Sequence[str]] = ()
-    auth_required: Optional[bool] = False
-    staff_only: Optional[bool] = False
-    buttons: Optional[Sequence[MenuItemButton]] = ()
+    _url: str | None = None
+    permissions: Sequence[str] | None = ()
+    auth_required: bool | None = False
+    staff_only: bool | None = False
+    buttons: Sequence[MenuItemButton] | None = ()
 
     def __post_init__(self):
         if self.link:

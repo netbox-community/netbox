@@ -1,8 +1,8 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from dcim.api.serializers_.devices import DeviceSerializer
 from dcim.api.serializers_.device_components import MACAddressSerializer
+from dcim.api.serializers_.devices import DeviceSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
@@ -19,6 +19,7 @@ from users.api.serializers_.mixins import OwnerMixin
 from virtualization.choices import *
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
+
 from .clusters import ClusterSerializer
 from .nested import NestedVMInterfaceSerializer
 

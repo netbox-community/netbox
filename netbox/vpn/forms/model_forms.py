@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
-from ipam.models import IPAddress, RouteTarget, VLAN
+from ipam.models import VLAN, IPAddress, RouteTarget
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField

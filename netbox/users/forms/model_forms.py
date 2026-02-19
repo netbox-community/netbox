@@ -19,7 +19,10 @@ from users.constants import *
 from users.models import *
 from utilities.data import flatten_dict
 from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
+    ContentTypeMultipleChoiceField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
@@ -325,7 +328,7 @@ class ObjectPermissionForm(forms.ModelForm):
         widget=SplitMultiSelectWidget(
             choices=get_object_types_choices
         ),
-        help_text=_('Select the types of objects to which the permission will appy.')
+        help_text=_('Select the types of objects to which the permission will apply.')
     )
     can_view = forms.BooleanField(
         required=False

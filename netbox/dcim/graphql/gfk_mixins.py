@@ -66,6 +66,7 @@ class InventoryItemTemplateComponentType:
             return PowerPortTemplateType
         if type(instance) is RearPortTemplate:
             return RearPortTemplateType
+        return None
 
 
 class InventoryItemComponentType:
@@ -96,6 +97,7 @@ class InventoryItemComponentType:
             return PowerPortType
         if type(instance) is RearPort:
             return RearPortType
+        return None
 
 
 class ConnectedEndpointType:
@@ -135,3 +137,4 @@ class ConnectedEndpointType:
             return ProviderNetworkType
         if type(instance) is RearPort:
             return RearPortType
+        return None

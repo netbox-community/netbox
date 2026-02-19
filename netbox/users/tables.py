@@ -24,6 +24,7 @@ class TokenTable(NetBoxTable):
     token = columns.TemplateColumn(
         verbose_name=_('token'),
         template_code=TOKEN,
+        orderable=False,
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled')

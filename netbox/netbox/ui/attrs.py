@@ -24,10 +24,12 @@ __all__ = (
 
 PLACEHOLDER_HTML = '<span class="text-muted">&mdash;</span>'
 
+IMAGE_DECODING_CHOICES = ('auto', 'async', 'sync')
 
 #
 # Attributes
 #
+
 
 class ObjectAttribute:
     """
@@ -103,7 +105,7 @@ class TextAttr(ObjectAttribute):
     def get_value(self, obj):
         value = resolve_attr_path(obj, self.accessor)
         # Apply format string (if any)
-        if value and self.format_string:
+        if value is not None and value != '' and self.format_string:
             return self.format_string.format(value)
         return value
 
@@ -193,8 +195,36 @@ class ColorAttr(ObjectAttribute):
 class ImageAttr(ObjectAttribute):
     """
     An attribute representing an image field on the model. Displays the uploaded image.
+
+    Parameters:
+        load_lazy (bool): If True, the image will be loaded lazily (default: True)
+        decoding (str): Image decoding option ('async', 'sync', 'auto', None)
     """
     template_name = 'ui/attrs/image.html'
+
+    def __init__(self, *args, load_lazy=True, decoding=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.load_lazy = load_lazy
+
+        if decoding is not None and decoding not in IMAGE_DECODING_CHOICES:
+            raise ValueError(
+                _('Invalid decoding option: {decoding}! Must be one of {image_decoding_choices}').format(
+                    decoding=decoding, image_decoding_choices=', '.join(IMAGE_DECODING_CHOICES)
+                )
+            )
+
+        # Compute default decoding:
+        # - lazy images: async decoding (performance-friendly hint)
+        # - non-lazy images: omit decoding (browser default/auto)
+        if decoding is None and load_lazy:
+            decoding = 'async'
+        self.decoding = decoding
+
+    def get_context(self, obj, context):
+        return {
+            'decoding': self.decoding,
+            'load_lazy': self.load_lazy,
+        }
 
 
 class RelatedObjectAttr(ObjectAttribute):

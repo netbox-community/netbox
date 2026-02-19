@@ -2,13 +2,14 @@ from dcim.models import Interface
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
+
 from . import filtersets, forms, tables
 from .models import *
-
 
 #
 # Wireless LAN groups
 #
+
 
 @register_model_view(WirelessLANGroup, 'list', path='', detail=False)
 class WirelessLANGroupListView(generic.ObjectListView):
