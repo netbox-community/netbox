@@ -141,6 +141,20 @@ class CableTerminationFilter(ChangeLoggedModelFilter):
     )
     termination_id: ID | None = strawberry_django.filter_field()
 
+    # Cached relations
+    _device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field(
+        name='device'
+    )
+    _rack: Annotated['RackFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field(
+        name='rack'
+    )
+    _location: Annotated['LocationFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='location')
+    )
+    _site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field(
+        name='site'
+    )
+
 
 @strawberry_django.filter_type(models.ConsolePort, lookups=True)
 class ConsolePortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
