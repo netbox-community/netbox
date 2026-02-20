@@ -1,0 +1,6 @@
+{% extends "ui/panels/_base.html" %}
+{% load render_table from django_tables2 %}
+
+{% block panel_content %}
+  {% render_table table 'inc/table.html' %}
+{% endblock panel_content %}

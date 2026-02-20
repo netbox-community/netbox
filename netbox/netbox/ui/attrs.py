@@ -10,6 +10,7 @@ __all__ = (
     'BooleanAttr',
     'ColorAttr',
     'ChoiceAttr',
+    'GenericForeignKeyAttr',
     'GPSCoordinatesAttr',
     'ImageAttr',
     'NestedObjectAttr',
@@ -275,6 +276,32 @@ class NestedObjectAttr(ObjectAttribute):
             nodes = list(nodes)[-self.max_depth:]
         return {
             'nodes': nodes,
+            'linkify': self.linkify,
+        }
+
+
+class GenericForeignKeyAttr(ObjectAttribute):
+    """
+    An attribute representing a related generic relation object.
+
+    This attribute is similar to `RelatedObjectAttr` but uses the
+    ContentType of the related object to be displayed alongside the value.
+
+    Parameters:
+         linkify (bool): If True, the rendered value will be hyperlinked
+             to the related object's detail view
+    """
+    template_name = 'ui/attrs/generic_object.html'
+
+    def __init__(self, *args, linkify=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.linkify = linkify
+
+    def get_context(self, obj, context):
+        value = self.get_value(obj)
+        content_type = value._meta.verbose_name
+        return {
+            'content_type': content_type,
             'linkify': self.linkify,
         }
 
