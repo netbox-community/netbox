@@ -28,11 +28,11 @@ from utilities.templatetags.builtins.filters import bettertitle
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
-    'AggregateForm',
     'ASNForm',
     'ASNRangeForm',
-    'FHRPGroupForm',
+    'AggregateForm',
     'FHRPGroupAssignmentForm',
+    'FHRPGroupForm',
     'IPAddressAssignForm',
     'IPAddressBulkAddForm',
     'IPAddressForm',
@@ -41,8 +41,8 @@ __all__ = (
     'RIRForm',
     'RoleForm',
     'RouteTargetForm',
-    'ServiceForm',
     'ServiceCreateForm',
+    'ServiceForm',
     'ServiceTemplateForm',
     'VLANForm',
     'VLANGroupForm',

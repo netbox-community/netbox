@@ -9,10 +9,10 @@ from django.utils.translation import gettext_lazy as _
 from .parameters import PARAMS
 
 __all__ = (
-    'clear_config',
-    'ConfigItem',
-    'get_config',
     'PARAMS',
+    'ConfigItem',
+    'clear_config',
+    'get_config',
 )
 
 _thread_locals = threading.local()

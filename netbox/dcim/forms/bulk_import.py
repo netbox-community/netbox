@@ -48,8 +48,8 @@ __all__ = (
     'LocationImportForm',
     'MACAddressImportForm',
     'ManufacturerImportForm',
-    'ModuleImportForm',
     'ModuleBayImportForm',
+    'ModuleImportForm',
     'ModuleTypeImportForm',
     'ModuleTypeProfileImportForm',
     'PlatformImportForm',
@@ -63,8 +63,8 @@ __all__ = (
     'RackTypeImportForm',
     'RearPortImportForm',
     'RegionImportForm',
-    'SiteImportForm',
     'SiteGroupImportForm',
+    'SiteImportForm',
     'VirtualChassisImportForm',
     'VirtualDeviceContextImportForm'
 )

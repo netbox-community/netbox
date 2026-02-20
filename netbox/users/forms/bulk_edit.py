@@ -15,8 +15,8 @@ __all__ = (
     'ObjectPermissionBulkEditForm',
     'OwnerBulkEditForm',
     'OwnerGroupBulkEditForm',
-    'UserBulkEditForm',
     'TokenBulkEditForm',
+    'UserBulkEditForm',
 )
 
 

@@ -7,9 +7,9 @@ from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin
 
 __all__ = (
-    'ProviderTable',
     'ProviderAccountTable',
     'ProviderNetworkTable',
+    'ProviderTable',
 )
 
 

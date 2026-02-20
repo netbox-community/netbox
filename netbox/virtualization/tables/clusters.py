@@ -6,8 +6,8 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
-    'ClusterTable',
     'ClusterGroupTable',
+    'ClusterTable',
     'ClusterTypeTable',
 )
 

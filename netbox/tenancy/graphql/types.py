@@ -43,8 +43,8 @@ __all__ = (
     'ContactGroupType',
     'ContactRoleType',
     'ContactType',
-    'TenantType',
     'TenantGroupType',
+    'TenantType',
 )
 
 

@@ -11,11 +11,11 @@ from utilities.forms.widgets import FilterModifierWidget
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
 __all__ = (
+    'FORM_FIELD_LOOKUPS',
     'BackgroundJobMixin',
     'CheckLastUpdatedMixin',
     'DistanceValidationMixin',
     'FilterModifierMixin',
-    'FORM_FIELD_LOOKUPS',
 )
 
 

@@ -6,8 +6,8 @@ from netbox.tables import OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 __all__ = (
-    'ASNTable',
     'ASNRangeTable',
+    'ASNTable',
 )
 
 

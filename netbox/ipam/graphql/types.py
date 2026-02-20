@@ -28,23 +28,23 @@ if TYPE_CHECKING:
     from wireless.graphql.types import WirelessLANType
 
 __all__ = (
-    'ASNType',
     'ASNRangeType',
+    'ASNType',
     'AggregateType',
-    'FHRPGroupType',
     'FHRPGroupAssignmentType',
+    'FHRPGroupType',
     'IPAddressType',
     'IPRangeType',
     'PrefixType',
     'RIRType',
     'RoleType',
     'RouteTargetType',
-    'ServiceType',
     'ServiceTemplateType',
-    'VLANType',
+    'ServiceType',
     'VLANGroupType',
     'VLANTranslationPolicyType',
     'VLANTranslationRuleType',
+    'VLANType',
     'VRFType',
 )
 

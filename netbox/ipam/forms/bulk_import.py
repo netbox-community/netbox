@@ -20,9 +20,9 @@ from utilities.forms.fields import (
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
-    'AggregateImportForm',
     'ASNImportForm',
     'ASNRangeImportForm',
+    'AggregateImportForm',
     'FHRPGroupImportForm',
     'IPAddressImportForm',
     'IPRangeImportForm',
@@ -32,8 +32,8 @@ __all__ = (
     'RouteTargetImportForm',
     'ServiceImportForm',
     'ServiceTemplateImportForm',
-    'VLANImportForm',
     'VLANGroupImportForm',
+    'VLANImportForm',
     'VLANTranslationPolicyImportForm',
     'VLANTranslationRuleImportForm',
     'VRFImportForm',

@@ -49,12 +49,12 @@ if TYPE_CHECKING:
     from .enums import *
 
 __all__ = (
+    'ContactAssignmentFilter',
+    'ContactFilter',
+    'ContactGroupFilter',
+    'ContactRoleFilter',
     'TenantFilter',
     'TenantGroupFilter',
-    'ContactFilter',
-    'ContactRoleFilter',
-    'ContactGroupFilter',
-    'ContactAssignmentFilter',
 )
 
 

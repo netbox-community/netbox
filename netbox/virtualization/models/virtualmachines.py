@@ -23,9 +23,9 @@ from utilities.tracking import TrackingModelMixin
 from virtualization.choices import *
 
 __all__ = (
+    'VMInterface',
     'VirtualDisk',
     'VirtualMachine',
-    'VMInterface',
 )
 
 

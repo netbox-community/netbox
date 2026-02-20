@@ -6,9 +6,9 @@ from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin
 
 __all__ = (
-    'ProviderNetwork',
     'Provider',
     'ProviderAccount',
+    'ProviderNetwork',
 )
 
 

@@ -9,9 +9,9 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import OUTER_UNIT, WEIGHT
 
 __all__ = (
-    'RackTable',
     'RackReservationTable',
     'RackRoleTable',
+    'RackTable',
     'RackTypeTable',
 )
 

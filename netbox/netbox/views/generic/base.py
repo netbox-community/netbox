@@ -5,8 +5,8 @@ from django.views.generic import View
 from utilities.views import ObjectPermissionRequiredMixin
 
 __all__ = (
-    'BaseObjectView',
     'BaseMultiObjectView',
+    'BaseObjectView',
 )
 
 

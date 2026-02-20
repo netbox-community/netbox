@@ -12,14 +12,14 @@ from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 
 __all__ = (
-    'CircuitImportForm',
     'CircuitGroupAssignmentImportForm',
     'CircuitGroupImportForm',
+    'CircuitImportForm',
     'CircuitTerminationImportForm',
     'CircuitTerminationImportRelatedForm',
     'CircuitTypeImportForm',
-    'ProviderImportForm',
     'ProviderAccountImportForm',
+    'ProviderImportForm',
     'ProviderNetworkImportForm',
     'VirtualCircuitImportForm',
     'VirtualCircuitTerminationImportForm',

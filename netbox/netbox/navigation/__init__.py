@@ -4,12 +4,12 @@ from dataclasses import dataclass
 from django.urls import reverse_lazy
 
 __all__ = (
-    'get_model_item',
-    'get_model_buttons',
     'Menu',
     'MenuGroup',
     'MenuItem',
     'MenuItemButton',
+    'get_model_buttons',
+    'get_model_item',
 )
 
 

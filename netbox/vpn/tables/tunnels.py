@@ -7,8 +7,8 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from vpn.models import *
 
 __all__ = (
-    'TunnelTable',
     'TunnelGroupTable',
+    'TunnelTable',
     'TunnelTerminationTable',
 )
 

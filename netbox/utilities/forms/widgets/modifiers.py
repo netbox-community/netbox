@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 from utilities.forms.widgets.apiselect import APISelect, APISelectMultiple
 
 __all__ = (
-    'FilterModifierWidget',
     'MODIFIER_EMPTY_FALSE',
     'MODIFIER_EMPTY_TRUE',
+    'FilterModifierWidget',
 )
 
 # Modifier codes for empty/null checking

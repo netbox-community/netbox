@@ -18,9 +18,9 @@ __all__ = (
     'VLANGroupTable',
     'VLANMembersTable',
     'VLANTable',
-    'VLANVirtualMachinesTable',
     'VLANTranslationPolicyTable',
     'VLANTranslationRuleTable',
+    'VLANVirtualMachinesTable',
 )
 
 AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')

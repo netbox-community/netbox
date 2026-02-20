@@ -10,8 +10,8 @@ from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultiple
 __all__ = (
     'ChangelogMessageMixin',
     'CustomFieldsMixin',
-    'OwnerMixin',
     'OwnerFilterMixin',
+    'OwnerMixin',
     'SavedFiltersMixin',
     'TagsMixin',
 )

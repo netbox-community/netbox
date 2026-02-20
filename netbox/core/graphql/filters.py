@@ -17,10 +17,10 @@ if TYPE_CHECKING:
     from users.graphql.filters import UserFilter
 
 __all__ = (
+    'ContentTypeFilter',
     'DataFileFilter',
     'DataSourceFilter',
     'ObjectChangeFilter',
-    'ContentTypeFilter',
 )
 
 

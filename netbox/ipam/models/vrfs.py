@@ -5,8 +5,8 @@ from ipam.constants import *
 from netbox.models import PrimaryModel
 
 __all__ = (
-    'RouteTarget',
     'VRF',
+    'RouteTarget',
 )
 
 

@@ -5,8 +5,8 @@ from ipam.models import *
 from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 
 __all__ = (
-    'FHRPGroupTable',
     'FHRPGroupAssignmentTable',
+    'FHRPGroupTable',
 )
 
 

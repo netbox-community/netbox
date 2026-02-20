@@ -10,8 +10,8 @@ from .template_code import LOCATION_BUTTONS
 __all__ = (
     'LocationTable',
     'RegionTable',
-    'SiteTable',
     'SiteGroupTable',
+    'SiteTable',
 )
 
 
