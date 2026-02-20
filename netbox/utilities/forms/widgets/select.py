@@ -9,6 +9,7 @@ __all__ = (
     'ClearableSelect',
     'ColorSelect',
     'HTMXSelect',
+    'ObjectTypeSplitMultiSelectWidget',
     'SelectWithPK',
     'SplitMultiSelectWidget',
 )
@@ -180,3 +181,60 @@ class SplitMultiSelectWidget(forms.MultiWidget):
     def value_from_datadict(self, data, files, name):
         # Return only the choices from the SelectedOptions widget
         return super().value_from_datadict(data, files, name)[1]
+
+
+#
+# ObjectType-specific widgets for ObjectPermissionForm
+#
+
+class ObjectTypeSelectMultiple(SelectMultipleBase):
+    """
+    SelectMultiple that adds data-model-key attribute to options for JS targeting.
+    """
+    pk_to_model_key = None
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        if self.pk_to_model_key:
+            model_key = self.pk_to_model_key.get(value) or self.pk_to_model_key.get(str(value))
+            if model_key:
+                option['attrs']['data-model-key'] = model_key
+        return option
+
+
+class ObjectTypeAvailableOptions(ObjectTypeSelectMultiple):
+    include_selected = False
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['attrs']['required'] = False
+        return context
+
+
+class ObjectTypeSelectedOptions(ObjectTypeSelectMultiple):
+    include_selected = True
+
+
+class ObjectTypeSplitMultiSelectWidget(SplitMultiSelectWidget):
+    """
+    SplitMultiSelectWidget that adds data-model-key attributes to options.
+    Used by ObjectPermissionForm to enable JS show/hide of custom actions.
+    """
+
+    def __init__(self, choices, attrs=None, ordering=False):
+        widgets = [
+            ObjectTypeAvailableOptions(
+                attrs={'size': 8},
+                choices=choices
+            ),
+            ObjectTypeSelectedOptions(
+                attrs={'size': 8, 'class': 'select-all'},
+                choices=choices
+            ),
+        ]
+        forms.MultiWidget.__init__(self, widgets, attrs)
+        self.ordering = ordering
+
+    def set_model_key_map(self, pk_to_model_key):
+        for widget in self.widgets:
+            widget.pk_to_model_key = pk_to_model_key
