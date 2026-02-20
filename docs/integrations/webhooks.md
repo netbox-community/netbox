@@ -31,6 +31,11 @@ The following data is available as context for Jinja2 templates:
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
 * `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided as a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.
 
+!!! warning "Deprecation of legacy fields"
+    The "request_id" and "username" fields in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in NetBox v4.7.0.
+
+    Use `request.user.username` and `request.request_id` from the `request` object included in the callback context instead.
+
 ### Default Request Body
 
 If no body template is specified, the request body will be populated with a JSON object containing the context data. For example, a newly created site might appear as follows:

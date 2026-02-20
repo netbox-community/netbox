@@ -88,3 +88,8 @@ The following context variables are available in to the text and link templates.
 | `request_id` | The unique request ID                              |
 | `data`       | A complete serialized representation of the object |
 | `snapshots`  | Pre- and post-change snapshots of the object       |
+
+!!! warning "Deprecation of legacy fields"
+    The "request_id" and "username" fields in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in NetBox v4.7.0.
+
+    Use `request.user.username` and `request.request_id` from the `request` object included in the callback context instead.
