@@ -25,11 +25,18 @@ class CoreConfig(AppConfig):
         from core.checks import check_duplicate_indexes  # noqa: F401
         from netbox import context_managers  # noqa: F401
         from netbox.models.features import register_models
+        from utilities.permissions import ModelAction, register_model_actions
 
         from . import data_backends, events, search  # noqa: F401
+        from .models import DataSource
 
         # Register models
         register_models(*self.get_models())
+
+        # Register custom permission actions
+        register_model_actions(DataSource, [
+            ModelAction('sync', help_text=_('Synchronize data from remote source')),
+        ])
 
         # Register core events
         EventType(OBJECT_CREATED, _('Object created')).register()
