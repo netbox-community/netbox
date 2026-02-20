@@ -1,0 +1,32 @@
+{% load i18n %}
+<div class="registered-actions-container" id="id_registered_actions_container">
+  {% for model_key, actions in widget.model_actions.items %}
+    <div class="model-actions card mb-2" data-model="{{ model_key }}" style="display: none;">
+      <div class="card-header py-2">
+        <strong>{{ model_key }}</strong>
+      </div>
+      <div class="card-body py-2">
+        {% for action in actions %}
+          <div class="form-check">
+            <input type="checkbox"
+                   class="form-check-input"
+                   name="{{ widget.name }}"
+                   value="{{ model_key }}.{{ action.name }}"
+                   id="id_{{ widget.name }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                   {% if model_key|add:"."|add:action.name in widget.value %}checked{% endif %}>
+            <label class="form-check-label" for="id_{{ widget.name }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+              {{ action.name }}
+              {% if action.help_text %}
+                <small class="text-muted ms-1">{{ action.help_text }}</small>
+              {% endif %}
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted" id="no-custom-actions-message">
+      {% trans "No custom actions registered." %}
+    </p>
+  {% endfor %}
+</div>
