@@ -30,6 +30,10 @@ respect-gitignore = true
 target-version = "py312"
 
 [lint]
+# Pin the effective default rule set used with `preview = true` to match Ruff 0.15.1.
+# Ruff 0.15.2 changed the preview defaults, see https://github.com/astral-sh/ruff/releases/tag/0.15.2
+# Keeping this explicit makes ruff deterministic.
+select = ["E4", "E7", "E9", "F"]
 extend-select = [
     "E1",    # pycodestyle errors: indentation-related (e.g., unexpected/missing indent)
     "E2",    # pycodestyle errors: whitespace-related (e.g., missing whitespace, extra spaces)
