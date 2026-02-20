@@ -14,6 +14,7 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.config import get_config
 from netbox.preferences import PREFERENCES
+from netbox.registry import registry
 from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
@@ -25,7 +26,7 @@ from utilities.forms.fields import (
     JSONField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
+from utilities.forms.widgets import DateTimePicker, ObjectTypeSplitMultiSelectWidget, RegisteredActionsWidget
 from utilities.permissions import qs_filter_from_constraints
 from utilities.string import title
 
@@ -325,7 +326,7 @@ class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.all(),
-        widget=SplitMultiSelectWidget(
+        widget=ObjectTypeSplitMultiSelectWidget(
             choices=get_object_types_choices
         ),
         help_text=_('Select the types of objects to which the permission will apply.')
@@ -341,6 +342,11 @@ class ObjectPermissionForm(forms.ModelForm):
     )
     can_delete = forms.BooleanField(
         required=False
+    )
+    registered_actions = forms.MultipleChoiceField(
+        required=False,
+        widget=RegisteredActionsWidget(),
+        label=_('Custom actions'),
     )
     actions = SimpleArrayField(
         label=_('Additional actions'),
@@ -370,8 +376,10 @@ class ObjectPermissionForm(forms.ModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'enabled'),
-        FieldSet('can_view', 'can_add', 'can_change', 'can_delete', 'actions', name=_('Actions')),
         FieldSet('object_types', name=_('Objects')),
+        FieldSet('can_view', 'can_add', 'can_change', 'can_delete', name=_('Standard Actions')),
+        FieldSet('registered_actions', name=_('Custom Actions')),
+        FieldSet('actions', name=_('Additional Actions')),
         FieldSet('groups', 'users', name=_('Assignment')),
         FieldSet('constraints', name=_('Constraints')),
     )
@@ -385,6 +393,22 @@ class ObjectPermissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Build PK to model key mapping for object_types widget
+        pk_to_model_key = {
+            ot.pk: f'{ot.app_label}.{ot.model}'
+            for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES)
+        }
+        self.fields['object_types'].widget.set_model_key_map(pk_to_model_key)
+
+        # Configure registered_actions widget and field choices
+        model_actions = dict(registry['model_actions'])
+        self.fields['registered_actions'].widget.model_actions = model_actions
+        choices = []
+        for model_key, actions in model_actions.items():
+            for action in actions:
+                choices.append((f'{model_key}.{action.name}', action.name))
+        self.fields['registered_actions'].choices = choices
+
         # Make the actions field optional since the form uses it only for non-CRUD actions
         self.fields['actions'].required = False
 
@@ -394,11 +418,28 @@ class ObjectPermissionForm(forms.ModelForm):
             self.fields['groups'].initial = self.instance.groups.values_list('id', flat=True)
             self.fields['users'].initial = self.instance.users.values_list('id', flat=True)
 
-            # Check the appropriate checkboxes when editing an existing ObjectPermission
+            # Work with a copy to avoid mutating the instance
+            remaining_actions = list(self.instance.actions)
+
+            # Check the appropriate CRUD checkboxes
             for action in ['view', 'add', 'change', 'delete']:
-                if action in self.instance.actions:
+                if action in remaining_actions:
                     self.fields[f'can_{action}'].initial = True
-                    self.instance.actions.remove(action)
+                    remaining_actions.remove(action)
+
+            # Pre-select registered actions
+            selected_registered = []
+            for ct in self.instance.object_types.all():
+                model_key = f'{ct.app_label}.{ct.model}'
+                if model_key in model_actions:
+                    for ma in model_actions[model_key]:
+                        if ma.name in remaining_actions:
+                            selected_registered.append(f'{model_key}.{ma.name}')
+                            remaining_actions.remove(ma.name)
+            self.fields['registered_actions'].initial = selected_registered
+
+            # Remaining actions go to the additional actions field
+            self.fields['actions'].initial = remaining_actions
 
         # Populate initial data for a new ObjectPermission
         elif self.initial:
@@ -420,15 +461,37 @@ class ObjectPermissionForm(forms.ModelForm):
     def clean(self):
         super().clean()
 
-        object_types = self.cleaned_data.get('object_types')
+        object_types = self.cleaned_data.get('object_types', [])
+        registered_actions = self.cleaned_data.get('registered_actions', [])
         constraints = self.cleaned_data.get('constraints')
 
+        # Build set of selected model keys for validation
+        selected_models = {f'{ct.app_label}.{ct.model}' for ct in object_types}
+
+        # Validate registered actions match selected object_types and collect action names
+        final_actions = []
+        for action_key in registered_actions:
+            model_key, action_name = action_key.rsplit('.', 1)
+            if model_key not in selected_models:
+                raise forms.ValidationError({
+                    'registered_actions': _(
+                        'Action "{action}" is for {model} which is not selected.'
+                    ).format(action=action_name, model=model_key)
+                })
+            final_actions.append(action_name)
+
         # Append any of the selected CRUD checkboxes to the actions list
-        if not self.cleaned_data.get('actions'):
-            self.cleaned_data['actions'] = list()
         for action in ['view', 'add', 'change', 'delete']:
-            if self.cleaned_data[f'can_{action}'] and action not in self.cleaned_data['actions']:
-                self.cleaned_data['actions'].append(action)
+            if self.cleaned_data.get(f'can_{action}') and action not in final_actions:
+                final_actions.append(action)
+
+        # Add additional/manual actions
+        if additional_actions := self.cleaned_data.get('actions'):
+            for action in additional_actions:
+                if action not in final_actions:
+                    final_actions.append(action)
+
+        self.cleaned_data['actions'] = final_actions
 
         # At least one action must be specified
         if not self.cleaned_data['actions']:
