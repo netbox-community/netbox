@@ -1276,7 +1276,7 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         verbose_name_plural = _('module bays')
 
     class MPTTMeta:
-        order_insertion_by = ('module',)
+        order_insertion_by = ('name',)
 
     def clean(self):
         super().clean()
