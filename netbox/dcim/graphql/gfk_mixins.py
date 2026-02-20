@@ -119,7 +119,7 @@ class ConnectedEndpointType:
     def resolve_type(cls, instance, info: Info):
         if type(instance) is CircuitTermination:
             return CircuitTerminationType
-        if type(instance) is ConsolePortType:
+        if type(instance) is ConsolePort:
             return ConsolePortType
         if type(instance) is ConsoleServerPort:
             return ConsoleServerPortType
