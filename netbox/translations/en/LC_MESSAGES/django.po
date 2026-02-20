@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-19 05:26+0000\n"
+"POT-Creation-Date: 2026-02-20 05:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -472,7 +472,7 @@ msgstr ""
 #: netbox/dcim/tables/devicetypes.py:214 netbox/dcim/tables/devicetypes.py:255
 #: netbox/dcim/tables/devicetypes.py:274 netbox/dcim/tables/racks.py:30
 #: netbox/extras/forms/bulk_edit.py:306 netbox/extras/tables/tables.py:552
-#: netbox/netbox/ui/attrs.py:190 netbox/templates/circuits/circuittype.html:30
+#: netbox/netbox/ui/attrs.py:192 netbox/templates/circuits/circuittype.html:30
 #: netbox/templates/circuits/virtualcircuittype.html:30
 #: netbox/templates/dcim/cable.html:44 netbox/templates/dcim/devicerole.html:38
 #: netbox/templates/dcim/frontport.html:40
@@ -2129,7 +2129,7 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:590
+#: netbox/core/constants.py:33 netbox/netbox/tables/columns.py:589
 #: netbox/templates/core/job.html:26
 msgid "Error"
 msgstr ""
@@ -4249,7 +4249,7 @@ msgstr ""
 #: netbox/extras/forms/model_forms.py:691
 #: netbox/extras/forms/model_forms.py:743 netbox/extras/ui/panels.py:69
 #: netbox/netbox/forms/bulk_import.py:27 netbox/netbox/forms/mixins.py:131
-#: netbox/netbox/tables/columns.py:496
+#: netbox/netbox/tables/columns.py:495
 #: netbox/templates/circuits/inc/circuit_termination.html:29
 #: netbox/templates/generic/bulk_edit.html:78
 #: netbox/templates/inc/panels/tags.html:5
@@ -12782,15 +12782,15 @@ msgstr ""
 msgid "Chinese"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:184
+#: netbox/netbox/tables/columns.py:183
 msgid "Select all"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:197
+#: netbox/netbox/tables/columns.py:196
 msgid "Toggle all"
 msgstr ""
 
-#: netbox/netbox/tables/columns.py:317
+#: netbox/netbox/tables/columns.py:316
 #: netbox/templates/inc/table_controls_htmx.html:35
 msgid "Toggle Dropdown"
 msgstr ""
@@ -12817,7 +12817,13 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: netbox/netbox/ui/attrs.py:286
+#: netbox/netbox/ui/attrs.py:211
+#, python-brace-format
+msgid ""
+"Invalid decoding option: {decoding}! Must be one of {image_decoding_choices}"
+msgstr ""
+
+#: netbox/netbox/ui/attrs.py:316
 msgid "GPS coordinates"
 msgstr ""
 
@@ -16635,12 +16641,12 @@ msgstr ""
 msgid "Required column header \"{header}\" not found."
 msgstr ""
 
-#: netbox/utilities/forms/widgets/apiselect.py:133
+#: netbox/utilities/forms/widgets/apiselect.py:132
 #, python-brace-format
 msgid "Missing required value for dynamic query param: '{dynamic_params}'"
 msgstr ""
 
-#: netbox/utilities/forms/widgets/apiselect.py:150
+#: netbox/utilities/forms/widgets/apiselect.py:149
 #, python-brace-format
 msgid "Missing required value for static query param: '{static_params}'"
 msgstr ""
