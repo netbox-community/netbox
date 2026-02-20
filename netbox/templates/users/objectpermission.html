@@ -46,6 +46,14 @@
             <th scope="row">{% trans "Delete" %}</th>
             <td>{% checkmark object.can_delete %}</td>
           </tr>
+          {% for action in object.actions %}
+            {% if action not in 'view,add,change,delete' %}
+              <tr>
+                <th scope="row">{{ action }}</th>
+                <td>{% checkmark True %}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
         </table>
       </div>
       <div class="card">
