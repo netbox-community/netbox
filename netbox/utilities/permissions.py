@@ -1,17 +1,44 @@
+from dataclasses import dataclass
+
 from django.apps import apps
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Model, Q
 from django.utils.translation import gettext_lazy as _
 
+from netbox.registry import registry
 from users.constants import CONSTRAINT_TOKEN_USER
 
 __all__ = (
+    'ModelAction',
     'get_permission_for_model',
     'permission_is_exempt',
     'qs_filter_from_constraints',
+    'register_model_actions',
     'resolve_permission',
     'resolve_permission_type',
 )
+
+
+@dataclass
+class ModelAction:
+    name: str
+    help_text: str = ''
+
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        if isinstance(other, ModelAction):
+            return self.name == other.name
+        return self.name == other
+
+
+def register_model_actions(model: type[Model], actions: list[ModelAction | str]):
+    label = f'{model._meta.app_label}.{model._meta.model_name}'
+    for action in actions:
+        if isinstance(action, str):
+            action = ModelAction(name=action)
+        registry['model_actions'][label].append(action)
 
 
 def get_permission_for_model(model, action):
