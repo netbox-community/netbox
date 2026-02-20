@@ -168,6 +168,14 @@ Update the static OpenAPI schema definition at `contrib/openapi.json` with the m
 ./manage.py spectacular --format openapi-json > ../contrib/openapi.json
 ```
 
+### Update Development Dependencies
+
+Keep development tooling versions consistent across the project. If you upgrade a dev-only dependency, update all places where it’s pinned so local tooling and CI run the same versions.
+
+* Ruff:
+  * `.pre-commit-config.yaml`
+  * `.github/workflows/ci.yml`
+
 ### Submit a Pull Request
 
 Commit the above changes and submit a pull request titled **"Release vX.Y.Z"** to merge the current release branch (e.g. `release-vX.Y.Z`) into `main`. Copy the documented release notes into the pull request's body.

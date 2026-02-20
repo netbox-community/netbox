@@ -47,6 +47,14 @@ Wildcard imports (for example, `from .constants import *`) are acceptable under 
 
 The justification for ignoring this rule is the same as F403 above.
 
+##### [RET504](https://docs.astral.sh/ruff/rules/unnecessary-assign/): Unnecessary assign
+
+There are multiple instances where it is more readable and clearer to first assign to a variable and then return it.
+
+##### [UP032](https://docs.astral.sh/ruff/rules/f-string/): f-string
+
+For localizable strings, it is necessary to not use the `f-string` syntax, as Django's translation functions (e.g. `gettext_lazy`) require plain string literals.
+
 ### Introducing New Dependencies
 
 The introduction of a new dependency is best avoided unless it is absolutely necessary. For small features, it's generally preferable to replicate functionality within the NetBox code base rather than to introduce reliance on an external project. This reduces both the burden of tracking new releases and our exposure to outside bugs and supply chain attacks.
