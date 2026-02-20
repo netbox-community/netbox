@@ -13,9 +13,9 @@ __all__ = (
     'EVENT_TYPE_KIND_SUCCESS',
     'EVENT_TYPE_KIND_WARNING',
     'EventType',
+    'get_event_text',
     'get_event_type',
     'get_event_type_choices',
-    'get_event_text',
 )
 
 

@@ -8,8 +8,8 @@ __all__ = (
     'IKEPolicyTable',
     'IKEProposalTable',
     'IPSecPolicyTable',
-    'IPSecProposalTable',
     'IPSecProfileTable',
+    'IPSecProposalTable',
 )
 
 

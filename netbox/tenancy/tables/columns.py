@@ -7,9 +7,9 @@ from .template_code import *
 
 __all__ = (
     'ContactsColumnMixin',
+    'TenancyColumnsMixin',
     'TenantColumn',
     'TenantGroupColumn',
-    'TenancyColumnsMixin',
 )
 
 

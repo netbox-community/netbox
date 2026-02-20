@@ -33,9 +33,9 @@ from .choices import *
 from .models import *
 
 __all__ = (
-    'AggregateFilterSet',
     'ASNFilterSet',
     'ASNRangeFilterSet',
+    'AggregateFilterSet',
     'FHRPGroupAssignmentFilterSet',
     'FHRPGroupFilterSet',
     'IPAddressFilterSet',

@@ -20,8 +20,8 @@ if TYPE_CHECKING:
     from .enums import *
 
 __all__ = (
-    'WirelessLANGroupFilter',
     'WirelessLANFilter',
+    'WirelessLANGroupFilter',
     'WirelessLinkFilter',
 )
 

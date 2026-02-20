@@ -31,9 +31,9 @@ __all__ = (
     'ClusterFilter',
     'ClusterGroupFilter',
     'ClusterTypeFilter',
-    'VirtualMachineFilter',
     'VMInterfaceFilter',
     'VirtualDiskFilter',
+    'VirtualMachineFilter',
 )
 
 

@@ -14,11 +14,11 @@ from ..models import *
 
 __all__ = (
     'ContactAssignmentImportForm',
-    'ContactImportForm',
     'ContactGroupImportForm',
+    'ContactImportForm',
     'ContactRoleImportForm',
-    'TenantImportForm',
     'TenantGroupImportForm',
+    'TenantImportForm',
 )
 
 

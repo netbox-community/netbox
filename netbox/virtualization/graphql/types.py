@@ -28,12 +28,12 @@ if TYPE_CHECKING:
     from tenancy.graphql.types import TenantType
 
 __all__ = (
-    'ClusterType',
     'ClusterGroupType',
+    'ClusterType',
     'ClusterTypeType',
+    'VMInterfaceType',
     'VirtualDiskType',
     'VirtualMachineType',
-    'VMInterfaceType',
 )
 
 

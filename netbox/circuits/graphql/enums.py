@@ -3,9 +3,9 @@ import strawberry
 from circuits.choices import *
 
 __all__ = (
+    'CircuitPriorityEnum',
     'CircuitStatusEnum',
     'CircuitTerminationSideEnum',
-    'CircuitPriorityEnum',
     'VirtualCircuitTerminationRoleEnum',
 )
 

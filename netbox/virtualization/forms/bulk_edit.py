@@ -21,11 +21,11 @@ __all__ = (
     'ClusterBulkEditForm',
     'ClusterGroupBulkEditForm',
     'ClusterTypeBulkEditForm',
+    'VMInterfaceBulkEditForm',
+    'VMInterfaceBulkRenameForm',
     'VirtualDiskBulkEditForm',
     'VirtualDiskBulkRenameForm',
     'VirtualMachineBulkEditForm',
-    'VMInterfaceBulkEditForm',
-    'VMInterfaceBulkRenameForm',
 )
 
 

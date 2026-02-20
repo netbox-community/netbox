@@ -24,9 +24,9 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect, HTMXSelect
 from utilities.templatetags.builtins.filters import bettertitle
 
 __all__ = (
-    'AggregateBulkEditForm',
     'ASNBulkEditForm',
     'ASNRangeBulkEditForm',
+    'AggregateBulkEditForm',
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',

@@ -19,8 +19,8 @@ from utilities.query import reapply_model_ordering
 from . import mixins
 
 __all__ = (
-    'NetBoxReadOnlyModelViewSet',
     'NetBoxModelViewSet',
+    'NetBoxReadOnlyModelViewSet',
 )
 
 HTTP_ACTIONS = {

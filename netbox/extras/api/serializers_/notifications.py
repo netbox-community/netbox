@@ -7,8 +7,8 @@ from users.api.serializers_.users import GroupSerializer, UserSerializer
 from users.models import Group, User
 
 __all__ = (
-    'NotificationSerializer',
     'NotificationGroupSerializer',
+    'NotificationSerializer',
     'SubscriptionSerializer',
 )
 

@@ -22,11 +22,11 @@ from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 
 __all__ = (
+    'RIR',
     'Aggregate',
     'IPAddress',
     'IPRange',
     'Prefix',
-    'RIR',
     'Role',
 )
 

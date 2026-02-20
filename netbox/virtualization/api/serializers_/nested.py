@@ -2,8 +2,8 @@ from netbox.api.serializers import WritableNestedSerializer
 from virtualization import models
 
 __all__ = (
-    'NestedVirtualMachineSerializer',
     'NestedVMInterfaceSerializer',
+    'NestedVirtualMachineSerializer',
 )
 
 

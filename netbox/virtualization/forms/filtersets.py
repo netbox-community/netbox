@@ -20,9 +20,9 @@ __all__ = (
     'ClusterFilterForm',
     'ClusterGroupFilterForm',
     'ClusterTypeFilterForm',
+    'VMInterfaceFilterForm',
     'VirtualDiskFilterForm',
     'VirtualMachineFilterForm',
-    'VMInterfaceFilterForm',
 )
 
 

@@ -5,8 +5,8 @@ from utilities.constants import CSV_DELIMITERS
 
 __all__ = (
     'ButtonColorChoices',
-    'ColorChoices',
     'CSVDelimiterChoices',
+    'ColorChoices',
     'DistanceUnitChoices',
     'ImportFormatChoices',
     'ImportMethodChoices',

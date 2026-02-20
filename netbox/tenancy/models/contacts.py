@@ -9,8 +9,8 @@ from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, Tags
 from tenancy.choices import *
 
 __all__ = (
-    'ContactAssignment',
     'Contact',
+    'ContactAssignment',
     'ContactGroup',
     'ContactRole',
 )

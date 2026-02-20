@@ -8,10 +8,10 @@ from utilities.data import resolve_attr_path
 __all__ = (
     'AddressAttr',
     'BooleanAttr',
-    'ColorAttr',
     'ChoiceAttr',
-    'GenericForeignKeyAttr',
+    'ColorAttr',
     'GPSCoordinatesAttr',
+    'GenericForeignKeyAttr',
     'ImageAttr',
     'NestedObjectAttr',
     'NumericAttr',

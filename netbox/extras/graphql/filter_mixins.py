@@ -10,10 +10,10 @@ if TYPE_CHECKING:
     from .filters import *
 
 __all__ = (
+    'ConfigContextFilterMixin',
     'CustomFieldsFilterMixin',
     'JournalEntriesFilterMixin',
     'TagsFilterMixin',
-    'ConfigContextFilterMixin',
 )
 
 

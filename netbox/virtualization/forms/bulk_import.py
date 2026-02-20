@@ -14,12 +14,12 @@ from virtualization.choices import *
 from virtualization.models import *
 
 __all__ = (
-    'ClusterImportForm',
     'ClusterGroupImportForm',
+    'ClusterImportForm',
     'ClusterTypeImportForm',
+    'VMInterfaceImportForm',
     'VirtualDiskImportForm',
     'VirtualMachineImportForm',
-    'VMInterfaceImportForm',
 )
 
 

@@ -10,8 +10,8 @@ __all__ = (
     'GroupImportForm',
     'OwnerGroupImportForm',
     'OwnerImportForm',
-    'UserImportForm',
     'TokenImportForm',
+    'UserImportForm',
 )
 
 

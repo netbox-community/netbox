@@ -46,8 +46,8 @@ from .models import *
 
 __all__ = (
     'CableFilterSet',
-    'CabledObjectFilterSet',
     'CableTerminationFilterSet',
+    'CabledObjectFilterSet',
     'CommonInterfaceFilterSet',
     'ConsoleConnectionFilterSet',
     'ConsolePortFilterSet',

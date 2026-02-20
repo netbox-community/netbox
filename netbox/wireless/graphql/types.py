@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from tenancy.graphql.types import TenantType
 
 __all__ = (
-    'WirelessLANType',
     'WirelessLANGroupType',
+    'WirelessLANType',
     'WirelessLinkType',
 )
 

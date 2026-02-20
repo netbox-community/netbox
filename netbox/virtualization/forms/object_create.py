@@ -5,8 +5,8 @@ from utilities.forms.fields import ExpandableNameField
 from .model_forms import VirtualDiskForm, VMInterfaceForm
 
 __all__ = (
-    'VirtualDiskCreateForm',
     'VMInterfaceCreateForm',
+    'VirtualDiskCreateForm',
 )
 
 

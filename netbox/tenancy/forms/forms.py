@@ -7,8 +7,8 @@ from ..models import *
 
 __all__ = (
     'ContactModelFilterForm',
-    'TenancyForm',
     'TenancyFilterForm',
+    'TenancyForm',
 )
 
 

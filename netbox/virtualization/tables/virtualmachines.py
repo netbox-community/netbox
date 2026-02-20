@@ -10,11 +10,11 @@ from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from .template_code import *
 
 __all__ = (
+    'VMInterfaceTable',
     'VirtualDiskTable',
     'VirtualMachineTable',
-    'VirtualMachineVirtualDiskTable',
     'VirtualMachineVMInterfaceTable',
-    'VMInterfaceTable',
+    'VirtualMachineVirtualDiskTable',
 )
 
 

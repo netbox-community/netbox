@@ -19,8 +19,8 @@ from .vrfs import VRFSerializer
 
 __all__ = (
     'AggregateSerializer',
-    'AvailableIPSerializer',
     'AvailableIPRequestSerializer',
+    'AvailableIPSerializer',
     'AvailablePrefixSerializer',
     'IPAddressSerializer',
     'IPRangeSerializer',

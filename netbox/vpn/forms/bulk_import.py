@@ -18,8 +18,8 @@ __all__ = (
     'IPSecProposalImportForm',
     'L2VPNImportForm',
     'L2VPNTerminationImportForm',
-    'TunnelImportForm',
     'TunnelGroupImportForm',
+    'TunnelImportForm',
     'TunnelTerminationImportForm',
 )
 

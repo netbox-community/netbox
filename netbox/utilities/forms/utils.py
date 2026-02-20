@@ -17,9 +17,9 @@ __all__ = (
     'get_field_value',
     'get_selected_values',
     'parse_alphanumeric_range',
+    'parse_csv',
     'parse_numeric_range',
     'restrict_form_fields',
-    'parse_csv',
     'validate_csv',
 )
 

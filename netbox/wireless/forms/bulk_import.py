@@ -12,8 +12,8 @@ from wireless.choices import *
 from wireless.models import *
 
 __all__ = (
-    'WirelessLANImportForm',
     'WirelessLANGroupImportForm',
+    'WirelessLANImportForm',
     'WirelessLinkImportForm',
 )
 

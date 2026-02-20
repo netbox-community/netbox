@@ -14,9 +14,9 @@ from virtualization.models import Cluster, ClusterGroup, VirtualMachine
 from vpn.models import L2VPN
 
 __all__ = (
-    'AggregateFilterForm',
     'ASNFilterForm',
     'ASNRangeFilterForm',
+    'AggregateFilterForm',
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',

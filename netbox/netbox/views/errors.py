@@ -13,9 +13,9 @@ from django.views.generic import View
 from netbox.plugins.utils import get_installed_plugins
 
 __all__ = (
+    'StaticMediaFailureView',
     'handler_404',
     'handler_500',
-    'StaticMediaFailureView',
 )
 
 

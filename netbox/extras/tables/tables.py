@@ -28,14 +28,14 @@ __all__ = (
     'JournalEntryTable',
     'NotificationGroupTable',
     'NotificationTable',
-    'SavedFilterTable',
     'ReportResultsTable',
-    'ScriptResultsTable',
+    'SavedFilterTable',
     'ScriptJobTable',
+    'ScriptResultsTable',
     'SubscriptionTable',
     'TableConfigTable',
-    'TaggedItemTable',
     'TagTable',
+    'TaggedItemTable',
     'WebhookTable',
 )
 

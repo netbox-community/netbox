@@ -29,9 +29,9 @@ from tenancy.api.serializers_.tenants import TenantSerializer
 from .providers import ProviderAccountSerializer, ProviderNetworkSerializer, ProviderSerializer
 
 __all__ = (
-    'CircuitSerializer',
     'CircuitGroupAssignmentSerializer',
     'CircuitGroupSerializer',
+    'CircuitSerializer',
     'CircuitTerminationSerializer',
     'CircuitTypeSerializer',
     'VirtualCircuitSerializer',

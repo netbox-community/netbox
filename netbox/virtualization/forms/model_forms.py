@@ -25,9 +25,9 @@ __all__ = (
     'ClusterGroupForm',
     'ClusterRemoveDevicesForm',
     'ClusterTypeForm',
+    'VMInterfaceForm',
     'VirtualDiskForm',
     'VirtualMachineForm',
-    'VMInterfaceForm',
 )
 
 
