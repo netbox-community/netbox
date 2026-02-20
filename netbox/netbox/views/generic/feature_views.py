@@ -69,7 +69,6 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
         objectchanges_table = ObjectChangeTable(
             data=objectchanges,
             orderable=False,
-            user=request.user
         )
         objectchanges_table.configure(request)
 
@@ -153,7 +152,7 @@ class ObjectJournalView(ConditionalLoginRequiredMixin, View):
             assigned_object_type=content_type,
             assigned_object_id=obj.pk
         )
-        journalentry_table = JournalEntryTable(journalentries, user=request.user)
+        journalentry_table = JournalEntryTable(journalentries)
         journalentry_table.configure(request)
         journalentry_table.columns.hide('assigned_object_type')
         journalentry_table.columns.hide('assigned_object')
@@ -220,11 +219,7 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
 
         # Gather all Jobs for this object
         jobs = self.get_jobs(obj)
-        jobs_table = JobTable(
-            data=jobs,
-            orderable=False,
-            user=request.user
-        )
+        jobs_table = JobTable(data=jobs, orderable=False)
         jobs_table.configure(request)
 
         # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,

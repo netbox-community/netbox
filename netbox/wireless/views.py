@@ -110,7 +110,7 @@ class WirelessLANView(generic.ObjectView):
         attached_interfaces = Interface.objects.restrict(request.user, 'view').filter(
             wireless_lans=instance
         )
-        interfaces_table = tables.WirelessLANInterfacesTable(attached_interfaces, user=request.user)
+        interfaces_table = tables.WirelessLANInterfacesTable(attached_interfaces)
         interfaces_table.configure(request)
 
         return {

@@ -684,7 +684,7 @@ class PluginListView(BasePluginView):
 
         plugins = [plugin for plugin in plugins if not plugin.hidden]
 
-        table = CatalogPluginTable(plugins, user=request.user)
+        table = CatalogPluginTable(plugins)
         table.configure(request)
 
         # If this is an HTMX request, return only the rendered table HTML
@@ -707,7 +707,7 @@ class PluginView(BasePluginView):
             raise Http404(_("Plugin {name} not found").format(name=name))
         plugin = plugins[name]
 
-        table = PluginVersionTable(plugin.release_recent_history, user=request.user)
+        table = PluginVersionTable(plugin.release_recent_history)
         table.configure(request)
 
         return render(request, 'core/plugin.html', {

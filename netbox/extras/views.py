@@ -1582,11 +1582,7 @@ class ScriptJobsView(BaseScriptView):
     def get(self, request, **kwargs):
         script = self.get_object(**kwargs)
 
-        jobs_table = ScriptJobTable(
-            data=script.jobs.all(),
-            orderable=False,
-            user=request.user
-        )
+        jobs_table = ScriptJobTable(data=script.jobs.all(), orderable=False)
         jobs_table.configure(request)
 
         return render(request, 'extras/script/jobs.html', {
@@ -1632,7 +1628,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                         }
                         data.append(result)
 
-                table = ScriptResultsTable(data, user=request.user)
+                table = ScriptResultsTable(data)
                 table.configure(request)
             else:
                 # for legacy reports
@@ -1656,7 +1652,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                             }
                             data.append(result)
 
-            table = ReportResultsTable(data, user=request.user)
+            table = ReportResultsTable(data)
             table.configure(request)
 
         return table
