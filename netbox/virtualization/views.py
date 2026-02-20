@@ -14,6 +14,7 @@ from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
 from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
+from ipam.ui.panels import FHRPGroupAssignmentsPanel
 from netbox.object_actions import (
     AddObject,
     BulkDelete,
@@ -25,7 +26,14 @@ from netbox.object_actions import (
     EditObject,
 )
 from netbox.ui import actions, layout
-from netbox.ui.panels import CommentsPanel, ObjectsTablePanel, TemplatePanel
+from netbox.ui.panels import (
+    CommentsPanel,
+    ContextTablePanel,
+    ObjectsTablePanel,
+    OrganizationalObjectPanel,
+    RelatedObjectsPanel,
+    TemplatePanel,
+)
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
@@ -54,6 +62,17 @@ class ClusterTypeListView(generic.ObjectListView):
 @register_model_view(ClusterType)
 class ClusterTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ClusterType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -121,6 +140,17 @@ class ClusterGroupListView(generic.ObjectListView):
 @register_model_view(ClusterGroup)
 class ClusterGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ClusterGroup.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -202,6 +232,18 @@ class ClusterListView(generic.ObjectListView):
 @register_model_view(Cluster)
 class ClusterView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Cluster.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ClusterPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            TemplatePanel('virtualization/panels/cluster_resources.html'),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -507,6 +549,7 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
 # VM interfaces
 #
 
+
 @register_model_view(VMInterface, 'list', path='', detail=False)
 class VMInterfaceListView(generic.ObjectListView):
     queryset = VMInterface.objects.all()
@@ -518,6 +561,44 @@ class VMInterfaceListView(generic.ObjectListView):
 @register_model_view(VMInterface)
 class VMInterfaceView(generic.ObjectView):
     queryset = VMInterface.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VMInterfacePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+            panels.VMInterfaceAddressingPanel(),
+            FHRPGroupAssignmentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='ipam.IPaddress',
+                filters={'vminterface_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'ipam.IPaddress',
+                        url_params={
+                            'virtual_machine': lambda ctx: ctx['object'].virtual_machine.pk,
+                            'vminterface': lambda ctx: ctx['object'].pk,
+                        },
+                    ),
+                ],
+            ),
+            ObjectsTablePanel(
+                model='dcim.MACAddress',
+                filters={'vminterface_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'dcim.MACAddress', url_params={'vminterface': lambda ctx: ctx['object'].pk}
+                    ),
+                ],
+            ),
+            ContextTablePanel('vlan_table', title=_('Assigned VLANs')),
+            ContextTablePanel('vlan_translation_table', title=_('VLAN Translation')),
+            ContextTablePanel('child_interfaces_table', title=_('Child Interfaces')),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
 
@@ -623,6 +704,15 @@ class VirtualDiskListView(generic.ObjectListView):
 @register_model_view(VirtualDisk)
 class VirtualDiskView(generic.ObjectView):
     queryset = VirtualDisk.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualDiskPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+        ],
+    )
 
 
 @register_model_view(VirtualDisk, 'add', detail=False)

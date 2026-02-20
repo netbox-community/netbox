@@ -1,0 +1,34 @@
+{% load helpers %}
+{% load i18n %}
+
+<div class="card">
+  <h2 class="card-header">{% trans "Allocated Resources" %}</h2>
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row"><i class="mdi mdi-gauge"></i> {% trans "Virtual CPUs" %}</th>
+      <td>{{ vcpus_sum|placeholder }}</td>
+    </tr>
+    <tr>
+      <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
+      <td>
+        {% if memory_sum %}
+          <span title={{ memory_sum }}>{{ memory_sum|humanize_ram_megabytes }}</span>
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">
+        <i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}
+      </th>
+      <td>
+        {% if disk_sum %}
+          {{ disk_sum|humanize_disk_megabytes }}
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+</div>

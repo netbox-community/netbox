@@ -12,6 +12,7 @@ from utilities.views import get_viewname
 
 __all__ = (
     'CommentsPanel',
+    'ContextTablePanel',
     'JSONPanel',
     'NestedGroupObjectPanel',
     'ObjectAttributesPanel',
@@ -339,3 +340,42 @@ class PluginContentPanel(Panel):
     def render(self, context):
         obj = context.get('object')
         return _get_registered_content(obj, self.method, context)
+
+
+class ContextTablePanel(ObjectPanel):
+    """
+    A panel which renders a django-tables2/NetBoxTable instance provided
+    via the view's extra context.
+
+    This is useful when you already have a fully constructed table
+    (custom queryset, special columns, no list view) and just want to
+    render it inside a declarative layout panel.
+
+    Parameters:
+        table (str | callable): Either the context key holding the table
+            (e.g. "vlan_table") or a callable which accepts the template
+            context and returns a table instance.
+    """
+    template_name = 'ui/panels/context_table.html'
+
+    def __init__(self, table, **kwargs):
+        super().__init__(**kwargs)
+        self.table = table
+
+    def _resolve_table(self, context):
+        if callable(self.table):
+            return self.table(context)
+        return context.get(self.table)
+
+    def get_context(self, context):
+        table = self._resolve_table(context)
+        return {
+            **super().get_context(context),
+            'table': table,
+        }
+
+    def render(self, context):
+        table = self._resolve_table(context)
+        if table is None:
+            return ''
+        return super().render(context)
