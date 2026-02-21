@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.utils import resolve_module_placeholders
 from utilities.forms import get_field_value
 
 __all__ = (
@@ -82,6 +83,50 @@ class ModuleCommonForm(forms.Form):
         module_bays.reverse()
         return module_bays
 
+    def _validate_module_tokens(self, template_name, module_bay, depth):
+        """
+        Validate placeholder tokens ({module} and {module_path}) in a component template name.
+        Raises ValidationError if the placeholders are used incorrectly.
+        """
+        has_module_token = MODULE_TOKEN in template_name
+        has_module_path_token = MODULE_PATH_TOKEN in template_name
+
+        if not has_module_token and not has_module_path_token:
+            return
+
+        # Installing modules with placeholders require that the bay has a position value
+        if not module_bay.position:
+            raise forms.ValidationError(
+                _("Cannot install module with placeholder values in a module bay with no position defined.")
+            )
+
+        # Cannot mix {module} and {module_path} in the same attribute
+        if has_module_token and has_module_path_token:
+            raise forms.ValidationError(
+                _("Cannot mix {module} and {module_path} placeholders in the same template attribute.")
+            )
+
+        # Validate {module_path} - can only appear once
+        if has_module_path_token:
+            path_token_count = template_name.count(MODULE_PATH_TOKEN)
+            if path_token_count > 1:
+                raise forms.ValidationError(
+                    _("The {module_path} placeholder can only be used once per template.")
+                )
+
+        # Validate {module} - token count must match depth exactly
+        if has_module_token:
+            token_count = template_name.count(MODULE_TOKEN)
+            if token_count != depth:
+                raise forms.ValidationError(
+                    _(
+                        "Cannot install module with placeholder values in a module bay tree {level} deep "
+                        "but {tokens} placeholders given."
+                    ).format(
+                        level=depth, tokens=token_count
+                    )
+                )
+
     def clean(self):
         super().clean()
 
@@ -101,6 +146,7 @@ class ModuleCommonForm(forms.Form):
             return
 
         module_bays = self._get_module_bay_tree(module_bay)
+        positions = [mb.position for mb in module_bays]
 
         for templates, component_attribute in [
                 ("consoleporttemplates", "consoleports"),
@@ -119,25 +165,11 @@ class ModuleCommonForm(forms.Form):
             # Get the templates for the module type.
             for template in getattr(module_type, templates).all():
                 resolved_name = template.name
-                # Installing modules with placeholders require that the bay has a position value
-                if MODULE_TOKEN in template.name:
-                    if not module_bay.position:
-                        raise forms.ValidationError(
-                            _("Cannot install module with placeholder values in a module bay with no position defined.")
-                        )
 
-                    if len(module_bays) != template.name.count(MODULE_TOKEN):
-                        raise forms.ValidationError(
-                            _(
-                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
-                                "but {tokens} placeholders given."
-                            ).format(
-                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
-                            )
-                        )
-
-                    for module_bay in module_bays:
-                        resolved_name = resolved_name.replace(MODULE_TOKEN, module_bay.position, 1)
+                # Validate and resolve placeholder tokens
+                self._validate_module_tokens(template.name, module_bay, len(module_bays))
+                if MODULE_TOKEN in template.name or MODULE_PATH_TOKEN in template.name:
+                    resolved_name = resolve_module_placeholders(resolved_name, positions)
 
                 existing_item = installed_components.get(resolved_name)
 

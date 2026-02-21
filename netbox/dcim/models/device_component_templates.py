@@ -8,6 +8,7 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
+from dcim.utils import resolve_module_placeholders
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
@@ -177,29 +178,20 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         modules.reverse()
         return modules
 
-    def resolve_name(self, module):
-        if MODULE_TOKEN not in self.name:
-            return self.name
+    def _resolve_placeholders(self, text, module):
+        """Resolve {module} and {module_path} placeholders in text (module must be set)."""
+        positions = [m.module_bay.position for m in self._get_module_tree(module)]
+        return resolve_module_placeholders(text, positions)
 
-        if module:
-            modules = self._get_module_tree(module)
-            name = self.name
-            for module in modules:
-                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return name
-        return self.name
+    def resolve_name(self, module):
+        if not module:
+            return self.name
+        return self._resolve_placeholders(self.name, module)
 
     def resolve_label(self, module):
-        if MODULE_TOKEN not in self.label:
+        if not module:
             return self.label
-
-        if module:
-            modules = self._get_module_tree(module)
-            label = self.label
-            for module in modules:
-                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return label
-        return self.label
+        return self._resolve_placeholders(self.label, module)
 
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
