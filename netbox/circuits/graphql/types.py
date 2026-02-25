@@ -177,7 +177,7 @@ class VirtualCircuitTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     filters=VirtualCircuitFilter,
     pagination=True
 )
-class VirtualCircuitType(PrimaryObjectType):
+class VirtualCircuitType(ContactsMixin, PrimaryObjectType):
     provider_network: ProviderNetworkType = strawberry_django.field(select_related=["provider_network"])
     provider_account: ProviderAccountType | None
     type: Annotated["VirtualCircuitTypeType", strawberry.lazy('circuits.graphql.types')] = strawberry_django.field(

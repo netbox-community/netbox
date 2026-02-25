@@ -71,7 +71,7 @@ class VirtualCircuitTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         model = VirtualCircuit
         fields = (
             'pk', 'id', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',
-            'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'tenant_group', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'cid', 'provider', 'provider_account', 'provider_network', 'type', 'status', 'tenant',

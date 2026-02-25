@@ -55,6 +55,13 @@ jobs:
     - name: Check out repo
       uses: actions/checkout@v4
 
+    - name: Check Python linting & PEP8 compliance
+      uses: astral-sh/ruff-action@4919ec5cf1f49eff0871dbcea0da843445b837e6 # v3.6.1
+      with:
+        version: "0.15.2"
+        args: "check --output-format=github"
+        src: "netbox/"
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -82,7 +89,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install ruff coverage tblib
+        pip install coverage tblib
 
     - name: Build documentation
       run: mkdocs build
@@ -92,9 +99,6 @@ jobs:
 
     - name: Check for missing migrations
       run: python netbox/manage.py makemigrations --check
-
-    - name: Check PEP8 compliance
-      run: ruff check netbox/
 
     - name: Check UI ESLint, TypeScript, and Prettier Compliance
       run: yarn --cwd netbox/project-static validate

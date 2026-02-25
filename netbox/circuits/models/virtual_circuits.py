@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
 from netbox.models import ChangeLoggedModel, PrimaryModel
-from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin
+from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin
 
 from .base import BaseCircuitType
 
@@ -30,7 +30,7 @@ class VirtualCircuitType(BaseCircuitType):
         verbose_name_plural = _('virtual circuit types')
 
 
-class VirtualCircuit(PrimaryModel):
+class VirtualCircuit(ContactsMixin, PrimaryModel):
     """
     A virtual connection between two or more endpoints, delivered across one or more physical circuits.
     """
