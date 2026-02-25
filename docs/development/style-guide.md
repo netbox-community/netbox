@@ -34,7 +34,8 @@ The following rules are ignored when linting.
 
 ##### [E501](https://docs.astral.sh/ruff/rules/line-too-long/): Line too long
 
-NetBox does not enforce a hard restriction on line length, although a maximum length of 120 characters is strongly encouraged for Python code where possible. The maximum length does not apply to HTML templates or to automatically generated code (e.g. database migrations).
+NetBox enforces a maximum line length of 120 characters for Python code using Ruff (E501).
+The maximum length does not apply to HTML templates or to automatically generated code (e.g. database migrations).
 
 ##### [F403](https://docs.astral.sh/ruff/rules/undefined-local-with-import-star/): Undefined local with import star
 
