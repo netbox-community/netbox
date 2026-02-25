@@ -34,6 +34,28 @@ HTTP_ACTIONS = {
 }
 
 
+class ETagMixin:
+    """
+    Adds ETag header support to ViewSets. Generates ETags from `last_updated`
+    (or `created` if unavailable).
+    """
+
+    @staticmethod
+    def _get_etag(obj):
+        """Return a quoted ETag string for the given object, or None."""
+        if ts := getattr(obj, 'last_updated', None) or getattr(obj, 'created', None):
+            return f'"{ts.isoformat()}"'
+        return None
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        response = Response(serializer.data)
+        if etag := self._get_etag(instance):
+            response['ETag'] = etag
+        return response
+
+
 class BaseViewSet(GenericViewSet):
     """
     Base class for all API ViewSets. This is responsible for the enforcement of object-based permissions.
@@ -95,6 +117,7 @@ class BaseViewSet(GenericViewSet):
 
 
 class NetBoxReadOnlyModelViewSet(
+    ETagMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
     drf_mixins.RetrieveModelMixin,
@@ -105,6 +128,7 @@ class NetBoxReadOnlyModelViewSet(
 
 
 class NetBoxModelViewSet(
+    ETagMixin,
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
     mixins.ObjectValidationMixin,
@@ -191,7 +215,14 @@ class NetBoxModelViewSet(
         serializer = self.get_serializer(qs, many=bulk_create)
 
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+        # Add ETag for single-object creation only (bulk returns a list, no single ETag)
+        if not bulk_create:
+            if etag := self._get_etag(qs):
+                response['ETag'] = etag
+
+        return response
 
     def perform_create(self, serializer):
         model = self.queryset.model
@@ -211,6 +242,14 @@ class NetBoxModelViewSet(
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object_with_snapshot()
+
+        # Enforce If-Match precondition (RFC 9110 §13.1.1)
+        if (if_match := request.META.get('HTTP_IF_MATCH')) and if_match != '*':
+            current_etag = self._get_etag(instance)
+            provided = [e.strip() for e in if_match.split(',')]
+            if current_etag and current_etag not in provided:
+                return Response(status=status.HTTP_412_PRECONDITION_FAILED)
+
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
@@ -221,8 +260,12 @@ class NetBoxModelViewSet(
 
         # Re-serialize the instance(s) with prefetched data
         serializer = self.get_serializer(qs)
+        response = Response(serializer.data)
 
-        return Response(serializer.data)
+        if etag := self._get_etag(qs):
+            response['ETag'] = etag
+
+        return response
 
     def perform_update(self, serializer):
         model = self.queryset.model
