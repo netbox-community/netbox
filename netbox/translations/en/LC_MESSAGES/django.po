@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-21 05:16+0000\n"
+"POT-Creation-Date: 2026-02-26 05:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,9 +41,9 @@ msgstr ""
 
 #: netbox/circuits/choices.py:21 netbox/dcim/choices.py:20
 #: netbox/dcim/choices.py:102 netbox/dcim/choices.py:204
-#: netbox/dcim/choices.py:257 netbox/dcim/choices.py:1929
-#: netbox/dcim/choices.py:1987 netbox/dcim/choices.py:2054
-#: netbox/dcim/choices.py:2076 netbox/virtualization/choices.py:20
+#: netbox/dcim/choices.py:257 netbox/dcim/choices.py:1933
+#: netbox/dcim/choices.py:1991 netbox/dcim/choices.py:2058
+#: netbox/dcim/choices.py:2080 netbox/virtualization/choices.py:20
 #: netbox/virtualization/choices.py:46 netbox/vpn/choices.py:18
 #: netbox/vpn/choices.py:281
 msgid "Planned"
@@ -57,8 +57,8 @@ msgstr ""
 #: netbox/core/tables/tasks.py:23 netbox/dcim/choices.py:22
 #: netbox/dcim/choices.py:103 netbox/dcim/choices.py:155
 #: netbox/dcim/choices.py:203 netbox/dcim/choices.py:256
-#: netbox/dcim/choices.py:1986 netbox/dcim/choices.py:2053
-#: netbox/dcim/choices.py:2075 netbox/extras/tables/tables.py:642
+#: netbox/dcim/choices.py:1990 netbox/dcim/choices.py:2057
+#: netbox/dcim/choices.py:2079 netbox/extras/tables/tables.py:642
 #: netbox/ipam/choices.py:31 netbox/ipam/choices.py:49
 #: netbox/ipam/choices.py:69 netbox/ipam/choices.py:154
 #: netbox/templates/extras/configcontext.html:29
@@ -70,8 +70,8 @@ msgid "Active"
 msgstr ""
 
 #: netbox/circuits/choices.py:24 netbox/dcim/choices.py:202
-#: netbox/dcim/choices.py:255 netbox/dcim/choices.py:1985
-#: netbox/dcim/choices.py:2055 netbox/dcim/choices.py:2074
+#: netbox/dcim/choices.py:255 netbox/dcim/choices.py:1989
+#: netbox/dcim/choices.py:2059 netbox/dcim/choices.py:2078
 #: netbox/virtualization/choices.py:24 netbox/virtualization/choices.py:44
 msgid "Offline"
 msgstr ""
@@ -84,7 +84,7 @@ msgstr ""
 msgid "Decommissioned"
 msgstr ""
 
-#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:1998
+#: netbox/circuits/choices.py:90 netbox/dcim/choices.py:2002
 #: netbox/dcim/tables/devices.py:1208 netbox/templates/dcim/interface.html:148
 #: netbox/tenancy/choices.py:17
 msgid "Primary"
@@ -1995,7 +1995,7 @@ msgstr ""
 #: netbox/core/choices.py:22 netbox/core/choices.py:59
 #: netbox/core/constants.py:21 netbox/core/tables/tasks.py:35
 #: netbox/dcim/choices.py:206 netbox/dcim/choices.py:259
-#: netbox/dcim/choices.py:1988 netbox/dcim/choices.py:2078
+#: netbox/dcim/choices.py:1992 netbox/dcim/choices.py:2082
 #: netbox/virtualization/choices.py:48
 msgid "Failed"
 msgstr ""
@@ -2181,7 +2181,7 @@ msgid "User name"
 msgstr ""
 
 #: netbox/core/forms/bulk_edit.py:25 netbox/core/forms/filtersets.py:47
-#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2036
+#: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2040
 #: netbox/dcim/forms/bulk_edit.py:1105 netbox/dcim/forms/bulk_edit.py:1386
 #: netbox/dcim/forms/filtersets.py:1619 netbox/dcim/forms/filtersets.py:1712
 #: netbox/dcim/tables/devices.py:581 netbox/dcim/tables/devicetypes.py:233
@@ -2375,7 +2375,7 @@ msgstr ""
 msgid "Rack Elevations"
 msgstr ""
 
-#: netbox/core/forms/model_forms.py:160 netbox/dcim/choices.py:1907
+#: netbox/core/forms/model_forms.py:160 netbox/dcim/choices.py:1911
 #: netbox/dcim/forms/bulk_edit.py:944 netbox/dcim/forms/bulk_edit.py:1340
 #: netbox/dcim/forms/bulk_edit.py:1361 netbox/dcim/tables/racks.py:144
 #: netbox/netbox/navigation/menu.py:316 netbox/netbox/navigation/menu.py:320
@@ -3041,8 +3041,8 @@ msgid "Staging"
 msgstr ""
 
 #: netbox/dcim/choices.py:23 netbox/dcim/choices.py:208
-#: netbox/dcim/choices.py:260 netbox/dcim/choices.py:1930
-#: netbox/dcim/choices.py:2079 netbox/virtualization/choices.py:23
+#: netbox/dcim/choices.py:260 netbox/dcim/choices.py:1934
+#: netbox/dcim/choices.py:2083 netbox/virtualization/choices.py:23
 #: netbox/virtualization/choices.py:49 netbox/vpn/choices.py:282
 msgid "Decommissioning"
 msgstr ""
@@ -3108,7 +3108,7 @@ msgstr ""
 msgid "Millimeters"
 msgstr ""
 
-#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1952
+#: netbox/dcim/choices.py:115 netbox/dcim/choices.py:1956
 msgid "Inches"
 msgstr ""
 
@@ -3186,7 +3186,7 @@ msgid "Rear"
 msgstr ""
 
 #: netbox/dcim/choices.py:205 netbox/dcim/choices.py:258
-#: netbox/dcim/choices.py:2077 netbox/virtualization/choices.py:47
+#: netbox/dcim/choices.py:2081 netbox/virtualization/choices.py:47
 msgid "Staged"
 msgstr ""
 
@@ -3219,7 +3219,7 @@ msgid "Top to bottom"
 msgstr ""
 
 #: netbox/dcim/choices.py:235 netbox/dcim/choices.py:280
-#: netbox/dcim/choices.py:1562
+#: netbox/dcim/choices.py:1566
 msgid "Passive"
 msgstr ""
 
@@ -3248,8 +3248,8 @@ msgid "Proprietary"
 msgstr ""
 
 #: netbox/dcim/choices.py:606 netbox/dcim/choices.py:853
-#: netbox/dcim/choices.py:1474 netbox/dcim/choices.py:1476
-#: netbox/dcim/choices.py:1712 netbox/dcim/choices.py:1714
+#: netbox/dcim/choices.py:1478 netbox/dcim/choices.py:1480
+#: netbox/dcim/choices.py:1716 netbox/dcim/choices.py:1718
 #: netbox/netbox/navigation/menu.py:212
 msgid "Other"
 msgstr ""
@@ -3262,11 +3262,11 @@ msgstr ""
 msgid "Physical"
 msgstr ""
 
-#: netbox/dcim/choices.py:884 netbox/dcim/choices.py:1151
+#: netbox/dcim/choices.py:884 netbox/dcim/choices.py:1153
 msgid "Virtual"
 msgstr ""
 
-#: netbox/dcim/choices.py:885 netbox/dcim/choices.py:1351
+#: netbox/dcim/choices.py:885 netbox/dcim/choices.py:1355
 #: netbox/dcim/forms/bulk_edit.py:1546 netbox/dcim/forms/filtersets.py:1577
 #: netbox/dcim/forms/filtersets.py:1703 netbox/dcim/forms/model_forms.py:1125
 #: netbox/dcim/forms/model_forms.py:1589 netbox/netbox/navigation/menu.py:150
@@ -3275,11 +3275,11 @@ msgstr ""
 msgid "Wireless"
 msgstr ""
 
-#: netbox/dcim/choices.py:1149
+#: netbox/dcim/choices.py:1151
 msgid "Virtual interfaces"
 msgstr ""
 
-#: netbox/dcim/choices.py:1152 netbox/dcim/forms/bulk_edit.py:1399
+#: netbox/dcim/choices.py:1154 netbox/dcim/forms/bulk_edit.py:1399
 #: netbox/dcim/forms/bulk_import.py:949 netbox/dcim/forms/model_forms.py:1107
 #: netbox/dcim/tables/devices.py:741 netbox/templates/dcim/interface.html:112
 #: netbox/virtualization/forms/bulk_edit.py:177
@@ -3288,67 +3288,67 @@ msgstr ""
 msgid "Bridge"
 msgstr ""
 
-#: netbox/dcim/choices.py:1153
+#: netbox/dcim/choices.py:1155
 msgid "Link Aggregation Group (LAG)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1157
+#: netbox/dcim/choices.py:1159
 msgid "FastEthernet (100 Mbps)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1166
+#: netbox/dcim/choices.py:1168
 msgid "GigabitEthernet (1 Gbps)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1184
+#: netbox/dcim/choices.py:1186
 msgid "2.5/5 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1191
+#: netbox/dcim/choices.py:1193
 msgid "10 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1206
+#: netbox/dcim/choices.py:1209
 msgid "25 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1216
+#: netbox/dcim/choices.py:1219
 msgid "40 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1226
+#: netbox/dcim/choices.py:1230
 msgid "50 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1236
+#: netbox/dcim/choices.py:1240
 msgid "100 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1257
+#: netbox/dcim/choices.py:1261
 msgid "200 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1271
+#: netbox/dcim/choices.py:1275
 msgid "400 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1289
+#: netbox/dcim/choices.py:1293
 msgid "800 Gbps Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1298
+#: netbox/dcim/choices.py:1302
 msgid "Pluggable transceivers"
 msgstr ""
 
-#: netbox/dcim/choices.py:1335
+#: netbox/dcim/choices.py:1339
 msgid "Backplane Ethernet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1367
+#: netbox/dcim/choices.py:1371
 msgid "Cellular"
 msgstr ""
 
-#: netbox/dcim/choices.py:1419 netbox/dcim/forms/filtersets.py:425
+#: netbox/dcim/choices.py:1423 netbox/dcim/forms/filtersets.py:425
 #: netbox/dcim/forms/filtersets.py:911 netbox/dcim/forms/filtersets.py:1112
 #: netbox/dcim/forms/filtersets.py:1910
 #: netbox/templates/dcim/inventoryitem.html:56
@@ -3356,255 +3356,255 @@ msgstr ""
 msgid "Serial"
 msgstr ""
 
-#: netbox/dcim/choices.py:1434
+#: netbox/dcim/choices.py:1438
 msgid "Coaxial"
 msgstr ""
 
-#: netbox/dcim/choices.py:1455
+#: netbox/dcim/choices.py:1459
 msgid "Stacking"
 msgstr ""
 
-#: netbox/dcim/choices.py:1507
+#: netbox/dcim/choices.py:1511
 msgid "Half"
 msgstr ""
 
-#: netbox/dcim/choices.py:1508
+#: netbox/dcim/choices.py:1512
 msgid "Full"
 msgstr ""
 
-#: netbox/dcim/choices.py:1509 netbox/netbox/preferences.py:32
+#: netbox/dcim/choices.py:1513 netbox/netbox/preferences.py:32
 #: netbox/wireless/choices.py:480
 msgid "Auto"
 msgstr ""
 
-#: netbox/dcim/choices.py:1521
+#: netbox/dcim/choices.py:1525
 msgid "Access"
 msgstr ""
 
-#: netbox/dcim/choices.py:1522 netbox/ipam/tables/vlans.py:150
+#: netbox/dcim/choices.py:1526 netbox/ipam/tables/vlans.py:150
 #: netbox/ipam/tables/vlans.py:210
 #: netbox/templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr ""
 
-#: netbox/dcim/choices.py:1523
+#: netbox/dcim/choices.py:1527
 msgid "Tagged (All)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1524 netbox/templates/ipam/vlan_edit.html:26
+#: netbox/dcim/choices.py:1528 netbox/templates/ipam/vlan_edit.html:26
 msgid "Q-in-Q (802.1ad)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1553
+#: netbox/dcim/choices.py:1557
 msgid "IEEE Standard"
 msgstr ""
 
-#: netbox/dcim/choices.py:1564
+#: netbox/dcim/choices.py:1568
 msgid "Passive 24V (2-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1565
+#: netbox/dcim/choices.py:1569
 msgid "Passive 24V (4-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1566
+#: netbox/dcim/choices.py:1570
 msgid "Passive 48V (2-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1567
+#: netbox/dcim/choices.py:1571
 msgid "Passive 48V (4-pair)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1640
+#: netbox/dcim/choices.py:1644
 msgid "Copper"
 msgstr ""
 
-#: netbox/dcim/choices.py:1663
+#: netbox/dcim/choices.py:1667
 msgid "Fiber Optic"
 msgstr ""
 
-#: netbox/dcim/choices.py:1699 netbox/dcim/choices.py:1913
+#: netbox/dcim/choices.py:1703 netbox/dcim/choices.py:1917
 msgid "USB"
 msgstr ""
 
-#: netbox/dcim/choices.py:1755
+#: netbox/dcim/choices.py:1759
 msgid "Single"
 msgstr ""
 
-#: netbox/dcim/choices.py:1757
+#: netbox/dcim/choices.py:1761
 msgid "1C1P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1758
+#: netbox/dcim/choices.py:1762
 msgid "1C2P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1759
+#: netbox/dcim/choices.py:1763
 msgid "1C4P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1760
+#: netbox/dcim/choices.py:1764
 msgid "1C6P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1761
+#: netbox/dcim/choices.py:1765
 msgid "1C8P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1762
+#: netbox/dcim/choices.py:1766
 msgid "1C12P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1763
+#: netbox/dcim/choices.py:1767
 msgid "1C16P"
 msgstr ""
 
-#: netbox/dcim/choices.py:1767
+#: netbox/dcim/choices.py:1771
 msgid "Trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1769
+#: netbox/dcim/choices.py:1773
 msgid "2C1P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1770
+#: netbox/dcim/choices.py:1774
 msgid "2C2P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1771
+#: netbox/dcim/choices.py:1775
 msgid "2C4P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1772
+#: netbox/dcim/choices.py:1776
 msgid "2C4P trunk (shuffle)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1773
+#: netbox/dcim/choices.py:1777
 msgid "2C6P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1774
+#: netbox/dcim/choices.py:1778
 msgid "2C8P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1775
+#: netbox/dcim/choices.py:1779
 msgid "2C12P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1776
+#: netbox/dcim/choices.py:1780
 msgid "4C1P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1777
+#: netbox/dcim/choices.py:1781
 msgid "4C2P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1778
+#: netbox/dcim/choices.py:1782
 msgid "4C4P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1779
+#: netbox/dcim/choices.py:1783
 msgid "4C4P trunk (shuffle)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1780
+#: netbox/dcim/choices.py:1784
 msgid "4C6P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1781
+#: netbox/dcim/choices.py:1785
 msgid "4C8P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1782
+#: netbox/dcim/choices.py:1786
 msgid "8C4P trunk"
 msgstr ""
 
-#: netbox/dcim/choices.py:1786
+#: netbox/dcim/choices.py:1790
 msgid "Breakout"
 msgstr ""
 
-#: netbox/dcim/choices.py:1788
+#: netbox/dcim/choices.py:1792
 msgid "1C4P:4C1P breakout"
 msgstr ""
 
-#: netbox/dcim/choices.py:1789
+#: netbox/dcim/choices.py:1793
 msgid "1C6P:6C1P breakout"
 msgstr ""
 
-#: netbox/dcim/choices.py:1790
+#: netbox/dcim/choices.py:1794
 msgid "2C4P:8C1P breakout (shuffle)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1848
+#: netbox/dcim/choices.py:1852
 msgid "Copper - Twisted Pair (UTP/STP)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1862
+#: netbox/dcim/choices.py:1866
 msgid "Copper - Twinax (DAC)"
 msgstr ""
 
-#: netbox/dcim/choices.py:1869
+#: netbox/dcim/choices.py:1873
 msgid "Copper - Coaxial"
 msgstr ""
 
-#: netbox/dcim/choices.py:1884
+#: netbox/dcim/choices.py:1888
 msgid "Fiber - Multimode"
 msgstr ""
 
-#: netbox/dcim/choices.py:1895
+#: netbox/dcim/choices.py:1899
 msgid "Fiber - Single-mode"
 msgstr ""
 
-#: netbox/dcim/choices.py:1903
+#: netbox/dcim/choices.py:1907
 msgid "Fiber - Other"
 msgstr ""
 
-#: netbox/dcim/choices.py:1928 netbox/dcim/forms/filtersets.py:1402
+#: netbox/dcim/choices.py:1932 netbox/dcim/forms/filtersets.py:1402
 msgid "Connected"
 msgstr ""
 
-#: netbox/dcim/choices.py:1947 netbox/netbox/choices.py:177
+#: netbox/dcim/choices.py:1951 netbox/netbox/choices.py:177
 msgid "Kilometers"
 msgstr ""
 
-#: netbox/dcim/choices.py:1948 netbox/netbox/choices.py:178
+#: netbox/dcim/choices.py:1952 netbox/netbox/choices.py:178
 #: netbox/templates/dcim/cable_trace.html:65
 msgid "Meters"
 msgstr ""
 
-#: netbox/dcim/choices.py:1949
+#: netbox/dcim/choices.py:1953
 msgid "Centimeters"
 msgstr ""
 
-#: netbox/dcim/choices.py:1950 netbox/netbox/choices.py:179
+#: netbox/dcim/choices.py:1954 netbox/netbox/choices.py:179
 msgid "Miles"
 msgstr ""
 
-#: netbox/dcim/choices.py:1951 netbox/netbox/choices.py:180
+#: netbox/dcim/choices.py:1955 netbox/netbox/choices.py:180
 #: netbox/templates/dcim/cable_trace.html:66
 msgid "Feet"
 msgstr ""
 
-#: netbox/dcim/choices.py:1999
+#: netbox/dcim/choices.py:2003
 msgid "Redundant"
 msgstr ""
 
-#: netbox/dcim/choices.py:2020
+#: netbox/dcim/choices.py:2024
 msgid "Single phase"
 msgstr ""
 
-#: netbox/dcim/choices.py:2021
+#: netbox/dcim/choices.py:2025
 msgid "Three-phase"
 msgstr ""
 
-#: netbox/dcim/choices.py:2037 netbox/extras/choices.py:53
+#: netbox/dcim/choices.py:2041 netbox/extras/choices.py:53
 #: netbox/netbox/preferences.py:45 netbox/netbox/preferences.py:70
 #: netbox/templates/extras/customfield.html:78 netbox/vpn/choices.py:20
 #: netbox/wireless/choices.py:27
 msgid "Disabled"
 msgstr ""
 
-#: netbox/dcim/choices.py:2038
+#: netbox/dcim/choices.py:2042
 msgid "Faulty"
 msgstr ""
 
