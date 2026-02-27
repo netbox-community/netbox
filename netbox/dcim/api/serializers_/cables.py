@@ -84,6 +84,9 @@ class CablePathSerializer(serializers.ModelSerializer):
     def get_path(self, obj):
         ret = []
         for nodes in obj.path_objects:
+            if not nodes:
+                # The path contains an invalid object
+                return []
             serializer = get_serializer_for_model(nodes[0])
             context = {'request': self.context['request']}
             ret.append(serializer(nodes, nested=True, many=True, context=context).data)
