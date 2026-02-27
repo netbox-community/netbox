@@ -2,6 +2,8 @@
 {% load i18n %}
 {% if customfield.type == 'integer' and value is not None %}
   {{ value }}
+{% elif customfield.type == 'decimal' and value is not None %}
+  {{ value }}
 {% elif customfield.type == 'longtext' and value %}
   {{ value|markdown }}
 {% elif customfield.type == 'boolean' and value == True %}
