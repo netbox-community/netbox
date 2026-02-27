@@ -305,6 +305,50 @@ class Cable(PrimaryModel):
         except UnsupportedCablePath as e:
             raise AbortRequest(e)
 
+    def clone(self):
+        """
+        Return attributes suitable for cloning this cable.
+
+        In addition to the fields defined in `clone_fields`, include the termination
+        type and parent selector fields used by dcim.forms.connections.get_cable_form().
+        """
+        attrs = super().clone()
+
+        # Mirror dcim.forms.connections.get_cable_form() parent-field logic
+        for cable_end, terminations in (('a', self.a_terminations), ('b', self.b_terminations)):
+            if not terminations:
+                continue
+
+            term_cls = type(terminations[0])
+            term_label = term_cls._meta.label_lower
+
+            # Matches CableForm choices: "<app_label>.<model>"
+            attrs[f'{cable_end}_terminations_type'] = term_label
+
+            # Device component
+            if hasattr(term_cls, 'device'):
+                device_ids = sorted({t.device_id for t in terminations if t.device_id})
+                if device_ids:
+                    attrs[f'termination_{cable_end}_device'] = device_ids
+
+            # PowerFeed
+            elif term_label == 'dcim.powerfeed':
+                powerpanel_ids = sorted({t.power_panel_id for t in terminations if t.power_panel_id})
+                if powerpanel_ids:
+                    attrs[f'termination_{cable_end}_powerpanel'] = powerpanel_ids
+
+            # CircuitTermination
+            elif term_label == 'circuits.circuittermination':
+                circuit_ids = sorted({t.circuit_id for t in terminations if t.circuit_id})
+                if circuit_ids:
+                    attrs[f'termination_{cable_end}_circuit'] = circuit_ids
+
+        # Never clone the actual terminations, as they are already occupied
+        attrs.pop('a_terminations', None)
+        attrs.pop('b_terminations', None)
+
+        return attrs
+
     def serialize_object(self, exclude=None):
         data = serialize_object(self, exclude=exclude or [])
 
