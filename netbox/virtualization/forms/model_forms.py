@@ -221,7 +221,7 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
         FieldSet('site', 'cluster', 'device', name=_('Site/Cluster')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('platform', 'primary_ip4', 'primary_ip6', 'config_template', name=_('Management')),
-        FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
+        FieldSet('vcpus', 'memory', 'disk', name=_('Resources (MiB)')),
         FieldSet('local_context_data', name=_('Config Context')),
     )
 
@@ -393,7 +393,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
 class VirtualDiskForm(VMComponentForm):
 
     fieldsets = (
-        FieldSet('virtual_machine', 'name', 'size', 'description', 'tags', name=_('Disk')),
+        FieldSet('virtual_machine', 'name', 'size', 'description', 'tags', name=_('Disk (GiB)')),
     )
 
     class Meta:
