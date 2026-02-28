@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-26 05:25+0000\n"
+"POT-Creation-Date: 2026-02-28 05:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16677,7 +16677,7 @@ msgstr ""
 msgid "A column named {name} is already defined for table {table_name}"
 msgstr ""
 
-#: netbox/utilities/templates/builtins/customfield_value.html:30
+#: netbox/utilities/templates/builtins/customfield_value.html:32
 msgid "Not defined"
 msgstr ""
 
