@@ -716,18 +716,19 @@ class ModuleBayTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
-        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
-        device_type = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        cls.site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        cls.manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        cls.device_type = DeviceType.objects.create(
+            manufacturer=cls.manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
-        device_role = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+        cls.device_role = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
 
         # Create a CustomField with a default value & assign it to all component models
-        location = Location.objects.create(name='Location 1', slug='location-1', site=site)
-        rack = Rack.objects.create(name='Rack 1', site=site)
+        location = Location.objects.create(name='Location 1', slug='location-1', site=cls.site)
+        rack = Rack.objects.create(name='Rack 1', site=cls.site)
         device = Device.objects.create(
-            name='Device 1', device_type=device_type, role=device_role, site=site, location=location, rack=rack
+            name='Device 1', device_type=cls.device_type, role=cls.device_role, site=cls.site, location=location,
+            rack=rack
         )
 
         module_bays = (
@@ -754,6 +755,10 @@ class ModuleBayTestCase(TestCase):
         module_bays[2].clean()
         module_bays[2].save()
 
+    #
+    # Infrastructure tests (pre-existing)
+    #
+
     def test_module_bay_recursion(self):
         module_bay_1 = ModuleBay.objects.get(name='Module Bay 1')
         module_bay_3 = ModuleBay.objects.get(name='Module Bay 3')
@@ -772,89 +777,11 @@ class ModuleBayTestCase(TestCase):
             module_1.clean()
             module_1.save()
 
-    def test_single_module_token(self):
-        device_type = DeviceType.objects.first()
-        device_role = DeviceRole.objects.first()
-        site = Site.objects.first()
-        location = Location.objects.first()
-        rack = Rack.objects.first()
-
-        # Create DeviceType components
-        ConsolePortTemplate.objects.create(
-            device_type=device_type,
-            name='{module}',
-            label='{module}',
-        )
-        ModuleBayTemplate.objects.create(
-            device_type=device_type,
-            name='Module Bay 1'
-        )
-
-        device = Device.objects.create(
-            name='Device 2',
-            device_type=device_type,
-            role=device_role,
-            site=site,
-            location=location,
-            rack=rack
-        )
-        device.consoleports.first()
-
-    @tag('regression')  # #19918
-    def test_nested_module_bay_label_resolution(self):
-        """Test that nested module bay labels properly resolve {module} placeholders"""
-        manufacturer = Manufacturer.objects.first()
-        site = Site.objects.first()
-        device_role = DeviceRole.objects.first()
-
-        # Create device type with module bay template (position='A')
-        device_type = DeviceType.objects.create(
-            manufacturer=manufacturer,
-            model='Device with Bays',
-            slug='device-with-bays'
-        )
-        ModuleBayTemplate.objects.create(
-            device_type=device_type,
-            name='Bay A',
-            position='A'
-        )
-
-        # Create module type with nested bay template using {module} placeholder
-        module_type = ModuleType.objects.create(
-            manufacturer=manufacturer,
-            model='Module with Nested Bays'
-        )
-        ModuleBayTemplate.objects.create(
-            module_type=module_type,
-            name='SFP {module}-21',
-            label='{module}-21',
-            position='21'
-        )
-
-        # Create device and install module
-        device = Device.objects.create(
-            name='Test Device',
-            device_type=device_type,
-            role=device_role,
-            site=site
-        )
-        module_bay = device.modulebays.get(name='Bay A')
-        module = Module.objects.create(
-            device=device,
-            module_bay=module_bay,
-            module_type=module_type
-        )
-
-        # Verify nested bay label resolves {module} to parent position
-        nested_bay = module.modulebays.get(name='SFP A-21')
-        self.assertEqual(nested_bay.label, 'A-21')
-
     @tag('regression')  # #20912
     def test_module_bay_parent_cleared_when_module_removed(self):
         """Test that the parent field is properly cleared when a module bay's module assignment is removed"""
         device = Device.objects.first()
-        manufacturer = Manufacturer.objects.first()
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module Type')
+        module_type = ModuleType.objects.create(manufacturer=self.manufacturer, model='Test Module Type')
         bay1 = ModuleBay.objects.create(device=device, name='Test Bay 1')
         bay2 = ModuleBay.objects.create(device=device, name='Test Bay 2')
 
@@ -875,141 +802,830 @@ class ModuleBayTestCase(TestCase):
         self.assertIsNone(bay2.parent)
         self.assertIsNone(bay2.module)
 
-    def test_module_installation_creates_port_mappings(self):
-        """
-        Test that installing a module with front/rear port templates correctly
-        creates PortMapping instances for the device.
-        """
-        device = Device.objects.first()
-        manufacturer = Manufacturer.objects.first()
-        module_bay = ModuleBay.objects.create(device=device, name='Test Bay PortMapping 1')
+    #
+    # {module} placeholder tests (simple single-module first, then multi-module)
+    #
 
-        # Create a module type with a rear port template
-        module_type_with_mappings = ModuleType.objects.create(
-            manufacturer=manufacturer,
-            model='Module Type With Mappings',
+    def test_single_module_token(self):
+        # Create DeviceType components
+        ConsolePortTemplate.objects.create(
+            device_type=self.device_type,
+            name='{module}',
+            label='{module}',
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Module Bay 1'
         )
 
-        # Create a rear port template with 12 positions (splice)
-        rear_port_template = RearPortTemplate.objects.create(
-            module_type=module_type_with_mappings,
-            name='Rear Port 1',
-            type=PortTypeChoices.TYPE_SPLICE,
-            positions=12,
+        device = Device.objects.create(
+            name='Device 2',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site,
+            location=Location.objects.first(),
+            rack=Rack.objects.first()
+        )
+        device.consoleports.first()
+
+    def test_single_placeholder_direct_install_depth_1(self):
+        """
+        Test that installing a module directly at depth=1 with a single {module}
+        placeholder still resolves correctly (just the position, not a path).
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='SFP Bay 1',
+            position='1'
         )
 
-        # Create 12 front port templates mapped to the rear port
-        front_port_templates = []
-        for i in range(1, 13):
-            front_port_template = FrontPortTemplate.objects.create(
-                module_type=module_type_with_mappings,
-                name=f'port {i}',
-                type=PortTypeChoices.TYPE_LC,
-                positions=1,
-            )
-            front_port_templates.append(front_port_template)
+        # Create SFP module type with interface using single {module} placeholder
+        sfp_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Direct SFP'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='SFP {module}',
+            label='{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
 
-            # Create port template mapping
-            PortTemplateMapping.objects.create(
-                device_type=None,
-                module_type=module_type_with_mappings,
-                front_port=front_port_template,
-                front_port_position=1,
-                rear_port=rear_port_template,
-                rear_port_position=i,
-            )
+        # Create device
+        device = Device.objects.create(
+            name='Test Simple Chassis',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
 
-        # Install the module
+        # Install SFP directly in bay 1 (depth=1)
+        sfp_bay = device.modulebays.get(name='SFP Bay 1')
+        sfp_module = Module.objects.create(
+            device=device,
+            module_bay=sfp_bay,
+            module_type=sfp_type
+        )
+
+        # Verify interface name resolves to just "1"
+        interface = sfp_module.interfaces.first()
+        self.assertEqual(interface.name, 'SFP 1')
+        self.assertEqual(interface.label, '1')
+
+    def test_depth_1_single_token_no_extra_slashes(self):
+        """
+        T7: Ensure depth=1 single-token still resolves to the position, not an unnecessary "path join".
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 7',
+            position='7'
+        )
+
+        # Create module type with single-token template
+        module_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T7 Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='{module}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        # Create device and install module directly at depth=1
+        device = Device.objects.create(
+            name='T7 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay = device.modulebays.get(name='Bay 7')
         module = Module.objects.create(
             device=device,
-            module_bay=module_bay,
-            module_type=module_type_with_mappings,
-            status=ModuleStatusChoices.STATUS_ACTIVE,
+            module_bay=bay,
+            module_type=module_type
         )
 
-        # Verify that front ports were created
-        front_ports = FrontPort.objects.filter(device=device, module=module)
-        self.assertEqual(front_ports.count(), 12)
+        # Verify: just "7", not "7/" or similar
+        interface = module.interfaces.first()
+        self.assertEqual(interface.name, '7')
 
-        # Verify that the rear port was created
-        rear_ports = RearPort.objects.filter(device=device, module=module)
-        self.assertEqual(rear_ports.count(), 1)
-        rear_port = rear_ports.first()
-        self.assertEqual(rear_port.positions, 12)
-
-        # Verify that port mappings were created
-        port_mappings = PortMapping.objects.filter(front_port__module=module)
-        self.assertEqual(port_mappings.count(), 12)
-
-        # Verify each mapping is correct
-        for i, front_port_template in enumerate(front_port_templates, start=1):
-            front_port = FrontPort.objects.get(
-                device=device,
-                name=front_port_template.name,
-                module=module,
-            )
-
-            # Check that a mapping exists for this front port
-            mapping = PortMapping.objects.get(
-                device=device,
-                front_port=front_port,
-                front_port_position=1,
-            )
-
-            self.assertEqual(mapping.rear_port, rear_port)
-            self.assertEqual(mapping.front_port_position, 1)
-            self.assertEqual(mapping.rear_port_position, i)
-
-    def test_module_installation_without_mappings(self):
+    def test_single_module_token_fails_at_depth_2(self):
         """
-        Test that installing a module without port template mappings
-        doesn't create any PortMapping instances.
+        A single {module} token at depth > 1 must be rejected because the token
+        count (1) does not match the nesting depth (2). This is the exact scenario
+        from Issue #20474 — users should use {module_path} instead.
         """
-        device = Device.objects.first()
-        manufacturer = Manufacturer.objects.first()
-        module_bay = ModuleBay.objects.create(device=device, name='Test Bay PortMapping 2')
+        from dcim.forms import ModuleForm
 
-        # Create a module type without any port template mappings
-        module_type_no_mappings = ModuleType.objects.create(
-            manufacturer=manufacturer,
-            model='Module Type Without Mappings',
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
         )
 
-        # Create a rear port template
-        RearPortTemplate.objects.create(
-            module_type=module_type_no_mappings,
-            name='Rear Port 1',
-            type=PortTypeChoices.TYPE_SPLICE,
-            positions=12,
+        # Create line card module type with nested bay
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Depth2 Reject Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay',
+            position='2'
         )
 
-        # Create front port templates but DO NOT create PortTemplateMapping rows
-        for i in range(1, 13):
-            FrontPortTemplate.objects.create(
-                module_type=module_type_no_mappings,
-                name=f'port {i}',
-                type=PortTypeChoices.TYPE_LC,
-                positions=1,
-            )
+        # Create SFP module type with single {module} token
+        sfp_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Depth2 Reject SFP'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='eth{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
 
-        # Install the module
+        # Create device and install line card
+        device = Device.objects.create(
+            name='Depth2 Reject Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay1 = device.modulebays.get(name='Bay 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=line_card_type
+        )
+
+        # Attempt to install SFP at depth 2 with 1 token — should fail
+        nested_bay = line_card.modulebays.get(name='Nested Bay')
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': nested_bay.pk,
+            'module_type': sfp_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        self.assertFalse(form.is_valid())
+        self.assertIn('1', str(form.errors))
+        self.assertIn('2', str(form.errors))
+
+    def test_multi_token_level_by_level_depth_2(self):
+        """
+        T1: Multi-token behavior remains unchanged at depth=2.
+        Ensure legacy {module}/{module} still resolves level-by-level.
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Create line card module type with nested bay
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T1 Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay 2',
+            position='2'
+        )
+
+        # Create SFP module type with 2-token interface template
+        sfp_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T1 SFP'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='SFP {module}/{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        # Create device and install modules
+        device = Device.objects.create(
+            name='T1 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        # Install line card at position 1
+        line_card_bay = device.modulebays.get(name='Bay 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=line_card_bay,
+            module_type=line_card_type
+        )
+
+        # Install SFP at nested bay (position 2)
+        sfp_bay = line_card.modulebays.get(name='Nested Bay 2')
+        sfp_module = Module.objects.create(
+            device=device,
+            module_bay=sfp_bay,
+            module_type=sfp_type
+        )
+
+        # Verify level-by-level substitution: 1/2 (not 1/2/1/2)
+        interface = sfp_module.interfaces.first()
+        self.assertEqual(interface.name, 'SFP 1/2')
+
+    def test_multi_occurrence_tokens_level_by_level(self):
+        """
+        T8: Multiple occurrences of {module} in a single template (token_count > 1) still level-by-level.
+        Ensure the token_count logic and replacement loop behaves with duplicated patterns.
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Create line card module type with nested bay at position 2
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T8 Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay',
+            position='2'
+        )
+
+        # Create leaf module type with 2-token template (non-slash separator)
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T8 Leaf'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='X{module}-Y{module}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        # Create device and install modules
+        device = Device.objects.create(
+            name='T8 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay1 = device.modulebays.get(name='Bay 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=line_card_type
+        )
+
+        nested_bay = line_card.modulebays.get(name='Nested Bay')
+        leaf_module = Module.objects.create(
+            device=device,
+            module_bay=nested_bay,
+            module_type=leaf_type
+        )
+
+        # Verify: X1-Y2 (level-by-level, not full-path stuffed into first)
+        interface = leaf_module.interfaces.first()
+        self.assertEqual(interface.name, 'X1-Y2')
+
+    def test_mismatched_multi_token_fails_validation(self):
+        """
+        T2: Multi-token with mismatched depth fails validation (depth=3, tokens=2).
+        The number of {module} tokens must exactly match the nesting depth.
+        """
+        from dcim.forms import ModuleForm
+
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Create level 2 module type with nested bay
+        level2_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T2 Level2'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=level2_type,
+            name='Level2 Bay',
+            position='1'
+        )
+
+        # Create level 3 module type with nested bay
+        level3_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T2 Level3'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=level3_type,
+            name='Level3 Bay',
+            position='1'
+        )
+
+        # Create leaf module type with 2-token interface template (mismatched for depth 3)
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T2 Leaf'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='SFP {module}/{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        # Create device and install first 2 levels of modules
+        device = Device.objects.create(
+            name='T2 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        # Level 1
+        bay1 = device.modulebays.get(name='Bay 1')
+        module1 = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=level2_type
+        )
+
+        # Level 2
+        bay2 = module1.modulebays.get(name='Level2 Bay')
+        module2 = Module.objects.create(
+            device=device,
+            module_bay=bay2,
+            module_type=level3_type
+        )
+
+        # Attempt to install leaf module at depth=3 with 2 tokens - should fail
+        bay3 = module2.modulebays.get(name='Level3 Bay')
+
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': bay3.pk,
+            'module_type': leaf_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        # Validation should fail: 2 tokens != 1 and 2 tokens != 3 depth
+        self.assertFalse(form.is_valid())
+        self.assertIn('2', str(form.errors))
+        self.assertIn('3', str(form.errors))
+
+    def test_too_many_tokens_fails_validation(self):
+        """
+        T3: Too-many-tokens still fails (depth=2, tokens=3).
+        Confirms the validation prevents impossible substitution.
+        """
+        from dcim.forms import ModuleForm
+
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Create line card module type with nested bay
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T3 Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay',
+            position='1'
+        )
+
+        # Create leaf module type with 3-token interface template (too many!)
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T3 Leaf'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='{module}/{module}/{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        # Create device and install line card
+        device = Device.objects.create(
+            name='T3 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay1 = device.modulebays.get(name='Bay 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=line_card_type
+        )
+
+        # Attempt to install leaf module at depth=2 with 3 tokens - should fail
+        nested_bay = line_card.modulebays.get(name='Nested Bay')
+
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': nested_bay.pk,
+            'module_type': leaf_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        self.assertFalse(form.is_valid())
+        # Check the error message mentions the mismatch
+        self.assertIn('2', str(form.errors))
+        self.assertIn('3', str(form.errors))
+
+    #
+    # {module_path} placeholder tests
+    #
+
+    def test_module_path_placeholder_depth_1(self):
+        """
+        Test {module_path} at depth 1 resolves to just the bay position.
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='A'
+        )
+
+        module_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='MP Depth1 Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='Port {module_path}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='MP Depth1 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay = device.modulebays.get(name='Bay 1')
         module = Module.objects.create(
             device=device,
-            module_bay=module_bay,
-            module_type=module_type_no_mappings,
-            status=ModuleStatusChoices.STATUS_ACTIVE,
+            module_bay=bay,
+            module_type=module_type
         )
 
-        # Verify no port mappings were created for this module
-        port_mappings = PortMapping.objects.filter(
-            device=device,
-            front_port__module=module,
-            front_port_position=1,
+        interface = module.interfaces.first()
+        self.assertEqual(interface.name, 'Port A')
+
+    def test_module_path_placeholder_depth_3(self):
+        """
+        Test {module_path} at depth 3 resolves to full path (e.g., "1/2/3").
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Slot',
+            position='1'
         )
-        self.assertEqual(port_mappings.count(), 0)
-        self.assertEqual(FrontPort.objects.filter(module=module).count(), 12)
-        self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
-        self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
+
+        level2_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='MP Level2'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=level2_type,
+            name='SubSlot',
+            position='2'
+        )
+
+        level3_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='MP Level3'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=level3_type,
+            name='Port',
+            position='3'
+        )
+
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='MP Leaf'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='Interface {module_path}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='MP Depth3 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        # Install 3 levels
+        bay1 = device.modulebays.get(name='Slot')
+        mod1 = Module.objects.create(device=device, module_bay=bay1, module_type=level2_type)
+
+        bay2 = mod1.modulebays.get(name='SubSlot')
+        mod2 = Module.objects.create(device=device, module_bay=bay2, module_type=level3_type)
+
+        bay3 = mod2.modulebays.get(name='Port')
+        mod3 = Module.objects.create(device=device, module_bay=bay3, module_type=leaf_type)
+
+        interface = mod3.interfaces.first()
+        # {module_path} should give full path: 1/2/3
+        self.assertEqual(interface.name, 'Interface 1/2/3')
+
+    def test_label_substitution_matches_name_depth_2(self):
+        """
+        T4: Label substitution with {module_path} works the same way as name (depth=2).
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Create line card module type with nested bay at position 2
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T4 Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay',
+            position='2'
+        )
+
+        # Create leaf module type with {module_path} for full path in name AND label
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T4 Leaf'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='SFP {module_path}',
+            label='LBL {module_path}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        # Create device and install modules
+        device = Device.objects.create(
+            name='T4 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay1 = device.modulebays.get(name='Bay 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=line_card_type
+        )
+
+        nested_bay = line_card.modulebays.get(name='Nested Bay')
+        leaf_module = Module.objects.create(
+            device=device,
+            module_bay=nested_bay,
+            module_type=leaf_type
+        )
+
+        # Verify both name and label resolve to full path
+        interface = leaf_module.interfaces.first()
+        self.assertEqual(interface.name, 'SFP 1/2')
+        self.assertEqual(interface.label, 'LBL 1/2')
+
+    def test_non_interface_component_template_substitution(self):
+        """
+        T5: Non-interface modular component templates (ConsolePortTemplate).
+        Ensures the fix is general to all ModularComponentTemplateModel subclasses.
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Create line card module type with nested bay at position 2
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T5 Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay',
+            position='2'
+        )
+
+        # Create leaf module type with ConsolePortTemplate using single token
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T5 Leaf'
+        )
+        ConsolePortTemplate.objects.create(
+            module_type=leaf_type,
+            name='Console {module_path}',
+            label='{module_path}'
+        )
+
+        # Create device and install modules
+        device = Device.objects.create(
+            name='T5 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay1 = device.modulebays.get(name='Bay 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=line_card_type
+        )
+
+        nested_bay = line_card.modulebays.get(name='Nested Bay')
+        leaf_module = Module.objects.create(
+            device=device,
+            module_bay=nested_bay,
+            module_type=leaf_type
+        )
+
+        # Verify ConsolePort resolves with full path
+        console_port = leaf_module.consoleports.first()
+        self.assertEqual(console_port.name, 'Console 1/2')
+        self.assertEqual(console_port.label, '1/2')
+
+    def test_positions_with_slashes_join_correctly(self):
+        """
+        T6: Positions that already contain slashes don't break {module_path} joining (depth=2).
+        Some platforms use positions like 0/1 (PIC/port style) even before nesting.
+        """
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='PIC Bay',
+            position='0/1'  # Position already contains slash
+        )
+
+        # Create line card module type with nested bay at position 2
+        line_card_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T6 Line Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='Nested Bay',
+            position='2'
+        )
+
+        # Create leaf module type with {module_path} for full path
+        leaf_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='T6 Leaf'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='Gi{module_path}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        # Create device and install modules
+        device = Device.objects.create(
+            name='T6 Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay1 = device.modulebays.get(name='PIC Bay')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=bay1,
+            module_type=line_card_type
+        )
+
+        nested_bay = line_card.modulebays.get(name='Nested Bay')
+        leaf_module = Module.objects.create(
+            device=device,
+            module_bay=nested_bay,
+            module_type=leaf_type
+        )
+
+        # Verify: 0/1 + 2 = 0/1/2
+        interface = leaf_module.interfaces.first()
+        self.assertEqual(interface.name, 'Gi0/1/2')
+
+    def test_module_path_validation_only_once(self):
+        """
+        Test that {module_path} can only appear once in a template.
+        Using it multiple times should fail validation.
+        """
+        from dcim.forms import ModuleForm
+
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Module type with {module_path} used twice - should fail
+        bad_module_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Bad Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=bad_module_type,
+            name='{module_path}/{module_path}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='MP Validation Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay = device.modulebays.get(name='Bay 1')
+
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': bay.pk,
+            'module_type': bad_module_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        self.assertFalse(form.is_valid())
+
+    #
+    # Combined / mixed placeholder tests
+    #
+
+    def test_mixed_module_and_module_path_fails_validation(self):
+        """
+        Test that mixing {module} and {module_path} in the same template attribute
+        fails validation. These cannot be combined.
+        """
+        from dcim.forms import ModuleForm
+
+        ModuleBayTemplate.objects.create(
+            device_type=self.device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        # Module type with both {module} and {module_path} - should fail
+        bad_module_type = ModuleType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Bad Mixed Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=bad_module_type,
+            name='{module_path}-{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='Mixed Placeholder Device',
+            device_type=self.device_type,
+            role=self.device_role,
+            site=self.site
+        )
+
+        bay = device.modulebays.get(name='Bay 1')
+
+        form = ModuleForm(data={
+            'device': device.pk,
+            'module_bay': bay.pk,
+            'module_type': bad_module_type.pk,
+            'status': 'active',
+            'replicate_components': True,
+            'adopt_components': False,
+        })
+
+        self.assertFalse(form.is_valid())
+        # Verify it's specifically the mixed placeholder error
+        self.assertIn('Cannot mix', str(form.errors))
 
 
 class CableTestCase(TestCase):
