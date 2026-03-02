@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, DateFilterLookup, FilterLookup
+from strawberry_django import BaseFilterLookup, DateFilterLookup, StrFilterLookup
 
 from circuits import models
 from circuits.graphql.filter_mixins import CircuitTypeFilterMixin
@@ -62,9 +62,9 @@ class CircuitTerminationFilter(
     upstream_speed: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    xconnect_id: FilterLookup[str] | None = strawberry_django.filter_field()
-    pp_info: FilterLookup[str] | None = strawberry_django.filter_field()
-    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    xconnect_id: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    pp_info: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
     # Cached relations
     _provider_network: Annotated['ProviderNetworkFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
@@ -92,7 +92,7 @@ class CircuitFilter(
     TenancyFilterMixin,
     PrimaryModelFilter
 ):
-    cid: FilterLookup[str] | None = strawberry_django.filter_field()
+    cid: StrFilterLookup[str] | None = strawberry_django.filter_field()
     provider: Annotated['ProviderFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -145,8 +145,8 @@ class CircuitGroupAssignmentFilter(CustomFieldsFilterMixin, TagsFilterMixin, Cha
 
 @strawberry_django.filter_type(models.Provider, lookups=True)
 class ProviderFilter(ContactFilterMixin, PrimaryModelFilter):
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
-    slug: FilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    slug: StrFilterLookup[str] | None = strawberry_django.filter_field()
     asns: Annotated['ASNFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     circuits: Annotated['CircuitFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -159,18 +159,18 @@ class ProviderAccountFilter(ContactFilterMixin, PrimaryModelFilter):
         strawberry_django.filter_field()
     )
     provider_id: ID | None = strawberry_django.filter_field()
-    account: FilterLookup[str] | None = strawberry_django.filter_field()
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
+    account: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ProviderNetwork, lookups=True)
 class ProviderNetworkFilter(PrimaryModelFilter):
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
     provider: Annotated['ProviderFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
     provider_id: ID | None = strawberry_django.filter_field()
-    service_id: FilterLookup[str] | None = strawberry_django.filter_field()
+    service_id: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.VirtualCircuitType, lookups=True)
@@ -180,7 +180,7 @@ class VirtualCircuitTypeFilter(CircuitTypeFilterMixin, OrganizationalModelFilter
 
 @strawberry_django.filter_type(models.VirtualCircuit, lookups=True)
 class VirtualCircuitFilter(TenancyFilterMixin, PrimaryModelFilter):
-    cid: FilterLookup[str] | None = strawberry_django.filter_field()
+    cid: StrFilterLookup[str] | None = strawberry_django.filter_field()
     provider_network: Annotated['ProviderNetworkFilter', strawberry.lazy('circuits.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -218,4 +218,4 @@ class VirtualCircuitTerminationFilter(CustomFieldsFilterMixin, TagsFilterMixin, 
         strawberry_django.filter_field()
     )
     interface_id: ID | None = strawberry_django.filter_field()
-    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup[str] | None = strawberry_django.filter_field()

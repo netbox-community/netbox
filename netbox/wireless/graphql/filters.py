@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, FilterLookup
+from strawberry_django import BaseFilterLookup, StrFilterLookup
 
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from netbox.graphql.filter_mixins import DistanceFilterMixin
@@ -38,7 +38,7 @@ class WirelessLANFilter(
     TenancyFilterMixin,
     PrimaryModelFilter
 ):
-    ssid: FilterLookup[str] | None = strawberry_django.filter_field()
+    ssid: StrFilterLookup[str] | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -65,7 +65,7 @@ class WirelessLinkFilter(
         strawberry_django.filter_field()
     )
     interface_b_id: ID | None = strawberry_django.filter_field()
-    ssid: FilterLookup[str] | None = strawberry_django.filter_field()
+    ssid: StrFilterLookup[str] | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
