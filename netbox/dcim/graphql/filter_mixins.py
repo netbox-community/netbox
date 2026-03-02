@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 from strawberry import ID
-from strawberry_django import BaseFilterLookup, FilterLookup
+from strawberry_django import BaseFilterLookup, FilterLookup, StrFilterLookup
 
 from core.graphql.filters import ContentTypeFilter
 
@@ -66,9 +66,9 @@ class ComponentModelFilterMixin:
     )
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
-    label: FilterLookup[str] | None = strawberry_django.filter_field()
-    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    label: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @dataclass
@@ -96,9 +96,9 @@ class ComponentTemplateFilterMixin:
         strawberry_django.filter_field()
     )
     device_type_id: ID | None = strawberry_django.filter_field()
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
-    label: FilterLookup[str] | None = strawberry_django.filter_field()
-    description: FilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    label: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @dataclass
