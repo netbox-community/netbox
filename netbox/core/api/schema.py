@@ -2,6 +2,7 @@ import re
 import typing
 from collections import OrderedDict
 
+from drf_spectacular.contrib.django_filters import DjangoFilterExtension
 from drf_spectacular.extensions import OpenApiSerializerExtension, OpenApiSerializerFieldExtension, _SchemaType
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
@@ -9,6 +10,7 @@ from drf_spectacular.plumbing import (
     build_choice_field,
     build_media_type_object,
     build_object_type,
+    follow_field_source,
     get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
@@ -21,6 +23,29 @@ from netbox.api.viewsets import NetBoxModelViewSet
 # see netbox.api.routers.NetBoxRouter
 BULK_ACTIONS = ("bulk_destroy", "bulk_partial_update", "bulk_update")
 WRITABLE_ACTIONS = ("PATCH", "POST", "PUT")
+
+
+class NetBoxDjangoFilterExtension(DjangoFilterExtension):
+    """
+    Overrides drf-spectacular's DjangoFilterExtension to fix a regression in v0.29.0 where
+    _get_model_field() incorrectly double-appends to_field_name when field_name already ends
+    with that value (e.g. field_name='tags__slug', to_field_name='slug' produces the invalid
+    path ['tags', 'slug', 'slug']). This caused hundreds of spurious warnings during schema
+    generation for filters such as TagFilter, TenancyFilterSet.tenant, and OwnerFilterMixin.owner.
+
+    See: https://github.com/netbox-community/netbox/issues/20787
+         https://github.com/tfranzel/drf-spectacular/issues/1475
+    """
+    priority = 1
+
+    def _get_model_field(self, filter_field, model):
+        if not filter_field.field_name:
+            return None
+        path = filter_field.field_name.split('__')
+        to_field_name = filter_field.extra.get('to_field_name')
+        if to_field_name is not None and path[-1] != to_field_name:
+            path.append(to_field_name)
+        return follow_field_source(model, path, emit_warnings=False)
 
 
 class FixTimeZoneSerializerField(OpenApiSerializerFieldExtension):
