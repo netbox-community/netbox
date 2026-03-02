@@ -774,7 +774,7 @@ class Interface(
         verbose_name=_('management only'),
         help_text=_('This interface is used only for out-of-band management')
     )
-    speed = models.PositiveIntegerField(
+    speed = models.PositiveBigIntegerField(
         blank=True,
         null=True,
         verbose_name=_('speed (Kbps)')
