@@ -432,9 +432,11 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         ])
         available_ips = prefix - child_ips - child_ranges
 
-        # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
-        if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (
-                self.family == 4 and self.prefix.prefixlen >= 31
+        # Pool, IPv4 /31-/32 or IPv6 /127-/128 sets are fully usable
+        if (
+            self.is_pool
+            or (self.family == 4 and self.prefix.prefixlen >= 31)
+            or (self.family == 6 and self.prefix.prefixlen >= 127)
         ):
             return available_ips
 
