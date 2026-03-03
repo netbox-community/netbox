@@ -4104,7 +4104,6 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                     device.vc_position = None
                     device.save()
                 for member in members:
-                    member.snapshot()
                     member.save()
 
             return redirect(virtual_chassis.get_absolute_url())
