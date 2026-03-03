@@ -98,6 +98,10 @@ jsonschema
 # https://python-markdown.github.io/changelog/
 Markdown
 
+# MkDocs
+# https://github.com/mkdocs/mkdocs/releases
+mkdocs<2.0
+
 # MkDocs Material theme (for documentation build)
 # https://squidfunk.github.io/mkdocs-material/changelog/
 mkdocs-material
