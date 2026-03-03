@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-28 05:11+0000\n"
+"POT-Creation-Date: 2026-03-03 05:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13824,17 +13824,17 @@ msgstr ""
 msgid "Not Connected"
 msgstr ""
 
-#: netbox/templates/dcim/device/attrs/ipaddress.html:4
+#: netbox/templates/dcim/device/attrs/ipaddress.html:5
 #: netbox/templates/virtualization/virtualmachine/attrs/ipaddress.html:4
 msgid "NAT for"
 msgstr ""
 
-#: netbox/templates/dcim/device/attrs/ipaddress.html:6
+#: netbox/templates/dcim/device/attrs/ipaddress.html:7
 #: netbox/templates/virtualization/virtualmachine/attrs/ipaddress.html:6
 msgid "NAT"
 msgstr ""
 
-#: netbox/templates/dcim/device/attrs/ipaddress.html:8
+#: netbox/templates/dcim/device/attrs/ipaddress.html:10
 #: netbox/templates/ui/actions/copy_content.html:2
 #: netbox/templates/ui/attrs/numeric.html:9
 #: netbox/templates/ui/attrs/text.html:4
