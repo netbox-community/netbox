@@ -78,12 +78,21 @@ def annotate_ip_space(prefix):
     records = sorted(records, key=lambda x: x[0])
 
     # Determine the first & last valid IP addresses in the prefix
-    if prefix.family == 4 and prefix.mask_length < 31 and not prefix.is_pool:
+    if (
+        prefix.is_pool
+        or (prefix.family == 4 and prefix.mask_length >= 31)
+        or (prefix.family == 6 and prefix.mask_length >= 127)
+    ):
+        # Pool, IPv4 /31-/32 or IPv6 /127-/128 sets are fully usable
+        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first)
+        last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last)
+    elif prefix.family == 4:
         # Ignore the network and broadcast addresses for non-pool IPv4 prefixes larger than /31
         first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first + 1)
         last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last - 1)
     else:
-        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first)
+        # For IPv6 prefixes, omit the Subnet-Router anycast address (RFC 4291)
+        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first + 1)
         last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last)
 
     if not records:
