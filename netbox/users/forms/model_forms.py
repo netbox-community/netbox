@@ -423,7 +423,7 @@ class ObjectPermissionForm(forms.ModelForm):
             remaining_actions = list(self.instance.actions)
 
             # Check the appropriate CRUD checkboxes
-            for action in ['view', 'add', 'change', 'delete']:
+            for action in RESERVED_ACTIONS:
                 if action in remaining_actions:
                     self.fields[f'can_{action}'].initial = True
                     remaining_actions.remove(action)
@@ -450,7 +450,7 @@ class ObjectPermissionForm(forms.ModelForm):
                 if isinstance(self.initial['actions'], str):
                     self.initial['actions'] = [self.initial['actions']]
                 if cloned_actions := self.initial['actions']:
-                    for action in ['view', 'add', 'change', 'delete']:
+                    for action in RESERVED_ACTIONS:
                         if action in cloned_actions:
                             self.fields[f'can_{action}'].initial = True
                             self.initial['actions'].remove(action)
@@ -479,10 +479,11 @@ class ObjectPermissionForm(forms.ModelForm):
                         'Action "{action}" is for {model} which is not selected.'
                     ).format(action=action_name, model=model_key)
                 })
-            final_actions.append(action_name)
+            if action_name not in final_actions:
+                final_actions.append(action_name)
 
         # Append any of the selected CRUD checkboxes to the actions list
-        for action in ['view', 'add', 'change', 'delete']:
+        for action in RESERVED_ACTIONS:
             if self.cleaned_data.get(f'can_{action}') and action not in final_actions:
                 final_actions.append(action)
 

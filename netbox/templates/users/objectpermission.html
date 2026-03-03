@@ -47,7 +47,7 @@
             <td>{% checkmark object.can_delete %}</td>
           </tr>
           {% for action in object.actions %}
-            {% if action not in 'view,add,change,delete' %}
+            {% if action not in reserved_actions %}
               <tr>
                 <th scope="row">{{ action }}</th>
                 <td>{% checkmark True %}</td>
