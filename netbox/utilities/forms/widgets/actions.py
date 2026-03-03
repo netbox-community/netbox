@@ -20,7 +20,6 @@ class RegisteredActionsWidget(forms.CheckboxSelectMultiple):
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
 
-        # Build model_actions with labels for v2 template
         model_actions_with_labels = {}
         for model_key, actions in self.model_actions.items():
             app_label, model_name = model_key.split('.')
