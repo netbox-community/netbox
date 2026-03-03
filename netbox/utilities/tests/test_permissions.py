@@ -80,6 +80,12 @@ class RegisterModelActionsTest(TestCase):
         self.assertEqual(actions[0].name, 'first')
         self.assertEqual(actions[1].name, 'second')
 
+    def test_duplicate_registration_ignored(self):
+        register_model_actions(Site, [ModelAction('sync')])
+        register_model_actions(Site, [ModelAction('sync', help_text='Different help')])
+        actions = registry['model_actions']['dcim.site']
+        self.assertEqual(len(actions), 1)
+
 
 class ObjectPermissionFormTest(TestCase):
 
