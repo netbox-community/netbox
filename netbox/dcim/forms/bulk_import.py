@@ -1386,6 +1386,7 @@ class MACAddressImportForm(PrimaryModelImportForm):
 
         # Assign the MAC address as primary for its interface, if designated as such
         if interface and self.cleaned_data['is_primary'] and self.instance.pk:
+            interface.snapshot()
             interface.primary_mac_address = self.instance
             interface.save()
 
