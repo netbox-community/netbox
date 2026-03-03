@@ -377,9 +377,10 @@ class ObjectPermissionForm(forms.ModelForm):
     fieldsets = (
         FieldSet('name', 'description', 'enabled'),
         FieldSet('object_types', name=_('Objects')),
-        FieldSet('can_view', 'can_add', 'can_change', 'can_delete', name=_('Standard Actions')),
-        FieldSet('registered_actions', name=_('Custom Actions')),
-        FieldSet('actions', name=_('Additional Actions')),
+        FieldSet(
+            'can_view', 'can_add', 'can_change', 'can_delete', 'registered_actions', 'actions',
+            name=_('Actions')
+        ),
         FieldSet('groups', 'users', name=_('Assignment')),
         FieldSet('constraints', name=_('Constraints')),
     )
