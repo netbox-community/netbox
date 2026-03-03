@@ -19,6 +19,7 @@ from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 
 from . import filtersets, forms, tables
+from .constants import RESERVED_ACTIONS
 from .models import Group, ObjectPermission, Owner, OwnerGroup, Token, User
 
 #
@@ -284,6 +285,11 @@ class ObjectPermissionView(generic.ObjectView):
             ),
         ],
     )
+
+    def get_extra_context(self, request, instance):
+        return {
+            'reserved_actions': RESERVED_ACTIONS,
+        }
 
 
 @register_model_view(ObjectPermission, 'add', detail=False)
