@@ -23,3 +23,38 @@ class TokenExamplePanel(panels.Panel):
     actions = [
         actions.CopyContent('token-example')
     ]
+
+
+class UserPanel(panels.ObjectAttributesPanel):
+    username = attrs.TextAttr('username')
+    full_name = attrs.TemplatedAttr(
+        'get_full_name',
+        label=_('Full name'),
+        template_name='users/attrs/full_name.html',
+    )
+    email = attrs.TextAttr('email')
+    date_joined = attrs.TextAttr('date_joined', label=_('Account created'))
+    last_login = attrs.TextAttr('last_login', label=_('Last login'))
+    is_active = attrs.BooleanAttr('is_active', label=_('Active'))
+    is_superuser = attrs.BooleanAttr('is_superuser', label=_('Superuser'))
+
+
+class ObjectPermissionPanel(panels.ObjectAttributesPanel):
+    name = attrs.TextAttr('name')
+    description = attrs.TextAttr('description')
+    enabled = attrs.BooleanAttr('enabled')
+
+
+class ObjectPermissionActionsPanel(panels.ObjectAttributesPanel):
+    title = _('Actions')
+
+    can_view = attrs.BooleanAttr('can_view', label=_('View'))
+    can_add = attrs.BooleanAttr('can_add', label=_('Add'))
+    can_change = attrs.BooleanAttr('can_change', label=_('Change'))
+    can_delete = attrs.BooleanAttr('can_delete', label=_('Delete'))
+
+
+class OwnerPanel(panels.ObjectAttributesPanel):
+    name = attrs.TextAttr('name')
+    group = attrs.RelatedObjectAttr('group', linkify=True)
+    description = attrs.TextAttr('description')

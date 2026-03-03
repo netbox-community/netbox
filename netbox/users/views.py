@@ -1,9 +1,18 @@
 from django.db.models import Count
+from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectChange
 from core.tables import ObjectChangeTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
-from netbox.ui import layout
+from netbox.ui import actions, layout
+from netbox.ui.panels import (
+    ContextTablePanel,
+    JSONPanel,
+    ObjectsTablePanel,
+    OrganizationalObjectPanel,
+    RelatedObjectsPanel,
+    TemplatePanel,
+)
 from netbox.views import generic
 from users.ui import panels
 from utilities.query import count_related
@@ -86,17 +95,42 @@ class UserListView(generic.ObjectListView):
 @register_model_view(User)
 class UserView(generic.ObjectView):
     queryset = User.objects.all()
-    template_name = 'users/user.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.UserPanel(),
+        ],
+        right_panels=[
+            ObjectsTablePanel('users.Group', filters={'user_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel('users.ObjectPermission', filters={'user_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel('users.Owner', filters={'user_id': lambda ctx: ctx['object'].pk}),
+        ],
+        bottom_panels=[
+            ContextTablePanel(
+                'changelog_table',
+                title=_('Recent Activity'),
+                actions=[
+                    actions.LinkAction(
+                        view_name='core:objectchange_list',
+                        url_params={'user_id': lambda ctx: ctx['object'].pk},
+                        label=_('View All'),
+                        button_class='ghost-primary',
+                        button_icon='arrow-right-thick',
+                        permissions=['core.view_objectchange'],
+                    ),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
-        changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(user=instance)[:20]
-        changelog_table = ObjectChangeTable(changelog)
-        changelog_table.orderable = False
-        changelog_table.configure(request)
-
-        return {
-            'changelog_table': changelog_table,
-        }
+        context = {}
+        if request.user.has_perm('core.view_objectchange'):
+            changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(user=instance)[:20]
+            changelog_table = ObjectChangeTable(changelog)
+            changelog_table.orderable = False
+            changelog_table.configure(request)
+            context['changelog_table'] = changelog_table
+        return context
 
 
 @register_model_view(User, 'add', detail=False)
@@ -154,7 +188,16 @@ class GroupListView(generic.ObjectListView):
 @register_model_view(Group)
 class GroupView(generic.ObjectView):
     queryset = Group.objects.all()
-    template_name = 'users/group.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+        ],
+        right_panels=[
+            ObjectsTablePanel('users.User', filters={'group_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel('users.ObjectPermission', filters={'group_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel('users.Owner', filters={'user_group_id': lambda ctx: ctx['object'].pk}),
+        ],
+    )
 
 
 @register_model_view(Group, 'add', detail=False)
@@ -212,7 +255,18 @@ class ObjectPermissionListView(generic.ObjectListView):
 @register_model_view(ObjectPermission)
 class ObjectPermissionView(generic.ObjectView):
     queryset = ObjectPermission.objects.all()
-    template_name = 'users/objectpermission.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ObjectPermissionPanel(),
+            panels.ObjectPermissionActionsPanel(),
+            JSONPanel('constraints', title=_('Constraints')),
+        ],
+        right_panels=[
+            TemplatePanel('users/panels/object_types.html'),
+            ObjectsTablePanel('users.User', filters={'permission_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel('users.Group', filters={'permission_id': lambda ctx: ctx['object'].pk}),
+        ],
+    )
 
 
 @register_model_view(ObjectPermission, 'add', detail=False)
@@ -265,7 +319,25 @@ class OwnerGroupListView(generic.ObjectListView):
 @register_model_view(OwnerGroup)
 class OwnerGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = OwnerGroup.objects.all()
-    template_name = 'users/ownergroup.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+        ],
+        right_panels=[
+            ObjectsTablePanel(
+                'users.Owner',
+                filters={'group_id': lambda ctx: ctx['object'].pk},
+                title=_('Members'),
+                actions=[
+                    actions.AddObject(
+                        'users.Owner',
+                        url_params={'group': lambda ctx: ctx['object'].pk},
+                    ),
+                ],
+            ),
+            RelatedObjectsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -326,7 +398,16 @@ class OwnerListView(generic.ObjectListView):
 @register_model_view(Owner)
 class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Owner.objects.all()
-    template_name = 'users/owner.html'
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.OwnerPanel(),
+        ],
+        right_panels=[
+            ObjectsTablePanel('users.Group', filters={'owner_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel('users.User', filters={'owner_id': lambda ctx: ctx['object'].pk}),
+            RelatedObjectsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
