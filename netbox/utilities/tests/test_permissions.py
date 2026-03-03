@@ -86,6 +86,11 @@ class RegisterModelActionsTest(TestCase):
         actions = registry['model_actions']['dcim.site']
         self.assertEqual(len(actions), 1)
 
+    def test_reserved_action_rejected(self):
+        for action_name in ('view', 'add', 'change', 'delete'):
+            with self.assertRaises(ValueError):
+                register_model_actions(Site, [ModelAction(action_name)])
+
 
 class ObjectPermissionFormTest(TestCase):
 
