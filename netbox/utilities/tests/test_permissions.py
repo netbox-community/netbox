@@ -1,8 +1,12 @@
 from django.test import TestCase
 
-from dcim.models import Site
+from core.models import ObjectType
+from dcim.models import Device, Site
 from netbox.registry import registry
+from users.forms.model_forms import ObjectPermissionForm
+from users.models import ObjectPermission
 from utilities.permissions import ModelAction, register_model_actions
+from virtualization.models import VirtualMachine
 
 
 class ModelActionTest(TestCase):
@@ -75,3 +79,37 @@ class RegisterModelActionsTest(TestCase):
         self.assertEqual(len(actions), 2)
         self.assertEqual(actions[0].name, 'first')
         self.assertEqual(actions[1].name, 'second')
+
+
+class ObjectPermissionFormTest(TestCase):
+
+    def setUp(self):
+        self.original_actions = dict(registry['model_actions'])
+
+    def tearDown(self):
+        registry['model_actions'].clear()
+        registry['model_actions'].update(self.original_actions)
+
+    def test_shared_action_preselection(self):
+        register_model_actions(Device, [ModelAction('render_config')])
+        register_model_actions(VirtualMachine, [ModelAction('render_config')])
+
+        device_ct = ObjectType.objects.get_for_model(Device)
+        vm_ct = ObjectType.objects.get_for_model(VirtualMachine)
+
+        permission = ObjectPermission.objects.create(
+            name='Test Permission',
+            actions=['view', 'render_config'],
+        )
+        permission.object_types.set([device_ct, vm_ct])
+
+        form = ObjectPermissionForm(instance=permission)
+
+        initial = form.fields['registered_actions'].initial
+        self.assertIn('dcim.device.render_config', initial)
+        self.assertIn('virtualization.virtualmachine.render_config', initial)
+
+        # Should not leak into the additional actions field
+        self.assertEqual(form.initial['actions'], [])
+
+        permission.delete()

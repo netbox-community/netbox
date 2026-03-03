@@ -430,17 +430,20 @@ class ObjectPermissionForm(forms.ModelForm):
 
             # Pre-select registered actions
             selected_registered = []
+            consumed_actions = set()
             for ct in self.instance.object_types.all():
                 model_key = f'{ct.app_label}.{ct.model}'
                 if model_key in model_actions:
                     for ma in model_actions[model_key]:
                         if ma.name in remaining_actions:
                             selected_registered.append(f'{model_key}.{ma.name}')
-                            remaining_actions.remove(ma.name)
+                            consumed_actions.add(ma.name)
             self.fields['registered_actions'].initial = selected_registered
 
             # Remaining actions go to the additional actions field
-            self.fields['actions'].initial = remaining_actions
+            self.initial['actions'] = [
+                a for a in remaining_actions if a not in consumed_actions
+            ]
 
         # Populate initial data for a new ObjectPermission
         elif self.initial:
