@@ -2733,6 +2733,7 @@ class DeviceBulkImportView(generic.BulkImportView):
         # For child devices, save the reverse relation to the parent device bay
         if parent_bay:
             device_bay = parent_bay
+            device_bay.snapshot()
             device_bay.installed_device = obj
             device_bay.save()
 
@@ -4099,6 +4100,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                 members = formset.save(commit=False)
                 devices = Device.objects.filter(pk__in=[m.pk for m in members])
                 for device in devices:
+                    device.snapshot()
                     device.vc_position = None
                     device.save()
                 for member in members:
