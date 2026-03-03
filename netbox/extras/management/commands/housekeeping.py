@@ -1,3 +1,4 @@
+import warnings
 from datetime import timedelta
 from importlib import import_module
 
@@ -17,12 +18,12 @@ class Command(BaseCommand):
     help = "Perform nightly housekeeping tasks [DEPRECATED]"
 
     def handle(self, *args, **options):
-        self.stdout.write(
-            "DEPRECATION WARNING\n"
+        warnings.warn(
+            "\n\nDEPRECATION WARNING\n"
             "Running this command is no longer necessary: All housekeeping tasks\n"
             "are addressed automatically via NetBox's built-in job scheduler. It\n"
-            "will be removed in a future release.",
-            self.style.WARNING
+            "will be removed in a future release.\n",
+            category=FutureWarning,
         )
 
         config = Config()
