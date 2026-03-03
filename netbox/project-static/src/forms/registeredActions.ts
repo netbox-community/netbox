@@ -40,6 +40,12 @@ export function initRegisteredActions(): void {
     if (noActionsMsg) {
       noActionsMsg.style.display = anyVisible ? 'none' : 'block';
     }
+
+    // Hide the entire field row when no actions are visible
+    const fieldRow = actionsContainer!.closest('.field-row, .mb-3');
+    if (fieldRow) {
+      (fieldRow as HTMLElement).style.display = anyVisible ? '' : 'none';
+    }
   }
 
   // Initial update
