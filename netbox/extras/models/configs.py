@@ -225,6 +225,11 @@ class ConfigContextModel(models.Model):
             "Local config context data takes precedence over source contexts in the final rendered config context"
         )
     )
+    config_context_data = models.JSONField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
 
     class Meta:
         abstract = True
@@ -234,19 +239,21 @@ class ConfigContextModel(models.Model):
         Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs.
         Return the rendered configuration context for a device or VM.
         """
-        data = {}
+        # Use pre-rendered cached field if available
+        if self.config_context_data is not None:
+            return self.config_context_data
 
-        if not hasattr(self, 'config_context_data'):
-            # The annotation is not available, so we fall back to manually querying for the config context objects
-            config_context_data = ConfigContext.objects.get_for_object(self, aggregate_data=True) or []
+        # Fall back to annotation if queryset was annotated
+        data = {}
+        if hasattr(self, '_annotated_config_context_data'):
+            config_context_data = self._annotated_config_context_data or []
         else:
-            # The attribute may exist, but the annotated value could be None if there is no config context data
-            config_context_data = self.config_context_data or []
+            # Last resort: compute on-the-fly
+            config_context_data = ConfigContext.objects.get_for_object(self, aggregate_data=True) or []
 
         for context in config_context_data:
             data = deepmerge(data, context)
 
-        # If the object has local config context data defined, merge it last
         if self.local_context_data:
             data = deepmerge(data, self.local_context_data)
 

@@ -487,7 +487,7 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
 
 @register_model_view(VirtualMachine, 'configcontext', path='config-context')
 class VirtualMachineConfigContextView(ObjectConfigContextView):
-    queryset = VirtualMachine.objects.annotate_config_context_data()
+    queryset = VirtualMachine.objects.all()
     base_template = 'virtualization/virtualmachine.html'
     tab = ViewTab(
         label=_('Config Context'),

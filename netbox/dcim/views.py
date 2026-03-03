@@ -2683,7 +2683,7 @@ class DeviceInventoryView(DeviceComponentsView):
 
 @register_model_view(Device, 'configcontext', path='config-context')
 class DeviceConfigContextView(ObjectConfigContextView):
-    queryset = Device.objects.annotate_config_context_data()
+    queryset = Device.objects.all()
     base_template = 'dcim/device/base.html'
     tab = ViewTab(
         label=_('Config Context'),

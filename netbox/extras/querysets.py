@@ -90,7 +90,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         """
         from extras.models import ConfigContext
         return self.annotate(
-            config_context_data=Subquery(
+            _annotated_config_context_data=Subquery(
                 ConfigContext.objects.filter(
                     self._get_config_context_filters()
                 ).annotate(

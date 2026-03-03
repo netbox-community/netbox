@@ -12,7 +12,7 @@ from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
+from extras.api.mixins import RenderConfigMixin
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
@@ -398,12 +398,7 @@ class PlatformViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(
-    SequentialBulkCreatesMixin,
-    ConfigContextQuerySetMixin,
-    RenderConfigMixin,
-    NetBoxModelViewSet
-):
+class DeviceViewSet(SequentialBulkCreatesMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()
     )

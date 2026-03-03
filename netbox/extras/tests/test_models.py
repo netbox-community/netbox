@@ -206,6 +206,7 @@ class ConfigContextTest(TestCase):
             "b": 456,
             "c": 777
         }
+        device.refresh_from_db()
         self.assertEqual(device.get_config_context(), expected_data)
 
     def test_name_ordering_after_weight(self):
@@ -235,6 +236,7 @@ class ConfigContextTest(TestCase):
             "b": 456,
             "c": 789
         }
+        device.refresh_from_db()
         self.assertEqual(device.get_config_context(), expected_data)
 
     def test_schema_validation(self):
@@ -303,6 +305,7 @@ class ConfigContextTest(TestCase):
         )
         ConfigContext.objects.bulk_create([context1, context2, context3, context4])
 
+        device.refresh_from_db()
         annotated_queryset = Device.objects.filter(name=device.name).annotate_config_context_data()
         self.assertEqual(device.get_config_context(), annotated_queryset[0].get_config_context())
 
@@ -666,7 +669,7 @@ class ConfigContextTest(TestCase):
         self.assertFalse(queryset.query.distinct)
 
         # Check that tag subqueries DO use DISTINCT by inspecting the annotation
-        config_annotation = queryset.query.annotations.get('config_context_data')
+        config_annotation = queryset.query.annotations.get('_annotated_config_context_data')
         self.assertIsNotNone(config_annotation)
 
         def find_tag_subqueries(where_node):
