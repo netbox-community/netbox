@@ -2733,6 +2733,7 @@ class DeviceBulkImportView(generic.BulkImportView):
         # For child devices, save the reverse relation to the parent device bay
         if parent_bay:
             device_bay = parent_bay
+            device_bay.snapshot()
             device_bay.installed_device = obj
             device_bay.save()
 
@@ -3912,19 +3913,6 @@ class CableEditView(generic.ObjectEditView):
 
         return super().alter_object(obj, request, url_args, url_kwargs)
 
-    def get_extra_addanother_params(self, request):
-
-        params = {
-            'a_terminations_type': request.GET.get('a_terminations_type'),
-            'b_terminations_type': request.GET.get('b_terminations_type')
-        }
-
-        for key in request.POST:
-            if 'device' in key or 'power_panel' in key or 'circuit' in key:
-                params.update({key: request.POST.get(key)})
-
-        return params
-
 
 @register_model_view(Cable, 'delete')
 class CableDeleteView(generic.ObjectDeleteView):
@@ -4099,6 +4087,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                 members = formset.save(commit=False)
                 devices = Device.objects.filter(pk__in=[m.pk for m in members])
                 for device in devices:
+                    device.snapshot()
                     device.vc_position = None
                     device.save()
                 for member in members:

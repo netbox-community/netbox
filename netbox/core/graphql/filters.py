@@ -5,7 +5,7 @@ import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType as DjangoContentType
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup
+from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup, StrFilterLookup
 
 from core import models
 from netbox.graphql.filters import BaseModelFilter, PrimaryModelFilter
@@ -32,23 +32,23 @@ class DataFileFilter(BaseModelFilter):
         strawberry_django.filter_field()
     )
     source_id: ID | None = strawberry_django.filter_field()
-    path: FilterLookup[str] | None = strawberry_django.filter_field()
+    path: StrFilterLookup[str] | None = strawberry_django.filter_field()
     size: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    hash: FilterLookup[str] | None = strawberry_django.filter_field()
+    hash: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.DataSource, lookups=True)
 class DataSourceFilter(PrimaryModelFilter):
-    name: FilterLookup[str] | None = strawberry_django.filter_field()
-    type: FilterLookup[str] | None = strawberry_django.filter_field()
-    source_url: FilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    type: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    source_url: StrFilterLookup[str] | None = strawberry_django.filter_field()
     status: (
         BaseFilterLookup[Annotated['DataSourceStatusEnum', strawberry.lazy('core.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
     enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
-    ignore_rules: FilterLookup[str] | None = strawberry_django.filter_field()
+    ignore_rules: StrFilterLookup[str] | None = strawberry_django.filter_field()
     parameters: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -62,8 +62,8 @@ class DataSourceFilter(PrimaryModelFilter):
 class ObjectChangeFilter(BaseModelFilter):
     time: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
-    user_name: FilterLookup[str] | None = strawberry_django.filter_field()
-    request_id: FilterLookup[str] | None = strawberry_django.filter_field()
+    user_name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    request_id: StrFilterLookup[str] | None = strawberry_django.filter_field()
     action: (
         BaseFilterLookup[Annotated['ObjectChangeActionEnum', strawberry.lazy('core.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
@@ -76,7 +76,7 @@ class ObjectChangeFilter(BaseModelFilter):
         strawberry_django.filter_field()
     )
     related_object_id: ID | None = strawberry_django.filter_field()
-    object_repr: FilterLookup[str] | None = strawberry_django.filter_field()
+    object_repr: StrFilterLookup[str] | None = strawberry_django.filter_field()
     prechange_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -87,5 +87,5 @@ class ObjectChangeFilter(BaseModelFilter):
 
 @strawberry_django.filter_type(DjangoContentType, lookups=True)
 class ContentTypeFilter(BaseModelFilter):
-    app_label: FilterLookup[str] | None = strawberry_django.filter_field()
-    model: FilterLookup[str] | None = strawberry_django.filter_field()
+    app_label: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    model: StrFilterLookup[str] | None = strawberry_django.filter_field()

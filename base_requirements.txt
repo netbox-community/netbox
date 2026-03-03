@@ -98,6 +98,10 @@ jsonschema
 # https://python-markdown.github.io/changelog/
 Markdown
 
+# MkDocs
+# https://github.com/mkdocs/mkdocs/releases
+mkdocs<2.0
+
 # MkDocs Material theme (for documentation build)
 # https://squidfunk.github.io/mkdocs-material/changelog/
 mkdocs-material
@@ -157,8 +161,7 @@ strawberry-graphql
 
 # Strawberry GraphQL Django extension
 # https://github.com/strawberry-graphql/strawberry-django/releases
-# Blocked by #21450
-strawberry-graphql-django==0.75.0
+strawberry-graphql-django
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst

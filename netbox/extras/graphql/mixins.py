@@ -22,7 +22,19 @@ if TYPE_CHECKING:
 @strawberry.type
 class ConfigContextMixin:
 
-    @strawberry_django.field
+    @classmethod
+    def get_queryset(cls, queryset, info: Info, **kwargs):
+        queryset = super().get_queryset(queryset, info, **kwargs)
+
+        # If `config_context` is requested, call annotate_config_context_data() on the queryset
+        selected = {f.name for f in info.selected_fields[0].selections}
+        if 'config_context' in selected and hasattr(queryset, 'annotate_config_context_data'):
+            return queryset.annotate_config_context_data()
+
+        return queryset
+
+    # Ensure `local_context_data` is fetched when `config_context` is requested
+    @strawberry_django.field(only=['local_context_data'])
     def config_context(self) -> strawberry.scalars.JSON:
         return self.get_config_context()
 

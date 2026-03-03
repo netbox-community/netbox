@@ -15,6 +15,7 @@ from strawberry_django import (
     DatetimeFilterLookup,
     FilterLookup,
     RangeLookup,
+    StrFilterLookup,
     TimeFilterLookup,
     process_filters,
 )
@@ -40,7 +41,7 @@ SKIP_MSG = 'Filter will be skipped on `null` value'
 
 @strawberry.input(one_of=True, description='Lookup for JSON field. Only one of the lookup fields can be set.')
 class JSONLookup:
-    string_lookup: FilterLookup[str] | None = strawberry_django.filter_field()
+    string_lookup: StrFilterLookup[str] | None = strawberry_django.filter_field()
     int_range_lookup: RangeLookup[int] | None = strawberry_django.filter_field()
     int_comparison_lookup: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
     float_range_lookup: RangeLookup[float] | None = strawberry_django.filter_field()

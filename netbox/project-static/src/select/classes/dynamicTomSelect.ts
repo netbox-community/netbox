@@ -1,5 +1,4 @@
-import { RecursivePartial, TomOption, TomSettings } from 'tom-select/dist/types/types';
-import { TomInput } from 'tom-select/dist/cjs/types/core';
+import type { RecursivePartial, TomOption, TomSettings, TomInput } from 'tom-select/dist/cjs/types';
 import { addClasses } from 'tom-select/src/vanilla.ts';
 import queryString from 'query-string';
 import TomSelect from 'tom-select';
