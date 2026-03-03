@@ -21,6 +21,13 @@ __all__ = (
 
 @dataclass
 class ModelAction:
+    """
+    Represents a custom permission action for a model.
+
+    Attributes:
+        name: The action identifier (e.g. 'sync', 'render_config')
+        help_text: Optional description displayed in the ObjectPermission form
+    """
     name: str
     help_text: str = ''
 
@@ -34,6 +41,14 @@ class ModelAction:
 
 
 def register_model_actions(model: type[Model], actions: list[ModelAction | str]):
+    """
+    Register custom permission actions for a model. These actions will appear as
+    checkboxes in the ObjectPermission form when the model is selected.
+
+    Args:
+        model: The model class to register actions for
+        actions: A list of ModelAction instances or action name strings
+    """
     label = f'{model._meta.app_label}.{model._meta.model_name}'
     for action in actions:
         if isinstance(action, str):
