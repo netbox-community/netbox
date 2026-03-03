@@ -151,14 +151,16 @@ class SplitMultiSelectWidget(forms.MultiWidget):
                   be enabled only if the order of the selected choices is significant.
     """
     template_name = 'widgets/splitmultiselect.html'
+    available_widget_class = AvailableOptions
+    selected_widget_class = SelectedOptions
 
     def __init__(self, choices, attrs=None, ordering=False):
         widgets = [
-            AvailableOptions(
+            self.available_widget_class(
                 attrs={'size': 8},
                 choices=choices
             ),
-            SelectedOptions(
+            self.selected_widget_class(
                 attrs={'size': 8, 'class': 'select-all'},
                 choices=choices
             ),
@@ -220,20 +222,8 @@ class ObjectTypeSplitMultiSelectWidget(SplitMultiSelectWidget):
     SplitMultiSelectWidget that adds data-model-key attributes to options.
     Used by ObjectPermissionForm to enable JS show/hide of custom actions.
     """
-
-    def __init__(self, choices, attrs=None, ordering=False):
-        widgets = [
-            ObjectTypeAvailableOptions(
-                attrs={'size': 8},
-                choices=choices
-            ),
-            ObjectTypeSelectedOptions(
-                attrs={'size': 8, 'class': 'select-all'},
-                choices=choices
-            ),
-        ]
-        forms.MultiWidget.__init__(self, widgets, attrs)
-        self.ordering = ordering
+    available_widget_class = ObjectTypeAvailableOptions
+    selected_widget_class = ObjectTypeSelectedOptions
 
     def set_model_key_map(self, pk_to_model_key):
         for widget in self.widgets:
