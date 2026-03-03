@@ -53,7 +53,8 @@ def register_model_actions(model: type[Model], actions: list[ModelAction | str])
     for action in actions:
         if isinstance(action, str):
             action = ModelAction(name=action)
-        registry['model_actions'][label].append(action)
+        if action not in registry['model_actions'][label]:
+            registry['model_actions'][label].append(action)
 
 
 def get_permission_for_model(model, action):
