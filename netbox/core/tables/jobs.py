@@ -1,4 +1,6 @@
 import django_tables2 as tables
+from django.utils.html import conditional_escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.constants import JOB_LOG_ENTRY_LEVELS
@@ -82,3 +84,9 @@ class JobLogEntryTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _('No log entries')
         fields = ('timestamp', 'level', 'message')
+
+    def render_message(self, record, value):
+        if record.get('level') == 'error' and '\n' in value:
+            value = conditional_escape(value)
+            return mark_safe(f'<pre class="p-0">{value}</pre>')
+        return value

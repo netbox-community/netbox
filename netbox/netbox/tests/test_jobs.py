@@ -83,6 +83,10 @@ class JobRunnerTest(JobRunnerTestCase):
 
         self.assertEqual(job.status, JobStatusChoices.STATUS_ERRORED)
         self.assertEqual(job.error, repr(ErroredJobRunner.EXP))
+        self.assertEqual(len(job.log_entries), 1)
+        self.assertEqual(job.log_entries[0]['level'], 'error')
+        self.assertIn('Traceback', job.log_entries[0]['message'])
+        self.assertIn('Test error', job.log_entries[0]['message'])
 
 
 class EnqueueTest(JobRunnerTestCase):

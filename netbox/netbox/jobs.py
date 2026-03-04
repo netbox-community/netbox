@@ -1,4 +1,5 @@
 import logging
+import traceback
 from abc import ABC, abstractmethod
 from datetime import timedelta
 
@@ -107,6 +108,12 @@ class JobRunner(ABC):
             job.terminate(status=JobStatusChoices.STATUS_FAILED)
 
         except Exception as e:
+            tb_record = logging.makeLogRecord({
+                'levelno': logging.ERROR,
+                'levelname': 'ERROR',
+                'msg': traceback.format_exc(),
+            })
+            job.log(tb_record)
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if type(e) is JobTimeoutException:
                 logger.error(e)
