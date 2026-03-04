@@ -327,7 +327,7 @@ class ObjectPermissionBulkDeleteView(generic.BulkDeleteView):
 @register_model_view(OwnerGroup, 'list', path='', detail=False)
 class OwnerGroupListView(generic.ObjectListView):
     queryset = OwnerGroup.objects.annotate(
-       owner_count=count_related(Owner, 'group')
+        owner_count=count_related(Owner, 'group')
     )
     filterset = filtersets.OwnerGroupFilterSet
     filterset_form = forms.OwnerGroupFilterForm
