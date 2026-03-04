@@ -177,7 +177,7 @@ class ModuleTypeProfilePanel(panels.ObjectAttributesPanel):
 class ModuleTypePanel(panels.ObjectAttributesPanel):
     profile = attrs.RelatedObjectAttr('profile', linkify=True)
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
-    model = attrs.TextAttr('name')
+    model = attrs.TextAttr('model', label=_('Model name'))
     part_number = attrs.TextAttr('part_number')
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
