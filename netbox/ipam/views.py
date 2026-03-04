@@ -496,7 +496,8 @@ class RoleListView(generic.ObjectListView):
     queryset = Role.objects.annotate(
         prefix_count=count_related(Prefix, 'role'),
         iprange_count=count_related(IPRange, 'role'),
-        vlan_count=count_related(VLAN, 'role')
+        vlan_count=count_related(VLAN, 'role'),
+        asn_count=count_related(ASN, 'role')
     )
     filterset = filtersets.RoleFilterSet
     filterset_form = forms.RoleFilterForm

@@ -143,6 +143,7 @@ class ASN(ContactsMixin, PrimaryModel):
         related_name='asns',
         blank=True,
         null=True,
+        verbose_name=_('role'),
         help_text=_("The primary function of this ASN")
     )
     tenant = models.ForeignKey(
