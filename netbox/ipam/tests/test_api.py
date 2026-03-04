@@ -383,7 +383,7 @@ class AggregateTest(APIViewTestCases.APIViewTestCase):
 
 class RoleTest(APIViewTestCases.APIViewTestCase):
     model = Role
-    brief_fields = ['description', 'display', 'id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
+    brief_fields = ['asn_count', 'description', 'display', 'id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
     create_data = [
         {
             'name': 'Role 4',

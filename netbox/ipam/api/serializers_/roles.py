@@ -20,4 +20,5 @@ class RoleSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'weight', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'prefix_count', 'vlan_count', 'asn_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'prefix_count', 'vlan_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'prefix_count', 'vlan_count',
+                        'asn_count')
