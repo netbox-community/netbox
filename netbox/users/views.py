@@ -100,9 +100,17 @@ class UserView(generic.ObjectView):
             panels.UserPanel(),
         ],
         right_panels=[
-            ObjectsTablePanel('users.Group', title=_('Assigned Groups'), filters={'user_id': lambda ctx: ctx['object'].pk}),
-            ObjectsTablePanel('users.ObjectPermission', title=_('Assigned Permissions'), filters={'user_id': lambda ctx: ctx['object'].pk}),
-            ObjectsTablePanel('users.Owner', title=_('Owner Membership'), filters={'user_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel(
+                'users.Group', title=_('Assigned Groups'), filters={'user_id': lambda ctx: ctx['object'].pk}
+            ),
+            ObjectsTablePanel(
+                'users.ObjectPermission',
+                title=_('Assigned Permissions'),
+                filters={'user_id': lambda ctx: ctx['object'].pk},
+            ),
+            ObjectsTablePanel(
+                'users.Owner', title=_('Owner Membership'), filters={'user_id': lambda ctx: ctx['object'].pk}
+            ),
         ],
         bottom_panels=[
             ContextTablePanel(
@@ -194,8 +202,14 @@ class GroupView(generic.ObjectView):
         ],
         right_panels=[
             ObjectsTablePanel('users.User', filters={'group_id': lambda ctx: ctx['object'].pk}),
-            ObjectsTablePanel('users.ObjectPermission', title=_('Assigned Permissions'), filters={'group_id': lambda ctx: ctx['object'].pk}),
-            ObjectsTablePanel('users.Owner', title=_('Owner Membership'), filters={'user_group_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel(
+                'users.ObjectPermission',
+                title=_('Assigned Permissions'),
+                filters={'group_id': lambda ctx: ctx['object'].pk},
+            ),
+            ObjectsTablePanel(
+                'users.Owner', title=_('Owner Membership'), filters={'user_group_id': lambda ctx: ctx['object'].pk}
+            ),
         ],
     )
 
@@ -263,8 +277,12 @@ class ObjectPermissionView(generic.ObjectView):
         ],
         right_panels=[
             TemplatePanel('users/panels/object_types.html'),
-            ObjectsTablePanel('users.User', title=_('Assigned Users'), filters={'permission_id': lambda ctx: ctx['object'].pk}),
-            ObjectsTablePanel('users.Group', title=_('Assigned Groups'), filters={'permission_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel(
+                'users.User', title=_('Assigned Users'), filters={'permission_id': lambda ctx: ctx['object'].pk}
+            ),
+            ObjectsTablePanel(
+                'users.Group', title=_('Assigned Groups'), filters={'permission_id': lambda ctx: ctx['object'].pk}
+            ),
         ],
     )
 
@@ -317,7 +335,7 @@ class OwnerGroupListView(generic.ObjectListView):
 
 
 @register_model_view(OwnerGroup)
-class OwnerGroupView(GetRelatedModelsMixin, generic.ObjectView):
+class OwnerGroupView(generic.ObjectView):
     queryset = OwnerGroup.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -335,14 +353,8 @@ class OwnerGroupView(GetRelatedModelsMixin, generic.ObjectView):
                     ),
                 ],
             ),
-            RelatedObjectsPanel(),
         ],
     )
-
-    def get_extra_context(self, request, instance):
-        return {
-            'related_models': self.get_related_models(request, instance),
-        }
 
 
 @register_model_view(OwnerGroup, 'add', detail=False)
