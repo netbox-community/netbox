@@ -138,6 +138,13 @@ class ASNImportForm(PrimaryModelImportForm):
         to_field_name='name',
         help_text=_('Assigned RIR')
     )
+    role = CSVModelChoiceField(
+        label=_('Role'),
+        queryset=Role.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Functional role')
+    )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -148,7 +155,7 @@ class ASNImportForm(PrimaryModelImportForm):
 
     class Meta:
         model = ASN
-        fields = ('asn', 'rir', 'tenant', 'description', 'owner', 'comments', 'tags')
+        fields = ('asn', 'rir', 'role', 'tenant', 'description', 'owner', 'comments', 'tags')
 
 
 class RoleImportForm(OrganizationalModelImportForm):
