@@ -36,15 +36,17 @@ HTTP_ACTIONS = {
 
 class ETagMixin:
     """
-    Adds ETag header support to ViewSets. Generates ETags from `last_updated`
-    (or `created` if unavailable).
+    Adds ETag header support to ViewSets. Generates weak ETags (W/ prefix per
+    RFC 7232 §2.1) from `last_updated` (or `created` if unavailable). Weak ETags
+    are appropriate here because the tag is derived from a modification timestamp
+    rather than a hash of the serialized payload.
     """
 
     @staticmethod
     def _get_etag(obj):
-        """Return a quoted ETag string for the given object, or None."""
+        """Return a weak ETag string for the given object, or None."""
         if ts := getattr(obj, 'last_updated', None) or getattr(obj, 'created', None):
-            return f'"{ts.isoformat()}"'
+            return f'W/"{ts.isoformat()}"'
         return None
 
     def retrieve(self, request, *args, **kwargs):
