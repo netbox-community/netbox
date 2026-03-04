@@ -38,6 +38,7 @@ FILTER_TREENODE_NEGATION_LOOKUP_MAP = dict(
 # HTTP Request META safe copy
 #
 
+# Non-HTTP_ META keys to include when copying a request (whitelist)
 HTTP_REQUEST_META_SAFE_COPY = [
     'CONTENT_LENGTH',
     'CONTENT_TYPE',
@@ -60,6 +61,13 @@ HTTP_REQUEST_META_SAFE_COPY = [
     'SERVER_NAME',
     'SERVER_PORT',
 ]
+
+# HTTP_ META keys known to carry sensitive data; excluded when copying a request (denylist)
+HTTP_REQUEST_META_SENSITIVE = {
+    'HTTP_AUTHORIZATION',
+    'HTTP_COOKIE',
+    'HTTP_PROXY_AUTHORIZATION',
+}
 
 
 #
