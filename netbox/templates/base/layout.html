@@ -35,9 +35,8 @@ Blocks:
         {# Logo #}
         <h1 class="navbar-brand pb-0">
           <a href="{% url 'home' %}">
-            <img src="{% static 'logo_netbox_dark_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-dark">
-            <img src="{% static 'logo_netbox_bright_teal.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image hide-theme-light">
-            <div class="netbox-edition fw-semibold text-center fs-5 my-1">{{ settings.RELEASE.edition }}</div>
+            <img src="{% static 'logo-original.svg' %}" alt="Agaruda Logo" class="navbar-brand-image hide-theme-dark">
+            <img src="{% static 'logo-white.svg' %}" alt="Agaruda Logo" class="navbar-brand-image hide-theme-light">
           </a>
         </h1>
 
@@ -54,7 +53,6 @@ Blocks:
 
           {# Release info #}
           <div class="text-muted text-center fs-5 my-3 px-3">
-            {{ settings.RELEASE.name }}
             {% if not settings.RELEASE.features.commercial and not settings.ISOLATED_DEPLOYMENT %}
               <div>
                 <a href="https://netboxlabs.com/netbox-cloud/" class="text-muted">{% trans "Get" %} Cloud</a> |
