@@ -13,7 +13,7 @@ from rest_framework.viewsets import GenericViewSet
 from netbox.api.serializers.features import ChangeLogMessageSerializer
 from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
-from utilities.exceptions import AbortRequest
+from utilities.exceptions import AbortRequest, PreconditionFailed
 from utilities.query import reapply_model_ordering
 
 from . import mixins
@@ -48,6 +48,20 @@ class ETagMixin:
         if ts := getattr(obj, 'last_updated', None) or getattr(obj, 'created', None):
             return f'W/"{ts.isoformat()}"'
         return None
+
+    @staticmethod
+    def _get_if_match(request):
+        """Return the list of If-Match header values (if specified)."""
+        if (if_match := request.META.get('HTTP_IF_MATCH')) and if_match != '*':
+            return [e.strip() for e in if_match.split(',')]
+        return []
+
+    def _validate_etag(self, request, instance):
+        """Validate the request's ETag"""
+        if provided := self._get_if_match(request):
+            current_etag = self._get_etag(instance)
+            if current_etag and current_etag not in provided:
+                raise PreconditionFailed()
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -246,11 +260,7 @@ class NetBoxModelViewSet(
         instance = self.get_object_with_snapshot()
 
         # Enforce If-Match precondition (RFC 9110 §13.1.1)
-        if (if_match := request.META.get('HTTP_IF_MATCH')) and if_match != '*':
-            current_etag = self._get_etag(instance)
-            provided = [e.strip() for e in if_match.split(',')]
-            if current_etag and current_etag not in provided:
-                return Response(status=status.HTTP_412_PRECONDITION_FAILED)
+        self._validate_etag(self.request, instance)
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -277,6 +287,11 @@ class NetBoxModelViewSet(
         # Enforce object-level permissions on save()
         try:
             with transaction.atomic(using=router.db_for_write(model)):
+                # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
+                # between the initial check in update() and the actual write.
+                if self._get_if_match(self.request):
+                    locked = model.objects.select_for_update().get(pk=serializer.instance.pk)
+                    self._validate_etag(self.request, locked)
                 instance = serializer.save()
                 self._validate_objects(instance)
         except ObjectDoesNotExist:
