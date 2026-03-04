@@ -61,7 +61,13 @@ class ETagMixin:
         if provided := self._get_if_match(request):
             current_etag = self._get_etag(instance)
             if current_etag and current_etag not in provided:
-                raise PreconditionFailed()
+                raise PreconditionFailed(etag=current_etag)
+
+    def handle_exception(self, exc):
+        response = super().handle_exception(exc)
+        if isinstance(exc, PreconditionFailed) and exc.etag:
+            response['ETag'] = exc.etag
+        return response
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
