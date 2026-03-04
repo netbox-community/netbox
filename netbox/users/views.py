@@ -131,14 +131,14 @@ class UserView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        context = {}
-        if request.user.has_perm('core.view_objectchange'):
-            changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(user=instance)[:20]
-            changelog_table = ObjectChangeTable(changelog)
-            changelog_table.orderable = False
-            changelog_table.configure(request)
-            context['changelog_table'] = changelog_table
-        return context
+        changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(user=instance)[:20]
+        changelog_table = ObjectChangeTable(changelog)
+        changelog_table.orderable = False
+        changelog_table.configure(request)
+
+        return {
+            'changelog_table': changelog_table,
+        }
 
 
 @register_model_view(User, 'add', detail=False)
