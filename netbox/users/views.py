@@ -410,6 +410,7 @@ class OwnerListView(generic.ObjectListView):
 @register_model_view(Owner)
 class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Owner.objects.all()
+    template_name = 'users/owner.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.OwnerPanel(),

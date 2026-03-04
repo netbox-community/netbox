@@ -1,1 +1,13 @@
 {% extends 'generic/object.html' %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.group %}
+    <li class="breadcrumb-item">
+      <a href="{% url 'users:owner_list' %}?group_id={{ object.group_id }}">{{ object.group }}</a>
+    </li>
+  {% endif %}
+{% endblock %}
+
+{% block subtitle %}{% endblock %}
