@@ -10,6 +10,7 @@ from core.models import DataSource, Job
 from utilities.testing import disable_warnings
 
 from ..jobs import *
+from ..jobs import _INSTALL_ROOT
 
 
 class TestJobRunner(JobRunner):
@@ -85,8 +86,10 @@ class JobRunnerTest(JobRunnerTestCase):
         self.assertEqual(job.error, repr(ErroredJobRunner.EXP))
         self.assertEqual(len(job.log_entries), 1)
         self.assertEqual(job.log_entries[0]['level'], 'error')
-        self.assertIn('Traceback', job.log_entries[0]['message'])
-        self.assertIn('Test error', job.log_entries[0]['message'])
+        tb_message = job.log_entries[0]['message']
+        self.assertIn('Traceback', tb_message)
+        self.assertIn('Test error', tb_message)
+        self.assertNotIn(_INSTALL_ROOT, tb_message)
 
 
 class EnqueueTest(JobRunnerTestCase):
