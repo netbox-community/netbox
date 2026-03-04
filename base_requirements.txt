@@ -36,7 +36,8 @@ django-pglocks
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus/blob/master/CHANGELOG.md
 # TODO: 2.4.1 is incompatible with Django>=6.0, but a fixed release is expected
-django-prometheus==2.4.0
+# https://github.com/django-commons/django-prometheus/issues/494
+django-prometheus>=2.4.0,<2.5.0,!=2.4.1
 
 # Django caching backend using Redis
 # https://github.com/jazzband/django-redis/blob/master/CHANGELOG.rst
