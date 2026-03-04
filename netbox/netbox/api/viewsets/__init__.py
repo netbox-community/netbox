@@ -308,6 +308,9 @@ class NetBoxModelViewSet(
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object_with_snapshot()
 
+        # Enforce If-Match precondition (RFC 9110 §13.1.1)
+        self._validate_etag(request, instance)
+
         # Attach changelog message (if any)
         serializer = ChangeLogMessageSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -322,7 +325,16 @@ class NetBoxModelViewSet(
         logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
         logger.info(f"Deleting {model._meta.verbose_name} {instance} (PK: {instance.pk})")
 
-        return super().perform_destroy(instance)
+        try:
+            with transaction.atomic(using=router.db_for_write(model)):
+                # Re-check the If-Match ETag under a row-level lock to close the TOCTOU window
+                # between the initial check in destroy() and the actual delete.
+                if self._get_if_match(self.request):
+                    locked = model.objects.select_for_update().get(pk=instance.pk)
+                    self._validate_etag(self.request, locked)
+                super().perform_destroy(instance)
+        except ObjectDoesNotExist:
+            raise PermissionDenied()
 
 
 class MPTTLockedMixin:
