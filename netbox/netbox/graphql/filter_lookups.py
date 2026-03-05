@@ -79,6 +79,9 @@ class IntegerLookup:
         if not filters:
             return queryset, Q()
 
+        if isinstance(filters, RangeLookup):
+            prefix = f'{prefix}range__'
+
         return process_filters(filters=filters, queryset=queryset, info=info, prefix=prefix)
 
 
@@ -102,6 +105,9 @@ class BigIntegerLookup:
         if not filters:
             return queryset, Q()
 
+        if isinstance(filters, RangeLookup):
+            prefix = f'{prefix}range__'
+
         return process_filters(filters=filters, queryset=queryset, info=info, prefix=prefix)
 
 
@@ -124,6 +130,9 @@ class FloatLookup:
 
         if not filters:
             return queryset, Q()
+
+        if isinstance(filters, RangeLookup):
+            prefix = f'{prefix}range__'
 
         return process_filters(filters=filters, queryset=queryset, info=info, prefix=prefix)
 

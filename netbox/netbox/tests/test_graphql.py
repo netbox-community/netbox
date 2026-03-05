@@ -5,7 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from dcim.choices import LocationStatusChoices
-from dcim.models import Location, Site
+from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
 from utilities.testing import APITestCase, TestCase, disable_warnings
 
 
@@ -137,6 +137,34 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['site']['locations']), 0)
+
+    def test_graphql_integer_range_lookup(self):
+        """
+        Test that range_lookup works for integer fields (e.g. vc_position). Regression test for #20468.
+        """
+        self.add_permissions('dcim.view_device')
+        url = reverse('graphql')
+
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer', slug='test-manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device', slug='test-device')
+        device_role = DeviceRole.objects.create(name='Test Role', slug='test-role')
+        site = Site.objects.first()
+        vc = VirtualChassis.objects.create(name='Test VC')
+
+        devices = [
+            Device(name=f'Device {i}', device_type=device_type, role=device_role, site=site,
+                   virtual_chassis=vc, vc_position=i)
+            for i in range(1, 6)
+        ]
+        Device.objects.bulk_create(devices)
+
+        # range_lookup should return devices with vc_position between 2 and 4 inclusive
+        query = """{ device_list(filters: {vc_position: {range_lookup: {start: 2, end: 4}}}) { id name } }"""
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['device_list']), 3)
 
     def test_offset_pagination(self):
         self.add_permissions('dcim.view_site')
