@@ -408,7 +408,7 @@ To use cursor-based pagination, pass `start` (the minimum PK value) and `limit` 
 http://netbox/api/dcim/devices/?start=0&limit=100
 ```
 
-This returns objects with an `id` greater than zero, ordered by PK, limited to 100 results. Below is an example showing an arbitrary `start` value.
+This returns objects with an `id` greater than or equal to zero, ordered by PK, limited to 100 results. Below is an example showing an arbitrary `start` value.
 
 ```json
 {
@@ -417,14 +417,14 @@ This returns objects with an `id` greater than zero, ordered by PK, limited to 1
     "previous": null,
     "results": [
         {
-            "id": 356,
-            "name": "Device1525",
+            "id": 109,
+            "name": "dist-router07",
             ...
         },
         ...
         {
-            "id": 491,
-            "name": "Device2048",
+            "id": 356,
+            "name": "acc-switch492",
             ...
         }
     ]
