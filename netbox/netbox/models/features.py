@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from extras.managers import NetBoxTaggableManager
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
@@ -487,11 +488,12 @@ class JournalingMixin(models.Model):
 class TagsMixin(models.Model):
     """
     Enables support for tag assignment. Assigned tags can be managed via the `tags` attribute,
-    which is a `TaggableManager` instance.
+    which is a `NetBoxTaggableManager` instance.
     """
     tags = TaggableManager(
         through='extras.TaggedItem',
         ordering=('weight', 'name'),
+        manager=NetBoxTaggableManager,
     )
 
     class Meta:
