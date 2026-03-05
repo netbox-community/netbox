@@ -1,6 +1,9 @@
 import logging
+import os
+import traceback
 from abc import ABC, abstractmethod
 from datetime import timedelta
+from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
@@ -20,6 +23,11 @@ __all__ = (
     'JobRunner',
     'system_job',
 )
+
+# The installation root, e.g. "/opt/netbox/". Used to strip absolute path
+# prefixes from traceback file paths before recording them in the job log.
+# jobs.py lives at <root>/netbox/netbox/jobs.py, so parents[2] is the root.
+_INSTALL_ROOT = str(Path(__file__).resolve().parents[2]) + os.sep
 
 
 def system_job(interval):
@@ -107,6 +115,13 @@ class JobRunner(ABC):
             job.terminate(status=JobStatusChoices.STATUS_FAILED)
 
         except Exception as e:
+            tb_str = traceback.format_exc().replace(_INSTALL_ROOT, '')
+            tb_record = logging.makeLogRecord({
+                'levelno': logging.ERROR,
+                'levelname': 'ERROR',
+                'msg': tb_str,
+            })
+            job.log(tb_record)
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if type(e) is JobTimeoutException:
                 logger.error(e)
