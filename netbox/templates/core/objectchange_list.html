@@ -6,6 +6,6 @@
 {% block content %}
   {{ block.super }}
   <div class="text-muted px-3">
-    {% trans "Change log retention" %}: {% if config.CHANGELOG_RETENTION %}{{ config.CHANGELOG_RETENTION }} {% trans "days" %}{% else %}{% trans "Indefinite" %}{% endif %}
+    {% trans "Change log retention" %}: {% if config.CHANGELOG_RETENTION %}{{ config.CHANGELOG_RETENTION }} {% trans "days" %}{% if config.CHANGELOG_RETAIN_CREATE_LAST_UPDATE %} ({% trans "retaining create & last update records for non-deleted objects" %}){% endif %}{% else %}{% trans "Indefinite" %}{% endif %}
   </div>
 {% endblock content %}

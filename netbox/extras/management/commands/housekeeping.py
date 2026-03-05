@@ -6,9 +6,11 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
+from django.db.models import Exists, OuterRef, Subquery
 from django.utils import timezone
 from packaging import version
 
+from core.choices import ObjectChangeActionChoices
 from core.models import Job, ObjectChange
 from netbox.config import Config
 from utilities.proxy import resolve_proxies
@@ -47,29 +49,63 @@ class Command(BaseCommand):
 
         # Delete expired ObjectChanges
         if options['verbosity']:
-            self.stdout.write("[*] Checking for expired changelog records")
+            self.stdout.write('[*] Checking for expired changelog records')
         if config.CHANGELOG_RETENTION:
             cutoff = timezone.now() - timedelta(days=config.CHANGELOG_RETENTION)
             if options['verbosity'] >= 2:
-                self.stdout.write(f"\tRetention period: {config.CHANGELOG_RETENTION} days")
-                self.stdout.write(f"\tCut-off time: {cutoff}")
-            expired_records = ObjectChange.objects.filter(time__lt=cutoff).count()
+                self.stdout.write(f'\tRetention period: {config.CHANGELOG_RETENTION} days')
+                self.stdout.write(f'\tCut-off time: {cutoff}')
+
+            expired_qs = ObjectChange.objects.filter(time__lt=cutoff)
+
+            # When enabled, retain each object's original create and most recent update record while pruning expired
+            # changelog entries. This applies only to objects without a delete record.
+            if config.CHANGELOG_RETAIN_CREATE_LAST_UPDATE:
+                if options['verbosity'] >= 2:
+                    self.stdout.write('\tRetaining create & last update records for non-deleted objects')
+
+                deleted_exists = ObjectChange.objects.filter(
+                    action=ObjectChangeActionChoices.ACTION_DELETE,
+                    changed_object_type_id=OuterRef('changed_object_type_id'),
+                    changed_object_id=OuterRef('changed_object_id'),
+                )
+
+                # Keep create records only where no delete exists for that object
+                create_pks_to_keep = (
+                    ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_CREATE)
+                    .annotate(has_delete=Exists(deleted_exists))
+                    .filter(has_delete=False)
+                    .values('pk')
+                )
+
+                # Keep the most recent update per object only where no delete exists for the object
+                latest_update_pks_to_keep = (
+                    ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_UPDATE)
+                    .annotate(has_delete=Exists(deleted_exists))
+                    .filter(has_delete=False)
+                    .order_by('changed_object_type_id', 'changed_object_id', '-time', '-pk')
+                    .distinct('changed_object_type_id', 'changed_object_id')
+                    .values('pk')
+                )
+
+                expired_qs = expired_qs.exclude(pk__in=Subquery(create_pks_to_keep))
+                expired_qs = expired_qs.exclude(pk__in=Subquery(latest_update_pks_to_keep))
+
+            expired_records = expired_qs.count()
             if expired_records:
                 if options['verbosity']:
                     self.stdout.write(
-                        f"\tDeleting {expired_records} expired records... ",
-                        self.style.WARNING,
-                        ending=""
+                        f'\tDeleting {expired_records} expired records... ', self.style.WARNING, ending=''
                     )
                     self.stdout.flush()
-                ObjectChange.objects.filter(time__lt=cutoff).delete()
+                expired_qs.delete()
                 if options['verbosity']:
-                    self.stdout.write("Done.", self.style.SUCCESS)
+                    self.stdout.write('Done.', self.style.SUCCESS)
             elif options['verbosity']:
-                self.stdout.write("\tNo expired records found.", self.style.SUCCESS)
+                self.stdout.write('\tNo expired records found.', self.style.SUCCESS)
         elif options['verbosity']:
             self.stdout.write(
-                f"\tSkipping: No retention period specified (CHANGELOG_RETENTION = {config.CHANGELOG_RETENTION})"
+                f'\tSkipping: No retention period specified (CHANGELOG_RETENTION = {config.CHANGELOG_RETENTION})'
             )
 
         # Delete expired Jobs

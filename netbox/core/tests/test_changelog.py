@@ -1,9 +1,16 @@
+import logging
+import uuid
+from datetime import timedelta
+from unittest.mock import patch
+
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 
 from core.choices import ObjectChangeActionChoices
+from core.jobs import SystemHousekeepingJob
 from core.models import ObjectChange, ObjectType
 from dcim.choices import InterfaceTypeChoices, ModuleStatusChoices, SiteStatusChoices
 from dcim.models import (
@@ -694,3 +701,99 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(changes[3].changed_object_type, ContentType.objects.get_for_model(Module))
         self.assertEqual(changes[3].changed_object_id, module.pk)
         self.assertEqual(changes[3].action, ObjectChangeActionChoices.ACTION_DELETE)
+
+
+class ChangelogPruneRetentionTest(TestCase):
+    """Test suite for Changelog pruning retention settings."""
+
+    @staticmethod
+    def _make_oc(*, ct, obj_id, action, ts):
+        oc = ObjectChange.objects.create(
+            changed_object_type=ct,
+            changed_object_id=obj_id,
+            action=action,
+            user_name='test',
+            request_id=uuid.uuid4(),
+            object_repr=f'Object {obj_id}',
+        )
+        ObjectChange.objects.filter(pk=oc.pk).update(time=ts)
+        return oc.pk
+
+    @staticmethod
+    def _run_prune(*, retention_days, retain_create_last_update):
+        job = SystemHousekeepingJob.__new__(SystemHousekeepingJob)
+        job.logger = logging.getLogger('netbox.tests.changelog_prune')
+
+        with patch('core.jobs.Config') as MockConfig:
+            cfg = MockConfig.return_value
+            cfg.CHANGELOG_RETENTION = retention_days
+            cfg.CHANGELOG_RETAIN_CREATE_LAST_UPDATE = retain_create_last_update
+            job.prune_changelog()
+
+    def test_prune_retain_create_last_update_excludes_deleted_objects(self):
+        ct = ContentType.objects.get_for_model(Site)
+
+        retention_days = 90
+        now = timezone.now()
+        cutoff = now - timedelta(days=retention_days)
+
+        expired_old = cutoff - timedelta(days=10)
+        expired_newer = cutoff - timedelta(days=1)
+        not_expired = cutoff + timedelta(days=1)
+
+        # A) Not deleted: should keep CREATE + latest UPDATE, prune intermediate UPDATEs
+        a_create = self._make_oc(ct=ct, obj_id=1, action=ObjectChangeActionChoices.ACTION_CREATE, ts=expired_old)
+        a_update1 = self._make_oc(ct=ct, obj_id=1, action=ObjectChangeActionChoices.ACTION_UPDATE, ts=expired_old)
+        a_update2 = self._make_oc(ct=ct, obj_id=1, action=ObjectChangeActionChoices.ACTION_UPDATE, ts=expired_newer)
+
+        # B) Deleted (all expired): should keep NOTHING
+        b_create = self._make_oc(ct=ct, obj_id=2, action=ObjectChangeActionChoices.ACTION_CREATE, ts=expired_old)
+        b_update = self._make_oc(ct=ct, obj_id=2, action=ObjectChangeActionChoices.ACTION_UPDATE, ts=expired_newer)
+        b_delete = self._make_oc(ct=ct, obj_id=2, action=ObjectChangeActionChoices.ACTION_DELETE, ts=expired_newer)
+
+        # C) Deleted but delete is not expired: create/update expired should be pruned; delete remains
+        c_create = self._make_oc(ct=ct, obj_id=3, action=ObjectChangeActionChoices.ACTION_CREATE, ts=expired_old)
+        c_update = self._make_oc(ct=ct, obj_id=3, action=ObjectChangeActionChoices.ACTION_UPDATE, ts=expired_newer)
+        c_delete = self._make_oc(ct=ct, obj_id=3, action=ObjectChangeActionChoices.ACTION_DELETE, ts=not_expired)
+
+        self._run_prune(retention_days=retention_days, retain_create_last_update=True)
+
+        remaining = set(ObjectChange.objects.values_list('pk', flat=True))
+
+        # A) Not deleted -> create + latest update remain
+        self.assertIn(a_create, remaining)
+        self.assertIn(a_update2, remaining)
+        self.assertNotIn(a_update1, remaining)
+
+        # B) Deleted (all expired) -> nothing remains
+        self.assertNotIn(b_create, remaining)
+        self.assertNotIn(b_update, remaining)
+        self.assertNotIn(b_delete, remaining)
+
+        # C) Deleted, delete not expired -> delete remains, but create/update are pruned
+        self.assertNotIn(c_create, remaining)
+        self.assertNotIn(c_update, remaining)
+        self.assertIn(c_delete, remaining)
+
+    def test_prune_disabled_deletes_all_expired(self):
+        ct = ContentType.objects.get_for_model(Site)
+
+        retention_days = 90
+        now = timezone.now()
+        cutoff = now - timedelta(days=retention_days)
+        expired = cutoff - timedelta(days=1)
+        not_expired = cutoff + timedelta(days=1)
+
+        # expired create/update should be deleted when feature disabled
+        x_create = self._make_oc(ct=ct, obj_id=10, action=ObjectChangeActionChoices.ACTION_CREATE, ts=expired)
+        x_update = self._make_oc(ct=ct, obj_id=10, action=ObjectChangeActionChoices.ACTION_UPDATE, ts=expired)
+
+        # non-expired delete should remain regardless
+        y_delete = self._make_oc(ct=ct, obj_id=11, action=ObjectChangeActionChoices.ACTION_DELETE, ts=not_expired)
+
+        self._run_prune(retention_days=retention_days, retain_create_last_update=False)
+
+        remaining = set(ObjectChange.objects.values_list('pk', flat=True))
+        self.assertNotIn(x_create, remaining)
+        self.assertNotIn(x_update, remaining)
+        self.assertIn(y_delete, remaining)

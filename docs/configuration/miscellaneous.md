@@ -73,6 +73,27 @@ This data enables the project maintainers to estimate how many NetBox deployment
 
 ---
 
+## CHANGELOG_RETAIN_CREATE_LAST_UPDATE
+
+!!! tip "Dynamic Configuration Parameter"
+
+Default: `True`
+
+When pruning expired changelog entries (per `CHANGELOG_RETENTION`), retain each non-deleted object's original `create`
+change record and its most recent `update` change record. If an object has a `delete` change record, its changelog
+entries are pruned normally according to `CHANGELOG_RETENTION`.
+
+!!! note
+    For objects without a `delete` change record, the original `create` record and most recent `update` record are
+    exempt from pruning. All other changelog records (including intermediate `update` records and all `delete` records)
+    remain subject to pruning per `CHANGELOG_RETENTION`.
+
+!!! warning
+    This setting is enabled by default. Upgrading deployments that rely on complete pruning of expired changelog entries
+    should explicitly set `CHANGELOG_RETAIN_CREATE_LAST_UPDATE = False` to preserve the previous behavior.
+
+---
+
 ## CHANGELOG_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"

@@ -165,9 +165,10 @@ class ConfigRevisionForm(forms.ModelForm, metaclass=ConfigFormMetaclass):
         FieldSet('PAGINATE_COUNT', 'MAX_PAGE_SIZE', name=_('Pagination')),
         FieldSet('CUSTOM_VALIDATORS', 'PROTECTION_RULES', name=_('Validation')),
         FieldSet('DEFAULT_USER_PREFERENCES', name=_('User Preferences')),
+        FieldSet('CHANGELOG_RETENTION', 'CHANGELOG_RETAIN_CREATE_LAST_UPDATE', name=_('Change Log')),
         FieldSet(
-            'MAINTENANCE_MODE', 'COPILOT_ENABLED', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION',
-            'MAPS_URL', name=_('Miscellaneous'),
+            'MAINTENANCE_MODE', 'COPILOT_ENABLED', 'GRAPHQL_ENABLED', 'JOB_RETENTION', 'MAPS_URL',
+            name=_('Miscellaneous'),
         ),
         FieldSet('comment', name=_('Config Revision'))
     )

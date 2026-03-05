@@ -175,6 +175,25 @@ PARAMS = (
         field=forms.JSONField
     ),
 
+    # Change log
+    ConfigParam(
+        name='CHANGELOG_RETENTION',
+        label=_('Changelog retention'),
+        default=90,
+        description=_("Days to retain changelog history (set to zero for unlimited)"),
+        field=forms.IntegerField,
+    ),
+    ConfigParam(
+        name='CHANGELOG_RETAIN_CREATE_LAST_UPDATE',
+        label=_('Retain create & last update changelog records'),
+        default=True,
+        description=_(
+            "Retain each object's create record and most recent update record when pruning expired changelog entries "
+            "(excluding objects with a delete record)."
+        ),
+        field=forms.BooleanField,
+    ),
+
     # Miscellaneous
     ConfigParam(
         name='MAINTENANCE_MODE',
@@ -198,13 +217,6 @@ PARAMS = (
         default=True,
         description=_("Enable the GraphQL API"),
         field=forms.BooleanField
-    ),
-    ConfigParam(
-        name='CHANGELOG_RETENTION',
-        label=_('Changelog retention'),
-        default=90,
-        description=_("Days to retain changelog history (set to zero for unlimited)"),
-        field=forms.IntegerField
     ),
     ConfigParam(
         name='JOB_RETENTION',
