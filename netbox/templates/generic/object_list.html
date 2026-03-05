@@ -92,7 +92,7 @@ Context:
 
         <div class="form form-horizontal">
           {% csrf_token %}
-          <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+          <input type="hidden" id="object-list-return-url" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
           {# Warn of any missing prerequisite objects #}
           {% if prerequisite_model %}
