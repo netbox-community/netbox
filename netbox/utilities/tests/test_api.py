@@ -249,8 +249,9 @@ class APIPaginationTestCase(APITestCase):
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertIsNone(response.data['count'])
-        for result in response.data['results']:
-            self.assertEqual(result['name'], 'Site 1')
+        results = response.data['results']
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['name'], 'Site 1')
 
 
 class APIOrderingTestCase(APITestCase):
