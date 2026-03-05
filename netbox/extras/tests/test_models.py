@@ -677,15 +677,19 @@ class ConfigContextTest(TestCase):
                 if hasattr(node, 'children'):
                     for child in node.children:
                         try:
-                            if child.rhs.query.model is TaggedItem:
-                                subqueries.append(child.rhs.query)
+                            # In Django 6.0+, rhs is a Query directly; older Django wraps it in Subquery
+                            rhs_query = getattr(child.rhs, 'query', child.rhs)
+                            if rhs_query.model is TaggedItem:
+                                subqueries.append(rhs_query)
                         except AttributeError:
                             traverse(child)
             traverse(where_node)
             return subqueries
 
+        # In Django 6.0+, the annotation is a Query directly; older Django wraps it in Subquery
+        annotation_query = getattr(config_annotation, 'query', config_annotation)
         # Find subqueries in the WHERE clause that should have DISTINCT
-        tag_subqueries = find_tag_subqueries(config_annotation.query.where)
+        tag_subqueries = find_tag_subqueries(annotation_query.where)
         distinct_subqueries = [sq for sq in tag_subqueries if sq.distinct]
 
         # Verify we found at least one DISTINCT subquery for tags

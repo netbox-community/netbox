@@ -94,9 +94,11 @@ class NetHost(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         # Query parameters are automatically converted to IPNetwork objects, which are then turned to strings. We need
         # to omit the mask portion of the object's string representation to match PostgreSQL's HOST() function.
+        # Note: params may be tuples (Django 6.0+) or lists (older Django), so convert before mutating.
+        rhs_params = list(rhs_params)
         if rhs_params:
             rhs_params[0] = rhs_params[0].split('/')[0]
-        params = lhs_params + rhs_params
+        params = list(lhs_params) + rhs_params
         return f'HOST({lhs}) = {rhs}', params
 
 

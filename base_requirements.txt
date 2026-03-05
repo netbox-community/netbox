@@ -4,7 +4,7 @@ colorama
 
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django==5.2.*
+Django==6.0.*
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -35,7 +35,9 @@ django-pglocks
 
 # Prometheus metrics library for Django
 # https://github.com/korfuri/django-prometheus/blob/master/CHANGELOG.md
-django-prometheus
+# TODO: 2.4.1 is incompatible with Django>=6.0, but a fixed release is expected
+# https://github.com/django-commons/django-prometheus/issues/494
+django-prometheus>=2.4.0,<2.5.0,!=2.4.1
 
 # Django caching backend using Redis
 # https://github.com/jazzband/django-redis/blob/master/CHANGELOG.rst
