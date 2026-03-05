@@ -962,7 +962,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ('id', 'name', 'slug', 'description', 'scope_id')
+        fields = ('id', 'name', 'slug', 'description', 'scope_id', 'total_vlan_ids')
 
     def search(self, queryset, name, value):
         if not value.strip():

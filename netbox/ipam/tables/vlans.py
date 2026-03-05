@@ -53,6 +53,9 @@ class VLANGroupTable(TenancyColumnsMixin, OrganizationalModelTable):
         url_params={'group_id': 'pk'},
         verbose_name=_('VLANs')
     )
+    total_vlan_ids = tables.Column(
+        verbose_name=_('Total VLAN IDs'),
+    )
     utilization = columns.UtilizationColumn(
         orderable=False,
         verbose_name=_('Utilization')
@@ -67,8 +70,9 @@ class VLANGroupTable(TenancyColumnsMixin, OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = VLANGroup
         fields = (
-            'pk', 'id', 'name', 'scope_type', 'scope', 'vid_ranges_list', 'vlan_count', 'slug', 'description',
-            'tenant', 'tenant_group', 'comments', 'tags', 'created', 'last_updated', 'actions', 'utilization',
+            'pk', 'id', 'name', 'slug', 'description', 'scope_type', 'scope', 'vid_ranges_list', 'vlan_count',
+            'total_vlan_ids', 'tenant', 'tenant_group', 'comments', 'tags', 'created', 'last_updated', 'actions',
+            'utilization',
         )
         default_columns = (
             'pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'tenant', 'description'
