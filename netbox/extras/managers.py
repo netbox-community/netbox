@@ -1,5 +1,5 @@
-from django.db.models import signals
 from django.db import router
+from django.db.models import signals
 from taggit.managers import _TaggableManager
 
 __all__ = (
@@ -22,6 +22,7 @@ class NetBoxTaggableManager(_TaggableManager):
         new_ids = {t.pk for t in tag_objs}
 
         # Determine which tags are not already assigned to this object
+        db = router.db_for_write(self.through, instance=self.instance)
         vals = set(
             self.through._default_manager.using(db)
             .values_list("tag_id", flat=True)
@@ -32,7 +33,6 @@ class NetBoxTaggableManager(_TaggableManager):
         if not new_ids:
             return
 
-        db = router.db_for_write(self.through, instance=self.instance)
         signals.m2m_changed.send(
             sender=self.through,
             action="pre_add",

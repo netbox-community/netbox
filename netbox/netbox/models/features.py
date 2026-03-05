@@ -9,13 +9,13 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from extras.managers import NetBoxTaggableManager
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
+from extras.managers import NetBoxTaggableManager
 from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.constants import CORE_APPS
