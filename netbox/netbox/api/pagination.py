@@ -153,13 +153,6 @@ class NetBoxPagination(LimitOffsetPagination):
 
         return super().get_previous_link()
 
-    def get_paginated_response(self, data):
-        response = super().get_paginated_response(data)
-        # In cursor mode, count is None (null in JSON)
-        if self.start is not None:
-            response.data['count'] = None
-        return response
-
     def get_schema_operation_parameters(self, view):
         parameters = super().get_schema_operation_parameters(view)
         parameters.append({
