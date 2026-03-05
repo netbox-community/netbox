@@ -187,6 +187,65 @@ class APIPaginationTestCase(APITestCase):
         self.assertIsNone(response.data['previous'])
         self.assertEqual(len(response.data['results']), 100)
 
+    def test_cursor_pagination(self):
+        """Basic cursor pagination returns results ordered by PK with correct next link."""
+        first_pk = Site.objects.order_by('pk').values_list('pk', flat=True).first()
+        response = self.client.get(f'{self.url}?start={first_pk}&limit=10', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['count'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), 10)
+
+        # Results should be ordered by PK
+        pks = [r['id'] for r in response.data['results']]
+        self.assertEqual(pks, sorted(pks))
+
+        # Next link should use start parameter
+        last_pk = pks[-1]
+        self.assertIn(f'start={last_pk + 1}', response.data['next'])
+        self.assertIn('limit=10', response.data['next'])
+
+    def test_cursor_pagination_last_page(self):
+        """Cursor pagination returns null next link when fewer results than limit."""
+        last_pk = Site.objects.order_by('pk').values_list('pk', flat=True).last()
+        response = self.client.get(f'{self.url}?start={last_pk}&limit=10', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertIsNone(response.data['next'])
+        self.assertIsNone(response.data['previous'])
+
+    def test_cursor_pagination_no_results(self):
+        """Cursor pagination beyond all PKs returns empty results."""
+        max_pk = Site.objects.order_by('pk').values_list('pk', flat=True).last()
+        response = self.client.get(f'{self.url}?start={max_pk + 1000}&limit=10', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
+        self.assertIsNone(response.data['next'])
+
+    def test_cursor_and_offset_conflict(self):
+        """Specifying both start and offset returns a 400 error."""
+        with disable_warnings('django.request'):
+            response = self.client.get(f'{self.url}?start=1&offset=10', format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_cursor_negative_start(self):
+        """Negative start value returns a 400 error."""
+        with disable_warnings('django.request'):
+            response = self.client.get(f'{self.url}?start=-1', format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_cursor_with_filters(self):
+        """Cursor pagination works alongside other query filters."""
+        response = self.client.get(f'{self.url}?start=0&limit=10&name=Site 1', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['count'])
+        for result in response.data['results']:
+            self.assertEqual(result['name'], 'Site 1')
+
 
 class APIOrderingTestCase(APITestCase):
     user_permissions = ('dcim.view_site',)
