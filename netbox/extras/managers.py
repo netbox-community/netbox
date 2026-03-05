@@ -26,7 +26,7 @@ class NetBoxTaggableManager(_TaggableManager):
         vals = set(
             self.through._default_manager.using(db)
             .values_list("tag_id", flat=True)
-            .filter(**self._lookup_kwargs())
+            .filter(**self._lookup_kwargs(), tag_id__in=new_ids)
         )
         new_ids -= vals
 
