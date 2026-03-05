@@ -25,6 +25,7 @@ from netbox.ui.panels import (
     NestedGroupObjectPanel,
     ObjectsTablePanel,
     OrganizationalObjectPanel,
+    Panel,
     RelatedObjectsPanel,
     TemplatePanel,
 )
@@ -1667,6 +1668,22 @@ class ModuleTypeListView(generic.ObjectListView):
 @register_model_view(ModuleType)
 class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleTypePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Attributes'),
+                template_name='dcim/panels/module_type_attributes.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            ImageAttachmentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -2306,6 +2323,27 @@ class DeviceRoleListView(generic.ObjectListView):
 @register_model_view(DeviceRole)
 class DeviceRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceRole.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.DeviceRolePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.DeviceRole',
+                title=_('Child Device Roles'),
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.DeviceRole', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ]
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -2385,6 +2423,27 @@ class PlatformListView(generic.ObjectListView):
 @register_model_view(Platform)
 class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Platform.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PlatformPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.Platform',
+                title=_('Child Platforms'),
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.Platform', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ]
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -2778,6 +2837,21 @@ class ModuleListView(generic.ObjectListView):
 @register_model_view(Module)
 class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Module.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModulePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Module Type'),
+                template_name='dcim/panels/module_type.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
