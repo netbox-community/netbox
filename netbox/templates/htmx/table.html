@@ -32,4 +32,9 @@
       {% action_buttons actions model multi=True %}
     </div>
   {% endif %}
+
+  {# Update the return_url to reflect any changed query parameters (e.g. per_page) #}
+  {% if not table.embedded %}
+    <input type="hidden" id="object-list-return-url" name="return_url" value="{{ request.get_full_path }}" hx-swap-oob="outerHTML:#object-list-return-url" />
+  {% endif %}
 {% endif %}

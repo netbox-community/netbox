@@ -1,0 +1,29 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  {% if not object.profile %}
+    <div class="card-body text-muted">
+      {% trans "No profile assigned" %}
+    </div>
+  {% elif object.attributes %}
+    <table class="table table-hover attr-table">
+      {% for k, v in object.attributes.items %}
+        <tr>
+          <th scope="row">{{ k }}</th>
+          <td>
+            {% if v is True or v is False %}
+              {% checkmark v %}
+            {% else %}
+              {{ v|placeholder }}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="card-body text-muted">
+      {% trans "None" %}
+    </div>
+  {% endif %}
+{% endblock panel_content %}

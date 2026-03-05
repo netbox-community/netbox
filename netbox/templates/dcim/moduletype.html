@@ -1,7 +1,4 @@
 {% extends 'generic/object.html' %}
-{% load buttons %}
-{% load helpers %}
-{% load plugins %}
 {% load i18n %}
 
 {% block title %}{{ object.manufacturer }} {{ object.model }}{% endblock %}
@@ -14,92 +11,5 @@
 {% endblock %}
 
 {% block extra_controls %}
-  {%  include 'dcim/inc/moduletype_buttons.html' %}
-{% endblock %}
-
-{% block content %}
-  <div class="row">
-    <div class="col col-12 col-md-6">
-      <div class="card">
-        <h2 class="card-header">{% trans "Module Type" %}</h2>
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Profile" %}</th>
-            <td>{{ object.profile|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Manufacturer" %}</th>
-            <td>{{ object.manufacturer|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Model Name" %}</th>
-            <td>{{ object.model }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Part Number" %}</th>
-            <td>{{ object.part_number|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Airflow" %}</th>
-            <td>{{ object.get_airflow_display|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Weight" %}</th>
-            <td>
-            {% if object.weight %}
-              {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
-            {% else %}
-              {{ ''|placeholder }}
-            {% endif %}
-            </td>
-          </tr>
-        </table>
-      </div>
-      {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/comments.html' %}
-      {% plugin_left_page object %}
-    </div>
-    <div class="col col-12 col-md-6">
-      <div class="card">
-        <h2 class="card-header">{% trans "Attributes" %}</h2>
-        {% if not object.profile %}
-          <div class="card-body text-muted">
-            {% trans "No profile assigned" %}
-          </div>
-        {% elif object.attributes %}
-          <table class="table table-hover attr-table">
-            {% for k, v in object.attributes.items %}
-              <tr>
-                <th scope="row">{{ k }}</th>
-                <td>
-                  {% if v is True or v is False %}
-                    {% checkmark v %}
-                  {% else %}
-                    {{ v|placeholder }}
-                  {% endif %}
-                </td>
-              </tr>
-            {% endfor %}
-          </table>
-        {% else %}
-          <div class="card-body text-muted">
-            {% trans "None" %}
-          </div>
-        {% endif %}
-      </div>
-      {% include 'inc/panels/related_objects.html' %}
-      {% include 'inc/panels/custom_fields.html' %}
-      {% include 'inc/panels/image_attachments.html' %}
-      {% plugin_right_page object %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col col-md-12">
-      {% plugin_full_width_page object %}
-    </div>
-  </div>
+  {% include 'dcim/inc/moduletype_buttons.html' %}
 {% endblock %}
