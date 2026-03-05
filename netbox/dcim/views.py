@@ -389,7 +389,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 title=_('Child Groups'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
                 actions=[
-                    actions.AddObject('dcim.Region', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                    actions.AddObject('dcim.SiteGroup', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
             ),
         ]
