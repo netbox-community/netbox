@@ -253,6 +253,50 @@ class APIPaginationTestCase(APITestCase):
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]['name'], 'Site 1')
 
+    def test_offset_multi_page_traversal(self):
+        """Traverse all 100 objects using offset pagination and verify complete, non-overlapping coverage."""
+        collected_pks = []
+        url = f'{self.url}?limit=10'
+
+        while url:
+            response = self.client.get(url, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertEqual(response.data['count'], 100)
+            collected_pks.extend(r['id'] for r in response.data['results'])
+            url = response.data['next']
+
+        # Should have collected exactly 100 unique objects
+        self.assertEqual(len(set(collected_pks)), 100)
+
+    def test_cursor_multi_page_traversal(self):
+        """Traverse all 100 objects using cursor pagination and verify complete, non-overlapping coverage."""
+        collected_pks = []
+        first_pk = Site.objects.order_by('pk').values_list('pk', flat=True).first()
+        url = f'{self.url}?start={first_pk}&limit=10'
+
+        while url:
+            response = self.client.get(url, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertIsNone(response.data['count'])
+            self.assertIsNone(response.data['previous'])
+
+            page_pks = [r['id'] for r in response.data['results']]
+
+            # Each page should be ordered by PK
+            self.assertEqual(page_pks, sorted(page_pks))
+
+            # No overlap with previously collected PKs
+            self.assertFalse(set(page_pks) & set(collected_pks))
+
+            collected_pks.extend(page_pks)
+            url = response.data['next']
+
+        # Should have collected exactly 100 unique objects
+        self.assertEqual(len(set(collected_pks)), 100)
+
+        # Full result set should be in PK order
+        self.assertEqual(collected_pks, sorted(collected_pks))
+
 
 class APIOrderingTestCase(APITestCase):
     user_permissions = ('dcim.view_site',)
