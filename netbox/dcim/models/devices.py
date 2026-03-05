@@ -26,6 +26,7 @@ from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
@@ -962,6 +963,16 @@ class Device(
             components = [obj.instantiate(device=self) for obj in queryset]
             if not components:
                 return
+
+            # Check for duplicate names after resolution {vc_position}
+            names = [c.name for c in components]
+            duplicates = {n for n in names if names.count(n) > 1}
+            if duplicates:
+                raise AbortRequest(
+                    _("Interface name conflict after resolving {{vc_position}}: {names}").format(
+                        names=', '.join(duplicates)
+                    )
+                )
             # Set default values for any applicable custom fields
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:

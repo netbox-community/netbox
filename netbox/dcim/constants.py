@@ -1,3 +1,5 @@
+import re
+
 from django.db.models import Q
 
 from .choices import InterfaceTypeChoices
@@ -79,6 +81,7 @@ NONCONNECTABLE_IFACE_TYPES = VIRTUAL_IFACE_TYPES + WIRELESS_IFACE_TYPES
 #
 
 MODULE_TOKEN = '{module}'
+VC_POSITION_RE = re.compile(r'\{vc_position(?::([^}]*))?\}')
 
 MODULAR_COMPONENT_TEMPLATE_MODELS = Q(
     app_label='dcim',
