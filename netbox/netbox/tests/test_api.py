@@ -104,3 +104,10 @@ class OptionalLimitOffsetPaginationTest(TestCase):
         request = self._make_drf_request(query_params={'start': '1', 'offset': '10'})
         with self.assertRaises(ValidationError):
             self.paginator.paginate_queryset(queryset, request)
+
+    def test_cursor_and_ordering_conflict_raises_validation_error(self):
+        """paginate_queryset() raises ValidationError when both start and ordering are specified"""
+        queryset = Token.objects.all().order_by('created')
+        request = self._make_drf_request(query_params={'start': '1', 'ordering': 'created'})
+        with self.assertRaises(ValidationError):
+            self.paginator.paginate_queryset(queryset, request)

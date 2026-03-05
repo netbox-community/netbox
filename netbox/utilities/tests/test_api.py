@@ -231,6 +231,12 @@ class APIPaginationTestCase(APITestCase):
             response = self.client.get(f'{self.url}?start=1&offset=10', format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_cursor_and_ordering_conflict(self):
+        """Specifying both start and ordering returns a 400 error."""
+        with disable_warnings('django.request'):
+            response = self.client.get(f'{self.url}?start=1&ordering=name', format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
     def test_cursor_negative_start(self):
         """Negative start value returns a 400 error."""
         with disable_warnings('django.request'):

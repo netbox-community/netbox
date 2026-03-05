@@ -53,6 +53,10 @@ class NetBoxPagination(LimitOffsetPagination):
                 raise ValidationError(
                     f"'{self.start_query_param}' and '{self.offset_query_param}' are mutually exclusive."
                 )
+            if 'ordering' in request.query_params:
+                raise ValidationError(
+                    f"'{self.start_query_param}' and 'ordering' are mutually exclusive."
+                )
 
             self.count = None
             self.offset = 0
