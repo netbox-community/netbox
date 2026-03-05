@@ -159,7 +159,13 @@ class GraphQLAPITestCase(APITestCase):
         Device.objects.bulk_create(devices)
 
         # range_lookup should return devices with vc_position between 2 and 4 inclusive
-        query = """{ device_list(filters: {vc_position: {range_lookup: {start: 2, end: 4}}}) { id name } }"""
+        query = """
+        {
+            device_list(filters: {vc_position: {range_lookup: {start: 2, end: 4}}}) {
+                id name
+            }
+        }
+        """
         response = self.client.post(url, data={'query': query}, format="json", **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         data = json.loads(response.content)
