@@ -7,7 +7,7 @@ import strawberry_django
 from django.db.models import Q
 from netaddr.core import AddrFormatError
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, DateFilterLookup, FilterLookup, StrFilterLookup
+from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, DateFilterLookup, FilterLookup, StrFilterLookup
 
 from dcim.graphql.filter_mixins import ScopedFilterMixin
 from dcim.models import Device
@@ -397,6 +397,7 @@ class VLANGroupFilter(ScopedFilterMixin, OrganizationalModelFilter):
     vid_ranges: Annotated['IntegerRangeArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    total_vlan_ids: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.VLANTranslationPolicy, lookups=True)
