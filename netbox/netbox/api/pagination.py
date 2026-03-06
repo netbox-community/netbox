@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.utils.urls import remove_query_param, replace_query_param
@@ -51,12 +52,13 @@ class NetBoxPagination(LimitOffsetPagination):
         if self.start is not None:
             if self.offset_query_param in request.query_params:
                 raise ValidationError(
-                    f"'{self.start_query_param}' and '{self.offset_query_param}' are mutually exclusive."
+                    _("'{start_param}' and '{offset_param}' are mutually exclusive.").format(
+                        start_param=self.start_query_param,
+                        offset_param=self.offset_query_param,
+                    )
                 )
             if 'ordering' in request.query_params:
-                raise ValidationError(
-                    f"'{self.start_query_param}' and 'ordering' are mutually exclusive."
-                )
+                raise ValidationError(_("Ordering cannot be specified in conjunction with cursor-based pagination."))
 
             self.count = None
             self.offset = 0
@@ -93,12 +95,20 @@ class NetBoxPagination(LimitOffsetPagination):
         try:
             value = int(request.query_params[self.start_query_param])
             if value < 0:
-                raise ValidationError(f"Invalid '{self.start_query_param}' parameter: must be a non-negative integer.")
+                raise ValidationError(
+                    _("Invalid '{param}' parameter: must be a non-negative integer.").format(
+                        param=self.start_query_param,
+                    )
+                )
             return value
         except KeyError:
             return None
         except (ValueError, TypeError):
-            raise ValidationError(f"Invalid '{self.start_query_param}' parameter: must be a non-negative integer.")
+            raise ValidationError(
+                _("Invalid '{param}' parameter: must be a non-negative integer.").format(
+                    param=self.start_query_param,
+                )
+            )
 
     def get_limit(self, request):
         max_limit = self.default_limit
