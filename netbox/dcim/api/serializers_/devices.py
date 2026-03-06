@@ -203,6 +203,7 @@ class ModuleSerializer(PrimaryModelSerializer):
         module_type = data.get('module_type')
         module_bay = data.get('module_bay')
 
+        # Required-field validation fires separately; skip here if any are missing.
         if not all([device, module_type, module_bay]):
             return data
 
@@ -238,8 +239,7 @@ class ModuleSerializer(PrimaryModelSerializer):
                     if template.name.count(MODULE_TOKEN) != len(module_bays):
                         raise serializers.ValidationError(
                             _(
-                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
-                                "but {tokens} placeholders given."
+                                "Cannot install module with {tokens} placeholder(s) in a module bay at depth {level}."
                             ).format(
                                 level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
                             )
@@ -274,8 +274,8 @@ class ModuleSerializer(PrimaryModelSerializer):
         # Tags are handled after save; pop them here to pass to _save_tags()
         tags = validated_data.pop('tags', None)
 
-        # Build the instance without saving so we can set private attributes
-        # that control component replication behaviour in Module.save()
+        # _adopt_components and _disable_replication must be set on the instance before
+        # save() is called, so we cannot delegate to super().create() here.
         instance = self.Meta.model(**validated_data)
         if adopt_components:
             instance._adopt_components = True

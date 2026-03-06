@@ -1846,8 +1846,41 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
         }
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['serial'], 'PATCHED')
         # No interfaces should have been created by the PATCH
         self.assertFalse(device.interfaces.exists())
+
+    def test_adopt_and_replicate_components(self):
+        """
+        Installing a module with both adopt_components=True and replicate_components=True
+        should adopt existing unowned components and create new components for templates
+        that have no matching existing component.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Adopt+Replicate Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Adopt+Replicate Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth1', type='1000base-t')
+        module_bay = ModuleBay.objects.create(device=device, name='Adopt+Replicate Bay')
+        # eth0 already exists (unowned); eth1 does not
+        existing_iface = Interface.objects.create(device=device, name='eth0', type='1000base-t')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'adopt_components': True,
+            'replicate_components': True,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        # eth0 should have been adopted (now owned by the new module)
+        existing_iface.refresh_from_db()
+        self.assertIsNotNone(existing_iface.module)
+        # eth1 should have been created
+        self.assertTrue(device.interfaces.filter(name='eth1').exists())
 
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
