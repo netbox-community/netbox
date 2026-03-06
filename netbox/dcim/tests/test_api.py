@@ -1699,6 +1699,101 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_replicate_components(self):
+        """
+        Installing a module with replicate_components=True (the default) should create
+        components from the module type's templates on the parent device.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Replication Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Replication Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        module_bay = ModuleBay.objects.create(device=device, name='Replication Bay')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'replicate_components': True,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertTrue(device.interfaces.filter(name='eth0').exists())
+
+    def test_no_replicate_components(self):
+        """
+        Installing a module with replicate_components=False should NOT create components
+        from the module type's templates.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for No Replication Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='No Replication Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        module_bay = ModuleBay.objects.create(device=device, name='No Replication Bay')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'replicate_components': False,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertFalse(device.interfaces.filter(name='eth0').exists())
+
+    def test_adopt_components(self):
+        """
+        Installing a module with adopt_components=True should assign existing unattached
+        device components to the new module.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Adopt Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Adopt Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        module_bay = ModuleBay.objects.create(device=device, name='Adopt Bay')
+        existing_iface = Interface.objects.create(device=device, name='eth0', type='1000base-t')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'adopt_components': True,
+            'replicate_components': False,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        existing_iface.refresh_from_db()
+        self.assertIsNotNone(existing_iface.module)
+
+    def test_replicate_components_conflict(self):
+        """
+        Installing a module with replicate_components=True when a component with the same name
+        already exists should return a validation error.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Conflict Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Conflict Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        module_bay = ModuleBay.objects.create(device=device, name='Conflict Bay')
+        Interface.objects.create(device=device, name='eth0', type='1000base-t')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+            'replicate_components': True,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort

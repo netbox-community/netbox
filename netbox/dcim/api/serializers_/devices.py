@@ -6,7 +6,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
+from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS, MODULE_TOKEN
 from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
@@ -150,14 +150,122 @@ class ModuleSerializer(PrimaryModelSerializer):
     module_bay = NestedModuleBaySerializer()
     module_type = ModuleTypeSerializer(nested=True)
     status = ChoiceField(choices=ModuleStatusChoices, required=False)
+    replicate_components = serializers.BooleanField(
+        required=False,
+        default=True,
+        write_only=True,
+        label=_('Replicate components'),
+        help_text=_('Automatically populate components associated with this module type (default: true)')
+    )
+    adopt_components = serializers.BooleanField(
+        required=False,
+        default=False,
+        write_only=True,
+        label=_('Adopt components'),
+        help_text=_('Adopt already existing components')
+    )
 
     class Meta:
         model = Module
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial',
             'asset_tag', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'replicate_components', 'adopt_components',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
+
+    def validate(self, data):
+        # Pop write-only transient fields before ValidatedModelSerializer tries to
+        # construct a Module instance for full_clean(); restore them afterwards.
+        replicate_components = data.pop('replicate_components', True)
+        adopt_components = data.pop('adopt_components', False)
+        data = super().validate(data)
+        data['replicate_components'] = replicate_components
+        data['adopt_components'] = adopt_components
+
+        # Only check for component conflicts when creating a new module with replication or adoption enabled
+        if self.instance or (not replicate_components and not adopt_components):
+            return data
+
+        device = data.get('device')
+        module_type = data.get('module_type')
+        module_bay = data.get('module_bay')
+
+        if not all([device, module_type, module_bay]):
+            return data
+
+        # Build module bay tree for MODULE_TOKEN placeholder resolution (outermost to innermost)
+        module_bays = []
+        current_bay = module_bay
+        while current_bay:
+            module_bays.append(current_bay)
+            current_bay = current_bay.module.module_bay if current_bay.module else None
+        module_bays.reverse()
+
+        for templates_attr, component_attr in [
+            ('consoleporttemplates', 'consoleports'),
+            ('consoleserverporttemplates', 'consoleserverports'),
+            ('interfacetemplates', 'interfaces'),
+            ('powerporttemplates', 'powerports'),
+            ('poweroutlettemplates', 'poweroutlets'),
+            ('rearporttemplates', 'rearports'),
+            ('frontporttemplates', 'frontports'),
+        ]:
+            installed_components = {
+                component.name: component
+                for component in getattr(device, component_attr).all()
+            }
+
+            for template in getattr(module_type, templates_attr).all():
+                resolved_name = template.name
+                if MODULE_TOKEN in template.name:
+                    if not module_bay.position:
+                        raise serializers.ValidationError(
+                            _("Cannot install module with placeholder values in a module bay with no position defined.")
+                        )
+                    for bay in module_bays:
+                        resolved_name = resolved_name.replace(MODULE_TOKEN, bay.position, 1)
+
+                existing_item = installed_components.get(resolved_name)
+
+                if adopt_components and existing_item and existing_item.module:
+                    raise serializers.ValidationError(
+                        _("Cannot adopt {model} {name} as it already belongs to a module").format(
+                            model=template.component_model.__name__,
+                            name=resolved_name
+                        )
+                    )
+
+                if not adopt_components and replicate_components and resolved_name in installed_components:
+                    raise serializers.ValidationError(
+                        _("A {model} named {name} already exists").format(
+                            model=template.component_model.__name__,
+                            name=resolved_name
+                        )
+                    )
+
+        return data
+
+    def create(self, validated_data):
+        replicate_components = validated_data.pop('replicate_components', True)
+        adopt_components = validated_data.pop('adopt_components', False)
+
+        # Tags are handled after save; pop them here to manage manually
+        tags = validated_data.pop('tags', None)
+
+        # Build the instance without saving so we can set private attributes
+        # that control component replication behaviour in Module.save()
+        instance = self.Meta.model(**validated_data)
+        if adopt_components:
+            instance._adopt_components = True
+        if not replicate_components:
+            instance._disable_replication = True
+        instance.save()
+
+        if tags is not None:
+            instance.tags.set([t.name for t in tags])
+
+        return instance
 
 
 class MACAddressSerializer(PrimaryModelSerializer):
