@@ -7,6 +7,18 @@ Device types are instantiated as devices installed within sites and/or equipment
 !!! note
     This parent/child relationship is **not** suitable for modeling chassis-based devices, wherein child members share a common control plane. Instead, line cards and similarly non-autonomous hardware should be modeled as modules or inventory items within a device.
 
+## Automatic Component Renaming
+
+When adding component templates to a module type, the string `{vc_position}` can be used in component template names to reference the
+`vc_position` field of the device being provisioned, when that device is a member of a Virtual Chassis.
+
+For example, an interface template named `Gi{vc_position}/0/0` installed on a Virtual Chassis
+member with position `2` will be rendered as `Gi2/0/0`.
+
+If the device is not a member of a Virtual Chassis, `{vc_position}` defaults to `0`. A custom
+fallback value can be specified using the syntax `{vc_position:X}`, where `X` is the desired default.
+For example, `{vc_position:1}` will render as `1` when no Virtual Chassis position is set.
+
 ## Fields
 
 ### Manufacturer
