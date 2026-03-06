@@ -185,11 +185,18 @@ class ModuleSerializer(PrimaryModelSerializer):
         replicate_components = data.pop('replicate_components', True)
         adopt_components = data.pop('adopt_components', False)
         data = super().validate(data)
+
+        # For updates these fields are not meaningful; omit them from validated_data so that
+        # ModelSerializer.update() does not set unexpected attributes on the instance.
+        if self.instance:
+            return data
+
+        # Always pass the flags to create() so it can set the correct private attributes.
         data['replicate_components'] = replicate_components
         data['adopt_components'] = adopt_components
 
-        # Only check for component conflicts when creating a new module with replication or adoption enabled
-        if self.instance or (not replicate_components and not adopt_components):
+        # Skip conflict checks when no component operations are requested.
+        if not replicate_components and not adopt_components:
             return data
 
         device = data.get('device')
@@ -228,6 +235,15 @@ class ModuleSerializer(PrimaryModelSerializer):
                         raise serializers.ValidationError(
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
+                    if template.name.count(MODULE_TOKEN) != len(module_bays):
+                        raise serializers.ValidationError(
+                            _(
+                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
+                                "but {tokens} placeholders given."
+                            ).format(
+                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
+                            )
+                        )
                     for bay in module_bays:
                         resolved_name = resolved_name.replace(MODULE_TOKEN, bay.position, 1)
 
@@ -255,7 +271,7 @@ class ModuleSerializer(PrimaryModelSerializer):
         replicate_components = validated_data.pop('replicate_components', True)
         adopt_components = validated_data.pop('adopt_components', False)
 
-        # Tags are handled after save; pop them here to manage manually
+        # Tags are handled after save; pop them here to pass to _save_tags()
         tags = validated_data.pop('tags', None)
 
         # Build the instance without saving so we can set private attributes
@@ -268,7 +284,7 @@ class ModuleSerializer(PrimaryModelSerializer):
         instance.save()
 
         if tags is not None:
-            instance.tags.set([t.name for t in tags])
+            self._save_tags(instance, tags)
 
         return instance
 

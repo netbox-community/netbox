@@ -1794,6 +1794,61 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_adopt_components_already_owned(self):
+        """
+        Installing a module with adopt_components=True when an existing component already
+        belongs to another module should return a validation error.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Adopt Owned Test')
+        owner_module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Owner Module Type')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Adopt Owned Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        owner_bay = ModuleBay.objects.create(device=device, name='Owner Bay')
+        target_bay = ModuleBay.objects.create(device=device, name='Adopt Owned Bay')
+
+        # Install a module that owns the interface
+        owner_module = Module.objects.create(device=device, module_bay=owner_bay, module_type=owner_module_type)
+        Interface.objects.create(device=device, name='eth0', type='1000base-t', module=owner_module)
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': target_bay.pk,
+            'module_type': module_type.pk,
+            'adopt_components': True,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_patch_ignores_replicate_and_adopt(self):
+        """
+        PATCH requests that include replicate_components or adopt_components should not
+        trigger component replication or adoption (these fields are create-only).
+        """
+        self.add_permissions('dcim.change_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for PATCH Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='PATCH Test Module Type')
+        InterfaceTemplate.objects.create(module_type=module_type, name='eth0', type='1000base-t')
+        module_bay = ModuleBay.objects.create(device=device, name='PATCH Bay')
+        # Create the module without replication so we can verify PATCH doesn't trigger it
+        module = Module(device=device, module_bay=module_bay, module_type=module_type)
+        module._disable_replication = True
+        module.save()
+
+        url = reverse('dcim-api:module-detail', kwargs={'pk': module.pk})
+        data = {
+            'replicate_components': True,
+            'adopt_components': True,
+            'serial': 'PATCHED',
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        # No interfaces should have been created by the PATCH
+        self.assertFalse(device.interfaces.exists())
+
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
