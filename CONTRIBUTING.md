@@ -84,6 +84,8 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * It's very important that you not submit a pull request until a relevant issue has been opened **and** assigned to you. Otherwise, you risk wasting time on work that may ultimately not be needed.
 
+* Community members are limited to a maximum of **three open PRs** at any time. This is to avoid the accumulation of too much parallel work and maintain focus on already PRs under review. If you already have three NetBox PRs open, please wait for at least one of them to be merged (or closed) before opening another.
+
 * New pull requests should generally be based off of the `main` branch. This branch, in keeping with the [trunk-based development](https://trunkbaseddevelopment.com/) approach, is used for ongoing development and bug fixes and always represents the newest stable code, from which releases are periodically branched. (If you're developing for an upcoming minor release, use `feature` instead.)
 
 * In most cases, it is not necessary to add a changelog entry: A maintainer will take care of this when the PR is merged. (This helps avoid merge conflicts resulting from multiple PRs being submitted simultaneously.)
@@ -96,10 +98,10 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
       greater than 80 characters in length
 
 > [!CAUTION]
-> Any contributions which include AI-generated or reproduced content will be rejected.
+> Any contributions which include solely AI-generated or reproduced content will be rejected. All PRs must be submitted by a human.
 
 * Some other tips to keep in mind:
-  * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (This will allow the maintainers to assign it to you.)
+  * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (GitHub allows only people who have commented on an issue to be assigned as its owner.)
   * Check out our [developer docs](https://docs.netbox.dev/en/stable/development/getting-started/) for tips on setting up your development environment.
   * All new functionality must include relevant tests where applicable.
 
