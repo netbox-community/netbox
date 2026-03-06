@@ -175,6 +175,11 @@ class ModuleSerializer(PrimaryModelSerializer):
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
 
     def validate(self, data):
+        # When used as a nested serializer (e.g. as the `module` field on device component
+        # serializers), `data` is already a resolved Module instance — skip our custom logic.
+        if self.nested:
+            return super().validate(data)
+
         # Pop write-only transient fields before ValidatedModelSerializer tries to
         # construct a Module instance for full_clean(); restore them afterwards.
         replicate_components = data.pop('replicate_components', True)
