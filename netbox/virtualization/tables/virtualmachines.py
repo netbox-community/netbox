@@ -79,8 +79,11 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         linkify=True
     )
     disk = tables.Column(
-        verbose_name=_('Disk'),
+        verbose_name=_('Disk (GiB)'),
     )
+    memory = tables.Column(
+        verbose_name=_('Memory (MiB)'),
+     )
 
     class Meta(PrimaryModelTable.Meta):
         model = VirtualMachine
@@ -94,12 +97,15 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
         )
 
     def render_disk(self, value):
-        return humanize_disk_megabytes(value)
+        return f"{value} GiB"
 
+    def render_memory(self, value):
+        return f"{value} MiB"
 
 #
 # VM components
 #
+
 
 class VMInterfaceTable(BaseInterfaceTable):
     virtual_machine = tables.Column(
@@ -167,7 +173,7 @@ class VirtualDiskTable(NetBoxTable):
         linkify=True
     )
     size = tables.Column(
-        verbose_name=_('Size')
+       verbose_name=_('Size (GiB)')
     )
     tags = columns.TagColumn(
         url_name='virtualization:virtualdisk_list'
