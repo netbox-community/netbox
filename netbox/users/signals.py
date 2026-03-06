@@ -1,6 +1,6 @@
 import logging
 
-from django.contrib.auth.signals import user_login_failed
+from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -21,6 +21,18 @@ def log_user_login_failed(sender, credentials, request, **kwargs):
             "configured to pass the required header(s)."
         )
         logger.info(f"Failed login attempt for username: {username}")
+
+
+@receiver(user_logged_in)
+def set_language_on_login(sender, user, request, **kwargs):
+    """
+    Store the user's preferred language on the request so that middleware can set the language cookie. This ensures the
+    language preference is applied even when logging in via an external auth provider (e.g. social-app-django) that
+    does not go through NetBox's LoginView.
+    """
+    if hasattr(user, 'config'):
+        if language := user.config.get('locale.language'):
+            request._language_cookie = language
 
 
 @receiver(post_save, sender=User)
