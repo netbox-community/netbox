@@ -1,19 +1,17 @@
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django_tables2.utils import Accessor
 
 from dcim.models import Interface
 from dcim.tables.template_code import INTERFACE_LINKTERMINATION, LINKTERMINATION
 from ipam.models import *
 from netbox.tables import NetBoxTable, OrganizationalModelTable, PrimaryModelTable, columns
-from tenancy.tables import TenancyColumnsMixin, TenantColumn
+from tenancy.tables import TenancyColumnsMixin
 from virtualization.models import VMInterface
 
 from .template_code import *
 
 __all__ = (
-    'InterfaceVLANTable',
     'VLANDevicesTable',
     'VLANGroupTable',
     'VLANMembersTable',
@@ -196,47 +194,6 @@ class VLANVirtualMachinesTable(VLANMembersTable):
         model = VMInterface
         fields = ('virtual_machine', 'name', 'tagged', 'actions')
         exclude = ('id', )
-
-
-class InterfaceVLANTable(NetBoxTable):
-    """
-    List VLANs assigned to a specific Interface.
-    """
-    vid = tables.Column(
-        linkify=True,
-        verbose_name=_('VID')
-    )
-    tagged = columns.BooleanColumn(
-        verbose_name=_('Tagged'),
-        false_mark=None
-    )
-    site = tables.Column(
-        verbose_name=_('Site'),
-        linkify=True
-    )
-    group = tables.Column(
-        accessor=Accessor('group__name'),
-        verbose_name=_('Group')
-    )
-    tenant = TenantColumn(
-        verbose_name=_('Tenant'),
-    )
-    status = columns.ChoiceFieldColumn(
-        verbose_name=_('Status'),
-    )
-    role = tables.Column(
-        verbose_name=_('Role'),
-        linkify=True
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = VLAN
-        fields = ('vid', 'tagged', 'site', 'group', 'name', 'tenant', 'status', 'role', 'description')
-        exclude = ('id', )
-
-    def __init__(self, interface, *args, **kwargs):
-        self.interface = interface
-        super().__init__(*args, **kwargs)
 
 
 #

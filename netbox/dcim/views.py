@@ -16,7 +16,7 @@ from circuits.models import Circuit, CircuitTermination
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
-from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
+from ipam.tables import VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
@@ -3230,21 +3230,6 @@ class InterfaceView(generic.ObjectView):
         )
         lag_interfaces_table.configure(request)
 
-        # Get assigned VLANs and annotate whether each is tagged or untagged
-        vlans = []
-        if instance.untagged_vlan is not None:
-            vlans.append(instance.untagged_vlan)
-            vlans[0].tagged = False
-        for vlan in instance.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
-            vlan.tagged = True
-            vlans.append(vlan)
-        vlan_table = InterfaceVLANTable(
-            interface=instance,
-            data=vlans,
-            orderable=False
-        )
-        vlan_table.configure(request)
-
         # Get VLAN translation rules
         vlan_translation_table = None
         if instance.vlan_translation_policy:
@@ -3260,7 +3245,6 @@ class InterfaceView(generic.ObjectView):
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'lag_interfaces_table': lag_interfaces_table,
-            'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }
 
