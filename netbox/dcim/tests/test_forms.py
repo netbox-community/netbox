@@ -11,8 +11,8 @@ from dcim.choices import (
 from dcim.forms import *
 from dcim.models import *
 from ipam.models import VLAN
-from utilities.testing import create_test_device
 from utilities.exceptions import AbortRequest
+from utilities.testing import create_test_device
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -180,7 +180,7 @@ class VCPositionTokenFormTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site = Site.objects.create(name='Site VC 1', slug='site-vc-1')
+        Site.objects.create(name='Site VC 1', slug='site-vc-1')
         manufacturer = Manufacturer.objects.create(name='Manufacturer VC 1', slug='manufacturer-vc-1')
         device_type = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type VC 1', slug='device-type-vc-1'
@@ -256,6 +256,7 @@ class VCPositionTokenFormTestCase(TestCase):
         self.assertTrue(form.is_valid())
         with self.assertRaises(AbortRequest):
             form.save()
+
 
 class FrontPortTestCase(TestCase):
 

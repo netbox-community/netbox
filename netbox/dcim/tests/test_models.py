@@ -1348,7 +1348,7 @@ class VCPositionTokenTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        Site.objects.create(name='Test Site 1', slug='test-site-1')
         manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
         DeviceType.objects.create(
             manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
