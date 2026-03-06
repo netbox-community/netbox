@@ -86,6 +86,11 @@
               <th scope="row">{% trans "Q-in-Q SVLAN" %}</th>
               <td>{{ object.qinq_svlan|linkify|placeholder }}</td>
             </tr>
+          {% elif object.mode %}
+            <tr>
+              <th scope="row">{% trans "Untagged VLAN" %}</th>
+              <td>{{ object.untagged_vlan|linkify|placeholder }}</td>
+            </tr>
           {% endif %}
           <tr>
             <th scope="row">{% trans "Transmit power (dBm)" %}</th>
