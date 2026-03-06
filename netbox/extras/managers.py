@@ -1,6 +1,7 @@
 from django.db import router
 from django.db.models import signals
 from taggit.managers import _TaggableManager
+from taggit.utils import require_instance_manager
 
 __all__ = (
     'NetBoxTaggableManager',
