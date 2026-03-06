@@ -5,6 +5,7 @@ from importlib import import_module
 import requests
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Exists, OuterRef, Subquery
 from django.utils import timezone
 from packaging import version
 
@@ -14,7 +15,7 @@ from netbox.jobs import JobRunner, system_job
 from netbox.search.backends import search_backend
 from utilities.proxy import resolve_proxies
 
-from .choices import DataSourceStatusChoices, JobIntervalChoices
+from .choices import DataSourceStatusChoices, JobIntervalChoices, ObjectChangeActionChoices
 from .models import DataSource
 
 
@@ -126,19 +127,51 @@ class SystemHousekeepingJob(JobRunner):
         """
         Delete any ObjectChange records older than the configured changelog retention time (if any).
         """
-        self.logger.info("Pruning old changelog entries...")
+        self.logger.info('Pruning old changelog entries...')
         config = Config()
         if not config.CHANGELOG_RETENTION:
-            self.logger.info("No retention period specified; skipping.")
+            self.logger.info('No retention period specified; skipping.')
             return
 
         cutoff = timezone.now() - timedelta(days=config.CHANGELOG_RETENTION)
-        self.logger.debug(
-            f"Changelog retention period: {config.CHANGELOG_RETENTION} days ({cutoff:%Y-%m-%d %H:%M:%S})"
-        )
+        self.logger.debug(f'Changelog retention period: {config.CHANGELOG_RETENTION} days ({cutoff:%Y-%m-%d %H:%M:%S})')
 
-        count = ObjectChange.objects.filter(time__lt=cutoff).delete()[0]
-        self.logger.info(f"Deleted {count} expired changelog records")
+        expired_qs = ObjectChange.objects.filter(time__lt=cutoff)
+
+        # When enabled, retain each object's original create record and most recent update record while pruning expired
+        # changelog entries. This applies only to objects without a delete record.
+        if config.CHANGELOG_RETAIN_CREATE_LAST_UPDATE:
+            self.logger.debug('Retaining changelog create records and last update records (excluding deleted objects)')
+
+            deleted_exists = ObjectChange.objects.filter(
+                action=ObjectChangeActionChoices.ACTION_DELETE,
+                changed_object_type_id=OuterRef('changed_object_type_id'),
+                changed_object_id=OuterRef('changed_object_id'),
+            )
+
+            # Keep create records only where no delete exists for that object
+            create_pks_to_keep = (
+                ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_CREATE)
+                .annotate(has_delete=Exists(deleted_exists))
+                .filter(has_delete=False)
+                .values('pk')
+            )
+
+            # Keep the most recent update per object only where no delete exists for the object
+            latest_update_pks_to_keep = (
+                ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_UPDATE)
+                .annotate(has_delete=Exists(deleted_exists))
+                .filter(has_delete=False)
+                .order_by('changed_object_type_id', 'changed_object_id', '-time', '-pk')
+                .distinct('changed_object_type_id', 'changed_object_id')
+                .values('pk')
+            )
+
+            expired_qs = expired_qs.exclude(pk__in=Subquery(create_pks_to_keep))
+            expired_qs = expired_qs.exclude(pk__in=Subquery(latest_update_pks_to_keep))
+
+        count = expired_qs.delete()[0]
+        self.logger.info(f'Deleted {count} expired changelog records')
 
     def delete_expired_jobs(self):
         """
