@@ -23,9 +23,9 @@ For example, you might create a NetBox webhook to [trigger a Slack message](http
 
 The following data is available as context for Jinja2 templates:
 
-* `event` - The type of event which triggered the webhook: created, updated, or deleted.
-* `model` - The NetBox model which triggered the change.
+* `event` - The type of event which triggered the webhook: `created`, `updated`, or `deleted`.
 * `timestamp` - The time at which the event occurred (in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format).
+* `object_type` - The NetBox model which triggered the change in the form `app_label.model_name`.
 * `username` - The name of the user account associated with the change.
 * `request_id` - The unique request ID. This may be used to correlate multiple changes associated with a single request.
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
@@ -38,18 +38,20 @@ If no body template is specified, the request body will be populated with a JSON
 ```json
 {
     "event": "created",
-    "timestamp": "2021-03-09 17:55:33.968016+00:00",
-    "model": "site",
+    "timestamp": "2026-03-06T15:11:23.503186+00:00",
+    "object_type": "dcim.site",
     "username": "jstretch",
-    "request_id": "fdbca812-3142-4783-b364-2e2bd5c16c6a",
+    "request_id": "17af32f0-852a-46ca-a7d4-33ecd0c13de6",
     "data": {
-        "id": 19,
+        "id": 4,
+        "url": "/api/dcim/sites/4/",
+        "display_url": "/dcim/sites/4/",
+        "display": "Site 1",
         "name": "Site 1",
         "slug": "site-1",
-        "status": 
+        "status": {
             "value": "active",
-            "label": "Active",
-            "id": 1
+            "label": "Active"
         },
         "region": null,
         ...
@@ -57,8 +59,10 @@ If no body template is specified, the request body will be populated with a JSON
     "snapshots": {
         "prechange": null,
         "postchange": {
-            "created": "2021-03-09",
-            "last_updated": "2021-03-09T17:55:33.851Z",
+            "created": "2026-03-06T15:11:23.484Z",
+            "owner": null,
+            "description": "",
+            "comments": "",
             "name": "Site 1",
             "slug": "site-1",
             "status": "active",
