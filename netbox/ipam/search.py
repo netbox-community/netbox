@@ -23,7 +23,7 @@ class ASNIndex(SearchIndex):
         ('prefixed_name', 110),
         ('description', 500),
     )
-    display_attrs = ('rir', 'tenant', 'description')
+    display_attrs = ('rir', 'role', 'tenant', 'description')
 
 
 @register_search
