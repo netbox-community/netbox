@@ -121,7 +121,6 @@ class UserView(generic.ObjectView):
                         view_name='core:objectchange_list',
                         url_params={'user_id': lambda ctx: ctx['object'].pk},
                         label=_('View All'),
-                        button_class='ghost-primary',
                         button_icon='arrow-right-thick',
                         permissions=['core.view_objectchange'],
                     ),
@@ -410,9 +409,6 @@ class OwnerListView(generic.ObjectListView):
 @register_model_view(Owner)
 class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Owner.objects.all()
-    # Custom template is required to override the breadcrumbs block and include
-    # the owner's group in the breadcrumb trail when present.
-    template_name = 'users/owner.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.OwnerPanel(),
