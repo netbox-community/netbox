@@ -283,6 +283,53 @@ class GraphQLAPITestCase(APITestCase):
         self.assertEqual(len(data['data']['site_list']), 1)
         self.assertEqual(data['data']['site_list'][0]['name'], 'Site 7')
 
+    @override_settings(MAX_PAGE_SIZE=3)
+    def test_max_page_size(self):
+        self.add_permissions('dcim.view_site')
+        url = reverse('graphql')
+
+        # Request without explicit limit should be capped by MAX_PAGE_SIZE
+        query = """
+        {
+            site_list {
+                id name
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 3)
+
+        # Request with limit exceeding MAX_PAGE_SIZE should be capped
+        query = """
+        {
+            site_list(pagination: {limit: 100}) {
+                id name
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 3)
+
+        # Request with limit under MAX_PAGE_SIZE should be respected
+        query = """
+        {
+            site_list(pagination: {limit: 2}) {
+                id name
+            }
+        }
+        """
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['site_list']), 2)
+
     def test_pagination_conflict(self):
         url = reverse('graphql')
         query = """

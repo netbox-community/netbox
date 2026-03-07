@@ -2,6 +2,8 @@ import strawberry
 from strawberry.types.unset import UNSET
 from strawberry_django.pagination import _QS, apply
 
+from netbox.config import get_config
+
 __all__ = (
     'OffsetPaginationInfo',
     'OffsetPaginationInput',
@@ -46,5 +48,13 @@ def apply_pagination(
 
         # Ignore `offset` when `start` is set
         pagination.offset = 0
+
+    # Enforce MAX_PAGE_SIZE on the pagination limit
+    max_page_size = get_config().MAX_PAGE_SIZE
+    if max_page_size:
+        if pagination is None:
+            pagination = OffsetPaginationInput(limit=max_page_size)
+        elif pagination.limit in (None, UNSET) or pagination.limit > max_page_size:
+            pagination.limit = max_page_size
 
     return apply(pagination, queryset, related_field_id=related_field_id)
