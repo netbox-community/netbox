@@ -14,8 +14,6 @@ from utilities.forms import TableConfigForm, get_selected_values
 from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_action_url, get_viewname
 
-logger = logging.getLogger("netbox.utilities.templatetags.helpers")
-
 __all__ = (
     'action_url',
     'applied_filters',
