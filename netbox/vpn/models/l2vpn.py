@@ -126,8 +126,8 @@ class L2VPNTermination(NetBoxModel):
         if self.assigned_object:
             obj_id = self.assigned_object.pk
             obj_type = ObjectType.objects.get_for_model(self.assigned_object)
-            if L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type).\
-                    exclude(pk=self.pk).count() > 0:
+            terminations = L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type)
+            if terminations.exclude(pk=self.pk).exists():
                 raise ValidationError(
                     _('L2VPN Termination already assigned ({assigned_object})').format(
                         assigned_object=self.assigned_object
