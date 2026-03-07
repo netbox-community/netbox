@@ -341,7 +341,7 @@ When retrieving devices and virtual machines via the REST API, each will include
 
 ## Pagination
 
-API responses which contain a list of many objects will be paginated for efficiency. The root JSON object returned by a list endpoint contains the following attributes:
+API responses which contain a list of many objects will be paginated for efficiency. NetBox employs offset-based pagination by default, which forms a page by skipping the number of objects indicated by the `offset` URL parameter. The root JSON object returned by a list endpoint contains the following attributes:
 
 * `count`: The total number of all objects matching the query
 * `next`: A hyperlink to the next page of results (if applicable)
@@ -397,6 +397,49 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 
 !!! warning
     Disabling the page size limit introduces a potential for very resource-intensive requests, since one API request can effectively retrieve an entire table from the database.
+
+### Cursor-Based Pagination
+
+For large datasets, offset-based pagination can become inefficient because the database must scan all rows up to the offset. As an alternative, cursor-based pagination uses the `start` query parameter to filter results by primary key (PK), enabling efficient keyset pagination.
+
+To use cursor-based pagination, pass `start` (the minimum PK value) and `limit` (the page size):
+
+```
+http://netbox/api/dcim/devices/?start=0&limit=100
+```
+
+This returns objects with an `id` greater than or equal to zero, ordered by PK, limited to 100 results. Below is an example showing an arbitrary `start` value.
+
+```json
+{
+    "count": null,
+    "next": "http://netbox/api/dcim/devices/?start=356&limit=100",
+    "previous": null,
+    "results": [
+        {
+            "id": 109,
+            "name": "dist-router07",
+            ...
+        },
+        ...
+        {
+            "id": 356,
+            "name": "acc-switch492",
+            ...
+        }
+    ]
+}
+```
+
+To iterate through all results, use the `id` of the last object in each response plus one as the `start` value for the next request. Continue until `next` is null.
+
+!!! info
+    Some important differences from offset-based pagination:
+
+    * `start` and `offset` are **mutually exclusive**; specifying both will result in a 400 error.
+    * Results are always ordered by primary key when using `start`. This is required to ensure deterministic behavior.
+    * `count` is always `null` in cursor mode, as counting all matching rows would partially negate its performance benefit.
+    * `previous` is always `null`: cursor-based pagination supports only forward navigation.
 
 ## Interacting with Objects
 

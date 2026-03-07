@@ -724,7 +724,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
-    'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.NetBoxPagination',
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',

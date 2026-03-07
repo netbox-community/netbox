@@ -2,10 +2,11 @@ import uuid
 
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 
 from netbox.api.exceptions import QuerySetNotOrdered
-from netbox.api.pagination import OptionalLimitOffsetPagination
+from netbox.api.pagination import NetBoxPagination
 from users.models import Token
 from utilities.testing import APITestCase
 
@@ -48,7 +49,7 @@ class AppTest(APITestCase):
 class OptionalLimitOffsetPaginationTest(TestCase):
 
     def setUp(self):
-        self.paginator = OptionalLimitOffsetPagination()
+        self.paginator = NetBoxPagination()
         self.factory = RequestFactory()
 
     def _make_drf_request(self, path='/', query_params=None):
@@ -80,3 +81,33 @@ class OptionalLimitOffsetPaginationTest(TestCase):
         request = self._make_drf_request()
 
         self.paginator.paginate_queryset(iterable, request)  # Should not raise exception
+
+    def test_get_start_returns_none_when_absent(self):
+        """get_start() returns None when start param is not in the request"""
+        request = self._make_drf_request()
+        self.assertIsNone(self.paginator.get_start(request))
+
+    def test_get_start_returns_integer(self):
+        """get_start() returns an integer when start param is present"""
+        request = self._make_drf_request(query_params={'start': '42'})
+        self.assertEqual(self.paginator.get_start(request), 42)
+
+    def test_get_start_raises_for_negative(self):
+        """get_start() raises ValidationError for negative values"""
+        request = self._make_drf_request(query_params={'start': '-1'})
+        with self.assertRaises(ValidationError):
+            self.paginator.get_start(request)
+
+    def test_cursor_and_offset_conflict_raises_validation_error(self):
+        """paginate_queryset() raises ValidationError when both start and offset are specified"""
+        queryset = Token.objects.all().order_by('created')
+        request = self._make_drf_request(query_params={'start': '1', 'offset': '10'})
+        with self.assertRaises(ValidationError):
+            self.paginator.paginate_queryset(queryset, request)
+
+    def test_cursor_and_ordering_conflict_raises_validation_error(self):
+        """paginate_queryset() raises ValidationError when both start and ordering are specified"""
+        queryset = Token.objects.all().order_by('created')
+        request = self._make_drf_request(query_params={'start': '1', 'ordering': 'created'})
+        with self.assertRaises(ValidationError):
+            self.paginator.paginate_queryset(queryset, request)
