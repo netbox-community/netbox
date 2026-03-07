@@ -239,7 +239,8 @@ class ModuleSerializer(PrimaryModelSerializer):
                     if template.name.count(MODULE_TOKEN) != len(module_bays):
                         raise serializers.ValidationError(
                             _(
-                                "Cannot install module with {tokens} placeholder(s) in a module bay at depth {level}."
+                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
+                                "but {tokens} placeholders given."
                             ).format(
                                 level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
                             )
@@ -257,7 +258,7 @@ class ModuleSerializer(PrimaryModelSerializer):
                         )
                     )
 
-                if not adopt_components and replicate_components and resolved_name in installed_components:
+                if not adopt_components and resolved_name in installed_components:
                     raise serializers.ValidationError(
                         _("A {model} named {name} already exists").format(
                             model=template.component_model.__name__,

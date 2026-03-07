@@ -1882,6 +1882,55 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
         # eth1 should have been created
         self.assertTrue(device.interfaces.filter(name='eth1').exists())
 
+    def test_module_token_no_position(self):
+        """
+        Installing a module whose type has a template with a MODULE_TOKEN placeholder into a
+        module bay with no position defined should return a validation error.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Token No-Position Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token No-Position Module Type')
+        # Template name contains the MODULE_TOKEN placeholder
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name=f'{MODULE_TOKEN}-eth0', type='1000base-t'
+        )
+        # Module bay has no position
+        module_bay = ModuleBay.objects.create(device=device, name='No-Position Bay')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_module_token_depth_mismatch(self):
+        """
+        Installing a module whose template name has more MODULE_TOKEN placeholders than the
+        depth of the module bay tree should return a validation error.
+        """
+        self.add_permissions('dcim.add_module')
+        manufacturer = Manufacturer.objects.get(name='Generic')
+        device = create_test_device('Device for Token Depth Mismatch Test')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Token Depth Mismatch Module Type')
+        # Template name has two placeholders but the bay is at depth 1
+        InterfaceTemplate.objects.create(
+            module_type=module_type, name=f'{MODULE_TOKEN}-{MODULE_TOKEN}-eth0', type='1000base-t'
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Depth 1 Bay', position='1')
+
+        url = reverse('dcim-api:module-list')
+        data = {
+            'device': device.pk,
+            'module_bay': module_bay.pk,
+            'module_type': module_type.pk,
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
