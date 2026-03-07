@@ -62,10 +62,13 @@ FIELD_CHOICES = {
 The following model fields support configurable choices:
 
 * `circuits.Circuit.status`
+* `dcim.Device.airflow`
 * `dcim.Device.status`
 * `dcim.Location.status`
+* `dcim.Module.airflow`
 * `dcim.Module.status`
 * `dcim.PowerFeed.status`
+* `dcim.Rack.airflow`
 * `dcim.Rack.status`
 * `dcim.Site.status`
 * `dcim.VirtualDeviceContext.status`
