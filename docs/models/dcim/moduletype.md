@@ -20,6 +20,16 @@ When adding component templates to a module type, the string `{module}` can be u
 
 For example, you can create a module type with interface templates named `Gi{module}/0/[1-48]`. When a new module of this type is "installed" to a module bay with a position of "3", NetBox will automatically name these interfaces `Gi3/0/[1-48]`.
 
+Similarly, the string `{vc_position}` can be used in component template names to reference the
+`vc_position` field of the device being provisioned, when that device is a member of a Virtual Chassis.
+
+For example, an interface template named `Gi{vc_position}/{module}/0` installed on a Virtual Chassis
+member with position `2` and module bay position `3` will be rendered as `Gi2/3/0`.
+
+If the device is not a member of a Virtual Chassis, `{vc_position}` defaults to `0`. A custom
+fallback value can be specified using the syntax `{vc_position:X}`, where `X` is the desired default.
+For example, `{vc_position:1}` will render as `1` when no Virtual Chassis position is set.
+
 Automatic renaming is supported for all modular component types (those listed above).
 
 ## Fields

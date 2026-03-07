@@ -1344,6 +1344,167 @@ class VirtualChassisTestCase(TestCase):
             device2.full_clean()
 
 
+class VCPositionTokenTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        ModuleType.objects.create(
+            manufacturer=manufacturer, model='Test Module Type 1'
+        )
+        DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+
+    def test_vc_position_token_in_vc(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position}/{module}/0',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 1')
+        device = Device.objects.create(
+            name='Device VC 1', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=8,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-8/1/0')
+        self.assertEqual(interface.name, 'ge-8/1/0')
+
+    def test_vc_position_token_not_in_vc_default_fallback(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position}/{module}/0',
+            type='1000base-t',
+        )
+        device = Device.objects.create(
+            name='Device NoVC 1', device_type=device_type, role=device_role,
+            site=site,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-0/1/0')
+        self.assertEqual(interface.name, 'ge-0/1/0')
+
+    def test_vc_position_token_explicit_fallback(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position:18}/{module}/0',
+            type='1000base-t',
+        )
+        device = Device.objects.create(
+            name='Device NoVC 2', device_type=device_type, role=device_role,
+            site=site,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-18/1/0')
+        self.assertEqual(interface.name, 'ge-18/1/0')
+
+    def test_vc_position_token_explicit_fallback_ignored_when_in_vc(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position:99}/{module}/0',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 2')
+        device = Device.objects.create(
+            name='Device VC 2', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=2,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-2/1/0')
+        self.assertEqual(interface.name, 'ge-2/1/0')
+
+    def test_vc_position_token_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-{vc_position:0}/0/0',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 3')
+        device = Device.objects.create(
+            name='Device VC 3', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=3,
+        )
+
+        interface = device.interfaces.get(name='ge-3/0/0')
+        self.assertEqual(interface.name, 'ge-3/0/0')
+
+    def test_vc_position_token_device_type_template_not_in_vc(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-{vc_position:0}/0/0',
+            type='1000base-t',
+        )
+        device = Device.objects.create(
+            name='Device NoVC 3', device_type=device_type, role=device_role,
+            site=site,
+        )
+
+        interface = device.interfaces.get(name='ge-0/0/0')
+        self.assertEqual(interface.name, 'ge-0/0/0')
+
+    def test_vc_position_token_label_resolution(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position}/{module}/0',
+            label='Member {vc_position:0} / Slot {module}',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 4')
+        device = Device.objects.create(
+            name='Device VC 4', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=2,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-2/1/0')
+        self.assertEqual(interface.label, 'Member 2 / Slot 1')
+
+
 class SiteSignalTestCase(TestCase):
 
     @tag('regression')
