@@ -289,6 +289,18 @@ class ASNFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Role.objects.all(),
+        distinct=False,
+        label=_('Role (ID)'),
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=Role.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Role (slug)'),
+    )
 
     class Meta:
         model = ASN

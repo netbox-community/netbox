@@ -114,6 +114,13 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         ]
         RIR.objects.bulk_create(rirs)
 
+        roles = [
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+            Role(name='Role 3', slug='role-3'),
+        ]
+        Role.objects.bulk_create(roles)
+
         tenants = [
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -124,12 +131,12 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=65001, rir=rirs[0], tenant=tenants[0], description='foobar1'),
-            ASN(asn=65002, rir=rirs[1], tenant=tenants[1], description='foobar2'),
-            ASN(asn=65003, rir=rirs[2], tenant=tenants[2], description='foobar3'),
-            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=4200000001, rir=rirs[1], tenant=tenants[1]),
-            ASN(asn=4200000002, rir=rirs[2], tenant=tenants[2]),
+            ASN(asn=65001, rir=rirs[0], role=roles[0], tenant=tenants[0], description='foobar1'),
+            ASN(asn=65002, rir=rirs[1], role=roles[1], tenant=tenants[1], description='foobar2'),
+            ASN(asn=65003, rir=rirs[2], role=roles[2], tenant=tenants[2], description='foobar3'),
+            ASN(asn=4200000000, rir=rirs[0], role=roles[0], tenant=tenants[0]),
+            ASN(asn=4200000001, rir=rirs[1], role=roles[1], tenant=tenants[1]),
+            ASN(asn=4200000002, rir=rirs[2], role=roles[2], tenant=tenants[2]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -184,6 +191,13 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_role(self):
+        roles = Role.objects.all()[:2]
+        params = {'role_id': [roles[0].pk, roles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'role': [roles[0].slug, roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site_group(self):

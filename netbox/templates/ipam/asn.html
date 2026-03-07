@@ -30,6 +30,16 @@
             </td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Role" %}</th>
+            <td>
+              {% if object.role %}
+                <a href="{% url 'ipam:asn_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Tenant" %}</th>
             <td>
               {% if object.tenant.group %}

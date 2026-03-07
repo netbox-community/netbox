@@ -151,7 +151,7 @@ class ASNFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = ASN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('rir_id', 'site_group_id', 'site_id', name=_('Assignment')),
+        FieldSet('rir_id', 'role_id', 'site_group_id', 'site_id', name=_('Assignment')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -159,6 +159,11 @@ class ASNFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         queryset=RIR.objects.all(),
         required=False,
         label=_('RIR')
+    )
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=Role.objects.all(),
+        required=False,
+        label=_('Role')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
