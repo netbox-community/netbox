@@ -10,6 +10,10 @@ OBJECTPERMISSION_OBJECT_TYPES = (
 
 CONSTRAINT_TOKEN_USER = '$user'
 
+# Built-in actions that receive special handling (dedicated checkboxes, model properties)
+# and should not be registered as custom model actions.
+RESERVED_ACTIONS = ('view', 'add', 'change', 'delete')
+
 # API tokens
 TOKEN_PREFIX = 'nbt_'  # Used for v2 tokens only
 TOKEN_KEY_LENGTH = 12

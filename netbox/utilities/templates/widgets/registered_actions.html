@@ -1,0 +1,28 @@
+{% load i18n %}
+<div class="registered-actions-container" id="id_registered_actions_container">
+  {% for model_key, model_data in widget.model_actions.items %}
+    <div class="model-actions" data-model="{{ model_key }}" style="display: none;">
+      <h5 class="mb-2 mt-3">{{ model_data.label }}</h5>
+      {% for action in model_data.actions %}
+        <div class="form-check">
+          <input type="checkbox"
+                 class="form-check-input"
+                 name="{{ widget.name }}"
+                 value="{{ model_key }}.{{ action.name }}"
+                 id="id_{{ widget.name }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"
+                 {% if model_key|add:"."|add:action.name in widget.value %}checked{% endif %}>
+          <label class="form-check-label" for="id_{{ widget.name }}_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+            {{ action.name }}
+            {% if action.help_text %}
+              <small class="text-muted ms-1">{{ action.help_text }}</small>
+            {% endif %}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  {% empty %}
+    <p class="text-muted" id="no-custom-actions-message">
+      {% trans "No custom actions registered." %}
+    </p>
+  {% endfor %}
+</div>
