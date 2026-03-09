@@ -56,5 +56,7 @@ def apply_pagination(
             pagination = OffsetPaginationInput(limit=max_page_size)
         elif pagination.limit in (None, UNSET) or pagination.limit > max_page_size:
             pagination.limit = max_page_size
+        elif pagination.limit <= 0:
+            pagination.limit = max_page_size
 
     return apply(pagination, queryset, related_field_id=related_field_id)
