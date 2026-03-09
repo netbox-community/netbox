@@ -221,8 +221,6 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         has_vc = VC_POSITION_RE.search(self.label) is not None
         if not has_module and not has_vc:
             return self.label
-        if not has_module and not has_vc:
-            return self.label
 
         label = self.label
 
@@ -230,9 +228,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             modules = self._get_module_tree(module)
             for m in modules:
                 label = label.replace(MODULE_TOKEN, m.module_bay.position, 1)
-
-        resolved_device = (module.device if module else None) or device
-        label = self._resolve_vc_position(label, resolved_device)
+        if has_vc:
+            resolved_device = (module.device if module else None) or device
+            label = self._resolve_vc_position(label, resolved_device)
 
         return label
 
@@ -430,7 +428,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         if self.power_port:
-            power_port_name = self.power_port.resolve_name(kwargs.get('module'))
+            power_port_name = self.power_port.resolve_name(kwargs.get('module'), kwargs.get('device'))
             power_port = PowerPort.objects.get(name=power_port_name, **kwargs)
         else:
             power_port = None

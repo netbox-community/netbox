@@ -969,7 +969,7 @@ class Device(
             duplicates = {n for n in names if names.count(n) > 1}
             if duplicates:
                 raise AbortRequest(
-                    _("Interface name conflict after resolving {{vc_position}}: {names}").format(
+                    _("Component name conflict after resolving {{vc_position}}: {names}").format(
                         names=', '.join(duplicates)
                     )
                 )

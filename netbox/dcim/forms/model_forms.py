@@ -1039,7 +1039,7 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
             "supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The token <code>{module}</code>, if present, will be "
             "automatically replaced with the position value when creating a new module. "
             "The token <code>{vc_position}</code> will be replaced with the device's Virtual Chassis position "
-            "(use <code>{vc_position:1}</code> to specify a fallback (default is 0)"
+            "(use <code>{vc_position:1}</code> to specify a fallback (default is 0))"
         )
 
 
