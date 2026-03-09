@@ -293,7 +293,6 @@ class Cable(PrimaryModel):
             self._pk = self.pk
 
         if self._orig_profile != self.profile:
-            print(f'profile changed from {self._orig_profile} to {self.profile}')
             self.update_terminations(force=True)
         elif self._terminations_modified:
             self.update_terminations()
@@ -402,6 +401,15 @@ class Cable(PrimaryModel):
                 altering a Cable's assigned profile.
         """
         a_terminations, b_terminations = self.get_terminations()
+
+        # When force-recreating terminations (e.g. after a profile change), cache the termination objects
+        # from the database before deleting, so they are available for recreation. Without this, the
+        # a_terminations/b_terminations properties would query the DB after deletion and return empty lists.
+        if force:
+            if not hasattr(self, '_a_terminations'):
+                self._a_terminations = list(a_terminations.keys())
+            if not hasattr(self, '_b_terminations'):
+                self._b_terminations = list(b_terminations.keys())
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():

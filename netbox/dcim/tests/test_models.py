@@ -1201,6 +1201,35 @@ class CableTestCase(TestCase):
         with self.assertRaises(ValidationError):
             cable.clean()
 
+    def test_cable_profile_change_preserves_terminations(self):
+        """
+        When a Cable's profile is changed via save() without explicitly setting terminations (as happens during
+        bulk edit), the existing termination points must be preserved.
+        """
+        cable = Cable.objects.first()
+        interface1 = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        interface2 = Interface.objects.get(device__name='TestDevice2', name='eth0')
+
+        # Verify initial state: cable has terminations and no profile
+        self.assertEqual(cable.profile, '')
+        self.assertEqual(CableTermination.objects.filter(cable=cable).count(), 2)
+
+        # Simulate what bulk edit does: load the cable from DB, set profile via setattr, and save.
+        # Crucially, do NOT set a_terminations or b_terminations on the instance.
+        cable_from_db = Cable.objects.get(pk=cable.pk)
+        cable_from_db.profile = CableProfileChoices.SINGLE_1C1P
+        cable_from_db.save()
+
+        # Verify terminations are preserved
+        self.assertEqual(CableTermination.objects.filter(cable=cable).count(), 2)
+
+        # Verify the correct interfaces are still terminated
+        cable_from_db.refresh_from_db()
+        a_terms = [ct.termination for ct in CableTermination.objects.filter(cable=cable, cable_end='A')]
+        b_terms = [ct.termination for ct in CableTermination.objects.filter(cable=cable, cable_end='B')]
+        self.assertEqual(a_terms, [interface1])
+        self.assertEqual(b_terms, [interface2])
+
 
 class VirtualDeviceContextTestCase(TestCase):
 
