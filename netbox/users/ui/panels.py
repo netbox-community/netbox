@@ -33,16 +33,8 @@ class UserPanel(panels.ObjectAttributesPanel):
         template_name='users/attrs/full_name.html',
     )
     email = attrs.TextAttr('email')
-    date_joined = attrs.TemplatedAttr(
-        'date_joined',
-        label=_('Account created'),
-        template_name='users/attrs/date_joined.html',
-    )
-    last_login = attrs.TemplatedAttr(
-        'last_login',
-        label=_('Last login'),
-        template_name='users/attrs/last_login.html',
-    )
+    date_joined = attrs.DateTimeAttr('date_joined', label=_('Account created'), spec='date')
+    last_login = attrs.DateTimeAttr('last_login', label=_('Last login'), spec='minutes')
     is_active = attrs.BooleanAttr('is_active', label=_('Active'))
     is_superuser = attrs.BooleanAttr('is_superuser', label=_('Superuser'))
 
