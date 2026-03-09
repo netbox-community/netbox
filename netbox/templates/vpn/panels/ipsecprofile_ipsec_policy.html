@@ -1,0 +1,30 @@
+{% load helpers %}
+{% load i18n %}
+
+<div class="card">
+  <h2 class="card-header">{% trans "IPSec Policy" %}</h2>
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "Name" %}</th>
+      <td>{{ object.ipsec_policy|linkify }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Description" %}</th>
+      <td>{{ object.ipsec_policy.description|placeholder }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Proposals" %}</th>
+      <td>
+        <ul class="list-unstyled mb-0">
+          {% for proposal in object.ipsec_policy.proposals.all %}
+            <li><a href="{{ proposal.get_absolute_url }}">{{ proposal }}</a></li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "PFS Group" %}</th>
+      <td>{{ object.ipsec_policy.get_pfs_group_display }}</td>
+    </tr>
+  </table>
+</div>

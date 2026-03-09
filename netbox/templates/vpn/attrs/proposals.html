@@ -1,0 +1,5 @@
+<ul class="list-unstyled mb-0">
+  {% for proposal in value.all %}
+    <li><a href="{{ proposal.get_absolute_url }}">{{ proposal }}</a></li>
+  {% endfor %}
+</ul>
