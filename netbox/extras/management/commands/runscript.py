@@ -81,7 +81,7 @@ class Command(BaseCommand):
                     logger.error(f'\t{field}: {error.get("message")}')
             raise CommandError()
 
-        # Remove extra fields from ScriptForm before passng data to script
+        # Remove extra fields from ScriptForm before passing data to script
         form.cleaned_data.pop('_schedule_at')
         form.cleaned_data.pop('_interval')
         form.cleaned_data.pop('_commit')
@@ -94,10 +94,12 @@ class Command(BaseCommand):
             data=form.cleaned_data,
             request=NetBoxFakeRequest({
                 'META': {},
+                'COOKIES': {},
                 'POST': data,
                 'GET': {},
                 'FILES': {},
                 'user': user,
+                'method': 'POST',
                 'path': '',
                 'id': uuid.uuid4()
             }),

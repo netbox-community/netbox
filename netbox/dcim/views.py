@@ -16,7 +16,7 @@ from circuits.models import Circuit, CircuitTermination
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
-from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
+from ipam.tables import VLANTranslationRuleTable
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
@@ -25,6 +25,7 @@ from netbox.ui.panels import (
     NestedGroupObjectPanel,
     ObjectsTablePanel,
     OrganizationalObjectPanel,
+    Panel,
     RelatedObjectsPanel,
     TemplatePanel,
 )
@@ -388,7 +389,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 title=_('Child Groups'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
                 actions=[
-                    actions.AddObject('dcim.Region', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                    actions.AddObject('dcim.SiteGroup', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
             ),
         ]
@@ -1667,6 +1668,22 @@ class ModuleTypeListView(generic.ObjectListView):
 @register_model_view(ModuleType)
 class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleTypePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Attributes'),
+                template_name='dcim/panels/module_type_attributes.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            ImageAttachmentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -2306,6 +2323,27 @@ class DeviceRoleListView(generic.ObjectListView):
 @register_model_view(DeviceRole)
 class DeviceRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceRole.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.DeviceRolePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.DeviceRole',
+                title=_('Child Device Roles'),
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.DeviceRole', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ]
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -2385,6 +2423,27 @@ class PlatformListView(generic.ObjectListView):
 @register_model_view(Platform)
 class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Platform.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PlatformPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.Platform',
+                title=_('Child Platforms'),
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.Platform', url_params={'parent': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ]
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -2733,6 +2792,7 @@ class DeviceBulkImportView(generic.BulkImportView):
         # For child devices, save the reverse relation to the parent device bay
         if parent_bay:
             device_bay = parent_bay
+            device_bay.snapshot()
             device_bay.installed_device = obj
             device_bay.save()
 
@@ -2777,6 +2837,21 @@ class ModuleListView(generic.ObjectListView):
 @register_model_view(Module)
 class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Module.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModulePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            Panel(
+                title=_('Module Type'),
+                template_name='dcim/panels/module_type.html',
+            ),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -3155,21 +3230,6 @@ class InterfaceView(generic.ObjectView):
         )
         lag_interfaces_table.configure(request)
 
-        # Get assigned VLANs and annotate whether each is tagged or untagged
-        vlans = []
-        if instance.untagged_vlan is not None:
-            vlans.append(instance.untagged_vlan)
-            vlans[0].tagged = False
-        for vlan in instance.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
-            vlan.tagged = True
-            vlans.append(vlan)
-        vlan_table = InterfaceVLANTable(
-            interface=instance,
-            data=vlans,
-            orderable=False
-        )
-        vlan_table.configure(request)
-
         # Get VLAN translation rules
         vlan_translation_table = None
         if instance.vlan_translation_policy:
@@ -3185,7 +3245,6 @@ class InterfaceView(generic.ObjectView):
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'lag_interfaces_table': lag_interfaces_table,
-            'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }
 
@@ -3912,19 +3971,6 @@ class CableEditView(generic.ObjectEditView):
 
         return super().alter_object(obj, request, url_args, url_kwargs)
 
-    def get_extra_addanother_params(self, request):
-
-        params = {
-            'a_terminations_type': request.GET.get('a_terminations_type'),
-            'b_terminations_type': request.GET.get('b_terminations_type')
-        }
-
-        for key in request.POST:
-            if 'device' in key or 'power_panel' in key or 'circuit' in key:
-                params.update({key: request.POST.get(key)})
-
-        return params
-
 
 @register_model_view(Cable, 'delete')
 class CableDeleteView(generic.ObjectDeleteView):
@@ -4099,6 +4145,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
                 members = formset.save(commit=False)
                 devices = Device.objects.filter(pk__in=[m.pk for m in members])
                 for device in devices:
+                    device.snapshot()
                     device.vc_position = None
                     device.save()
                 for member in members:

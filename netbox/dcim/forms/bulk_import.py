@@ -1386,6 +1386,7 @@ class MACAddressImportForm(PrimaryModelImportForm):
 
         # Assign the MAC address as primary for its interface, if designated as such
         if interface and self.cleaned_data['is_primary'] and self.instance.pk:
+            interface.snapshot()
             interface.primary_mac_address = self.instance
             interface.save()
 
@@ -1528,8 +1529,11 @@ class CableImportForm(PrimaryModelImportForm):
 
         model = content_type.model_class()
         try:
-            if device.virtual_chassis and device.virtual_chassis.master == device and \
-                    model.objects.filter(device=device, name=name).count() == 0:
+            if (
+                device.virtual_chassis and
+                device.virtual_chassis.master == device and
+                not model.objects.filter(device=device, name=name).exists()
+            ):
                 termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
             else:
                 termination_object = model.objects.get(device=device, name=name)

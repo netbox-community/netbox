@@ -2614,6 +2614,126 @@ class CableTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_graphql_cable_termination_cached_filters(self):
+        """
+        Validate filtering cables by cached CableTermination relations via GraphQL:
+
+          cable_list(filters: { terminations: { <relation>: {...}, DISTINCT: true } })
+
+        Also asserts deduplication when both ends match (cable between two interfaces
+        on the same device/rack/location/site).
+        """
+        self.add_permissions(
+            'dcim.view_cable',
+            'dcim.view_device',
+            'dcim.view_interface',
+            'dcim.view_rack',
+            'dcim.view_location',
+            'dcim.view_site',
+        )
+
+        # Reuse existing fixtures from setUpTestData()
+        devicetype = DeviceType.objects.get(slug='device-type-1')
+        role = DeviceRole.objects.get(slug='device-role-1')
+
+        # Create an isolated topology for this test
+        site_a = Site.objects.create(name='GQL Site A', slug='gql-site-a')
+        site_b = Site.objects.create(name='GQL Site B', slug='gql-site-b')
+
+        location_a = Location.objects.create(
+            site=site_a,
+            name='GQL Location A',
+            slug='gql-location-a',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        location_b = Location.objects.create(
+            site=site_b,
+            name='GQL Location B',
+            slug='gql-location-b',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+
+        rack_a = Rack.objects.create(site=site_a, location=location_a, name='GQL Rack A', u_height=42)
+        rack_b = Rack.objects.create(site=site_b, location=location_b, name='GQL Rack B', u_height=42)
+
+        device_a = Device.objects.create(
+            device_type=devicetype,
+            role=role,
+            name='GQL Device A',
+            site=site_a,
+            location=location_a,
+            rack=rack_a,
+        )
+        device_b = Device.objects.create(
+            device_type=devicetype,
+            role=role,
+            name='GQL Device B',
+            site=site_b,
+            location=location_b,
+            rack=rack_b,
+        )
+
+        a0 = Interface.objects.create(device=device_a, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name='eth0')
+        a1 = Interface.objects.create(device=device_a, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name='eth1')
+        a2 = Interface.objects.create(device=device_a, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name='eth2')
+        b0 = Interface.objects.create(device=device_b, type=InterfaceTypeChoices.TYPE_1GE_FIXED, name='eth0')
+
+        # Both ends on Device A (duplication risk without DISTINCT)
+        cable_same_device = Cable(a_terminations=[a0], b_terminations=[a1], label='GQL Cable Same Device')
+        cable_same_device.save()
+
+        # Cross to Device B
+        cable_cross = Cable(a_terminations=[a2], b_terminations=[b0], label='GQL Cable Cross')
+        cable_cross.save()
+
+        expected_a = {str(cable_same_device.pk), str(cable_cross.pk)}
+        expected_b = {str(cable_cross.pk)}
+
+        url = reverse('graphql')
+
+        test_cases = (
+            # Device (ID + name)
+            (f'device: {{ id: {{ exact: "{device_a.pk}" }} }}', expected_a),
+            (f'device: {{ name: {{ exact: "{device_a.name}" }} }}', expected_a),
+            (f'device: {{ id: {{ exact: "{device_b.pk}" }} }}', expected_b),
+            (f'device: {{ name: {{ exact: "{device_b.name}" }} }}', expected_b),
+            # Rack (ID + name)
+            (f'rack: {{ id: {{ exact: "{rack_a.pk}" }} }}', expected_a),
+            (f'rack: {{ name: {{ exact: "{rack_a.name}" }} }}', expected_a),
+            (f'rack: {{ id: {{ exact: "{rack_b.pk}" }} }}', expected_b),
+            (f'rack: {{ name: {{ exact: "{rack_b.name}" }} }}', expected_b),
+            # Location (ID + name)
+            (f'location: {{ id: {{ exact: "{location_a.pk}" }} }}', expected_a),
+            (f'location: {{ name: {{ exact: "{location_a.name}" }} }}', expected_a),
+            (f'location: {{ id: {{ exact: "{location_b.pk}" }} }}', expected_b),
+            (f'location: {{ name: {{ exact: "{location_b.name}" }} }}', expected_b),
+            # Site (ID + slug)
+            (f'site: {{ id: {{ exact: "{site_a.pk}" }} }}', expected_a),
+            (f'site: {{ slug: {{ exact: "{site_a.slug}" }} }}', expected_a),
+            (f'site: {{ id: {{ exact: "{site_b.pk}" }} }}', expected_b),
+            (f'site: {{ slug: {{ exact: "{site_b.slug}" }} }}', expected_b),
+        )
+
+        for inner_filter, expected in test_cases:
+            with self.subTest(filter=inner_filter):
+                query = f"""{{
+                  cable_list(filters: {{ terminations: {{ {inner_filter} DISTINCT: true }} }})
+                  {{ id }}
+                }}"""
+
+                response = self.client.post(url, data={'query': query}, format='json', **self.header)
+                self.assertHttpStatus(response, status.HTTP_200_OK)
+                data = response.json()
+                self.assertNotIn('errors', data)
+
+                rows = data['data']['cable_list']
+                ids = [row['id'] for row in rows]
+
+                # Ensure DISTINCT is actually effective (no duplicate cables when both ends match)
+                self.assertEqual(len(ids), len(set(ids)), f'Duplicate cables returned for: {inner_filter}')
+
+                self.assertSetEqual(set(ids), expected)
+
 
 class CableTerminationTest(
     APIViewTestCases.GetObjectViewTestCase,

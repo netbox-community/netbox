@@ -1,5 +1,34 @@
 # NetBox v4.5
 
+## v4.5.4 (2026-03-03)
+
+### Enhancements
+
+* [#21369](https://github.com/netbox-community/netbox/issues/21369) - Support lazy-loading of image attachments
+* [#21385](https://github.com/netbox-community/netbox/issues/21385) - Add contact assignment support for virtual circuits
+* [#21394](https://github.com/netbox-community/netbox/issues/21394) - Add 10GBASE-CU and 40GBASE-SR4 BiDi interface types
+* [#21477](https://github.com/netbox-community/netbox/issues/21477) - Extend GraphQL API filters for cables
+
+### Performance Improvements
+
+* [#21456](https://github.com/netbox-community/netbox/issues/21456) - Improve performance of config context resolution via GraphQL API
+* [#21459](https://github.com/netbox-community/netbox/issues/21459) - Avoid prefetching data for hidden table columns
+
+### Bug Fixes
+
+* [#20490](https://github.com/netbox-community/netbox/issues/20490) - Restrict visibility of scripts in list view to users with view permission
+* [#20911](https://github.com/netbox-community/netbox/issues/20911) - Sort module bay options alphabetically when installing a module
+* [#21347](https://github.com/netbox-community/netbox/issues/21347) - The allocation of IPv6 addresses from a non-pool prefix should start at one, not zero
+* [#21429](https://github.com/netbox-community/netbox/issues/21429) - Termination type should persist when employing "create & add another" workflow for cables
+* [#21478](https://github.com/netbox-community/netbox/issues/21478) - Fix GraphQL union type resolution for connected console ports
+* [#21481](https://github.com/netbox-community/netbox/issues/21481) - Fix display of facility ID on rack view
+* [#21518](https://github.com/netbox-community/netbox/issues/21518) - Fix decimal custom field displaying as unset when value is zero
+* [#21524](https://github.com/netbox-community/netbox/issues/21524) - Avoid `IndexError` exception when encountering stale cable paths
+* [#21527](https://github.com/netbox-community/netbox/issues/21527) - Fix display of primary IP address with associated NAT IP on device view
+* [#21550](https://github.com/netbox-community/netbox/issues/21550) - Ensure pre-change snapshots are recorded for related objects
+
+---
+
 ## v4.5.3 (2026-02-17)
 
 ### Enhancements

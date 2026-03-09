@@ -13,7 +13,7 @@ from dcim.tables import DeviceTable
 from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import IPAddress, VLANGroup
-from ipam.tables import InterfaceVLANTable, VLANTranslationRuleTable
+from ipam.tables import VLANTranslationRuleTable
 from ipam.ui.panels import FHRPGroupAssignmentsPanel
 from netbox.object_actions import (
     AddObject,
@@ -594,7 +594,11 @@ class VMInterfaceView(generic.ObjectView):
                     ),
                 ],
             ),
-            ContextTablePanel('vlan_table', title=_('Assigned VLANs')),
+            ObjectsTablePanel(
+                model='ipam.VLAN',
+                title=_('Assigned VLANs'),
+                filters={'vminterface_id': lambda ctx: ctx['object'].pk},
+            ),
             ContextTablePanel('vlan_translation_table', title=_('VLAN Translation')),
             ContextTablePanel('child_interfaces_table', title=_('Child Interfaces')),
         ],
@@ -620,24 +624,8 @@ class VMInterfaceView(generic.ObjectView):
             )
             vlan_translation_table.configure(request)
 
-        # Get assigned VLANs and annotate whether each is tagged or untagged
-        vlans = []
-        if instance.untagged_vlan is not None:
-            vlans.append(instance.untagged_vlan)
-            vlans[0].tagged = False
-        for vlan in instance.tagged_vlans.restrict(request.user).prefetch_related('site', 'group', 'tenant', 'role'):
-            vlan.tagged = True
-            vlans.append(vlan)
-        vlan_table = InterfaceVLANTable(
-            interface=instance,
-            data=vlans,
-            orderable=False
-        )
-        vlan_table.configure(request)
-
         return {
             'child_interfaces_table': child_interfaces_tables,
-            'vlan_table': vlan_table,
             'vlan_translation_table': vlan_translation_table,
         }
 
