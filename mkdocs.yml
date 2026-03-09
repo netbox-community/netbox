@@ -221,6 +221,7 @@ nav:
             - PowerPort: 'models/dcim/powerport.md'
             - PowerPortTemplate: 'models/dcim/powerporttemplate.md'
             - Rack: 'models/dcim/rack.md'
+            - RackGroup: 'models/dcim/rackgroup.md'
             - RackReservation: 'models/dcim/rackreservation.md'
             - RackRole: 'models/dcim/rackrole.md'
             - RackType: 'models/dcim/racktype.md'

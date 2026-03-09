@@ -316,6 +316,18 @@ class RackReservationIndex(SearchIndex):
 
 
 @register_search
+class RackGroupIndex(SearchIndex):
+    model = models.RackGroup
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class RackRoleIndex(SearchIndex):
     model = models.RackRole
     fields = (

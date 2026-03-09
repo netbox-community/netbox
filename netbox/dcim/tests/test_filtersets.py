@@ -534,6 +534,37 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
+class RackGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = RackGroup.objects.all()
+    filterset = RackGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', description='foobar1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', description='foobar2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Rack Group 1', 'Rack Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['rack-group-1', 'rack-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RackRole.objects.all()
     filterset = RackRoleFilterSet
@@ -738,18 +769,18 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         for region in regions:
             region.save()
 
-        groups = (
+        site_groups = (
             SiteGroup(name='Site Group 1', slug='site-group-1'),
             SiteGroup(name='Site Group 2', slug='site-group-2'),
             SiteGroup(name='Site Group 3', slug='site-group-3'),
         )
-        for group in groups:
-            group.save()
+        for site_group in site_groups:
+            site_group.save()
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -810,6 +841,13 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         RackType.objects.bulk_create(rack_types)
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
             RackRole(name='Rack Role 2', slug='rack-role-2'),
@@ -838,6 +876,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 facility_id='rack-1',
                 site=sites[0],
                 location=locations[0],
+                group=rack_groups[0],
                 tenant=tenants[0],
                 status=RackStatusChoices.STATUS_ACTIVE,
                 role=rack_roles[0],
@@ -862,6 +901,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 facility_id='rack-2',
                 site=sites[1],
                 location=locations[1],
+                group=rack_groups[1],
                 tenant=tenants[1],
                 status=RackStatusChoices.STATUS_PLANNED,
                 role=rack_roles[1],
@@ -886,6 +926,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 facility_id='rack-3',
                 site=sites[2],
                 location=locations[2],
+                group=rack_groups[2],
                 tenant=tenants[2],
                 status=RackStatusChoices.STATUS_RESERVED,
                 role=rack_roles[2],
@@ -1017,6 +1058,13 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack_group(self):
+        rack_groups = RackGroup.objects.all()[:2]
+        params = {'group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [rack_groups[0].slug, rack_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_status(self):
         params = {'status': [RackStatusChoices.STATUS_ACTIVE, RackStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
@@ -1095,18 +1143,18 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         for region in regions:
             region.save()
 
-        groups = (
+        site_groups = (
             SiteGroup(name='Site Group 1', slug='site-group-1'),
             SiteGroup(name='Site Group 2', slug='site-group-2'),
             SiteGroup(name='Site Group 3', slug='site-group-3'),
         )
-        for group in groups:
-            group.save()
+        for site_group in site_groups:
+            site_group.save()
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -1118,10 +1166,17 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         racks = (
-            Rack(name='Rack 1', site=sites[0], location=locations[0]),
-            Rack(name='Rack 2', site=sites[1], location=locations[1]),
-            Rack(name='Rack 3', site=sites[2], location=locations[2]),
+            Rack(name='Rack 1', site=sites[0], location=locations[0], group=rack_groups[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1], group=rack_groups[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2], group=rack_groups[2]),
         )
         Rack.objects.bulk_create(racks)
 
@@ -1205,6 +1260,13 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location_id': [locations[0].pk, locations[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'location': [locations[0].slug, locations[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rack_group(self):
+        rack_groups = RackGroup.objects.all()[:2]
+        params = {'group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [rack_groups[0].slug, rack_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_status(self):

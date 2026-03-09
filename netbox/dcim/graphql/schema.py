@@ -102,6 +102,9 @@ class DCIMQuery:
     power_port_template: PowerPortTemplateType = strawberry_django.field()
     power_port_template_list: list[PowerPortTemplateType] = strawberry_django.field()
 
+    rack_group: RackGroupType = strawberry_django.field()
+    rack_group_list: list[RackGroupType] = strawberry_django.field()
+
     rack_type: RackTypeType = strawberry_django.field()
     rack_type_list: list[RackTypeType] = strawberry_django.field()
 

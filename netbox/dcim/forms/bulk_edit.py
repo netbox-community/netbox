@@ -61,6 +61,7 @@ __all__ = (
     'PowerPortBulkEditForm',
     'PowerPortTemplateBulkEditForm',
     'RackBulkEditForm',
+    'RackGroupBulkEditForm',
     'RackReservationBulkEditForm',
     'RackRoleBulkEditForm',
     'RackTypeBulkEditForm',
@@ -201,6 +202,14 @@ class LocationBulkEditForm(NestedGroupModelBulkEditForm):
     nullable_fields = ('parent', 'tenant', 'facility', 'description', 'comments')
 
 
+class RackGroupBulkEditForm(OrganizationalModelBulkEditForm):
+    model = RackGroup
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description', 'comments')
+
+
 class RackRoleBulkEditForm(OrganizationalModelBulkEditForm):
     color = ColorField(
         label=_('Color'),
@@ -336,6 +345,11 @@ class RackBulkEditForm(PrimaryModelBulkEditForm):
             'site_id': '$site'
         }
     )
+    group = DynamicModelChoiceField(
+        label=_('Group'),
+        queryset=RackGroup.objects.all(),
+        required=False
+    )
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -435,14 +449,16 @@ class RackBulkEditForm(PrimaryModelBulkEditForm):
 
     model = Rack
     fieldsets = (
-        FieldSet('status', 'role', 'tenant', 'serial', 'asset_tag', 'rack_type', 'description', name=_('Rack')),
+        FieldSet(
+            'status', 'group', 'role', 'tenant', 'serial', 'asset_tag', 'rack_type', 'description', name=_('Rack')
+        ),
         FieldSet('region', 'site_group', 'site', 'location', name=_('Location')),
         FieldSet('outer_width', 'outer_height', 'outer_depth', 'outer_unit', name=_('Outer Dimensions')),
         FieldSet('form_factor', 'width', 'u_height', 'desc_units', 'airflow', 'mounting_depth', name=_('Hardware')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
     )
     nullable_fields = (
-        'location', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_height', 'outer_depth',
+        'location', 'group', 'tenant', 'role', 'serial', 'asset_tag', 'outer_width', 'outer_height', 'outer_depth',
         'outer_unit', 'weight', 'max_weight', 'weight_unit', 'description', 'comments',
     )
 

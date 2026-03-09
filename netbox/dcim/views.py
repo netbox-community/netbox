@@ -786,6 +786,85 @@ class LocationBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Rack groups
+#
+
+
+@register_model_view(RackGroup, 'list', path='', detail=False)
+class RackGroupListView(generic.ObjectListView):
+    queryset = RackGroup.objects.annotate(
+        rack_count=count_related(Rack, 'group')
+    )
+    filterset = filtersets.RackGroupFilterSet
+    filterset_form = forms.RackGroupFilterForm
+    table = tables.RackGroupTable
+
+
+@register_model_view(RackGroup)
+class RackGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = RackGroup.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+    )
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(RackGroup, 'add', detail=False)
+@register_model_view(RackGroup, 'edit')
+class RackGroupEditView(generic.ObjectEditView):
+    queryset = RackGroup.objects.all()
+    form = forms.RackGroupForm
+
+
+@register_model_view(RackGroup, 'delete')
+class RackGroupDeleteView(generic.ObjectDeleteView):
+    queryset = RackGroup.objects.all()
+
+
+@register_model_view(RackGroup, 'bulk_import', path='import', detail=False)
+class RackGroupBulkImportView(generic.BulkImportView):
+    queryset = RackGroup.objects.all()
+    model_form = forms.RackGroupImportForm
+
+
+@register_model_view(RackGroup, 'bulk_edit', path='edit', detail=False)
+class RackGroupBulkEditView(generic.BulkEditView):
+    queryset = RackGroup.objects.annotate(
+        rack_count=count_related(Rack, 'group')
+    )
+    filterset = filtersets.RackGroupFilterSet
+    table = tables.RackGroupTable
+    form = forms.RackGroupBulkEditForm
+
+
+@register_model_view(RackGroup, 'bulk_rename', path='rename', detail=False)
+class RackGroupBulkRenameView(generic.BulkRenameView):
+    queryset = RackGroup.objects.all()
+    filterset = filtersets.RackGroupFilterSet
+
+
+@register_model_view(RackGroup, 'bulk_delete', path='delete', detail=False)
+class RackGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = RackGroup.objects.annotate(
+        rack_count=count_related(Rack, 'group')
+    )
+    filterset = filtersets.RackGroupFilterSet
+    table = tables.RackGroupTable
+
+
+#
 # Rack roles
 #
 
@@ -1160,7 +1239,7 @@ class RackReservationView(generic.ObjectView):
     queryset = RackReservation.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location', 'name']),
+            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location', 'group', 'name']),
             panels.RackReservationPanel(title=_('Reservation')),
             CustomFieldsPanel(),
             TagsPanel(),

@@ -85,6 +85,7 @@ __all__ = (
     'PowerPortFilterSet',
     'PowerPortTemplateFilterSet',
     'RackFilterSet',
+    'RackGroupFilterSet',
     'RackReservationFilterSet',
     'RackRoleFilterSet',
     'RackTypeFilterSet',
@@ -316,6 +317,14 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
 
 
 @register_filterset
+class RackGroupFilterSet(OrganizationalModelFilterSet):
+
+    class Meta:
+        model = RackGroup
+        fields = ('id', 'name', 'slug', 'description')
+
+
+@register_filterset
 class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -418,6 +427,18 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         lookup_expr='in',
         to_field_name='slug',
         label=_('Location (slug)'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackGroup.objects.all(),
+        distinct=False,
+        label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='group__slug',
+        queryset=RackGroup.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Group (slug)'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack_type__manufacturer',
@@ -552,6 +573,19 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         lookup_expr='in',
         to_field_name='slug',
         label=_('Location (slug)'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackGroup.objects.all(),
+        field_name='rack__group',
+        distinct=False,
+        label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack__group__slug',
+        queryset=RackGroup.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Group (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=RackReservationStatusChoices,

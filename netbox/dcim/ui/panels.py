@@ -43,6 +43,7 @@ class RackPanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
     site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
+    group = attrs.RelatedObjectAttr('group', linkify=True, label=_('Rack group'))
     name = attrs.TextAttr('name')
     facility_id = attrs.TextAttr('facility_id', label=_('Facility ID'))
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')

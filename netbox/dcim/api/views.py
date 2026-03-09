@@ -155,6 +155,17 @@ class LocationViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 
 
 #
+# Rack groups
+#
+
+
+class RackGroupViewSet(NetBoxModelViewSet):
+    queryset = RackGroup.objects.all()
+    serializer_class = serializers.RackGroupSerializer
+    filterset_class = filtersets.RackGroupFilterSet
+
+
+#
 # Rack roles
 #
 

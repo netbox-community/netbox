@@ -93,6 +93,7 @@ __all__ = (
     'PowerPortFilter',
     'PowerPortTemplateFilter',
     'RackFilter',
+    'RackGroupFilter',
     'RackReservationFilter',
     'RackRoleFilter',
     'RackTypeFilter',
@@ -959,6 +960,10 @@ class RackFilter(
     location_id: Annotated['TreeNodeFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    group: Annotated['RackGroupFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    group_id: ID | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['RackStatusEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -972,6 +977,11 @@ class RackFilter(
     vlan_groups: Annotated['VLANGroupFilter', strawberry.lazy('ipam.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
+
+
+@strawberry_django.filter_type(models.RackGroup, lookups=True)
+class RackGroupFilter(OrganizationalModelFilter):
+    pass
 
 
 @strawberry_django.filter_type(models.RackReservation, lookups=True)

@@ -64,6 +64,7 @@ __all__ = (
     'PowerPortTemplateFilterForm',
     'RackElevationFilterForm',
     'RackFilterForm',
+    'RackGroupFilterForm',
     'RackReservationFilterForm',
     'RackRoleFilterForm',
     'RackTypeFilterForm',
@@ -276,6 +277,15 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NestedGroupM
     tag = TagFilterField(model)
 
 
+class RackGroupFilterForm(OrganizationalModelFilterSetForm):
+    model = RackGroup
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    tag = TagFilterField(model)
+
+
 class RackRoleFilterForm(OrganizationalModelFilterSetForm):
     model = RackRole
     fieldsets = (
@@ -355,7 +365,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
     model = Rack
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', name=_('Location')),
         FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
         FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
@@ -391,6 +401,12 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
             'site_id': '$site_id'
         },
         label=_('Location')
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Rack group')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),
@@ -435,7 +451,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
 class RackElevationFilterForm(RackFilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'id', name=_('Location')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', 'id', name=_('Location')),
         FieldSet('status', 'role_id', name=_('Function')),
         FieldSet('type', 'width', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
@@ -459,7 +475,7 @@ class RackReservationFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('status', 'user_id', name=_('Reservation')),
-        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Rack')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', 'rack_id', name=_('Rack')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -491,10 +507,17 @@ class RackReservationFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         label=_('Location'),
         null_option='None'
     )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        null_option='None',
+        label=_('Rack group')
+    )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
         query_params={
+            'group_id': '$group_id',
             'site_id': '$site_id',
             'location_id': '$location_id',
         },
