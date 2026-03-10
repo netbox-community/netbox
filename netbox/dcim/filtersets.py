@@ -45,6 +45,7 @@ from .constants import *
 from .models import *
 
 __all__ = (
+    'CableBundleFilterSet',
     'CableFilterSet',
     'CableTerminationFilterSet',
     'CabledObjectFilterSet',
@@ -2570,6 +2571,22 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
+class CableBundleFilterSet(PrimaryModelFilterSet):
+
+    class Meta:
+        model = CableBundle
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+@register_filterset
 class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     termination_a_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
@@ -2588,6 +2605,16 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     unterminated = django_filters.BooleanFilter(
         method='_unterminated',
         label=_('Unterminated'),
+    )
+    bundle_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CableBundle.objects.all(),
+        label=_('Cable bundle (ID)'),
+    )
+    bundle = django_filters.ModelMultipleChoiceFilter(
+        field_name='bundle__name',
+        queryset=CableBundle.objects.all(),
+        to_field_name='name',
+        label=_('Cable bundle (name)'),
     )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices,

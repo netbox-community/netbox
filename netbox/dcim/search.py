@@ -4,6 +4,17 @@ from . import models
 
 
 @register_search
+class CableBundleIndex(SearchIndex):
+    model = models.CableBundle
+    fields = (
+        ('name', 100),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('description',)
+
+
+@register_search
 class CableIndex(SearchIndex):
     model = models.Cable
     fields = (

@@ -3547,6 +3547,45 @@ class InventoryItemRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
 
+class CableBundleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CableBundle
+
+    @classmethod
+    def setUpTestData(cls):
+        cable_bundles = (
+            CableBundle(name='Cable Bundle 1'),
+            CableBundle(name='Cable Bundle 2'),
+            CableBundle(name='Cable Bundle 3'),
+        )
+        CableBundle.objects.bulk_create(cable_bundles)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Cable Bundle X',
+            'description': 'A test bundle',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,description",
+            "Cable Bundle 4,Fourth bundle",
+            "Cable Bundle 5,Fifth bundle",
+            "Cable Bundle 6,",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cable_bundles[0].pk},Cable Bundle 7,New description7",
+            f"{cable_bundles[1].pk},Cable Bundle 8,New description8",
+            f"{cable_bundles[2].pk},Cable Bundle 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
 # TODO: Change base class to PrimaryObjectViewTestCase
 # Blocked by lack of common creation view for cables (termination A must be initialized)
 class CableTestCase(

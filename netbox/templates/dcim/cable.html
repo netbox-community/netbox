@@ -33,6 +33,10 @@
             </td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Bundle" %}</th>
+            <td>{{ object.bundle|linkify|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Label" %}</th>
             <td>{{ object.label|placeholder }}</td>
           </tr>

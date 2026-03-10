@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from wireless.graphql.types import WirelessLANType, WirelessLinkType
 
 __all__ = (
+    'CableBundleType',
     'CableType',
     'ComponentType',
     'ConsolePortTemplateType',
@@ -128,6 +129,16 @@ class ModularComponentTemplateType(ComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.CableBundle,
+    fields='__all__',
+    filters=CableBundleFilter,
+    pagination=True
+)
+class CableBundleType(PrimaryObjectType):
+    cables: list[Annotated['CableType', strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
     models.CableTermination,
     exclude=['termination_type', 'termination_id', '_device', '_rack', '_location', '_site'],
     filters=CableTerminationFilter,
@@ -158,6 +169,7 @@ class CableTerminationType(NetBoxObjectType):
 class CableType(PrimaryObjectType):
     color: str
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
+    bundle: Annotated['CableBundleType', strawberry.lazy('dcim.graphql.types')] | None
 
     terminations: list[CableTerminationType]
 

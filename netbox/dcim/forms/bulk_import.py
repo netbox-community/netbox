@@ -34,6 +34,7 @@ from wireless.choices import WirelessRoleChoices
 from .common import ModuleCommonForm
 
 __all__ = (
+    'CableBundleImportForm',
     'CableImportForm',
     'ConsolePortImportForm',
     'ConsoleServerPortImportForm',
@@ -1412,6 +1413,12 @@ class MACAddressImportForm(PrimaryModelImportForm):
 # Cables
 #
 
+class CableBundleImportForm(PrimaryModelImportForm):
+    class Meta:
+        model = CableBundle
+        fields = ('name', 'description', 'comments', 'tags')
+
+
 class CableImportForm(PrimaryModelImportForm):
     # Termination A
     side_a_site = CSVModelChoiceField(
@@ -1489,6 +1496,13 @@ class CableImportForm(PrimaryModelImportForm):
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
+    bundle = CSVModelChoiceField(
+        label=_('Bundle'),
+        queryset=CableBundle.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Cable bundle name'),
+    )
     length_unit = CSVChoiceField(
         label=_('Length unit'),
         choices=CableLengthUnitChoices,
@@ -1506,7 +1520,7 @@ class CableImportForm(PrimaryModelImportForm):
         model = Cable
         fields = [
             'side_a_site', 'side_a_device', 'side_a_type', 'side_a_name', 'side_b_site', 'side_b_device', 'side_b_type',
-            'side_b_name', 'type', 'status', 'profile', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'side_b_name', 'type', 'status', 'profile', 'tenant', 'bundle', 'label', 'color', 'length', 'length_unit',
             'description', 'owner', 'comments', 'tags',
         ]
 

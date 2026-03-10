@@ -189,6 +189,7 @@ nav:
             - Job: 'models/core/job.md'
         - DCIM:
             - Cable: 'models/dcim/cable.md'
+            - CableBundle: 'models/dcim/cablebundle.md'
             - ConsolePort: 'models/dcim/consoleport.md'
             - ConsolePortTemplate: 'models/dcim/consoleporttemplate.md'
             - ConsoleServerPort: 'models/dcim/consoleserverport.md'

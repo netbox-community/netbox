@@ -153,6 +153,9 @@ urlpatterns = [
     path('cables/', include(get_model_urls('dcim', 'cable', detail=False))),
     path('cables/<int:pk>/', include(get_model_urls('dcim', 'cable'))),
 
+    path('cable-bundles/', include(get_model_urls('dcim', 'cablebundle', detail=False))),
+    path('cable-bundles/<int:pk>/', include(get_model_urls('dcim', 'cablebundle'))),
+
     # Console/power/interface connections (read-only)
     path('console-connections/', views.ConsoleConnectionsListView.as_view(), name='console_connections_list'),
     path('power-connections/', views.PowerConnectionsListView.as_view(), name='power_connections_list'),

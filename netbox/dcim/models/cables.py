@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.dispatch import Signal
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
@@ -29,6 +30,7 @@ from .device_components import FrontPort, PathEndpoint, PortMapping, RearPort
 
 __all__ = (
     'Cable',
+    'CableBundle',
     'CablePath',
     'CableTermination',
 )
@@ -36,6 +38,31 @@ __all__ = (
 logger = logging.getLogger(f'netbox.{__name__}')
 
 trace_paths = Signal()
+
+
+#
+# Cable bundles
+#
+
+class CableBundle(PrimaryModel):
+    """
+    A logical grouping of individual cables.
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('cable bundle')
+        verbose_name_plural = _('cable bundles')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:cablebundle', args=[self.pk])
 
 
 #
@@ -102,8 +129,16 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
+    bundle = models.ForeignKey(
+        to='dcim.CableBundle',
+        on_delete=models.SET_NULL,
+        related_name='cables',
+        blank=True,
+        null=True,
+        verbose_name=_('bundle'),
+    )
 
-    clone_fields = ('tenant', 'type', 'profile')
+    clone_fields = ('tenant', 'type', 'profile', 'bundle')
 
     class Meta:
         ordering = ('pk',)

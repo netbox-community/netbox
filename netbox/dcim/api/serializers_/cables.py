@@ -3,7 +3,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.models import Cable, CablePath, CableTermination
+from dcim.models import Cable, CableBundle, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import (
@@ -16,12 +16,24 @@ from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 
 __all__ = (
+    'CableBundleSerializer',
     'CablePathSerializer',
     'CableSerializer',
     'CableTerminationSerializer',
     'CabledObjectSerializer',
     'TracedCableSerializer',
 )
+
+
+class CableBundleSerializer(PrimaryModelSerializer):
+
+    class Meta:
+        model = CableBundle
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class CableSerializer(PrimaryModelSerializer):
@@ -31,12 +43,13 @@ class CableSerializer(PrimaryModelSerializer):
     profile = ChoiceField(choices=CableProfileChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     length_unit = ChoiceField(choices=CableLengthUnitChoices, allow_blank=True, required=False, allow_null=True)
+    bundle = CableBundleSerializer(nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = Cable
         fields = [
             'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'profile',
-            'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
+            'tenant', 'bundle', 'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'label', 'description')

@@ -2799,6 +2799,28 @@ class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
         InventoryItemRole.objects.bulk_create(roles)
 
 
+class CableBundleTest(APIViewTestCases.APIViewTestCase):
+    model = CableBundle
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    create_data = [
+        {'name': 'Cable Bundle 4'},
+        {'name': 'Cable Bundle 5'},
+        {'name': 'Cable Bundle 6'},
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        cable_bundles = (
+            CableBundle(name='Cable Bundle 1'),
+            CableBundle(name='Cable Bundle 2'),
+            CableBundle(name='Cable Bundle 3'),
+        )
+        CableBundle.objects.bulk_create(cable_bundles)
+
+
 class CableTest(APIViewTestCases.APIViewTestCase):
     model = Cable
     brief_fields = ['description', 'display', 'id', 'label', 'url']

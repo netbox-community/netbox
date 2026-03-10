@@ -29,6 +29,7 @@ from wireless.models import WirelessLAN, WirelessLANGroup
 
 __all__ = (
     'CableBulkEditForm',
+    'CableBundleBulkEditForm',
     'ConsolePortBulkEditForm',
     'ConsolePortTemplateBulkEditForm',
     'ConsoleServerPortBulkEditForm',
@@ -786,6 +787,23 @@ class ModuleBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = ('serial', 'description', 'comments')
 
 
+class CableBundleBulkEditForm(PrimaryModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CableBundle.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False,
+    )
+
+    model = CableBundle
+
+    class Meta:
+        nullable_fields = ('description',)
+
+
 class CableBulkEditForm(PrimaryModelBulkEditForm):
     type = forms.ChoiceField(
         label=_('Type'),
@@ -809,6 +827,11 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False
+    )
+    bundle = DynamicModelChoiceField(
+        label=_('Bundle'),
+        queryset=CableBundle.objects.all(),
+        required=False,
     )
     label = forms.CharField(
         label=_('Label'),
@@ -837,7 +860,7 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
         FieldSet('color', 'length', 'length_unit', name=_('Attributes')),
     )
     nullable_fields = (
-        'type', 'status', 'profile', 'tenant', 'label', 'color', 'length', 'description', 'comments',
+        'type', 'status', 'profile', 'tenant', 'bundle', 'label', 'color', 'length', 'description', 'comments',
     )
 
 
