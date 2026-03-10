@@ -458,14 +458,8 @@ class ExportTemplate(
     sync_data.alters_data = True
 
     def get_context(self, context=None, queryset=None):
-        _context = {
-            'queryset': queryset,
-        }
-
-        # Apply the provided context data, if any
-        if context is not None:
-            _context.update(context)
-
+        _context = super().get_context(context=context, queryset=queryset)
+        _context['queryset'] = queryset
         return _context
 
 
