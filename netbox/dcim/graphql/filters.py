@@ -108,7 +108,7 @@ __all__ = (
 )
 
 
-@strawberry_django.filter(models.CableBundle, lookups=True)
+@strawberry_django.filter_type(models.CableBundle, lookups=True)
 class CableBundleFilter(PrimaryModelFilter):
     name: StrFilterLookup[str] | None = strawberry_django.filter_field()
 

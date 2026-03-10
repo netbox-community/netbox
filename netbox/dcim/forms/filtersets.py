@@ -1179,6 +1179,7 @@ class CableBundleFilterForm(PrimaryModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('name', name=_('Attributes')),
     )
+    tag = TagFilterField(model)
 
 
 class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):

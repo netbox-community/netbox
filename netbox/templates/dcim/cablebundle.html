@@ -21,12 +21,6 @@
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
-          <tr>
-            <th scope="row">{% trans "Cables" %}</th>
-            <td>
-              <a href="{% url 'dcim:cable_list' %}?bundle_id={{ object.pk }}">{{ object.cables.count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
       {% include 'inc/panels/custom_fields.html' %}

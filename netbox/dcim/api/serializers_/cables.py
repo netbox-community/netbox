@@ -26,12 +26,13 @@ __all__ = (
 
 
 class CableBundleSerializer(PrimaryModelSerializer):
+    cable_count = serializers.IntegerField(read_only=True, default=None)
 
     class Meta:
         model = CableBundle
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'custom_fields', 'created', 'last_updated', 'cable_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

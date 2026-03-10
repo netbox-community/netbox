@@ -856,7 +856,7 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
 
     model = Cable
     fieldsets = (
-        FieldSet('type', 'status', 'profile', 'tenant', 'label', 'description'),
+        FieldSet('type', 'status', 'profile', 'tenant', 'bundle', 'label', 'description'),
         FieldSet('color', 'length', 'length_unit', name=_('Attributes')),
     )
     nullable_fields = (

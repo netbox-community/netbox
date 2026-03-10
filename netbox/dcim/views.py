@@ -4036,8 +4036,8 @@ class CableBundleView(generic.ObjectView):
     queryset = CableBundle.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Not prefetching terminations as they are not included in the default inline table layout. See CableListView
-        # for prefetch pattern if terminations are necessary here.
+        # Not prefetching related cable terminations as they are not included in the default inline CableTable layout.
+        # See CableListView for prefetch pattern if terminations are necessary here.
         cables_table = tables.CableTable(
             instance.cables.all(),
             orderable=False,

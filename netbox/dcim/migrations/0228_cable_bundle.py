@@ -48,6 +48,7 @@ class Migration(migrations.Migration):
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name='cables',
                 to='dcim.cablebundle',
+                verbose_name='bundle',
             ),
         ),
     ]
