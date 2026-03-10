@@ -43,7 +43,7 @@ A set of rules (one per line) identifying files or paths to ignore during synchr
 | `README`              | Ignore any files named `README`                      |
 | `*.txt`               | Ignore any files with a `.txt` extension             |
 | `data???.json`        | Ignore e.g. `data123.json`                           |
-| `subdir/*`            | Ignore all files directly within `subdir/`           |
+| `subdir/*`            | Ignore all files within `subdir/`                    |
 | `subdir/*/*`          | Ignore all files one level deep within `subdir/`     |
 | `*/dev/*`             | Ignore files inside any directory named `dev/`       |
 

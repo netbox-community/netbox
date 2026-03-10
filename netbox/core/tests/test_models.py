@@ -10,6 +10,26 @@ from dcim.models import Device, Location, Site
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 
 
+class DataSourceIgnoreRulesTestCase(TestCase):
+
+    def test_no_ignore_rules(self):
+        ds = DataSource(ignore_rules='')
+        self.assertFalse(ds._ignore('README.md'))
+        self.assertFalse(ds._ignore('subdir/file.py'))
+
+    def test_ignore_by_filename(self):
+        ds = DataSource(ignore_rules='*.txt')
+        self.assertTrue(ds._ignore('notes.txt'))
+        self.assertTrue(ds._ignore('subdir/notes.txt'))
+        self.assertFalse(ds._ignore('notes.py'))
+
+    def test_ignore_by_subdirectory(self):
+        ds = DataSource(ignore_rules='dev/*')
+        self.assertTrue(ds._ignore('dev/README.md'))
+        self.assertTrue(ds._ignore('dev/script.py'))
+        self.assertFalse(ds._ignore('prod/script.py'))
+
+
 class DataSourceChangeLoggingTestCase(TestCase):
 
     def test_password_added_on_create(self):
