@@ -8,7 +8,15 @@ from django.test import TestCase, tag
 
 from core.models import AutoSyncRecord, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
-from extras.models import ConfigContext, ConfigContextProfile, ConfigTemplate, ImageAttachment, Tag, TaggedItem
+from extras.models import (
+    ConfigContext,
+    ConfigContextProfile,
+    ConfigTemplate,
+    ExportTemplate,
+    ImageAttachment,
+    Tag,
+    TaggedItem,
+)
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
@@ -804,3 +812,36 @@ class ConfigTemplateTest(TestCase):
                 object_id=config_template.pk
             )
             self.assertEqual(autosync_records.count(), 0, "AutoSyncRecord should be deleted after detaching")
+
+
+class ExportTemplateContextTest(TestCase):
+    """
+    Tests for ExportTemplate.get_context() including public model population.
+    """
+
+    def test_get_context_includes_public_models(self):
+        et = ExportTemplate(name='test', template_code='test')
+        ctx = et.get_context()
+
+        self.assertIs(ctx['dcim']['Site'], Site)
+        self.assertIs(ctx['dcim']['Device'], Device)
+
+    def test_get_context_includes_queryset(self):
+        et = ExportTemplate(name='test', template_code='test')
+        qs = Site.objects.all()
+        ctx = et.get_context(queryset=qs)
+
+        self.assertIs(ctx['queryset'], qs)
+
+    def test_get_context_applies_extra_context(self):
+        et = ExportTemplate(name='test', template_code='test')
+        ctx = et.get_context(context={'custom_key': 'custom_value'})
+
+        self.assertEqual(ctx['custom_key'], 'custom_value')
+        self.assertIs(ctx['dcim']['Site'], Site)
+
+    def test_config_template_get_context_includes_public_models(self):
+        ct = ConfigTemplate(name='test', template_code='test')
+        ctx = ct.get_context()
+
+        self.assertIs(ctx['dcim']['Site'], Site)

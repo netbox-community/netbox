@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import jsonschema
 from django.conf import settings
 from django.core.validators import ValidationError
@@ -8,7 +6,6 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
-from core.models import ObjectType
 from extras.models.mixins import RenderTemplateMixin
 from extras.querysets import ConfigContextQuerySet
 from netbox.models import ChangeLoggedModel, PrimaryModel
@@ -302,17 +299,3 @@ class ConfigTemplate(
         """
         self.template_code = self.data_file.data_as_string
     sync_data.alters_data = True
-
-    def get_context(self, context=None, queryset=None):
-        _context = defaultdict(dict)
-
-        # Populate all public models for reference within the template
-        for object_type in ObjectType.objects.public():
-            if model := object_type.model_class():
-                _context[object_type.app_label][model.__name__] = model
-
-        # Apply the provided context data, if any
-        if context is not None:
-            _context.update(context)
-
-        return _context
