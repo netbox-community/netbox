@@ -30,9 +30,21 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Workaround for claude-code-action bug with fork PRs: The action tries to fetch by branch name, which doesn't
+      # exist on origin for forks. Pre-fetch the PR ref so it's available as a local ref.
+      - name: Fetch fork PR ref (if applicable)
+        if: github.event.issue.pull_request != '' && github.event.issue.pull_request != null
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr view ${{ github.event.issue.number }} --json number -q .number 2>/dev/null || echo "")
+          if [ -n "$PR_NUMBER" ]; then
+            git fetch origin refs/pull/${PR_NUMBER}/head:refs/remotes/pull/${PR_NUMBER}/head || true
+          fi
+
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@e763fe78de2db7389e04818a00b5ff8ba13d1360 # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
