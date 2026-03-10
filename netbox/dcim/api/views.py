@@ -404,9 +404,8 @@ class DeviceViewSet(
     RenderConfigMixin,
     NetBoxModelViewSet
 ):
-    queryset = Device.objects.select_related(
+    queryset = Device.objects.prefetch_related(
         'device_type__manufacturer',  # Referenced by Device.__str__() for unnamed devices
-    ).prefetch_related(
         'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()
     )
     filterset_class = filtersets.DeviceFilterSet
