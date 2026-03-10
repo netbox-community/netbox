@@ -2,6 +2,7 @@ import importlib.abc
 import importlib.util
 import os
 import sys
+from collections import defaultdict
 
 from django.core.files.storage import storages
 from django.db import models
@@ -9,6 +10,7 @@ from django.http import HttpResponse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ObjectType
 from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_WITH_PATH_IMPORT
 from extras.utils import filename_from_model, filename_from_object
 from utilities.jinja2 import render_jinja2
@@ -120,9 +122,17 @@ class RenderTemplateMixin(models.Model):
         abstract = True
 
     def get_context(self, context=None, queryset=None):
-        raise NotImplementedError(_("{class_name} must implement a get_context() method.").format(
-            class_name=self.__class__
-        ))
+        _context = defaultdict(dict)
+
+        # Populate all public models for reference within the template
+        for object_type in ObjectType.objects.public():
+            if model := object_type.model_class():
+                _context[object_type.app_label][model.__name__] = model
+
+        if context is not None:
+            _context.update(context)
+
+        return _context
 
     def get_environment_params(self):
         """
