@@ -1223,6 +1223,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'asn',
         'asnrange',
         'cable',
+        'cablebundle',
         'circuit',
         'circuitgroup',
         'circuitgroupassignment',
