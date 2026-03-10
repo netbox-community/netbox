@@ -77,6 +77,7 @@ class BaseIPAddressFamilyType:
 class ASNType(ContactsMixin, PrimaryObjectType):
     asn: BigInt
     rir: Annotated["RIRType", strawberry.lazy('ipam.graphql.types')] | None
+    role: Annotated["RoleType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
     sites: list[SiteType]

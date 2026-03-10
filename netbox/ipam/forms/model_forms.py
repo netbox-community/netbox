@@ -152,6 +152,12 @@ class ASNForm(TenancyForm, PrimaryModelForm):
         label=_('RIR'),
         quick_add=True
     )
+    role = DynamicModelChoiceField(
+        queryset=Role.objects.all(),
+        label=_('Role'),
+        required=False,
+        quick_add=True
+    )
     sites = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
         label=_('Sites'),
@@ -159,14 +165,14 @@ class ASNForm(TenancyForm, PrimaryModelForm):
     )
 
     fieldsets = (
-        FieldSet('asn', 'rir', 'sites', 'description', 'tags', name=_('ASN')),
+        FieldSet('asn', 'rir', 'role', 'sites', 'description', 'tags', name=_('ASN')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = ASN
         fields = [
-            'asn', 'rir', 'sites', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags'
+            'asn', 'rir', 'role', 'sites', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags'
         ]
         widgets = {
             'date_added': DatePicker(),

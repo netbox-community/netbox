@@ -137,6 +137,15 @@ class ASN(ContactsMixin, PrimaryModel):
         verbose_name=_('ASN'),
         help_text=_('16- or 32-bit autonomous system number')
     )
+    role = models.ForeignKey(
+        to='ipam.Role',
+        on_delete=models.SET_NULL,
+        related_name='asns',
+        blank=True,
+        null=True,
+        verbose_name=_('role'),
+        help_text=_("The primary function of this ASN")
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,

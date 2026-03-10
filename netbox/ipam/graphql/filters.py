@@ -57,6 +57,8 @@ __all__ = (
 class ASNFilter(TenancyFilterMixin, PrimaryModelFilter):
     rir: Annotated['RIRFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
     rir_id: ID | None = strawberry_django.filter_field()
+    role: Annotated['RoleFilter', strawberry.lazy('ipam.graphql.filters')] | None = strawberry_django.filter_field()
+    role_id: ID | None = strawberry_django.filter_field()
     asn: Annotated['BigIntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

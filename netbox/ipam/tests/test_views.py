@@ -84,6 +84,12 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ]
         RIR.objects.bulk_create(rirs)
 
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+        )
+        Role.objects.bulk_create(roles)
+
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2')
@@ -97,10 +103,10 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=65001, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=65002, rir=rirs[1], tenant=tenants[1]),
-            ASN(asn=4200000001, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=4200000002, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=65001, rir=rirs[0], role=roles[0], tenant=tenants[0]),
+            ASN(asn=65002, rir=rirs[1], role=roles[1], tenant=tenants[1]),
+            ASN(asn=4200000001, rir=rirs[0], role=roles[0], tenant=tenants[0]),
+            ASN(asn=4200000002, rir=rirs[1], role=roles[1], tenant=tenants[1]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -114,6 +120,7 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'asn': 65000,
             'rir': rirs[0].pk,
+            'role': roles[0].pk,
             'tenant': tenants[0].pk,
             'site': sites[0].pk,
             'description': 'A new ASN',
@@ -121,11 +128,11 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "asn,rir",
-            "65003,RIR 1",
-            "65004,RIR 2",
-            "4200000003,RIR 1",
-            "4200000004,RIR 2",
+            "asn,rir,role",
+            f"65003,RIR 1,{roles[0].name}",
+            f"65004,RIR 2,{roles[1].name}",
+            f"4200000003,RIR 1,{roles[0].name}",
+            f"4200000004,RIR 2,{roles[1].name}",
         )
 
         cls.csv_update_data = (
@@ -137,6 +144,7 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'rir': rirs[1].pk,
+            'role': roles[1].pk,
             'description': 'Next description',
         }
 
