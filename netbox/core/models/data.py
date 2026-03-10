@@ -69,7 +69,7 @@ class DataSource(JobsMixin, PrimaryModel):
     ignore_rules = models.TextField(
         verbose_name=_('ignore rules'),
         blank=True,
-        help_text=_("Patterns (one per line) matching files to ignore when syncing")
+        help_text=_("Patterns (one per line) matching files or paths to ignore when syncing")
     )
     parameters = models.JSONField(
         verbose_name=_('parameters'),
@@ -258,21 +258,22 @@ class DataSource(JobsMixin, PrimaryModel):
             if path.startswith('.'):
                 continue
             for file_name in file_names:
-                if not self._ignore(file_name):
-                    paths.add(os.path.join(path, file_name))
+                file_path = os.path.join(path, file_name)
+                if not self._ignore(file_path):
+                    paths.add(file_path)
 
         logger.debug(f"Found {len(paths)} files")
         return paths
 
-    def _ignore(self, filename):
+    def _ignore(self, file_path):
         """
         Returns a boolean indicating whether the file should be ignored per the DataSource's configured
-        ignore rules.
+        ignore rules. file_path is the full relative path (e.g. "subdir/file.txt").
         """
-        if filename.startswith('.'):
+        if os.path.basename(file_path).startswith('.'):
             return True
         for rule in self.ignore_rules.splitlines():
-            if fnmatchcase(filename, rule):
+            if fnmatchcase(file_path, rule) or fnmatchcase(os.path.basename(file_path), rule):
                 return True
         return False
 

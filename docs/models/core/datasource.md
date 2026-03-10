@@ -36,13 +36,16 @@ If false, synchronization will be disabled.
 
 ### Ignore Rules
 
-A set of rules (one per line) identifying filenames to ignore during synchronization. Some examples are provided below. See Python's [`fnmatch()` documentation](https://docs.python.org/3/library/fnmatch.html) for a complete reference.
+A set of rules (one per line) identifying files or paths to ignore during synchronization. Rules are matched against both the full relative path (e.g. `subdir/file.txt`) and the bare filename, so path-based patterns can be used to exclude entire directories. Some examples are provided below. See Python's [`fnmatch()` documentation](https://docs.python.org/3/library/fnmatch.html) for a complete reference.
 
-| Rule           | Description                              |
-|----------------|------------------------------------------|
-| `README`       | Ignore any files named `README`          |
-| `*.txt`        | Ignore any files with a `.txt` extension |
-| `data???.json` | Ignore e.g. `data123.json`               |
+| Rule                  | Description                                          |
+|-----------------------|------------------------------------------------------|
+| `README`              | Ignore any files named `README`                      |
+| `*.txt`               | Ignore any files with a `.txt` extension             |
+| `data???.json`        | Ignore e.g. `data123.json`                           |
+| `subdir/*`            | Ignore all files directly within `subdir/`           |
+| `subdir/*/*`          | Ignore all files one level deep within `subdir/`     |
+| `*/dev/*`             | Ignore files inside any directory named `dev/`       |
 
 ### Sync Interval
 
