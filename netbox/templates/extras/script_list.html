@@ -15,7 +15,9 @@
 {% endblock tabs %}
 
 {% block controls %}
-  {% add_button model %}
+  {% if perms.extras.add_scriptmodule %}
+    {% add_button model %}
+  {% endif %}
 {% endblock controls %}
 
 {% block content %}
