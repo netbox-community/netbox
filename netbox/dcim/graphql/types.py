@@ -73,6 +73,7 @@ __all__ = (
     'PowerPanelType',
     'PowerPortTemplateType',
     'PowerPortType',
+    'RackGroupType',
     'RackReservationType',
     'RackRoleType',
     'RackType',
@@ -737,6 +738,17 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.RackGroup,
+    fields='__all__',
+    filters=RackGroupFilter,
+    pagination=True
+)
+class RackGroupType(OrganizationalObjectType):
+
+    racks: list[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
     models.RackType,
     fields='__all__',
     filters=RackTypeFilter,
@@ -756,6 +768,7 @@ class RackTypeType(ImageAttachmentsMixin, PrimaryObjectType):
 class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObjectType):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
     location: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
+    group: Annotated["RackGroupType", strawberry.lazy('dcim.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["RackRoleType", strawberry.lazy('dcim.graphql.types')] | None
 

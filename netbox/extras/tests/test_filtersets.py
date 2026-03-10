@@ -1279,6 +1279,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'provideraccount',
         'providernetwork',
         'rack',
+        'rackgroup',
         'rackreservation',
         'rackrole',
         'racktype',

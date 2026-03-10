@@ -29,14 +29,30 @@ from .power import PowerFeed
 
 __all__ = (
     'Rack',
+    'RackGroup',
     'RackReservation',
     'RackRole',
     'RackType',
 )
 
+#
+# Rack Organization
+#
+
+
+class RackGroup(OrganizationalModel):
+    """
+    Racks can be grouped by physical placement within a Location.
+    """
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('rack group')
+        verbose_name_plural = _('rack groups')
+
 
 #
-# Rack Types
+# Rack Base
 #
 
 class RackBase(WeightMixin, PrimaryModel):
@@ -122,6 +138,10 @@ class RackBase(WeightMixin, PrimaryModel):
     class Meta:
         abstract = True
 
+
+#
+# Rack Types
+#
 
 class RackType(ImageAttachmentsMixin, RackBase):
     """
@@ -289,6 +309,14 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         related_name='racks',
         blank=True,
         null=True
+    )
+    group = models.ForeignKey(
+        to='dcim.RackGroup',
+        on_delete=models.PROTECT,
+        related_name='racks',
+        blank=True,
+        null=True,
+        help_text=_('physical grouping')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',

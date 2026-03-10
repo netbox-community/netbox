@@ -958,6 +958,9 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     location = django_filters.NumberFilter(
         method='filter_scope'
     )
+    rack_group = django_filters.NumberFilter(
+        method='filter_scope'
+    )
     rack = django_filters.NumberFilter(
         method='filter_scope'
     )

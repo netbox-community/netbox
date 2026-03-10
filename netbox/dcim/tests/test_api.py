@@ -280,6 +280,38 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class RackGroupTest(APIViewTestCases.APIViewTestCase):
+    model = RackGroup
+    brief_fields = ['description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
+    create_data = [
+        {
+            'name': 'Rack Group 4',
+            'slug': 'rack-group-4',
+        },
+        {
+            'name': 'Rack Group 5',
+            'slug': 'rack-group-5',
+        },
+        {
+            'name': 'Rack Group 6',
+            'slug': 'rack-group-6',
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+
 class RackRoleTest(APIViewTestCases.APIViewTestCase):
     model = RackRole
     brief_fields = ['description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
@@ -397,6 +429,12 @@ class RackTest(APIViewTestCases.APIViewTestCase):
             Location.objects.create(site=sites[1], name='Location 2', slug='location-2'),
         )
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1', color='ff0000'),
             RackRole(name='Rack Role 2', slug='rack-role-2', color='00ff00'),
@@ -404,9 +442,9 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         RackRole.objects.bulk_create(rack_roles)
 
         racks = (
-            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 1'),
-            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 2'),
-            Rack(site=sites[0], location=locations[0], role=rack_roles[0], name='Rack 3'),
+            Rack(site=sites[0], location=locations[0], group=rack_groups[0], role=rack_roles[0], name='Rack 1'),
+            Rack(site=sites[0], location=locations[0], group=rack_groups[0], role=rack_roles[0], name='Rack 2'),
+            Rack(site=sites[0], location=locations[0], group=rack_groups[0], role=rack_roles[0], name='Rack 3'),
         )
         Rack.objects.bulk_create(racks)
 
@@ -415,18 +453,21 @@ class RackTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Test Rack 4',
                 'site': sites[1].pk,
                 'location': locations[1].pk,
+                'group': rack_groups[1].pk,
                 'role': rack_roles[1].pk,
             },
             {
                 'name': 'Test Rack 5',
                 'site': sites[1].pk,
                 'location': locations[1].pk,
+                'group': rack_groups[1].pk,
                 'role': rack_roles[1].pk,
             },
             {
                 'name': 'Test Rack 6',
                 'site': sites[1].pk,
                 'location': locations[1].pk,
+                'group': rack_groups[1].pk,
                 'role': rack_roles[1].pk,
             },
         ]

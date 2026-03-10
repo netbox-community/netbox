@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, Location, Rack, Region, Site, SiteGroup
+from dcim.models import Device, Location, Rack, RackGroup, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -458,7 +458,7 @@ class FHRPGroupFilterForm(PrimaryModelFilterSetForm):
 class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region', 'site_group', 'site', 'location', 'rack', name=_('Location')),
+        FieldSet('region', 'site_group', 'site', 'location', 'rack_group', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
         FieldSet('contains_vid', name=_('VLANs')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -484,6 +484,11 @@ class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
         queryset=Location.objects.all(),
         required=False,
         label=_('Location')
+    )
+    rack_group = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        label=_('Rack group')
     )
     rack = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),

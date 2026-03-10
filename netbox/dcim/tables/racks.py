@@ -2,18 +2,42 @@ import django_tables2 as tables
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
-from dcim.models import Rack, RackReservation, RackRole, RackType
+from dcim.models import Rack, RackGroup, RackReservation, RackRole, RackType
 from netbox.tables import OrganizationalModelTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 from .template_code import OUTER_UNIT, WEIGHT
 
 __all__ = (
+    'RackGroupTable',
     'RackReservationTable',
     'RackRoleTable',
     'RackTable',
     'RackTypeTable',
 )
+
+
+class RackGroupTable(OrganizationalModelTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True,
+    )
+    rack_count = columns.LinkedCountColumn(
+        viewname='dcim:rack_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Racks'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:rackgroup_list',
+    )
+
+    class Meta(OrganizationalModelTable.Meta):
+        model = RackGroup
+        fields = (
+            'pk', 'id', 'name', 'rack_count', 'description', 'slug', 'comments', 'tags', 'actions', 'created',
+            'last_updated',
+        )
+        default_columns = ('pk', 'name', 'rack_count', 'description')
 
 
 class RackRoleTable(OrganizationalModelTable):
@@ -111,6 +135,10 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         verbose_name=_('Site'),
         linkify=True
     )
+    group = tables.Column(
+        verbose_name=_('Group'),
+        linkify=True,
+    )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
@@ -172,15 +200,15 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Rack
         fields = (
-            'pk', 'id', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
+            'pk', 'id', 'name', 'site', 'location', 'group', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
             'rack_type', 'serial', 'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
             'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'comments',
             'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts',
             'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'site', 'location', 'status', 'facility_id', 'tenant', 'role', 'rack_type', 'u_height',
-            'device_count', 'get_utilization',
+            'pk', 'name', 'site', 'location', 'group', 'status', 'facility_id', 'tenant', 'role', 'rack_type',
+            'u_height', 'device_count', 'get_utilization',
         )
 
 
@@ -198,6 +226,11 @@ class RackReservationTable(TenancyColumnsMixin, PrimaryModelTable):
     location = tables.Column(
         verbose_name=_('Location'),
         accessor=Accessor('rack__location'),
+        linkify=True
+    )
+    group = tables.Column(
+        verbose_name=_('Group'),
+        accessor=Accessor('rack__group'),
         linkify=True
     )
     rack = tables.Column(
@@ -218,7 +251,7 @@ class RackReservationTable(TenancyColumnsMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = RackReservation
         fields = (
-            'pk', 'id', 'reservation', 'site', 'location', 'rack', 'unit_list', 'status', 'user', 'created', 'tenant',
-            'tenant_group', 'description', 'comments', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'reservation', 'site', 'location', 'group', 'rack', 'unit_list', 'status', 'user', 'created',
+            'tenant', 'tenant_group', 'description', 'comments', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'reservation', 'site', 'rack', 'unit_list', 'status', 'user', 'description')

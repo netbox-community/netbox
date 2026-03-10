@@ -74,6 +74,7 @@ __all__ = (
     'PowerPortForm',
     'PowerPortTemplateForm',
     'RackForm',
+    'RackGroupForm',
     'RackReservationForm',
     'RackRoleForm',
     'RackTypeForm',
@@ -206,6 +207,18 @@ class LocationForm(TenancyForm, NestedGroupModelForm):
         )
 
 
+class RackGroupForm(OrganizationalModelForm):
+    fieldsets = (
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Rack Group')),
+    )
+
+    class Meta:
+        model = RackGroup
+        fields = [
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
+        ]
+
+
 class RackRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Rack Role')),
@@ -263,6 +276,11 @@ class RackForm(TenancyForm, PrimaryModelForm):
             'site_id': '$site'
         }
     )
+    group = DynamicModelChoiceField(
+        label=_('Rack Group'),
+        queryset=RackGroup.objects.all(),
+        required=False
+    )
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=RackRole.objects.all(),
@@ -278,7 +296,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet(
-            'site', 'location', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
+            'site', 'location', 'group', 'name', 'status', 'role', 'rack_type', 'description', 'airflow', 'tags',
             name=_('Rack')
         ),
         FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
@@ -288,7 +306,7 @@ class RackForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = Rack
         fields = [
-            'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
+            'site', 'location', 'group', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
             'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight',
             'weight_unit', 'description', 'owner', 'comments', 'tags',

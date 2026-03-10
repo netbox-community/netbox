@@ -1,6 +1,6 @@
 # Racks
 
-The rack model represents a physical two- or four-post equipment rack in which [devices](./device.md) can be installed. Each rack must be assigned to a [site](./site.md), and may optionally be assigned to a [location](./location.md) within that site. Racks can also be organized by user-defined functional roles. The name and facility ID of each rack within a location must be unique.
+The rack model represents a physical two- or four-post equipment rack in which [devices](./device.md) can be installed. Each rack must be assigned to a [site](./site.md), and may optionally be assigned to a [location](./location.md) within that site. Racks can also be organized by user-defined functional roles or by [rack groups](./rackgroup.md). The name and facility ID of each rack within a location must be unique.
 
 Rack height is measured in *rack units* (U); racks are commonly between 42U and 48U tall, but NetBox allows you to define racks of arbitrary height. A toggle is provided to indicate whether rack units are in ascending (from the ground up) or descending order.
 
@@ -15,6 +15,10 @@ The [site](./site.md) to which the rack is assigned.
 ### Location
 
 The [location](./location.md) within a site where the rack has been installed (optional).
+
+### Rack Group
+
+The [group](./rackgroup.md) used to organize racks by physical placement (optional).
 
 ### Name
 

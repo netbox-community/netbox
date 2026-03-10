@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.constants import *
-from dcim.models import Rack, RackReservation, RackRole, RackType
+from dcim.models import Rack, RackGroup, RackReservation, RackRole, RackType
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from netbox.choices import *
@@ -16,11 +16,26 @@ from .sites import LocationSerializer, SiteSerializer
 
 __all__ = (
     'RackElevationDetailFilterSerializer',
+    'RackGroupSerializer',
     'RackReservationSerializer',
     'RackRoleSerializer',
     'RackSerializer',
     'RackTypeSerializer',
 )
+
+
+class RackGroupSerializer(OrganizationalModelSerializer):
+
+    # Related object counts
+    rack_count = RelatedObjectCountField('racks')
+
+    class Meta:
+        model = RackGroup
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'rack_count',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
 
 
 class RackRoleSerializer(OrganizationalModelSerializer):
@@ -87,6 +102,11 @@ class RackSerializer(RackBaseSerializer):
         allow_null=True,
         default=None
     )
+    group = RackGroupSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
     tenant = TenantSerializer(
         nested=True,
         required=False,
@@ -127,11 +147,11 @@ class RackSerializer(RackBaseSerializer):
     class Meta:
         model = Rack
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'tenant', 'status',
-            'role', 'serial', 'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit', 'weight',
-            'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
-            'mounting_depth', 'airflow', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated', 'device_count', 'powerfeed_count',
+            'id', 'url', 'display_url', 'display', 'name', 'facility_id', 'site', 'location', 'group', 'tenant',
+            'status', 'role', 'serial', 'asset_tag', 'rack_type', 'form_factor', 'width', 'u_height', 'starting_unit',
+            'weight', 'max_weight', 'weight_unit', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
+            'outer_unit', 'mounting_depth', 'airflow', 'description', 'owner', 'comments', 'tags', 'custom_fields',
+            'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'device_count')
 

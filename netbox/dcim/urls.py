@@ -19,6 +19,9 @@ urlpatterns = [
     path('locations/', include(get_model_urls('dcim', 'location', detail=False))),
     path('locations/<int:pk>/', include(get_model_urls('dcim', 'location'))),
 
+    path('rack-groups/', include(get_model_urls('dcim', 'rackgroup', detail=False))),
+    path('rack-groups/<int:pk>/', include(get_model_urls('dcim', 'rackgroup'))),
+
     path('rack-roles/', include(get_model_urls('dcim', 'rackrole', detail=False))),
     path('rack-roles/<int:pk>/', include(get_model_urls('dcim', 'rackrole'))),
 

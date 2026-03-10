@@ -267,6 +267,47 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
 
+class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = RackGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Rack Group X',
+            'slug': 'rack-group-x',
+            'description': 'New group',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug,description",
+            "Rack Group 4,rack-group-4,Fourth group",
+            "Rack Group 5,rack-group-5,Fifth group",
+            "Rack Group 6,rack-group-6,",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{rack_groups[0].pk},Rack Group 7,New description7",
+            f"{rack_groups[1].pk},Rack Group 8,New description8",
+            f"{rack_groups[2].pk},Rack Group 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
 class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = RackRole
 
@@ -472,6 +513,12 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for location in locations:
             location.save()
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         rackroles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
             RackRole(name='Rack Role 2', slug='rack-role-2'),
@@ -479,8 +526,8 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         RackRole.objects.bulk_create(rackroles)
 
         racks = (
-            Rack(name='Rack 1', site=sites[0]),
-            Rack(name='Rack 2', site=sites[0]),
+            Rack(name='Rack 1', site=sites[0], group=rack_groups[0], role=rackroles[0]),
+            Rack(name='Rack 2', site=sites[0], group=rack_groups[1]),
             Rack(name='Rack 3', site=sites[0]),
         )
         Rack.objects.bulk_create(racks)
@@ -492,6 +539,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'facility_id': 'Facility X',
             'site': sites[1].pk,
             'location': locations[1].pk,
+            'group': rack_groups[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_PLANNED,
             'role': rackroles[1].pk,
@@ -513,10 +561,10 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,location,name,status,width,u_height,weight,max_weight,weight_unit",
-            "Site 1,,Rack 4,active,19,42,100,2000,kg",
-            "Site 1,Location 1,Rack 5,active,19,42,100,2000,kg",
-            "Site 2,Location 2,Rack 6,active,19,42,100,2000,kg",
+            "site,location,group,name,status,width,u_height,weight,max_weight,weight_unit",
+            "Site 1,,,Rack 4,active,19,42,100,2000,kg",
+            "Site 1,Location 1,Rack Group 1,Rack 5,active,19,42,100,2000,kg",
+            "Site 2,Location 2,Rack Group 2,Rack 6,active,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
@@ -529,6 +577,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'site': sites[1].pk,
             'location': locations[1].pk,
+            'group': rack_groups[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_DEPRECATED,
             'role': rackroles[1].pk,

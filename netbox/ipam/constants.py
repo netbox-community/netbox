@@ -74,7 +74,7 @@ VLAN_VID_MAX = 4094
 
 # models values for ContentTypes which may be VLANGroup scope types
 VLANGROUP_SCOPE_TYPES = (
-    'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
+    'region', 'sitegroup', 'site', 'location', 'rackgroup', 'rack', 'clustergroup', 'cluster',
 )
 
 
