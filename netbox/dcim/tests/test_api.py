@@ -2820,6 +2820,38 @@ class CableBundleTest(APIViewTestCases.APIViewTestCase):
         )
         CableBundle.objects.bulk_create(cable_bundles)
 
+    def test_cable_count(self):
+        """cable_count annotation is returned correctly in the API response."""
+        self.add_permissions('dcim.view_cablebundle')
+        bundle = CableBundle.objects.first()
+
+        site = Site.objects.create(name='CB Test Site', slug='cb-test-site')
+        manufacturer = Manufacturer.objects.create(name='CB Manufacturer', slug='cb-manufacturer')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='CB Device Type', slug='cb-device-type'
+        )
+        role = DeviceRole.objects.create(name='CB Role', slug='cb-role', color='ff0000')
+        devices = (
+            Device(device_type=device_type, role=role, name='CB Device 1', site=site),
+            Device(device_type=device_type, role=role, name='CB Device 2', site=site),
+        )
+        Device.objects.bulk_create(devices)
+        interfaces = (
+            Interface(device=devices[0], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[0], name='eth1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='eth1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+        )
+        Interface.objects.bulk_create(interfaces)
+        for a, b in [(interfaces[0], interfaces[2]), (interfaces[1], interfaces[3])]:
+            cable = Cable(a_terminations=[a], b_terminations=[b], bundle=bundle)
+            cable.save()
+
+        url = reverse('dcim-api:cablebundle-detail', kwargs={'pk': bundle.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['cable_count'], 2)
+
 
 class CableTest(APIViewTestCases.APIViewTestCase):
     model = Cable

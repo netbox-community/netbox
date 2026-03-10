@@ -50,7 +50,8 @@ class CableBundle(PrimaryModel):
     """
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=100
+        max_length=100,
+        unique=True,
     )
 
     class Meta:

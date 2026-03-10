@@ -26,7 +26,7 @@ __all__ = (
 
 
 class CableBundleSerializer(PrimaryModelSerializer):
-    cable_count = serializers.IntegerField(read_only=True, default=None)
+    cable_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = CableBundle
