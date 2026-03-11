@@ -839,7 +839,7 @@ class CableBundleForm(PrimaryModelForm):
 
     class Meta:
         model = CableBundle
-        fields = ['name', 'description', 'comments', 'tags']
+        fields = ['name', 'description', 'owner', 'comments', 'tags']
 
 
 class CableForm(TenancyForm, PrimaryModelForm):
