@@ -3,11 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Interface
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.ui import actions, layout
-from netbox.ui.layout import Column, Row
 from netbox.ui.panels import (
     CommentsPanel,
     ObjectsTablePanel,
-    PluginContentPanel,
     RelatedObjectsPanel,
 )
 from netbox.views import generic
@@ -219,27 +217,18 @@ class WirelessLinkListView(generic.ObjectListView):
 @register_model_view(WirelessLink)
 class WirelessLinkView(generic.ObjectView):
     queryset = WirelessLink.objects.all()
-    layout = layout.Layout(
-        Row(
-            Column(
-                panels.WirelessLinkInterfacePanel('interface_a', title=_('Interface A')),
-                panels.WirelessLinkPropertiesPanel(),
-                TagsPanel(),
-                CommentsPanel(),
-                PluginContentPanel('left_page'),
-            ),
-            Column(
-                panels.WirelessLinkInterfacePanel('interface_b', title=_('Interface B')),
-                panels.WirelessAuthenticationPanel(),
-                CustomFieldsPanel(),
-                PluginContentPanel('right_page'),
-            ),
-        ),
-        Row(
-            Column(
-                PluginContentPanel('full_width_page'),
-            ),
-        ),
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.WirelessLinkInterfacePanel('interface_a', title=_('Interface A')),
+            panels.WirelessLinkPropertiesPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            panels.WirelessLinkInterfacePanel('interface_b', title=_('Interface B')),
+            panels.WirelessAuthenticationPanel(),
+            CustomFieldsPanel(),
+        ],
     )
 
 
