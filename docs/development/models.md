@@ -45,6 +45,7 @@ These are considered the "core" application models which are used to model netwo
 * [core.DataSource](../models/core/datasource.md)
 * [core.Job](../models/core/job.md)
 * [dcim.Cable](../models/dcim/cable.md)
+* [dcim.CableBundle](../models/dcim/cablebundle.md)
 * [dcim.Device](../models/dcim/device.md)
 * [dcim.DeviceType](../models/dcim/devicetype.md)
 * [dcim.Module](../models/dcim/module.md)

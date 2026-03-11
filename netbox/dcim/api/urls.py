@@ -64,6 +64,7 @@ router.register('mac-addresses', views.MACAddressViewSet)
 # Cables
 router.register('cables', views.CableViewSet)
 router.register('cable-terminations', views.CableTerminationViewSet)
+router.register('cable-bundles', views.CableBundleViewSet)
 
 # Virtual chassis
 router.register('virtual-chassis', views.VirtualChassisViewSet)

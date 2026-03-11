@@ -27,6 +27,7 @@ from vpn.models import L2VPN
 from wireless.choices import *
 
 __all__ = (
+    'CableBundleFilterForm',
     'CableFilterForm',
     'ConsoleConnectionFilterForm',
     'ConsolePortFilterForm',
@@ -1172,12 +1173,24 @@ class VirtualChassisFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+class CableBundleFilterForm(PrimaryModelFilterSetForm):
+    model = CableBundle
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', name=_('Attributes')),
+    )
+    tag = TagFilterField(model)
+
+
 class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Cable
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('site_id', 'location_id', 'rack_id', 'device_id', name=_('Location')),
-        FieldSet('type', 'status', 'profile', 'color', 'length', 'length_unit', 'unterminated', name=_('Attributes')),
+        FieldSet(
+            'type', 'status', 'profile', 'color', 'length', 'length_unit', 'unterminated', 'bundle_id',
+            name=_('Attributes'),
+        ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -1258,6 +1271,11 @@ class CableFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    bundle_id = DynamicModelMultipleChoiceField(
+        queryset=CableBundle.objects.all(),
+        required=False,
+        label=_('Bundle'),
     )
     tag = TagFilterField(model)
 

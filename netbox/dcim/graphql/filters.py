@@ -57,6 +57,7 @@ if TYPE_CHECKING:
     from .enums import *
 
 __all__ = (
+    'CableBundleFilter',
     'CableFilter',
     'CableTerminationFilter',
     'ConsolePortFilter',
@@ -105,6 +106,11 @@ __all__ = (
     'VirtualChassisFilter',
     'VirtualDeviceContextFilter',
 )
+
+
+@strawberry_django.filter_type(models.CableBundle, lookups=True)
+class CableBundleFilter(PrimaryModelFilter):
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.Cable, lookups=True)

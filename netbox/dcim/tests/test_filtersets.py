@@ -6471,6 +6471,32 @@ class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class CableBundleTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = CableBundle.objects.all()
+    filterset = CableBundleFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cable_bundles = (
+            CableBundle(name='Cable Bundle 1', description='foobar1'),
+            CableBundle(name='Cable Bundle 2', description='foobar2'),
+            CableBundle(name='Cable Bundle 3'),
+        )
+        CableBundle.objects.bulk_create(cable_bundles)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Cable Bundle 1', 'Cable Bundle 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Cable.objects.all()
     filterset = CableFilterSet

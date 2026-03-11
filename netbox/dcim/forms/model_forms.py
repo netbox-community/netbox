@@ -39,6 +39,7 @@ from wireless.models import WirelessLAN, WirelessLANGroup
 from .common import InterfaceCommonForm, ModuleCommonForm
 
 __all__ = (
+    'CableBundleForm',
     'CableForm',
     'ConsolePortForm',
     'ConsolePortTemplateForm',
@@ -830,6 +831,17 @@ def get_termination_type_choices():
     ])
 
 
+class CableBundleForm(PrimaryModelForm):
+
+    fieldsets = (
+        FieldSet('name', 'description', 'tags', name=_('Cable Bundle')),
+    )
+
+    class Meta:
+        model = CableBundle
+        fields = ['name', 'description', 'owner', 'comments', 'tags']
+
+
 class CableForm(TenancyForm, PrimaryModelForm):
     a_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
@@ -843,12 +855,17 @@ class CableForm(TenancyForm, PrimaryModelForm):
         widget=HTMXSelect(),
         label=_('Type')
     )
+    bundle = DynamicModelChoiceField(
+        queryset=CableBundle.objects.all(),
+        required=False,
+        label=_('Bundle'),
+    )
 
     class Meta:
         model = Cable
         fields = [
             'a_terminations_type', 'b_terminations_type', 'type', 'status', 'profile', 'tenant_group', 'tenant',
-            'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
+            'bundle', 'label', 'color', 'length', 'length_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 

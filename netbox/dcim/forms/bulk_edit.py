@@ -29,6 +29,7 @@ from wireless.models import WirelessLAN, WirelessLANGroup
 
 __all__ = (
     'CableBulkEditForm',
+    'CableBundleBulkEditForm',
     'ConsolePortBulkEditForm',
     'ConsolePortTemplateBulkEditForm',
     'ConsoleServerPortBulkEditForm',
@@ -786,6 +787,24 @@ class ModuleBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = ('serial', 'description', 'comments')
 
 
+class CableBundleBulkEditForm(PrimaryModelBulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CableBundle.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False,
+    )
+
+    model = CableBundle
+    fieldsets = (
+        FieldSet('description',),
+    )
+    nullable_fields = ('description', 'comments')
+
+
 class CableBulkEditForm(PrimaryModelBulkEditForm):
     type = forms.ChoiceField(
         label=_('Type'),
@@ -810,6 +829,11 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Tenant.objects.all(),
         required=False
     )
+    bundle = DynamicModelChoiceField(
+        label=_('Bundle'),
+        queryset=CableBundle.objects.all(),
+        required=False,
+    )
     label = forms.CharField(
         label=_('Label'),
         max_length=100,
@@ -833,11 +857,11 @@ class CableBulkEditForm(PrimaryModelBulkEditForm):
 
     model = Cable
     fieldsets = (
-        FieldSet('type', 'status', 'profile', 'tenant', 'label', 'description'),
+        FieldSet('type', 'status', 'profile', 'tenant', 'bundle', 'label', 'description'),
         FieldSet('color', 'length', 'length_unit', name=_('Attributes')),
     )
     nullable_fields = (
-        'type', 'status', 'profile', 'tenant', 'label', 'color', 'length', 'description', 'comments',
+        'type', 'status', 'profile', 'tenant', 'bundle', 'label', 'color', 'length', 'description', 'comments',
     )
 
 

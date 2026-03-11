@@ -9,6 +9,9 @@ class DCIMQuery:
     cable: CableType = strawberry_django.field()
     cable_list: list[CableType] = strawberry_django.field()
 
+    cable_bundle: CableBundleType = strawberry_django.field()
+    cable_bundle_list: list[CableBundleType] = strawberry_django.field()
+
     console_port: ConsolePortType = strawberry_django.field()
     console_port_list: list[ConsolePortType] = strawberry_django.field()
 

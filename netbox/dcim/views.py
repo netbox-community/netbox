@@ -4018,6 +4018,72 @@ class DeviceBulkAddInventoryItemView(generic.BulkComponentCreateView):
 
 
 #
+# Cable bundles
+#
+
+@register_model_view(CableBundle, 'list', path='', detail=False)
+class CableBundleListView(generic.ObjectListView):
+    queryset = CableBundle.objects.annotate(
+        cable_count=count_related(Cable, 'bundle')
+    )
+    filterset = filtersets.CableBundleFilterSet
+    filterset_form = forms.CableBundleFilterForm
+    table = tables.CableBundleTable
+
+
+@register_model_view(CableBundle)
+class CableBundleView(generic.ObjectView):
+    queryset = CableBundle.objects.all()
+
+    def get_extra_context(self, request, instance):
+        cables_table = tables.CableTable(
+            instance.cables.all().prefetch_related(
+                'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+                'terminations___site',
+            ),
+            orderable=False,
+        )
+        cables_table.configure(request)
+
+        return {
+            'cables_table': cables_table,
+        }
+
+
+@register_model_view(CableBundle, 'add', detail=False)
+@register_model_view(CableBundle, 'edit')
+class CableBundleEditView(generic.ObjectEditView):
+    queryset = CableBundle.objects.all()
+    form = forms.CableBundleForm
+
+
+@register_model_view(CableBundle, 'delete')
+class CableBundleDeleteView(generic.ObjectDeleteView):
+    queryset = CableBundle.objects.all()
+
+
+@register_model_view(CableBundle, 'bulk_import', path='import', detail=False)
+class CableBundleBulkImportView(generic.BulkImportView):
+    queryset = CableBundle.objects.all()
+    model_form = forms.CableBundleImportForm
+
+
+@register_model_view(CableBundle, 'bulk_edit', path='edit', detail=False)
+class CableBundleBulkEditView(generic.BulkEditView):
+    queryset = CableBundle.objects.all()
+    filterset = filtersets.CableBundleFilterSet
+    table = tables.CableBundleTable
+    form = forms.CableBundleBulkEditForm
+
+
+@register_model_view(CableBundle, 'bulk_delete', path='delete', detail=False)
+class CableBundleBulkDeleteView(generic.BulkDeleteView):
+    queryset = CableBundle.objects.all()
+    filterset = filtersets.CableBundleFilterSet
+    table = tables.CableBundleTable
+
+
+#
 # Cables
 #
 
