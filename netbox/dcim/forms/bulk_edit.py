@@ -803,9 +803,10 @@ class CableBundleBulkEditForm(PrimaryModelBulkEditForm):
     )
 
     model = CableBundle
-
-    class Meta:
-        nullable_fields = ('description', 'comments')
+    fieldsets = (
+        FieldSet('description',),
+    )
+    nullable_fields = ('description', 'comments')
 
 
 class CableBulkEditForm(PrimaryModelBulkEditForm):
