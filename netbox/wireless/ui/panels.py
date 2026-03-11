@@ -28,16 +28,16 @@ class WirelessAuthenticationPanel(panels.ObjectAttributesPanel):
 class WirelessLinkInterfacePanel(panels.ObjectPanel):
     template_name = 'wireless/panels/wirelesslink_interface.html'
 
-    def __init__(self, accessor, title, **kwargs):
+    def __init__(self, interface_attr, title, **kwargs):
         super().__init__(**kwargs)
-        self.accessor = accessor
+        self.interface_attr = interface_attr
         self.title = title
 
     def get_context(self, context):
         obj = context['object']
         return {
             **super().get_context(context),
-            'interface': getattr(obj, self.accessor),
+            'interface': getattr(obj, self.interface_attr),
         }
 
 
