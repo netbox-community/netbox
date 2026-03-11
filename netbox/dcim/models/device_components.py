@@ -1257,10 +1257,14 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         blank=True,
         help_text=_('Identifier to reference when renaming installed components')
     )
+    enabled = models.BooleanField(
+        verbose_name=_('enabled'),
+        default=True,
+    )
 
     objects = TreeManager()
 
-    clone_fields = ('device',)
+    clone_fields = ('device', 'enabled')
 
     class Meta(ModularComponentModel.Meta):
         # Empty tuple triggers Django migration detection for MPTT indexes
@@ -1299,6 +1303,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
             self.parent = None
         super().save(*args, **kwargs)
 
+    @property
+    def _occupied(self):
+        """
+        Indicates whether the module bay is occupied by a module.
+        """
+        return bool(not self.enabled or hasattr(self, 'installed_module'))
+
 
 class DeviceBay(ComponentModel, TrackingModelMixin):
     """
@@ -1311,8 +1322,12 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
         blank=True,
         null=True
     )
+    enabled = models.BooleanField(
+        verbose_name=_('enabled'),
+        default=True,
+    )
 
-    clone_fields = ('device',)
+    clone_fields = ('device', 'enabled')
 
     class Meta(ComponentModel.Meta):
         verbose_name = _('device bay')
@@ -1327,6 +1342,16 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
                 device_type=self.device.device_type
             ))
 
+        # Prevent installing a device into a disabled bay
+        if self.installed_device and not self.enabled:
+            current_installed_device_id = (
+                DeviceBay.objects.filter(pk=self.pk).values_list('installed_device_id', flat=True).first()
+            )
+            if self.pk is None or current_installed_device_id != self.installed_device_id:
+                raise ValidationError({
+                    'installed_device': _("Cannot install a device in a disabled device bay.")
+                })
+
         # Cannot install a device into itself, obviously
         if self.installed_device and getattr(self, 'device', None) == self.installed_device:
             raise ValidationError(_("Cannot install a device into itself."))
@@ -1340,6 +1365,13 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
                         "Cannot install the specified device; device is already installed in {bay}."
                     ).format(bay=current_bay)
                 })
+
+    @property
+    def _occupied(self):
+        """
+        Indicates whether the device bay is occupied by a child device.
+        """
+        return bool(not self.enabled or self.installed_device_id)
 
 
 #

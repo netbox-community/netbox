@@ -108,10 +108,13 @@ class RearPortBulkCreateForm(
     field_order = ('name', 'label', 'type', 'positions', 'mark_connected', 'description', 'tags')
 
 
-class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
+class ModuleBayBulkCreateForm(
+    form_from_model(ModuleBay, ['enabled']),
+    DeviceBulkAddComponentForm
+):
     model = ModuleBay
-    field_order = ('name', 'label', 'position', 'description', 'tags')
-    replication_fields = ('name', 'label', 'position')
+    field_order = ('name', 'label', 'position', 'enabled', 'description', 'tags')
+    replication_fields = ('name', 'label', 'position', 'enabled')
     position = ExpandableNameField(
         label=_('Position'),
         required=False,
@@ -119,9 +122,12 @@ class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
     )
 
 
-class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
+class DeviceBayBulkCreateForm(
+    form_from_model(DeviceBay, ['enabled']),
+    DeviceBulkAddComponentForm
+):
     model = DeviceBay
-    field_order = ('name', 'label', 'description', 'tags')
+    field_order = ('name', 'label', 'enabled', 'description', 'tags')
 
 
 class InventoryItemBulkCreateForm(
