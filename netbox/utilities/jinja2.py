@@ -49,11 +49,19 @@ class DataFileLoader(BaseLoader):
 # Utility functions
 #
 
-def render_jinja2(template_code, context, environment_params=None, data_file=None):
+def render_jinja2(template_code, context, environment_params=None, data_file=None, debug=False):
     """
     Render a Jinja2 template with the provided context. Return the rendered content.
+
+    If debug is True, the Jinja2 debug extension is enabled to assist with template development.
     """
     environment_params = environment_params or {}
+
+    if debug:
+        extensions = list(environment_params.get('extensions', []))
+        if 'jinja2.ext.debug' not in extensions:
+            extensions.append('jinja2.ext.debug')
+        environment_params['extensions'] = extensions
 
     if 'loader' not in environment_params:
         if data_file:

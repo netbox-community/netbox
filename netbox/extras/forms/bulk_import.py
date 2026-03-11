@@ -190,7 +190,8 @@ class ConfigTemplateImportForm(OwnerCSVMixin, CSVModelForm):
         model = ConfigTemplate
         fields = (
             'name', 'description', 'template_code', 'data_source', 'data_file', 'auto_sync_enabled',
-            'environment_params', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'owner', 'tags',
+            'environment_params', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'debug', 'owner',
+            'tags',
         )
 
     def clean(self):

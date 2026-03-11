@@ -281,6 +281,13 @@ class ConfigTemplate(
         max_length=200,
         blank=True
     )
+    debug = models.BooleanField(
+        verbose_name=_('debug'),
+        default=False,
+        help_text=_(
+            'Enable verbose error output when rendering this template. Not recommended for production use.'
+        )
+    )
 
     class Meta:
         ordering = ('name',)

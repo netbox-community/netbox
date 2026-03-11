@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 
 from django.contrib import messages
@@ -1120,11 +1121,28 @@ class ObjectRenderConfigView(generic.ObjectView):
         # Render the config template
         rendered_config = None
         error_message = ''
-        if config_template := instance.get_config_template():
+        config_template = instance.get_config_template()
+        if config_template:
             try:
                 rendered_config = config_template.render(context=context_data)
             except TemplateError as e:
-                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
+                if config_template.debug:
+                    error_message = traceback.format_exc()
+                else:
+                    parts = [f"{type(e).__name__}: {e}"]
+                    if getattr(e, 'name', None):
+                        parts.append(_("Template: {name}").format(name=e.name))
+                    if getattr(e, 'lineno', None):
+                        parts.append(_("Line: {lineno}").format(lineno=e.lineno))
+                    error_message = "\n".join(parts)
+            except Exception as e:
+                if config_template.debug:
+                    error_message = traceback.format_exc()
+                else:
+                    error_message = _("{type}: {error}").format(
+                        type=type(e).__name__,
+                        error=e,
+                    )
 
         return {
             'base_template': self.base_template,

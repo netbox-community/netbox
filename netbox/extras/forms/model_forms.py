@@ -754,7 +754,8 @@ class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, for
         FieldSet('name', 'description', 'tags', 'template_code', name=_('Config Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
         FieldSet(
-            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', name=_('Rendering')
+            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', 'debug',
+            name=_('Rendering')
         ),
     )
 
