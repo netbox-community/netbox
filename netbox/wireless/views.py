@@ -151,7 +151,7 @@ class WirelessLANView(generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            panels.WirelessLANAuthenticationPanel(),
+            panels.WirelessAuthenticationPanel(),
             CustomFieldsPanel(),
         ],
         bottom_panels=[
@@ -230,7 +230,7 @@ class WirelessLinkView(generic.ObjectView):
             ),
             Column(
                 panels.WirelessLinkInterfacePanel('interface_b', title=_('Interface B')),
-                panels.WirelessLANAuthenticationPanel(),
+                panels.WirelessAuthenticationPanel(),
                 CustomFieldsPanel(),
                 PluginContentPanel('right_page'),
             ),

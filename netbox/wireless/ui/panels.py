@@ -17,7 +17,7 @@ class WirelessLANPanel(panels.ObjectAttributesPanel):
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
 
 
-class WirelessLANAuthenticationPanel(panels.ObjectAttributesPanel):
+class WirelessAuthenticationPanel(panels.ObjectAttributesPanel):
     title = _('Authentication')
 
     auth_type = attrs.ChoiceAttr('auth_type', label=_('Type'))
