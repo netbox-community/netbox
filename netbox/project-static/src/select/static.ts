@@ -1,6 +1,6 @@
 import { TomOption } from 'tom-select/src/types';
-import TomSelect from 'tom-select';
 import { escape_html } from 'tom-select/src/utils';
+import { NetBoxTomSelect } from './classes/netboxTomSelect';
 import { getPlugins } from './config';
 import { getElements } from '../util';
 
@@ -9,7 +9,7 @@ export function initStaticSelects(): void {
   for (const select of getElements<HTMLSelectElement>(
     'select:not(.tomselected):not(.no-ts):not([size]):not(.api-select):not(.color-select)',
   )) {
-    new TomSelect(select, {
+    new NetBoxTomSelect(select, {
       ...getPlugins(select),
       maxOptions: undefined,
     });
@@ -25,7 +25,7 @@ export function initColorSelects(): void {
   }
 
   for (const select of getElements<HTMLSelectElement>('select.color-select:not(.tomselected)')) {
-    new TomSelect(select, {
+    new NetBoxTomSelect(select, {
       ...getPlugins(select),
       maxOptions: undefined,
       render: {

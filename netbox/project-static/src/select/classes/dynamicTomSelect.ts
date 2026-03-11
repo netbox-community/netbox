@@ -1,16 +1,16 @@
 import type { RecursivePartial, TomOption, TomSettings, TomInput } from 'tom-select/dist/cjs/types';
 import { addClasses } from 'tom-select/src/vanilla.ts';
 import queryString from 'query-string';
-import TomSelect from 'tom-select';
 import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
+import { NetBoxTomSelect } from './netboxTomSelect';
 
 // Transitional
 import { QueryFilter, PathFilter } from '../types';
 import { getElement, replaceAll } from '../../util';
 
-// Extends TomSelect to provide enhanced fetching of options via the REST API
-export class DynamicTomSelect extends TomSelect {
+// Extends NetBoxTomSelect to provide enhanced fetching of options via the REST API
+export class DynamicTomSelect extends NetBoxTomSelect {
   public readonly nullOption: Nullable<TomOption> = null;
 
   // Transitional code from APISelect
