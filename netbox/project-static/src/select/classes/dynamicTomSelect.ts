@@ -71,7 +71,7 @@ export class DynamicTomSelect extends TomSelect {
     this.addEventListeners();
   }
 
-  load(value: string) {
+  load(value: string, preserveValue?: string | string[]) {
     const self = this;
 
     // Automatically clear any cached options. (Only options included
@@ -107,6 +107,14 @@ export class DynamicTomSelect extends TomSelect {
       // Pass the options to the callback function
       .then(options => {
         self.loadCallback(options, []);
+        // Restore the previous selection if it is still valid under the new filter.
+        if (preserveValue !== undefined) {
+          const values = Array.isArray(preserveValue) ? preserveValue : [preserveValue];
+          const validValues = values.filter(v => v !== '' && v in self.options);
+          if (validValues.length > 0) {
+            self.setValue(validValues.length === 1 ? validValues[0] : validValues, true);
+          }
+        }
       })
       .catch(() => {
         self.loadCallback([], []);
@@ -338,6 +346,9 @@ export class DynamicTomSelect extends TomSelect {
   private handleEvent(event: Event): void {
     const target = event.target as HTMLSelectElement;
 
+    // Save the current selection so we can restore it after loading if it remains valid.
+    const previousValue = this.getValue();
+
     // Update the element's URL after any changes to a dependency.
     this.updateQueryParams(target.name);
     this.updatePathValues(target.name);
@@ -345,7 +356,8 @@ export class DynamicTomSelect extends TomSelect {
     // Clear any previous selection(s) as the parent filter has changed
     this.clear();
 
-    // Load new data.
-    this.load(this.lastValue);
+    // Load new data, restoring the previous selection if it is still valid under the new filter.
+    const preserve = previousValue !== '' && previousValue !== null ? previousValue : undefined;
+    this.load(this.lastValue, preserve);
   }
 }
