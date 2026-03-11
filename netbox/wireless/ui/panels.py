@@ -1,0 +1,35 @@
+from django.utils.translation import gettext_lazy as _
+
+from netbox.ui import attrs, panels
+
+
+class WirelessLANGroupPanel(panels.NestedGroupObjectPanel):
+    pass
+
+
+class WirelessLANPanel(panels.ObjectAttributesPanel):
+    ssid = attrs.TextAttr('ssid', label=_('SSID'))
+    group = attrs.RelatedObjectAttr('group', linkify=True)
+    status = attrs.ChoiceAttr('status')
+    scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
+    description = attrs.TextAttr('description')
+    vlan = attrs.RelatedObjectAttr('vlan', label=_('VLAN'), linkify=True)
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+
+
+class WirelessLANAuthenticationPanel(panels.ObjectAttributesPanel):
+    title = _('Authentication')
+
+    auth_type = attrs.ChoiceAttr('auth_type', label=_('Type'))
+    auth_cipher = attrs.ChoiceAttr('auth_cipher', label=_('Cipher'))
+    auth_psk = attrs.TemplatedAttr('auth_psk', label=_('PSK'), template_name='wireless/attrs/auth_psk.html')
+
+
+class WirelessLinkPropertiesPanel(panels.ObjectAttributesPanel):
+    title = _('Link Properties')
+
+    status = attrs.ChoiceAttr('status')
+    ssid = attrs.TextAttr('ssid', label=_('SSID'))
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    description = attrs.TextAttr('description')
+    distance = attrs.NumericAttr('distance', unit_accessor='get_distance_unit_display')
