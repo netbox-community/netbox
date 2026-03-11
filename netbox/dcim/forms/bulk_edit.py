@@ -797,11 +797,15 @@ class CableBundleBulkEditForm(PrimaryModelBulkEditForm):
         max_length=200,
         required=False,
     )
+    comments = forms.CharField(
+        label=_('Comments'),
+        required=False,
+    )
 
     model = CableBundle
 
     class Meta:
-        nullable_fields = ('description',)
+        nullable_fields = ('description', 'comments')
 
 
 class CableBulkEditForm(PrimaryModelBulkEditForm):
