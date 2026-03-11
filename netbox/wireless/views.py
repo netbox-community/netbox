@@ -9,7 +9,6 @@ from netbox.ui.panels import (
     ObjectsTablePanel,
     PluginContentPanel,
     RelatedObjectsPanel,
-    TemplatePanel,
 )
 from netbox.views import generic
 from utilities.query import count_related
@@ -223,14 +222,14 @@ class WirelessLinkView(generic.ObjectView):
     layout = layout.Layout(
         Row(
             Column(
-                TemplatePanel('wireless/panels/wirelesslink_interface_a.html'),
+                panels.WirelessLinkInterfacePanel('interface_a', title=_('Interface A')),
                 panels.WirelessLinkPropertiesPanel(),
                 TagsPanel(),
                 CommentsPanel(),
                 PluginContentPanel('left_page'),
             ),
             Column(
-                TemplatePanel('wireless/panels/wirelesslink_interface_b.html'),
+                panels.WirelessLinkInterfacePanel('interface_b', title=_('Interface B')),
                 panels.WirelessLANAuthenticationPanel(),
                 CustomFieldsPanel(),
                 PluginContentPanel('right_page'),

@@ -25,6 +25,22 @@ class WirelessLANAuthenticationPanel(panels.ObjectAttributesPanel):
     auth_psk = attrs.TemplatedAttr('auth_psk', label=_('PSK'), template_name='wireless/attrs/auth_psk.html')
 
 
+class WirelessLinkInterfacePanel(panels.ObjectPanel):
+    template_name = 'wireless/panels/wirelesslink_interface.html'
+
+    def __init__(self, accessor, title, **kwargs):
+        super().__init__(**kwargs)
+        self.accessor = accessor
+        self.title = title
+
+    def get_context(self, context):
+        obj = context['object']
+        return {
+            **super().get_context(context),
+            'interface': getattr(obj, self.accessor),
+        }
+
+
 class WirelessLinkPropertiesPanel(panels.ObjectAttributesPanel):
     title = _('Link Properties')
 
