@@ -1416,7 +1416,7 @@ class MACAddressImportForm(PrimaryModelImportForm):
 class CableBundleImportForm(PrimaryModelImportForm):
     class Meta:
         model = CableBundle
-        fields = ('name', 'description', 'comments', 'tags')
+        fields = ('name', 'description', 'owner', 'comments', 'tags')
 
 
 class CableImportForm(PrimaryModelImportForm):
