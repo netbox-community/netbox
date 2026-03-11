@@ -31,7 +31,7 @@ class CableBundleSerializer(PrimaryModelSerializer):
     class Meta:
         model = CableBundle
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'description', 'comments', 'tags',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'cable_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
