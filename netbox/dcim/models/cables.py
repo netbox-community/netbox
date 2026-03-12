@@ -822,7 +822,7 @@ class CablePath(models.Model):
             ])
             # If not null, push cable position onto the stack
             if isinstance(terminations[0], PathEndpoint) and terminations[0].cable_positions:
-                position_stack.append([terminations[0].cable_positions[0]])
+                position_stack.append(list(terminations[0].cable_positions))
 
             # Step 2: Determine the attached links (Cable or WirelessLink), if any
             links = list(dict.fromkeys(
@@ -863,10 +863,15 @@ class CablePath(models.Model):
                 # Profile-based tracing
                 if links[0].profile:
                     cable_profile = links[0].profile_class()
-                    position = position_stack.pop()[0] if position_stack else None
-                    term, position = cable_profile.get_peer_termination(terminations[0], position)
-                    remote_terminations = [term]
-                    position_stack.append([position])
+                    positions = position_stack.pop() if position_stack else [None]
+                    remote_terminations = []
+                    new_positions = []
+                    for pos in positions:
+                        term, new_pos = cable_profile.get_peer_termination(terminations[0], pos)
+                        if term not in remote_terminations:
+                            remote_terminations.append(term)
+                        new_positions.append(new_pos)
+                    position_stack.append(new_positions)
 
                 # Legacy (positionless) behavior
                 else:
