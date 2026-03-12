@@ -1,4 +1,3 @@
-import traceback
 from datetime import datetime
 
 from django.contrib import messages
@@ -13,7 +12,6 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django.views.generic import View
-from jinja2.exceptions import TemplateError
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import Job
@@ -1125,21 +1123,8 @@ class ObjectRenderConfigView(generic.ObjectView):
         if config_template:
             try:
                 rendered_config = config_template.render(context=context_data)
-            except TemplateError as e:
-                if config_template.debug:
-                    error_message = traceback.format_exc()
-                else:
-                    parts = [f"{type(e).__name__}: {e}"]
-                    if getattr(e, 'name', None):
-                        parts.append(_("Template: {name}").format(name=e.name))
-                    if getattr(e, 'lineno', None):
-                        parts.append(_("Line: {lineno}").format(lineno=e.lineno))
-                    error_message = "\n".join(parts)
             except Exception as e:
-                if config_template.debug:
-                    error_message = traceback.format_exc()
-                else:
-                    error_message = f"{type(e).__name__}: {e}"
+                error_message = config_template.format_render_error(e)
 
         return {
             'base_template': self.base_template,

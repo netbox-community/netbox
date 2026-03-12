@@ -1,10 +1,7 @@
-import traceback
-
-from jinja2.exceptions import TemplateError
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from netbox.api.authentication import TokenWritePermission
 from netbox.api.renderers import TextRenderer
@@ -47,23 +44,11 @@ class ConfigTemplateRenderMixin:
     def render_configtemplate(self, request, configtemplate, context):
         try:
             output = configtemplate.render(context=context)
-        except TemplateError as e:
-            if configtemplate.debug:
-                detail = traceback.format_exc()
-            else:
-                parts = [f"{type(e).__name__}: {e}"]
-                if getattr(e, 'name', None):
-                    parts.append(f"Template: {e.name}")
-                if getattr(e, 'lineno', None):
-                    parts.append(f"Line: {e.lineno}")
-                detail = "\n".join(parts)
-            return Response({'detail': detail}, status=500)
         except Exception as e:
-            if configtemplate.debug:
-                detail = traceback.format_exc()
-            else:
-                detail = f"{type(e).__name__}: {e}"
-            return Response({'detail': detail}, status=500)
+            return Response(
+                {'detail': configtemplate.format_render_error(e)},
+                status=HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
         # If the client has requested "text/plain", return the raw content.
         if request.accepted_renderer.format == 'txt':
