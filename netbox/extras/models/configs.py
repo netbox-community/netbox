@@ -313,12 +313,11 @@ class ConfigTemplate(
     def format_render_error(self, exc):
         """
         Return a formatted error string for a rendering exception. When debug is enabled, the full
-        traceback is returned. Otherwise, a concise, user-facing message is returned.
-
-        Must be called from within the except block so that traceback.format_exc() is valid.
+        traceback for the provided exception is returned. Otherwise, a concise, user-facing message
+        is returned.
         """
         if self.debug:
-            return traceback.format_exc()
+            return ''.join(traceback.format_exception(exc))
         if isinstance(exc, TemplateError):
             parts = [f"{type(exc).__name__}: {exc}"]
             if getattr(exc, 'name', None):

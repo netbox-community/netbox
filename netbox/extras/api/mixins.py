@@ -45,10 +45,10 @@ class ConfigTemplateRenderMixin:
         try:
             output = configtemplate.render(context=context)
         except Exception as e:
-            return Response(
-                {'detail': configtemplate.format_render_error(e)},
-                status=HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+            detail = configtemplate.format_render_error(e)
+            if request.accepted_renderer.format == 'txt':
+                return Response(detail, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'detail': detail}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
         # If the client has requested "text/plain", return the raw content.
         if request.accepted_renderer.format == 'txt':
