@@ -59,7 +59,7 @@ table th.orderable a {
   color: var(--#{$prefix}body-color);
 }
 
-body[data-bs-theme=dark] {
+html[data-bs-theme=dark] {
   // Adjust table header background color
   .table thead th, .markdown>table thead th {
     background: $rich-black !important;

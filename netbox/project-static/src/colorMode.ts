@@ -20,12 +20,7 @@ function storeColorMode(mode: ColorMode): void {
 }
 
 function updateElements(targetMode: ColorMode): void {
-  const body = document.querySelector('body');
-  if (body && targetMode == 'dark') {
-    body.setAttribute('data-bs-theme', 'dark');
-  } else if (body) {
-    body.setAttribute('data-bs-theme', 'light');
-  }
+  document.documentElement.setAttribute('data-bs-theme', targetMode);
 
   for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
     const svg = elevation.firstElementChild ?? null;

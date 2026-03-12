@@ -77,13 +77,13 @@
 }
 
 // Light theme styling
-body[data-bs-theme=light] .navbar-vertical.navbar-expand-lg {
+html[data-bs-theme=light] .navbar-vertical.navbar-expand-lg {
   // Background Gradient
   background: linear-gradient(180deg, rgba(0, 133, 125, 0.00) 0%, rgba(0, 133, 125, 0.10) 100%), #FFF;
 }
 
 // Dark theme styling
-body[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
+html[data-bs-theme=dark] .navbar-vertical.navbar-expand-lg {
 
   // Background Gradient
   background: linear-gradient(180deg, rgba(0, 242, 212, 0.00) 0%, rgba(0, 242, 212, 0.10) 100%), #001423;
