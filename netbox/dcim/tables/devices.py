@@ -1205,7 +1205,8 @@ class MACAddressTable(PrimaryModelTable):
         verbose_name=_('Parent')
     )
     is_primary = columns.BooleanColumn(
-        verbose_name=_('Primary')
+        verbose_name=_('Primary'),
+        orderable=False,
     )
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
