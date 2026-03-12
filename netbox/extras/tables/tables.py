@@ -699,7 +699,6 @@ class ConfigTemplateTable(NetBoxTable):
     )
     debug = columns.BooleanColumn(
         verbose_name=_('Debug'),
-        false_mark=None
     )
     owner = tables.Column(
         linkify=True,

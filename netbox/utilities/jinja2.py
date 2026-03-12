@@ -55,7 +55,7 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
 
     If debug is True, the Jinja2 debug extension is enabled to assist with template development.
     """
-    environment_params = environment_params or {}
+    environment_params = dict(environment_params or {})
 
     if debug:
         extensions = list(environment_params.get('extensions', []))

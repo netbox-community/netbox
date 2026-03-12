@@ -1139,10 +1139,7 @@ class ObjectRenderConfigView(generic.ObjectView):
                 if config_template.debug:
                     error_message = traceback.format_exc()
                 else:
-                    error_message = _("{type}: {error}").format(
-                        type=type(e).__name__,
-                        error=e,
-                    )
+                    error_message = f"{type(e).__name__}: {e}"
 
         return {
             'base_template': self.base_template,
