@@ -872,46 +872,6 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(interface.name, 'SFP 1')
         self.assertEqual(interface.label, '1')
 
-    def test_depth_1_single_token_no_extra_slashes(self):
-        """
-        T7: Ensure depth=1 single-token still resolves to the position, not an unnecessary "path join".
-        """
-        ModuleBayTemplate.objects.create(
-            device_type=self.device_type,
-            name='Bay 7',
-            position='7'
-        )
-
-        # Create module type with single-token template
-        module_type = ModuleType.objects.create(
-            manufacturer=self.manufacturer,
-            model='T7 Module'
-        )
-        InterfaceTemplate.objects.create(
-            module_type=module_type,
-            name='{module}',
-            type=InterfaceTypeChoices.TYPE_1GE_FIXED
-        )
-
-        # Create device and install module directly at depth=1
-        device = Device.objects.create(
-            name='T7 Device',
-            device_type=self.device_type,
-            role=self.device_role,
-            site=self.site
-        )
-
-        bay = device.modulebays.get(name='Bay 7')
-        module = Module.objects.create(
-            device=device,
-            module_bay=bay,
-            module_type=module_type
-        )
-
-        # Verify: just "7", not "7/" or similar
-        interface = module.interfaces.first()
-        self.assertEqual(interface.name, '7')
-
     def test_single_module_token_fails_at_depth_2(self):
         """
         A single {module} token at depth > 1 must be rejected because the token

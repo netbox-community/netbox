@@ -33,7 +33,7 @@ def resolve_module_placeholders(text, positions):
     # because '{module}' is a substring of '{module_path}'.
     if MODULE_PATH_TOKEN in result:
         full_path = MODULE_TOKEN_SEPARATOR.join(positions) if positions else ''
-        result = result.replace(MODULE_PATH_TOKEN, full_path)
+        return result.replace(MODULE_PATH_TOKEN, full_path)
 
     # Handle {module} - level-by-level replacement
     if MODULE_TOKEN in result:
@@ -123,13 +123,13 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-def create_port_mappings(device, device_type, module=None):
+def create_port_mappings(device, device_or_module_type, module=None):
     """
-    Replicate all front/rear port mappings from a DeviceType to the given device.
+    Replicate all front/rear port mappings from a DeviceType or ModuleType to the given device.
     """
     from dcim.models import FrontPort, PortMapping, RearPort
 
-    templates = device_type.port_mappings.prefetch_related('front_port', 'rear_port')
+    templates = device_or_module_type.port_mappings.prefetch_related('front_port', 'rear_port')
 
     # Cache front & rear ports for efficient lookups by name
     front_ports = {
