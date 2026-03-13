@@ -258,6 +258,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     def _get_context(self, request, form, model_form):
         model = self.queryset.model
         return {
+            'object': None,
             'obj_type': model._meta.verbose_name,
             'obj_type_plural': model._meta.verbose_name_plural,
             'form': form,

@@ -59,7 +59,7 @@ class ExpandableIPNetworkField(forms.CharField):
             return [value]
 
         # Replace expansion brackets with a neutral value to get a parseable IP/CIDR
-        stripped = re.sub(r'\[[^\]]+\]', '0', value)
+        stripped = re.sub(r'(?>\[[^\]]+\])', '0', value)
         try:
             family = netaddr.IPNetwork(stripped).version
         except (netaddr.AddrFormatError, ValueError):
