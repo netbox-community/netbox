@@ -317,10 +317,10 @@ class ModuleBayTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'description',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'enabled', 'description')
 
 
 class DeviceBayTemplateSerializer(ComponentTemplateSerializer):
@@ -331,10 +331,10 @@ class DeviceBayTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'name', 'label', 'description',
+            'id', 'url', 'display', 'device_type', 'name', 'label', 'enabled', 'description',
             'created', 'last_updated'
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'enabled', 'description')
 
 
 class InventoryItemTemplateSerializer(ComponentTemplateSerializer):

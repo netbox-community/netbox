@@ -712,6 +712,112 @@ class DeviceTestCase(TestCase):
             ).full_clean()
 
 
+class DeviceBayTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+
+        # Parent device type must support device bays (is_parent_device=True)
+        parent_device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Parent Device Type',
+            slug='parent-device-type',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
+        )
+        # Child device type for installation
+        child_device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Child Device Type',
+            slug='child-device-type',
+            u_height=0,
+            subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
+        )
+        device_role = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+
+        cls.parent_device = Device.objects.create(
+            name='Parent Device',
+            device_type=parent_device_type,
+            role=device_role,
+            site=site
+        )
+        cls.child_device = Device.objects.create(
+            name='Child Device',
+            device_type=child_device_type,
+            role=device_role,
+            site=site
+        )
+        cls.child_device_2 = Device.objects.create(
+            name='Child Device 2',
+            device_type=child_device_type,
+            role=device_role,
+            site=site
+        )
+
+    def test_cannot_install_device_in_disabled_bay(self):
+        """
+        Test that a device cannot be installed into a disabled DeviceBay.
+        """
+        # Create a disabled device bay with a device being installed
+        device_bay = DeviceBay(
+            device=self.parent_device,
+            name='Disabled Bay',
+            enabled=False,
+            installed_device=self.child_device
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            device_bay.clean()
+
+        self.assertIn('installed_device', cm.exception.message_dict)
+        self.assertIn('disabled device bay', str(cm.exception.message_dict['installed_device']))
+
+    def test_can_disable_bay_with_existing_device(self):
+        """
+        Test that disabling a bay that already has a device installed does NOT raise an error
+        (same installed_device_id).
+        """
+        # First, create an enabled device bay with a device installed
+        device_bay = DeviceBay.objects.create(
+            device=self.parent_device,
+            name='Bay To Disable',
+            enabled=True,
+            installed_device=self.child_device
+        )
+
+        # Now disable the bay while keeping the same installed device
+        device_bay.enabled = False
+        # This should NOT raise a ValidationError
+        device_bay.clean()
+        device_bay.save()
+
+        device_bay.refresh_from_db()
+        self.assertFalse(device_bay.enabled)
+        self.assertEqual(device_bay.installed_device, self.child_device)
+
+    def test_cannot_change_installed_device_in_disabled_bay(self):
+        """
+        Test that changing the installed device in a disabled bay raises a ValidationError.
+        """
+        # Create an enabled device bay with a device installed
+        device_bay = DeviceBay.objects.create(
+            device=self.parent_device,
+            name='Bay With Device',
+            enabled=True,
+            installed_device=self.child_device
+        )
+
+        # Disable the bay and try to change the installed device
+        device_bay.enabled = False
+        device_bay.installed_device = self.child_device_2
+
+        with self.assertRaises(ValidationError) as cm:
+            device_bay.clean()
+
+        self.assertIn('installed_device', cm.exception.message_dict)
+
+
 class ModuleBayTestCase(TestCase):
 
     @classmethod
@@ -1010,6 +1116,25 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(FrontPort.objects.filter(module=module).count(), 12)
         self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
         self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
+
+    def test_cannot_install_module_in_disabled_bay(self):
+        """
+        Test that a Module cannot be installed into a disabled ModuleBay.
+        """
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module Type Disabled')
+
+        # Create a disabled module bay
+        disabled_bay = ModuleBay.objects.create(device=device, name='Disabled Bay', enabled=False)
+
+        # Attempt to install a module into the disabled bay
+        module = Module(device=device, module_bay=disabled_bay, module_type=module_type)
+        with self.assertRaises(ValidationError) as cm:
+            module.clean()
+
+        self.assertIn('module_bay', cm.exception.message_dict)
+        self.assertIn('disabled module bay', str(cm.exception.message_dict['module_bay']))
 
 
 class CableTestCase(TestCase):

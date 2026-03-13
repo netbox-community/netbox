@@ -289,24 +289,30 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
 
 class ModuleBayTemplateTable(ComponentTemplateTable):
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.ModuleBayTemplate
-        fields = ('pk', 'name', 'label', 'position', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'position', 'enabled', 'description', 'actions')
         empty_text = "None"
 
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete')
     )
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.DeviceBayTemplate
-        fields = ('pk', 'name', 'label', 'description', 'actions')
+        fields = ('pk', 'name', 'label', 'enabled', 'description', 'actions')
         empty_text = "None"
 
 

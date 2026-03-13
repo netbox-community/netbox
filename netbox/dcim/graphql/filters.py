@@ -318,6 +318,7 @@ class DeviceFilter(
 
 @strawberry_django.filter_type(models.DeviceBay, lookups=True)
 class DeviceBayFilter(ComponentModelFilterMixin, NetBoxModelFilter):
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     installed_device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -326,7 +327,7 @@ class DeviceBayFilter(ComponentModelFilterMixin, NetBoxModelFilter):
 
 @strawberry_django.filter_type(models.DeviceBayTemplate, lookups=True)
 class DeviceBayTemplateFilter(ComponentTemplateFilterMixin, ChangeLoggedModelFilter):
-    pass
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.InventoryItemTemplate, lookups=True)
@@ -742,11 +743,13 @@ class ModuleBayFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     )
     parent_id: ID | None = strawberry_django.filter_field()
     position: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ModuleBayTemplate, lookups=True)
 class ModuleBayTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     position: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ModuleTypeProfile, lookups=True)

@@ -1032,7 +1032,7 @@ class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = ModuleBayTemplate
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'enabled', 'description')
 
 
 @register_filterset
@@ -1040,7 +1040,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'enabled', 'description')
 
 
 @register_filterset
@@ -2397,7 +2397,7 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
 
     class Meta:
         model = ModuleBay
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'enabled', 'description')
 
 
 @register_filterset
@@ -2417,7 +2417,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'enabled', 'description')
 
 
 @register_filterset

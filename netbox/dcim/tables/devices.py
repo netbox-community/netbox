@@ -888,6 +888,9 @@ class DeviceBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     status = tables.TemplateColumn(
         verbose_name=_('Status'),
         template_code=DEVICEBAY_STATUS,
@@ -925,12 +928,12 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'description', 'installed_device', 'installed_role',
-            'installed_device_type', 'installed_description', 'installed_serial', 'installed_asset_tag', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'label', 'enabled', 'status', 'description', 'installed_device',
+            'installed_role', 'installed_device_type', 'installed_description', 'installed_serial',
+            'installed_asset_tag', 'tags', 'created', 'last_updated',
         )
 
-        default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
+        default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'status', 'installed_device', 'description')
 
 
 class DeviceDeviceBayTable(DeviceBayTable):
@@ -940,6 +943,9 @@ class DeviceDeviceBayTable(DeviceBayTable):
                       '"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
     )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     actions = columns.ActionsColumn(
         extra_buttons=DEVICEBAY_BUTTONS
     )
@@ -947,9 +953,9 @@ class DeviceDeviceBayTable(DeviceBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.DeviceBay
         fields = (
-            'pk', 'id', 'name', 'label', 'status', 'installed_device', 'description', 'tags', 'actions',
+            'pk', 'id', 'name', 'label', 'enabled', 'status', 'installed_device', 'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'status', 'installed_device', 'description')
+        default_columns = ('pk', 'name', 'label', 'enabled', 'status', 'installed_device', 'description')
 
 
 class ModuleBayTable(ModularDeviceComponentTable):
@@ -959,6 +965,9 @@ class ModuleBayTable(ModularDeviceComponentTable):
             'viewname': 'dcim:device_modulebays',
             'args': [Accessor('device_id')],
         }
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
     )
     parent = tables.Column(
         linkify=True,
@@ -988,11 +997,11 @@ class ModuleBayTable(ModularDeviceComponentTable):
     class Meta(ModularDeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'parent', 'label', 'position', 'installed_module', 'module_status',
+            'pk', 'id', 'name', 'device', 'enabled', 'parent', 'label', 'position', 'installed_module', 'module_status',
             'module_serial', 'module_asset_tag', 'description', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'device', 'parent', 'label', 'installed_module', 'module_status', 'description',
+            'pk', 'name', 'device', 'enabled', 'parent', 'label', 'installed_module', 'module_status', 'description',
         )
 
     def render_parent_bay(self, value):
@@ -1007,6 +1016,9 @@ class DeviceModuleBayTable(ModuleBayTable):
         verbose_name=_('Name'),
         linkify=True,
     )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     actions = columns.ActionsColumn(
         extra_buttons=MODULEBAY_BUTTONS
     )
@@ -1014,10 +1026,10 @@ class DeviceModuleBayTable(ModuleBayTable):
     class Meta(ModuleBayTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'parent', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
-            'module_asset_tag', 'description', 'tags', 'actions',
+            'pk', 'id', 'parent', 'name', 'label', 'enabled', 'position', 'installed_module', 'module_status',
+            'module_serial', 'module_asset_tag', 'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'installed_module', 'module_status', 'description')
+        default_columns = ('pk', 'name', 'label', 'enabled', 'installed_module', 'module_status', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):

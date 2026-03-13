@@ -1226,7 +1226,7 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ModuleBayTemplate
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'enabled', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1243,9 +1243,9 @@ class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
         )
 
         module_bay_templates = (
-            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 1'),
-            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 2'),
-            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 3'),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 1', enabled=True),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 2', enabled=False),
+            ModuleBayTemplate(device_type=devicetype, name='Module Bay Template 3', enabled=True),
         )
         ModuleBayTemplate.objects.bulk_create(module_bay_templates)
 
@@ -1253,6 +1253,7 @@ class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Module Bay Template 4',
+                'enabled': False,
             },
             {
                 'device_type': devicetype.pk,
@@ -1267,7 +1268,7 @@ class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBayTemplate
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'enabled', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1284,9 +1285,9 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
         )
 
         device_bay_templates = (
-            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 1'),
-            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 2'),
-            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 3'),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 1', enabled=True),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 2', enabled=False),
+            DeviceBayTemplate(device_type=devicetype, name='Device Bay Template 3', enabled=True),
         )
         DeviceBayTemplate.objects.bulk_create(device_bay_templates)
 
@@ -1294,6 +1295,7 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Device Bay Template 4',
+                'enabled': False,
             },
             {
                 'device_type': devicetype.pk,
@@ -2594,7 +2596,7 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleBayTest(APIViewTestCases.APIViewTestCase):
     model = ModuleBay
-    brief_fields = ['description', 'display', 'id', 'installed_module', 'name', 'url']
+    brief_fields = ['_occupied', 'description', 'display', 'enabled', 'id', 'installed_module', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -2610,9 +2612,9 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
         device = Device.objects.create(device_type=device_type, role=role, name='Device 1', site=site)
 
         module_bays = (
-            ModuleBay(device=device, name='Device Bay 1'),
-            ModuleBay(device=device, name='Device Bay 2'),
-            ModuleBay(device=device, name='Device Bay 3'),
+            ModuleBay(device=device, name='Device Bay 1', enabled=True),
+            ModuleBay(device=device, name='Device Bay 2', enabled=False),
+            ModuleBay(device=device, name='Device Bay 3', enabled=True),
         )
         for module_bay in module_bays:
             module_bay.save()
@@ -2621,6 +2623,7 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
             {
                 'device': device.pk,
                 'name': 'Device Bay 4',
+                'enabled': False,
             },
             {
                 'device': device.pk,
@@ -2635,7 +2638,7 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBay
-    brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
+    brief_fields = ['_occupied', 'description', 'device', 'display', 'enabled', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -2672,9 +2675,9 @@ class DeviceBayTest(APIViewTestCases.APIViewTestCase):
         Device.objects.bulk_create(devices)
 
         device_bays = (
-            DeviceBay(device=devices[0], name='Device Bay 1'),
-            DeviceBay(device=devices[0], name='Device Bay 2'),
-            DeviceBay(device=devices[0], name='Device Bay 3'),
+            DeviceBay(device=devices[0], name='Device Bay 1', enabled=True),
+            DeviceBay(device=devices[0], name='Device Bay 2', enabled=False),
+            DeviceBay(device=devices[0], name='Device Bay 3', enabled=True),
         )
         DeviceBay.objects.bulk_create(device_bays)
 
