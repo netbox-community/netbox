@@ -14,7 +14,7 @@ The rack unit or units being reserved. Multiple units can be expressed using com
 
 ### Total U's
 
-A calculated (read-only) field that reflects the total size of the range of units in the reservation. Can be filtered upon using `unit_count_min` and `unit_count_max` parameters in the UI or API.
+A calculated (read-only) field that reflects the total number of units in the reservation. Can be filtered upon using `unit_count_min` and `unit_count_max` parameters in the UI or API.
 
 ### Status
 
