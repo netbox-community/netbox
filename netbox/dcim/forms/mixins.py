@@ -136,9 +136,13 @@ class ScopedImportForm(forms.Form):
 
         # Cannot specify both scope_name and scope_id
         if scope_name and scope_id:
-            raise ValidationError(
-                _("scope_name and scope_id are mutually exclusive.")
-            )
+            raise ValidationError(_("scope_name and scope_id are mutually exclusive."))
+
+        # Must specify scope_type with scope_name or scope_id
+        if scope_name and not scope_type:
+            raise ValidationError(_("scope_type must be specified when using scope_name"))
+        if scope_id and not scope_type:
+            raise ValidationError(_("scope_type must be specified when using scope_id"))
 
         # Look up the scope object by name
         if scope_type and scope_name:
@@ -157,7 +161,7 @@ class ScopedImportForm(forms.Form):
                     'scope_name': _(
                         'Multiple {scope_type} objects match "{name}". Use scope_id to specify the intended object.'
                     ).format(
-                        scope_type=model._meta.verbose_name,
+                        scope_type=bettertitle(model._meta.verbose_name),
                         name=scope_name,
                     )
                 })

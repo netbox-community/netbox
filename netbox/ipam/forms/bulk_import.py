@@ -499,7 +499,7 @@ class VLANGroupImportForm(ScopedImportForm, OrganizationalModelImportForm):
             'comments', 'tags',
         )
         labels = {
-            'scope_id': 'Scope ID',
+            'scope_id': _('Scope ID'),
         }
 
 
