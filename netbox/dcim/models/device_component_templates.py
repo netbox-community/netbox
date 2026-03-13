@@ -110,6 +110,26 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
                 "device_type": _("Component templates cannot be moved to a different device type.")
             })
 
+    @staticmethod
+    def _resolve_vc_position(value: str, device) -> str:
+        """
+        Resolves {vc_position} and {vc_position:X} tokens.
+
+        If the device has a vc_position, replaces the token with that value.
+        Otherwise uses the explicit fallback X if given, else '0'.
+        """
+        def replacer(match):
+            explicit_fallback = match.group(1)
+            if (
+                device is not None
+                and device.virtual_chassis is not None
+                and device.vc_position is not None
+            ):
+                return str(device.vc_position)
+            return explicit_fallback if explicit_fallback is not None else '0'
+
+        return VC_POSITION_RE.sub(replacer, value)
+
 
 class ModularComponentTemplateModel(ComponentTemplateModel):
     """
@@ -177,29 +197,42 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         modules.reverse()
         return modules
 
-    def resolve_name(self, module):
-        if MODULE_TOKEN not in self.name:
+    def resolve_name(self, module=None, device=None):
+        has_module = MODULE_TOKEN in self.name
+        has_vc = VC_POSITION_RE.search(self.name) is not None
+        if not has_module and not has_vc:
             return self.name
 
-        if module:
-            modules = self._get_module_tree(module)
-            name = self.name
-            for module in modules:
-                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return name
-        return self.name
+        name = self.name
 
-    def resolve_label(self, module):
-        if MODULE_TOKEN not in self.label:
+        if has_module and module:
+            modules = self._get_module_tree(module)
+            for m in modules:
+                name = name.replace(MODULE_TOKEN, m.module_bay.position, 1)
+
+        if has_vc:
+            resolved_device = (module.device if module else None) or device
+            name = self._resolve_vc_position(name, resolved_device)
+
+        return name
+
+    def resolve_label(self, module=None, device=None):
+        has_module = MODULE_TOKEN in self.label
+        has_vc = VC_POSITION_RE.search(self.label) is not None
+        if not has_module and not has_vc:
             return self.label
 
-        if module:
+        label = self.label
+
+        if has_module and module:
             modules = self._get_module_tree(module)
-            label = self.label
-            for module in modules:
-                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return label
-        return self.label
+            for m in modules:
+                label = label.replace(MODULE_TOKEN, m.module_bay.position, 1)
+        if has_vc:
+            resolved_device = (module.device if module else None) or device
+            label = self._resolve_vc_position(label, resolved_device)
+
+        return label
 
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
@@ -222,8 +255,8 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             **kwargs
         )
@@ -257,8 +290,8 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             **kwargs
         )
@@ -307,8 +340,8 @@ class PowerPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             maximum_draw=self.maximum_draw,
             allocated_draw=self.allocated_draw,
@@ -395,13 +428,13 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         if self.power_port:
-            power_port_name = self.power_port.resolve_name(kwargs.get('module'))
+            power_port_name = self.power_port.resolve_name(kwargs.get('module'), kwargs.get('device'))
             power_port = PowerPort.objects.get(name=power_port_name, **kwargs)
         else:
             power_port = None
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             color=self.color,
             power_port=power_port,
@@ -501,8 +534,8 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             enabled=self.enabled,
             mgmt_only=self.mgmt_only,
@@ -628,8 +661,8 @@ class FrontPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             color=self.color,
             positions=self.positions,
@@ -692,8 +725,8 @@ class RearPortTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             type=self.type,
             color=self.color,
             positions=self.positions,
@@ -731,8 +764,8 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
 
     def instantiate(self, **kwargs):
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module')),
-            label=self.resolve_label(kwargs.get('module')),
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
             position=self.position,
             **kwargs
         )

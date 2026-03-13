@@ -1037,7 +1037,9 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         self.fields['name'].help_text = _(
             "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are not "
             "supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The token <code>{module}</code>, if present, will be "
-            "automatically replaced with the position value when creating a new module."
+            "automatically replaced with the position value when creating a new module. "
+            "The token <code>{vc_position}</code> will be replaced with the device's Virtual Chassis position "
+            "(use <code>{vc_position:1}</code> to specify a fallback (default is 0))"
         )
 
 
