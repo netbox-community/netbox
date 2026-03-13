@@ -24,9 +24,7 @@ __all__ = (
 
 
 def default_vid_ranges():
-    return [
-        NumericRange(VLAN_VID_MIN, VLAN_VID_MAX, bounds='[]')
-    ]
+    return [NumericRange(VLAN_VID_MIN, VLAN_VID_MAX + 1)]
 
 
 class VLANGroup(OrganizationalModel):
@@ -62,15 +60,15 @@ class VLANGroup(OrganizationalModel):
         verbose_name=_('VLAN ID ranges'),
         default=default_vid_ranges
     )
+    total_vlan_ids = models.PositiveBigIntegerField(
+        default=VLAN_VID_MAX - VLAN_VID_MIN + 1,
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
         related_name='vlan_groups',
         blank=True,
         null=True
-    )
-    _total_vlan_ids = models.PositiveBigIntegerField(
-        default=VLAN_VID_MAX - VLAN_VID_MIN + 1
     )
 
     objects = VLANGroupQuerySet.as_manager()
@@ -130,10 +128,10 @@ class VLANGroup(OrganizationalModel):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
 
     def save(self, *args, **kwargs):
-        self._total_vlan_ids = 0
+        self.total_vlan_ids = 0
         for vid_range in self.vid_ranges:
             # VID range is inclusive on lower-bound, exclusive on upper-bound
-            self._total_vlan_ids += vid_range.upper - vid_range.lower
+            self.total_vlan_ids += vid_range.upper - vid_range.lower
 
         super().save(*args, **kwargs)
 
