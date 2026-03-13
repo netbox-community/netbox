@@ -1205,7 +1205,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         reservations = (
             RackReservation(
                 rack=racks[0],
-                units=[1, 2, 3],
+                units=[1, 2],
                 status=RackReservationStatusChoices.STATUS_ACTIVE,
                 user=users[0],
                 tenant=tenants[0],
@@ -1213,7 +1213,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackReservation(
                 rack=racks[1],
-                units=[4, 5, 6],
+                units=[1, 2, 3],
                 status=RackReservationStatusChoices.STATUS_PENDING,
                 user=users[1],
                 tenant=tenants[1],
@@ -1221,7 +1221,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackReservation(
                 rack=racks[2],
-                units=[7, 8, 9],
+                units=[1, 2, 3, 4],
                 status=RackReservationStatusChoices.STATUS_STALE,
                 user=users[2],
                 tenant=tenants[2],
@@ -1290,6 +1290,14 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_unit_count(self):
+        params = {'unit_count_min': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'unit_count_max': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'unit_count_min': 3, 'unit_count_max': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_tenant_group(self):
         tenant_groups = TenantGroup.objects.all()[:2]

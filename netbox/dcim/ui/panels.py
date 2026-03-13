@@ -70,6 +70,7 @@ class RackRolePanel(panels.OrganizationalObjectPanel):
 
 class RackReservationPanel(panels.ObjectAttributesPanel):
     units = attrs.TextAttr('unit_list')
+    unit_count = attrs.TextAttr('unit_count', label=_("Total U's"))
     status = attrs.ChoiceAttr('status')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     user = attrs.RelatedObjectAttr('user')

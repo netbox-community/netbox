@@ -173,11 +173,16 @@ class RackReservationSerializer(PrimaryModelSerializer):
         allow_null=True,
     )
 
+    unit_count = serializers.SerializerMethodField()
+
+    def get_unit_count(self, obj):
+        return len(obj.units)
+
     class Meta:
         model = RackReservation
         fields = [
-            'id', 'url', 'display_url', 'display', 'rack', 'units', 'status', 'created', 'last_updated', 'user',
-            'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display_url', 'display', 'rack', 'units', 'unit_count', 'status', 'created', 'last_updated',
+            'user', 'tenant', 'description', 'owner', 'comments', 'tags', 'custom_fields',
         ]
         brief_fields = ('id', 'url', 'display', 'status', 'user', 'description', 'units')
 
