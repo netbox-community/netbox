@@ -151,6 +151,7 @@ nav:
             - Filters & Filter Sets: 'plugins/development/filtersets.md'
             - Search: 'plugins/development/search.md'
             - Event Types: 'plugins/development/event-types.md'
+            - Permissions: 'plugins/development/permissions.md'
             - Data Backends: 'plugins/development/data-backends.md'
             - Webhooks: 'plugins/development/webhooks.md'
             - User Interface: 'plugins/development/user-interface.md'
