@@ -1,6 +1,7 @@
 import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Func, IntegerField
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -609,10 +610,29 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         field_name='units',
         lookup_expr='contains'
     )
+    unit_count_min = django_filters.NumberFilter(
+        field_name='unit_count',
+        lookup_expr='gte',
+        label=_('Minimum unit count'),
+    )
+    unit_count_max = django_filters.NumberFilter(
+        field_name='unit_count',
+        lookup_expr='lte',
+        label=_('Maximum unit count'),
+    )
 
     class Meta:
         model = RackReservation
         fields = ('id', 'created', 'description')
+
+    def filter_queryset(self, queryset):
+        # Annotate unit_count here so unit_count_min/unit_count_max filters can reference it.
+        # When called from the list view the queryset is already annotated; Django silently
+        # overwrites a duplicate annotation with the same expression, so this is safe.
+        queryset = queryset.annotate(
+            unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+        )
+        return super().filter_queryset(queryset)
 
     def search(self, queryset, name, value):
         if not value.strip():

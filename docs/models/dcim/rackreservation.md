@@ -12,6 +12,10 @@ The [rack](./rack.md) being reserved.
 
 The rack unit or units being reserved. Multiple units can be expressed using commas and/or hyphens. For example, `1,3,5-7` specifies units 1, 3, 5, 6, and 7.
 
+### Total U's
+
+A calculated (read-only) field that reflects the total number of units in the reservation. Can be filtered upon using `unit_count_min` and `unit_count_max` parameters in the UI or API.
+
 ### Status
 
 The current status of the reservation. (This is for documentation only: The status of a reservation has no impact on the installation of devices within a reserved rack unit.)

@@ -570,6 +570,15 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+    def test_unit_count(self):
+        """unit_count should reflect the number of units in the reservation."""
+        url = reverse('dcim-api:rackreservation-list')
+        self.add_permissions('dcim.view_rackreservation')
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, 200)
+        for result in response.data['results']:
+            self.assertEqual(result['unit_count'], len(result['units']))
+
 
 class ManufacturerTest(APIViewTestCases.APIViewTestCase):
     model = Manufacturer

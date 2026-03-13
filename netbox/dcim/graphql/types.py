@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.db.models import Func, IntegerField
 
 from core.graphql.mixins import ChangelogMixin
 from dcim import models
@@ -802,6 +803,17 @@ class RackReservationType(PrimaryObjectType):
     rack: Annotated["RackType", strawberry.lazy('dcim.graphql.types')]
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')]
+
+    @classmethod
+    def get_queryset(cls, queryset, info, **kwargs):
+        queryset = super().get_queryset(queryset, info, **kwargs)
+        return queryset.annotate(
+            unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+        )
+
+    @strawberry.field
+    def unit_count(self) -> int:
+        return len(self.units)
 
 
 @strawberry_django.type(

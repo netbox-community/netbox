@@ -997,6 +997,7 @@ class RackReservationFilter(TenancyFilterMixin, PrimaryModelFilter):
     units: Annotated['IntegerArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    unit_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
     user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
     user_id: ID | None = strawberry_django.filter_field()
     description: StrFilterLookup[str] | None = strawberry_django.filter_field()

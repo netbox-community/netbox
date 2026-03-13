@@ -475,7 +475,7 @@ class RackReservationFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = RackReservation
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('status', 'user_id', name=_('Reservation')),
+        FieldSet('status', 'user_id', 'unit_count_min', 'unit_count_max', name=_('Reservation')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', 'rack_id', name=_('Rack')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
@@ -533,6 +533,14 @@ class RackReservationFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         queryset=User.objects.all(),
         required=False,
         label=_('User')
+    )
+    unit_count_min = forms.IntegerField(
+        required=False,
+        label=_("Minimum U's")
+    )
+    unit_count_max = forms.IntegerField(
+        required=False,
+        label=_("Maximum U's")
     )
     tag = TagFilterField(model)
 
