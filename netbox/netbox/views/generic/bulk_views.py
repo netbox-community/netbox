@@ -225,6 +225,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     form = None
     model_form = None
     pattern_target = ''
+    htmx_template_name = 'htmx/bulk_add_form.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -280,6 +281,12 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         form = self.form()
         model_form = self.model_form(initial=initial)
 
+        # HTMX partial: only re-render the model form fields
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
+                'model_form': model_form,
+            })
+
         return render(request, self.template_name, self._get_context(request, form, model_form))
 
     def post(self, request):
@@ -287,6 +294,12 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         model = self.queryset.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
+
+        # HTMX partial: only re-render the model form fields
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
+                'model_form': model_form,
+            })
 
         if form.is_valid():
             logger.debug("Form validation was successful")

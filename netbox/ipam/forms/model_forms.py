@@ -250,30 +250,21 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
 
 
-class PrefixBulkAddForm(TenancyForm, NetBoxModelForm):
-    vrf = DynamicModelChoiceField(
-        queryset=VRF.objects.all(),
-        required=False,
-        label=_('VRF')
-    )
-    role = DynamicModelChoiceField(
-        label=_('Role'),
-        queryset=Role.objects.all(),
-        required=False,
-        quick_add=True
-    )
+class PrefixBulkAddForm(PrefixForm):
+    """
+    Subclass of PrefixForm for bulk creation. The prefix field is inherited
+    but excluded from fieldsets — it is populated programmatically by BulkCreateView
+    from the expanded pattern.
+    """
 
     fieldsets = (
-        FieldSet('status', 'role', 'vrf', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')),
+        FieldSet(
+            'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
+        ),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
-
-    class Meta:
-        model = Prefix
-        fields = [
-            'prefix', 'vrf', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'tenant_group', 'tenant',
-            'tags',
-        ]
 
 
 class IPRangeForm(TenancyForm, PrimaryModelForm):
