@@ -121,13 +121,48 @@ class ScopedImportForm(forms.Form):
         required=False,
         label=_('Scope type (app & model)')
     )
+    scope_name = forms.CharField(
+        required=False,
+        label=_('Scope name'),
+        help_text=_('Name of the assigned scope object (if not using ID)')
+    )
 
     def clean(self):
         super().clean()
 
         scope_id = self.cleaned_data.get('scope_id')
+        scope_name = self.cleaned_data.get('scope_name')
         scope_type = self.cleaned_data.get('scope_type')
-        if scope_type and not scope_id:
+
+        # Cannot specify both scope_name and scope_id
+        if scope_name and scope_id:
+            raise ValidationError(
+                _("scope_name and scope_id are mutually exclusive.")
+            )
+
+        # Look up the scope object by name
+        if scope_type and scope_name:
+            model = scope_type.model_class()
+            try:
+                scope_obj = model.objects.get(name=scope_name)
+            except model.DoesNotExist:
+                raise ValidationError({
+                    'scope_name': _('{scope_type} "{name}" not found.').format(
+                        scope_type=bettertitle(model._meta.verbose_name),
+                        name=scope_name
+                    )
+                })
+            except model.MultipleObjectsReturned:
+                raise ValidationError({
+                    'scope_name': _(
+                        'Multiple {scope_type} objects match "{name}". Use scope_id to specify the intended object.'
+                    ).format(
+                        scope_type=model._meta.verbose_name,
+                        name=scope_name,
+                    )
+                })
+            self.cleaned_data['scope_id'] = scope_obj.pk
+        elif scope_type and not scope_id:
             raise ValidationError({
                 'scope_id': _(
                     "Please select a {scope_type}."

@@ -157,12 +157,20 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
-        cls.csv_data = (
-            "name,type,status",
-            "Cluster 4,Cluster Type 1,active",
-            "Cluster 5,Cluster Type 1,active",
-            "Cluster 6,Cluster Type 1,active",
-        )
+        cls.csv_data = {
+            'default': (
+                "name,type,status,scope_type,scope_id",
+                f"Cluster 4,Cluster Type 1,active,dcim.site,{sites[0].pk}",
+                f"Cluster 5,Cluster Type 1,active,dcim.site,{sites[0].pk}",
+                f"Cluster 6,Cluster Type 1,active,dcim.site,{sites[0].pk}",
+            ),
+            'scope_name': (
+                "name,type,status,scope_type,scope_name",
+                f"Cluster 4,Cluster Type 1,active,dcim.site,{sites[0].name}",
+                f"Cluster 5,Cluster Type 1,active,dcim.site,{sites[0].name}",
+                f"Cluster 6,Cluster Type 1,active,dcim.site,{sites[0].name}",
+            ),
+        }
 
         cls.csv_update_data = (
             "id,name,comments",
