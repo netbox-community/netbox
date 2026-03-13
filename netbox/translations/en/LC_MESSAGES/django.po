@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-11 05:18+0000\n"
+"POT-Creation-Date: 2026-03-13 05:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,7 +187,7 @@ msgstr ""
 #: netbox/dcim/tables/power.py:90 netbox/dcim/tables/racks.py:111
 #: netbox/dcim/tables/racks.py:194 netbox/dcim/tables/sites.py:102
 #: netbox/extras/filtersets.py:707 netbox/ipam/forms/bulk_edit.py:414
-#: netbox/ipam/forms/bulk_import.py:489 netbox/ipam/forms/filtersets.py:171
+#: netbox/ipam/forms/bulk_import.py:506 netbox/ipam/forms/filtersets.py:171
 #: netbox/ipam/forms/filtersets.py:251 netbox/ipam/forms/filtersets.py:476
 #: netbox/ipam/forms/filtersets.py:573 netbox/ipam/forms/model_forms.py:663
 #: netbox/ipam/tables/vlans.py:90
@@ -528,9 +528,8 @@ msgstr ""
 #: netbox/templates/dcim/poweroutlet.html:36
 #: netbox/templates/dcim/powerport.html:36
 #: netbox/templates/dcim/rearport.html:36
-#: netbox/templates/extras/eventrule.html:74 netbox/templates/vpn/l2vpn.html:22
-#: netbox/templates/wireless/inc/authentication_attrs.html:8
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:14
+#: netbox/templates/extras/eventrule.html:74
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:16
 #: netbox/virtualization/forms/bulk_edit.py:50
 #: netbox/virtualization/forms/bulk_import.py:42
 #: netbox/virtualization/forms/filtersets.py:62
@@ -539,6 +538,7 @@ msgstr ""
 #: netbox/vpn/forms/bulk_edit.py:226 netbox/vpn/forms/bulk_import.py:268
 #: netbox/vpn/forms/filtersets.py:239 netbox/vpn/forms/model_forms.py:82
 #: netbox/vpn/forms/model_forms.py:117 netbox/vpn/forms/model_forms.py:229
+#: netbox/wireless/ui/panels.py:23
 msgid "Type"
 msgstr ""
 
@@ -587,7 +587,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:204 netbox/ipam/forms/bulk_edit.py:248
 #: netbox/ipam/forms/bulk_edit.py:295 netbox/ipam/forms/bulk_edit.py:436
 #: netbox/ipam/forms/bulk_import.py:198 netbox/ipam/forms/bulk_import.py:262
-#: netbox/ipam/forms/bulk_import.py:298 netbox/ipam/forms/bulk_import.py:510
+#: netbox/ipam/forms/bulk_import.py:298 netbox/ipam/forms/bulk_import.py:527
 #: netbox/ipam/forms/filtersets.py:234 netbox/ipam/forms/filtersets.py:313
 #: netbox/ipam/forms/filtersets.py:396 netbox/ipam/forms/filtersets.py:585
 #: netbox/ipam/forms/model_forms.py:503 netbox/ipam/tables/ip.py:182
@@ -604,11 +604,8 @@ msgstr ""
 #: netbox/templates/extras/inc/script_list_content.html:35
 #: netbox/templates/ipam/ipaddress.html:37
 #: netbox/templates/ipam/iprange.html:61 netbox/templates/ipam/prefix.html:69
-#: netbox/templates/ipam/vlan.html:48 netbox/templates/vpn/l2vpn.html:26
-#: netbox/templates/vpn/tunnel.html:25
-#: netbox/templates/wireless/wirelesslan.html:22
-#: netbox/templates/wireless/wirelesslink.html:17
-#: netbox/users/forms/filtersets.py:36 netbox/users/forms/model_forms.py:223
+#: netbox/templates/ipam/vlan.html:48 netbox/users/forms/filtersets.py:36
+#: netbox/users/forms/model_forms.py:223
 #: netbox/virtualization/forms/bulk_edit.py:60
 #: netbox/virtualization/forms/bulk_edit.py:83
 #: netbox/virtualization/forms/bulk_import.py:55
@@ -663,7 +660,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:102 netbox/ipam/forms/bulk_import.py:122
 #: netbox/ipam/forms/bulk_import.py:142 netbox/ipam/forms/bulk_import.py:170
 #: netbox/ipam/forms/bulk_import.py:255 netbox/ipam/forms/bulk_import.py:291
-#: netbox/ipam/forms/bulk_import.py:470 netbox/ipam/forms/bulk_import.py:503
+#: netbox/ipam/forms/bulk_import.py:487 netbox/ipam/forms/bulk_import.py:520
 #: netbox/ipam/forms/filtersets.py:50 netbox/ipam/forms/filtersets.py:71
 #: netbox/ipam/forms/filtersets.py:109 netbox/ipam/forms/filtersets.py:131
 #: netbox/ipam/forms/filtersets.py:155 netbox/ipam/forms/filtersets.py:196
@@ -680,10 +677,7 @@ msgstr ""
 #: netbox/templates/ipam/iprange.html:65 netbox/templates/ipam/prefix.html:29
 #: netbox/templates/ipam/routetarget.html:17 netbox/templates/ipam/vlan.html:39
 #: netbox/templates/ipam/vlangroup.html:50 netbox/templates/ipam/vrf.html:20
-#: netbox/templates/tenancy/tenant.html:17 netbox/templates/vpn/l2vpn.html:34
-#: netbox/templates/vpn/tunnel.html:49
-#: netbox/templates/wireless/wirelesslan.html:42
-#: netbox/templates/wireless/wirelesslink.html:25
+#: netbox/templates/tenancy/tenant.html:17
 #: netbox/tenancy/forms/filtersets.py:55 netbox/tenancy/forms/forms.py:26
 #: netbox/tenancy/forms/forms.py:50 netbox/tenancy/forms/model_forms.py:51
 #: netbox/tenancy/tables/columns.py:50
@@ -723,7 +717,6 @@ msgstr ""
 #: netbox/circuits/forms/filtersets.py:217
 #: netbox/circuits/forms/model_forms.py:136
 #: netbox/templates/circuits/circuit.html:38
-#: netbox/templates/wireless/wirelesslink.html:38
 #: netbox/wireless/forms/bulk_edit.py:121
 #: netbox/wireless/forms/filtersets.py:137
 #: netbox/wireless/forms/model_forms.py:166
@@ -890,18 +883,8 @@ msgstr ""
 #: netbox/templates/tenancy/contactrole.html:22
 #: netbox/templates/tenancy/tenant.html:24
 #: netbox/templates/tenancy/tenantgroup.html:33
-#: netbox/templates/vpn/ikepolicy.html:17
-#: netbox/templates/vpn/ikeproposal.html:17
-#: netbox/templates/vpn/ipsecpolicy.html:17
-#: netbox/templates/vpn/ipsecprofile.html:17
-#: netbox/templates/vpn/ipsecprofile.html:40
-#: netbox/templates/vpn/ipsecprofile.html:73
-#: netbox/templates/vpn/ipsecproposal.html:17
-#: netbox/templates/vpn/l2vpn.html:30 netbox/templates/vpn/tunnel.html:33
-#: netbox/templates/vpn/tunnelgroup.html:30
-#: netbox/templates/wireless/wirelesslan.html:34
-#: netbox/templates/wireless/wirelesslangroup.html:33
-#: netbox/templates/wireless/wirelesslink.html:34
+#: netbox/templates/vpn/panels/ipsecprofile_ike_policy.html:12
+#: netbox/templates/vpn/panels/ipsecprofile_ipsec_policy.html:12
 #: netbox/users/forms/bulk_edit.py:62 netbox/users/forms/bulk_edit.py:80
 #: netbox/users/forms/bulk_edit.py:115 netbox/users/forms/bulk_edit.py:143
 #: netbox/users/forms/bulk_edit.py:166
@@ -998,7 +981,7 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:253 netbox/ipam/forms/bulk_edit.py:300
 #: netbox/ipam/forms/bulk_edit.py:441 netbox/ipam/forms/bulk_import.py:203
 #: netbox/ipam/forms/bulk_import.py:267 netbox/ipam/forms/bulk_import.py:303
-#: netbox/ipam/forms/bulk_import.py:515 netbox/ipam/forms/filtersets.py:262
+#: netbox/ipam/forms/bulk_import.py:532 netbox/ipam/forms/filtersets.py:262
 #: netbox/ipam/forms/filtersets.py:321 netbox/ipam/forms/filtersets.py:401
 #: netbox/ipam/forms/filtersets.py:593 netbox/ipam/forms/model_forms.py:189
 #: netbox/ipam/forms/model_forms.py:215 netbox/ipam/forms/model_forms.py:253
@@ -1013,8 +996,7 @@ msgstr ""
 #: netbox/templates/ipam/ipaddress.html:41
 #: netbox/templates/ipam/iprange.html:57 netbox/templates/ipam/prefix.html:73
 #: netbox/templates/ipam/role.html:19 netbox/templates/ipam/vlan.html:52
-#: netbox/templates/vpn/tunneltermination.html:17
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:20
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:20
 #: netbox/tenancy/forms/bulk_edit.py:136 netbox/tenancy/forms/filtersets.py:136
 #: netbox/tenancy/forms/model_forms.py:137 netbox/tenancy/tables/contacts.py:96
 #: netbox/virtualization/forms/bulk_edit.py:116
@@ -1049,8 +1031,8 @@ msgstr ""
 #: netbox/dcim/forms/bulk_import.py:607 netbox/dcim/forms/bulk_import.py:767
 #: netbox/dcim/forms/bulk_import.py:1232 netbox/dcim/forms/bulk_import.py:1674
 #: netbox/ipam/forms/bulk_import.py:200 netbox/ipam/forms/bulk_import.py:264
-#: netbox/ipam/forms/bulk_import.py:300 netbox/ipam/forms/bulk_import.py:512
-#: netbox/ipam/forms/bulk_import.py:525
+#: netbox/ipam/forms/bulk_import.py:300 netbox/ipam/forms/bulk_import.py:529
+#: netbox/ipam/forms/bulk_import.py:542
 #: netbox/virtualization/forms/bulk_import.py:57
 #: netbox/virtualization/forms/bulk_import.py:89
 #: netbox/vpn/forms/bulk_import.py:38 netbox/vpn/forms/bulk_import.py:265
@@ -1068,8 +1050,8 @@ msgstr ""
 #: netbox/ipam/forms/bulk_import.py:78 netbox/ipam/forms/bulk_import.py:106
 #: netbox/ipam/forms/bulk_import.py:126 netbox/ipam/forms/bulk_import.py:146
 #: netbox/ipam/forms/bulk_import.py:174 netbox/ipam/forms/bulk_import.py:259
-#: netbox/ipam/forms/bulk_import.py:295 netbox/ipam/forms/bulk_import.py:474
-#: netbox/ipam/forms/bulk_import.py:507
+#: netbox/ipam/forms/bulk_import.py:295 netbox/ipam/forms/bulk_import.py:491
+#: netbox/ipam/forms/bulk_import.py:524
 #: netbox/virtualization/forms/bulk_import.py:71
 #: netbox/virtualization/forms/bulk_import.py:132
 #: netbox/vpn/forms/bulk_import.py:62 netbox/wireless/forms/bulk_import.py:60
@@ -1123,13 +1105,11 @@ msgstr ""
 #: netbox/templates/dcim/interface.html:27
 #: netbox/templates/dcim/interface.html:259
 #: netbox/templates/dcim/rearport.html:103
-#: netbox/templates/vpn/tunneltermination.html:31
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:10
-#: netbox/templates/wireless/wirelesslink.html:10
-#: netbox/templates/wireless/wirelesslink.html:55
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:12
 #: netbox/virtualization/forms/model_forms.py:368
 #: netbox/vpn/forms/bulk_import.py:302 netbox/vpn/forms/model_forms.py:434
-#: netbox/vpn/forms/model_forms.py:443 netbox/wireless/forms/model_forms.py:115
+#: netbox/vpn/forms/model_forms.py:443 netbox/vpn/ui/panels.py:27
+#: netbox/wireless/forms/model_forms.py:115
 #: netbox/wireless/forms/model_forms.py:157
 msgid "Interface"
 msgstr ""
@@ -1333,15 +1313,13 @@ msgstr ""
 #: netbox/dcim/forms/bulk_import.py:115 netbox/dcim/forms/model_forms.py:135
 #: netbox/dcim/tables/sites.py:69 netbox/extras/forms/filtersets.py:600
 #: netbox/ipam/filtersets.py:1034 netbox/ipam/forms/bulk_edit.py:423
-#: netbox/ipam/forms/bulk_import.py:496 netbox/ipam/forms/model_forms.py:561
+#: netbox/ipam/forms/bulk_import.py:513 netbox/ipam/forms/model_forms.py:561
 #: netbox/ipam/tables/fhrp.py:64 netbox/ipam/tables/vlans.py:94
 #: netbox/templates/circuits/circuitgroupassignment.html:22
 #: netbox/templates/dcim/interface.html:359
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:23
 #: netbox/templates/ipam/panels/fhrp_groups.html:9
 #: netbox/templates/ipam/vlan.html:27 netbox/templates/tenancy/tenant.html:20
-#: netbox/templates/vpn/tunnel.html:29
-#: netbox/templates/wireless/wirelesslan.html:18
 #: netbox/tenancy/forms/bulk_edit.py:44 netbox/tenancy/forms/bulk_import.py:46
 #: netbox/tenancy/forms/filtersets.py:63 netbox/tenancy/forms/filtersets.py:126
 #: netbox/tenancy/forms/model_forms.py:45
@@ -1736,16 +1714,8 @@ msgstr ""
 #: netbox/templates/tenancy/contactgroup.html:21
 #: netbox/templates/tenancy/contactrole.html:18
 #: netbox/templates/tenancy/tenantgroup.html:29
-#: netbox/templates/vpn/ikepolicy.html:13
-#: netbox/templates/vpn/ikeproposal.html:13
-#: netbox/templates/vpn/ipsecpolicy.html:13
-#: netbox/templates/vpn/ipsecprofile.html:13
-#: netbox/templates/vpn/ipsecprofile.html:36
-#: netbox/templates/vpn/ipsecprofile.html:69
-#: netbox/templates/vpn/ipsecproposal.html:13
-#: netbox/templates/vpn/l2vpn.html:14 netbox/templates/vpn/tunnel.html:21
-#: netbox/templates/vpn/tunnelgroup.html:26
-#: netbox/templates/wireless/wirelesslangroup.html:29
+#: netbox/templates/vpn/panels/ipsecprofile_ike_policy.html:8
+#: netbox/templates/vpn/panels/ipsecprofile_ipsec_policy.html:8
 #: netbox/tenancy/tables/contacts.py:38 netbox/tenancy/tables/contacts.py:53
 #: netbox/tenancy/tables/tenants.py:35 netbox/users/tables.py:92
 #: netbox/users/tables.py:106 netbox/users/tables.py:160
@@ -1845,8 +1815,8 @@ msgstr ""
 
 #: netbox/circuits/tables/virtual_circuits.py:64
 #: netbox/templates/circuits/virtualcircuit.html:87
-#: netbox/templates/vpn/l2vpn.html:60 netbox/templates/vpn/tunnel.html:72
-#: netbox/vpn/tables/tunnels.py:59
+#: netbox/vpn/tables/tunnels.py:59 netbox/vpn/views.py:139
+#: netbox/vpn/views.py:685
 msgid "Terminations"
 msgstr ""
 
@@ -1905,8 +1875,7 @@ msgstr ""
 #: netbox/templates/dcim/virtualchassis.html:55
 #: netbox/templates/dcim/virtualchassis_edit.html:63
 #: netbox/templates/dcim/virtualdevicecontext.html:22
-#: netbox/templates/vpn/tunneltermination.html:23
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:6
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:8
 #: netbox/virtualization/filtersets.py:160
 #: netbox/virtualization/forms/bulk_edit.py:108
 #: netbox/virtualization/forms/bulk_import.py:112
@@ -2457,7 +2426,7 @@ msgstr ""
 msgid "Change logging is not supported for this object type ({type})."
 msgstr ""
 
-#: netbox/core/models/config.py:22 netbox/core/models/data.py:286
+#: netbox/core/models/config.py:22 netbox/core/models/data.py:287
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:852 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:195
@@ -2539,7 +2508,7 @@ msgid "ignore rules"
 msgstr ""
 
 #: netbox/core/models/data.py:72
-msgid "Patterns (one per line) matching files to ignore when syncing"
+msgid "Patterns (one per line) matching files or paths to ignore when syncing"
 msgstr ""
 
 #: netbox/core/models/data.py:75 netbox/extras/models/models.py:515
@@ -2578,48 +2547,48 @@ msgid ""
 "installed: "
 msgstr ""
 
-#: netbox/core/models/data.py:290 netbox/core/models/files.py:34
+#: netbox/core/models/data.py:291 netbox/core/models/files.py:34
 #: netbox/netbox/models/features.py:68
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:300 netbox/dcim/models/cables.py:667
+#: netbox/core/models/data.py:301 netbox/dcim/models/cables.py:675
 msgid "path"
 msgstr ""
 
-#: netbox/core/models/data.py:303
+#: netbox/core/models/data.py:304
 msgid "File path relative to the data source's root"
 msgstr ""
 
-#: netbox/core/models/data.py:307 netbox/ipam/models/ip.py:509
+#: netbox/core/models/data.py:308 netbox/ipam/models/ip.py:509
 msgid "size"
 msgstr ""
 
-#: netbox/core/models/data.py:310
+#: netbox/core/models/data.py:311
 msgid "hash"
 msgstr ""
 
-#: netbox/core/models/data.py:314
+#: netbox/core/models/data.py:315
 msgid "Length must be 64 hexadecimal characters."
 msgstr ""
 
-#: netbox/core/models/data.py:316
+#: netbox/core/models/data.py:317
 msgid "SHA256 hash of the file data"
 msgstr ""
 
-#: netbox/core/models/data.py:330
+#: netbox/core/models/data.py:331
 msgid "data file"
 msgstr ""
 
-#: netbox/core/models/data.py:331
+#: netbox/core/models/data.py:332
 msgid "data files"
 msgstr ""
 
-#: netbox/core/models/data.py:404
+#: netbox/core/models/data.py:405
 msgid "auto sync record"
 msgstr ""
 
-#: netbox/core/models/data.py:405
+#: netbox/core/models/data.py:406
 msgid "auto sync records"
 msgstr ""
 
@@ -2812,7 +2781,8 @@ msgstr ""
 msgid "No log entries"
 msgstr ""
 
-#: netbox/core/tables/plugins.py:16 netbox/templates/vpn/ipsecprofile.html:44
+#: netbox/core/tables/plugins.py:16
+#: netbox/templates/vpn/panels/ipsecprofile_ike_policy.html:16
 #: netbox/vpn/forms/bulk_edit.py:123 netbox/vpn/forms/bulk_import.py:171
 #: netbox/vpn/tables/crypto.py:58
 msgid "Version"
@@ -3118,7 +3088,7 @@ msgstr ""
 #: netbox/dcim/forms/model_forms.py:1709 netbox/dcim/forms/object_import.py:177
 #: netbox/dcim/tables/devices.py:702 netbox/dcim/tables/devices.py:737
 #: netbox/dcim/tables/devices.py:965 netbox/dcim/tables/devices.py:1052
-#: netbox/dcim/tables/devices.py:1205 netbox/ipam/forms/bulk_import.py:582
+#: netbox/dcim/tables/devices.py:1205 netbox/ipam/forms/bulk_import.py:599
 #: netbox/ipam/forms/model_forms.py:758 netbox/ipam/tables/fhrp.py:56
 #: netbox/ipam/tables/ip.py:329 netbox/ipam/tables/services.py:42
 #: netbox/netbox/tables/tables.py:329 netbox/netbox/ui/panels.py:206
@@ -3126,7 +3096,6 @@ msgstr ""
 #: netbox/templates/ipam/service.html:30
 #: netbox/templates/tenancy/contactgroup.html:29
 #: netbox/templates/tenancy/tenantgroup.html:37
-#: netbox/templates/wireless/wirelesslangroup.html:37
 #: netbox/tenancy/forms/bulk_edit.py:33 netbox/tenancy/forms/bulk_edit.py:62
 #: netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
@@ -3135,7 +3104,7 @@ msgstr ""
 #: netbox/virtualization/forms/bulk_edit.py:172
 #: netbox/virtualization/forms/bulk_import.py:164
 #: netbox/virtualization/tables/virtualmachines.py:133
-#: netbox/wireless/forms/bulk_edit.py:26
+#: netbox/vpn/ui/panels.py:25 netbox/wireless/forms/bulk_edit.py:26
 #: netbox/wireless/forms/bulk_import.py:23
 #: netbox/wireless/forms/model_forms.py:23
 msgid "Parent"
@@ -4073,11 +4042,11 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:607 netbox/ipam/filtersets.py:1087
 #: netbox/ipam/forms/filtersets.py:613 netbox/ipam/tables/vlans.py:116
 #: netbox/templates/dcim/interface.html:104 netbox/templates/ipam/vlan.html:82
-#: netbox/templates/vpn/l2vpntermination.html:12
 #: netbox/virtualization/forms/filtersets.py:255
 #: netbox/vpn/forms/bulk_import.py:285 netbox/vpn/forms/filtersets.py:268
 #: netbox/vpn/forms/model_forms.py:407 netbox/vpn/forms/model_forms.py:425
 #: netbox/vpn/models/l2vpn.py:68 netbox/vpn/tables/l2vpn.py:55
+#: netbox/vpn/ui/panels.py:84
 msgid "L2VPN"
 msgstr ""
 
@@ -4156,8 +4125,7 @@ msgstr ""
 msgid "Virtual Device Context (Identifier)"
 msgstr ""
 
-#: netbox/dcim/filtersets.py:2242 netbox/templates/wireless/wirelesslan.html:11
-#: netbox/wireless/forms/model_forms.py:54
+#: netbox/dcim/filtersets.py:2242 netbox/wireless/forms/model_forms.py:54
 msgid "Wireless LAN"
 msgstr ""
 
@@ -4747,9 +4715,7 @@ msgid "Speed"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_edit.py:1453 netbox/dcim/forms/bulk_import.py:994
-#: netbox/templates/vpn/ikepolicy.html:25
-#: netbox/templates/vpn/ipsecprofile.html:21
-#: netbox/templates/vpn/ipsecprofile.html:48
+#: netbox/templates/vpn/panels/ipsecprofile_ike_policy.html:20
 #: netbox/virtualization/forms/bulk_edit.py:198
 #: netbox/virtualization/forms/bulk_import.py:178
 #: netbox/vpn/forms/bulk_edit.py:128 netbox/vpn/forms/bulk_edit.py:196
@@ -4886,7 +4852,7 @@ msgid "available options"
 msgstr ""
 
 #: netbox/dcim/forms/bulk_import.py:149 netbox/dcim/forms/bulk_import.py:643
-#: netbox/dcim/forms/bulk_import.py:1643 netbox/ipam/forms/bulk_import.py:493
+#: netbox/dcim/forms/bulk_import.py:1643 netbox/ipam/forms/bulk_import.py:510
 #: netbox/virtualization/forms/bulk_import.py:64
 #: netbox/virtualization/forms/bulk_import.py:102
 msgid "Assigned site"
@@ -5676,7 +5642,6 @@ msgstr ""
 #: netbox/ipam/forms/model_forms.py:613 netbox/ipam/tables/ip.py:193
 #: netbox/ipam/tables/vlans.py:40 netbox/templates/ipam/prefix.html:48
 #: netbox/templates/ipam/vlangroup.html:38
-#: netbox/templates/wireless/wirelesslan.html:26
 #: netbox/virtualization/forms/bulk_edit.py:74
 #: netbox/virtualization/forms/filtersets.py:53
 #: netbox/virtualization/forms/model_forms.py:73
@@ -5693,7 +5658,7 @@ msgstr ""
 msgid "Please select a {scope_type}."
 msgstr ""
 
-#: netbox/dcim/forms/mixins.py:122 netbox/ipam/forms/bulk_import.py:464
+#: netbox/dcim/forms/mixins.py:122 netbox/ipam/forms/bulk_import.py:481
 msgid "Scope type (app & model)"
 msgstr ""
 
@@ -5915,7 +5880,6 @@ msgstr ""
 
 #: netbox/dcim/forms/model_forms.py:1943 netbox/ipam/forms/filtersets.py:654
 #: netbox/ipam/forms/model_forms.py:326 netbox/ipam/tables/vlans.py:186
-#: netbox/templates/vpn/tunneltermination.html:25
 #: netbox/virtualization/forms/filtersets.py:216
 #: netbox/virtualization/forms/filtersets.py:274
 #: netbox/virtualization/forms/model_forms.py:220
@@ -6026,78 +5990,78 @@ msgstr ""
 msgid "A and B terminations cannot connect to the same object."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:456 netbox/ipam/models/asns.py:38
+#: netbox/dcim/models/cables.py:464 netbox/ipam/models/asns.py:38
 msgid "end"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:527
+#: netbox/dcim/models/cables.py:535
 msgid "cable termination"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:528
+#: netbox/dcim/models/cables.py:536
 msgid "cable terminations"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:541
+#: netbox/dcim/models/cables.py:549
 #, python-brace-format
 msgid ""
 "Cannot connect a cable to {obj_parent} > {obj} because it is marked as "
 "connected."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:558
+#: netbox/dcim/models/cables.py:566
 #, python-brace-format
 msgid ""
 "Duplicate termination found for {app_label}.{model} {termination_id}: cable "
 "{cable_pk}"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:568
+#: netbox/dcim/models/cables.py:576
 #, python-brace-format
 msgid "Cables cannot be terminated to {type_display} interfaces"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:575
+#: netbox/dcim/models/cables.py:583
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:671 netbox/extras/models/configs.py:100
+#: netbox/dcim/models/cables.py:679 netbox/extras/models/configs.py:100
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:675
+#: netbox/dcim/models/cables.py:683
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:679
+#: netbox/dcim/models/cables.py:687
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:687
+#: netbox/dcim/models/cables.py:695
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:688
+#: netbox/dcim/models/cables.py:696
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:775
+#: netbox/dcim/models/cables.py:783
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:793
+#: netbox/dcim/models/cables.py:801
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:801
+#: netbox/dcim/models/cables.py:809
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:831
+#: netbox/dcim/models/cables.py:839
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:833
+#: netbox/dcim/models/cables.py:841
 msgid "All links must match first link type"
 msgstr ""
 
@@ -6449,7 +6413,7 @@ msgstr ""
 
 #: netbox/dcim/models/device_components.py:661
 #: netbox/dcim/tables/devices.py:625 netbox/ipam/forms/bulk_edit.py:451
-#: netbox/ipam/forms/bulk_import.py:528 netbox/ipam/forms/filtersets.py:608
+#: netbox/ipam/forms/bulk_import.py:545 netbox/ipam/forms/filtersets.py:608
 #: netbox/ipam/forms/model_forms.py:684 netbox/ipam/tables/vlans.py:109
 #: netbox/templates/dcim/interface.html:86 netbox/templates/ipam/vlan.html:77
 #: netbox/virtualization/ui/panels.py:63
@@ -7363,7 +7327,7 @@ msgstr ""
 
 #: netbox/dcim/models/racks.py:312 netbox/ipam/forms/bulk_import.py:207
 #: netbox/ipam/forms/bulk_import.py:271 netbox/ipam/forms/bulk_import.py:306
-#: netbox/ipam/forms/bulk_import.py:519
+#: netbox/ipam/forms/bulk_import.py:536
 #: netbox/virtualization/forms/bulk_import.py:125
 msgid "Functional role"
 msgstr ""
@@ -7611,7 +7575,7 @@ msgid "U Height"
 msgstr ""
 
 #: netbox/dcim/tables/devices.py:196 netbox/dcim/tables/devices.py:1161
-#: netbox/ipam/forms/bulk_import.py:601 netbox/ipam/forms/model_forms.py:309
+#: netbox/ipam/forms/bulk_import.py:618 netbox/ipam/forms/model_forms.py:309
 #: netbox/ipam/forms/model_forms.py:321 netbox/ipam/tables/ip.py:307
 #: netbox/ipam/tables/ip.py:371 netbox/ipam/tables/ip.py:386
 #: netbox/ipam/tables/ip.py:409 netbox/templates/ipam/ipaddress.html:11
@@ -7766,8 +7730,6 @@ msgid "FHRP Groups"
 msgstr ""
 
 #: netbox/dcim/tables/devices.py:613 netbox/templates/dcim/interface.html:100
-#: netbox/templates/vpn/tunnel.html:18
-#: netbox/templates/vpn/tunneltermination.html:13
 #: netbox/virtualization/ui/panels.py:64 netbox/vpn/forms/bulk_edit.py:64
 #: netbox/vpn/forms/bulk_import.py:75 netbox/vpn/forms/filtersets.py:50
 #: netbox/vpn/forms/filtersets.py:92 netbox/vpn/forms/model_forms.py:58
@@ -8080,8 +8042,7 @@ msgid "Child Regions"
 msgstr ""
 
 #: netbox/dcim/views.py:389 netbox/templates/tenancy/contactgroup.html:47
-#: netbox/templates/tenancy/tenantgroup.html:56
-#: netbox/templates/wireless/wirelesslangroup.html:56
+#: netbox/templates/tenancy/tenantgroup.html:56 netbox/wireless/views.py:54
 msgid "Child Groups"
 msgstr ""
 
@@ -10560,13 +10521,12 @@ msgstr ""
 #: netbox/ipam/models/vlans.py:290 netbox/ipam/tables/ip.py:205
 #: netbox/templates/ipam/prefix.html:56 netbox/templates/ipam/vlan.html:12
 #: netbox/templates/ipam/vlan/base.html:6
-#: netbox/templates/ipam/vlan_edit.html:14
-#: netbox/templates/wireless/wirelesslan.html:38
-#: netbox/vpn/forms/bulk_import.py:309 netbox/vpn/forms/filtersets.py:306
-#: netbox/vpn/forms/model_forms.py:431 netbox/vpn/forms/model_forms.py:450
-#: netbox/wireless/forms/bulk_edit.py:52
+#: netbox/templates/ipam/vlan_edit.html:14 netbox/vpn/forms/bulk_import.py:309
+#: netbox/vpn/forms/filtersets.py:306 netbox/vpn/forms/model_forms.py:431
+#: netbox/vpn/forms/model_forms.py:450 netbox/wireless/forms/bulk_edit.py:52
 #: netbox/wireless/forms/bulk_import.py:49
 #: netbox/wireless/forms/model_forms.py:50 netbox/wireless/models.py:106
+#: netbox/wireless/ui/panels.py:16
 msgid "VLAN"
 msgstr ""
 
@@ -10599,8 +10559,8 @@ msgid "DNS name"
 msgstr ""
 
 #: netbox/ipam/forms/bulk_edit.py:322 netbox/ipam/forms/bulk_edit.py:496
-#: netbox/ipam/forms/bulk_import.py:446 netbox/ipam/forms/bulk_import.py:565
-#: netbox/ipam/forms/bulk_import.py:593 netbox/ipam/forms/filtersets.py:432
+#: netbox/ipam/forms/bulk_import.py:463 netbox/ipam/forms/bulk_import.py:582
+#: netbox/ipam/forms/bulk_import.py:610 netbox/ipam/forms/filtersets.py:432
 #: netbox/ipam/forms/filtersets.py:626 netbox/templates/ipam/fhrpgroup.html:22
 #: netbox/templates/ipam/inc/panels/fhrp_groups.html:24
 #: netbox/templates/ipam/panels/fhrp_groups.html:10
@@ -10632,12 +10592,11 @@ msgstr ""
 #: netbox/ipam/forms/bulk_edit.py:350 netbox/ipam/forms/filtersets.py:424
 #: netbox/ipam/forms/model_forms.py:508 netbox/netbox/navigation/menu.py:413
 #: netbox/templates/ipam/fhrpgroup.html:49
-#: netbox/templates/wireless/inc/authentication_attrs.html:5
 #: netbox/wireless/forms/bulk_edit.py:83 netbox/wireless/forms/bulk_edit.py:135
 #: netbox/wireless/forms/filtersets.py:43
 #: netbox/wireless/forms/filtersets.py:109
 #: netbox/wireless/forms/model_forms.py:57
-#: netbox/wireless/forms/model_forms.py:172
+#: netbox/wireless/forms/model_forms.py:172 netbox/wireless/ui/panels.py:21
 msgid "Authentication"
 msgstr ""
 
@@ -10645,7 +10604,7 @@ msgstr ""
 msgid "VLAN ID ranges"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:446 netbox/ipam/forms/bulk_import.py:522
+#: netbox/ipam/forms/bulk_edit.py:446 netbox/ipam/forms/bulk_import.py:539
 #: netbox/ipam/forms/filtersets.py:600 netbox/ipam/models/vlans.py:250
 #: netbox/ipam/tables/vlans.py:106
 msgid "Q-in-Q role"
@@ -10659,7 +10618,7 @@ msgstr ""
 msgid "Site & Group"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_edit.py:480 netbox/ipam/forms/bulk_import.py:552
+#: netbox/ipam/forms/bulk_edit.py:480 netbox/ipam/forms/bulk_import.py:569
 #: netbox/ipam/forms/model_forms.py:715 netbox/ipam/tables/vlans.py:230
 #: netbox/templates/ipam/vlantranslationrule.html:14
 #: netbox/vpn/forms/model_forms.py:319 netbox/vpn/forms/model_forms.py:356
@@ -10746,44 +10705,44 @@ msgstr ""
 msgid "No interface specified; cannot set as out-of-band IP"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:450
+#: netbox/ipam/forms/bulk_import.py:467
 msgid "Auth type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:500
+#: netbox/ipam/forms/bulk_import.py:517
 msgid "Assigned VLAN group"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:532
+#: netbox/ipam/forms/bulk_import.py:549
 msgid "Service VLAN (for Q-in-Q/802.1ad customer VLANs)"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:555 netbox/ipam/models/vlans.py:369
+#: netbox/ipam/forms/bulk_import.py:572 netbox/ipam/models/vlans.py:369
 msgid "VLAN translation policy"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:567 netbox/ipam/forms/bulk_import.py:595
+#: netbox/ipam/forms/bulk_import.py:584 netbox/ipam/forms/bulk_import.py:612
 msgid "IP protocol"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:579
+#: netbox/ipam/forms/bulk_import.py:596
 msgid "Parent type (app & model)"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:586
+#: netbox/ipam/forms/bulk_import.py:603
 msgid "Parent object name"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:590
+#: netbox/ipam/forms/bulk_import.py:607
 msgid "Parent object ID"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:642
+#: netbox/ipam/forms/bulk_import.py:659
 msgid ""
 "One of parent or parent_object_id must be included with parent_object_type"
 msgstr ""
 
-#: netbox/ipam/forms/bulk_import.py:655
+#: netbox/ipam/forms/bulk_import.py:672
 #, python-brace-format
 msgid "{ip} is not assigned to this parent."
 msgstr ""
@@ -11540,8 +11499,7 @@ msgstr ""
 msgid "Assigned"
 msgstr ""
 
-#: netbox/ipam/tables/ip.py:392 netbox/templates/vpn/l2vpntermination.html:16
-#: netbox/vpn/forms/filtersets.py:262
+#: netbox/ipam/tables/ip.py:392 netbox/vpn/forms/filtersets.py:262
 msgid "Assigned Object"
 msgstr ""
 
@@ -12245,7 +12203,7 @@ msgstr ""
 msgid "Tunnels"
 msgstr ""
 
-#: netbox/netbox/navigation/menu.py:230 netbox/templates/vpn/tunnelgroup.html:8
+#: netbox/netbox/navigation/menu.py:230
 msgid "Tunnel Groups"
 msgstr ""
 
@@ -12266,8 +12224,7 @@ msgstr ""
 msgid "IKE Proposals"
 msgstr ""
 
-#: netbox/netbox/navigation/menu.py:245
-#: netbox/templates/vpn/ikeproposal.html:41
+#: netbox/netbox/navigation/menu.py:245 netbox/vpn/views.py:293
 msgid "IKE Policies"
 msgstr ""
 
@@ -12275,13 +12232,11 @@ msgstr ""
 msgid "IPSec Proposals"
 msgstr ""
 
-#: netbox/netbox/navigation/menu.py:247
-#: netbox/templates/vpn/ipsecproposal.html:37
+#: netbox/netbox/navigation/menu.py:247 netbox/vpn/views.py:445
 msgid "IPSec Policies"
 msgstr ""
 
-#: netbox/netbox/navigation/menu.py:248 netbox/templates/vpn/ikepolicy.html:38
-#: netbox/templates/vpn/ipsecpolicy.html:25
+#: netbox/netbox/navigation/menu.py:248
 msgid "IPSec Profiles"
 msgstr ""
 
@@ -13291,7 +13246,7 @@ msgid "Add a Virtual Circuit"
 msgstr ""
 
 #: netbox/templates/circuits/virtualcircuit.html:91
-#: netbox/templates/vpn/tunnel.html:9
+#: netbox/templates/vpn/tunnel.html:7
 msgid "Add Termination"
 msgstr ""
 
@@ -14024,12 +13979,12 @@ msgid "Wireless Link"
 msgstr ""
 
 #: netbox/templates/dcim/interface.html:305
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:26
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:24
 msgid "Channel"
 msgstr ""
 
 #: netbox/templates/dcim/interface.html:314
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:32
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:28
 msgid "Channel Frequency"
 msgstr ""
 
@@ -14041,17 +13996,16 @@ msgid "MHz"
 msgstr ""
 
 #: netbox/templates/dcim/interface.html:333
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:42
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:38
 msgid "Channel Width"
 msgstr ""
 
 #: netbox/templates/dcim/interface.html:360
-#: netbox/templates/wireless/wirelesslan.html:14
-#: netbox/templates/wireless/wirelesslink.html:21
 #: netbox/wireless/forms/bulk_edit.py:57 netbox/wireless/forms/bulk_edit.py:94
 #: netbox/wireless/forms/filtersets.py:49
 #: netbox/wireless/forms/filtersets.py:115 netbox/wireless/models.py:86
 #: netbox/wireless/models.py:152 netbox/wireless/tables/wirelesslan.py:37
+#: netbox/wireless/ui/panels.py:11 netbox/wireless/ui/panels.py:48
 msgid "SSID"
 msgstr ""
 
@@ -14264,7 +14218,6 @@ msgid ""
 msgstr ""
 
 #: netbox/templates/dcim/virtualdevicecontext.html:26
-#: netbox/templates/vpn/l2vpn.html:18
 msgid "Identifier"
 msgstr ""
 
@@ -15434,177 +15387,46 @@ msgstr ""
 msgid "Resources"
 msgstr ""
 
-#: netbox/templates/vpn/ikepolicy.html:10
-#: netbox/templates/vpn/ipsecprofile.html:33 netbox/vpn/tables/crypto.py:154
-msgid "IKE Policy"
-msgstr ""
-
-#: netbox/templates/vpn/ikepolicy.html:21
-msgid "IKE Version"
-msgstr ""
-
-#: netbox/templates/vpn/ikepolicy.html:29
-msgid "Pre-Shared Key"
-msgstr ""
-
-#: netbox/templates/vpn/ikepolicy.html:33
-#: netbox/templates/wireless/inc/authentication_attrs.html:20
+#: netbox/templates/vpn/attrs/preshared_key.html:3
+#: netbox/templates/wireless/attrs/auth_psk.html:3
 msgid "Show Secret"
 msgstr ""
 
-#: netbox/templates/vpn/ikepolicy.html:57
-#: netbox/templates/vpn/ipsecpolicy.html:45
-#: netbox/templates/vpn/ipsecprofile.html:52
-#: netbox/templates/vpn/ipsecprofile.html:77
+#: netbox/templates/vpn/panels/ipsecprofile_ike_policy.html:5
+#: netbox/vpn/tables/crypto.py:154
+msgid "IKE Policy"
+msgstr ""
+
+#: netbox/templates/vpn/panels/ipsecprofile_ike_policy.html:24
+#: netbox/templates/vpn/panels/ipsecprofile_ipsec_policy.html:16
 #: netbox/vpn/forms/model_forms.py:314 netbox/vpn/forms/model_forms.py:351
 #: netbox/vpn/tables/crypto.py:65 netbox/vpn/tables/crypto.py:125
+#: netbox/vpn/views.py:367 netbox/vpn/views.py:519
 msgid "Proposals"
 msgstr ""
 
-#: netbox/templates/vpn/ikeproposal.html:10
-msgid "IKE Proposal"
-msgstr ""
-
-#: netbox/templates/vpn/ikeproposal.html:21 netbox/vpn/forms/bulk_edit.py:85
-#: netbox/vpn/forms/bulk_import.py:144 netbox/vpn/forms/filtersets.py:112
-msgid "Authentication method"
-msgstr ""
-
-#: netbox/templates/vpn/ikeproposal.html:25
-#: netbox/templates/vpn/ipsecproposal.html:21 netbox/vpn/forms/bulk_edit.py:90
-#: netbox/vpn/forms/bulk_edit.py:148 netbox/vpn/forms/bulk_import.py:148
-#: netbox/vpn/forms/bulk_import.py:194 netbox/vpn/forms/filtersets.py:117
-#: netbox/vpn/forms/filtersets.py:167
-msgid "Encryption algorithm"
-msgstr ""
-
-#: netbox/templates/vpn/ikeproposal.html:29
-#: netbox/templates/vpn/ipsecproposal.html:25 netbox/vpn/forms/bulk_edit.py:95
-#: netbox/vpn/forms/bulk_edit.py:153 netbox/vpn/forms/bulk_import.py:152
-#: netbox/vpn/forms/bulk_import.py:199 netbox/vpn/forms/filtersets.py:122
-#: netbox/vpn/forms/filtersets.py:172
-msgid "Authentication algorithm"
-msgstr ""
-
-#: netbox/templates/vpn/ikeproposal.html:33
-msgid "DH group"
-msgstr ""
-
-#: netbox/templates/vpn/ikeproposal.html:37
-#: netbox/templates/vpn/ipsecproposal.html:29 netbox/vpn/forms/bulk_edit.py:158
-#: netbox/vpn/models/crypto.py:146
-msgid "SA lifetime (seconds)"
-msgstr ""
-
-#: netbox/templates/vpn/ipsecpolicy.html:10
-#: netbox/templates/vpn/ipsecprofile.html:66 netbox/vpn/tables/crypto.py:158
+#: netbox/templates/vpn/panels/ipsecprofile_ipsec_policy.html:5
+#: netbox/vpn/tables/crypto.py:158
 msgid "IPSec Policy"
 msgstr ""
 
-#: netbox/templates/vpn/ipsecpolicy.html:21 netbox/vpn/forms/bulk_edit.py:180
-#: netbox/vpn/models/crypto.py:191
-msgid "PFS group"
-msgstr ""
-
-#: netbox/templates/vpn/ipsecprofile.html:10 netbox/vpn/forms/model_forms.py:53
-msgid "IPSec Profile"
-msgstr ""
-
-#: netbox/templates/vpn/ipsecprofile.html:89 netbox/vpn/tables/crypto.py:128
+#: netbox/templates/vpn/panels/ipsecprofile_ipsec_policy.html:26
+#: netbox/vpn/tables/crypto.py:128
 msgid "PFS Group"
 msgstr ""
 
-#: netbox/templates/vpn/ipsecproposal.html:10
-msgid "IPSec Proposal"
-msgstr ""
-
-#: netbox/templates/vpn/ipsecproposal.html:33 netbox/vpn/forms/bulk_edit.py:162
-#: netbox/vpn/models/crypto.py:152
-msgid "SA lifetime (KB)"
-msgstr ""
-
-#: netbox/templates/vpn/l2vpn.html:11
-#: netbox/templates/vpn/l2vpntermination.html:9
-msgid "L2VPN Attributes"
-msgstr ""
-
-#: netbox/templates/vpn/l2vpn.html:64 netbox/templates/vpn/tunnel.html:76
-msgid "Add a Termination"
-msgstr ""
-
-#: netbox/templates/vpn/tunnel.html:37 netbox/vpn/forms/bulk_edit.py:43
-#: netbox/vpn/forms/bulk_import.py:47 netbox/vpn/forms/filtersets.py:67
-msgid "Encapsulation"
-msgstr ""
-
-#: netbox/templates/vpn/tunnel.html:41 netbox/vpn/forms/bulk_edit.py:49
-#: netbox/vpn/forms/bulk_import.py:52 netbox/vpn/forms/filtersets.py:74
-#: netbox/vpn/models/crypto.py:246 netbox/vpn/tables/tunnels.py:52
-msgid "IPSec profile"
-msgstr ""
-
-#: netbox/templates/vpn/tunnel.html:45 netbox/vpn/forms/bulk_edit.py:58
-#: netbox/vpn/forms/filtersets.py:78
-msgid "Tunnel ID"
-msgstr ""
-
-#: netbox/templates/vpn/tunnelgroup.html:14
+#: netbox/templates/vpn/tunnelgroup.html:7
 msgid "Add Tunnel"
 msgstr ""
 
-#: netbox/templates/vpn/tunnelgroup.html:23 netbox/vpn/forms/model_forms.py:34
-#: netbox/vpn/forms/model_forms.py:47
-msgid "Tunnel Group"
-msgstr ""
-
-#: netbox/templates/vpn/tunneltermination.html:10
-msgid "Tunnel Termination"
-msgstr ""
-
-#: netbox/templates/vpn/tunneltermination.html:35
-#: netbox/vpn/forms/bulk_import.py:106 netbox/vpn/forms/model_forms.py:100
-#: netbox/vpn/forms/model_forms.py:136 netbox/vpn/forms/model_forms.py:245
-#: netbox/vpn/tables/tunnels.py:101
-msgid "Outside IP"
-msgstr ""
-
-#: netbox/templates/vpn/tunneltermination.html:51
-msgid "Peer Terminations"
-msgstr ""
-
-#: netbox/templates/wireless/inc/authentication_attrs.html:12
-msgid "Cipher"
-msgstr ""
-
-#: netbox/templates/wireless/inc/authentication_attrs.html:16
-msgid "PSK"
-msgstr ""
-
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:35
-#: netbox/templates/wireless/inc/wirelesslink_interface.html:45
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:31
+#: netbox/templates/wireless/panels/wirelesslink_interface.html:41
 msgctxt "Abbreviation for megahertz"
 msgid "MHz"
 msgstr ""
 
-#: netbox/templates/wireless/wirelesslan.html:65
-msgid "Attached Interfaces"
-msgstr ""
-
-#: netbox/templates/wireless/wirelesslangroup.html:17
+#: netbox/templates/wireless/wirelesslangroup.html:14
 msgid "Add Wireless LAN"
-msgstr ""
-
-#: netbox/templates/wireless/wirelesslangroup.html:26
-#: netbox/wireless/forms/model_forms.py:29
-msgid "Wireless LAN Group"
-msgstr ""
-
-#: netbox/templates/wireless/wirelesslangroup.html:60
-msgid "Add Wireless LAN Group"
-msgstr ""
-
-#: netbox/templates/wireless/wirelesslink.html:14
-msgid "Link Properties"
 msgstr ""
 
 #: netbox/tenancy/filtersets.py:37
@@ -17128,15 +16950,65 @@ msgstr ""
 msgid "Tunnel group"
 msgstr ""
 
+#: netbox/vpn/forms/bulk_edit.py:43 netbox/vpn/forms/bulk_import.py:47
+#: netbox/vpn/forms/filtersets.py:67
+msgid "Encapsulation"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:49 netbox/vpn/forms/bulk_import.py:52
+#: netbox/vpn/forms/filtersets.py:74 netbox/vpn/models/crypto.py:246
+#: netbox/vpn/tables/tunnels.py:52 netbox/vpn/ui/panels.py:16
+msgid "IPSec profile"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:58 netbox/vpn/forms/filtersets.py:78
+#: netbox/vpn/ui/panels.py:17
+msgid "Tunnel ID"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:85 netbox/vpn/forms/bulk_import.py:144
+#: netbox/vpn/forms/filtersets.py:112 netbox/vpn/ui/panels.py:34
+msgid "Authentication method"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:90 netbox/vpn/forms/bulk_edit.py:148
+#: netbox/vpn/forms/bulk_import.py:148 netbox/vpn/forms/bulk_import.py:194
+#: netbox/vpn/forms/filtersets.py:117 netbox/vpn/forms/filtersets.py:167
+#: netbox/vpn/ui/panels.py:35 netbox/vpn/ui/panels.py:56
+msgid "Encryption algorithm"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:95 netbox/vpn/forms/bulk_edit.py:153
+#: netbox/vpn/forms/bulk_import.py:152 netbox/vpn/forms/bulk_import.py:199
+#: netbox/vpn/forms/filtersets.py:122 netbox/vpn/forms/filtersets.py:172
+#: netbox/vpn/ui/panels.py:36 netbox/vpn/ui/panels.py:57
+msgid "Authentication algorithm"
+msgstr ""
+
 #: netbox/vpn/forms/bulk_edit.py:105 netbox/vpn/models/crypto.py:48
 msgid "SA lifetime"
 msgstr ""
 
-#: netbox/vpn/forms/bulk_edit.py:133 netbox/wireless/forms/bulk_edit.py:76
-#: netbox/wireless/forms/bulk_edit.py:118
+#: netbox/vpn/forms/bulk_edit.py:133 netbox/vpn/ui/panels.py:48
+#: netbox/wireless/forms/bulk_edit.py:76 netbox/wireless/forms/bulk_edit.py:118
 #: netbox/wireless/forms/filtersets.py:73
 #: netbox/wireless/forms/filtersets.py:133
 msgid "Pre-shared key"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:158 netbox/vpn/models/crypto.py:146
+#: netbox/vpn/ui/panels.py:38 netbox/vpn/ui/panels.py:58
+msgid "SA lifetime (seconds)"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:162 netbox/vpn/models/crypto.py:152
+#: netbox/vpn/ui/panels.py:59
+msgid "SA lifetime (KB)"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_edit.py:180 netbox/vpn/models/crypto.py:191
+#: netbox/vpn/ui/panels.py:65
+msgid "PFS group"
 msgstr ""
 
 #: netbox/vpn/forms/bulk_edit.py:201 netbox/vpn/forms/bulk_import.py:238
@@ -17165,6 +17037,12 @@ msgstr ""
 
 #: netbox/vpn/forms/bulk_import.py:103
 msgid "Device or virtual machine interface"
+msgstr ""
+
+#: netbox/vpn/forms/bulk_import.py:106 netbox/vpn/forms/model_forms.py:100
+#: netbox/vpn/forms/model_forms.py:136 netbox/vpn/forms/model_forms.py:245
+#: netbox/vpn/tables/tunnels.py:101 netbox/vpn/ui/panels.py:28
+msgid "Outside IP"
 msgstr ""
 
 #: netbox/vpn/forms/bulk_import.py:182
@@ -17211,7 +17089,7 @@ msgstr ""
 msgid "Cannot assign both an interface and a VLAN."
 msgstr ""
 
-#: netbox/vpn/forms/filtersets.py:142
+#: netbox/vpn/forms/filtersets.py:142 netbox/vpn/ui/panels.py:44
 msgid "IKE version"
 msgstr ""
 
@@ -17222,6 +17100,14 @@ msgstr ""
 
 #: netbox/vpn/forms/filtersets.py:273
 msgid "Assigned Object Type"
+msgstr ""
+
+#: netbox/vpn/forms/model_forms.py:34 netbox/vpn/forms/model_forms.py:47
+msgid "Tunnel Group"
+msgstr ""
+
+#: netbox/vpn/forms/model_forms.py:53
+msgid "IPSec Profile"
 msgstr ""
 
 #: netbox/vpn/forms/model_forms.py:93 netbox/vpn/forms/model_forms.py:128
@@ -17427,6 +17313,30 @@ msgstr ""
 msgid "Object Site"
 msgstr ""
 
+#: netbox/vpn/ui/panels.py:37
+msgid "DH group"
+msgstr ""
+
+#: netbox/vpn/ui/panels.py:85
+msgid "Assigned object"
+msgstr ""
+
+#: netbox/vpn/views.py:136 netbox/vpn/views.py:682
+msgid "Add a Termination"
+msgstr ""
+
+#: netbox/vpn/views.py:226
+msgid "Peer Terminations"
+msgstr ""
+
+#: netbox/vpn/views.py:667
+msgid "Import Route Targets"
+msgstr ""
+
+#: netbox/vpn/views.py:670
+msgid "Export Route Targets"
+msgstr ""
+
 #: netbox/wireless/choices.py:11
 msgid "Access point"
 msgstr ""
@@ -17466,7 +17376,7 @@ msgid "Parent device of assigned interface A"
 msgstr ""
 
 #: netbox/wireless/forms/bulk_import.py:102
-#: netbox/wireless/tables/wirelesslink.py:27
+#: netbox/wireless/tables/wirelesslink.py:27 netbox/wireless/views.py:222
 msgid "Interface A"
 msgstr ""
 
@@ -17479,12 +17389,16 @@ msgid "Parent device of assigned interface B"
 msgstr ""
 
 #: netbox/wireless/forms/bulk_import.py:123
-#: netbox/wireless/tables/wirelesslink.py:36
+#: netbox/wireless/tables/wirelesslink.py:36 netbox/wireless/views.py:228
 msgid "Interface B"
 msgstr ""
 
 #: netbox/wireless/forms/bulk_import.py:126
 msgid "Assigned interface B"
+msgstr ""
+
+#: netbox/wireless/forms/model_forms.py:29
+msgid "Wireless LAN Group"
 msgstr ""
 
 #: netbox/wireless/forms/model_forms.py:162
@@ -17528,6 +17442,18 @@ msgstr ""
 msgid "{type} is not a wireless interface."
 msgstr ""
 
+#: netbox/wireless/ui/panels.py:24
+msgid "Cipher"
+msgstr ""
+
+#: netbox/wireless/ui/panels.py:25
+msgid "PSK"
+msgstr ""
+
+#: netbox/wireless/ui/panels.py:45
+msgid "Link Properties"
+msgstr ""
+
 #: netbox/wireless/utils.py:17
 #, python-brace-format
 msgid "Invalid channel value: {channel}"
@@ -17536,4 +17462,12 @@ msgstr ""
 #: netbox/wireless/utils.py:27
 #, python-brace-format
 msgid "Invalid channel attribute: {name}"
+msgstr ""
+
+#: netbox/wireless/views.py:59
+msgid "Add Wireless LAN Group"
+msgstr ""
+
+#: netbox/wireless/views.py:158
+msgid "Attached Interfaces"
 msgstr ""
