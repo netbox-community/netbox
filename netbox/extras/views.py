@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 from django.views.generic import View
-from jinja2.exceptions import TemplateError
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import Job
@@ -1120,11 +1119,12 @@ class ObjectRenderConfigView(generic.ObjectView):
         # Render the config template
         rendered_config = None
         error_message = ''
-        if config_template := instance.get_config_template():
+        config_template = instance.get_config_template()
+        if config_template:
             try:
                 rendered_config = config_template.render(context=context_data)
-            except TemplateError as e:
-                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
+            except Exception as e:
+                error_message = config_template.format_render_error(e)
 
         return {
             'base_template': self.base_template,

@@ -857,7 +857,7 @@ class ConfigTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     class Meta:
         model = ConfigTemplate
         fields = (
-            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
+            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'debug',
             'auto_sync_enabled', 'data_synced'
         )
 

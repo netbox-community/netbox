@@ -150,7 +150,8 @@ class RenderTemplateMixin(models.Model):
         """
         context = self.get_context(context=context, queryset=queryset)
         env_params = self.get_environment_params()
-        output = render_jinja2(self.template_code, context, env_params, getattr(self, 'data_file', None))
+        debug = getattr(self, 'debug', False)
+        output = render_jinja2(self.template_code, context, env_params, getattr(self, 'data_file', None), debug=debug)
 
         # Replace CRLF-style line terminators
         output = output.replace('\r\n', '\n')
