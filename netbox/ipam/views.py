@@ -714,11 +714,21 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
 class PrefixEditView(generic.ObjectEditView):
     queryset = Prefix.objects.all()
     form = forms.PrefixForm
+    template_name = 'ipam/prefix_edit.html'
 
 
 @register_model_view(Prefix, 'delete')
 class PrefixDeleteView(generic.ObjectDeleteView):
     queryset = Prefix.objects.all()
+
+
+@register_model_view(Prefix, 'bulk_add', path='bulk-add', detail=False)
+class PrefixBulkCreateView(generic.BulkCreateView):
+    queryset = Prefix.objects.all()
+    form = forms.IPNetworkBulkCreateForm
+    model_form = forms.PrefixBulkAddForm
+    pattern_target = 'prefix'
+    template_name = 'ipam/prefix_bulk_add.html'
 
 
 @register_model_view(Prefix, 'bulk_import', path='import', detail=False)
@@ -979,7 +989,7 @@ class IPAddressDeleteView(generic.ObjectDeleteView):
 @register_model_view(IPAddress, 'bulk_add', path='bulk-add', detail=False)
 class IPAddressBulkCreateView(generic.BulkCreateView):
     queryset = IPAddress.objects.all()
-    form = forms.IPAddressBulkCreateForm
+    form = forms.IPNetworkBulkCreateForm
     model_form = forms.IPAddressBulkAddForm
     pattern_target = 'address'
     template_name = 'ipam/ipaddress_bulk_add.html'

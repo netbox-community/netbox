@@ -12,7 +12,7 @@ from .constants import *
 __all__ = (
     'add_blank_choice',
     'expand_alphanumeric_pattern',
-    'expand_ipaddress_pattern',
+    'expand_ipnetwork_pattern',
     'form_from_model',
     'get_field_value',
     'get_selected_values',
@@ -106,9 +106,9 @@ def expand_alphanumeric_pattern(string):
             yield "{}{}{}".format(lead, i, remnant)
 
 
-def expand_ipaddress_pattern(string, family):
+def expand_ipnetwork_pattern(string, family):
     """
-    Expand an IP address pattern into a list of strings. Examples:
+    Expand an IP network pattern into a list of strings. Examples:
       '192.0.2.[1,2,100-250]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.100/24' ... '192.0.2.250/24']
       '2001:db8:0:[0,fd-ff]::/64' => ['2001:db8:0:0::/64', '2001:db8:0:fd::/64', ... '2001:db8:0:ff::/64']
     """
@@ -124,7 +124,7 @@ def expand_ipaddress_pattern(string, family):
     parsed_range = parse_numeric_range(pattern, base)
     for i in parsed_range:
         if re.search(regex, remnant):
-            for string in expand_ipaddress_pattern(remnant, family):
+            for string in expand_ipnetwork_pattern(remnant, family):
                 yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
         else:
             yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])

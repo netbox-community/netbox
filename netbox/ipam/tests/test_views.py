@@ -468,6 +468,74 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv4_prefixes(self):
+        """Test bulk creating IPv4 prefixes using a pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': '10.0.[0-2].0/24',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 3)
+
+        for i in range(3):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'10.0.{i}.0/24')).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv6_prefixes(self):
+        """Test bulk creating IPv6 prefixes using a pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': 'fd00:db8:[0-3]::/48',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 4)
+
+        for i in range(4):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'fd00:db8:{i}::/48')).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv6_prefixes_uppercase_hex(self):
+        """Test bulk creating IPv6 prefixes using uppercase hex in the pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': 'fd00:0:0:[48-4F]00::/56',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 8)
+
+        expected_hex = ['48', '49', '4a', '4b', '4c', '4d', '4e', '4f']
+        for h in expected_hex:
+            prefix_str = f'fd00:0:0:{h}00::/56'
+            self.assertTrue(
+                Prefix.objects.filter(prefix=IPNetwork(prefix_str)).exists(),
+                f'Expected prefix {prefix_str} was not created'
+            )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_prefixes(self):
         prefixes = (
             Prefix(prefix=IPNetwork('192.168.0.0/16')),

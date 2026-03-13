@@ -1,0 +1,49 @@
+{% extends 'generic/object_edit.html' %}
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+{% block title %}{% blocktrans trimmed with object_type_plural=obj_type_plural %}Bulk Add {{ object_type_plural }}{% endblocktrans %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a href="{{ add_url }}{% querystring request %}" class="nav-link">
+        {% trans "Create" %}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active">
+        {% trans "Bulk Create" %}
+      </a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block form %}
+    <div class="field-group my-5">
+        <div class="row">
+          <h2 class="col-9 offset-3">{% trans "Pattern" %}</h2>
+        </div>
+        {% render_field form.pattern %}
+    </div>
+
+    {% if model_form.fieldsets %}
+      {% for fieldset in model_form.fieldsets %}
+        {% render_fieldset model_form fieldset %}
+      {% endfor %}
+    {% else %}
+      <div class="field-group my-5">
+        {% render_form model_form %}
+      </div>
+    {% endif %}
+
+    {% if model_form.custom_fields %}
+        <div class="field-group my-5">
+            <div class="row">
+              <h2 class="col-9 offset-3">{% trans "Custom Fields" %}</h2>
+            </div>
+            {% render_custom_fields model_form %}
+        </div>
+    {% endif %}
+{% endblock %}

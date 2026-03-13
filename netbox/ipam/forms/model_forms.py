@@ -37,6 +37,7 @@ __all__ = (
     'IPAddressBulkAddForm',
     'IPAddressForm',
     'IPRangeForm',
+    'PrefixBulkAddForm',
     'PrefixForm',
     'RIRForm',
     'RoleForm',
@@ -247,6 +248,32 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
         if scope_field := self.fields.get('scope', None):
             if scope_field.queryset.model is not Site:
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
+
+
+class PrefixBulkAddForm(TenancyForm, NetBoxModelForm):
+    vrf = DynamicModelChoiceField(
+        queryset=VRF.objects.all(),
+        required=False,
+        label=_('VRF')
+    )
+    role = DynamicModelChoiceField(
+        label=_('Role'),
+        queryset=Role.objects.all(),
+        required=False,
+        quick_add=True
+    )
+
+    fieldsets = (
+        FieldSet('status', 'role', 'vrf', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+
+    class Meta:
+        model = Prefix
+        fields = [
+            'prefix', 'vrf', 'status', 'role', 'is_pool', 'mark_utilized', 'description', 'tenant_group', 'tenant',
+            'tags',
+        ]
 
 
 class IPRangeForm(TenancyForm, PrimaryModelForm):
@@ -470,6 +497,11 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
         queryset=VRF.objects.all(),
         required=False,
         label=_('VRF')
+    )
+
+    fieldsets = (
+        FieldSet('status', 'role', 'vrf', 'dns_name', 'description', 'tags', name=_('IP Address')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
