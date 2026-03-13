@@ -1,14 +1,17 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from utilities.forms.fields import ExpandableIPAddressField
+from utilities.forms.fields import ExpandableIPNetworkField
 
 __all__ = (
-    'IPAddressBulkCreateForm',
+    'IPNetworkBulkCreateForm',
 )
 
 
-class IPAddressBulkCreateForm(forms.Form):
-    pattern = ExpandableIPAddressField(
-        label=_('Address pattern')
+class IPNetworkBulkCreateForm(forms.Form):
+    """
+    Pattern form for bulk-creating IP-based objects (addresses, prefixes).
+    """
+    pattern = ExpandableIPNetworkField(
+        label=_('Pattern')
     )

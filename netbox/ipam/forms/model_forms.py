@@ -37,6 +37,7 @@ __all__ = (
     'IPAddressBulkAddForm',
     'IPAddressForm',
     'IPRangeForm',
+    'PrefixBulkAddForm',
     'PrefixForm',
     'RIRForm',
     'RoleForm',
@@ -247,6 +248,23 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
         if scope_field := self.fields.get('scope', None):
             if scope_field.queryset.model is not Site:
                 self.fields['vlan'].widget.attrs.pop('data-dynamic-params', None)
+
+
+class PrefixBulkAddForm(PrefixForm):
+    """
+    Subclass of PrefixForm for bulk creation. The prefix field is inherited
+    but excluded from fieldsets — it is populated programmatically by BulkCreateView
+    from the expanded pattern.
+    """
+
+    fieldsets = (
+        FieldSet(
+            'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
+        ),
+        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('vlan', name=_('VLAN Assignment')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
 
 
 class IPRangeForm(TenancyForm, PrimaryModelForm):
@@ -470,6 +488,11 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
         queryset=VRF.objects.all(),
         required=False,
         label=_('VRF')
+    )
+
+    fieldsets = (
+        FieldSet('status', 'role', 'vrf', 'dns_name', 'description', 'tags', name=_('IP Address')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:

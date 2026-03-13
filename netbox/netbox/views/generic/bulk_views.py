@@ -225,6 +225,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     form = None
     model_form = None
     pattern_target = ''
+    htmx_template_name = 'htmx/bulk_add_form.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -254,6 +255,19 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
         return new_objects
 
+    def _get_context(self, request, form, model_form):
+        model = self.queryset.model
+        return {
+            'object': None,
+            'obj_type': model._meta.verbose_name,
+            'obj_type_plural': model._meta.verbose_name_plural,
+            'form': form,
+            'model_form': model_form,
+            'return_url': self.get_return_url(request),
+            'add_url': get_action_url(model, 'add'),
+            **self.get_extra_context(request),
+        }
+
     #
     # Request handlers
     #
@@ -268,19 +282,25 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         form = self.form()
         model_form = self.model_form(initial=initial)
 
-        return render(request, self.template_name, {
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'form': form,
-            'model_form': model_form,
-            'return_url': self.get_return_url(request),
-            **self.get_extra_context(request),
-        })
+        # HTMX partial: only re-render the model form fields
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
+                'model_form': model_form,
+            })
+
+        return render(request, self.template_name, self._get_context(request, form, model_form))
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkCreateView')
         model = self.queryset.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
+
+        # HTMX partial: only re-render the model form fields
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
+                'model_form': model_form,
+            })
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -313,13 +333,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             logger.debug("Form validation failed")
 
-        return render(request, self.template_name, {
-            'form': form,
-            'model_form': model_form,
-            'obj_type': model._meta.verbose_name,
-            'return_url': self.get_return_url(request),
-            **self.get_extra_context(request),
-        })
+        return render(request, self.template_name, self._get_context(request, form, model_form))
 
 
 class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
