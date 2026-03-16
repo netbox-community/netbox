@@ -1093,6 +1093,136 @@ class CablePathTests(CablePathTestCase):
         self.assertIsNone(interfaces[1].cable_connector)
         self.assertIsNone(interfaces[1].cable_positions)
 
+    def test_109_multiconnector_trunk_through_patch_panel(self):
+        """
+        [IF1] --C1(1C4P)-- [FP1(p=4)][RP1(p=2)] --C3(Trunk2C2P)-- [RP3(p=2)][FP5(p=4)] --C5(1C4P)-- [IF2]
+                                      [RP2(p=2)]                    [RP4(p=2)]
+
+        PortMappings (Panel A): FP1p1->RP1p1, FP1p2->RP1p2, FP1p3->RP2p1, FP1p4->RP2p2
+        PortMappings (Panel B): FP5p1->RP3p1, FP5p2->RP3p2, FP5p3->RP4p1, FP5p4->RP4p2
+
+        Tests that a 4-position interface traces correctly through a patch panel
+        that fans out to both connectors of a Trunk2C2P cable.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+        ]
+        rear_ports = [
+            RearPort.objects.create(device=self.device, name='Rear Port 1', positions=2),
+            RearPort.objects.create(device=self.device, name='Rear Port 2', positions=2),
+            RearPort.objects.create(device=self.device, name='Rear Port 3', positions=2),
+            RearPort.objects.create(device=self.device, name='Rear Port 4', positions=2),
+        ]
+        front_ports = [
+            FrontPort.objects.create(device=self.device, name='Front Port 1', positions=4),
+            FrontPort.objects.create(device=self.device, name='Front Port 5', positions=4),
+        ]
+        PortMapping.objects.bulk_create([
+            # Panel A: FP1(p=4) -> RP1(p=2) and RP2(p=2)
+            PortMapping(
+                device=self.device, front_port=front_ports[0], front_port_position=1,
+                rear_port=rear_ports[0], rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=front_ports[0], front_port_position=2,
+                rear_port=rear_ports[0], rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device, front_port=front_ports[0], front_port_position=3,
+                rear_port=rear_ports[1], rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=front_ports[0], front_port_position=4,
+                rear_port=rear_ports[1], rear_port_position=2,
+            ),
+            # Panel B: FP5(p=4) -> RP3(p=2) and RP4(p=2)
+            PortMapping(
+                device=self.device, front_port=front_ports[1], front_port_position=1,
+                rear_port=rear_ports[2], rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=front_ports[1], front_port_position=2,
+                rear_port=rear_ports[2], rear_port_position=2,
+            ),
+            PortMapping(
+                device=self.device, front_port=front_ports[1], front_port_position=3,
+                rear_port=rear_ports[3], rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device, front_port=front_ports[1], front_port_position=4,
+                rear_port=rear_ports[3], rear_port_position=2,
+            ),
+        ])
+
+        # Create cables
+        cable1 = Cable(
+            profile=CableProfileChoices.SINGLE_1C4P,
+            a_terminations=[interfaces[0]],
+            b_terminations=[front_ports[0]],
+        )
+        cable1.clean()
+        cable1.save()
+        cable3 = Cable(
+            profile=CableProfileChoices.TRUNK_2C2P,
+            a_terminations=[rear_ports[0], rear_ports[1]],
+            b_terminations=[rear_ports[2], rear_ports[3]],
+        )
+        cable3.clean()
+        cable3.save()
+        cable5 = Cable(
+            profile=CableProfileChoices.SINGLE_1C4P,
+            a_terminations=[front_ports[1]],
+            b_terminations=[interfaces[1]],
+        )
+        cable5.clean()
+        cable5.save()
+
+        # Verify forward path: IF1 -> IF2 (all 4 positions through trunk)
+        self.assertPathExists(
+            (
+                interfaces[0], cable1, front_ports[0],
+                [rear_ports[0], rear_ports[1]], cable3, [rear_ports[2], rear_ports[3]],
+                front_ports[1], cable5, interfaces[1],
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        # Verify reverse path: IF2 -> IF1
+        self.assertPathExists(
+            (
+                interfaces[1], cable5, front_ports[1],
+                [rear_ports[2], rear_ports[3]], cable3, [rear_ports[0], rear_ports[1]],
+                front_ports[0], cable1, interfaces[0],
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 2)
+
+        # Verify cable positions
+        for iface in interfaces:
+            iface.refresh_from_db()
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[0].cable_positions, [1, 2, 3, 4])
+        self.assertEqual(interfaces[1].cable_connector, 1)
+        self.assertEqual(interfaces[1].cable_positions, [1, 2, 3, 4])
+
+        # Verify rear port connector assignments
+        for rp in rear_ports:
+            rp.refresh_from_db()
+        self.assertEqual(rear_ports[0].cable_connector, 1)
+        self.assertEqual(rear_ports[0].cable_positions, [1, 2])
+        self.assertEqual(rear_ports[1].cable_connector, 2)
+        self.assertEqual(rear_ports[1].cable_positions, [1, 2])
+        self.assertEqual(rear_ports[2].cable_connector, 1)
+        self.assertEqual(rear_ports[2].cable_positions, [1, 2])
+        self.assertEqual(rear_ports[3].cable_connector, 2)
+        self.assertEqual(rear_ports[3].cable_positions, [1, 2])
+
+        # Test SVG generation
+        CableTraceSVG(interfaces[0]).render()
+
     def test_202_single_path_via_pass_through_with_breakouts(self):
         """
         [IF1] --C1-- [FP1] [RP1] --C2-- [IF3]
