@@ -799,15 +799,15 @@ class CablePathTests(CablePathTestCase):
 
     def test_107_duplex_interface_profiled_patch_through_trunk_with_splices(self):
         """
+        Tests that a duplex interface (cable_positions=[1,2]) traces both positions through
+        profiled cables and splice pass-throughs, producing a single CablePath with both
+        strands visible.
+
         [IF1] -C1(1C2P)- [FP1(p=2)][RP1(p=2)] -C2(1C2P)- [RP2(p=2)]
         [FP2] -C3- [FP4][RP3(p=2)] -C4(1C2P)- [RP4(p=2)][FP6(p=2)]
         -C5(1C2P)- [IF2]  /  [FP3] -C6- [FP5]
 
         Cable profiles: C1=1C2P, C2=1C2P, C3/C6=unprofiled splices, C4=1C2P, C5=1C2P
-
-        Tests that a duplex interface (cable_positions=[1,2]) traces both positions through
-        profiled cables and splice pass-throughs, producing a single CablePath with both
-        strands visible.
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
@@ -947,6 +947,9 @@ class CablePathTests(CablePathTestCase):
 
     def test_108_single_interface_two_frontports_unprofiled_through_trunk_with_splices(self):
         """
+        Tests that positions seeded by PortMapping (not cable_positions) are preserved
+        when crossing profiled cables.
+
         [IF1] -C1- [FP1,FP2][RP1(p=2)] -C2(1C2P)- [RP2(p=2)]
         [FP3] -C3- [FP5][RP3(p=2)] -C4(1C2P)- [RP4(p=2)]
         [FP7,FP8] -C5- [IF2]  /  [FP4] -C6- [FP6]
@@ -956,9 +959,6 @@ class CablePathTests(CablePathTestCase):
 
         C1 is unprofiled (1 IF -> 2 FPs), C2/C4 are 1C2P trunks,
         C3/C6 are unprofiled splices, C5 is unprofiled (2 FPs -> 1 IF).
-
-        Tests that positions seeded by PortMapping (not cable_positions) are preserved
-        when crossing profiled cables.
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),
@@ -1095,14 +1095,14 @@ class CablePathTests(CablePathTestCase):
 
     def test_109_multiconnector_trunk_through_patch_panel(self):
         """
+        Tests that a 4-position interface traces correctly through a patch panel
+        that fans out to both connectors of a Trunk2C2P cable.
+
         [IF1] --C1(1C4P)-- [FP1(p=4)][RP1(p=2)] --C3(Trunk2C2P)-- [RP3(p=2)][FP5(p=4)] --C5(1C4P)-- [IF2]
                                       [RP2(p=2)]                    [RP4(p=2)]
 
         PortMappings (Panel A): FP1p1->RP1p1, FP1p2->RP1p2, FP1p3->RP2p1, FP1p4->RP2p2
         PortMappings (Panel B): FP5p1->RP3p1, FP5p2->RP3p2, FP5p3->RP4p1, FP5p4->RP4p2
-
-        Tests that a 4-position interface traces correctly through a patch panel
-        that fans out to both connectors of a Trunk2C2P cable.
         """
         interfaces = [
             Interface.objects.create(device=self.device, name='Interface 1'),

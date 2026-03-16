@@ -820,7 +820,7 @@ class CablePath(models.Model):
             path.append([
                 object_to_path_node(t) for t in terminations
             ])
-            # If not null, push cable position onto the stack
+            # If not null, push cable positions onto the stack
             if isinstance(terminations[0], PathEndpoint) and terminations[0].cable_positions:
                 position_stack.append(list(terminations[0].cable_positions))
 
