@@ -866,10 +866,28 @@ class CablePath(models.Model):
                     positions = position_stack.pop() if position_stack else [None]
                     remote_terminations = []
                     new_positions = []
-                    for pos in positions:
-                        term, new_pos = cable_profile.get_peer_termination(terminations[0], pos)
-                        if term not in remote_terminations:
-                            remote_terminations.append(term)
+
+                    # Build (termination, position) pairs by matching stacked positions
+                    # to each termination's cable_positions. This correctly handles
+                    # multiple terminations on different connectors of the same cable.
+                    remaining = list(positions)
+                    term_position_pairs = []
+                    for term in terminations:
+                        if term.cable_positions:
+                            for cp in term.cable_positions:
+                                if cp in remaining:
+                                    term_position_pairs.append((term, cp))
+                                    remaining.remove(cp)
+
+                    # Fallback for when positions don't match cable_positions
+                    # (e.g., empty position stack yielding [None])
+                    if not term_position_pairs:
+                        term_position_pairs = [(terminations[0], pos) for pos in positions]
+
+                    for term, pos in term_position_pairs:
+                        peer, new_pos = cable_profile.get_peer_termination(term, pos)
+                        if peer not in remote_terminations:
+                            remote_terminations.append(peer)
                         new_positions.append(new_pos)
                     position_stack.append(new_positions)
 
