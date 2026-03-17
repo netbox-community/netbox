@@ -10,7 +10,6 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.forms import InterfaceFilterForm
 from dcim.models import Device, Interface, Site
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
-from ipam.tables import VLANTranslationRuleTable
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
