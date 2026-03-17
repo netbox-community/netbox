@@ -1,0 +1,2 @@
+{% load helpers i18n %}
+{% if value %}{{ value|linkify }} ({{ value.rd }}){% else %}<span>{% trans "Global" %}</span>{% endif %}

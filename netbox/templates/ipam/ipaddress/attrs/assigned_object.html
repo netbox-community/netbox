@@ -1,0 +1,2 @@
+{% load helpers %}
+{% if value.parent_object %}{{ value.parent_object|linkify }} / {% endif %}{{ value|linkify }}
