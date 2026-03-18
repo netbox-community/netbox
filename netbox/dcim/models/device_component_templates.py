@@ -110,26 +110,6 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
                 "device_type": _("Component templates cannot be moved to a different device type.")
             })
 
-    @staticmethod
-    def _resolve_vc_position(value: str, device) -> str:
-        """
-        Resolves {vc_position} and {vc_position:X} tokens.
-
-        If the device has a vc_position, replaces the token with that value.
-        Otherwise uses the explicit fallback X if given, else '0'.
-        """
-        def replacer(match):
-            explicit_fallback = match.group(1)
-            if (
-                device is not None
-                and device.virtual_chassis is not None
-                and device.vc_position is not None
-            ):
-                return str(device.vc_position)
-            return explicit_fallback if explicit_fallback is not None else '0'
-
-        return VC_POSITION_RE.sub(replacer, value)
-
 
 class ModularComponentTemplateModel(ComponentTemplateModel):
     """
@@ -184,6 +164,26 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
             raise ValidationError(
                 _("A component template must be associated with either a device type or a module type.")
             )
+
+    @staticmethod
+    def _resolve_vc_position(value: str, device) -> str:
+        """
+        Resolves {vc_position} and {vc_position:X} tokens.
+
+        If the device has a vc_position, replaces the token with that value.
+        Otherwise uses the explicit fallback X if given, else '0'.
+        """
+        def replacer(match):
+            explicit_fallback = match.group(1)
+            if (
+                device is not None
+                and device.virtual_chassis is not None
+                and device.vc_position is not None
+            ):
+                return str(device.vc_position)
+            return explicit_fallback if explicit_fallback is not None else '0'
+
+        return VC_POSITION_RE.sub(replacer, value)
 
     def _get_module_tree(self, module):
         modules = []
