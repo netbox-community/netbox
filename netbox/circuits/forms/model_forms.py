@@ -68,10 +68,14 @@ class ProviderAccountForm(PrimaryModelForm):
         quick_add=True
     )
 
+    fieldsets = (
+        FieldSet('provider', 'account', 'name', 'description', 'tags'),
+    )
+
     class Meta:
         model = ProviderAccount
         fields = [
-            'provider', 'name', 'account', 'description', 'owner', 'comments', 'tags',
+            'provider', 'account', 'name', 'description', 'owner', 'comments', 'tags',
         ]
 
 
