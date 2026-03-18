@@ -164,37 +164,49 @@ class RouteTargetListView(generic.ObjectListView):
 @register_model_view(RouteTarget)
 class RouteTargetView(generic.ObjectView):
     queryset = RouteTarget.objects.all()
-    layout = layout.SimpleLayout(
-        left_panels=[
-            panels.RouteTargetPanel(),
-            TagsPanel(),
-        ],
-        right_panels=[
-            CustomFieldsPanel(),
-            CommentsPanel(),
-        ],
-        bottom_panels=[
-            ObjectsTablePanel(
-                'ipam.vrf',
-                filters={'import_target_id': lambda ctx: ctx['object'].pk},
-                title=_('Importing VRFs'),
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.RouteTargetPanel(),
+                TagsPanel(),
             ),
-            ObjectsTablePanel(
-                'ipam.vrf',
-                filters={'export_target_id': lambda ctx: ctx['object'].pk},
-                title=_('Exporting VRFs'),
+            layout.Column(
+                CustomFieldsPanel(),
+                CommentsPanel(),
             ),
-            ObjectsTablePanel(
-                'vpn.l2vpn',
-                filters={'import_target_id': lambda ctx: ctx['object'].pk},
-                title=_('Importing L2VPNs'),
+        ),
+        layout.Row(
+            layout.Column(
+                ObjectsTablePanel(
+                    'ipam.vrf',
+                    filters={'import_target_id': lambda ctx: ctx['object'].pk},
+                    title=_('Importing VRFs'),
+                ),
             ),
-            ObjectsTablePanel(
-                'vpn.l2vpn',
-                filters={'export_target_id': lambda ctx: ctx['object'].pk},
-                title=_('Exporting L2VPNs'),
+            layout.Column(
+                ObjectsTablePanel(
+                    'ipam.vrf',
+                    filters={'export_target_id': lambda ctx: ctx['object'].pk},
+                    title=_('Exporting VRFs'),
+                ),
             ),
-        ],
+        ),
+        layout.Row(
+            layout.Column(
+                ObjectsTablePanel(
+                    'vpn.l2vpn',
+                    filters={'import_target_id': lambda ctx: ctx['object'].pk},
+                    title=_('Importing L2VPNs'),
+                ),
+            ),
+            layout.Column(
+                ObjectsTablePanel(
+                    'vpn.l2vpn',
+                    filters={'export_target_id': lambda ctx: ctx['object'].pk},
+                    title=_('Exporting L2VPNs'),
+                ),
+            ),
+        ),
     )
 
 
