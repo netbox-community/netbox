@@ -50,20 +50,26 @@ class VRFListView(generic.ObjectListView):
 @register_model_view(VRF)
 class VRFView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VRF.objects.all()
-    layout = layout.SimpleLayout(
-        left_panels=[
-            panels.VRFPanel(),
-            TagsPanel(),
-        ],
-        right_panels=[
-            RelatedObjectsPanel(),
-            CustomFieldsPanel(),
-            CommentsPanel(),
-        ],
-        bottom_panels=[
-            ContextTablePanel('import_targets_table', title=_('Import Route Targets')),
-            ContextTablePanel('export_targets_table', title=_('Export Route Targets')),
-        ],
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.VRFPanel(),
+                TagsPanel(),
+            ),
+            layout.Column(
+                RelatedObjectsPanel(),
+                CustomFieldsPanel(),
+                CommentsPanel(),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                ContextTablePanel('import_targets_table', title=_('Import Route Targets')),
+            ),
+            layout.Column(
+                ContextTablePanel('export_targets_table', title=_('Export Route Targets')),
+            ),
+        ),
     )
 
     def get_extra_context(self, request, instance):
