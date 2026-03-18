@@ -9,7 +9,7 @@ Device types are instantiated as devices installed within sites and/or equipment
 
 ## Automatic Component Renaming
 
-When adding component templates to a module type, the string `{vc_position}` can be used in component template names to reference the
+When adding component templates to a device type, the string `{vc_position}` can be used in component template names to reference the
 `vc_position` field of the device being provisioned, when that device is a member of a Virtual Chassis.
 
 For example, an interface template named `Gi{vc_position}/0/0` installed on a Virtual Chassis
