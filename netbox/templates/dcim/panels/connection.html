@@ -20,7 +20,7 @@
           </td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Path Status" %}</th>
+          <th scope="row">{% trans "Path status" %}</th>
           <td>
             {% if object.path.is_complete and object.path.is_active %}
               <span class="badge text-bg-success">{% trans "Reachable" %}</span>
@@ -30,7 +30,7 @@
           </td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Path Endpoints" %}</th>
+          <th scope="row">{% trans "Path endpoints" %}</th>
           <td>
             {% for endpoint in object.connected_endpoints %}
               {% if endpoint.parent_object %}
@@ -57,7 +57,7 @@
           </td>
         </tr>
         <tr>
-          <th scope="row">{% trans "Connection Status" %}</th>
+          <th scope="row">{% trans "Connection status" %}</th>
           <td>
             {% if object.cable.status %}
               <span class="badge text-bg-success">{{ object.cable.get_status_display }}</span>

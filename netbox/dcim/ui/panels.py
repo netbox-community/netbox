@@ -308,24 +308,6 @@ class VirtualChassisPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
 
 
-class VirtualChassisDetailMembersPanel(panels.ObjectPanel):
-    """
-    A panel which lists all members of a virtual chassis on the VirtualChassis detail view.
-    """
-    template_name = 'dcim/panels/virtual_chassis_detail_members.html'
-    title = _('Members')
-
-    def get_context(self, context):
-        return {
-            **super().get_context(context),
-            'members': context.get('members'),
-        }
-
-    def render(self, context):
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
-
-
 class PowerPanelPanel(panels.ObjectAttributesPanel):
     site = attrs.RelatedObjectAttr('site', linkify=True)
     location = attrs.NestedObjectAttr('location', linkify=True)
@@ -382,10 +364,7 @@ class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):
 class MACAddressPanel(panels.ObjectAttributesPanel):
     mac_address = attrs.TextAttr('mac_address', label=_('MAC address'), style='font-monospace', copy_button=True)
     description = attrs.TextAttr('description')
-    assignment = attrs.TemplatedAttr(
-        'assigned_object',
-        template_name='dcim/macaddress/attrs/assignment.html',
-    )
+    assignment = attrs.RelatedObjectAttr('assigned_object', linkify=True, grouped_by='parent_object')
     is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
 
 
@@ -423,9 +402,6 @@ class InventoryItemsPanel(panels.ObjectPanel):
     title = _('Inventory Items')
 
     def render(self, context):
-        obj = context['object']
-        if not obj.inventory_items.exists():
-            return ''
         ctx = self.get_context(context)
         return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
@@ -466,6 +442,7 @@ class VirtualChassisMembersPanel(panels.ObjectPanel):
     def get_context(self, context):
         return {
             **super().get_context(context),
+            'virtual_chassis': context.get('virtual_chassis'),
             'vc_members': context.get('vc_members'),
         }
 

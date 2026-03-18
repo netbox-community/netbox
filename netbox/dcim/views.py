@@ -1577,7 +1577,7 @@ class ModuleTypeProfileListView(generic.ObjectListView):
 
 
 @register_model_view(ModuleTypeProfile)
-class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
+class ModuleTypeProfileView(generic.ObjectView):
     template_name = 'generic/object.html'
     queryset = ModuleTypeProfile.objects.all()
     layout = layout.SimpleLayout(
@@ -2555,6 +2555,7 @@ class DeviceView(generic.ObjectView):
             vc_members = []
 
         return {
+            'virtual_chassis': instance.virtual_chassis,
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}',
         }
@@ -3951,6 +3952,11 @@ class InventoryItemRoleView(GetRelatedModelsMixin, generic.ObjectView):
         ],
     )
 
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
 
 @register_model_view(InventoryItemRole, 'add', detail=False)
 @register_model_view(InventoryItemRole, 'edit')
@@ -4273,16 +4279,16 @@ class VirtualChassisView(generic.ObjectView):
             CustomFieldsPanel(),
         ],
         right_panels=[
-            panels.VirtualChassisDetailMembersPanel(),
+            panels.VirtualChassisMembersPanel(),
             CommentsPanel(),
         ],
     )
 
     def get_extra_context(self, request, instance):
-        members = Device.objects.restrict(request.user).filter(virtual_chassis=instance)
-
+        vc_members = Device.objects.restrict(request.user).filter(virtual_chassis=instance).order_by('vc_position')
         return {
-            'members': members,
+            'virtual_chassis': instance,
+            'vc_members': vc_members,
         }
 
 
