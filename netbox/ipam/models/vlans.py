@@ -364,7 +364,6 @@ class VLANTranslationPolicy(PrimaryModel):
         max_length=100,
         unique=True,
     )
-
     class Meta:
         verbose_name = _('VLAN translation policy')
         verbose_name_plural = _('VLAN translation policies')
