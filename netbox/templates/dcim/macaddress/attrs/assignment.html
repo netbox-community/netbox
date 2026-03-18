@@ -1,0 +1,7 @@
+{% load helpers %}
+{% if value %}
+  {{ value.parent_object|linkify }} /
+  {{ value|linkify }}
+{% else %}
+  {{ ''|placeholder }}
+{% endif %}

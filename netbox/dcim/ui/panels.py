@@ -1,3 +1,4 @@
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs, panels
@@ -187,6 +188,272 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
 class PlatformPanel(panels.NestedGroupObjectPanel):
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
+
+
+class ConsolePortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    speed = attrs.ChoiceAttr('speed')
+    description = attrs.TextAttr('description')
+
+
+class ConsoleServerPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    speed = attrs.ChoiceAttr('speed')
+    description = attrs.TextAttr('description')
+
+
+class PowerPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    description = attrs.TextAttr('description')
+    maximum_draw = attrs.TextAttr('maximum_draw')
+    allocated_draw = attrs.TextAttr('allocated_draw')
+
+
+class PowerOutletPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    color = attrs.ColorAttr('color')
+    power_port = attrs.RelatedObjectAttr('power_port', linkify=True)
+    feed_leg = attrs.ChoiceAttr('feed_leg')
+
+
+class FrontPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    color = attrs.ColorAttr('color')
+    positions = attrs.TextAttr('positions')
+    description = attrs.TextAttr('description')
+
+
+class RearPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    color = attrs.ColorAttr('color')
+    positions = attrs.TextAttr('positions')
+    description = attrs.TextAttr('description')
+
+
+class ModuleBayPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    position = attrs.TextAttr('position')
+    description = attrs.TextAttr('description')
+
+
+class DeviceBayPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    description = attrs.TextAttr('description')
+
+
+class InventoryItemPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    parent = attrs.RelatedObjectAttr('parent', linkify=True, label=_('Parent item'))
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    status = attrs.ChoiceAttr('status')
+    role = attrs.RelatedObjectAttr('role', linkify=True)
+    component = attrs.GenericForeignKeyAttr('component', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    part_id = attrs.TextAttr('part_id', label=_('Part ID'))
+    serial = attrs.TextAttr('serial')
+    asset_tag = attrs.TextAttr('asset_tag')
+    description = attrs.TextAttr('description')
+
+
+class InventoryItemRolePanel(panels.OrganizationalObjectPanel):
+    color = attrs.ColorAttr('color')
+
+
+class CablePanel(panels.ObjectAttributesPanel):
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    profile = attrs.ChoiceAttr('profile')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    label = attrs.TextAttr('label')
+    description = attrs.TextAttr('description')
+    color = attrs.ColorAttr('color')
+    length = attrs.NumericAttr('length', unit_accessor='get_length_unit_display')
+
+
+class VirtualChassisPanel(panels.ObjectAttributesPanel):
+    domain = attrs.TextAttr('domain')
+    master = attrs.RelatedObjectAttr('master', linkify=True)
+    description = attrs.TextAttr('description')
+
+
+class VirtualChassisDetailMembersPanel(panels.ObjectPanel):
+    """
+    A panel which lists all members of a virtual chassis on the VirtualChassis detail view.
+    """
+    template_name = 'dcim/panels/virtual_chassis_detail_members.html'
+    title = _('Members')
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'members': context.get('members'),
+        }
+
+    def render(self, context):
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+
+class PowerPanelPanel(panels.ObjectAttributesPanel):
+    site = attrs.RelatedObjectAttr('site', linkify=True)
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    description = attrs.TextAttr('description')
+
+
+class PowerFeedPanel(panels.ObjectAttributesPanel):
+    power_panel = attrs.RelatedObjectAttr('power_panel', linkify=True)
+    rack = attrs.RelatedObjectAttr('rack', linkify=True)
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    connected_device = attrs.TemplatedAttr(
+        'connected_endpoints',
+        label=_('Connected device'),
+        template_name='dcim/powerfeed/attrs/connected_device.html',
+    )
+    utilization = attrs.TemplatedAttr(
+        'connected_endpoints',
+        label=_('Utilization (allocated)'),
+        template_name='dcim/powerfeed/attrs/utilization.html',
+    )
+
+
+class PowerFeedElectricalPanel(panels.ObjectAttributesPanel):
+    title = _('Electrical Characteristics')
+
+    supply = attrs.ChoiceAttr('supply')
+    voltage = attrs.TextAttr('voltage', format_string=_('{}V'))
+    amperage = attrs.TextAttr('amperage', format_string=_('{}A'))
+    phase = attrs.ChoiceAttr('phase')
+    max_utilization = attrs.TextAttr('max_utilization', format_string='{}%')
+
+
+class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):
+    name = attrs.TextAttr('name')
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    identifier = attrs.TextAttr('identifier')
+    status = attrs.ChoiceAttr('status')
+    primary_ip4 = attrs.TemplatedAttr(
+        'primary_ip4',
+        label=_('Primary IPv4'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )
+    primary_ip6 = attrs.TemplatedAttr(
+        'primary_ip6',
+        label=_('Primary IPv6'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+
+
+class MACAddressPanel(panels.ObjectAttributesPanel):
+    mac_address = attrs.TextAttr('mac_address', label=_('MAC address'), style='font-monospace', copy_button=True)
+    description = attrs.TextAttr('description')
+    assignment = attrs.TemplatedAttr(
+        'assigned_object',
+        template_name='dcim/macaddress/attrs/assignment.html',
+    )
+    is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
+
+
+class ConnectionPanel(panels.ObjectPanel):
+    """
+    A panel which displays connection information for a cabled object.
+    """
+    template_name = 'dcim/panels/connection.html'
+    title = _('Connection')
+
+    def __init__(self, trace_url_name, connect_options=None, show_endpoints=True, **kwargs):
+        super().__init__(**kwargs)
+        self.trace_url_name = trace_url_name
+        self.connect_options = connect_options or []
+        self.show_endpoints = show_endpoints
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'trace_url_name': self.trace_url_name,
+            'connect_options': self.connect_options,
+            'show_endpoints': self.show_endpoints,
+        }
+
+    def render(self, context):
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+
+class InventoryItemsPanel(panels.ObjectPanel):
+    """
+    A panel which displays inventory items associated with a component.
+    """
+    template_name = 'dcim/panels/component_inventory_items.html'
+    title = _('Inventory Items')
+
+    def render(self, context):
+        obj = context['object']
+        if not obj.inventory_items.exists():
+            return ''
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+
+class PortMappingsPanel(panels.ObjectPanel):
+    """
+    A panel which displays port position mappings for front/rear ports.
+    """
+    template_name = 'dcim/panels/port_mappings.html'
+    title = _('Port Mappings')
+
+    def __init__(self, context_key, label_column, position_field, port_field, port_position_field, **kwargs):
+        super().__init__(**kwargs)
+        self.context_key = context_key
+        self.label_column = label_column
+        self.position_field = position_field
+        self.port_field = port_field
+        self.port_position_field = port_position_field
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'mappings': context.get(self.context_key, []),
+            'label_column': self.label_column,
+            'position_field': self.position_field,
+            'port_field': self.port_field,
+            'port_position_field': self.port_position_field,
+        }
 
 
 class VirtualChassisMembersPanel(panels.ObjectPanel):

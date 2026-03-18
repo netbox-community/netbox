@@ -1,0 +1,36 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover object-list">
+    <thead>
+      <tr>
+        <th>{% trans "Device" %}</th>
+        <th>{% trans "Position" %}</th>
+        <th>{% trans "Master" %}</th>
+        <th>{% trans "Priority" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for vc_member in members %}
+        <tr>
+          <td>{{ vc_member|linkify }}</td>
+          <td>{% badge vc_member.vc_position show_empty=True %}</td>
+          <td>
+            {% if object.master == vc_member %}
+              {% checkmark True %}
+            {% endif %}
+          </td>
+          <td>{{ vc_member.vc_priority|placeholder }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if perms.dcim.change_virtualchassis and object.master %}
+    <div class="card-footer text-end">
+      <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Member" %}
+      </a>
+    </div>
+  {% endif %}
+{% endblock panel_content %}
