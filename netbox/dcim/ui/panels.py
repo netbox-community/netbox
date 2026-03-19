@@ -448,6 +448,15 @@ class VirtualChassisMembersPanel(panels.ObjectPanel):
     """
     template_name = 'dcim/panels/virtual_chassis_members.html'
     title = _('Virtual Chassis Members')
+    actions = [
+        actions.AddObject(
+            'dcim.device',
+            url_params={
+                'site': lambda ctx: ctx['object'].master.site_id if ctx['object'].master else '',
+                'rack': lambda ctx: ctx['object'].master.rack_id if ctx['object'].master else '',
+            },
+        ),
+    ]
 
     def get_context(self, context):
         return {
