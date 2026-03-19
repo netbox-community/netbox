@@ -416,32 +416,6 @@ class InventoryItemsPanel(panels.ObjectPanel):
         return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
 
-class PortMappingsPanel(panels.ObjectPanel):
-    """
-    A panel which displays port position mappings for front/rear ports.
-    """
-    template_name = 'dcim/panels/port_mappings.html'
-    title = _('Port Mappings')
-
-    def __init__(self, context_key, label_column, position_field, port_field, port_position_field, **kwargs):
-        super().__init__(**kwargs)
-        self.context_key = context_key
-        self.label_column = label_column
-        self.position_field = position_field
-        self.port_field = port_field
-        self.port_position_field = port_position_field
-
-    def get_context(self, context):
-        return {
-            **super().get_context(context),
-            'mappings': context.get(self.context_key, []),
-            'label_column': self.label_column,
-            'position_field': self.position_field,
-            'port_field': self.port_field,
-            'port_position_field': self.port_position_field,
-        }
-
-
 class VirtualChassisMembersPanel(panels.ObjectPanel):
     """
     A panel which lists all members of a virtual chassis.

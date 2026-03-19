@@ -3466,13 +3466,7 @@ class FrontPortView(generic.ObjectView):
                     },
                 ],
             ),
-            panels.PortMappingsPanel(
-                context_key='rear_port_mappings',
-                label_column=_('Rear Port'),
-                position_field='front_port_position',
-                port_field='rear_port',
-                port_position_field='rear_port_position',
-            ),
+            TemplatePanel('dcim/panels/front_port_mappings.html'),
         ],
     )
 
@@ -3573,13 +3567,7 @@ class RearPortView(generic.ObjectView):
                     },
                 ],
             ),
-            panels.PortMappingsPanel(
-                context_key='front_port_mappings',
-                label_column=_('Front Port'),
-                position_field='rear_port_position',
-                port_field='front_port',
-                port_position_field='front_port_position',
-            ),
+            TemplatePanel('dcim/panels/rear_port_mappings.html'),
         ],
     )
 
