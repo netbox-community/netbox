@@ -5,7 +5,7 @@
   {% if object.mark_connected %}
     <div class="card-body">
       <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-      {% trans "Marked as Connected" %}
+      {% trans "Marked as connected" %}
     </div>
   {% elif object.cable %}
     <table class="table table-hover attr-table">
@@ -75,7 +75,7 @@
       {% trans "Not Connected" %}
       {% if object.is_wired and perms.dcim.add_cable %}
         <div class="dropdown float-end">
-          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
           </button>
           <ul class="dropdown-menu dropdown-menu-end">

@@ -3974,8 +3974,8 @@ class InventoryItemRoleView(GetRelatedModelsMixin, generic.ObjectView):
         ],
         right_panels=[
             RelatedObjectsPanel(),
-            CommentsPanel(),
             CustomFieldsPanel(),
+            CommentsPanel(),
         ],
     )
 
