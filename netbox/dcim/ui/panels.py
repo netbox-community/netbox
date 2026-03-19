@@ -470,3 +470,106 @@ class PowerUtilizationPanel(panels.ObjectPanel):
         if not obj.powerports.exists() or not obj.poweroutlets.exists():
             return ''
         return super().render(context)
+
+
+class InterfacePanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    speed = attrs.TemplatedAttr('speed', template_name='dcim/interface/attrs/speed.html', label=_('Speed'))
+    duplex = attrs.ChoiceAttr('duplex')
+    mtu = attrs.TextAttr('mtu', label=_('MTU'))
+    enabled = attrs.BooleanAttr('enabled')
+    mgmt_only = attrs.BooleanAttr('mgmt_only', label=_('Management only'))
+    description = attrs.TextAttr('description')
+    poe_mode = attrs.ChoiceAttr('poe_mode', label=_('PoE mode'))
+    poe_type = attrs.ChoiceAttr('poe_type', label=_('PoE type'))
+    mode = attrs.ChoiceAttr('mode', label=_('802.1Q mode'))
+    qinq_svlan = attrs.RelatedObjectAttr('qinq_svlan', linkify=True, label=_('Q-in-Q SVLAN'))
+    untagged_vlan = attrs.RelatedObjectAttr('untagged_vlan', linkify=True, label=_('Untagged VLAN'))
+    tx_power = attrs.TextAttr('tx_power', label=_('Transmit power (dBm)'))
+    tunnel = attrs.RelatedObjectAttr('tunnel_termination.tunnel', linkify=True, label=_('Tunnel'))
+    l2vpn = attrs.RelatedObjectAttr('l2vpn_termination.l2vpn', linkify=True, label=_('L2VPN'))
+
+
+class RelatedInterfacesPanel(panels.ObjectAttributesPanel):
+    title = _('Related Interfaces')
+
+    parent = attrs.RelatedObjectAttr('parent', linkify=True)
+    bridge = attrs.RelatedObjectAttr('bridge', linkify=True)
+    lag = attrs.RelatedObjectAttr('lag', linkify=True, label=_('LAG'))
+
+
+class InterfaceAddressingPanel(panels.ObjectAttributesPanel):
+    title = _('Addressing')
+
+    mac_address = attrs.TemplatedAttr(
+        'primary_mac_address',
+        template_name='dcim/interface/attrs/mac_address.html',
+        label=_('MAC address'),
+    )
+    wwn = attrs.TextAttr('wwn', style='font-monospace', label=_('WWN'))
+    vrf = attrs.RelatedObjectAttr('vrf', linkify=True, label=_('VRF'))
+    vlan_translation = attrs.RelatedObjectAttr('vlan_translation_policy', linkify=True, label=_('VLAN translation'))
+
+
+class InterfaceConnectionPanel(panels.ObjectPanel):
+    """
+    A connection panel for interfaces, which handles cable, wireless link, and virtual circuit cases.
+    """
+    template_name = 'dcim/panels/interface_connection.html'
+    title = _('Connection')
+
+    def render(self, context):
+        obj = context.get('object')
+        if obj and obj.is_virtual:
+            return ''
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+
+class VirtualCircuitPanel(panels.ObjectPanel):
+    """
+    A panel which displays virtual circuit information for a virtual interface.
+    """
+    template_name = 'dcim/panels/interface_virtual_circuit.html'
+    title = _('Virtual Circuit')
+
+    def render(self, context):
+        obj = context.get('object')
+        if not obj or not obj.is_virtual or not obj.virtual_circuit_termination:
+            return ''
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+
+class InterfaceWirelessPanel(panels.ObjectPanel):
+    """
+    A panel which displays wireless RF attributes for an interface, comparing local and peer values.
+    """
+    template_name = 'dcim/panels/interface_wireless.html'
+    title = _('Wireless')
+
+    def render(self, context):
+        obj = context.get('object')
+        if not obj or not obj.is_wireless:
+            return ''
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+
+class WirelessLANsPanel(panels.ObjectPanel):
+    """
+    A panel which lists the wireless LANs associated with an interface.
+    """
+    template_name = 'dcim/panels/interface_wireless_lans.html'
+    title = _('Wireless LANs')
+
+    def render(self, context):
+        obj = context.get('object')
+        if not obj or not obj.is_wireless:
+            return ''
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))

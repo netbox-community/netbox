@@ -17,10 +17,12 @@ from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
 from ipam.tables import VLANTranslationRuleTable
+from ipam.ui.panels import FHRPGroupAssignmentsPanel
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
     CommentsPanel,
+    ContextTablePanel,
     JSONPanel,
     NestedGroupObjectPanel,
     ObjectsTablePanel,
@@ -3265,6 +3267,45 @@ class InterfaceListView(generic.ObjectListView):
 @register_model_view(Interface)
 class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.InterfacePanel(),
+            panels.RelatedInterfacesPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            ContextTablePanel('vdc_table', title=_('Virtual Device Contexts')),
+            panels.InterfaceAddressingPanel(),
+            panels.VirtualCircuitPanel(),
+            panels.InterfaceConnectionPanel(),
+            panels.InterfaceWirelessPanel(),
+            panels.WirelessLANsPanel(),
+            FHRPGroupAssignmentsPanel(),
+            panels.InventoryItemsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='ipam.IPAddress',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('IP Addresses'),
+            ),
+            ObjectsTablePanel(
+                model='dcim.MACAddress',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('MAC Addresses'),
+            ),
+            ObjectsTablePanel(
+                model='ipam.VLAN',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('VLANs'),
+            ),
+            ContextTablePanel('lag_interfaces_table', title=_('LAG Members')),
+            ContextTablePanel('vlan_translation_table', title=_('VLAN Translation')),
+            ContextTablePanel('bridge_interfaces_table', title=_('Bridged Interfaces')),
+            ContextTablePanel('child_interfaces_table', title=_('Child Interfaces')),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         # Get assigned VDCs
@@ -3279,30 +3320,29 @@ class InterfaceView(generic.ObjectView):
         vdc_table.configure(request)
 
         # Get bridge interfaces
-        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
         bridge_interfaces_table = tables.InterfaceTable(
-            bridge_interfaces,
+            Interface.objects.restrict(request.user, 'view').filter(bridge=instance),
             exclude=('device', 'parent'),
             orderable=False
         )
         bridge_interfaces_table.configure(request)
 
         # Get child interfaces
-        child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_table = tables.InterfaceTable(
-            child_interfaces,
+            Interface.objects.restrict(request.user, 'view').filter(parent=instance),
             exclude=('device', 'parent'),
             orderable=False
         )
         child_interfaces_table.configure(request)
 
-        # Get LAG interfaces
-        lag_interfaces = Interface.objects.restrict(request.user, 'view').filter(lag=instance)
-        lag_interfaces_table = tables.InterfaceLAGMemberTable(
-            lag_interfaces,
-            orderable=False
-        )
-        lag_interfaces_table.configure(request)
+        # Get LAG members (only for LAG interfaces)
+        lag_interfaces_table = None
+        if instance.is_lag:
+            lag_interfaces_table = tables.InterfaceLAGMemberTable(
+                Interface.objects.restrict(request.user, 'view').filter(lag=instance),
+                orderable=False
+            )
+            lag_interfaces_table.configure(request)
 
         # Get VLAN translation rules
         vlan_translation_table = None
@@ -3315,7 +3355,6 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
-            'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'lag_interfaces_table': lag_interfaces_table,
