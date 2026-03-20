@@ -30,9 +30,39 @@ jobs:
         with:
           fetch-depth: 1
 
+      # Workaround for claude-code-action bug with fork PRs: The action fetches by branch name
+      # (git fetch origin --depth=N <branch>), but fork PR branches don't exist on origin.
+      # Fix: redirect origin to the fork's URL so the action can fetch the branch directly.
+      - name: Configure git remote for fork PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Determine PR number based on event type
+          if [ "${{ github.event_name }}" = "issue_comment" ]; then
+            PR_NUMBER="${{ github.event.issue.number }}"
+          elif [ "${{ github.event_name }}" = "pull_request_review_comment" ] || [ "${{ github.event_name }}" = "pull_request_review" ]; then
+            PR_NUMBER="${{ github.event.pull_request.number }}"
+          else
+            exit 0  # issues event — no PR branch to worry about
+          fi
+
+          # Fetch fork info in one API call; silently skip if this is not a PR
+          PR_INFO=$(gh pr view "${PR_NUMBER}" --json isCrossRepository,headRepositoryOwner,headRepository 2>/dev/null || echo "")
+          if [ -z "$PR_INFO" ]; then
+            exit 0
+          fi
+
+          IS_FORK=$(echo "$PR_INFO" | jq -r '.isCrossRepository')
+          if [ "$IS_FORK" = "true" ]; then
+            FORK_OWNER=$(echo "$PR_INFO" | jq -r '.headRepositoryOwner.login')
+            FORK_REPO=$(echo "$PR_INFO" | jq -r '.headRepository.name')
+            echo "Fork PR detected from ${FORK_OWNER}/${FORK_REPO}: updating origin to fork URL"
+            git remote set-url origin "https://github.com/${FORK_OWNER}/${FORK_REPO}.git"
+          fi
+
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@v1
+        uses: anthropics/claude-code-action@e763fe78de2db7389e04818a00b5ff8ba13d1360 # v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 

@@ -405,6 +405,7 @@ class DeviceViewSet(
     NetBoxModelViewSet
 ):
     queryset = Device.objects.prefetch_related(
+        'device_type__manufacturer',  # Referenced by Device.__str__() for unnamed devices
         'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()
     )
     filterset_class = filtersets.DeviceFilterSet

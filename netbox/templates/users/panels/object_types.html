@@ -1,0 +1,11 @@
+{% load i18n %}
+<div class="card">
+  <h2 class="card-header">{% trans "Object Types" %}</h2>
+  <ul class="list-group list-group-flush">
+    {% for object_type in object.object_types.all %}
+      <li class="list-group-item">{{ object_type }}</li>
+    {% empty %}
+      <li class="list-group-item text-muted">{% trans "None" %}</li>
+    {% endfor %}
+  </ul>
+</div>

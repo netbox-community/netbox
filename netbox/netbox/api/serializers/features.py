@@ -53,8 +53,11 @@ class TaggableModelSerializer(serializers.Serializer):
 
     def _save_tags(self, instance, tags):
         if tags:
+            # Cache tags on instance so serialize_object() can reuse them without a DB query
+            instance._tags = tags
             instance.tags.set([t.name for t in tags])
         else:
+            instance._tags = []
             instance.tags.clear()
 
         return instance
