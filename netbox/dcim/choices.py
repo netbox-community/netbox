@@ -1042,9 +1042,9 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_400GE_CFP8 = '400gbase-x-cfp8'
     TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
     TYPE_800GE_OSFP = '800gbase-x-osfp'
-    TYPE_1600GE_OSFP = '1.6tbase-x-osfp1600'
-    TYPE_1600GE_OSFP_RHS = '1.6tbase-x-osfp1600-rhs'
-    TYPE_1600GE_QSFP_DD = '1.6tbase-x-qsfpdd1600'
+    TYPE_1600GE_OSFP1600 = '1.6tbase-x-osfp1600'
+    TYPE_1600GE_OSFP1600_RHS = '1.6tbase-x-osfp1600-rhs'
+    TYPE_1600GE_QSFP_DD1600 = '1.6tbase-x-qsfpdd1600'
 
     # Backplane Ethernet
     TYPE_1GE_KX = '1000base-kx'
@@ -1352,9 +1352,9 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_400GE_OSFP_RHS, 'OSFP-RHS (400GE)'),
                 (TYPE_800GE_OSFP, 'OSFP (800GE)'),
                 (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
-                (TYPE_1600GE_OSFP, 'OSFP1600 (1.6TE)'),
-                (TYPE_1600GE_OSFP_RHS, 'OSFP1600-RHS (1.6TE)'),
-                (TYPE_1600GE_QSFP_DD, 'QSFP-DD1600 (1.6TE)'),
+                (TYPE_1600GE_OSFP1600, 'OSFP1600 (1.6TE)'),
+                (TYPE_1600GE_OSFP1600_RHS, 'OSFP1600-RHS (1.6TE)'),
+                (TYPE_1600GE_QSFP_DD1600, 'QSFP-DD1600 (1.6TE)'),
             )
         ),
         (
