@@ -47,7 +47,8 @@ django-rich
 
 # Django integration for RQ (Reqis queuing)
 # https://github.com/rq/django-rq/blob/master/CHANGELOG.md
-django-rq
+# See https://github.com/netbox-community/netbox/issues/21696
+django-rq<4.0
 
 # Provides a variety of storage backends
 # https://github.com/jschneier/django-storages/blob/master/CHANGELOG.rst

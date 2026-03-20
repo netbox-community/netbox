@@ -43,7 +43,7 @@ class DataSourceForm(PrimaryModelForm):
                 attrs={
                     'rows': 5,
                     'class': 'font-monospace',
-                    'placeholder': '.cache\n*.txt'
+                    'placeholder': '.cache\n*.txt\nsubdir/*'
                 }
             ),
         }
