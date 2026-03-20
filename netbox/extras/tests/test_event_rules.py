@@ -370,6 +370,9 @@ class EventRuleTest(APITestCase):
             self.assertEqual(body['data']['name'], 'Site 1')
             self.assertEqual(body['data']['foo'], 1)
             self.assertEqual(body['context']['foo'], 123)  # From netbox.tests.dummy_plugin
+            self.assertEqual(body['request']['id'], str(request_id))
+            self.assertEqual(body['request']['method'], 'GET')
+            self.assertEqual(body['request']['user'], 'testuser')
 
             return HttpResponse()
 
