@@ -588,7 +588,7 @@ class SystemView(UserPassesTestMixin, View):
                 psql_version = psql_version.split('(')[0].strip()
                 cursor.execute("SELECT current_database()")
                 db_name = cursor.fetchone()[0]
-                cursor.execute(f"SELECT pg_size_pretty(pg_database_size('{db_name}'))")
+                cursor.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
                 db_size = cursor.fetchone()[0]
         except (ProgrammingError, IndexError):
             pass

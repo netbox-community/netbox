@@ -263,4 +263,5 @@ def truncate_middle(value, length):
     first_part = value[:half_len]
     second_part = value[len(value) - (length - 1 - half_len):]
 
-    return mark_safe(f"{first_part}&hellip;{second_part}")
+    from django.utils.html import escape
+    return mark_safe(f"{escape(first_part)}&hellip;{escape(second_part)}")
