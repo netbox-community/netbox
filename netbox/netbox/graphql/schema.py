@@ -16,6 +16,8 @@ from virtualization.graphql.schema import VirtualizationQuery
 from vpn.graphql.schema import VPNQuery
 from wireless.graphql.schema import WirelessQuery
 
+from .scalars import BigInt, BigIntScalar
+
 
 @strawberry.type
 class Query(
@@ -36,9 +38,14 @@ class Query(
 
 schema = strawberry.Schema(
     query=Query,
-    config=StrawberryConfig(auto_camel_case=False),
+    config=StrawberryConfig(
+        auto_camel_case=False,
+        scalar_map={
+            BigInt: BigIntScalar,
+        },
+    ),
     extensions=[
         DjangoOptimizerExtension(prefetch_custom_queryset=True),
         MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
-    ]
+    ],
 )
