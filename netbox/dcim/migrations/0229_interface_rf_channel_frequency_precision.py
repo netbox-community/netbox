@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 decimal_places=3,
                 help_text='Populated by selected channel (if set)',
-                max_digits=7,
+                max_digits=8,
                 null=True,
                 verbose_name='channel frequency (MHz)',
             ),

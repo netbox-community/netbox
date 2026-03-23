@@ -815,7 +815,7 @@ class Interface(
         help_text=_("Populated by selected channel (if set)")
     )
     rf_channel_width = models.DecimalField(
-        max_digits=7,
+        max_digits=8,
         decimal_places=3,
         blank=True,
         null=True,
