@@ -171,7 +171,11 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
-        required=False
+        required=False,
+        help_text=_(
+            'The site where this VM resides. Will be inferred automatically from the '
+            'assigned cluster or device if left blank.'
+        ),
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),
@@ -181,16 +185,21 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
         query_params={
             'site_id': ['$site', 'null']
         },
+        help_text=_('Assign this VM to a cluster. Required when selecting a device that belongs to a cluster.'),
     )
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
         required=False,
+        selector=True,
         query_params={
             'cluster_id': '$cluster',
             'site_id': '$site',
         },
-        help_text=_("Optionally pin this VM to a specific host device within the cluster")
+        help_text=_(
+            'Optionally pin this VM to a specific host device within a cluster, '
+            'or assign it directly to a standalone device.'
+        )
     )
     role = DynamicModelChoiceField(
         label=_('Role'),
@@ -218,7 +227,7 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'role', 'status', 'start_on_boot', 'description', 'serial', 'tags', name=_('Virtual Machine')),
-        FieldSet('site', 'cluster', 'device', name=_('Site/Cluster')),
+        FieldSet('site', 'cluster', 'device', name=_('Placement')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('platform', 'primary_ip4', 'primary_ip6', 'config_template', name=_('Management')),
         FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),

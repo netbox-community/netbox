@@ -35,8 +35,8 @@ class VirtualMachinePanel(panels.ObjectAttributesPanel):
     )
 
 
-class VirtualMachineClusterPanel(panels.ObjectAttributesPanel):
-    title = _('Cluster')
+class VirtualMachinePlacementPanel(panels.ObjectAttributesPanel):
+    title = _('Placement')
 
     site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     cluster = attrs.RelatedObjectAttr('cluster', linkify=True)

@@ -31,7 +31,16 @@ __all__ = (
 
 class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, ConfigContextModel, PrimaryModel):
     """
-    A virtual machine which runs inside a Cluster.
+    A virtual machine which runs on a Cluster or a standalone Device.
+
+    Each VM must be placed in at least one of three ways:
+
+    1. Assigned to a Site alone (e.g. for logical grouping without a specific host).
+    2. Assigned to a Cluster and optionally pinned to a host Device within that cluster.
+    3. Assigned directly to a standalone Device (one that does not belong to any cluster).
+
+    When a Cluster or Device is set, the Site is automatically inherited if not explicitly provided.
+    If a Device belongs to a Cluster, the Cluster must also be specified on the VM.
     """
     site = models.ForeignKey(
         to='dcim.Site',
@@ -155,22 +164,32 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     clone_fields = (
         'site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
     )
-    prerequisite_models = (
-        'virtualization.Cluster',
-    )
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'cluster', 'tenant',
-                name='%(app_label)s_%(class)s_unique_name_cluster_tenant'
+                name='%(app_label)s_%(class)s_unique_name_cluster_tenant',
+                violation_error_message=_('Virtual machine name must be unique per cluster and tenant.')
             ),
             models.UniqueConstraint(
                 Lower('name'), 'cluster',
                 name='%(app_label)s_%(class)s_unique_name_cluster',
                 condition=Q(tenant__isnull=True),
-                violation_error_message=_("Virtual machine name must be unique per cluster.")
+                violation_error_message=_('Virtual machine name must be unique per cluster.')
+            ),
+            models.UniqueConstraint(
+                Lower('name'), 'device', 'tenant',
+                name='%(app_label)s_%(class)s_unique_name_device_tenant',
+                condition=Q(cluster__isnull=True, device__isnull=False),
+                violation_error_message=_('Virtual machine name must be unique per device and tenant.')
+            ),
+            models.UniqueConstraint(
+                Lower('name'), 'device',
+                name='%(app_label)s_%(class)s_unique_name_device',
+                condition=Q(cluster__isnull=True, device__isnull=False, tenant__isnull=True),
+                violation_error_message=_('Virtual machine name must be unique per device.')
             ),
         )
         verbose_name = _('virtual machine')
@@ -182,11 +201,11 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     def clean(self):
         super().clean()
 
-        # Must be assigned to a site and/or cluster
-        if not self.site and not self.cluster:
-            raise ValidationError({
-                'cluster': _('A virtual machine must be assigned to a site and/or cluster.')
-            })
+        # Must be assigned to a site, cluster, and/or device
+        if not self.site and not self.cluster and not self.device:
+            raise ValidationError(
+                _('A virtual machine must be assigned to a site, cluster, or device.')
+            )
 
         # Validate site for cluster & VM
         if self.cluster and self.site and self.cluster._site and self.cluster._site != self.site:
@@ -196,12 +215,25 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
                 ).format(cluster=self.cluster, site=self.site)
             })
 
-        # Validate assigned cluster device
-        if self.device and not self.cluster:
+        # Validate site for the device & VM (when the device is standalone)
+        if self.device and self.site and self.device.site and self.device.site != self.site:
             raise ValidationError({
-                'device': _('Must specify a cluster when assigning a host device.')
+                'site': _(
+                    'The selected device ({device}) is not assigned to this site ({site}).'
+                ).format(device=self.device, site=self.site)
             })
-        if self.device and self.device not in self.cluster.devices.all():
+
+        # Direct device assignment is only for standalone hosts. If the selected
+        # device already belongs to a cluster, require that cluster explicitly.
+        if self.device and not self.cluster and self.device.cluster:
+            raise ValidationError({
+                'cluster': _(
+                    "Must specify the assigned device's cluster ({cluster}) when assigning host device {device}."
+                ).format(cluster=self.device.cluster, device=self.device)
+            })
+
+        # Validate assigned cluster device
+        if self.device and self.cluster and self.device.cluster_id != self.cluster_id:
             raise ValidationError({
                 'device': _(
                     "The selected device ({device}) is not assigned to this cluster ({cluster})."
@@ -243,10 +275,12 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
                     })
 
     def save(self, *args, **kwargs):
-
-        # Assign site from cluster if not set
-        if self.cluster and not self.site:
-            self.site = self.cluster._site
+        # Assign a site from a cluster or device if not set
+        if not self.site:
+            if self.cluster and self.cluster._site:
+                self.site = self.cluster._site
+            elif self.device and self.device.site:
+                self.site = self.device.site
 
         super().save(*args, **kwargs)
 

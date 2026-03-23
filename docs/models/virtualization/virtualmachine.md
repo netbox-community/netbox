@@ -1,18 +1,21 @@
 # Virtual Machines
 
-A virtual machine (VM) represents a virtual compute instance hosted within a [cluster](./cluster.md). Each VM must be assigned to a [site](../dcim/site.md) and/or cluster, and may optionally be assigned to a particular host [device](../dcim/device.md) within a cluster.
+A virtual machine (VM) represents a virtual compute instance hosted within a cluster or directly on a device. Each VM must be assigned to at least one of: a [site](../dcim/site.md), a [cluster](./cluster.md), or a [device](../dcim/device.md).
 
-Virtual machines may have virtual [interfaces](./vminterface.md) assigned to them, but do not support any physical component. When a VM has one or more interfaces with IP addresses assigned, a primary IP for the device can be designated, for both IPv4 and IPv6.
+Virtual machines may have virtual [interfaces](./vminterface.md) assigned to them, but do not support any physical component. When a VM has one or more interfaces with IP addresses assigned, a primary IP for the VM can be designated, for both IPv4 and IPv6.
 
 ## Fields
 
 ### Name
 
-The virtual machine's configured name. Must be unique to the assigned cluster and tenant.
+The virtual machine's configured name. Must be unique within its scoping context:
+
+- If assigned to a **cluster**: unique within the cluster and tenant.
+- If assigned to a **device** (no cluster): unique within the device and tenant.
 
 ### Role
 
-The functional [role](../dcim/devicerole.md) assigned to the VM.
+The functional role assigned to the VM.
 
 ### Status
 
@@ -21,20 +24,24 @@ The VM's operational status.
 !!! tip
     Additional statuses may be defined by setting `VirtualMachine.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
-### Start on boot
+### Start on Boot
 
 The start on boot setting from the hypervisor.
 
 !!! tip
     Additional statuses may be defined by setting `VirtualMachine.start_on_boot` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
 
-### Site & Cluster
+### Site / Cluster / Device
 
-The [site](../dcim/site.md) and/or [cluster](./cluster.md) to which the VM is assigned.
+The location or host for this VM. At least one must be specified:
 
-### Device
+- **Site only**: The VM exists at a site but is not assigned to a specific cluster or device.
+- **Cluster only**: The VM belongs to a virtualization cluster. The site is automatically inferred from the cluster's scope.
+- **Device only**: The VM runs directly on a physical host device without a cluster (e.g. containers). The site is automatically inferred from the device's site.
+- **Cluster + Device**: The VM belongs to a cluster and is pinned to a specific host device within that cluster. The device must be a registered host of the assigned cluster.
 
-The physical host [device](../dcim/device.md) within the assigned site/cluster on which this VM resides.
+!!! info "New in NetBox v4.6"
+    Virtual machines can now be assigned directly to a device without requiring a cluster. This is particularly useful for modeling VMs running on standalone hosts outside of a cluster.
 
 ### Platform
 
@@ -64,4 +71,7 @@ The amount of disk storage provisioned, in megabytes.
 
 ### Serial Number
 
-Optional serial number assigned to this virtual machine. Unlike devices, uniqueness is not enforced for virtual machine serial numbers.
+Optional serial number assigned to this virtual machine.
+
+!!! info
+    Unlike devices, uniqueness is not enforced for virtual machine serial numbers.

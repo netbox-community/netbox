@@ -412,7 +412,7 @@ class VirtualMachineView(generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            panels.VirtualMachineClusterPanel(),
+            panels.VirtualMachinePlacementPanel(),
             TemplatePanel('virtualization/panels/virtual_machine_resources.html'),
             ObjectsTablePanel(
                 model='ipam.Service',

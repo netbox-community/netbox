@@ -99,21 +99,21 @@ class VirtualMachineImportForm(PrimaryModelImportForm):
         queryset=Site.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Assigned site')
+        help_text=_('Assigned site (inferred from cluster or device if omitted)')
     )
     cluster = CSVModelChoiceField(
         label=_('Cluster'),
         queryset=Cluster.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Assigned cluster')
+        help_text=_('Assigned cluster (required when the device belongs to a cluster)')
     )
     device = CSVModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Assigned device within cluster')
+        help_text=_('Host device (standalone or within a cluster)')
     )
     role = CSVModelChoiceField(
         label=_('Role'),

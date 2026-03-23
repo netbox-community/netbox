@@ -109,7 +109,8 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Device.objects.all(),
         required=False,
         query_params={
-            'cluster_id': '$cluster'
+            'cluster_id': '$cluster',
+            'site_id': '$site'
         }
     )
     role = DynamicModelChoiceField(
@@ -151,7 +152,8 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        FieldSet('site', 'cluster', 'device', 'status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('site', 'cluster', 'device', name=_('Placement')),
         FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
         FieldSet('config_template', name=_('Configuration')),
     )
@@ -264,13 +266,21 @@ class VMInterfaceBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
                 interfaces = VMInterface.objects.filter(
                     pk__in=self.initial['pk']
                 ).prefetch_related(
-                    'virtual_machine__site'
+                    'virtual_machine__site',
+                    'virtual_machine__cluster',
+                    'virtual_machine__device',
                 )
 
-                # Check interface sites.  First interface should set site, further interfaces will either continue the
-                # loop or reset back to no site and break the loop.
+                # Determine the effective site for each interface's VM (from its site,
+                # cluster, or device). If all selected interfaces share the same site,
+                # use it to filter VLAN choices; otherwise leave unfiltered.
                 for interface in interfaces:
-                    vm_site = interface.virtual_machine.site or interface.virtual_machine.cluster._site
+                    vm = interface.virtual_machine
+                    vm_site = (
+                        vm.site
+                        or (vm.cluster and vm.cluster._site)
+                        or (vm.device and vm.device.site)
+                    )
                     if site is None:
                         site = vm_site
                     elif vm_site is not site:
