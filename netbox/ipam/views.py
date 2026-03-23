@@ -64,10 +64,10 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
         ),
         layout.Row(
             layout.Column(
-                ContextTablePanel('import_targets_table', title=_('Import Route Targets')),
+                ContextTablePanel('import_targets_table', title=_('Import route targets')),
             ),
             layout.Column(
-                ContextTablePanel('export_targets_table', title=_('Export Route Targets')),
+                ContextTablePanel('export_targets_table', title=_('Export route targets')),
             ),
         ),
     )
@@ -698,7 +698,7 @@ class PrefixView(generic.ObjectView):
     queryset = Prefix.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            TemplatePanel('ipam/panels/prefix.html'),
+            panels.PrefixPanel(),
         ],
         right_panels=[
             TemplatePanel('ipam/panels/prefix_addressing.html'),
@@ -707,8 +707,8 @@ class PrefixView(generic.ObjectView):
             CommentsPanel(),
         ],
         bottom_panels=[
-            ContextTablePanel('duplicate_prefix_table', title=_('Duplicate Prefixes')),
-            ContextTablePanel('parent_prefix_table', title=_('Parent Prefixes')),
+            ContextTablePanel('duplicate_prefix_table', title=_('Duplicate prefixes')),
+            ContextTablePanel('parent_prefix_table', title=_('Parent prefixes')),
         ],
     )
 
@@ -750,13 +750,13 @@ class PrefixView(generic.ObjectView):
         )
         duplicate_prefix_table.configure(request)
 
-        result = {
+        context = {
             'aggregate': aggregate,
             'parent_prefix_table': parent_prefix_table,
         }
         if duplicate_prefixes.exists():
-            result['duplicate_prefix_table'] = duplicate_prefix_table
-        return result
+            context['duplicate_prefix_table'] = duplicate_prefix_table
+        return context
 
 
 @register_model_view(Prefix, 'prefixes')
@@ -910,7 +910,7 @@ class IPRangeView(generic.ObjectView):
             CommentsPanel(),
         ],
         bottom_panels=[
-            ContextTablePanel('parent_prefixes_table', title=_('Parent Prefixes')),
+            ContextTablePanel('parent_prefixes_table', title=_('Parent prefixes')),
         ],
     )
 
@@ -1018,12 +1018,12 @@ class IPAddressView(generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            ContextTablePanel('parent_prefixes_table', title=_('Parent Prefixes')),
+            ContextTablePanel('parent_prefixes_table', title=_('Parent prefixes')),
             ContextTablePanel('duplicate_ips_table', title=_('Duplicate IPs')),
             ObjectsTablePanel(
                 'ipam.service',
                 filters={'ip_address_id': lambda ctx: ctx['object'].pk},
-                title=_('Application Services'),
+                title=_('Application services'),
             ),
         ],
     )
@@ -1059,12 +1059,12 @@ class IPAddressView(generic.ObjectView):
         duplicate_ips_table = tables.IPAddressTable(duplicate_ips[:10], orderable=False)
         duplicate_ips_table.configure(request)
 
-        result = {
+        context = {
             'parent_prefixes_table': parent_prefixes_table,
         }
         if duplicate_ips.exists():
-            result['duplicate_ips_table'] = duplicate_ips_table
-        return result
+            context['duplicate_ips_table'] = duplicate_ips_table
+        return context
 
 
 @register_model_view(IPAddress, 'add', detail=False)
@@ -1327,7 +1327,7 @@ class VLANTranslationPolicyView(generic.ObjectView):
             ObjectsTablePanel(
                 'ipam.vlantranslationrule',
                 filters={'policy_id': lambda ctx: ctx['object'].pk},
-                title=_('VLAN Translation Rules'),
+                title=_('VLAN translation rules'),
                 actions=[
                     actions.AddObject(
                         'ipam.vlantranslationrule',
@@ -1473,7 +1473,7 @@ class FHRPGroupView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 'ipam.ipaddress',
                 filters={'fhrpgroup_id': lambda ctx: ctx['object'].pk},
-                title=_('Virtual IP Addresses'),
+                title=_('Virtual IP addresses'),
                 actions=[
                     actions.AddObject(
                         'ipam.ipaddress',
