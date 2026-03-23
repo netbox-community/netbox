@@ -1007,7 +1007,6 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_1TE_CR8 = '1.6tbase-cr8'
     TYPE_1TE_DR8 = '1.6tbase-dr8'
     TYPE_1TE_DR8_2 = '1.6tbase-dr8-2'
-    TYPE_1TE_2FR4 = '1.6tbase-2fr4'
 
     # Ethernet (modular)
     TYPE_100ME_SFP = '100base-x-sfp'
@@ -1314,7 +1313,6 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_1TE_CR8, '1.6TBASE-CR8 (1.6TE)'),
                 (TYPE_1TE_DR8, '1.6TBASE-DR8 (1.6TE)'),
                 (TYPE_1TE_DR8_2, '1.6TBASE-DR8-2 (1.6TE)'),
-                (TYPE_1TE_2FR4, '1.6TBASE-2FR4 (1.6TE)'),
             )
         ),
         (
