@@ -1,0 +1,10 @@
+<ul class="list-unstyled mb-0">
+  {% for item in items %}
+    <li>
+      {% include "ui/attrs/object.html" with value=item.value group=item.group linkify=linkify only %}
+    </li>
+  {% endfor %}
+  {% if overflow_indicator %}
+    <li class="text-muted">{{ overflow_indicator }}</li>
+  {% endif %}
+</ul>
