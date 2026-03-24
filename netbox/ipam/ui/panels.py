@@ -114,7 +114,9 @@ class IPAddressPanel(panels.ObjectAttributesPanel):
     role = attrs.ChoiceAttr('role')
     dns_name = attrs.TextAttr('dns_name', label=_('DNS Name'))
     description = attrs.TextAttr('description')
-    assigned_object = attrs.RelatedObjectAttr('assigned_object', linkify=True, grouped_by='parent_object', label=_('Assignment'))
+    assigned_object = attrs.RelatedObjectAttr(
+        'assigned_object', linkify=True, grouped_by='parent_object', label=_('Assignment')
+    )
     nat_inside = attrs.TemplatedAttr(
         'nat_inside',
         template_name='ipam/ipaddress/attrs/nat_inside.html',
