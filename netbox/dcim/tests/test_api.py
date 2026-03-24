@@ -451,6 +451,32 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         response = self.client.get(f'{url}?q=U10', **self.header)
         self.assertEqual(response.data['count'], 2)
 
+    def test_get_rack_elevation_display_includes_occupying_device(self):
+        """
+        Verify occupied rack units include the occupying device in their display label.
+        """
+        rack = Rack.objects.first()
+        device = create_test_device(
+            name='Device A',
+            site=rack.site,
+            rack=rack,
+            position=10,
+            face=DeviceFaceChoices.FACE_FRONT,
+        )
+
+        self.add_permissions('dcim.view_rack', 'dcim.view_device')
+        url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        occupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U10')
+        unoccupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U11')
+
+        self.assertEqual(occupied_unit['device']['id'], device.pk)
+        self.assertEqual(occupied_unit['display'], f'U10 - {device}')
+        self.assertEqual(occupied_unit['description'], str(device.device_type))
+        self.assertEqual(unoccupied_unit['display'], 'U11')
+
     def test_get_rack_elevation_svg(self):
         """
         GET a single rack elevation in SVG format.
