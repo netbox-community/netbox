@@ -893,6 +893,77 @@ class ModuleBayTestCase(TestCase):
         nested_bay = module.modulebays.get(name='Sub-bay 1-1')
         self.assertEqual(nested_bay.position, '1-1')
 
+    @tag('regression')  # #20474
+    def test_single_module_token_at_nested_depth(self):
+        """
+        A module type with a single {module} token should install at depth > 1
+        without raising a token count mismatch error, resolving to the immediate
+        parent bay's position.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Chassis with Rear Card',
+            slug='chassis-with-rear-card'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Rear card slot',
+            position='1'
+        )
+
+        rear_card_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Rear Card'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=rear_card_type,
+            name='SFP slot 1',
+            position='1'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=rear_card_type,
+            name='SFP slot 2',
+            position='2'
+        )
+
+        sfp_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='SFP Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='SFP {module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='Test Chassis',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        rear_card_bay = device.modulebays.get(name='Rear card slot')
+        rear_card = Module.objects.create(
+            device=device,
+            module_bay=rear_card_bay,
+            module_type=rear_card_type
+        )
+
+        sfp_bay = rear_card.modulebays.get(name='SFP slot 2')
+        sfp_module = Module.objects.create(
+            device=device,
+            module_bay=sfp_bay,
+            module_type=sfp_type
+        )
+
+        interface = sfp_module.interfaces.first()
+        self.assertEqual(interface.name, 'SFP 2')
+
     @tag('regression')  # #20912
     def test_module_bay_parent_cleared_when_module_removed(self):
         """Test that the parent field is properly cleared when a module bay's module assignment is removed"""

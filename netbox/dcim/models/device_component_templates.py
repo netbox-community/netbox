@@ -181,6 +181,9 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         if MODULE_TOKEN not in value or not module:
             return value
         modules = self._get_module_tree(module)
+        token_count = value.count(MODULE_TOKEN)
+        if token_count == 1:
+            return value.replace(MODULE_TOKEN, modules[-1].module_bay.position)
         for m in modules:
             value = value.replace(MODULE_TOKEN, m.module_bay.position, 1)
         return value
