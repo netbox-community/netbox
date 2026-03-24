@@ -74,7 +74,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        custom_fields = self.get_queryset().filter(object_types=content_type)
+        custom_fields = self.get_queryset().filter(object_types=content_type).select_related('related_object_type')
 
         # Populate the request cache to avoid redundant lookups
         if cache is not None:

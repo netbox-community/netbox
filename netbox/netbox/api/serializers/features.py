@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault
 
-from extras.api.customfields import CustomFieldDefaultValues, CustomFieldsDataField
+from extras.api.customfields import CustomFieldDefaultValues, CustomFieldListSerializer, CustomFieldsDataField
 
 from .base import ValidatedModelSerializer
 from .nested import NestedTagSerializer
@@ -22,6 +22,29 @@ class CustomFieldModelSerializer(serializers.Serializer):
         source='custom_field_data',
         default=CreateOnlyDefault(CustomFieldDefaultValues())
     )
+
+    @classmethod
+    def many_init(cls, *args, **kwargs):
+        """
+        We can't call super().many_init() and change the outcome because by the time it returns,
+        the plain ListSerializer is already instantiated.
+        Because every NetBox serializer defines its own Meta which doesn't inherit from a parent Meta,
+        so this would silently not apply to any real serializer.
+        Thats why this method replicated many_init from parent and changed the default value for list_serializer_class.
+        """
+        list_kwargs = {}
+        for key in serializers.LIST_SERIALIZER_KWARGS_REMOVE:
+            value = kwargs.pop(key, None)
+            if value is not None:
+                list_kwargs[key] = value
+        list_kwargs['child'] = cls(*args, **kwargs)
+        list_kwargs.update({
+            key: value for key, value in kwargs.items()
+            if key in serializers.LIST_SERIALIZER_KWARGS
+        })
+        meta = getattr(cls, 'Meta', None)
+        list_serializer_class = getattr(meta, 'list_serializer_class', CustomFieldListSerializer)
+        return list_serializer_class(*args, **list_kwargs)
 
 
 class TaggableModelSerializer(serializers.Serializer):
