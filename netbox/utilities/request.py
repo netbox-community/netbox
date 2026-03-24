@@ -8,7 +8,7 @@ from netaddr import AddrFormatError, IPAddress
 
 from netbox.registry import registry
 
-from .constants import HTTP_REQUEST_META_SAFE_COPY
+from .constants import HTTP_REQUEST_META_SAFE_COPY, HTTP_REQUEST_META_SENSITIVE
 
 __all__ = (
     'NetBoxFakeRequest',
@@ -45,11 +45,14 @@ def copy_safe_request(request, include_files=True):
         request: The original request object
         include_files: Whether to include request.FILES.
     """
-    meta = {
-        k: request.META[k]
-        for k in HTTP_REQUEST_META_SAFE_COPY
-        if k in request.META and isinstance(request.META[k], str)
-    }
+    meta = {}
+    for k, v in request.META.items():
+        if not isinstance(v, str):
+            continue
+        if k in HTTP_REQUEST_META_SAFE_COPY:
+            meta[k] = v
+        elif k.startswith('HTTP_') and k not in HTTP_REQUEST_META_SENSITIVE:
+            meta[k] = v
     data = {
         'META': meta,
         'COOKIES': request.COOKIES,

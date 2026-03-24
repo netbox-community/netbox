@@ -40,15 +40,24 @@ class CoreMiddleware:
         with apply_request_processors(request):
             response = self.get_response(request)
 
-        # Check if language cookie should be renewed
-        if request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
-            if language := request.user.config.get('locale.language'):
-                response.set_cookie(
-                    key=settings.LANGUAGE_COOKIE_NAME,
-                    value=language,
-                    max_age=request.session.get_expiry_age(),
-                    secure=settings.SESSION_COOKIE_SECURE,
-                )
+        # Set or renew the language cookie based on the user's preference. This handles two cases:
+        # 1. The user just logged in (via any auth backend): the user_logged_in signal stores the preferred language on
+        #    the request so we set the cookie here on the login response.
+        # 2. SESSION_SAVE_EVERY_REQUEST is enabled: renew the language cookie on every request to keep it in sync with
+        #    the session expiry.
+        if hasattr(request, '_language_cookie'):
+            language = request._language_cookie
+        elif request.user.is_authenticated and settings.SESSION_SAVE_EVERY_REQUEST:
+            language = request.user.config.get('locale.language')
+        else:
+            language = None
+        if language:
+            response.set_cookie(
+                key=settings.LANGUAGE_COOKIE_NAME,
+                value=language,
+                max_age=request.session.get_expiry_age(),
+                secure=settings.SESSION_COOKIE_SECURE,
+            )
 
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id

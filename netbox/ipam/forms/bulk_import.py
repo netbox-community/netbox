@@ -217,8 +217,8 @@ class PrefixImportForm(ScopedImportForm, PrimaryModelImportForm):
     class Meta:
         model = Prefix
         fields = (
-            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan_site', 'vlan', 'status', 'role', 'scope_type', 'scope_id',
-            'is_pool', 'mark_utilized', 'description', 'owner', 'comments', 'tags',
+            'prefix', 'vrf', 'tenant', 'vlan_group', 'vlan_site', 'vlan', 'status', 'role', 'scope_type', 'scope_name',
+            'scope_id', 'is_pool', 'mark_utilized', 'description', 'owner', 'comments', 'tags',
         )
         labels = {
             'scope_id': _('Scope ID'),
@@ -431,19 +431,36 @@ class IPAddressImportForm(PrimaryModelImportForm):
         # Set as primary for device/VM
         if self.cleaned_data.get('is_primary') is not None:
             parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
-            parent.snapshot()
-            if self.instance.address.version == 4:
-                parent.primary_ip4 = ipaddress if self.cleaned_data.get('is_primary') else None
-            elif self.instance.address.version == 6:
-                parent.primary_ip6 = ipaddress if self.cleaned_data.get('is_primary') else None
-            parent.save()
+            if self.cleaned_data.get('is_primary'):
+                parent.snapshot()
+                if self.instance.address.version == 4:
+                    parent.primary_ip4 = ipaddress
+                elif self.instance.address.version == 6:
+                    parent.primary_ip6 = ipaddress
+                parent.save()
+            else:
+                # Only clear the primary IP if this IP is currently set as primary
+                if self.instance.address.version == 4 and parent.primary_ip4 == ipaddress:
+                    parent.snapshot()
+                    parent.primary_ip4 = None
+                    parent.save()
+                elif self.instance.address.version == 6 and parent.primary_ip6 == ipaddress:
+                    parent.snapshot()
+                    parent.primary_ip6 = None
+                    parent.save()
 
         # Set as OOB for device
         if self.cleaned_data.get('is_oob') is not None:
             parent = self.cleaned_data.get('device')
-            parent.snapshot()
-            parent.oob_ip = ipaddress if self.cleaned_data.get('is_oob') else None
-            parent.save()
+            if self.cleaned_data.get('is_oob'):
+                parent.snapshot()
+                parent.oob_ip = ipaddress
+                parent.save()
+            elif parent.oob_ip == ipaddress:
+                # Only clear OOB if this IP is currently set as the OOB IP
+                parent.snapshot()
+                parent.oob_ip = None
+                parent.save()
 
         return ipaddress
 
@@ -464,7 +481,8 @@ class FHRPGroupImportForm(PrimaryModelImportForm):
         fields = ('protocol', 'group_id', 'auth_type', 'auth_key', 'name', 'description', 'owner', 'comments', 'tags')
 
 
-class VLANGroupImportForm(OrganizationalModelImportForm):
+class VLANGroupImportForm(ScopedImportForm, OrganizationalModelImportForm):
+    # Override ScopedImportForm.scope_type to set custom queryset
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
@@ -484,10 +502,11 @@ class VLANGroupImportForm(OrganizationalModelImportForm):
     class Meta:
         model = VLANGroup
         fields = (
-            'name', 'slug', 'scope_type', 'scope_id', 'vid_ranges', 'tenant', 'description', 'owner', 'comments', 'tags'
+            'name', 'slug', 'scope_type', 'scope_name', 'scope_id', 'vid_ranges', 'tenant', 'description', 'owner',
+            'comments', 'tags',
         )
         labels = {
-            'scope_id': 'Scope ID',
+            'scope_id': _('Scope ID'),
         }
 
 

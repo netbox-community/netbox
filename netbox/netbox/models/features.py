@@ -15,6 +15,7 @@ from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
+from extras.managers import NetBoxTaggableManager
 from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.constants import CORE_APPS
@@ -487,11 +488,12 @@ class JournalingMixin(models.Model):
 class TagsMixin(models.Model):
     """
     Enables support for tag assignment. Assigned tags can be managed via the `tags` attribute,
-    which is a `TaggableManager` instance.
+    which is a `NetBoxTaggableManager` instance.
     """
     tags = TaggableManager(
         through='extras.TaggedItem',
         ordering=('weight', 'name'),
+        manager=NetBoxTaggableManager,
     )
 
     class Meta:
