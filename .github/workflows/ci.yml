@@ -92,7 +92,7 @@ jobs:
         pip install coverage tblib
 
     - name: Build documentation
-      run: mkdocs build
+      run: zensical build
 
     - name: Collect static files
       run: python netbox/manage.py collectstatic --no-input

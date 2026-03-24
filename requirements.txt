@@ -23,7 +23,6 @@ gunicorn==25.1.0
 Jinja2==3.1.6
 jsonschema==4.26.0
 Markdown==3.10.2
-mkdocs==1.6.1
 mkdocs-material==9.7.5
 mkdocstrings==1.0.3
 mkdocstrings-python==2.0.3
@@ -42,3 +41,4 @@ strawberry-graphql-django==0.82.0
 svgwrite==1.4.3
 tablib==3.9.0
 tzdata==2025.3
+zensical==0.0.28

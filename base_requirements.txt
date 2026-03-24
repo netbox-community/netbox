@@ -101,10 +101,6 @@ jsonschema
 # https://python-markdown.github.io/changelog/
 Markdown
 
-# MkDocs
-# https://github.com/mkdocs/mkdocs/releases
-mkdocs<2.0
-
 # MkDocs Material theme (for documentation build)
 # https://squidfunk.github.io/mkdocs-material/changelog/
 mkdocs-material
@@ -178,3 +174,7 @@ tablib
 # Timezone data (required by django-timezone-field on Python 3.9+)
 # https://github.com/python/tzdata/blob/master/NEWS.md
 tzdata
+
+# Documentation builder (succeeds mkdocs)
+# https://github.com/zensical/zensical
+zensical

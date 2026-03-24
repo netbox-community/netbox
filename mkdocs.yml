@@ -1,3 +1,4 @@
+# Note: NetBox has migrated from MkDocs to Zensical
 site_name: NetBox Documentation
 site_dir: netbox/project-static/docs
 site_url: https://docs.netbox.dev/
