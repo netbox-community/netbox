@@ -151,7 +151,6 @@ class PrefixPanel(panels.ObjectAttributesPanel):
     is_pool = attrs.BooleanAttr('is_pool', label=_('Is a pool'))
 
 
-
 class VLANGroupPanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
