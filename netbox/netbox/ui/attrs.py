@@ -18,6 +18,7 @@ __all__ = (
     'NumericAttr',
     'ObjectAttribute',
     'RelatedObjectAttr',
+    'RelatedObjectListAttr',
     'TemplatedAttr',
     'TextAttr',
     'TimezoneAttr',
@@ -145,22 +146,40 @@ class ChoiceAttr(ObjectAttribute):
     """
     A selection from a set of choices.
 
-    The class calls get_FOO_display() on the object to retrieve the human-friendly choice label. If a get_FOO_color()
-    method exists on the object, it will be used to render a background color for the attribute value.
+    The class calls get_FOO_display() on the terminal object resolved by the accessor
+    to retrieve the human-friendly choice label. For example, accessor="interface.type"
+    will call interface.get_type_display().
+    If a get_FOO_color() method exists on that object, it will be used to render a
+    background color for the attribute value.
     """
     template_name = 'ui/attrs/choice.html'
 
+    def _resolve_target(self, obj):
+        if not self.accessor or '.' not in self.accessor:
+            return obj, self.accessor
+
+        object_accessor, field_name = self.accessor.rsplit('.', 1)
+        return resolve_attr_path(obj, object_accessor), field_name
+
     def get_value(self, obj):
-        try:
-            return getattr(obj, f'get_{self.accessor}_display')()
-        except AttributeError:
-            return resolve_attr_path(obj, self.accessor)
+        target, field_name = self._resolve_target(obj)
+        if target is None:
+            return None
+
+        display = getattr(target, f'get_{field_name}_display', None)
+        if callable(display):
+            return display()
+
+        return resolve_attr_path(target, field_name)
 
     def get_context(self, obj, context):
-        try:
-            bg_color = getattr(obj, f'get_{self.accessor}_color')()
-        except AttributeError:
-            bg_color = None
+        target, field_name = self._resolve_target(obj)
+        if target is None:
+            return {'bg_color': None}
+
+        get_color = getattr(target, f'get_{field_name}_color', None)
+        bg_color = get_color() if callable(get_color) else None
+
         return {
             'bg_color': bg_color,
         }
@@ -252,6 +271,83 @@ class RelatedObjectAttr(ObjectAttribute):
             'linkify': self.linkify,
             'group': group,
         }
+
+
+class RelatedObjectListAttr(RelatedObjectAttr):
+    """
+    An attribute representing a list of related objects.
+
+    The accessor may resolve to a related manager or queryset.
+
+    Parameters:
+        max_items (int): Maximum number of items to display
+        overflow_indicator (str | None): Marker rendered as a final list item when
+            additional objects exist beyond `max_items`; set to None to suppress it
+    """
+
+    template_name = 'ui/attrs/object_list.html'
+
+    def __init__(self, *args, max_items=None, overflow_indicator='…', **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if max_items is not None and (type(max_items) is not int or max_items < 1):
+            raise ValueError(
+                _('Invalid max_items value: {max_items}! Must be a positive integer or None.').format(
+                    max_items=max_items
+                )
+            )
+
+        self.max_items = max_items
+        self.overflow_indicator = overflow_indicator
+
+    def _get_items(self, obj):
+        """
+        Retrieve items from the given object using the accessor path.
+
+        Returns a tuple of (items, has_more) where items is a list of resolved objects
+        and has_more indicates whether additional items exist beyond the max_items limit.
+        """
+        items = resolve_attr_path(obj, self.accessor)
+        if items is None:
+            return [], False
+
+        if hasattr(items, 'all'):
+            items = items.all()
+
+        if self.max_items is None:
+            return list(items), False
+
+        items = list(items[:self.max_items + 1])
+        has_more = len(items) > self.max_items
+
+        return items[:self.max_items], has_more
+
+    def get_context(self, obj, context):
+        items, has_more = self._get_items(obj)
+
+        return {
+            'linkify': self.linkify,
+            'items': [
+                {
+                    'value': item,
+                    'group': getattr(item, self.grouped_by, None) if self.grouped_by else None,
+                }
+                for item in items
+            ],
+            'overflow_indicator': self.overflow_indicator if has_more else None,
+        }
+
+    def render(self, obj, context):
+        context = context or {}
+        context_data = self.get_context(obj, context)
+
+        if not context_data['items']:
+            return self.placeholder
+
+        return render_to_string(self.template_name, {
+            'name': context.get('name'),
+            **context_data,
+        })
 
 
 class NestedObjectAttr(ObjectAttribute):

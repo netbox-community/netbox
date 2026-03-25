@@ -1,0 +1,69 @@
+{% load helpers %}
+{% load i18n %}
+
+<div class="card">
+  <h2 class="card-header d-flex justify-content-between">
+    {% blocktrans %}Termination{% endblocktrans %} {{ side }}
+    <div class="card-actions">
+      {% if not termination and perms.circuits.add_circuittermination %}
+        <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-ghost-primary">
+          <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add" %}
+        </a>
+      {% endif %}
+      {% if termination and perms.circuits.change_circuittermination %}
+       <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-ghost-warning">
+         <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
+       </a>
+      {% endif %}
+      {% if termination and perms.circuits.delete_circuittermination %}
+        <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-ghost-danger">
+          <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> {% trans "Delete" %}
+        </a>
+      {% endif %}
+    </div>
+  </h2>
+  {% if termination %}
+    <table class="table table-hover attr-table">
+      {% include 'circuits/inc/circuit_termination_fields.html' with termination=termination %}
+      <tr>
+        <th scope="row">{% trans "Tags" %}</th>
+        <td>
+          {% for tag in termination.tags.all %}
+            {% tag tag %}
+          {% empty %}
+            {{ ''|placeholder }}
+          {% endfor %}
+        </td>
+      </tr>
+      {% for group_name, fields in termination.get_custom_fields_by_group.items %}
+        <tr>
+          <td colspan="2">
+            {% trans "Custom Fields" as default_group_label %}
+            <strong>{{ group_name|default:default_group_label }}</strong>
+          </td>
+        </tr>
+        {% for field, value in fields.items %}
+          <tr>
+            <th scope="row">{{ field }}
+              {% if field.description %}
+                <i
+                  class="mdi mdi-information text-primary"
+                  data-bs-toggle="tooltip"
+                  data-bs-placement="right"
+                  title="{{ field.description|escape }}"
+                ></i>
+             {% endif %}
+            </th>
+            <td>
+              {% customfield_value field value %}
+            </td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="card-body">
+      <span class="text-muted">{% trans "None" %}</span>
+    </div>
+  {% endif %}
+</div>

@@ -34,7 +34,7 @@ class EnhancedURLValidator(URLValidator):
         r'^(?:[a-z0-9\.\-\+]*)://'          # Scheme (enforced separately)
         r'(?:\S+(?::\S*)?@)?'               # HTTP basic authentication
         r'(?:' + '|'.join(host_res) + ')'   # IPv4, IPv6, FQDN, or hostname
-        r'(?::\d{2,5})?'                    # Port number
+        r'(?::\d{1,5})?'                    # Port number
         r'(?:[/?#][^\s]*)?'                 # Path
         r'\Z', re.IGNORECASE)
     schemes = None

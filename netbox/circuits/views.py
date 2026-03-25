@@ -1,13 +1,23 @@
+from django.utils.translation import gettext_lazy as _
 
 from dcim.views import PathTraceView
+from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from ipam.models import ASN
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport
+from netbox.ui import actions, layout
+from netbox.ui.panels import (
+    CommentsPanel,
+    ObjectsTablePanel,
+    Panel,
+    RelatedObjectsPanel,
+)
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 
 from . import filtersets, forms, tables
 from .models import *
+from .ui import panels
 
 #
 # Providers
@@ -29,6 +39,35 @@ class ProviderListView(generic.ObjectListView):
 @register_model_view(Provider)
 class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Provider.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ProviderPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='circuits.ProviderAccount',
+                filters={'provider_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'circuits.ProviderAccount', url_params={'provider': lambda ctx: ctx['object'].pk}
+                    ),
+                ],
+            ),
+            ObjectsTablePanel(
+                model='circuits.Circuit',
+                filters={'provider_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('circuits.Circuit', url_params={'provider': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -44,7 +83,7 @@ class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
                         'provider_id',
                     ),
                 ),
-                ),
+            ),
         }
 
 
@@ -108,6 +147,32 @@ class ProviderAccountListView(generic.ObjectListView):
 @register_model_view(ProviderAccount)
 class ProviderAccountView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderAccount.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ProviderAccountPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='circuits.Circuit',
+                filters={'provider_account_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'circuits.Circuit',
+                        url_params={
+                            'provider': lambda ctx: ctx['object'].provider.pk,
+                            'provider_account': lambda ctx: ctx['object'].pk,
+                        },
+                    ),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -174,6 +239,32 @@ class ProviderNetworkListView(generic.ObjectListView):
 @register_model_view(ProviderNetwork)
 class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ProviderNetworkPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='circuits.Circuit',
+                filters={'provider_network_id': lambda ctx: ctx['object'].pk},
+            ),
+            ObjectsTablePanel(
+                model='circuits.VirtualCircuit',
+                filters={'provider_network_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'circuits.VirtualCircuit', url_params={'provider_network': lambda ctx: ctx['object'].pk}
+                    ),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -251,6 +342,17 @@ class CircuitTypeListView(generic.ObjectListView):
 @register_model_view(CircuitType)
 class CircuitTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = CircuitType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.CircuitTypePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -318,6 +420,20 @@ class CircuitListView(generic.ObjectListView):
 @register_model_view(Circuit)
 class CircuitView(generic.ObjectView):
     queryset = Circuit.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.CircuitPanel(),
+            panels.CircuitGroupAssignmentsPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            panels.CircuitCircuitTerminationPanel(side='A'),
+            panels.CircuitCircuitTerminationPanel(side='Z'),
+            ImageAttachmentsPanel(),
+        ],
+    )
 
 
 @register_model_view(Circuit, 'add', detail=False)
@@ -390,6 +506,18 @@ class CircuitTerminationListView(generic.ObjectListView):
 @register_model_view(CircuitTermination)
 class CircuitTerminationView(generic.ObjectView):
     queryset = CircuitTermination.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            Panel(
+                template_name='circuits/panels/circuit_termination.html',
+                title=_('Circuit Termination'),
+            )
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+    )
 
 
 @register_model_view(CircuitTermination, 'add', detail=False)
@@ -446,6 +574,17 @@ class CircuitGroupListView(generic.ObjectListView):
 @register_model_view(CircuitGroup)
 class CircuitGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = CircuitGroup.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.CircuitGroupPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -508,6 +647,15 @@ class CircuitGroupAssignmentListView(generic.ObjectListView):
 @register_model_view(CircuitGroupAssignment)
 class CircuitGroupAssignmentView(generic.ObjectView):
     queryset = CircuitGroupAssignment.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.CircuitGroupAssignmentPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+        ],
+    )
 
 
 @register_model_view(CircuitGroupAssignment, 'add', detail=False)
@@ -560,6 +708,17 @@ class VirtualCircuitTypeListView(generic.ObjectListView):
 @register_model_view(VirtualCircuitType)
 class VirtualCircuitTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VirtualCircuitType.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualCircuitTypePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -627,6 +786,30 @@ class VirtualCircuitListView(generic.ObjectListView):
 @register_model_view(VirtualCircuit)
 class VirtualCircuitView(generic.ObjectView):
     queryset = VirtualCircuit.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualCircuitPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+            CommentsPanel(),
+            panels.CircuitGroupAssignmentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='circuits.VirtualCircuitTermination',
+                title=_('Terminations'),
+                filters={'virtual_circuit_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject(
+                        'circuits.VirtualCircuitTermination',
+                        url_params={'virtual_circuit': lambda ctx: ctx['object'].pk},
+                    ),
+                ],
+            ),
+        ],
+    )
 
 
 @register_model_view(VirtualCircuit, 'add', detail=False)
@@ -698,6 +881,16 @@ class VirtualCircuitTerminationListView(generic.ObjectListView):
 @register_model_view(VirtualCircuitTermination)
 class VirtualCircuitTerminationView(generic.ObjectView):
     queryset = VirtualCircuitTermination.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualCircuitTerminationPanel(),
+            TagsPanel(),
+            CustomFieldsPanel(),
+        ],
+        right_panels=[
+            panels.VirtualCircuitTerminationInterfacePanel(),
+        ],
+    )
 
 
 @register_model_view(VirtualCircuitTermination, 'edit')

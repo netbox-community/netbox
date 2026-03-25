@@ -1,0 +1,15 @@
+{% load helpers i18n %}
+{% if value %}
+  {% with utilization=value.0.get_power_draw %}
+    {% if utilization %}
+      {{ utilization.allocated }}{% trans "VA" %} / {{ object.available_power }}{% trans "VA" %}
+      {% if object.available_power > 0 %}
+        {% utilization_graph utilization.allocated|percentage:object.available_power %}
+      {% endif %}
+    {% else %}
+      {{ ''|placeholder }}
+    {% endif %}
+  {% endwith %}
+{% else %}
+  {{ ''|placeholder }}
+{% endif %}

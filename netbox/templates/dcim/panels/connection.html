@@ -1,0 +1,96 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  {% if object.mark_connected %}
+    <div class="card-body">
+      <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+      {% trans "Marked as connected" %}
+    </div>
+  {% elif object.cable %}
+    {% if show_endpoints %}
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Cable" %}</th>
+          <td>
+            {{ object.cable|linkify }}
+            <a href="{% url trace_url_name pk=object.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
+              <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Path status" %}</th>
+          <td>
+            {% if object.path.is_complete and object.path.is_active %}
+              <span class="badge text-bg-success">{% trans "Reachable" %}</span>
+            {% else %}
+              <span class="badge text-bg-danger">{% trans "Not Reachable" %}</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Path endpoints" %}</th>
+          <td>
+            {% for endpoint in object.connected_endpoints %}
+              {% if endpoint.parent_object %}
+                {{ endpoint.parent_object|linkify }}
+                <i class="mdi mdi-chevron-right"></i>
+              {% endif %}
+              {{ endpoint|linkify }}
+              {% if not forloop.last %}<br />{% endif %}
+            {% empty %}
+              {{ ''|placeholder }}
+            {% endfor %}
+          </td>
+        </tr>
+      </table>
+    {% else %}
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Cable" %}</th>
+          <td>
+            {{ object.cable|linkify }}
+            <a href="{% url trace_url_name pk=object.pk %}" class="btn btn-sm btn-primary" title="{% trans "Trace" %}">
+              <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Connection status" %}</th>
+          <td>
+            {% if object.cable.status %}
+              <span class="badge text-bg-success">{{ object.cable.get_status_display }}</span>
+            {% else %}
+              <span class="badge text-bg-info">{{ object.cable.get_status_display }}</span>
+            {% endif %}
+          </td>
+        </tr>
+      </table>
+    {% endif %}
+  {% else %}
+    <div class="card-body text-muted">
+      {% trans "Not Connected" %}
+      {% if perms.dcim.add_cable %}
+        {% if connect_options|length > 1 %}
+          <div class="dropdown float-end">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              {% for option in connect_options %}
+                <li>
+                  <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type={{ option.a_type }}&a_terminations={{ object.pk }}&b_terminations_type={{ option.b_type }}&return_url={{ object.get_absolute_url }}">{{ option.label }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% elif connect_options|length == 1 %}
+          <a href="{% url 'dcim:cable_add' %}?a_terminations_type={{ connect_options.0.a_type }}&a_terminations={{ object.pk }}&b_terminations_type={{ connect_options.0.b_type }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary float-end">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
+          </a>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock panel_content %}

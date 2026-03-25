@@ -67,6 +67,7 @@ class Panel:
         return {
             'request': context.get('request'),
             'object': context.get('object'),
+            'perms': context.get('perms'),
             'title': self.title,
             'actions': self.actions,
             'panel_class': self.__class__.__name__,
