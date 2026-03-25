@@ -255,8 +255,7 @@ class RackReservationTable(TenancyColumnsMixin, PrimaryModelTable):
         model = RackReservation
         fields = (
             'pk', 'id', 'reservation', 'site', 'location', 'group', 'rack', 'unit_list', 'unit_count', 'status',
-            'user', 'tenant',
-            'tenant_group', 'description', 'comments', 'tags', 'actions', 'last_updated',
+            'user', 'created', 'tenant', 'tenant_group', 'description', 'comments', 'tags', 'actions', 'last_updated',
         )
         default_columns = (
             'pk', 'reservation', 'site', 'rack', 'unit_list', 'unit_count', 'status', 'user', 'description',
