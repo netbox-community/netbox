@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<div class="card">
+  <h2 class="card-header">{% trans "Port Mappings" %}</h2>
+  <table class="table table-hover">
+    {% if rear_port_mappings %}
+      <thead>
+        <tr>
+          <th>{% trans "Position" %}</th>
+          <th>{% trans "Rear Port" %}</th>
+        </tr>
+      </thead>
+    {% endif %}
+    <tbody>
+      {% for mapping in rear_port_mappings %}
+        <tr>
+          <td>{{ mapping.front_port_position }}</td>
+          <td>
+            <a href="{{ mapping.rear_port.get_absolute_url }}">{{ mapping.rear_port }}:{{ mapping.rear_port_position }}</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="text-muted">{% trans "No mappings defined" %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

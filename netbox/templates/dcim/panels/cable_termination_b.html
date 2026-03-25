@@ -1,0 +1,6 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  {% include 'dcim/inc/cable_termination.html' with terminations=object.b_terminations %}
+{% endblock panel_content %}
