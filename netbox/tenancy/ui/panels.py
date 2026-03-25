@@ -21,7 +21,7 @@ class ContactRolePanel(panels.OrganizationalObjectPanel):
 
 
 class ContactPanel(panels.ObjectAttributesPanel):
-    groups = attrs.TemplatedAttr('groups', label=_('Groups'), template_name='tenancy/attrs/groups.html')
+    groups = attrs.RelatedObjectListAttr('groups', linkify=True, label=_('Groups'))
     name = attrs.TextAttr('name')
     title = attrs.TextAttr('title')
     phone = attrs.TemplatedAttr('phone', label=_('Phone'), template_name='tenancy/attrs/phone.html')
