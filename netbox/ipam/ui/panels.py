@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, attrs, panels
 
-from .attrs import PrefixAggregateAttr, VRFDisplayAttr
+from .attrs import VRFDisplayAttr
 
 
 class FHRPGroupAssignmentsPanel(panels.ObjectPanel):
@@ -115,7 +115,10 @@ class IPAddressPanel(panels.ObjectAttributesPanel):
     dns_name = attrs.TextAttr('dns_name', label=_('DNS Name'))
     description = attrs.TextAttr('description')
     assigned_object = attrs.RelatedObjectAttr(
-        'assigned_object', linkify=True, grouped_by='parent_object', label=_('Assignment')
+        'assigned_object',
+        linkify=True,
+        grouped_by='parent_object',
+        label=_('Assignment'),
     )
     nat_inside = attrs.TemplatedAttr(
         'nat_inside',
@@ -135,7 +138,11 @@ class PrefixPanel(panels.ObjectAttributesPanel):
     family = attrs.TextAttr('family', format_string='IPv{}', label=_('Family'))
     vrf = VRFDisplayAttr('vrf', label=_('VRF'))
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    aggregate = PrefixAggregateAttr('aggregate', label=_('Aggregate'))
+    aggregate = attrs.TemplatedAttr(
+        'aggregate',
+        template_name='ipam/prefix/attrs/aggregate.html',
+        label=_('Aggregate'),
+    )
     scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
     vlan = attrs.RelatedObjectAttr('vlan', linkify=True, label=_('VLAN'), grouped_by='group')
     status = attrs.ChoiceAttr('status')
@@ -143,25 +150,6 @@ class PrefixPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     is_pool = attrs.BooleanAttr('is_pool', label=_('Is a pool'))
 
-    def get_context(self, context):
-        attr_names = set(self._attrs.keys())
-        if self.only:
-            attr_names &= set(self.only)
-        elif self.exclude:
-            attr_names -= set(self.exclude)
-
-        ctx = panels.ObjectPanel.get_context(self, context)
-        flat_context = dict(context.flatten())
-
-        return {
-            **ctx,
-            'attrs': [
-                {
-                    'label': attr.label or self._name_to_label(name),
-                    'value': attr.render(ctx['object'], {**flat_context, 'name': name}),
-                } for name, attr in self._attrs.items() if name in attr_names
-            ],
-        }
 
 
 class VLANGroupPanel(panels.ObjectAttributesPanel):

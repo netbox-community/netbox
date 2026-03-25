@@ -367,6 +367,16 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
     def get_status_color(self):
         return PrefixStatusChoices.colors.get(self.status)
 
+    @cached_property
+    def aggregate(self):
+        """
+        Return the containing Aggregate for this Prefix, if any.
+        """
+        try:
+            return Aggregate.objects.get(prefix__net_contains_or_equals=str(self.prefix))
+        except Aggregate.DoesNotExist:
+            return None
+
     def get_parents(self, include_self=False):
         """
         Return all containing Prefixes in the hierarchy.

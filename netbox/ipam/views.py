@@ -713,13 +713,6 @@ class PrefixView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        try:
-            aggregate = Aggregate.objects.restrict(request.user, 'view').get(
-                prefix__net_contains_or_equals=str(instance.prefix)
-            )
-        except Aggregate.DoesNotExist:
-            aggregate = None
-
         # Parent prefixes table
         parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
             Q(vrf=instance.vrf) | Q(vrf__isnull=True, status=PrefixStatusChoices.STATUS_CONTAINER)
@@ -751,7 +744,6 @@ class PrefixView(generic.ObjectView):
         duplicate_prefix_table.configure(request)
 
         context = {
-            'aggregate': aggregate,
             'parent_prefix_table': parent_prefix_table,
         }
         if duplicate_prefixes.exists():
