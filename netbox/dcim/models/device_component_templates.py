@@ -197,21 +197,53 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         modules.reverse()
         return modules
 
-    def _resolve_module_placeholder(self, value, module=None, device=None):
-        if MODULE_TOKEN in value and module:
-            modules = self._get_module_tree(module)
-            for m in modules:
-                value = value.replace(MODULE_TOKEN, m.module_bay.position, 1)
-        if VC_POSITION_RE.search(value) is not None:
+    def _get_inherited_positions(self, module):
+        """
+        Build a list of module bay positions (root to leaf), resolving any
+        {module} tokens in each position using the parent bay's position.
+        This enables position inheritance: a bay with position '{module}/2'
+        under a parent with position '1' resolves to '1/2'.
+        """
+        modules = self._get_module_tree(module)
+        positions = []
+        for m in modules:
+            pos = m.module_bay.position
+            if positions and MODULE_TOKEN in pos:
+                pos = pos.replace(MODULE_TOKEN, positions[-1])
+            positions.append(pos)
+        return positions
+
+    def _resolve_module_placeholder(self, value, module):
+        if MODULE_TOKEN not in value or not module:
+            return value
+        positions = self._get_inherited_positions(module)
+        token_count = value.count(MODULE_TOKEN)
+        if token_count == 1:
+            return value.replace(MODULE_TOKEN, positions[-1])
+        for pos in positions:
+            value = value.replace(MODULE_TOKEN, pos, 1)
+        return value
+
+    def _resolve_placeholders(self, value, module=None, device=None):
+        has_module = MODULE_TOKEN in value
+        has_vc = VC_POSITION_RE.search(value) is not None
+        if not has_module and not has_vc:
+            return value
+        if has_module and module:
+            value = self._resolve_module_placeholder(value, module)
+        if has_vc:
             resolved_device = (module.device if module else None) or device
             value = self._resolve_vc_position(value, resolved_device)
         return value
 
     def resolve_name(self, module=None, device=None):
-        return self._resolve_module_placeholder(self.name, module, device)
+        return self._resolve_placeholders(self.name, module, device)
 
     def resolve_label(self, module=None, device=None):
-        return self._resolve_module_placeholder(self.label, module, device)
+        return self._resolve_placeholders(self.label, module, device)
+
+    def resolve_position(self, module=None, device=None):
+        return self._resolve_placeholders(self.position, module, device)
 
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
@@ -745,14 +777,11 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
-    def resolve_position(self, module):
-        return self._resolve_module_placeholder(self.position, module)
-
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
-            position=self.resolve_position(kwargs.get('module')),
+            position=self.resolve_position(kwargs.get('module'), kwargs.get('device')),
             enabled=self.enabled,
             **kwargs
         )

@@ -82,6 +82,51 @@ class ModuleCommonForm(forms.Form):
         module_bays.reverse()
         return module_bays
 
+    @staticmethod
+    def _get_inherited_positions(module_bays):
+        """
+        Build a list of resolved positions from a module bay tree (root to leaf),
+        resolving any {module} tokens in each position using the parent position.
+        """
+        positions = []
+        for mb in module_bays:
+            pos = mb.position or ''
+            if positions and MODULE_TOKEN in pos:
+                pos = pos.replace(MODULE_TOKEN, positions[-1])
+            positions.append(pos)
+        return positions
+
+    def _validate_module_tokens(self, template_name, positions, module_bay):
+        """
+        Validate {module} placeholder usage and return the resolved name.
+        Raises ValidationError if placeholders are used incorrectly.
+        """
+        if MODULE_TOKEN not in template_name:
+            return template_name
+
+        if not module_bay.position:
+            raise forms.ValidationError(
+                _("Cannot install module with placeholder values in a module bay with no position defined.")
+            )
+
+        token_count = template_name.count(MODULE_TOKEN)
+        if token_count == 1:
+            return template_name.replace(MODULE_TOKEN, positions[-1])
+        elif token_count == len(positions):
+            resolved = template_name
+            for pos in positions:
+                resolved = resolved.replace(MODULE_TOKEN, pos, 1)
+            return resolved
+        else:
+            raise forms.ValidationError(
+                _(
+                    "Cannot install module with placeholder values in a module bay tree {level} in tree "
+                    "but {tokens} placeholders given."
+                ).format(
+                    level=len(positions), tokens=token_count
+                )
+            )
+
     def clean(self):
         super().clean()
 
@@ -101,6 +146,7 @@ class ModuleCommonForm(forms.Form):
             return
 
         module_bays = self._get_module_bay_tree(module_bay)
+        positions = self._get_inherited_positions(module_bays)
 
         for templates, component_attribute in [
                 ("consoleporttemplates", "consoleports"),
@@ -118,26 +164,7 @@ class ModuleCommonForm(forms.Form):
 
             # Get the templates for the module type.
             for template in getattr(module_type, templates).all():
-                resolved_name = template.name
-                # Installing modules with placeholders require that the bay has a position value
-                if MODULE_TOKEN in template.name:
-                    if not module_bay.position:
-                        raise forms.ValidationError(
-                            _("Cannot install module with placeholder values in a module bay with no position defined.")
-                        )
-
-                    if len(module_bays) != template.name.count(MODULE_TOKEN):
-                        raise forms.ValidationError(
-                            _(
-                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
-                                "but {tokens} placeholders given."
-                            ).format(
-                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
-                            )
-                        )
-
-                    for module_bay in module_bays:
-                        resolved_name = resolved_name.replace(MODULE_TOKEN, module_bay.position, 1)
+                resolved_name = self._validate_module_tokens(template.name, positions, module_bay)
 
                 existing_item = installed_components.get(resolved_name)
 

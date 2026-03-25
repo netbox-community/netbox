@@ -32,6 +32,26 @@ For example, `{vc_position:1}` will render as `1` when no Virtual Chassis positi
 
 Automatic renaming is supported for all modular component types (those listed above).
 
+### Position Inheritance for Nested Modules
+
+When using nested module bays (modules installed inside other modules), the `{module}` placeholder
+can also be used in the **position** field of module bay templates to inherit the parent bay's
+position. This allows a single module type to produce correctly named components at any nesting
+depth, with a user-controlled separator.
+
+For example, a line card module type might define sub-bay positions as `{module}/1`, `{module}/2`,
+etc. When the line card is installed in a device bay with position `3`, these sub-bay positions
+resolve to `3/1`, `3/2`, etc. An SFP module type with interface template `SFP {module}` installed
+in sub-bay `3/2` then produces interface `SFP 3/2`.
+
+The separator between levels is defined by the user in the position field template itself. Using
+`{module}-1` produces positions like `3-1`, while `{module}.1` produces `3.1`. This provides
+full flexibility without requiring a global separator configuration.
+
+!!! note
+    If the position field does not contain `{module}`, no inheritance occurs and behavior is
+    unchanged from previous versions.
+
 ## Fields
 
 ### Manufacturer

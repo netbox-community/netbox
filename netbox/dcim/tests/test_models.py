@@ -999,6 +999,273 @@ class ModuleBayTestCase(TestCase):
         nested_bay = module.modulebays.get(name='Sub-bay 1-1')
         self.assertEqual(nested_bay.position, '1-1')
 
+    #
+    # Position inheritance tests (#19796)
+    #
+
+    def test_position_inheritance_depth_2(self):
+        """
+        A module bay with position '{module}/2' under a parent bay with position '1'
+        should resolve to position '1/2'. A single {module} in the interface template
+        should then resolve to '1/2'.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Chassis for Inheritance',
+            slug='chassis-for-inheritance'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Line card slot 1',
+            position='1'
+        )
+
+        line_card_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Line Card with Inherited Bays'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='SFP bay {module}/1',
+            position='{module}/1'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=line_card_type,
+            name='SFP bay {module}/2',
+            position='{module}/2'
+        )
+
+        sfp_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='SFP with Inherited Path'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='SFP {module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='Inheritance Chassis',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        lc_bay = device.modulebays.get(name='Line card slot 1')
+        line_card = Module.objects.create(
+            device=device,
+            module_bay=lc_bay,
+            module_type=line_card_type
+        )
+
+        sfp_bay = line_card.modulebays.get(name='SFP bay 1/2')
+        sfp_module = Module.objects.create(
+            device=device,
+            module_bay=sfp_bay,
+            module_type=sfp_type
+        )
+
+        interface = sfp_module.interfaces.first()
+        self.assertEqual(interface.name, 'SFP 1/2')
+
+    def test_position_inheritance_depth_3(self):
+        """
+        Position inheritance at depth 3: positions should chain through the tree.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Deep Chassis',
+            slug='deep-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Slot A',
+            position='A'
+        )
+
+        mid_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Mid Module'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=mid_type,
+            name='Sub {module}-1',
+            position='{module}-1'
+        )
+
+        leaf_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Leaf Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='Port {module}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        device = Device.objects.create(
+            name='Deep Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        slot_a = device.modulebays.get(name='Slot A')
+        mid_module = Module.objects.create(
+            device=device,
+            module_bay=slot_a,
+            module_type=mid_type
+        )
+
+        sub_bay = mid_module.modulebays.get(name='Sub A-1')
+        self.assertEqual(sub_bay.position, 'A-1')
+
+        leaf_module = Module.objects.create(
+            device=device,
+            module_bay=sub_bay,
+            module_type=leaf_type
+        )
+
+        interface = leaf_module.interfaces.first()
+        self.assertEqual(interface.name, 'Port A-1')
+
+    def test_position_inheritance_custom_separator(self):
+        """
+        Users control the separator through the position field template.
+        Using '.' instead of '/' should work correctly.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Dot Separator Chassis',
+            slug='dot-separator-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        card_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Card with Dot Separator'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=card_type,
+            name='Port {module}.1',
+            position='{module}.1'
+        )
+
+        sfp_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='SFP Dot'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='eth{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='Dot Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        bay = device.modulebays.get(name='Bay 1')
+        card = Module.objects.create(
+            device=device,
+            module_bay=bay,
+            module_type=card_type
+        )
+
+        port_bay = card.modulebays.get(name='Port 1.1')
+        sfp = Module.objects.create(
+            device=device,
+            module_bay=port_bay,
+            module_type=sfp_type
+        )
+
+        interface = sfp.interfaces.first()
+        self.assertEqual(interface.name, 'eth1.1')
+
+    def test_multi_token_backwards_compat(self):
+        """
+        Multi-token {module}/{module} at matching depth should still resolve
+        level-by-level (backwards compatibility).
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Multi Token Chassis',
+            slug='multi-token-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Slot 1',
+            position='1'
+        )
+
+        card_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Card for Multi Token'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=card_type,
+            name='Port 1',
+            position='2'
+        )
+
+        iface_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Interface Module Multi Token'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=iface_type,
+            name='Gi{module}/{module}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        device = Device.objects.create(
+            name='Multi Token Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        slot = device.modulebays.get(name='Slot 1')
+        card = Module.objects.create(
+            device=device,
+            module_bay=slot,
+            module_type=card_type
+        )
+
+        port = card.modulebays.get(name='Port 1')
+        iface_module = Module.objects.create(
+            device=device,
+            module_bay=port,
+            module_type=iface_type
+        )
+
+        interface = iface_module.interfaces.first()
+        self.assertEqual(interface.name, 'Gi1/2')
+
     @tag('regression')  # #20912
     def test_module_bay_parent_cleared_when_module_removed(self):
         """Test that the parent field is properly cleared when a module bay's module assignment is removed"""
