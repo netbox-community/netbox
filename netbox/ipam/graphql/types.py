@@ -306,6 +306,7 @@ class VLANGroupType(OrganizationalObjectType):
 
     vlans: list[VLANType]
     vid_ranges: list[str]
+    total_vlan_ids: BigInt
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field

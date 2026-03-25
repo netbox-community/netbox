@@ -1,0 +1,1 @@
+{% load helpers %}{% if spec == 'date' %}{{ value|isodate }}{% else %}{{ value|isodatetime:spec }}{% endif %}

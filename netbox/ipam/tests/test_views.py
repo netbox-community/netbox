@@ -443,13 +443,21 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
-        site = sites[0].pk
-        cls.csv_data = (
-            "vrf,prefix,status,scope_type,scope_id",
-            f"VRF 1,10.4.0.0/16,active,dcim.site,{site}",
-            f"VRF 1,10.5.0.0/16,active,dcim.site,{site}",
-            f"VRF 1,10.6.0.0/16,active,dcim.site,{site}",
-        )
+        site = sites[0]
+        cls.csv_data = {
+            'default': (
+                "vrf,prefix,status,scope_type,scope_id",
+                f"VRF 1,10.4.0.0/16,active,dcim.site,{site.pk}",
+                f"VRF 1,10.5.0.0/16,active,dcim.site,{site.pk}",
+                f"VRF 1,10.6.0.0/16,active,dcim.site,{site.pk}",
+            ),
+            'scope_name': (
+                "vrf,prefix,status,scope_type,scope_name",
+                f"VRF 1,10.4.0.0/16,active,dcim.site,{site.name}",
+                f"VRF 1,10.5.0.0/16,active,dcim.site,{site.name}",
+                f"VRF 1,10.6.0.0/16,active,dcim.site,{site.name}",
+            ),
+        }
 
         cls.csv_update_data = (
             "id,description,status",
@@ -466,6 +474,74 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'is_pool': False,
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv4_prefixes(self):
+        """Test bulk creating IPv4 prefixes using a pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': '10.0.[0-2].0/24',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 3)
+
+        for i in range(3):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'10.0.{i}.0/24')).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv6_prefixes(self):
+        """Test bulk creating IPv6 prefixes using a pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': 'fd00:db8:[0-3]::/48',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 4)
+
+        for i in range(4):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'fd00:db8:{i}::/48')).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv6_prefixes_uppercase_hex(self):
+        """Test bulk creating IPv6 prefixes using uppercase hex in the pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': 'fd00:0:0:[48-4F]00::/56',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 8)
+
+        expected_hex = ['48', '49', '4a', '4b', '4c', '4d', '4e', '4f']
+        for h in expected_hex:
+            prefix_str = f'fd00:0:0:{h}00::/56'
+            self.assertTrue(
+                Prefix.objects.filter(prefix=IPNetwork(prefix_str)).exists(),
+                f'Expected prefix {prefix_str} was not created'
+            )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_prefixes(self):
@@ -538,6 +614,32 @@ scope_id: {site.pk}
         prefix = Prefix.objects.get(prefix='10.1.1.0/24')
         self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
         self.assertEqual(prefix.vlan.vid, 101)
+        self.assertEqual(prefix.scope, site)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_import_with_scope_name(self):
+        """
+        Test YAML-based import using scope_name instead of scope_id.
+        """
+        site = Site.objects.get(name='Site 1')
+        IMPORT_DATA = """
+prefix: 10.1.3.0/24
+status: active
+scope_type: dcim.site
+scope_name: Site 1
+"""
+        # Add all required permissions to the test user
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('ipam:prefix_bulk_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        prefix = Prefix.objects.get(prefix='10.1.3.0/24')
+        self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
         self.assertEqual(prefix.scope, site)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -892,12 +994,20 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'tags': [t.pk for t in tags],
         }
 
-        cls.csv_data = (
-            "name,slug,scope_type,scope_id,description",
-            "VLAN Group 4,vlan-group-4,,,Fourth VLAN group",
-            f"VLAN Group 5,vlan-group-5,dcim.site,{sites[0].pk},Fifth VLAN group",
-            f"VLAN Group 6,vlan-group-6,dcim.site,{sites[1].pk},Sixth VLAN group",
-        )
+        cls.csv_data = {
+            'default': (
+                "name,slug,scope_type,scope_id,description",
+                "VLAN Group 4,vlan-group-4,,,Fourth VLAN group",
+                f"VLAN Group 5,vlan-group-5,dcim.site,{sites[0].pk},Fifth VLAN group",
+                f"VLAN Group 6,vlan-group-6,dcim.site,{sites[1].pk},Sixth VLAN group",
+            ),
+            'scope_name': (
+                "name,slug,scope_type,scope_name,description",
+                "VLAN Group 4,vlan-group-4,,,Fourth VLAN group",
+                f"VLAN Group 5,vlan-group-5,dcim.site,{sites[0].name},Fifth VLAN group",
+                f"VLAN Group 6,vlan-group-6,dcim.site,{sites[1].name},Sixth VLAN group",
+            ),
+        }
 
         cls.csv_update_data = (
             "id,name,description",

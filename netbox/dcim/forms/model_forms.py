@@ -777,7 +777,7 @@ class ModuleForm(ModuleCommonForm, PrimaryModelForm):
             'device_id': '$device',
         },
         context={
-            'disabled': 'installed_module',
+            'disabled': '_occupied',
         },
     )
     module_type = DynamicModelChoiceField(
@@ -1072,7 +1072,9 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         self.fields['name'].help_text = _(
             "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are not "
             "supported (example: <code>[ge,xe]-0/0/[0-9]</code>). The token <code>{module}</code>, if present, will be "
-            "automatically replaced with the position value when creating a new module."
+            "automatically replaced with the position value when creating a new module. "
+            "The token <code>{vc_position}</code> will be replaced with the device's Virtual Chassis position "
+            "(use <code>{vc_position:1}</code> to specify a fallback (default is 0))"
         )
 
 
@@ -1233,26 +1235,26 @@ class ModuleBayTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'position', 'description',
+            'name', 'label', 'position', 'enabled', 'description',
         ),
     )
 
     class Meta:
         model = ModuleBayTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'position', 'description',
+            'device_type', 'module_type', 'name', 'label', 'position', 'enabled', 'description',
         ]
 
 
 class DeviceBayTemplateForm(ComponentTemplateForm):
     fieldsets = (
-        FieldSet('device_type', 'name', 'label', 'description'),
+        FieldSet('device_type', 'name', 'label', 'enabled', 'description'),
     )
 
     class Meta:
         model = DeviceBayTemplate
         fields = [
-            'device_type', 'name', 'label', 'description',
+            'device_type', 'name', 'label', 'enabled', 'description',
         ]
 
 
@@ -1698,25 +1700,25 @@ class RearPortForm(ModularDeviceComponentForm):
 
 class ModuleBayForm(ModularDeviceComponentForm):
     fieldsets = (
-        FieldSet('device', 'module', 'name', 'label', 'position', 'description', 'tags',),
+        FieldSet('device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'tags',),
     )
 
     class Meta:
         model = ModuleBay
         fields = [
-            'device', 'module', 'name', 'label', 'position', 'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags',
         ]
 
 
 class DeviceBayForm(DeviceComponentForm):
     fieldsets = (
-        FieldSet('device', 'name', 'label', 'description', 'tags',),
+        FieldSet('device', 'name', 'label', 'enabled', 'description', 'tags',),
     )
 
     class Meta:
         model = DeviceBay
         fields = [
-            'device', 'name', 'label', 'description', 'owner', 'tags',
+            'device', 'name', 'label', 'enabled', 'description', 'owner', 'tags',
         ]
 
 

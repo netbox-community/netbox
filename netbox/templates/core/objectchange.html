@@ -120,7 +120,17 @@
               {% spaceless %}
                 <pre class="change-data">
                   {% for k, v in object.prechange_data_clean.items %}
-                    <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
+                    {% with subdiff=diff_removed|get_key:k %}
+                      {% if subdiff.items %}
+                        <span>{{ k }}: {</span>
+                        {% for sub_k, sub_v in v.items %}
+                          <span class="ps-4{% if sub_k in subdiff %} removed{% endif %}">{{ sub_k }}: {{ sub_v|json }}</span>
+                        {% endfor %}
+                        <span>}</span>
+                      {% else %}
+                        <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
+                      {% endif %}
+                    {% endwith %}
                   {% endfor %}
                 </pre>
               {% endspaceless %}
@@ -140,7 +150,17 @@
                   {% spaceless %}
                     <pre class="change-data">
                       {% for k, v in object.postchange_data_clean.items %}
-                        <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
+                        {% with subdiff=diff_added|get_key:k %}
+                          {% if subdiff.items %}
+                            <span>{{ k }}: {</span>
+                            {% for sub_k, sub_v in v.items %}
+                              <span class="ps-4{% if sub_k in subdiff %} added{% endif %}">{{ sub_k }}: {{ sub_v|json }}</span>
+                            {% endfor %}
+                            <span>}</span>
+                          {% else %}
+                            <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
+                          {% endif %}
+                        {% endwith %}
                       {% endfor %}
                     </pre>
                   {% endspaceless %}

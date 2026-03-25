@@ -258,6 +258,14 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 )
             )
 
+        # Prevent module from being installed in a disabled bay
+        if hasattr(self, 'module_bay') and self.module_bay and not self.module_bay.enabled:
+            current_module_bay_id = Module.objects.filter(pk=self.pk).values_list('module_bay_id', flat=True).first()
+            if self.pk is None or current_module_bay_id != self.module_bay_id:
+                raise ValidationError({
+                    'module_bay': _("Cannot install a module in a disabled module bay.")
+                })
+
         # Check for recursion
         module = self
         module_bays = []

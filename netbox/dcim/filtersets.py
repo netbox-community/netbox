@@ -309,12 +309,9 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
         fields = ('id', 'name', 'slug', 'facility', 'description')
 
     def search(self, queryset, name, value):
-        # extended in order to include querying on Location.facility
-        queryset = super().search(queryset, name, value)
-
+        # Extend `search()` to include querying on Location.facility
         if value.strip():
-            queryset = queryset | queryset.model.objects.filter(facility__icontains=value)
-
+            return super().search(queryset, name, value) | queryset.filter(facility__icontains=value)
         return queryset
 
 
@@ -1052,7 +1049,7 @@ class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = ModuleBayTemplate
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'enabled', 'description')
 
 
 @register_filterset
@@ -1060,7 +1057,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'enabled', 'description')
 
 
 @register_filterset
@@ -2417,7 +2414,7 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
 
     class Meta:
         model = ModuleBay
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'enabled', 'description')
 
 
 @register_filterset
@@ -2437,7 +2434,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'enabled', 'description')
 
 
 @register_filterset

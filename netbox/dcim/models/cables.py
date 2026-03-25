@@ -329,7 +329,6 @@ class Cable(PrimaryModel):
             self._pk = self.pk
 
         if self._orig_profile != self.profile:
-            print(f'profile changed from {self._orig_profile} to {self.profile}')
             self.update_terminations(force=True)
         elif self._terminations_modified:
             self.update_terminations()
@@ -438,6 +437,15 @@ class Cable(PrimaryModel):
                 altering a Cable's assigned profile.
         """
         a_terminations, b_terminations = self.get_terminations()
+
+        # When force-recreating terminations (e.g. after a profile change), cache the termination objects
+        # from the database before deleting, so they are available for recreation. Without this, the
+        # a_terminations/b_terminations properties would query the DB after deletion and return empty lists.
+        if force:
+            if not hasattr(self, '_a_terminations'):
+                self._a_terminations = list(a_terminations.keys())
+            if not hasattr(self, '_b_terminations'):
+                self._b_terminations = list(b_terminations.keys())
 
         # Delete any stale CableTerminations
         for termination, ct in a_terminations.items():
@@ -848,9 +856,9 @@ class CablePath(models.Model):
             path.append([
                 object_to_path_node(t) for t in terminations
             ])
-            # If not null, push cable position onto the stack
+            # If not null, push cable positions onto the stack
             if isinstance(terminations[0], PathEndpoint) and terminations[0].cable_positions:
-                position_stack.append([terminations[0].cable_positions[0]])
+                position_stack.append(list(terminations[0].cable_positions))
 
             # Step 2: Determine the attached links (Cable or WirelessLink), if any
             links = list(dict.fromkeys(
@@ -891,10 +899,33 @@ class CablePath(models.Model):
                 # Profile-based tracing
                 if links[0].profile:
                     cable_profile = links[0].profile_class()
-                    position = position_stack.pop()[0] if position_stack else None
-                    term, position = cable_profile.get_peer_termination(terminations[0], position)
-                    remote_terminations = [term]
-                    position_stack.append([position])
+                    positions = position_stack.pop() if position_stack else [None]
+                    remote_terminations = []
+                    new_positions = []
+
+                    # Build (termination, position) pairs by matching stacked positions
+                    # to each termination's cable_positions. This correctly handles
+                    # multiple terminations on different connectors of the same cable.
+                    remaining = list(positions)
+                    term_position_pairs = []
+                    for term in terminations:
+                        if term.cable_positions:
+                            for cp in term.cable_positions:
+                                if cp in remaining:
+                                    term_position_pairs.append((term, cp))
+                                    remaining.remove(cp)
+
+                    # Fallback for when positions don't match cable_positions
+                    # (e.g., empty position stack yielding [None])
+                    if not term_position_pairs:
+                        term_position_pairs = [(terminations[0], pos) for pos in positions]
+
+                    for term, pos in term_position_pairs:
+                        peer, new_pos = cable_profile.get_peer_termination(term, pos)
+                        if peer not in remote_terminations:
+                            remote_terminations.append(peer)
+                        new_positions.append(new_pos)
+                    position_stack.append(new_positions)
 
                 # Legacy (positionless) behavior
                 else:

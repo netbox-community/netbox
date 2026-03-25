@@ -274,32 +274,32 @@ class DeviceFilter(
     longitude: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    console_ports: Annotated['ConsolePortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    consoleports: Annotated['ConsolePortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='console_ports')
     )
-    console_server_ports: Annotated['ConsoleServerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    consoleserverports: Annotated['ConsoleServerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='console_server_ports')
     )
-    power_outlets: Annotated['PowerOutletFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    poweroutlets: Annotated['PowerOutletFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_outlets')
     )
-    power_ports: Annotated['PowerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    powerports: Annotated['PowerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_ports')
     )
     interfaces: Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    front_ports: Annotated['FrontPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    frontports: Annotated['FrontPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='front_ports')
     )
-    rear_ports: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    rearports: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='rear_ports')
     )
-    device_bays: Annotated['DeviceBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    devicebays: Annotated['DeviceBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='device_bays')
     )
-    module_bays: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    modulebays: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='module_bays')
     )
     modules: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -318,6 +318,7 @@ class DeviceFilter(
 
 @strawberry_django.filter_type(models.DeviceBay, lookups=True)
 class DeviceBayFilter(ComponentModelFilterMixin, NetBoxModelFilter):
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
     installed_device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -326,7 +327,7 @@ class DeviceBayFilter(ComponentModelFilterMixin, NetBoxModelFilter):
 
 @strawberry_django.filter_type(models.DeviceBayTemplate, lookups=True)
 class DeviceBayTemplateFilter(ComponentTemplateFilterMixin, ChangeLoggedModelFilter):
-    pass
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.InventoryItemTemplate, lookups=True)
@@ -390,36 +391,36 @@ class DeviceTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
     rear_image: Annotated['ImageAttachmentFilter', strawberry.lazy('extras.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    console_port_templates: (
-        Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    console_server_port_templates: (
+    consoleporttemplates: Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='console_port_templates')
+    )
+    consoleserverporttemplates: (
         Annotated['ConsoleServerPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    power_port_templates: (
-        Annotated['PowerPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    power_outlet_templates: (
-        Annotated['PowerOutletTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    interface_templates: (
-        Annotated['InterfaceTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    front_port_templates: (
-        Annotated['FrontPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    rear_port_templates: (
-        Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    device_bay_templates: (
-        Annotated['DeviceBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    module_bay_templates: (
-        Annotated['ModuleBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    inventory_item_templates: (
-        Annotated['InventoryItemTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
+    ) = strawberry_django.filter_field(name='console_server_port_templates')
+    powerporttemplates: Annotated['PowerPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_port_templates')
+    )
+    poweroutlettemplates: Annotated['PowerOutletTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_outlet_templates')
+    )
+    interfacetemplates: Annotated['InterfaceTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='interface_templates')
+    )
+    frontporttemplates: Annotated['FrontPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='front_port_templates')
+    )
+    rearporttemplates: Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='rear_port_templates')
+    )
+    devicebaytemplates: Annotated['DeviceBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='device_bay_templates')
+    )
+    modulebaytemplates: Annotated['ModuleBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='module_bay_templates')
+    )
+    inventoryitemtemplates: Annotated['InventoryItemTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='inventory_item_templates')
+    )
     console_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
     console_server_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
     power_port_template_count: FilterLookup[int] | None = strawberry_django.filter_field()
@@ -703,32 +704,32 @@ class ModuleFilter(ConfigContextFilterMixin, PrimaryModelFilter):
     )
     serial: StrFilterLookup[str] | None = strawberry_django.filter_field()
     asset_tag: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    console_ports: Annotated['ConsolePortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    consoleports: Annotated['ConsolePortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='console_ports')
     )
-    console_server_ports: Annotated['ConsoleServerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    consoleserverports: Annotated['ConsoleServerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='console_server_ports')
     )
-    power_outlets: Annotated['PowerOutletFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    poweroutlets: Annotated['PowerOutletFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_outlets')
     )
-    power_ports: Annotated['PowerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    powerports: Annotated['PowerPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_ports')
     )
     interfaces: Annotated['InterfaceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    front_ports: Annotated['FrontPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    frontports: Annotated['FrontPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='front_ports')
     )
-    rear_ports: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    rearports: Annotated['RearPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='rear_ports')
     )
-    device_bays: Annotated['DeviceBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    devicebays: Annotated['DeviceBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='device_bays')
     )
-    module_bays: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
-        strawberry_django.filter_field()
+    modulebays: Annotated['ModuleBayFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='module_bays')
     )
     modules: Annotated['ModuleFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
@@ -742,11 +743,13 @@ class ModuleBayFilter(ModularComponentFilterMixin, NetBoxModelFilter):
     )
     parent_id: ID | None = strawberry_django.filter_field()
     position: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ModuleBayTemplate, lookups=True)
 class ModuleBayTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
     position: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.ModuleTypeProfile, lookups=True)
@@ -772,36 +775,33 @@ class ModuleTypeFilter(ImageAttachmentFilterMixin, WeightFilterMixin, PrimaryMod
     airflow: BaseFilterLookup[Annotated['ModuleAirflowEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    console_port_templates: (
-        Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    console_server_port_templates: (
+    consoleporttemplates: Annotated['ConsolePortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='console_port_templates')
+    )
+    consoleserverporttemplates: (
         Annotated['ConsoleServerPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    power_port_templates: (
-        Annotated['PowerPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    power_outlet_templates: (
-        Annotated['PowerOutletTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    interface_templates: (
-        Annotated['InterfaceTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    front_port_templates: (
-        Annotated['FrontPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    rear_port_templates: (
-        Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    device_bay_templates: (
-        Annotated['DeviceBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    module_bay_templates: (
-        Annotated['ModuleBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
-    inventory_item_templates: (
-        Annotated['InventoryItemTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None
-    ) = strawberry_django.filter_field()
+    ) = strawberry_django.filter_field(name='console_server_port_templates')
+    powerporttemplates: Annotated['PowerPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_port_templates')
+    )
+    poweroutlettemplates: Annotated['PowerOutletTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='power_outlet_templates')
+    )
+    interfacetemplates: Annotated['InterfaceTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='interface_templates')
+    )
+    frontporttemplates: Annotated['FrontPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='front_port_templates')
+    )
+    rearporttemplates: Annotated['RearPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='rear_port_templates')
+    )
+    devicebaytemplates: Annotated['DeviceBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='device_bay_templates')
+    )
+    modulebaytemplates: Annotated['ModuleBayTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field(name='module_bay_templates')
+    )
     module_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
 
 

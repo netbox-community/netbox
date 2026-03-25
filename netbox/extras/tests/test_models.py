@@ -818,6 +818,54 @@ class ConfigTemplateTest(TestCase):
             self.assertEqual(autosync_records.count(), 0, "AutoSyncRecord should be deleted after detaching")
 
 
+class ConfigTemplateDebugTest(TestCase):
+    """
+    Tests for the ConfigTemplate debug field and its effect on template rendering error output.
+    """
+
+    def _make_template(self, template_code, debug=False):
+        t = ConfigTemplate(
+            name=f"DebugTestTemplate-{debug}",
+            template_code=template_code,
+            debug=debug,
+        )
+        t.save()
+        return t
+
+    def test_debug_default_is_false(self):
+        t = ConfigTemplate(name="t", template_code="hello")
+        self.assertFalse(t.debug)
+
+    def test_template_error_non_debug_no_traceback(self):
+        """In non-debug mode, a TemplateError raises with no traceback exposure."""
+        from jinja2 import TemplateError
+        t = self._make_template("{{ unclosed", debug=False)
+        with self.assertRaises(TemplateError):
+            t.render({})
+
+    def test_template_error_debug_mode_raises(self):
+        """In debug mode, a TemplateError still raises (callers handle display)."""
+        from jinja2 import TemplateError
+        t = self._make_template("{{ unclosed", debug=True)
+        with self.assertRaises(TemplateError):
+            t.render({})
+
+    def test_render_jinja2_debug_extension_enabled(self):
+        """When debug=True, the Jinja2 debug extension is loaded in the environment."""
+        from utilities.jinja2 import render_jinja2
+        # The {% debug %} tag is only available when the debug extension is loaded.
+        output = render_jinja2("{% debug %}", {}, debug=True)
+        self.assertIsInstance(output, str)
+
+    def test_render_jinja2_debug_extension_not_loaded_by_default(self):
+        """When debug=False, the {% debug %} tag is not available."""
+        from jinja2 import TemplateSyntaxError
+
+        from utilities.jinja2 import render_jinja2
+        with self.assertRaises(TemplateSyntaxError):
+            render_jinja2("{% debug %}", {}, debug=False)
+
+
 class ExportTemplateContextTest(TestCase):
     """
     Tests for ExportTemplate.get_context() including public model population.

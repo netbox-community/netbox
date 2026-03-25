@@ -1245,6 +1245,11 @@ class ModuleBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         label=_('Description'),
         required=False
     )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect,
+    )
 
     nullable_fields = ('label', 'position', 'description')
 
@@ -1262,6 +1267,11 @@ class DeviceBayTemplateBulkEditForm(ComponentTemplateBulkEditForm):
     description = forms.CharField(
         label=_('Description'),
         required=False
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=BulkEditNullBooleanSelect,
     )
 
     nullable_fields = ('label', 'description')
@@ -1687,23 +1697,23 @@ class RearPortBulkEditForm(
 
 
 class ModuleBayBulkEditForm(
-    form_from_model(ModuleBay, ['label', 'position', 'description']),
+    form_from_model(ModuleBay, ['label', 'position', 'enabled', 'description']),
     NetBoxModelBulkEditForm
 ):
     model = ModuleBay
     fieldsets = (
-        FieldSet('label', 'position', 'description'),
+        FieldSet('label', 'position', 'enabled', 'description'),
     )
     nullable_fields = ('label', 'position', 'description')
 
 
 class DeviceBayBulkEditForm(
-    form_from_model(DeviceBay, ['label', 'description']),
+    form_from_model(DeviceBay, ['label', 'enabled', 'description']),
     NetBoxModelBulkEditForm
 ):
     model = DeviceBay
     fieldsets = (
-        FieldSet('label', 'description'),
+        FieldSet('label', 'enabled', 'description'),
     )
     nullable_fields = ('label', 'description')
 

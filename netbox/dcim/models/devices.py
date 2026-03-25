@@ -26,6 +26,7 @@ from netbox.config import ConfigItem
 from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
+from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, CounterCacheField
 from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
@@ -948,6 +949,20 @@ class Device(
                 ).format(virtual_chassis=self.vc_master_for)
             })
 
+    def _check_duplicate_component_names(self, components):
+        """
+        Check for duplicate component names after resolving {vc_position} placeholders.
+        Raises AbortRequest if duplicates are found.
+        """
+        names = [c.name for c in components]
+        duplicates = {n for n in names if names.count(n) > 1}
+        if duplicates:
+            raise AbortRequest(
+                _("Component name conflict after resolving {{vc_position}}: {names}").format(
+                    names=', '.join(duplicates)
+                )
+            )
+
     def _instantiate_components(self, queryset, bulk_create=True):
         """
         Instantiate components for the device from the specified component templates.
@@ -962,6 +977,10 @@ class Device(
             components = [obj.instantiate(device=self) for obj in queryset]
             if not components:
                 return
+
+            # Check for duplicate names after resolution {vc_position}
+            self._check_duplicate_component_names(components)
+
             # Set default values for any applicable custom fields
             if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                 for component in components:
@@ -986,8 +1005,14 @@ class Device(
                     update_fields=None
                 )
         else:
-            for obj in queryset:
-                component = obj.instantiate(device=self)
+            components = [obj.instantiate(device=self) for obj in queryset]
+            if not components:
+                return
+
+            # Check for duplicate names after resolution {vc_position}
+            self._check_duplicate_component_names(components)
+
+            for component in components:
                 # Set default values for any applicable custom fields
                 if cf_defaults := CustomField.objects.get_defaults_for_model(model):
                     component.custom_field_data = cf_defaults

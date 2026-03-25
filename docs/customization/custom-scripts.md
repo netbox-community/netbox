@@ -215,6 +215,7 @@ if obj.pk and hasattr(obj, 'snapshot'):
     obj.snapshot()
 
 obj.property = "New Value"
+obj._changelog_message = 'Example Message Text' # Optional
 obj.full_clean()
 obj.save()
 ```

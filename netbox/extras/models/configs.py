@@ -1,9 +1,12 @@
+import traceback
+
 import jsonschema
 from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from jinja2.exceptions import TemplateError
 from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from extras.models.mixins import RenderTemplateMixin
@@ -281,6 +284,13 @@ class ConfigTemplate(
         max_length=200,
         blank=True
     )
+    debug = models.BooleanField(
+        verbose_name=_('debug'),
+        default=False,
+        help_text=_(
+            'Enable verbose error output when rendering this template. Not recommended for production use.'
+        )
+    )
 
     class Meta:
         ordering = ('name',)
@@ -299,3 +309,20 @@ class ConfigTemplate(
         """
         self.template_code = self.data_file.data_as_string
     sync_data.alters_data = True
+
+    def format_render_error(self, exc):
+        """
+        Return a formatted error string for a rendering exception. When debug is enabled, the full
+        traceback for the provided exception is returned. Otherwise, a concise, user-facing message
+        is returned.
+        """
+        if self.debug:
+            return ''.join(traceback.format_exception(exc))
+        if isinstance(exc, TemplateError):
+            parts = [f"{type(exc).__name__}: {exc}"]
+            if getattr(exc, 'name', None):
+                parts.append(_("Template: {name}").format(name=exc.name))
+            if getattr(exc, 'lineno', None):
+                parts.append(_("Line: {lineno}").format(lineno=exc.lineno))
+            return "\n".join(parts)
+        return f"{type(exc).__name__}: {exc}"

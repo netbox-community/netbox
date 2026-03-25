@@ -2255,13 +2255,21 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         ModuleBayTemplate.objects.bulk_create(
             (
                 ModuleBayTemplate(
-                    device_type=device_types[0], name='Module Bay 1', description='foobar1'
+                    device_type=device_types[0], name='Module Bay 1', enabled=True, description='foobar1'
                 ),
                 ModuleBayTemplate(
-                    device_type=device_types[1], name='Module Bay 2', description='foobar2', module_type=module_types[0]
+                    device_type=device_types[1],
+                    name='Module Bay 2',
+                    enabled=False,
+                    description='foobar2',
+                    module_type=module_types[0],
                 ),
                 ModuleBayTemplate(
-                    device_type=device_types[2], name='Module Bay 3', description='foobar3', module_type=module_types[1]
+                    device_type=device_types[2],
+                    name='Module Bay 3',
+                    enabled=True,
+                    description='foobar3',
+                    module_type=module_types[1],
                 ),
             )
         )
@@ -2269,6 +2277,12 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_module_type(self):
         module_types = ModuleType.objects.all()[:2]
@@ -2292,15 +2306,29 @@ class DeviceBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         )
         DeviceType.objects.bulk_create(device_types)
 
-        DeviceBayTemplate.objects.bulk_create((
-            DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1', description='foobar1'),
-            DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2', description='foobar2'),
-            DeviceBayTemplate(device_type=device_types[2], name='Device Bay 3', description='foobar3'),
-        ))
+        DeviceBayTemplate.objects.bulk_create(
+            (
+                DeviceBayTemplate(
+                    device_type=device_types[0], name='Device Bay 1', enabled=True, description='foobar1'
+                ),
+                DeviceBayTemplate(
+                    device_type=device_types[1], name='Device Bay 2', enabled=False, description='foobar2'
+                ),
+                DeviceBayTemplate(
+                    device_type=device_types[2], name='Device Bay 3', enabled=True, description='foobar3'
+                ),
+            )
+        )
 
     def test_name(self):
         params = {'name': ['Device Bay 1', 'Device Bay 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
@@ -5786,11 +5814,11 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Device.objects.bulk_create(devices)
 
         module_bays = (
-            ModuleBay(device=devices[0], name='Module Bay 1', label='A', description='First'),
-            ModuleBay(device=devices[1], name='Module Bay 2', label='B', description='Second'),
-            ModuleBay(device=devices[2], name='Module Bay 3', label='C', description='Third'),
-            ModuleBay(device=devices[2], name='Module Bay 4', label='D', description='Fourth'),
-            ModuleBay(device=devices[2], name='Module Bay 5', label='E', description='Fifth'),
+            ModuleBay(device=devices[0], name='Module Bay 1', label='A', enabled=True, description='First'),
+            ModuleBay(device=devices[1], name='Module Bay 2', label='B', enabled=False, description='Second'),
+            ModuleBay(device=devices[2], name='Module Bay 3', label='C', enabled=True, description='Third'),
+            ModuleBay(device=devices[2], name='Module Bay 4', label='D', enabled=False, description='Fourth'),
+            ModuleBay(device=devices[2], name='Module Bay 5', label='E', enabled=True, description='Fifth'),
         )
         for module_bay in module_bays:
             module_bay.save()
@@ -5812,6 +5840,12 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_label(self):
         params = {'label': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -5973,6 +6007,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device=devices[0],
                 name='Device Bay 1',
                 label='A',
+                enabled=True,
                 description='First',
                 _site=devices[0].site,
                 _location=devices[0].location,
@@ -5982,6 +6017,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device=devices[1],
                 name='Device Bay 2',
                 label='B',
+                enabled=False,
                 description='Second',
                 _site=devices[1].site,
                 _location=devices[1].location,
@@ -5991,6 +6027,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device=devices[2],
                 name='Device Bay 3',
                 label='C',
+                enabled=True,
                 description='Third',
                 _site=devices[2].site,
                 _location=devices[2].location,
@@ -6006,6 +6043,12 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
     def test_label(self):
         params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}

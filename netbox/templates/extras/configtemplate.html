@@ -34,6 +34,10 @@
             <td>{% checkmark object.as_attachment %}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Debug" %}</th>
+            <td>{% checkmark object.debug %}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Data Source" %}</th>
             <td>
               {% if object.data_source %}

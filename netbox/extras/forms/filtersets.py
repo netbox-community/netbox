@@ -497,7 +497,7 @@ class ConfigTemplateFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('data_source_id', 'data_file_id', 'auto_sync_enabled', name=_('Data')),
-        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering')),
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', 'debug', name=_('Rendering')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
@@ -535,6 +535,13 @@ class ConfigTemplateFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
     )
     as_attachment = forms.NullBooleanField(
         label=_('As attachment'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    debug = forms.NullBooleanField(
+        label=_('Debug'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES

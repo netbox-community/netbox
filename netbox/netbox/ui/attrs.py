@@ -10,6 +10,7 @@ __all__ = (
     'BooleanAttr',
     'ChoiceAttr',
     'ColorAttr',
+    'DateTimeAttr',
     'GPSCoordinatesAttr',
     'GenericForeignKeyAttr',
     'ImageAttr',
@@ -365,6 +366,26 @@ class GPSCoordinatesAttr(ObjectAttribute):
             'longitude': longitude,
             'map_url': self.map_url,
         })
+
+
+class DateTimeAttr(ObjectAttribute):
+    """
+    A date or datetime attribute.
+
+    Parameters:
+        spec (str): Controls the rendering format. Use 'date' for date-only rendering,
+                    or 'seconds'/'minutes' for datetime rendering with the given precision.
+    """
+    template_name = 'ui/attrs/datetime.html'
+
+    def __init__(self, *args, spec='seconds', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.spec = spec
+
+    def get_context(self, obj, context):
+        return {
+            'spec': self.spec,
+        }
 
 
 class TimezoneAttr(ObjectAttribute):

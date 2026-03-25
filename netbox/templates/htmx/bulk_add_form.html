@@ -1,0 +1,22 @@
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+{% if model_form.fieldsets %}
+  {% for fieldset in model_form.fieldsets %}
+    {% render_fieldset model_form fieldset %}
+  {% endfor %}
+{% else %}
+  <div class="field-group my-5">
+    {% render_form model_form %}
+  </div>
+{% endif %}
+
+{% if model_form.custom_fields %}
+    <div class="field-group my-5">
+        <div class="row">
+          <h2 class="col-9 offset-3">{% trans "Custom Fields" %}</h2>
+        </div>
+        {% render_custom_fields model_form %}
+    </div>
+{% endif %}

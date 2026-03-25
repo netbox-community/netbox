@@ -1878,7 +1878,7 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
     model = ModuleBay
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'position', name=_('Attributes')),
+        FieldSet('name', 'label', 'position', 'enabled', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
             'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
@@ -1886,23 +1886,33 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
         ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
-    tag = TagFilterField(model)
     position = forms.CharField(
         label=_('Position'),
         required=False
     )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
+    )
+    tag = TagFilterField(model)
 
 
 class ModuleBayTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
     model = ModuleBayTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', 'position', name=_('Attributes')),
+        FieldSet('name', 'label', 'position', 'enabled', name=_('Attributes')),
         FieldSet('device_type_id', 'module_type_id', name=_('Device')),
     )
     position = forms.CharField(
         label=_('Position'),
         required=False,
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
 
 
@@ -1910,13 +1920,18 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
     model = DeviceBay
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', name=_('Attributes')),
+        FieldSet('name', 'label', 'enabled', name=_('Attributes')),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet(
             'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
             name=_('Device')
         ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
     tag = TagFilterField(model)
 
@@ -1925,8 +1940,13 @@ class DeviceBayTemplateFilterForm(DeviceComponentTemplateFilterForm):
     model = DeviceBayTemplate
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('name', 'label', name=_('Attributes')),
+        FieldSet('name', 'label', 'enabled', name=_('Attributes')),
         FieldSet('device_type_id', name=_('Device')),
+    )
+    enabled = forms.NullBooleanField(
+        label=_('Enabled'),
+        required=False,
+        widget=forms.Select(choices=BOOLEAN_WITH_BLANK_CHOICES),
     )
 
 

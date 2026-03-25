@@ -697,6 +697,10 @@ class ConfigTemplateTable(NetBoxTable):
         verbose_name=_('As Attachment'),
         false_mark=None
     )
+    debug = columns.BooleanColumn(
+        verbose_name=_('Debug'),
+        false_mark=None
+    )
     owner = tables.Column(
         linkify=True,
         verbose_name=_('Owner')
@@ -728,7 +732,7 @@ class ConfigTemplateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
-            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'as_attachment',
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'as_attachment', 'debug',
             'mime_type', 'file_name', 'file_extension', 'role_count', 'platform_count', 'device_count',
             'vm_count', 'created', 'last_updated', 'tags',
         )

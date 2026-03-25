@@ -460,7 +460,7 @@ class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region', 'site_group', 'site', 'location', 'rack_group', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
-        FieldSet('contains_vid', name=_('VLANs')),
+        FieldSet('contains_vid', 'total_vlan_ids', name=_('VLANs')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -509,6 +509,11 @@ class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
         min_value=0,
         required=False,
         label=_('Contains VLAN ID')
+    )
+    total_vlan_ids = forms.IntegerField(
+        min_value=0,
+        required=False,
+        label=_('Total VLAN IDs')
     )
 
     tag = TagFilterField(model)

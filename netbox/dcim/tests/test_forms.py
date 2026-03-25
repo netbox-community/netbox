@@ -11,6 +11,7 @@ from dcim.choices import (
 from dcim.forms import *
 from dcim.models import *
 from ipam.models import VLAN
+from utilities.exceptions import AbortRequest
 from utilities.testing import create_test_device
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -173,6 +174,88 @@ class DeviceTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('position', form.errors)
+
+
+class VCPositionTokenFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.create(name='Site VC 1', slug='site-vc-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer VC 1', slug='manufacturer-vc-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type VC 1', slug='device-type-vc-1'
+        )
+        DeviceRole.objects.create(name='Device Role VC 1', slug='device-role-vc-1', color='ff0000')
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-{vc_position:0}/0/0',
+            type='1000base-t',
+        )
+        VirtualChassis.objects.create(name='VC 1')
+
+    def test_device_creation_in_vc_resolves_vc_position(self):
+        form = DeviceForm(data={
+            'name': 'Device VC Form 1',
+            'role': DeviceRole.objects.first().pk,
+            'tenant': None,
+            'manufacturer': Manufacturer.objects.first().pk,
+            'device_type': DeviceType.objects.first().pk,
+            'site': Site.objects.first().pk,
+            'rack': None,
+            'face': None,
+            'position': None,
+            'platform': None,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+            'virtual_chassis': VirtualChassis.objects.first().pk,
+            'vc_position': 2,
+        })
+        self.assertTrue(form.is_valid())
+        device = form.save()
+        self.assertTrue(device.interfaces.filter(name='ge-2/0/0').exists())
+
+    def test_device_creation_not_in_vc_uses_fallback(self):
+        form = DeviceForm(data={
+            'name': 'Device VC Form 2',
+            'role': DeviceRole.objects.first().pk,
+            'tenant': None,
+            'manufacturer': Manufacturer.objects.first().pk,
+            'device_type': DeviceType.objects.first().pk,
+            'site': Site.objects.first().pk,
+            'rack': None,
+            'face': None,
+            'position': None,
+            'platform': None,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+        })
+        self.assertTrue(form.is_valid())
+        device = form.save()
+        self.assertTrue(device.interfaces.filter(name='ge-0/0/0').exists())
+
+    def test_device_creation_duplicate_name_conflict(self):
+        # With conflict
+        device_type = DeviceType.objects.first()
+        # to generate conflicts create an interface that will exist
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-0/0/0',
+            type='1000base-t',
+        )
+        form = DeviceForm(data={
+            'name': 'Device VC Form 3',
+            'role': DeviceRole.objects.first().pk,
+            'tenant': None,
+            'manufacturer': Manufacturer.objects.first().pk,
+            'device_type': device_type.pk,
+            'site': Site.objects.first().pk,
+            'rack': None,
+            'face': None,
+            'position': None,
+            'platform': None,
+            'status': DeviceStatusChoices.STATUS_ACTIVE,
+        })
+        self.assertTrue(form.is_valid())
+        with self.assertRaises(AbortRequest):
+            form.save()
 
 
 class FrontPortTestCase(TestCase):

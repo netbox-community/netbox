@@ -1714,7 +1714,9 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
                 slug='vlan-group-8'
             ),
         )
-        VLANGroup.objects.bulk_create(vlan_groups)
+        # Ensure the total_vlan_ids field is populated
+        for vlan_group in vlan_groups:
+            vlan_group.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -1741,6 +1743,12 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'contains_vid': 4095}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_total_vlan_ids(self):
+        params = {'total_vlan_ids': [110]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
+        params = {'total_vlan_ids': [4094]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_region(self):
         params = {'region': Region.objects.first().pk}

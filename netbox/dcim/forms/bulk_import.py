@@ -1154,7 +1154,13 @@ class ModuleBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
     class Meta:
         model = ModuleBay
-        fields = ('device', 'name', 'label', 'position', 'description', 'owner', 'tags')
+        fields = ('device', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags')
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' not in self.data:
+            return True
+        return self.cleaned_data['enabled']
 
 
 class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -1176,7 +1182,7 @@ class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
     class Meta:
         model = DeviceBay
-        fields = ('device', 'name', 'label', 'installed_device', 'description', 'owner', 'tags')
+        fields = ('device', 'name', 'label', 'enabled', 'installed_device', 'description', 'owner', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1203,6 +1209,12 @@ class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             ).exclude(pk=device.pk)
         else:
             self.fields['installed_device'].queryset = Device.objects.none()
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' not in self.data:
+            return True
+        return self.cleaned_data['enabled']
 
 
 class InventoryItemImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -1558,8 +1570,11 @@ class CableImportForm(PrimaryModelImportForm):
 
         model = content_type.model_class()
         try:
-            if device.virtual_chassis and device.virtual_chassis.master == device and \
-                    model.objects.filter(device=device, name=name).count() == 0:
+            if (
+                device.virtual_chassis and
+                device.virtual_chassis.master == device and
+                not model.objects.filter(device=device, name=name).exists()
+            ):
                 termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
             else:
                 termination_object = model.objects.get(device=device, name=name)

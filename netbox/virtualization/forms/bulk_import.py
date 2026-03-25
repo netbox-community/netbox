@@ -74,8 +74,8 @@ class ClusterImportForm(ScopedImportForm, PrimaryModelImportForm):
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'scope_type', 'scope_id', 'tenant', 'description', 'owner', 'comments',
-            'tags',
+            'name', 'type', 'group', 'status', 'scope_type', 'scope_name', 'scope_id', 'tenant', 'description', 'owner',
+            'comments', 'tags',
         )
         labels = {
             'scope_id': _('Scope ID'),

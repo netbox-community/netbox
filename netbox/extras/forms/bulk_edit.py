@@ -392,6 +392,11 @@ class ConfigTemplateBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
+    debug = forms.NullBooleanField(
+        label=_('Debug'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
     auto_sync_enabled = forms.NullBooleanField(
         label=_('Auto sync enabled'),
         required=False,
