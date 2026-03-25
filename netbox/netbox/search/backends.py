@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 import netaddr
@@ -24,6 +25,8 @@ from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
 MAX_RESULTS = 1000
+
+logger = logging.getLogger(__name__)
 
 
 class SearchBackend:
@@ -66,8 +69,9 @@ class SearchBackend:
         """
         try:
             self.cache(instance, remove_existing=not created)
-        except (ProgrammingError, OperationalError):
+        except (ProgrammingError, OperationalError) as e:
             # The schema may be incomplete during migrations; skip caching.
+            logger.warning(f"Skipping search cache update due to schema error: {e}")
             pass
 
     def removal_handler(self, sender, instance, **kwargs):
