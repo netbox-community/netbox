@@ -1293,7 +1293,9 @@ class RackReservationImportView(generic.BulkImportView):
 
 @register_model_view(RackReservation, 'bulk_edit', path='edit', detail=False)
 class RackReservationBulkEditView(generic.BulkEditView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.annotate(
+        unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+    )
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
     form = forms.RackReservationBulkEditForm
@@ -1301,7 +1303,9 @@ class RackReservationBulkEditView(generic.BulkEditView):
 
 @register_model_view(RackReservation, 'bulk_delete', path='delete', detail=False)
 class RackReservationBulkDeleteView(generic.BulkDeleteView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.annotate(
+        unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+    )
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
 
