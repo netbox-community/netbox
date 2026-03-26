@@ -279,8 +279,8 @@ class ObjectChangeView(generic.ObjectView):
                 exclude=['last_updated'],
             )
         else:
-            diff_added = None
-            diff_removed = None
+            diff_added = {}
+            diff_removed = {}
 
         return {
             'diff_added': diff_added,
