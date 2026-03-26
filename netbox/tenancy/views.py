@@ -5,7 +5,13 @@ from django.utils.translation import gettext_lazy as _
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.object_actions import BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
-from netbox.ui.panels import CommentsPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, RelatedObjectsPanel
+from netbox.ui.panels import (
+    CommentsPanel,
+    NestedGroupObjectPanel,
+    ObjectsTablePanel,
+    OrganizationalObjectPanel,
+    RelatedObjectsPanel,
+)
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
