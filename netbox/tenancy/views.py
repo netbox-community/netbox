@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.object_actions import BulkDelete, BulkEdit, BulkExport, BulkImport
 from netbox.ui import actions, layout
-from netbox.ui.panels import CommentsPanel, ObjectsTablePanel, RelatedObjectsPanel
+from netbox.ui.panels import CommentsPanel, NestedGroupObjectPanel, ObjectsTablePanel, OrganizationalObjectPanel, RelatedObjectsPanel
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
@@ -38,7 +38,7 @@ class TenantGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = TenantGroup.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.TenantGroupPanel(),
+            NestedGroupObjectPanel(),
             TagsPanel(),
             CommentsPanel(),
         ],
@@ -56,7 +56,6 @@ class TenantGroupView(GetRelatedModelsMixin, generic.ObjectView):
                         'tenancy.tenantgroup',
                         url_params={'parent': lambda ctx: ctx['object'].pk},
                         label=_('Add Tenant Group'),
-                        button_class='ghost-primary',
                     ),
                 ],
             ),
@@ -217,7 +216,7 @@ class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactGroup.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.ContactGroupPanel(),
+            NestedGroupObjectPanel(),
             TagsPanel(),
             CommentsPanel(),
         ],
@@ -235,7 +234,6 @@ class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
                         'tenancy.contactgroup',
                         url_params={'parent': lambda ctx: ctx['object'].pk},
                         label=_('Add Contact Group'),
-                        button_class='ghost-primary',
                     ),
                 ],
             ),
@@ -324,7 +322,7 @@ class ContactRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactRole.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.ContactRolePanel(),
+            OrganizationalObjectPanel(),
             TagsPanel(),
         ],
         right_panels=[

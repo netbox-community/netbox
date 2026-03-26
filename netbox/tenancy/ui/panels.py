@@ -3,21 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from netbox.ui import attrs, panels
 
 
-class TenantGroupPanel(panels.NestedGroupObjectPanel):
-    pass
-
-
 class TenantPanel(panels.ObjectAttributesPanel):
     group = attrs.RelatedObjectAttr('group', linkify=True)
     description = attrs.TextAttr('description')
-
-
-class ContactGroupPanel(panels.NestedGroupObjectPanel):
-    pass
-
-
-class ContactRolePanel(panels.OrganizationalObjectPanel):
-    pass
 
 
 class ContactPanel(panels.ObjectAttributesPanel):
