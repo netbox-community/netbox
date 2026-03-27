@@ -661,8 +661,15 @@ CENSUS_URL = 'https://census.netbox.oss.netboxlabs.com/api/v1/'
 # NetBox Copilot
 #
 
-NETBOX_COPILOT_URL = 'https://static.copilot.netboxlabs.ai/load.js'
+NETBOX_COPILOT_URL = getattr(configuration, 'NETBOX_COPILOT_URL', 'https://static.copilot.netboxlabs.ai/load.js')
 
+if NETBOX_COPILOT_URL:
+    try:
+        URLValidator()(NETBOX_COPILOT_URL)
+    except ValidationError:
+        raise ImproperlyConfigured(
+            "NETBOX_COPILOT_URL must be a valid URL. Example: https://static.copilot.netboxlabs.ai/load.js"
+        )
 
 #
 # Django social auth
