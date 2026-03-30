@@ -979,7 +979,7 @@ class ConfigContextProfileView(generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            panels.ConfigContextProfileSchemaPanel(),
+            JSONPanel('schema', title=_('JSON Schema')),
         ],
     )
 

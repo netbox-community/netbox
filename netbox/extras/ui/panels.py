@@ -3,14 +3,12 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, attrs, panels
-from netbox.ui.actions import CopyContent
 from utilities.data import resolve_attr_path
 
 __all__ = (
     'ConfigContextAssignmentPanel',
     'ConfigContextPanel',
     'ConfigContextProfilePanel',
-    'ConfigContextProfileSchemaPanel',
     'ConfigTemplatePanel',
     'CustomFieldBehaviorPanel',
     'CustomFieldChoiceSetChoicesPanel',
@@ -130,47 +128,48 @@ class ObjectTypesPanel(panels.ObjectPanel):
 
 class CustomFieldPanel(panels.ObjectAttributesPanel):
     title = _('Custom Field')
+
     name = attrs.TextAttr('name')
     type = attrs.TemplatedAttr('type', label=_('Type'), template_name='extras/customfield/attrs/type.html')
     label = attrs.TextAttr('label')
-    group_name = attrs.TextAttr('group_name', label=_('Group Name'))
+    group_name = attrs.TextAttr('group_name', label=_('Group name'))
     description = attrs.TextAttr('description')
     required = attrs.BooleanAttr('required')
-    unique = attrs.BooleanAttr('unique', label=_('Must be Unique'))
+    unique = attrs.BooleanAttr('unique', label=_('Must be unique'))
     is_cloneable = attrs.BooleanAttr('is_cloneable', label=_('Cloneable'))
     choice_set = attrs.TemplatedAttr(
         'choice_set',
-        label=_('Choice Set'),
         template_name='extras/customfield/attrs/choice_set.html',
     )
-    default = attrs.TextAttr('default', label=_('Default Value'))
+    default = attrs.TextAttr('default', label=_('Default value'))
     related_object_filter = attrs.TemplatedAttr(
         'related_object_filter',
-        label=_('Related object filter'),
         template_name='extras/customfield/attrs/related_object_filter.html',
     )
 
 
 class CustomFieldBehaviorPanel(panels.ObjectAttributesPanel):
     title = _('Behavior')
+
     search_weight = attrs.TemplatedAttr(
         'search_weight',
         label=_('Search Weight'),
         template_name='extras/customfield/attrs/search_weight.html',
     )
-    filter_logic = attrs.ChoiceAttr('filter_logic', label=_('Filter Logic'))
-    weight = attrs.NumericAttr('weight', label=_('Display Weight'))
-    ui_visible = attrs.ChoiceAttr('ui_visible', label=_('UI Visible'))
-    ui_editable = attrs.ChoiceAttr('ui_editable', label=_('UI Editable'))
+    filter_logic = attrs.ChoiceAttr('filter_logic')
+    weight = attrs.NumericAttr('weight')
+    ui_visible = attrs.ChoiceAttr('ui_visible', label=_('UI visible'))
+    ui_editable = attrs.ChoiceAttr('ui_editable', label=_('UI editable'))
 
 
 class CustomFieldValidationPanel(panels.ObjectAttributesPanel):
     title = _('Validation Rules')
-    validation_minimum = attrs.NumericAttr('validation_minimum', label=_('Minimum Value'))
-    validation_maximum = attrs.NumericAttr('validation_maximum', label=_('Maximum Value'))
+
+    validation_minimum = attrs.NumericAttr('validation_minimum', label=_('Minimum value'))
+    validation_maximum = attrs.NumericAttr('validation_maximum', label=_('Maximum value'))
     validation_regex = attrs.TextAttr(
         'validation_regex',
-        label=_('Regular Expression'),
+        label=_('Regular expression'),
         style='font-monospace',
     )
 
@@ -197,10 +196,11 @@ class CustomFieldRelatedObjectsPanel(panels.ObjectPanel):
 
 class CustomFieldChoiceSetPanel(panels.ObjectAttributesPanel):
     title = _('Custom Field Choice Set')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
-    base_choices = attrs.ChoiceAttr('base_choices', label=_('Base Choices'))
-    order_alphabetically = attrs.BooleanAttr('order_alphabetically', label=_('Order Alphabetically'))
+    base_choices = attrs.ChoiceAttr('base_choices')
+    order_alphabetically = attrs.BooleanAttr('order_alphabetically')
     choices_for = attrs.RelatedObjectListAttr('choices_for', linkify=True, label=_('Used by'))
 
 
@@ -223,12 +223,13 @@ class CustomFieldChoiceSetChoicesPanel(panels.ObjectPanel):
 
 class CustomLinkPanel(panels.ObjectAttributesPanel):
     title = _('Custom Link')
+
     name = attrs.TextAttr('name')
     enabled = attrs.BooleanAttr('enabled')
-    group_name = attrs.TextAttr('group_name', label=_('Group Name'))
+    group_name = attrs.TextAttr('group_name')
     weight = attrs.NumericAttr('weight')
-    button_class = attrs.ChoiceAttr('button_class', label=_('Button Class'))
-    new_window = attrs.BooleanAttr('new_window', label=_('New Window'))
+    button_class = attrs.ChoiceAttr('button_class')
+    new_window = attrs.BooleanAttr('new_window')
 
 
 #
@@ -237,11 +238,12 @@ class CustomLinkPanel(panels.ObjectAttributesPanel):
 
 class ExportTemplatePanel(panels.ObjectAttributesPanel):
     title = _('Export Template')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
-    mime_type = attrs.TextAttr('mime_type', label=_('MIME Type'))
-    file_name = attrs.TextAttr('file_name', label=_('File Name'))
-    file_extension = attrs.TextAttr('file_extension', label=_('File Extension'))
+    mime_type = attrs.TextAttr('mime_type', label=_('MIME type'))
+    file_name = attrs.TextAttr('file_name')
+    file_extension = attrs.TextAttr('file_extension')
     as_attachment = attrs.BooleanAttr('as_attachment', label=_('Attachment'))
 
 
@@ -251,6 +253,7 @@ class ExportTemplatePanel(panels.ObjectAttributesPanel):
 
 class SavedFilterPanel(panels.ObjectAttributesPanel):
     title = _('Saved Filter')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
     user = attrs.TextAttr('user')
@@ -270,9 +273,10 @@ class SavedFilterObjectTypesPanel(panels.ObjectPanel):
 
 class TableConfigPanel(panels.ObjectAttributesPanel):
     title = _('Table Config')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
-    object_type = attrs.TextAttr('object_type', label=_('Object Type'))
+    object_type = attrs.TextAttr('object_type')
     table = attrs.TextAttr('table')
     user = attrs.TextAttr('user')
     enabled = attrs.BooleanAttr('enabled')
@@ -328,22 +332,25 @@ class NotificationGroupUsersPanel(panels.ObjectPanel):
 
 class WebhookPanel(panels.ObjectAttributesPanel):
     title = _('Webhook')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
 
 
 class WebhookHTTPPanel(panels.ObjectAttributesPanel):
     title = _('HTTP Request')
-    http_method = attrs.ChoiceAttr('http_method', label=_('HTTP Method'))
+
+    http_method = attrs.ChoiceAttr('http_method', label=_('HTTP method'))
     payload_url = attrs.TextAttr('payload_url', label=_('Payload URL'), style='font-monospace')
-    http_content_type = attrs.TextAttr('http_content_type', label=_('HTTP Content Type'))
-    secret = attrs.TextAttr('secret', label=_('Secret'))
+    http_content_type = attrs.TextAttr('http_content_type', label=_('HTTP content type'))
+    secret = attrs.TextAttr('secret')
 
 
 class WebhookSSLPanel(panels.ObjectAttributesPanel):
     title = _('SSL')
-    ssl_verification = attrs.BooleanAttr('ssl_verification', label=_('SSL Verification'))
-    ca_file_path = attrs.TextAttr('ca_file_path', label=_('CA File Path'))
+
+    ssl_verification = attrs.BooleanAttr('ssl_verification', label=_('SSL verification'))
+    ca_file_path = attrs.TextAttr('ca_file_path', label=_('CA file path'))
 
 
 #
@@ -352,6 +359,7 @@ class WebhookSSLPanel(panels.ObjectAttributesPanel):
 
 class EventRulePanel(panels.ObjectAttributesPanel):
     title = _('Event Rule')
+
     name = attrs.TextAttr('name')
     enabled = attrs.BooleanAttr('enabled')
     description = attrs.TextAttr('description')
@@ -370,6 +378,7 @@ class EventRuleEventTypesPanel(panels.ObjectPanel):
 
 class EventRuleActionPanel(panels.ObjectAttributesPanel):
     title = _('Action')
+
     action_type = attrs.ChoiceAttr('action_type', label=_('Type'))
     action_object = attrs.RelatedObjectAttr('action_object', linkify=True, label=_('Object'))
     action_data = attrs.TemplatedAttr(
@@ -385,6 +394,7 @@ class EventRuleActionPanel(panels.ObjectAttributesPanel):
 
 class TagPanel(panels.ObjectAttributesPanel):
     title = _('Tag')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
     color = attrs.ColorAttr('color')
@@ -418,17 +428,9 @@ class TagItemTypesPanel(panels.ObjectPanel):
 
 class ConfigContextProfilePanel(panels.ObjectAttributesPanel):
     title = _('Config Context Profile')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
-
-
-class ConfigContextProfileSchemaPanel(panels.ObjectPanel):
-    template_name = 'extras/panels/configcontextprofile_schema.html'
-    title = _('JSON Schema')
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.actions = [CopyContent('schema')]
 
 
 #
@@ -437,6 +439,7 @@ class ConfigContextProfileSchemaPanel(panels.ObjectPanel):
 
 class ConfigContextPanel(panels.ObjectAttributesPanel):
     title = _('Config Context')
+
     name = attrs.TextAttr('name')
     weight = attrs.NumericAttr('weight')
     profile = attrs.RelatedObjectAttr('profile', linkify=True)
@@ -461,20 +464,20 @@ class ConfigContextAssignmentPanel(panels.ObjectPanel):
 
 class ConfigTemplatePanel(panels.ObjectAttributesPanel):
     title = _('Config Template')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
-    mime_type = attrs.TextAttr('mime_type', label=_('MIME Type'))
-    file_name = attrs.TextAttr('file_name', label=_('File Name'))
-    file_extension = attrs.TextAttr('file_extension', label=_('File Extension'))
+    mime_type = attrs.TextAttr('mime_type', label=_('MIME type'))
+    file_name = attrs.TextAttr('file_name')
+    file_extension = attrs.TextAttr('file_extension')
     as_attachment = attrs.BooleanAttr('as_attachment', label=_('Attachment'))
-    data_source = attrs.RelatedObjectAttr('data_source', linkify=True, label=_('Data Source'))
+    data_source = attrs.RelatedObjectAttr('data_source', linkify=True)
     data_file = attrs.TemplatedAttr(
         'data_path',
-        label=_('Data File'),
         template_name='extras/configtemplate/attrs/data_file.html',
     )
-    data_synced = attrs.DateTimeAttr('data_synced', label=_('Data Synced'))
-    auto_sync_enabled = attrs.BooleanAttr('auto_sync_enabled', label=_('Auto Sync Enabled'))
+    data_synced = attrs.DateTimeAttr('data_synced')
+    auto_sync_enabled = attrs.BooleanAttr('auto_sync_enabled')
 
 
 #
@@ -483,6 +486,7 @@ class ConfigTemplatePanel(panels.ObjectAttributesPanel):
 
 class ImageAttachmentPanel(panels.ObjectAttributesPanel):
     title = _('Image Attachment')
+
     parent = attrs.RelatedObjectAttr('parent', linkify=True, label=_('Parent Object'))
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
@@ -504,7 +508,8 @@ class ImageAttachmentImagePanel(panels.ObjectPanel):
 
 class JournalEntryPanel(panels.ObjectAttributesPanel):
     title = _('Journal Entry')
+
     assigned_object = attrs.RelatedObjectAttr('assigned_object', linkify=True, label=_('Object'))
     created = attrs.DateTimeAttr('created', spec='minutes')
-    created_by = attrs.TextAttr('created_by', label=_('Created By'))
+    created_by = attrs.TextAttr('created_by')
     kind = attrs.ChoiceAttr('kind')
