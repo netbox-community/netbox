@@ -284,12 +284,7 @@ class ScriptViewSet(ModelViewSet):
 
         # Restrict the view's QuerySet to allow only the permitted objects
         if request.user.is_authenticated and self.action != 'create':
-            if self.action == 'destroy':
-                perm_action = 'delete'
-            elif request.method == 'POST':
-                perm_action = 'run'
-            else:
-                perm_action = 'view'
+            perm_action = 'run' if request.method == 'POST' else 'view'
             self.queryset = self.queryset.restrict(request.user, perm_action)
 
     def create(self, request, *args, **kwargs):
@@ -320,9 +315,11 @@ class ScriptViewSet(ModelViewSet):
         raise MethodNotAllowed(request.method)
 
     def destroy(self, request, *args, **kwargs):
-        if not request.user.has_perm('extras.delete_script'):
-            raise PermissionDenied(_("This user does not have permission to delete scripts."))
-        return super().destroy(request, *args, **kwargs)
+        if not request.user.has_perm('extras.delete_scriptmodule'):
+            raise PermissionDenied(_("This user does not have permission to delete script modules."))
+        script = self._get_script(kwargs[self.lookup_field])
+        script.module.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
