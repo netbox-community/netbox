@@ -22,7 +22,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
-    ignore_fields = ('default', 'related_object_filter')
+    ignore_fields = ('default', 'related_object_filter', 'validation_schema')
 
     @classmethod
     def setUpTestData(cls):

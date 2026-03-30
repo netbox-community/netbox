@@ -7,7 +7,7 @@ from netbox.events import get_event_type_choices
 from netbox.forms import NetBoxModelBulkEditForm, PrimaryModelBulkEditForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from utilities.forms import BulkEditForm, add_blank_choice
-from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField
+from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, JSONField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
@@ -88,7 +88,7 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
         label=_('Validation regex'),
         required=False
     )
-    validation_schema = forms.JSONField(
+    validation_schema = JSONField(
         label=_('Validation schema'),
         required=False
     )
@@ -102,7 +102,7 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
             name=_('Validation')
         ),
     )
-    nullable_fields = ('group_name', 'description', 'choice_set')
+    nullable_fields = ('group_name', 'description', 'choice_set', 'validation_schema')
 
 
 class CustomFieldChoiceSetBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):

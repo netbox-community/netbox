@@ -160,8 +160,6 @@ def validate_schema(schema):
     # Provide some basic sanity checking (not provided by jsonschema)
     if type(schema) is not dict:
         raise ValidationError(_("Invalid JSON schema definition"))
-    if not schema.get('properties'):
-        raise ValidationError(_("JSON schema must define properties"))
     try:
         ValidatorClass = validator_for(schema)
         ValidatorClass.check_schema(schema)
