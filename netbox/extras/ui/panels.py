@@ -156,7 +156,7 @@ class CustomFieldBehaviorPanel(panels.ObjectAttributesPanel):
         template_name='extras/customfield/attrs/search_weight.html',
     )
     filter_logic = attrs.ChoiceAttr('filter_logic')
-    weight = attrs.NumericAttr('weight')
+    weight = attrs.NumericAttr('weight', label=_('Display weight'))
     ui_visible = attrs.ChoiceAttr('ui_visible', label=_('UI visible'))
     ui_editable = attrs.ChoiceAttr('ui_editable', label=_('UI editable'))
 
