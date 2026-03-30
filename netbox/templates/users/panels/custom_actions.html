@@ -1,0 +1,20 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    {% for action, models in custom_actions %}
+      <tr>
+        <th scope="row">{{ action }}</th>
+        <td>
+          <div class="d-flex justify-content-between align-items-start">
+            {% checkmark True %}
+            {% if models %}
+              <small class="text-muted">{{ models }}</small>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock panel_content %}

@@ -1,6 +1,8 @@
 from django.utils.translation import gettext_lazy as _
 
+from netbox.registry import registry
 from netbox.ui import actions, attrs, panels
+from users.constants import RESERVED_ACTIONS
 
 
 class TokenPanel(panels.ObjectAttributesPanel):
@@ -52,6 +54,46 @@ class ObjectPermissionActionsPanel(panels.ObjectAttributesPanel):
     can_add = attrs.BooleanAttr('can_add', label=_('Add'))
     can_change = attrs.BooleanAttr('can_change', label=_('Change'))
     can_delete = attrs.BooleanAttr('can_delete', label=_('Delete'))
+
+
+class ObjectPermissionCustomActionsPanel(panels.ObjectPanel):
+    """
+    A panel which displays non-CRUD (custom) actions assigned to an ObjectPermission.
+    """
+    template_name = 'users/panels/custom_actions.html'
+    title = _('Custom Actions')
+
+    def get_context(self, context):
+        obj = context['object']
+        custom_actions = [a for a in obj.actions if a not in RESERVED_ACTIONS]
+
+        # Build a list of (action_name, model_labels) tuples from the registry,
+        # scoped to the object types assigned to this permission.
+        assigned_types = {
+            f'{ot.app_label}.{ot.model}' for ot in obj.object_types.all()
+        }
+        action_models = {}
+        for model_key, model_actions in registry['model_actions'].items():
+            if model_key in assigned_types:
+                for action in model_actions:
+                    if action.name in custom_actions:
+                        action_models.setdefault(action.name, []).append(model_key)
+
+        custom_actions_display = [
+            (action, ', '.join(action_models.get(action, [])))
+            for action in custom_actions
+        ]
+
+        return {
+            **super().get_context(context),
+            'custom_actions': custom_actions_display,
+        }
+
+    def render(self, context):
+        ctx = self.get_context(context)
+        if not ctx['custom_actions']:
+            return ''
+        return super().render(context)
 
 
 class OwnerPanel(panels.ObjectAttributesPanel):

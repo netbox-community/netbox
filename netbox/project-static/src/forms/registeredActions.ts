@@ -30,13 +30,20 @@ export function initRegisteredActions(): void {
       const enabled = modelKey !== null && selectedModels.has(modelKey);
       const el = group as HTMLElement;
 
-      el.style.opacity = enabled ? '1' : '0.4';
-
-      // Toggle disabled on checkboxes within the group
+      // Toggle disabled on checkboxes, overriding Bootstrap's disabled opacity
+      // to keep them visible in dark mode
       for (const checkbox of Array.from(
         el.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
       )) {
         checkbox.disabled = !enabled;
+        checkbox.style.opacity = enabled ? '' : '0.75';
+      }
+
+      // Fade text for disabled groups
+      for (const label of Array.from(
+        el.querySelectorAll<HTMLElement>('small, .form-check-label'),
+      )) {
+        label.style.opacity = enabled ? '' : '0.5';
       }
     });
   }
