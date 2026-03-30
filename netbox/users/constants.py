@@ -10,8 +10,9 @@ OBJECTPERMISSION_OBJECT_TYPES = (
 
 CONSTRAINT_TOKEN_USER = '$user'
 
-# Built-in actions that receive special handling (dedicated checkboxes, model properties)
-# and should not be registered as custom model actions.
+# Django's four default model permissions. These receive special handling
+# (dedicated checkboxes, model properties) and should not be registered
+# as custom model actions.
 RESERVED_ACTIONS = ('view', 'add', 'change', 'delete')
 
 # API tokens
