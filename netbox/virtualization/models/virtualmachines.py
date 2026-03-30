@@ -20,16 +20,88 @@ from utilities.fields import CounterCacheField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.tracking import TrackingModelMixin
-from virtualization.choices import *
+
+from ..choices import *
 
 __all__ = (
     'VMInterface',
     'VirtualDisk',
     'VirtualMachine',
+    'VirtualMachineType',
 )
 
 
-class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, ConfigContextModel, PrimaryModel):
+class VirtualMachineType(ImageAttachmentsMixin, PrimaryModel):
+    """
+    A type defining default attributes (platform, vCPUs, memory, etc.) for virtual machines.
+    """
+
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+    )
+    slug = models.SlugField(
+        verbose_name=_('slug'),
+        max_length=100,
+    )
+    default_platform = models.ForeignKey(
+        to='dcim.Platform',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name=_('default platform'),
+    )
+    default_vcpus = models.DecimalField(
+        verbose_name=_('default vCPUs'),
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=(MinValueValidator(decimal.Decimal('0.01')),),
+    )
+    default_memory = models.PositiveIntegerField(
+        verbose_name=_('default memory (MB)'),
+        blank=True,
+        null=True,
+    )
+
+    # Counter fields
+    virtual_machine_count = CounterCacheField(
+        to_model='virtualization.VirtualMachine',
+        to_field='virtual_machine_type',
+    )
+
+    clone_fields = (
+        'default_platform',
+        'default_vcpus',
+        'default_memory',
+    )
+
+    class Meta:
+        ordering = ('name',)
+        constraints = (
+            models.UniqueConstraint(
+                Lower('name'),
+                name='%(app_label)s_%(class)s_unique_name',
+                violation_error_message=_('Virtual machine type name must be unique.'),
+            ),
+            models.UniqueConstraint(
+                fields=('slug',),
+                name='%(app_label)s_%(class)s_unique_slug',
+                violation_error_message=_('Virtual machine type slug must be unique.'),
+            ),
+        )
+        verbose_name = _('virtual machine type')
+        verbose_name_plural = _('virtual machine types')
+
+    def __str__(self):
+        return self.name
+
+
+class VirtualMachine(
+    ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, ConfigContextModel, TrackingModelMixin, PrimaryModel
+):
     """
     A virtual machine which runs on a Cluster or a standalone Device.
 
@@ -42,6 +114,15 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     When a Cluster or Device is set, the Site is automatically inherited if not explicitly provided.
     If a Device belongs to a Cluster, the Cluster must also be specified on the VM.
     """
+
+    virtual_machine_type = models.ForeignKey(
+        to='virtualization.VirtualMachineType',
+        on_delete=models.PROTECT,
+        related_name='instances',
+        verbose_name=_('type'),
+        blank=True,
+        null=True,
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
@@ -162,7 +243,8 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = (
-        'site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory', 'disk',
+        'virtual_machine_type', 'site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'vcpus', 'memory',
+        'disk',
     )
 
     class Meta:
@@ -282,7 +364,28 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
             elif self.device and self.device.site:
                 self.site = self.device.site
 
+        if self._state.adding:
+            self.apply_type_defaults()
+
         super().save(*args, **kwargs)
+
+    def apply_type_defaults(self):
+        """
+        Populate any empty fields with defaults from the assigned VirtualMachineType.
+        """
+        if not self.virtual_machine_type_id:
+            return
+
+        defaults = {
+            'platform_id': 'default_platform_id',
+            'vcpus': 'default_vcpus',
+            'memory': 'default_memory',
+        }
+        for field, default_field in defaults.items():
+            if getattr(self, field) is None:
+                default_value = getattr(self.virtual_machine_type, default_field)
+                if default_value is not None:
+                    setattr(self, field, default_value)
 
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)

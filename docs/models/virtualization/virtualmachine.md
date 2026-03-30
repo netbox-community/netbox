@@ -13,6 +13,12 @@ The virtual machine's configured name. Must be unique within its scoping context
 - If assigned to a **cluster**: unique within the cluster and tenant.
 - If assigned to a **device** (no cluster): unique within the device and tenant.
 
+### Type
+
+The [virtual machine type](./virtualmachinetype.md) assigned to the VM. A type classifies a virtual machine and can provide default values for platform, vCPUs, and memory when the VM is created.
+
+Changes made to a virtual machine type do **not** apply retroactively to existing virtual machines.
+
 ### Role
 
 The functional role assigned to the VM.
@@ -45,7 +51,7 @@ The location or host for this VM. At least one must be specified:
 
 ### Platform
 
-A VM may be associated with a particular [platform](../dcim/platform.md) to indicate its operating system.
+A VM may be associated with a particular [platform](../dcim/platform.md) to indicate its operating system. If a virtual machine type defines a default platform, it will be applied when the VM is created unless an explicit platform is specified.
 
 ### Primary IPv4 & IPv6 Addresses
 
@@ -56,11 +62,11 @@ Each VM may designate one primary IPv4 address and/or one primary IPv6 address f
 
 ### vCPUs
 
-The number of virtual CPUs provisioned. A VM may be allocated a partial vCPU count (e.g. 1.5 vCPU).
+The number of virtual CPUs provisioned. A VM may be allocated a partial vCPU count (e.g. 1.5 vCPU). If a virtual machine type defines a default vCPU allocation, it will be applied when the VM is created unless an explicit value is specified.
 
 ### Memory
 
-The amount of running memory provisioned, in megabytes.
+The amount of running memory provisioned, in megabytes. If a virtual machine type defines a default memory allocation, it will be applied when the VM is created unless an explicit value is specified.
 
 ### Disk
 

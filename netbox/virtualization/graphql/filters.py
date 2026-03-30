@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, FilterLookup, StrFilterLookup
+from strawberry_django import BaseFilterLookup, ComparisonFilterLookup, FilterLookup, StrFilterLookup
 
 from dcim.graphql.filter_mixins import InterfaceBaseFilterMixin, RenderConfigFilterMixin, ScopedFilterMixin
 from extras.graphql.filter_mixins import ConfigContextFilterMixin
@@ -34,6 +34,7 @@ __all__ = (
     'VMInterfaceFilter',
     'VirtualDiskFilter',
     'VirtualMachineFilter',
+    'VirtualMachineTypeFilter',
 )
 
 
@@ -68,6 +69,24 @@ class ClusterTypeFilter(OrganizationalModelFilter):
     pass
 
 
+@strawberry_django.filter_type(models.VirtualMachineType, lookups=True)
+class VirtualMachineTypeFilter(ImageAttachmentFilterMixin, PrimaryModelFilter):
+    default_platform: Annotated['PlatformFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    default_platform_id: ID | None = strawberry_django.filter_field()
+    default_vcpus: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    default_memory: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    instances: Annotated['VirtualMachineFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    virtual_machine_count: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
+
+
 @strawberry_django.filter_type(models.VirtualMachine, lookups=True)
 class VirtualMachineFilter(
     ContactFilterMixin,
@@ -78,6 +97,9 @@ class VirtualMachineFilter(
     PrimaryModelFilter,
 ):
     name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    virtual_machine_type: (
+        Annotated['VirtualMachineTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None
+    ) = strawberry_django.filter_field()
     site: Annotated['SiteFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     site_id: ID | None = strawberry_django.filter_field()
     cluster: Annotated['ClusterFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (

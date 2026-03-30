@@ -1,0 +1,10 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+
+{% block extra_controls %}
+  {% if perms.virtualization.add_virtualmachine %}
+    <a href="{% url 'virtualization:virtualmachine_add' %}?virtual_machine_type={{ object.pk }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Virtual Machine" %}
+    </a>
+  {% endif %}
+{% endblock extra_controls %}

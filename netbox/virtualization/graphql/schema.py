@@ -4,7 +4,7 @@ import strawberry_django
 from .types import *
 
 
-@strawberry.type(name="Query")
+@strawberry.type(name='Query')
 class VirtualizationQuery:
     cluster: ClusterType = strawberry_django.field()
     cluster_list: list[ClusterType] = strawberry_django.field()
@@ -14,6 +14,9 @@ class VirtualizationQuery:
 
     cluster_type: ClusterTypeType = strawberry_django.field()
     cluster_type_list: list[ClusterTypeType] = strawberry_django.field()
+
+    virtual_machine_type: VirtualMachineTypeType = strawberry_django.field()
+    virtual_machine_type_list: list[VirtualMachineTypeType] = strawberry_django.field()
 
     virtual_machine: VirtualMachineType = strawberry_django.field()
     virtual_machine_list: list[VirtualMachineType] = strawberry_django.field()

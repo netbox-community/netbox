@@ -288,6 +288,7 @@ nav:
             - VMInterface: 'models/virtualization/vminterface.md'
             - VirtualDisk: 'models/virtualization/virtualdisk.md'
             - VirtualMachine: 'models/virtualization/virtualmachine.md'
+            - VirtualMachineType: 'models/virtualization/virtualmachinetype.md'
         - VPN:
             - IKEPolicy: 'models/vpn/ikepolicy.md'
             - IKEProposal: 'models/vpn/ikeproposal.md'
