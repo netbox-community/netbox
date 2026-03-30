@@ -1,5 +1,8 @@
+import os
+
 from django.core.files.storage import storages
 from django.db import IntegrityError
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -75,10 +78,26 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         storage = storages.create_storage(storages.backends["scripts"])
         validated_data['file_path'] = storage.save(upload_file.name, upload_file)
 
+    def _sync_data_file(self, data_file, validated_data):
+        """
+        Pre-populate file_path/data_path and write the file to disk before create(),
+        so that save() → sync_classes() fires once with the correct file_path — matching
+        the UI path where full_clean() sets these fields on the actual instance before save().
+        """
+        file_path = os.path.basename(data_file.path)
+        validated_data['data_path'] = data_file.path
+        validated_data['file_path'] = file_path
+        validated_data['data_synced'] = timezone.now()
+        storage = storages.create_storage(storages.backends["scripts"])
+        with storage.open(file_path, 'wb+') as f:
+            f.write(data_file.data)
+
     def create(self, validated_data):
         upload_file = validated_data.pop('upload_file', None)
         if upload_file:
             self._save_upload(upload_file, validated_data)
+        elif data_file := validated_data.get('data_file'):
+            self._sync_data_file(data_file, validated_data)
         try:
             return super().create(validated_data)
         except IntegrityError:
