@@ -1411,6 +1411,7 @@ class ScriptUploadTest(APITestCase):
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
         upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
         mock_storage = MagicMock()
+        mock_storage.save.return_value = 'test_upload.py'
         with patch('extras.api.serializers_.scripts.storages') as mock_storages:
             mock_storages.create_storage.return_value = mock_storage
             mock_storages.backends = {'scripts': {}}
@@ -1423,6 +1424,7 @@ class ScriptUploadTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(response.data['file_path'], 'test_upload.py')
         mock_storage.save.assert_called_once()
+        self.assertTrue(ScriptModule.objects.filter(file_path='test_upload.py').exists())
 
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')

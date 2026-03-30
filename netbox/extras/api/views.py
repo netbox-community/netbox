@@ -306,10 +306,13 @@ class ScriptViewSet(ModelViewSet):
             context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        self.perform_create(serializer)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    # PUT and PATCH are intentionally unsupported: ScriptSerializer has no writable fields
+    # and there is no implementation for replacing the underlying module file via these methods.
+    # They remain registered by ModelViewSet and return 405 rather than 404.
     def update(self, request, *args, **kwargs):
         raise MethodNotAllowed(request.method)
 
@@ -317,8 +320,8 @@ class ScriptViewSet(ModelViewSet):
         raise MethodNotAllowed(request.method)
 
     def destroy(self, request, *args, **kwargs):
-        if not request.user.has_perm('extras.delete_scriptmodule'):
-            raise PermissionDenied(_("This user does not have permission to delete script modules."))
+        if not request.user.has_perm('extras.delete_script'):
+            raise PermissionDenied(_("This user does not have permission to delete scripts."))
         return super().destroy(request, *args, **kwargs)
 
     def _get_script(self, pk):
