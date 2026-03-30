@@ -1148,6 +1148,7 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                 new_components = []
                 data = deepcopy(form.cleaned_data)
+                changelog_message = data.pop('changelog_message', '')
                 data.pop('background_job', None)
                 replication_data = {
                     field: data.pop(field) for field in form.replication_fields
@@ -1170,6 +1171,8 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                                 component_form = self.model_form(component_data)
                                 if component_form.is_valid():
+                                    if changelog_message:
+                                        component_form.instance._changelog_message = changelog_message
                                     instance = component_form.save()
                                     logger.debug(f"Created {instance} on {instance.parent_object}")
                                     new_components.append(instance)

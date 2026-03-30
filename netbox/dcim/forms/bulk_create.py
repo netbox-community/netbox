@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import *
 from extras.models import Tag
-from netbox.forms.mixins import CustomFieldsMixin
+from netbox.forms.mixins import ChangelogMessageMixin, CustomFieldsMixin
 from utilities.forms import form_from_model
 from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField
 from utilities.forms.mixins import BackgroundJobMixin
@@ -28,7 +28,7 @@ __all__ = (
 # Device components
 #
 
-class DeviceBulkAddComponentForm(BackgroundJobMixin, CustomFieldsMixin, ComponentCreateForm):
+class DeviceBulkAddComponentForm(BackgroundJobMixin, ChangelogMessageMixin, CustomFieldsMixin, ComponentCreateForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()

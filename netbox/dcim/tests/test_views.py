@@ -3,11 +3,13 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import yaml
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
@@ -2740,6 +2742,50 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{console_ports[1].pk},Console Port 8,New description8",
             f"{console_ports[2].pk},Console Port 9,New description9",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_add_components_with_changelog_message(self):
+        device1 = Device.objects.get(name='Device 1')
+        device2 = create_test_device('Device 2')
+        changelog_message = 'Bulk-created console ports'
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        request = {
+            'path': reverse('dcim:device_bulk_add_consoleport'),
+            'data': post_data({
+                'pk': [device1.pk, device2.pk],
+                'name': 'Console Port Bulk',
+                'type': ConsolePortTypeChoices.TYPE_RJ45,
+                'description': 'Bulk-created console port',
+                'changelog_message': changelog_message,
+                '_create': True,
+            }),
+        }
+
+        initial_count = self._get_queryset().count()
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(initial_count + 2, self._get_queryset().count())
+
+        created_ports = list(ConsolePort.objects.filter(name='Console Port Bulk').order_by('device_id'))
+        self.assertEqual(len(created_ports), 2)
+        self.assertEqual([port.device_id for port in created_ports], [device1.pk, device2.pk])
+
+        objectchanges = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+            changed_object_type=ContentType.objects.get_for_model(ConsolePort),
+            changed_object_id__in=[port.pk for port in created_ports],
+        )
+        self.assertEqual(objectchanges.count(), 2)
+        for objectchange in objectchanges:
+            self.assertEqual(objectchange.message, changelog_message)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
