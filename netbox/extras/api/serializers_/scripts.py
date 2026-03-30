@@ -57,9 +57,13 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             raise serializers.ValidationError(
                 _("Cannot upload a file and sync from a data source.")
             )
-        if self.instance is None and not upload_file and not has_data_file and not has_data_source:
+        if has_data_source and not has_data_file:
             raise serializers.ValidationError(
-                _("Must upload a file or provide a data source or data file to sync.")
+                _("A data file must be specified when syncing from a data source.")
+            )
+        if self.instance is None and not upload_file and not has_data_file:
+            raise serializers.ValidationError(
+                _("Must upload a file or provide a data source and data file to sync.")
             )
 
         return data

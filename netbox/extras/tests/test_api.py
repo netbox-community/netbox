@@ -1441,6 +1441,17 @@ class ScriptUploadTest(APITestCase):
         )
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
+    def test_data_source_without_data_file_fails(self):
+        """data_source alone (without data_file) must be rejected."""
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        response = self.client.post(
+            self.url_list,
+            {'data_source': 1},
+            format='multipart',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         response = self.client.post(self.url_list, {}, format='json', **self.header)
