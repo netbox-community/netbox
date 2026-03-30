@@ -23,6 +23,7 @@ __all__ = (
     'PluginContentPanel',
     'RelatedObjectsPanel',
     'TemplatePanel',
+    'TextCodePanel',
 )
 
 
@@ -327,6 +328,23 @@ class TemplatePanel(Panel):
     def render(self, context):
         # Pass the entire context to the template
         return render_to_string(self.template_name, context.flatten())
+
+
+class TextCodePanel(ObjectPanel):
+    """
+    A panel displaying a text field as a pre-formatted code block.
+    """
+    template_name = 'ui/panels/text_code.html'
+
+    def __init__(self, field_name, **kwargs):
+        super().__init__(**kwargs)
+        self.field_name = field_name
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'value': getattr(context.get('object'), self.field_name, None),
+        }
 
 
 class PluginContentPanel(Panel):

@@ -10,8 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.module_loading import import_string
-from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy as _l
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from jinja2.exceptions import TemplateError
 
@@ -25,7 +24,13 @@ from extras.dashboard.utils import get_widget_class
 from extras.utils import SharedObjectViewMixin
 from netbox.object_actions import *
 from netbox.ui import layout
-from netbox.ui.panels import CommentsPanel, ContextTablePanel, JSONPanel, TemplatePanel
+from netbox.ui.panels import (
+    CommentsPanel,
+    ContextTablePanel,
+    JSONPanel,
+    TemplatePanel,
+    TextCodePanel,
+)
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
@@ -43,7 +48,7 @@ from . import filtersets, forms, tables
 from .constants import LOG_LEVEL_RANK
 from .models import *
 from .tables import ReportResultsTable, ScriptJobTable, ScriptResultsTable
-from .ui import panels as ui_panels
+from .ui import panels
 
 #
 # Custom fields
@@ -63,14 +68,14 @@ class CustomFieldView(generic.ObjectView):
     queryset = CustomField.objects.select_related('choice_set')
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.CustomFieldPanel(),
-            ui_panels.CustomFieldBehaviorPanel(),
+            panels.CustomFieldPanel(),
+            panels.CustomFieldBehaviorPanel(),
             CommentsPanel(),
         ],
         right_panels=[
-            ui_panels.CustomFieldObjectTypesPanel(),
-            ui_panels.CustomFieldValidationPanel(),
-            ui_panels.CustomFieldRelatedObjectsPanel(),
+            panels.CustomFieldObjectTypesPanel(),
+            panels.CustomFieldValidationPanel(),
+            panels.CustomFieldRelatedObjectsPanel(),
         ],
     )
 
@@ -146,10 +151,10 @@ class CustomFieldChoiceSetView(generic.ObjectView):
     queryset = CustomFieldChoiceSet.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.CustomFieldChoiceSetPanel(),
+            panels.CustomFieldChoiceSetPanel(),
         ],
         right_panels=[
-            ui_panels.CustomFieldChoiceSetChoicesPanel(),
+            panels.CustomFieldChoiceSetChoicesPanel(),
         ],
     )
 
@@ -229,12 +234,12 @@ class CustomLinkView(generic.ObjectView):
     queryset = CustomLink.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.CustomLinkPanel(),
-            ui_panels.ObjectTypesPanel(title=_l('Assigned Models')),
+            panels.CustomLinkPanel(),
+            panels.ObjectTypesPanel(title=_('Assigned Models')),
         ],
         right_panels=[
-            ui_panels.TextCodePanel('link_text', title=_l('Link Text')),
-            ui_panels.TextCodePanel('link_url', title=_l('Link URL')),
+            TextCodePanel('link_text', title=_('Link Text')),
+            TextCodePanel('link_url', title=_('Link URL')),
         ],
     )
 
@@ -296,15 +301,15 @@ class ExportTemplateView(generic.ObjectView):
     queryset = ExportTemplate.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.ExportTemplatePanel(),
+            panels.ExportTemplatePanel(),
             TemplatePanel('core/inc/datafile_panel.html'),
         ],
         right_panels=[
-            ui_panels.ObjectTypesPanel(title=_l('Assigned Models')),
-            JSONPanel('environment_params', title=_l('Environment Parameters')),
+            panels.ObjectTypesPanel(title=_('Assigned Models')),
+            JSONPanel('environment_params', title=_('Environment Parameters')),
         ],
         bottom_panels=[
-            ui_panels.SyncCodePanel('template_code', title=_l('Template')),
+            TextCodePanel('template_code', title=_('Template')),
         ],
     )
 
@@ -370,11 +375,11 @@ class SavedFilterView(SharedObjectViewMixin, generic.ObjectView):
     queryset = SavedFilter.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.SavedFilterPanel(),
-            ui_panels.SavedFilterObjectTypesPanel(),
+            panels.SavedFilterPanel(),
+            panels.SavedFilterObjectTypesPanel(),
         ],
         right_panels=[
-            JSONPanel('parameters', title=_l('Parameters')),
+            JSONPanel('parameters', title=_('Parameters')),
         ],
     )
 
@@ -441,11 +446,11 @@ class TableConfigView(SharedObjectViewMixin, generic.ObjectView):
     queryset = TableConfig.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.TableConfigPanel(),
+            panels.TableConfigPanel(),
         ],
         right_panels=[
-            ui_panels.TableConfigColumnsPanel(),
-            ui_panels.TableConfigOrderingPanel(),
+            panels.TableConfigColumnsPanel(),
+            panels.TableConfigOrderingPanel(),
         ],
     )
 
@@ -543,11 +548,11 @@ class NotificationGroupView(generic.ObjectView):
     queryset = NotificationGroup.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.NotificationGroupPanel(),
+            panels.NotificationGroupPanel(),
         ],
         right_panels=[
-            ui_panels.NotificationGroupGroupsPanel(),
-            ui_panels.NotificationGroupUsersPanel(),
+            panels.NotificationGroupGroupsPanel(),
+            panels.NotificationGroupUsersPanel(),
         ],
     )
 
@@ -736,15 +741,15 @@ class WebhookView(generic.ObjectView):
     queryset = Webhook.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.WebhookPanel(),
-            ui_panels.WebhookHTTPPanel(),
-            ui_panels.WebhookSSLPanel(),
+            panels.WebhookPanel(),
+            panels.WebhookHTTPPanel(),
+            panels.WebhookSSLPanel(),
         ],
         right_panels=[
-            ui_panels.TextCodePanel('additional_headers', title=_l('Additional Headers')),
-            ui_panels.TextCodePanel('body_template', title=_l('Body Template')),
-            ui_panels.CustomFieldsPanel(),
-            ui_panels.TagsPanel(),
+            TextCodePanel('additional_headers', title=_('Additional Headers')),
+            TextCodePanel('body_template', title=_('Body Template')),
+            panels.CustomFieldsPanel(),
+            panels.TagsPanel(),
         ],
     )
 
@@ -805,15 +810,15 @@ class EventRuleView(generic.ObjectView):
     queryset = EventRule.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.EventRulePanel(),
-            ui_panels.ObjectTypesPanel(),
-            ui_panels.EventRuleEventTypesPanel(),
+            panels.EventRulePanel(),
+            panels.ObjectTypesPanel(),
+            panels.EventRuleEventTypesPanel(),
         ],
         right_panels=[
-            JSONPanel('conditions', title=_l('Conditions')),
-            ui_panels.EventRuleActionPanel(),
-            ui_panels.CustomFieldsPanel(),
-            ui_panels.TagsPanel(),
+            JSONPanel('conditions', title=_('Conditions')),
+            panels.EventRuleActionPanel(),
+            panels.CustomFieldsPanel(),
+            panels.TagsPanel(),
         ],
     )
 
@@ -876,14 +881,14 @@ class TagView(generic.ObjectView):
     queryset = Tag.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.TagPanel(),
+            panels.TagPanel(),
         ],
         right_panels=[
-            ui_panels.TagObjectTypesPanel(),
-            ui_panels.TagItemTypesPanel(),
+            panels.TagObjectTypesPanel(),
+            panels.TagItemTypesPanel(),
         ],
         bottom_panels=[
-            ContextTablePanel('taggeditem_table', title=_l('Tagged Objects')),
+            ContextTablePanel('taggeditem_table', title=_('Tagged Objects')),
         ],
     )
 
@@ -967,14 +972,14 @@ class ConfigContextProfileView(generic.ObjectView):
     queryset = ConfigContextProfile.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.ConfigContextProfilePanel(),
+            panels.ConfigContextProfilePanel(),
             TemplatePanel('core/inc/datafile_panel.html'),
-            ui_panels.CustomFieldsPanel(),
-            ui_panels.TagsPanel(),
+            panels.CustomFieldsPanel(),
+            panels.TagsPanel(),
             CommentsPanel(),
         ],
         right_panels=[
-            ui_panels.ConfigContextProfileSchemaPanel(),
+            panels.ConfigContextProfileSchemaPanel(),
         ],
     )
 
@@ -1041,9 +1046,9 @@ class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.ConfigContextPanel(),
+            panels.ConfigContextPanel(),
             TemplatePanel('core/inc/datafile_panel.html'),
-            ui_panels.ConfigContextAssignmentPanel(),
+            panels.ConfigContextAssignmentPanel(),
         ],
         right_panels=[
             TemplatePanel('extras/panels/configcontext_data.html'),
@@ -1170,14 +1175,14 @@ class ConfigTemplateView(generic.ObjectView):
     queryset = ConfigTemplate.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.ConfigTemplatePanel(),
-            ui_panels.TagsPanel(),
+            panels.ConfigTemplatePanel(),
+            panels.TagsPanel(),
         ],
         right_panels=[
-            JSONPanel('environment_params', title=_l('Environment Parameters')),
+            JSONPanel('environment_params', title=_('Environment Parameters')),
         ],
         bottom_panels=[
-            ui_panels.SyncCodePanel('template_code', title=_l('Template')),
+            TextCodePanel('template_code', title=_('Template')),
         ],
     )
 
@@ -1299,13 +1304,13 @@ class ImageAttachmentView(generic.ObjectView):
     queryset = ImageAttachment.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.ImageAttachmentPanel(),
+            panels.ImageAttachmentPanel(),
         ],
         right_panels=[
-            ui_panels.ImageAttachmentFilePanel(),
+            panels.ImageAttachmentFilePanel(),
         ],
         bottom_panels=[
-            ui_panels.ImageAttachmentImagePanel(),
+            panels.ImageAttachmentImagePanel(),
         ],
     )
 
@@ -1374,9 +1379,9 @@ class JournalEntryView(generic.ObjectView):
     queryset = JournalEntry.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            ui_panels.JournalEntryPanel(),
-            ui_panels.CustomFieldsPanel(),
-            ui_panels.TagsPanel(),
+            panels.JournalEntryPanel(),
+            panels.CustomFieldsPanel(),
+            panels.TagsPanel(),
         ],
         right_panels=[
             CommentsPanel(),

@@ -6,6 +6,7 @@
     {% if value %}
       <pre>{{ value }}</pre>
     {% else %}
+      {% include 'inc/sync_warning.html' %}
       <span class="text-muted">{% trans "None" %}</span>
     {% endif %}
   </div>

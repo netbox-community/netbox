@@ -36,7 +36,6 @@ __all__ = (
     'ObjectTypesPanel',
     'SavedFilterObjectTypesPanel',
     'SavedFilterPanel',
-    'SyncCodePanel',
     'TableConfigColumnsPanel',
     'TableConfigOrderingPanel',
     'TableConfigPanel',
@@ -44,7 +43,6 @@ __all__ = (
     'TagObjectTypesPanel',
     'TagPanel',
     'TagsPanel',
-    'TextCodePanel',
     'WebhookHTTPPanel',
     'WebhookPanel',
     'WebhookSSLPanel',
@@ -124,40 +122,6 @@ class ObjectTypesPanel(panels.ObjectPanel):
     """
     template_name = 'extras/panels/object_types.html'
     title = _('Object Types')
-
-
-class TextCodePanel(panels.ObjectPanel):
-    """
-    A panel displaying a text field as a pre-formatted code block.
-    """
-    template_name = 'extras/panels/text_code.html'
-
-    def __init__(self, field_name, **kwargs):
-        super().__init__(**kwargs)
-        self.field_name = field_name
-
-    def get_context(self, context):
-        return {
-            **super().get_context(context),
-            'value': getattr(context.get('object'), self.field_name, None),
-        }
-
-
-class SyncCodePanel(panels.ObjectPanel):
-    """
-    A panel displaying a text field with a sync warning included.
-    """
-    template_name = 'extras/panels/sync_code.html'
-
-    def __init__(self, field_name, **kwargs):
-        super().__init__(**kwargs)
-        self.field_name = field_name
-
-    def get_context(self, context):
-        return {
-            **super().get_context(context),
-            'value': getattr(context.get('object'), self.field_name, None),
-        }
 
 
 #
