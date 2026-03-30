@@ -5,7 +5,7 @@ from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.renderers import JSONRenderer
@@ -267,8 +267,8 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 
 @extend_schema_view(
     create=extend_schema(request=serializers.ScriptModuleSerializer),
-    update=extend_schema(responses=serializers.ScriptSerializer),
-    partial_update=extend_schema(responses=serializers.ScriptSerializer),
+    update=extend_schema(exclude=True),
+    partial_update=extend_schema(exclude=True),
 )
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
@@ -286,8 +286,6 @@ class ScriptViewSet(ModelViewSet):
         if request.user.is_authenticated and self.action != 'create':
             if self.action == 'destroy':
                 perm_action = 'delete'
-            elif self.action in ('update', 'partial_update'):
-                perm_action = 'change'
             elif request.method == 'POST':
                 perm_action = 'run'
             else:
@@ -313,9 +311,10 @@ class ScriptViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        if not request.user.has_perm('extras.change_scriptmodule'):
-            raise PermissionDenied(_("This user does not have permission to modify script modules."))
-        return super().update(request, *args, **kwargs)
+        raise MethodNotAllowed(request.method)
+
+    def partial_update(self, request, *args, **kwargs):
+        raise MethodNotAllowed(request.method)
 
     def destroy(self, request, *args, **kwargs):
         if not request.user.has_perm('extras.delete_scriptmodule'):

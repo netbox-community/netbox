@@ -19,7 +19,7 @@ __all__ = (
 
 
 class ScriptModuleSerializer(ValidatedModelSerializer):
-    url = serializers.SerializerMethodField(read_only=True)
+    url = None
     data_source = DataSourceSerializer(nested=True, required=False, allow_null=True)
     data_file = DataFileSerializer(nested=True, required=False, allow_null=True)
     upload_file = serializers.FileField(write_only=True, required=False, allow_null=True)
@@ -28,17 +28,11 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
     class Meta:
         model = ScriptModule
         fields = [
-            'id', 'url', 'display', 'file_path', 'upload_file',
+            'id', 'display', 'file_path', 'upload_file',
             'data_source', 'data_file', 'auto_sync_enabled',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display')
-
-    @extend_schema_field(serializers.URLField())
-    def get_url(self, obj):
-        from rest_framework.reverse import reverse
-        request = self.context.get('request')
-        return reverse('extras-api:script-list', request=request)
+        brief_fields = ('id', 'display')
 
     def validate(self, data):
         upload_file = data.pop('upload_file', None)
@@ -57,17 +51,16 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             raise serializers.ValidationError(
                 _("Cannot upload a file and sync from a data source.")
             )
-        if self.instance is None and not upload_file and not data.get('data_file'):
+        if self.instance is None and not upload_file and not data.get('data_file') and not data.get('data_source'):
             raise serializers.ValidationError(
-                _("Must upload a file or select a data file to sync.")
+                _("Must upload a file or provide a data source or data file to sync.")
             )
 
         return data
 
     def _save_upload(self, upload_file, validated_data):
         storage = storages.create_storage(storages.backends["scripts"])
-        storage.save(upload_file.name, upload_file)
-        validated_data['file_path'] = upload_file.name
+        validated_data['file_path'] = storage.save(upload_file.name, upload_file)
 
     def create(self, validated_data):
         upload_file = validated_data.pop('upload_file', None)
