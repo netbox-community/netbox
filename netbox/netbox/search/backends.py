@@ -1,11 +1,9 @@
-import logging
 from collections import defaultdict
 
 import netaddr
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.db import ProgrammingError
 from django.db.models import F, Q, Window, prefetch_related_objects
 from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
@@ -25,8 +23,6 @@ from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
 MAX_RESULTS = 1000
-
-logger = logging.getLogger(__name__)
 
 
 class SearchBackend:
@@ -67,12 +63,7 @@ class SearchBackend:
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
-        try:
-            self.cache(instance, remove_existing=not created)
-        except ProgrammingError as e:
-            # The schema may be incomplete during migrations; skip caching.
-            logger.warning(f"Skipping search cache update due to schema error: {e}")
-            pass
+        self.cache(instance, remove_existing=not created)
 
     def removal_handler(self, sender, instance, **kwargs):
         """
