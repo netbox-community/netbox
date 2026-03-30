@@ -44,15 +44,20 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         if upload_file is not None:
             data['upload_file'] = upload_file
 
-        if upload_file and data.get('data_file'):
+        # For multipart requests, nested serializer fields (data_source, data_file) are
+        # silently dropped by DRF's HTML parser, so also check initial_data for raw values.
+        has_data_file = data.get('data_file') or self.initial_data.get('data_file')
+        has_data_source = data.get('data_source') or self.initial_data.get('data_source')
+
+        if upload_file and has_data_file:
             raise serializers.ValidationError(
                 _("Cannot upload a file and sync from an existing data file.")
             )
-        if upload_file and data.get('data_source'):
+        if upload_file and has_data_source:
             raise serializers.ValidationError(
                 _("Cannot upload a file and sync from a data source.")
             )
-        if self.instance is None and not upload_file and not data.get('data_file') and not data.get('data_source'):
+        if self.instance is None and not upload_file and not has_data_file and not has_data_source:
             raise serializers.ValidationError(
                 _("Must upload a file or provide a data source or data file to sync.")
             )

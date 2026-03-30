@@ -1426,6 +1426,21 @@ class ScriptUploadTest(APITestCase):
         mock_storage.save.assert_called_once()
         self.assertTrue(ScriptModule.objects.filter(file_path='test_upload.py').exists())
 
+    def test_upload_with_data_source_fails(self):
+        """Supplying both upload_file and data_source must be rejected."""
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
+        upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
+        # data_source is intentionally a raw value to exercise the multipart path where DRF's
+        # nested-serializer HTML parser drops the field; validation must still catch the conflict.
+        response = self.client.post(
+            self.url_list,
+            {'upload_file': upload_file, 'data_source': 1},
+            format='multipart',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         response = self.client.post(self.url_list, {}, format='json', **self.header)
