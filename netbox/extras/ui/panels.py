@@ -153,7 +153,6 @@ class CustomFieldBehaviorPanel(panels.ObjectAttributesPanel):
 
     search_weight = attrs.TemplatedAttr(
         'search_weight',
-        label=_('Search Weight'),
         template_name='extras/customfield/attrs/search_weight.html',
     )
     filter_logic = attrs.ChoiceAttr('filter_logic')
@@ -401,7 +400,6 @@ class TagPanel(panels.ObjectAttributesPanel):
     weight = attrs.NumericAttr('weight')
     tagged_items = attrs.TemplatedAttr(
         'extras_taggeditem_items',
-        label=_('Tagged Items'),
         template_name='extras/tag/attrs/tagged_item_count.html',
     )
 
@@ -487,7 +485,7 @@ class ConfigTemplatePanel(panels.ObjectAttributesPanel):
 class ImageAttachmentPanel(panels.ObjectAttributesPanel):
     title = _('Image Attachment')
 
-    parent = attrs.RelatedObjectAttr('parent', linkify=True, label=_('Parent Object'))
+    parent = attrs.RelatedObjectAttr('parent', linkify=True, label=_('Parent object'))
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
 
