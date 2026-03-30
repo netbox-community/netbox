@@ -1,46 +1,50 @@
+@use 'sass:map';
+
 // Serialized data from change records
 pre.change-data {
   border-radius: 0;
   padding: 0;
+  // Remove card-body padding
+  margin-inline: -0.75rem;
 
   // Display each line individually for highlighting
   > span {
     display: block;
-    padding-right: $spacer;
-    padding-left: $spacer;
-    width: 100%;
+    padding-inline: map.get($spacers, 2);
+    max-width: 100%;
     min-width: fit-content;
+    border-left: map.get($spacers, 1) solid transparent;
 
     &.added {
-      color: var(--tblr-dark);
-      background-color: $green-300;
+      background-color: var(--tblr-green-200);
+      border-left-color: var(--tblr-green-darken);
     }
 
     &.removed {
-      color: var(--tblr-dark);
-      background-color: $red-300;
+      background-color: var(--tblr-red-200);
+      border-left-color: var(--tblr-red-darken);
     }
   }
 }
 
 // Change data diff w/added & removed data
 pre.change-diff {
-  border-color: transparent;
+  border: var(--tblr-border-width) solid transparent;
 
   &.change-added {
-    color: var(--tblr-dark);
-    background-color: $green-300;
+    background-color: var(--tblr-green-lt);
+    border-color: var(--tblr-green);
   }
 
   &.change-removed {
-    color: var(--tblr-dark);
-    background-color: $red-300;
+    background-color: var(--tblr-red-lt);
+    border-color: var(--tblr-red);
   }
 }
 
 // <pre> elements displayed with a border
 pre.block {
   padding: $spacer;
-  border: 1px solid $border-color;
+  border: var(--tblr-border-width) solid $border-color;
   border-radius: $border-radius;
 }
