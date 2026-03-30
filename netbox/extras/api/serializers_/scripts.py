@@ -37,15 +37,11 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
 
     def validate(self, data):
         upload_file = data.pop('upload_file', None)
-        # ScriptModule.save() sets file_root; inject it here so full_clean() succeeds
-        data['file_root'] = ManagedFileRootPathChoices.SCRIPTS
-        data = super().validate(data)
-        data.pop('file_root', None)
-        if upload_file is not None:
-            data['upload_file'] = upload_file
 
         # For multipart requests, nested serializer fields (data_source, data_file) are
         # silently dropped by DRF's HTML parser, so also check initial_data for raw values.
+        # These checks must run before super().validate() calls full_clean(), which would
+        # otherwise surface confusing unique-constraint errors for empty file_path values.
         has_data_file = data.get('data_file') or self.initial_data.get('data_file')
         has_data_source = data.get('data_source') or self.initial_data.get('data_source')
 
@@ -65,6 +61,13 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             raise serializers.ValidationError(
                 _("Must upload a file or select a data file to sync")
             )
+
+        # ScriptModule.save() sets file_root; inject it here so full_clean() succeeds
+        data['file_root'] = ManagedFileRootPathChoices.SCRIPTS
+        data = super().validate(data)
+        data.pop('file_root', None)
+        if upload_file is not None:
+            data['upload_file'] = upload_file
 
         return data
 
