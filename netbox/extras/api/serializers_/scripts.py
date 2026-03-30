@@ -50,7 +50,7 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
 
         if upload_file and has_data_file:
             raise serializers.ValidationError(
-                _("Cannot upload a file and sync from an existing file")
+                _("Cannot upload a file and sync from an existing file.")
             )
         if upload_file and has_data_source:
             raise serializers.ValidationError(
@@ -62,7 +62,7 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             )
         if self.instance is None and not upload_file and not has_data_file:
             raise serializers.ValidationError(
-                _("Must upload a file or select a data file to sync")
+                _("Must upload a file or select a data file to sync.")
             )
 
         # ScriptModule.save() sets file_root; inject it here so full_clean() succeeds
@@ -101,15 +101,13 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         try:
             return super().create(validated_data)
         except IntegrityError:
+            # Clean up the file written to disk before the failed DB insert
+            if file_path := validated_data.get('file_path'):
+                storage = storages.create_storage(storages.backends["scripts"])
+                storage.delete(file_path)
             raise serializers.ValidationError(
                 _("A script module with this file name already exists.")
             )
-
-    def update(self, instance, validated_data):
-        upload_file = validated_data.pop('upload_file', None)
-        if upload_file:
-            self._save_upload(upload_file, validated_data)
-        return super().update(instance, validated_data)
 
 
 class ScriptSerializer(ValidatedModelSerializer):

@@ -1390,6 +1390,10 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
 
 class ScriptUploadTest(APITestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.data_source = DataSource.objects.create(name='Test Source', type='local', source_url='/tmp')
+
     def setUp(self):
         super().setUp()
         self.url_list = reverse('extras-api:script-list')
@@ -1433,7 +1437,7 @@ class ScriptUploadTest(APITestCase):
         upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
         response = self.client.post(
             self.url_list,
-            {'upload_file': upload_file, 'data_source': 1},
+            {'upload_file': upload_file, 'data_source': self.data_source.pk},
             format='multipart',
             **self.header,
         )
@@ -1444,7 +1448,7 @@ class ScriptUploadTest(APITestCase):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         response = self.client.post(
             self.url_list,
-            {'data_source': 1},
+            {'data_source': self.data_source.pk},
             format='multipart',
             **self.header,
         )
