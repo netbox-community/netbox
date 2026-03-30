@@ -22,7 +22,7 @@ from utilities.forms.fields import (
     SlugField,
 )
 from utilities.forms.mixins import DistanceValidationMixin
-from utilities.forms.rendering import FieldSet, InlineFields
+from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields
 from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
 from utilities.templatetags.builtins.filters import bettertitle
 
@@ -48,16 +48,41 @@ class ProviderForm(PrimaryModelForm):
         label=_('ASNs'),
         required=False
     )
+    add_asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('Add ASNs'),
+        required=False
+    )
+    remove_asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('Remove ASNs'),
+        required=False
+    )
 
     fieldsets = (
-        FieldSet('name', 'slug', 'asns', 'description', 'tags'),
+        FieldSet('name', 'slug', M2MAddRemoveFields('asns'), 'description', 'tags'),
     )
 
     class Meta:
         model = Provider
         fields = [
-            'name', 'slug', 'asns', 'description', 'owner', 'comments', 'tags',
+            'name', 'slug', 'description', 'owner', 'comments', 'tags',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and (count := self.instance.asns.count()) >= M2MAddRemoveFields.THRESHOLD:
+            # Add/remove mode for large M2M sets
+            self.fields.pop('asns')
+            self.fields['add_asns'].widget.add_query_param('provider_id__n', self.instance.pk)
+            self.fields['remove_asns'].widget.add_query_param('provider_id', self.instance.pk)
+            self.fields['remove_asns'].help_text = _("{count} ASNs currently assigned").format(count=count)
+        else:
+            # Simple mode for new objects or small M2M sets
+            self.fields.pop('add_asns')
+            self.fields.pop('remove_asns')
+            if self.instance.pk:
+                self.initial['asns'] = list(self.instance.asns.values_list('pk', flat=True))
 
 
 class ProviderAccountForm(PrimaryModelForm):

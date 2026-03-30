@@ -1,0 +1,3 @@
+{% load helpers %}
+{% load i18n %}
+{{ value|isodatetime }}{% if object.interval %} ({% blocktrans with interval=object.interval %}every {{ interval }} minutes{% endblocktrans %}){% endif %}

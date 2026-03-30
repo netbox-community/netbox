@@ -1,0 +1,2 @@
+{% load helpers %}
+{{ value|linkify }}{% if value.assigned_object %} ({{ value.assigned_object.parent_object|linkify }}){% endif %}

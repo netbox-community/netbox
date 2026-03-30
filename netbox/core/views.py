@@ -23,9 +23,20 @@ from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
 from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, requeue_rq_job, stop_rq_job
+from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.config import PARAMS, get_config
 from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObject
 from netbox.plugins.utils import get_installed_plugins
+from netbox.ui import layout
+from netbox.ui.panels import (
+    CommentsPanel,
+    ContextTablePanel,
+    JSONPanel,
+    ObjectsTablePanel,
+    PluginContentPanel,
+    RelatedObjectsPanel,
+    TemplatePanel,
+)
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
@@ -48,6 +59,7 @@ from .jobs import SyncDataSourceJob
 from .models import *
 from .plugins import get_catalog_plugins, get_local_plugins
 from .tables import CatalogPluginTable, JobLogEntryTable, PluginVersionTable
+from .ui import panels
 
 #
 # Data sources
@@ -67,6 +79,24 @@ class DataSourceListView(generic.ObjectListView):
 @register_model_view(DataSource)
 class DataSourceView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DataSource.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.DataSourcePanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            panels.DataSourceBackendPanel(),
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='core.DataFile',
+                filters={'source_id': lambda ctx: ctx['object'].pk},
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -157,6 +187,14 @@ class DataFileListView(generic.ObjectListView):
 class DataFileView(generic.ObjectView):
     queryset = DataFile.objects.all()
     actions = (DeleteObject,)
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                panels.DataFilePanel(),
+                panels.DataFileContentPanel(),
+            ),
+        ),
+    )
 
 
 @register_model_view(DataFile, 'delete')
@@ -188,6 +226,17 @@ class JobListView(generic.ObjectListView):
 class JobView(generic.ObjectView):
     queryset = Job.objects.all()
     actions = (DeleteObject,)
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.JobPanel(),
+        ],
+        right_panels=[
+            panels.JobSchedulingPanel(),
+        ],
+        bottom_panels=[
+            JSONPanel('data', title=_('Data')),
+        ],
+    )
 
 
 @register_model_view(Job, 'log')
@@ -199,6 +248,13 @@ class JobLogView(generic.ObjectView):
         label=_('Log'),
         badge=lambda obj: len(obj.log_entries),
         weight=500,
+    )
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                ContextTablePanel('table', title=_('Log Entries')),
+            ),
+        ),
     )
 
     def get_extra_context(self, request, instance):
@@ -241,6 +297,26 @@ class ObjectChangeListView(generic.ObjectListView):
 @register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
     queryset = None
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(panels.ObjectChangePanel()),
+            layout.Column(TemplatePanel('core/panels/objectchange_difference.html')),
+        ),
+        layout.Row(
+            layout.Column(TemplatePanel('core/panels/objectchange_prechange.html')),
+            layout.Column(TemplatePanel('core/panels/objectchange_postchange.html')),
+        ),
+        layout.Row(
+            layout.Column(PluginContentPanel('left_page')),
+            layout.Column(PluginContentPanel('right_page')),
+        ),
+        layout.Row(
+            layout.Column(
+                TemplatePanel('core/panels/objectchange_related.html'),
+                PluginContentPanel('full_width_page'),
+            ),
+        ),
+    )
 
     def get_queryset(self, request):
         return ObjectChange.objects.valid_models()
@@ -312,6 +388,14 @@ class ConfigRevisionListView(generic.ObjectListView):
 @register_model_view(ConfigRevision)
 class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
+    layout = layout.Layout(
+        layout.Row(
+            layout.Column(
+                TemplatePanel('core/panels/configrevision_data.html'),
+                TemplatePanel('core/panels/configrevision_comment.html'),
+            ),
+        ),
+    )
 
     def get_extra_context(self, request, instance):
         """

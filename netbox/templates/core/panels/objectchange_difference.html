@@ -1,0 +1,31 @@
+{% load helpers %}
+{% load i18n %}
+<div class="card">
+  <h2 class="card-header d-flex justify-content-between">
+    {% trans "Difference" %}
+    <div class="btn-group btn-group-sm d-print-none">
+      <a {% if prev_change %}href="{% url 'core:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
+      </a>
+      <a {% if next_change %}href="{% url 'core:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+        {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </h2>
+  <div class="card-body">
+    {% if diff_added == diff_removed %}
+      <span class="text-muted" style="margin-left: 10px;">
+        {% if object.action == 'create' %}
+          {% trans "Object Created" %}
+        {% elif object.action == 'delete' %}
+          {% trans "Object Deleted" %}
+        {% else %}
+          {% trans "No Changes" %}
+        {% endif %}
+      </span>
+    {% else %}
+      <pre class="change-diff change-removed">{{ diff_removed|json }}</pre>
+      <pre class="change-diff change-added">{{ diff_added|json }}</pre>
+    {% endif %}
+  </div>
+</div>

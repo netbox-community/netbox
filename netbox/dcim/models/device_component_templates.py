@@ -177,29 +177,19 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
         modules.reverse()
         return modules
 
-    def resolve_name(self, module):
-        if MODULE_TOKEN not in self.name:
-            return self.name
+    def _resolve_module_placeholder(self, value, module):
+        if MODULE_TOKEN not in value or not module:
+            return value
+        modules = self._get_module_tree(module)
+        for m in modules:
+            value = value.replace(MODULE_TOKEN, m.module_bay.position, 1)
+        return value
 
-        if module:
-            modules = self._get_module_tree(module)
-            name = self.name
-            for module in modules:
-                name = name.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return name
-        return self.name
+    def resolve_name(self, module):
+        return self._resolve_module_placeholder(self.name, module)
 
     def resolve_label(self, module):
-        if MODULE_TOKEN not in self.label:
-            return self.label
-
-        if module:
-            modules = self._get_module_tree(module)
-            label = self.label
-            for module in modules:
-                label = label.replace(MODULE_TOKEN, module.module_bay.position, 1)
-            return label
-        return self.label
+        return self._resolve_module_placeholder(self.label, module)
 
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
@@ -729,11 +719,14 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name = _('module bay template')
         verbose_name_plural = _('module bay templates')
 
+    def resolve_position(self, module):
+        return self._resolve_module_placeholder(self.position, module)
+
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
             label=self.resolve_label(kwargs.get('module')),
-            position=self.position,
+            position=self.resolve_position(kwargs.get('module')),
             **kwargs
         )
     instantiate.do_not_call_in_templates = True

@@ -1,13 +1,24 @@
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 
+from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.object_actions import BulkDelete, BulkEdit, BulkExport, BulkImport
+from netbox.ui import actions, layout
+from netbox.ui.panels import (
+    CommentsPanel,
+    NestedGroupObjectPanel,
+    ObjectsTablePanel,
+    OrganizationalObjectPanel,
+    RelatedObjectsPanel,
+)
 from netbox.views import generic
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 
 from . import filtersets, forms, tables
 from .models import *
+from .ui import panels
 
 #
 # Tenant groups
@@ -31,6 +42,31 @@ class TenantGroupListView(generic.ObjectListView):
 @register_model_view(TenantGroup)
 class TenantGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = TenantGroup.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            NestedGroupObjectPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                'tenancy.tenantgroup',
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                title=_('Child Groups'),
+                actions=[
+                    actions.AddObject(
+                        'tenancy.tenantgroup',
+                        url_params={'parent': lambda ctx: ctx['object'].pk},
+                        label=_('Add Tenant Group'),
+                    ),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
@@ -106,6 +142,17 @@ class TenantListView(generic.ObjectListView):
 @register_model_view(Tenant)
 class TenantView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Tenant.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.TenantPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -173,6 +220,31 @@ class ContactGroupListView(generic.ObjectListView):
 @register_model_view(ContactGroup)
 class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactGroup.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            NestedGroupObjectPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                'tenancy.contactgroup',
+                filters={'parent_id': lambda ctx: ctx['object'].pk},
+                title=_('Child Groups'),
+                actions=[
+                    actions.AddObject(
+                        'tenancy.contactgroup',
+                        url_params={'parent': lambda ctx: ctx['object'].pk},
+                        label=_('Add Contact Group'),
+                    ),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
@@ -254,6 +326,17 @@ class ContactRoleListView(generic.ObjectListView):
 @register_model_view(ContactRole)
 class ContactRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ContactRole.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -317,6 +400,23 @@ class ContactListView(generic.ObjectListView):
 @register_model_view(Contact)
 class ContactView(generic.ObjectView):
     queryset = Contact.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ContactPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                'tenancy.contactassignment',
+                filters={'contact_id': lambda ctx: ctx['object'].pk},
+                title=_('Assignments'),
+            ),
+        ],
+    )
 
 
 @register_model_view(Contact, 'add', detail=False)
