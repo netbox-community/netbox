@@ -267,6 +267,8 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 
 @extend_schema_view(
     create=extend_schema(request=serializers.ScriptModuleSerializer),
+    update=extend_schema(responses=serializers.ScriptSerializer),
+    partial_update=extend_schema(responses=serializers.ScriptSerializer),
 )
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
@@ -311,13 +313,13 @@ class ScriptViewSet(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
-        if not request.user.has_perm('extras.change_script'):
-            raise PermissionDenied(_("This user does not have permission to modify scripts."))
+        if not request.user.has_perm('extras.change_scriptmodule'):
+            raise PermissionDenied(_("This user does not have permission to modify script modules."))
         return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
-        if not request.user.has_perm('extras.delete_script'):
-            raise PermissionDenied(_("This user does not have permission to delete scripts."))
+        if not request.user.has_perm('extras.delete_scriptmodule'):
+            raise PermissionDenied(_("This user does not have permission to delete script modules."))
         return super().destroy(request, *args, **kwargs)
 
     def _get_script(self, pk):

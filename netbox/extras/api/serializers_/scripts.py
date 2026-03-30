@@ -1,5 +1,5 @@
 from django.core.files.storage import storages
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -19,7 +19,7 @@ __all__ = (
 
 
 class ScriptModuleSerializer(ValidatedModelSerializer):
-    url = None
+    url = serializers.SerializerMethodField(read_only=True)
     data_source = DataSourceSerializer(nested=True, required=False, allow_null=True)
     data_file = DataFileSerializer(nested=True, required=False, allow_null=True)
     upload_file = serializers.FileField(write_only=True, required=False, allow_null=True)
@@ -28,11 +28,17 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
     class Meta:
         model = ScriptModule
         fields = [
-            'id', 'display', 'file_path', 'upload_file',
+            'id', 'url', 'display', 'file_path', 'upload_file',
             'data_source', 'data_file', 'auto_sync_enabled',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'display')
+        brief_fields = ('id', 'url', 'display')
+
+    @extend_schema_field(serializers.URLField())
+    def get_url(self, obj):
+        from rest_framework.reverse import reverse
+        request = self.context.get('request')
+        return reverse('extras-api:script-list', request=request)
 
     def validate(self, data):
         upload_file = data.pop('upload_file', None)
