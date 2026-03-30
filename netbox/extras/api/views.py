@@ -315,9 +315,9 @@ class ScriptViewSet(ModelViewSet):
         raise MethodNotAllowed(request.method)
 
     def destroy(self, request, *args, **kwargs):
-        if not request.user.has_perm('extras.delete_scriptmodule'):
-            raise PermissionDenied(_("This user does not have permission to delete script modules."))
         script = self._get_script(kwargs[self.lookup_field])
+        if not request.user.has_perm('extras.delete_scriptmodule', script.module):
+            raise PermissionDenied(_("This user does not have permission to delete script modules."))
         script.module.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

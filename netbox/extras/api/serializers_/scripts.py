@@ -101,7 +101,10 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         try:
             return super().create(validated_data)
         except IntegrityError:
-            # Clean up the file written to disk before the failed DB insert
+            # ManagedFile has a single unique constraint: (file_root, file_path), so an
+            # IntegrityError here always means a duplicate file name regardless of which
+            # path (upload or data_file sync) set validated_data['file_path'].
+            # Clean up the file written to disk before the failed DB insert.
             if file_path := validated_data.get('file_path'):
                 storage = storages.create_storage(storages.backends["scripts"])
                 storage.delete(file_path)
