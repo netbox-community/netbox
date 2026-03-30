@@ -51,7 +51,7 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
 
         if upload_file and has_data_file:
             raise serializers.ValidationError(
-                _("Cannot upload a file and sync from an existing data file.")
+                _("Cannot upload a file and sync from an existing file")
             )
         if upload_file and has_data_source:
             raise serializers.ValidationError(
@@ -63,7 +63,7 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             )
         if self.instance is None and not upload_file and not has_data_file:
             raise serializers.ValidationError(
-                _("Must upload a file or provide a data source and data file to sync.")
+                _("Must upload a file or select a data file to sync")
             )
 
         return data

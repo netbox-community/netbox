@@ -1431,8 +1431,6 @@ class ScriptUploadTest(APITestCase):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
         upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
-        # data_source is intentionally a raw value to exercise the multipart path where DRF's
-        # nested-serializer HTML parser drops the field; validation must still catch the conflict.
         response = self.client.post(
             self.url_list,
             {'upload_file': upload_file, 'data_source': 1},
