@@ -1,4 +1,5 @@
 from django.core.files.storage import storages
+from django.db import IntegrityError
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -66,7 +67,12 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         upload_file = validated_data.pop('upload_file', None)
         if upload_file:
             self._save_upload(upload_file, validated_data)
-        return super().create(validated_data)
+        try:
+            return super().create(validated_data)
+        except IntegrityError:
+            raise serializers.ValidationError(
+                _("A script module with this file name already exists.")
+            )
 
     def update(self, instance, validated_data):
         upload_file = validated_data.pop('upload_file', None)
