@@ -352,7 +352,7 @@ class ObjectPermissionForm(forms.ModelForm):
         label=_('Additional actions'),
         base_field=forms.CharField(),
         required=False,
-        help_text=_('Actions granted in addition to those listed above')
+        help_text=_('Additional actions for models which have not yet registered their own actions')
     )
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),

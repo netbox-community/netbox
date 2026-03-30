@@ -1,7 +1,7 @@
 import { getElements } from '../util';
 
 /**
- * Show/hide registered action checkboxes based on selected object_types.
+ * Enable/disable registered action checkboxes based on selected object_types.
  */
 export function initRegisteredActions(): void {
   const actionsContainer = document.getElementById('id_registered_actions_container');
@@ -11,7 +11,7 @@ export function initRegisteredActions(): void {
     return;
   }
 
-  function updateVisibility(): void {
+  function updateState(): void {
     const selectedModels = new Set<string>();
 
     // Get model keys from selected options
@@ -22,40 +22,33 @@ export function initRegisteredActions(): void {
       }
     }
 
-    // Show/hide action groups
+    // Enable/disable action groups based on selected models
     const groups = actionsContainer!.querySelectorAll('.model-actions');
-    let anyVisible = false;
 
     groups.forEach(group => {
       const modelKey = group.getAttribute('data-model');
-      const visible = modelKey !== null && selectedModels.has(modelKey);
-      (group as HTMLElement).style.display = visible ? 'block' : 'none';
-      if (visible) {
-        anyVisible = true;
+      const enabled = modelKey !== null && selectedModels.has(modelKey);
+      const el = group as HTMLElement;
+
+      el.style.opacity = enabled ? '1' : '0.4';
+
+      // Toggle disabled on checkboxes within the group
+      for (const checkbox of Array.from(
+        el.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+      )) {
+        checkbox.disabled = !enabled;
       }
     });
-
-    // Show/hide "no actions" message
-    const noActionsMsg = document.getElementById('no-custom-actions-message');
-    if (noActionsMsg) {
-      noActionsMsg.style.display = anyVisible ? 'none' : 'block';
-    }
-
-    // Hide the entire field row when no actions are visible
-    const fieldRow = actionsContainer!.closest('.field-row, .mb-3');
-    if (fieldRow) {
-      (fieldRow as HTMLElement).style.display = anyVisible ? '' : 'none';
-    }
   }
 
   // Initial update
-  updateVisibility();
+  updateState();
 
   // Listen to move button clicks
   for (const btn of getElements<HTMLButtonElement>('.move-option')) {
     btn.addEventListener('click', () => {
       // Wait for DOM update
-      setTimeout(updateVisibility, 50);
+      setTimeout(updateState, 50);
     });
   }
 }
