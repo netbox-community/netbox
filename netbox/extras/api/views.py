@@ -267,8 +267,6 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 
 @extend_schema_view(
     create=extend_schema(request=serializers.ScriptModuleSerializer),
-    update=extend_schema(request=serializers.ScriptInputSerializer),
-    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
 )
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
@@ -284,8 +282,15 @@ class ScriptViewSet(ModelViewSet):
 
         # Restrict the view's QuerySet to allow only the permitted objects
         if request.user.is_authenticated and self.action != 'create':
-            action = 'run' if request.method == 'POST' else 'view'
-            self.queryset = self.queryset.restrict(request.user, action)
+            if self.action == 'destroy':
+                perm_action = 'delete'
+            elif self.action in ('update', 'partial_update'):
+                perm_action = 'change'
+            elif request.method == 'POST':
+                perm_action = 'run'
+            else:
+                perm_action = 'view'
+            self.queryset = self.queryset.restrict(request.user, perm_action)
 
     def create(self, request, *args, **kwargs):
         """
@@ -304,6 +309,16 @@ class ScriptViewSet(ModelViewSet):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.has_perm('extras.change_script'):
+            raise PermissionDenied(_("This user does not have permission to modify scripts."))
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.has_perm('extras.delete_script'):
+            raise PermissionDenied(_("This user does not have permission to delete scripts."))
+        return super().destroy(request, *args, **kwargs)
 
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID
