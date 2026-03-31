@@ -5,7 +5,7 @@ from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, PermissionDenied
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.renderers import JSONRenderer
@@ -265,11 +265,12 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
-@extend_schema_view(
-    create=extend_schema(request=serializers.ScriptModuleSerializer),
-    update=extend_schema(exclude=True),
-    partial_update=extend_schema(exclude=True),
-)
+class ScriptModuleViewSet(SyncedDataMixin, NetBoxModelViewSet):
+    queryset = ScriptModule.objects.all()
+    serializer_class = serializers.ScriptModuleSerializer
+    filterset_class = filtersets.ScriptModuleFilterSet
+
+
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()
@@ -283,43 +284,9 @@ class ScriptViewSet(ModelViewSet):
         super().initial(request, *args, **kwargs)
 
         # Restrict the view's QuerySet to allow only the permitted objects
-        if request.user.is_authenticated and self.action != 'create':
-            perm_action = 'run' if request.method == 'POST' else 'view'
-            self.queryset = self.queryset.restrict(request.user, perm_action)
-
-    def create(self, request, *args, **kwargs):
-        """
-        Upload a new Script module (.py file) and return the created ScriptModule.
-        """
-        if not request.user.has_perm('extras.add_scriptmodule'):
-            raise PermissionDenied(_("This user does not have permission to add script modules."))
-        if not request.user.has_perm('core.add_managedfile'):
-            raise PermissionDenied(_("This user does not have permission to add managed files."))
-
-        serializer = serializers.ScriptModuleSerializer(
-            data=request.data,
-            context={'request': request},
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # PUT and PATCH are intentionally unsupported: ScriptSerializer has no writable fields
-    # and there is no implementation for replacing the underlying module file via these methods.
-    # They remain registered by ModelViewSet and return 405 rather than 404.
-    def update(self, request, *args, **kwargs):
-        raise MethodNotAllowed(request.method)
-
-    def partial_update(self, request, *args, **kwargs):
-        raise MethodNotAllowed(request.method)
-
-    def destroy(self, request, *args, **kwargs):
-        script = self._get_script(kwargs[self.lookup_field])
-        if not request.user.has_perm('extras.delete_scriptmodule', script.module):
-            raise PermissionDenied(_("This user does not have permission to delete script modules."))
-        script.module.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user.is_authenticated:
+            action = 'run' if request.method == 'POST' else 'view'
+            self.queryset = self.queryset.restrict(request.user, action)
 
     def _get_script(self, pk):
         # If pk is numeric, retrieve script by ID

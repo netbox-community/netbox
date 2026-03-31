@@ -33,6 +33,7 @@ __all__ = (
     'NotificationGroupFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
+    'ScriptModuleFilterSet',
     'TableConfigFilterSet',
     'TagFilterSet',
     'TaggedItemFilterSet',
@@ -61,6 +62,24 @@ class ScriptFilterSet(BaseFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value)
+        )
+
+
+class ScriptModuleFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = ScriptModule
+        fields = ('id', 'file_path')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(file_path__icontains=value)
         )
 
 

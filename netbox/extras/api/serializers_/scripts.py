@@ -23,7 +23,6 @@ __all__ = (
 
 
 class ScriptModuleSerializer(ValidatedModelSerializer):
-    url = None
     data_source = DataSourceSerializer(nested=True, required=False, allow_null=True)
     data_file = DataFileSerializer(nested=True, required=False, allow_null=True)
     upload_file = serializers.FileField(write_only=True, required=False, allow_null=True)
@@ -32,11 +31,11 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
     class Meta:
         model = ScriptModule
         fields = [
-            'id', 'display', 'file_path', 'upload_file',
+            'id', 'url', 'display', 'file_path', 'upload_file',
             'data_source', 'data_file', 'auto_sync_enabled',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'display')
+        brief_fields = ('id', 'url', 'display')
 
     def validate(self, data):
         upload_file = data.pop('upload_file', None)
@@ -118,6 +117,14 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
                     storages.create_storage(storages.backends["scripts"]).delete(file_path)
                 except Exception:
                     pass
+
+    def update(self, instance, validated_data):
+        upload_file = validated_data.pop('upload_file', None)
+        if upload_file:
+            self._save_upload(upload_file, validated_data)
+        elif data_file := validated_data.get('data_file'):
+            self._sync_data_file(data_file, validated_data)
+        return super().update(instance, validated_data)
 
 
 class ScriptSerializer(ValidatedModelSerializer):

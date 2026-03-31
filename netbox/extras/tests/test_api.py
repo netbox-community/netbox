@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -1388,7 +1389,7 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ScriptUploadTest(APITestCase):
+class ScriptModuleTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -1402,10 +1403,30 @@ class ScriptUploadTest(APITestCase):
             hash=hashlib.sha256(script_content).hexdigest(),
             data=script_content,
         )
+        # Use bulk_create to bypass ScriptModule.save() which tries to sync classes from disk
+        cls.modules = ScriptModule.objects.bulk_create((
+            ScriptModule(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='module1.py'),
+            ScriptModule(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='module2.py'),
+            ScriptModule(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='module3.py'),
+        ))
 
     def setUp(self):
         super().setUp()
-        self.url_list = reverse('extras-api:script-list')
+        self.url_list = reverse('extras-api:scriptmodule-list')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_list_script_modules(self):
+        response = self.client.get(self.url_list, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 3)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_get_script_module(self):
+        module = self.modules[0]
+        url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['file_path'], module.file_path)
 
     def test_upload_script_module_without_permission(self):
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
@@ -1490,28 +1511,25 @@ class ScriptUploadTest(APITestCase):
         self.assertEqual(response.data['file_path'], 'test_datasource.py')
         self.assertTrue(ScriptModule.objects.filter(file_path='test_datasource.py').exists())
 
-    def test_destroy_script_module(self):
+    def test_delete_script_module(self):
         """DELETE removes the ScriptModule and returns 204."""
-        self.add_permissions('extras.delete_scriptmodule', 'extras.view_script')
-        from extras.models import Script
+        self.add_permissions('extras.delete_scriptmodule', 'core.delete_managedfile',
+                             'extras.view_scriptmodule')
         module = ScriptModule.objects.create(
-            file_root='scripts', file_path='to_delete.py',
+            file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='to_delete.py',
         )
-        script = Script.objects.create(module=module, name='ToDelete', is_executable=True)
-        url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
+        url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
         response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
         self.assertFalse(ScriptModule.objects.filter(pk=module.pk).exists())
 
-    def test_destroy_script_module_without_permission(self):
+    def test_delete_script_module_without_permission(self):
         """DELETE without delete_scriptmodule permission returns 403."""
-        self.add_permissions('extras.view_script')
-        from extras.models import Script
+        self.add_permissions('extras.view_scriptmodule')
         module = ScriptModule.objects.create(
-            file_root='scripts', file_path='no_delete.py',
+            file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='no_delete.py',
         )
-        script = Script.objects.create(module=module, name='NoDelete', is_executable=True)
-        url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
+        url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
         response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
         self.assertTrue(ScriptModule.objects.filter(pk=module.pk).exists())
