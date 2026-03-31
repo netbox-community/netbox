@@ -65,7 +65,7 @@ class ScriptFilterSet(BaseFilterSet):
         )
 
 
-class ScriptModuleFilterSet(BaseFilterSet):
+class ScriptModuleFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),

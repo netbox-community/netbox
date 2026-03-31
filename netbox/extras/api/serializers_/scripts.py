@@ -118,7 +118,15 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             self._save_upload(upload_file, validated_data)
         elif data_file := validated_data.get('data_file'):
             self._sync_data_file(data_file, validated_data)
-        return super().update(instance, validated_data)
+        try:
+            return super().update(instance, validated_data)
+        except Exception:
+            if file_path := validated_data.get('file_path'):
+                try:
+                    storages.create_storage(storages.backends["scripts"]).delete(file_path)
+                except Exception:
+                    pass
+            raise
 
 
 class ScriptSerializer(ValidatedModelSerializer):
