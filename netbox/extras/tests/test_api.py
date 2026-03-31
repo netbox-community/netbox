@@ -277,7 +277,7 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
             ]
         }
 
-        response = self.client.post(self.url_list, data, format='json', **self.header)
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(response.status_code, 400)
 
 

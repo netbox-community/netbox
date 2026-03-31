@@ -1,7 +1,6 @@
 import logging
 from collections import defaultdict
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.backends import RemoteUserBackend as _RemoteUserBackend
@@ -141,15 +140,9 @@ class ObjectPermissionMixin:
         # Sanity check: Ensure that the requested permission applies to the specified object
         model = obj._meta.concrete_model
         if model._meta.label_lower != '.'.join((app_label, model_name)):
-            # Allow proxy models: the permission may name a proxy whose concrete model matches
-            try:
-                perm_model = apps.get_model(app_label, model_name)
-            except LookupError:
-                perm_model = None
-            if perm_model is None or perm_model._meta.concrete_model != model:
-                raise ValueError(_("Invalid permission {permission} for model {model}").format(
-                    permission=perm, model=model
-                ))
+            raise ValueError(_("Invalid permission {permission} for model {model}").format(
+                permission=perm, model=model
+            ))
 
         # Compile a QuerySet filter that matches all instances of the specified model
         tokens = {
