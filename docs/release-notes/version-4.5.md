@@ -1,5 +1,24 @@
 # NetBox v4.5
 
+## v4.5.6 (2026-03-31)
+
+### Enhancements
+
+* [#21480](https://github.com/netbox-community/netbox/issues/21480) - Add OSFP224 (1.6T) interface type
+* [#21727](https://github.com/netbox-community/netbox/issues/21727) - Add 2.5GBASE-X SFP modular interface type
+* [#21743](https://github.com/netbox-community/netbox/issues/21743) - Improve object change diff styling and layout
+* [#21793](https://github.com/netbox-community/netbox/issues/21793) - Add 50 Gbps, 800 Gbps, and 1.6 Tbps interface speed options
+
+### Bug Fixes
+
+* [#20467](https://github.com/netbox-community/netbox/issues/20467) - Fix resolution of the `{module}` variable for position fields in nested modules
+* [#21698](https://github.com/netbox-community/netbox/issues/21698) - Adjust custom field URL filter to support non-standard port numbers
+* [#21707](https://github.com/netbox-community/netbox/issues/21707) - Fix grouping of owner fields in provider account add/edit forms
+* [#21749](https://github.com/netbox-community/netbox/issues/21749) - Fix `FieldError` exception when sorting the circuit group assignment table by the member column
+* [#21763](https://github.com/netbox-community/netbox/issues/21763) - Use separate add/remove form fields when editing a site or provider with a large number of ASNs assigned
+
+---
+
 ## v4.5.5 (2026-03-17)
 
 ### Enhancements
