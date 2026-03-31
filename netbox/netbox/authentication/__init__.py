@@ -142,7 +142,11 @@ class ObjectPermissionMixin:
         # Also accept permissions for proxy models whose concrete model matches the object's.
         model = obj._meta.concrete_model
         if model._meta.label_lower != '.'.join((app_label, model_name)):
-            if apps.get_model(app_label, model_name)._meta.concrete_model != model:
+            try:
+                perm_model = apps.get_model(app_label, model_name)
+            except LookupError:
+                perm_model = None
+            if not perm_model or perm_model._meta.concrete_model != model:
                 raise ValueError(_("Invalid permission {permission} for model {model}").format(
                     permission=perm, model=model
                 ))

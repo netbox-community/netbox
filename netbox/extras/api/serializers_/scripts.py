@@ -98,19 +98,26 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
             self._save_upload(upload_file, validated_data)
         elif data_file := validated_data.get('data_file'):
             self._sync_data_file(data_file, validated_data)
+        created = False
         try:
-            return super().create(validated_data)
+            instance = super().create(validated_data)
+            created = True
+            return instance
         except IntegrityError:
             # ManagedFile has a single unique constraint: (file_root, file_path), so an
             # IntegrityError here always means a duplicate file name regardless of which
             # path (upload or data_file sync) set validated_data['file_path'].
-            # Clean up the file written to disk before the failed DB insert.
-            if file_path := validated_data.get('file_path'):
-                storage = storages.create_storage(storages.backends["scripts"])
-                storage.delete(file_path)
             raise serializers.ValidationError(
                 _("A script module with this file name already exists.")
             )
+        finally:
+            # On any failure, remove the file written to disk so no orphans are left behind.
+            # Uses best-effort deletion (ignores errors) to avoid masking the original exception.
+            if not created and (file_path := validated_data.get('file_path')):
+                try:
+                    storages.create_storage(storages.backends["scripts"]).delete(file_path)
+                except Exception:
+                    pass
 
 
 class ScriptSerializer(ValidatedModelSerializer):
