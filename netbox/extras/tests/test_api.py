@@ -1419,7 +1419,7 @@ class ScriptModuleTest(APITestCase):
 
     def setUp(self):
         super().setUp()
-        self.url_list = reverse('extras-api:scriptmodule-list')
+        self.url_list = reverse('extras-api:scriptmodule-list')  # /api/extras/script-upload/
 
     def test_upload_script_module_without_permission(self):
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
