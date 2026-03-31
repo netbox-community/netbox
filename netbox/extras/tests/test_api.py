@@ -1472,11 +1472,14 @@ class ScriptUploadTest(APITestCase):
         """POST with data_source + data_file (JSON) creates a ScriptModule with the correct file_path."""
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         mock_storage = MagicMock()
-        mock_storage.open.return_value.__enter__ = MagicMock(return_value=MagicMock())
-        mock_storage.open.return_value.__exit__ = MagicMock(return_value=False)
-        with patch('extras.api.serializers_.scripts.storages') as mock_storages:
-            mock_storages.create_storage.return_value = mock_storage
-            mock_storages.backends = {'scripts': {}}
+        # Patch storages in both the serializer (for _sync_data_file) and the model
+        # (for ManagedFile.sync_data(), which is called by SyncedDataMixin.clean() during
+        # ValidatedModelSerializer.validate() → full_clean()).
+        with patch('extras.api.serializers_.scripts.storages') as mock_ser_storages, \
+                patch('core.models.files.storages') as mock_model_storages:
+            for m in (mock_ser_storages, mock_model_storages):
+                m.create_storage.return_value = mock_storage
+                m.backends = {'scripts': {}}
             response = self.client.post(
                 self.url_list,
                 {'data_source': self.data_source.pk, 'data_file': self.data_file.pk},
