@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from utilities.templatetags.helpers import humanize_disk_megabytes
+from utilities.templatetags.helpers import humanize_disk_capacity, humanize_ram_capacity
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 from .template_code import *
@@ -93,8 +93,11 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModel
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
 
+    def render_memory(self, value):
+        return humanize_ram_capacity(value)
+
     def render_disk(self, value):
-        return humanize_disk_megabytes(value)
+        return humanize_disk_capacity(value)
 
 
 #
@@ -184,7 +187,7 @@ class VirtualDiskTable(NetBoxTable):
         }
 
     def render_size(self, value):
-        return humanize_disk_megabytes(value)
+        return humanize_disk_capacity(value)
 
 
 class VirtualMachineVirtualDiskTable(VirtualDiskTable):

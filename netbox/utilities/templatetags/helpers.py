@@ -18,10 +18,11 @@ __all__ = (
     'applied_filters',
     'as_range',
     'divide',
+    'get_capacity_unit_label',
     'get_item',
     'get_key',
-    'humanize_disk_megabytes',
-    'humanize_ram_megabytes',
+    'humanize_disk_capacity',
+    'humanize_ram_capacity',
     'humanize_speed',
     'icon_from_status',
     'kg_to_pounds',
@@ -208,42 +209,59 @@ def humanize_speed(speed):
     return '{} Kbps'.format(speed)
 
 
-def _humanize_megabytes(mb, divisor=1000):
+def get_capacity_unit_label(divisor=1000):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
+    Return the appropriate base unit label: 'MiB' for binary (1024), 'MB' for decimal (1000).
     """
-    if not mb:
+    return 'MiB' if divisor == 1024 else 'MB'
+
+
+def _humanize_capacity(value, divisor=1000):
+    """
+    Express a capacity value in the most suitable unit (e.g. GB, TiB, etc.).
+
+    The value is treated as a unitless base-unit quantity; the divisor determines
+    both the scaling thresholds and the label convention:
+      - 1000: SI labels (MB, GB, TB, PB)
+      - 1024: IEC labels (MiB, GiB, TiB, PiB)
+    """
+    if not value:
         return ""
+
+    if divisor == 1024:
+        labels = ('MiB', 'GiB', 'TiB', 'PiB')
+    else:
+        labels = ('MB', 'GB', 'TB', 'PB')
 
     PB_SIZE = divisor**3
     TB_SIZE = divisor**2
     GB_SIZE = divisor
 
-    if mb >= PB_SIZE:
-        return f"{mb / PB_SIZE:.2f} PB"
-    if mb >= TB_SIZE:
-        return f"{mb / TB_SIZE:.2f} TB"
-    if mb >= GB_SIZE:
-        return f"{mb / GB_SIZE:.2f} GB"
-    return f"{mb} MB"
+    if value >= PB_SIZE:
+        return f"{value / PB_SIZE:.2f} {labels[3]}"
+    if value >= TB_SIZE:
+        return f"{value / TB_SIZE:.2f} {labels[2]}"
+    if value >= GB_SIZE:
+        return f"{value / GB_SIZE:.2f} {labels[1]}"
+    return f"{value} {labels[0]}"
 
 
 @register.filter()
-def humanize_disk_megabytes(mb):
+def humanize_disk_capacity(value):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
-    Use the DISK_BASE_UNIT setting to determine the divisor. Default is 1000.
+    Express a disk capacity in the most suitable unit, using the DISK_BASE_UNIT
+    setting to select SI (MB/GB) or IEC (MiB/GiB) labels.
     """
-    return _humanize_megabytes(mb, DISK_BASE_UNIT)
+    return _humanize_capacity(value, DISK_BASE_UNIT)
 
 
 @register.filter()
-def humanize_ram_megabytes(mb):
+def humanize_ram_capacity(value):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
-    Use the RAM_BASE_UNIT setting to determine the divisor. Default is 1000.
+    Express a RAM capacity in the most suitable unit, using the RAM_BASE_UNIT
+    setting to select SI (MB/GB) or IEC (MiB/GiB) labels.
     """
-    return _humanize_megabytes(mb, RAM_BASE_UNIT)
+    return _humanize_capacity(value, RAM_BASE_UNIT)
 
 
 @register.filter()
