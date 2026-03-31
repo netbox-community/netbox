@@ -254,6 +254,21 @@ class Trunk8C4PCableProfile(BaseCableProfile):
     b_connectors = a_connectors
 
 
+class Breakout1C2Px2C1PCableProfile(BaseCableProfile):
+    a_connectors = {
+        1: 2,
+    }
+    b_connectors = {
+        1: 1,
+        2: 1,
+    }
+    _mapping = {
+        (1, 1): (1, 1),
+        (1, 2): (2, 1),
+        (2, 1): (1, 2),
+    }
+
+
 class Breakout1C4Px4C1PCableProfile(BaseCableProfile):
     a_connectors = {
         1: 4,
