@@ -336,13 +336,15 @@ class TextCodePanel(ObjectPanel):
     """
     template_name = 'ui/panels/text_code.html'
 
-    def __init__(self, field_name, **kwargs):
+    def __init__(self, field_name, show_sync_warning=False, **kwargs):
         super().__init__(**kwargs)
         self.field_name = field_name
+        self.show_sync_warning = show_sync_warning
 
     def get_context(self, context):
         return {
             **super().get_context(context),
+            'show_sync_warning': self.show_sync_warning,
             'value': getattr(context.get('object'), self.field_name, None),
         }
 

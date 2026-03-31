@@ -309,7 +309,7 @@ class ExportTemplateView(generic.ObjectView):
             JSONPanel('environment_params', title=_('Environment Parameters')),
         ],
         bottom_panels=[
-            TextCodePanel('template_code', title=_('Template')),
+            TextCodePanel('template_code', title=_('Template'), show_sync_warning=True),
         ],
     )
 
@@ -1182,7 +1182,7 @@ class ConfigTemplateView(generic.ObjectView):
             JSONPanel('environment_params', title=_('Environment Parameters')),
         ],
         bottom_panels=[
-            TextCodePanel('template_code', title=_('Template')),
+            TextCodePanel('template_code', title=_('Template'), show_sync_warning=True),
         ],
     )
 
