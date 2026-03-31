@@ -13,11 +13,12 @@ from ipam.models import VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.forms import TenancyForm
-from utilities.forms import ConfirmationForm
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField
+from utilities.forms import ConfirmationForm, get_field_value
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
-from virtualization.models import *
+
+from ..models import *
 
 __all__ = (
     'ClusterAddDevicesForm',
@@ -28,6 +29,7 @@ __all__ = (
     'VMInterfaceForm',
     'VirtualDiskForm',
     'VirtualMachineForm',
+    'VirtualMachineTypeForm',
 )
 
 
@@ -167,7 +169,35 @@ class ClusterRemoveDevicesForm(ConfirmationForm):
     )
 
 
+class VirtualMachineTypeForm(PrimaryModelForm):
+    slug = SlugField()
+    default_platform = DynamicModelChoiceField(
+        label=_('Default platform'),
+        queryset=Platform.objects.all(),
+        required=False,
+        selector=True,
+    )
+
+    fieldsets = (
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Virtual Machine Type')),
+        FieldSet('default_platform', 'default_vcpus', 'default_memory', name=_('Defaults')),
+    )
+
+    class Meta:
+        model = VirtualMachineType
+        fields = (
+            'name', 'slug', 'default_platform', 'default_vcpus', 'default_memory', 'description',
+            'owner', 'comments', 'tags',
+        )
+
+
 class VirtualMachineForm(TenancyForm, PrimaryModelForm):
+    virtual_machine_type = forms.ModelChoiceField(
+        label=_('Type'),
+        queryset=VirtualMachineType.objects.all(),
+        required=False,
+        widget=HTMXSelect(),
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -226,7 +256,10 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'role', 'status', 'start_on_boot', 'description', 'serial', 'tags', name=_('Virtual Machine')),
+        FieldSet(
+            'name', 'virtual_machine_type', 'role', 'status', 'start_on_boot', 'description', 'serial', 'tags',
+            name=_('Virtual Machine')
+        ),
         FieldSet('site', 'cluster', 'device', name=_('Placement')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('platform', 'primary_ip4', 'primary_ip6', 'config_template', name=_('Management')),
@@ -237,13 +270,16 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = VirtualMachine
         fields = [
-            'name', 'status', 'start_on_boot', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant',
-            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial', 'owner',
-            'comments', 'tags', 'local_context_data', 'config_template',
+            'name', 'virtual_machine_type', 'role', 'status', 'start_on_boot', 'site', 'cluster', 'device',
+            'platform', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'serial',
+            'tenant_group', 'tenant', 'owner', 'comments', 'tags', 'local_context_data', 'config_template',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Populate virtual machine type defaults, if any
+        self._populate_virtual_machine_type_defaults()
 
         if self.instance.pk:
 
@@ -284,6 +320,36 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
             # An object that doesn't exist yet can't have any IPs assigned to it
             self.fields.pop('primary_ip4')
             self.fields.pop('primary_ip6')
+
+    def _populate_virtual_machine_type_defaults(self):
+        """
+        Populate platform/vCPUs/memory from the selected VirtualMachineType.
+
+        For new VMs, always apply defaults. For existing VMs, only apply
+        defaults when the type changes and the field is currently empty.
+        """
+        if not (virtual_machine_type_id := get_field_value(self, 'virtual_machine_type')):
+            return
+
+        is_new = not self.instance.pk
+
+        # Skip if editing and the type hasn't changed
+        if not is_new and int(virtual_machine_type_id) == self.instance.virtual_machine_type_id:
+            return
+
+        if not (virtual_machine_type := VirtualMachineType.objects.filter(pk=virtual_machine_type_id).first()):
+            return
+
+        defaults = {
+            'platform': ('default_platform_id', 'platform_id'),
+            'vcpus': ('default_vcpus', 'vcpus'),
+            'memory': ('default_memory', 'memory'),
+        }
+
+        for field_name, (type_attr, instance_attr) in defaults.items():
+            default_value = getattr(virtual_machine_type, type_attr)
+            if default_value is not None and (is_new or getattr(self.instance, instance_attr) is None):
+                self.initial[field_name] = default_value
 
 
 #

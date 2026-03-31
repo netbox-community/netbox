@@ -1,10 +1,104 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from dcim.models import Site
+from dcim.models import Platform, Site
 from tenancy.models import Tenant
 from utilities.testing import create_test_device
 from virtualization.models import *
+
+
+class VirtualMachineTypeTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.platform = Platform.objects.create(
+            name='Type Test Ubuntu 24.04',
+            slug='type-test-ubuntu-24-04',
+        )
+        cls.virtual_machine_type = VirtualMachineType.objects.create(
+            name='Small Linux',
+            slug='small-linux',
+            default_platform=cls.platform,
+            default_vcpus=Decimal('2.00'),
+            default_memory=4096,
+        )
+
+        cls.cluster_type = ClusterType.objects.create(
+            name='VM Type Count Cluster Type',
+            slug='vm-type-count-cluster-type',
+        )
+        cls.site = Site.objects.create(
+            name='VM Type Count Site',
+            slug='vm-type-count-site',
+        )
+        cls.cluster = Cluster.objects.create(
+            name='VM Type Count Cluster',
+            type=cls.cluster_type,
+            scope=cls.site,
+        )
+
+    def test_virtual_machine_type_str_and_defaults(self):
+        """
+        Verify that the string representation of a VirtualMachineType returns
+        its name, and that all default fields (platform, vcpus, memory) are
+        stored correctly after creation.
+        """
+        self.assertEqual(str(self.virtual_machine_type), 'Small Linux')
+        self.assertEqual(self.virtual_machine_type.default_platform, self.platform)
+        self.assertEqual(self.virtual_machine_type.default_vcpus, Decimal('2.00'))
+        self.assertEqual(self.virtual_machine_type.default_memory, 4096)
+
+    def test_virtual_machine_type_virtual_machine_count(self):
+        """
+        The virtual_machine_count counter cache field should accurately track
+        the number of VirtualMachines referencing this type through creation,
+        additional insertions, reassignment, and deletion.
+        """
+        # Starts at zero
+        self.assertEqual(self.virtual_machine_type.virtual_machine_count, 0)
+
+        # Create the first VM
+        vm1 = VirtualMachine.objects.create(
+            name='vm-count-test-1',
+            cluster=self.cluster,
+            virtual_machine_type=self.virtual_machine_type,
+        )
+        self.virtual_machine_type.refresh_from_db()
+        self.assertEqual(self.virtual_machine_type.virtual_machine_count, 1)
+
+        # Create the second VM
+        vm2 = VirtualMachine.objects.create(
+            name='vm-count-test-2',
+            cluster=self.cluster,
+            virtual_machine_type=self.virtual_machine_type,
+        )
+        self.virtual_machine_type.refresh_from_db()
+        self.assertEqual(self.virtual_machine_type.virtual_machine_count, 2)
+
+        # Delete one VM — count should decrement
+        vm1.delete()
+        self.virtual_machine_type.refresh_from_db()
+        self.assertEqual(self.virtual_machine_type.virtual_machine_count, 1)
+
+        # Reassign the remaining VM to no type — count should drop to zero
+        vm2.virtual_machine_type = None
+        vm2.save()
+        self.virtual_machine_type.refresh_from_db()
+        self.assertEqual(self.virtual_machine_type.virtual_machine_count, 0)
+
+    def test_virtual_machine_type_invalid_default_vcpus(self):
+        """
+        default_vcpus below the minimum should fail validation.
+        """
+        vmt = VirtualMachineType(
+            name='Zero vCPU Type',
+            slug='zero-vcpu-type',
+            default_vcpus=Decimal('0.00'),
+        )
+        with self.assertRaises(ValidationError):
+            vmt.full_clean()
 
 
 class VirtualMachineTestCase(TestCase):
@@ -13,6 +107,12 @@ class VirtualMachineTestCase(TestCase):
     def setUpTestData(cls):
         # Create the cluster type
         cls.cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+
+        # Create platforms
+        cls.platforms = (
+            Platform.objects.create(name='VM Default Ubuntu 24.04', slug='vm-default-ubuntu-24-04'),
+            Platform.objects.create(name='VM Default Debian 12', slug='vm-default-debian-12'),
+        )
 
         # Create sites
         cls.sites = (
@@ -57,6 +157,24 @@ class VirtualMachineTestCase(TestCase):
         cls.tenants = (
             Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
             Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
+        )
+
+        # Create virtual machine types
+        cls.vm_types = (
+            VirtualMachineType.objects.create(
+                name='General Purpose Small',
+                slug='general-purpose-small',
+                default_platform=cls.platforms[0],
+                default_vcpus=Decimal('2.00'),
+                default_memory=4096,
+            ),
+            VirtualMachineType.objects.create(
+                name='General Purpose Large',
+                slug='general-purpose-large',
+                default_platform=cls.platforms[1],
+                default_vcpus=Decimal('8.00'),
+                default_memory=16384,
+            ),
         )
 
     def test_vm_duplicate_name_per_cluster(self):
@@ -156,6 +274,181 @@ class VirtualMachineTestCase(TestCase):
         vm.disk = 30
         with self.assertRaises(ValidationError):
             vm.full_clean()
+
+    #
+    # Virtual Machine Type tests
+    #
+
+    def test_vm_type_defaults_applied_on_create(self):
+        """
+        When a new VirtualMachine is created with a VirtualMachineType and no
+        explicit platform, vcpus, or memory, the type's defaults should be
+        automatically applied via apply_type_defaults().
+        """
+        vm = VirtualMachine(
+            name='vm-type-defaults',
+            cluster=self.cluster_with_site,
+            virtual_machine_type=self.vm_types[0],
+        )
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertEqual(vm.platform, self.platforms[0])
+        self.assertEqual(vm.vcpus, Decimal('2.00'))
+        self.assertEqual(vm.memory, 4096)
+
+    def test_vm_type_defaults_do_not_override_explicit_values(self):
+        """
+        When a new VirtualMachine specifies explicit values for a platform,
+        vcpus, and memory, those values must be preserved even if the
+        assigned VirtualMachineType defines different defaults.
+        """
+        vm = VirtualMachine(
+            name='vm-type-explicit',
+            cluster=self.cluster_with_site,
+            virtual_machine_type=self.vm_types[0],
+            platform=self.platforms[1],
+            vcpus=Decimal('4.00'),
+            memory=8192,
+        )
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertEqual(vm.platform, self.platforms[1])
+        self.assertEqual(vm.vcpus, Decimal('4.00'))
+        self.assertEqual(vm.memory, 8192)
+
+    def test_vm_type_added_to_existing_vm_does_not_backfill_defaults(self):
+        """
+        Assigning a VirtualMachineType to an already-saved VirtualMachine
+        (i.e. an update, not a creation) must not retroactively populate
+        the VM's fields with the type's defaults, since apply_type_defaults()
+        only runs on initial creation.
+        """
+        vm = VirtualMachine(
+            name='vm-type-added-later',
+            cluster=self.cluster_with_site,
+        )
+        vm.full_clean()
+        vm.save()
+
+        vm.virtual_machine_type = self.vm_types[0]
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertEqual(vm.virtual_machine_type, self.vm_types[0])
+        self.assertIsNone(vm.platform)
+        self.assertIsNone(vm.vcpus)
+        self.assertIsNone(vm.memory)
+
+    def test_vm_type_change_does_not_overwrite_existing_values(self):
+        """
+        Changing the VirtualMachineType on an existing VirtualMachine must
+        not overwrite field values that were previously set — either
+        explicitly or via earlier type defaults.
+        """
+        vm = VirtualMachine(
+            name='vm-type-change',
+            cluster=self.cluster_with_site,
+            virtual_machine_type=self.vm_types[0],
+        )
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertEqual(vm.platform, self.platforms[0])
+        self.assertEqual(vm.vcpus, Decimal('2.00'))
+        self.assertEqual(vm.memory, 4096)
+
+        vm.platform = self.platforms[1]
+        vm.vcpus = Decimal('6.00')
+        vm.memory = 12288
+        vm.virtual_machine_type = self.vm_types[1]
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertEqual(vm.platform, self.platforms[1])
+        self.assertEqual(vm.vcpus, Decimal('6.00'))
+        self.assertEqual(vm.memory, 12288)
+        self.assertEqual(vm.virtual_machine_type, self.vm_types[1])
+
+    def test_vm_type_partial_defaults(self):
+        """
+        A VirtualMachineType with only some defaults set should only populate
+        those fields on a new VM, leaving the rest as None.
+        """
+        partial_type = VirtualMachineType.objects.create(
+            name='Partial Defaults',
+            slug='partial-defaults',
+            default_vcpus=Decimal('4.00'),
+            # default_platform and default_memory intentionally left None
+        )
+
+        vm = VirtualMachine(
+            name='vm-partial-defaults',
+            cluster=self.cluster_with_site,
+            virtual_machine_type=partial_type,
+        )
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertIsNone(vm.platform)
+        self.assertEqual(vm.vcpus, Decimal('4.00'))
+        self.assertIsNone(vm.memory)
+
+    def test_vm_type_no_defaults(self):
+        """
+        A VirtualMachineType with all default fields as None should not
+        alter any VM fields on creation.
+        """
+        empty_type = VirtualMachineType.objects.create(
+            name='Empty Type',
+            slug='empty-type',
+        )
+
+        vm = VirtualMachine(
+            name='vm-empty-type',
+            cluster=self.cluster_with_site,
+            virtual_machine_type=empty_type,
+        )
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertEqual(vm.virtual_machine_type, empty_type)
+        self.assertIsNone(vm.platform)
+        self.assertIsNone(vm.vcpus)
+        self.assertIsNone(vm.memory)
+
+    def test_vm_created_without_type(self):
+        """
+        A VM created without a VirtualMachineType should not raise any errors
+        in apply_type_defaults() and should leave all fields as None.
+        """
+        vm = VirtualMachine(
+            name='vm-no-type',
+            cluster=self.cluster_with_site,
+        )
+        vm.full_clean()
+        vm.save()
+        vm.refresh_from_db()
+
+        self.assertIsNone(vm.virtual_machine_type)
+        self.assertIsNone(vm.platform)
+        self.assertIsNone(vm.vcpus)
+        self.assertIsNone(vm.memory)
+
+    def test_vm_type_is_included_in_clone_fields(self):
+        """
+        Verify that virtual_machine_type is part of clone_fields so it
+        carries over when cloning a VM.
+        """
+        self.assertIn('virtual_machine_type', VirtualMachine.clone_fields)
 
     #
     # Device assignment tests

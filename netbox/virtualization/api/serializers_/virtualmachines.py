@@ -16,10 +16,10 @@ from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 from users.api.serializers_.mixins import OwnerMixin
-from virtualization.choices import *
-from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 
+from ...choices import *
+from ...models import VirtualDisk, VirtualMachine, VirtualMachineType, VMInterface
 from .clusters import ClusterSerializer
 from .nested import NestedVMInterfaceSerializer
 
@@ -27,11 +27,29 @@ __all__ = (
     'VMInterfaceSerializer',
     'VirtualDiskSerializer',
     'VirtualMachineSerializer',
+    'VirtualMachineTypeSerializer',
     'VirtualMachineWithConfigContextSerializer',
 )
 
 
+class VirtualMachineTypeSerializer(PrimaryModelSerializer):
+    default_platform = PlatformSerializer(nested=True, required=False, allow_null=True)
+
+    # Counter fields
+    virtual_machine_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = VirtualMachineType
+        fields = [
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'default_platform', 'default_vcpus',
+            'default_memory', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated', 'virtual_machine_count',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+
+
 class VirtualMachineSerializer(PrimaryModelSerializer):
+    virtual_machine_type = VirtualMachineTypeSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
     start_on_boot = ChoiceField(choices=VirtualMachineStartOnBootChoices, required=False)
     site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -52,10 +70,10 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
     class Meta:
         model = VirtualMachine
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'start_on_boot', 'site', 'cluster', 'device',
-            'serial', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
-            'disk', 'description', 'owner', 'comments', 'config_template', 'local_context_data', 'tags',
-            'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
+            'id', 'url', 'display_url', 'display', 'name', 'virtual_machine_type', 'role', 'status', 'start_on_boot',
+            'site', 'cluster', 'device', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
+            'disk', 'description', 'serial', 'tenant', 'owner', 'comments', 'tags', 'local_context_data',
+            'config_template', 'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -65,10 +83,11 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
     class Meta(VirtualMachineSerializer.Meta):
         fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'status', 'start_on_boot', 'site', 'cluster', 'device',
-            'serial', 'role', 'tenant', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
-            'disk', 'description', 'owner', 'comments', 'config_template', 'local_context_data', 'tags',
-            'custom_fields', 'config_context', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
+            'id', 'url', 'display_url', 'display', 'name', 'virtual_machine_type', 'role', 'status', 'start_on_boot',
+            'site', 'cluster', 'device', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
+            'disk', 'description', 'serial', 'tenant', 'owner', 'comments', 'tags', 'local_context_data',
+            'config_template', 'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
+            'config_context',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

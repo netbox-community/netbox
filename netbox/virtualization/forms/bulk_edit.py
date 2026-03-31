@@ -14,8 +14,9 @@ from utilities.forms import BulkRenameForm, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
-from virtualization.choices import *
-from virtualization.models import *
+
+from ..choices import *
+from ..models import *
 
 __all__ = (
     'ClusterBulkEditForm',
@@ -26,6 +27,7 @@ __all__ = (
     'VirtualDiskBulkEditForm',
     'VirtualDiskBulkRenameForm',
     'VirtualMachineBulkEditForm',
+    'VirtualMachineTypeBulkEditForm',
 )
 
 
@@ -78,7 +80,37 @@ class ClusterBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     )
 
 
+class VirtualMachineTypeBulkEditForm(PrimaryModelBulkEditForm):
+    default_platform = DynamicModelChoiceField(
+        label=_('Default platform'),
+        queryset=Platform.objects.all(),
+        required=False
+    )
+    default_vcpus = forms.IntegerField(
+        label=_('Default vCPUs'),
+        required=False,
+    )
+    default_memory = forms.IntegerField(
+        label=_('Default Memory (MB)'),
+        required=False,
+    )
+
+    model = VirtualMachineType
+    fieldsets = (
+        FieldSet('description', name=_('Virtual Machine Type')),
+        FieldSet('default_platform', 'default_vcpus', 'default_memory', name=_('Defaults')),
+    )
+    nullable_fields = (
+        'default_platform', 'default_vcpus', 'default_memory', 'description', 'comments',
+    )
+
+
 class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
+    virtual_machine_type = DynamicModelChoiceField(
+        label=_('Virtual machine type'),
+        queryset=VirtualMachineType.objects.all(),
+        required=False
+    )
     status = forms.ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VirtualMachineStatusChoices),
@@ -152,13 +184,14 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        FieldSet('status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('virtual_machine_type', 'status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
         FieldSet('site', 'cluster', 'device', name=_('Placement')),
         FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
         FieldSet('config_template', name=_('Configuration')),
     )
     nullable_fields = (
-        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'description', 'comments',
+        'virtual_machine_type', 'role', 'site', 'cluster', 'device', 'platform', 'vcpus', 'memory', 'disk', 'tenant',
+        'description', 'comments',
     )
 
 

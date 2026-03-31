@@ -1305,6 +1305,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'virtualdevicecontext',
         'virtualdisk',
         'virtualmachine',
+        'virtualmachinetype',
         'vlan',
         'vlangroup',
         'vlantranslationpolicy',

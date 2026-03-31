@@ -12,13 +12,13 @@ class VirtualizationConfig(AppConfig):
         from utilities.permissions import ModelAction, register_model_actions
 
         from . import search, signals  # noqa: F401
-        from .models import VirtualMachine
+        from .models import VirtualMachine, VirtualMachineType
 
         # Register models
         register_models(*self.get_models())
 
         # Register counters
-        connect_counters(VirtualMachine)
+        connect_counters(VirtualMachine, VirtualMachineType)
 
         # Register custom permission actions
         register_model_actions(VirtualMachine, [
