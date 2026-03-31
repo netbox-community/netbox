@@ -278,7 +278,7 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
             ]
         }
 
-        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        response = self.client.post(self.url_list, data, format='json', **self.header)
         self.assertEqual(response.status_code, 400)
 
 
@@ -1390,6 +1390,19 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
 
 
 class ScriptModuleTest(APITestCase):
+    """
+    Tests for the /api/extras/script-modules/ endpoint.
+
+    ScriptModule is a proxy of core.ManagedFile (a different app) so the standard
+    APIViewTestCases mixins cannot be used directly:
+      - GraphQLTestCase: ScriptModule has no GraphQL type.
+      - CreateObjectViewTestCase: requires multipart file upload, not plain JSON create_data.
+      - Get/List/Update/DeleteObjectViewTestCase: the mixin's ObjectPermission setup resolves
+        ScriptModule to ManagedFile's ContentType (core.managedfile), producing a
+        core.change_managedfile grant. But TokenPermissions checks extras.change_scriptmodule,
+        causing a 403 despite the ObjectPermission existing.
+    All tests therefore use add_permissions() with explicit Django model-level permissions.
+    """
 
     @classmethod
     def setUpTestData(cls):
@@ -1403,30 +1416,10 @@ class ScriptModuleTest(APITestCase):
             hash=hashlib.sha256(script_content).hexdigest(),
             data=script_content,
         )
-        # Use bulk_create to bypass ScriptModule.save() which tries to sync classes from disk
-        cls.modules = ScriptModule.objects.bulk_create((
-            ScriptModule(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='module1.py'),
-            ScriptModule(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='module2.py'),
-            ScriptModule(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='module3.py'),
-        ))
 
     def setUp(self):
         super().setUp()
         self.url_list = reverse('extras-api:scriptmodule-list')
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_list_script_modules(self):
-        response = self.client.get(self.url_list, **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], 3)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_get_script_module(self):
-        module = self.modules[0]
-        url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
-        response = self.client.get(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['file_path'], module.file_path)
 
     def test_upload_script_module_without_permission(self):
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
@@ -1511,25 +1504,3 @@ class ScriptModuleTest(APITestCase):
         self.assertEqual(response.data['file_path'], 'test_datasource.py')
         self.assertTrue(ScriptModule.objects.filter(file_path='test_datasource.py').exists())
 
-    def test_delete_script_module(self):
-        """DELETE removes the ScriptModule and returns 204."""
-        self.add_permissions('extras.delete_scriptmodule', 'core.delete_managedfile',
-                             'extras.view_scriptmodule')
-        module = ScriptModule.objects.create(
-            file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='to_delete.py',
-        )
-        url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
-        response = self.client.delete(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(ScriptModule.objects.filter(pk=module.pk).exists())
-
-    def test_delete_script_module_without_permission(self):
-        """DELETE without delete_scriptmodule permission returns 403."""
-        self.add_permissions('extras.view_scriptmodule')
-        module = ScriptModule.objects.create(
-            file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='no_delete.py',
-        )
-        url = reverse('extras-api:scriptmodule-detail', kwargs={'pk': module.pk})
-        response = self.client.delete(url, **self.header)
-        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
-        self.assertTrue(ScriptModule.objects.filter(pk=module.pk).exists())

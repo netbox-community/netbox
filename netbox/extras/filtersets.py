@@ -9,12 +9,7 @@ from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxM
 from tenancy.models import Tenant, TenantGroup
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import Group, User
-from utilities.filters import (
-    MultiValueCharFilter,
-    MultiValueContentTypeFilter,
-    MultiValueDateTimeFilter,
-    MultiValueNumberFilter,
-)
+from utilities.filters import MultiValueCharFilter, MultiValueContentTypeFilter, MultiValueNumberFilter
 from utilities.filtersets import register_filterset
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -38,7 +33,6 @@ __all__ = (
     'NotificationGroupFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
-    'ScriptModuleFilterSet',
     'TableConfigFilterSet',
     'TagFilterSet',
     'TaggedItemFilterSet',
@@ -69,26 +63,6 @@ class ScriptFilterSet(BaseFilterSet):
             Q(name__icontains=value)
         )
 
-
-@register_filterset
-class ScriptModuleFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label=_('Search'),
-    )
-    created = MultiValueDateTimeFilter()
-    last_updated = MultiValueDateTimeFilter()
-
-    class Meta:
-        model = ScriptModule
-        fields = ('id', 'file_path', 'created', 'last_updated')
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(file_path__icontains=value)
-        )
 
 
 @register_filterset

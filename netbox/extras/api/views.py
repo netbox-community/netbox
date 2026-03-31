@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -263,10 +263,9 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
-class ScriptModuleViewSet(SyncedDataMixin, NetBoxModelViewSet):
+class ScriptModuleViewSet(CreateModelMixin, BaseViewSet):
     queryset = ScriptModule.objects.all()
     serializer_class = serializers.ScriptModuleSerializer
-    filterset_class = filtersets.ScriptModuleFilterSet
 
 
 class ScriptViewSet(ModelViewSet):
