@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue, get_queue_by_index, get_redis_connection
-from django_rq.settings import QUEUES_LIST, QUEUES_MAP
+from django_rq.settings import QUEUES_LIST, get_queues_map
 from django_rq.utils import get_jobs, stop_jobs
 from rq import requeue_job
 from rq.exceptions import NoSuchJobError
@@ -84,7 +84,7 @@ def delete_rq_job(job_id):
     except NoSuchJobError:
         raise Http404(_("Job {job_id} not found").format(job_id=job_id))
 
-    queue_index = QUEUES_MAP[job.origin]
+    queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
     # Remove job id from queue and delete the actual job
@@ -102,7 +102,7 @@ def requeue_rq_job(job_id):
     except NoSuchJobError:
         raise Http404(_("Job {id} not found.").format(id=job_id))
 
-    queue_index = QUEUES_MAP[job.origin]
+    queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
     requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
@@ -118,7 +118,7 @@ def enqueue_rq_job(job_id):
     except NoSuchJobError:
         raise Http404(_("Job {id} not found.").format(id=job_id))
 
-    queue_index = QUEUES_MAP[job.origin]
+    queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
     try:
@@ -150,7 +150,7 @@ def stop_rq_job(job_id):
     except NoSuchJobError:
         raise Http404(_("Job {job_id} not found").format(job_id=job_id))
 
-    queue_index = QUEUES_MAP[job.origin]
+    queue_index = get_queues_map()[job.origin]
     queue = get_queue_by_index(queue_index)
 
     return stop_jobs(queue, job_id)[0]

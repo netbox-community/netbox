@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
-from django_rq.settings import QUEUES_LIST, QUEUES_MAP
+from django_rq.settings import QUEUES_LIST, get_queues_map
 from django_rq.utils import get_statistics
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job
@@ -530,7 +530,7 @@ class BackgroundTaskView(BaseRQView):
         except NoSuchJobError:
             raise Http404(_("Job {job_id} not found").format(job_id=job_id))
 
-        queue_index = QUEUES_MAP[job.origin]
+        queue_index = get_queues_map()[job.origin]
         queue = get_queue_by_index(queue_index)
 
         try:
