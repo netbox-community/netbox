@@ -386,14 +386,14 @@ A complete date & time. Returns a `datetime.datetime` object.
 
 ## Uploading Scripts via the API
 
-Script modules can be uploaded to NetBox via the REST API by sending a `multipart/form-data` POST request to `/api/extras/scripts/`. The caller must have the `extras.add_scriptmodule` and `core.add_managedfile` permissions.
+Script modules can be uploaded to NetBox via the REST API by sending a `multipart/form-data` POST request to `/api/extras/script-modules/`. The caller must have the `extras.add_scriptmodule` and `core.add_managedfile` permissions.
 
 ```no-highlight
 curl -X POST \
 -H "Authorization: Token $TOKEN" \
 -H "Accept: application/json; indent=4" \
 -F "upload_file=@/path/to/myscript.py" \
-http://netbox/api/extras/scripts/
+http://netbox/api/extras/script-modules/
 ```
 
 Alternatively, a script module can be linked to an existing data source and data file instead of uploading a file directly:
@@ -403,7 +403,7 @@ curl -X POST \
 -H "Authorization: Token $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
-http://netbox/api/extras/scripts/ \
+http://netbox/api/extras/script-modules/ \
 --data '{"data_source": 1, "data_file": 42}'
 ```
 
