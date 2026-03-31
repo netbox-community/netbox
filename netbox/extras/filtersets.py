@@ -70,6 +70,7 @@ class ScriptFilterSet(BaseFilterSet):
         )
 
 
+@register_filterset
 class ScriptModuleFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
