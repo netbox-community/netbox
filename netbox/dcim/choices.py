@@ -1012,6 +1012,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
+    TYPE_2GE_SFP = '2.5gbase-x-sfp'
     TYPE_10GE_SFP_PLUS = '10gbase-x-sfpp'
     TYPE_10GE_XFP = '10gbase-x-xfp'
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
@@ -1039,8 +1040,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_400GE_OSFP_RHS = '400gbase-x-osfp-rhs'
     TYPE_400GE_CDFP = '400gbase-x-cdfp'
     TYPE_400GE_CFP8 = '400gbase-x-cfp8'
-    TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
-    TYPE_800GE_OSFP = '800gbase-x-osfp'
+    TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'  # TODO: Rename to _QSFP_DD800
+    TYPE_800GE_OSFP = '800gbase-x-osfp'  # TODO: Rename to _OSFP800
     TYPE_1TE_OSFP1600 = '1.6tbase-x-osfp1600'
     TYPE_1TE_OSFP1600_RHS = '1.6tbase-x-osfp1600-rhs'
     TYPE_1TE_QSFP_DD1600 = '1.6tbase-x-qsfpdd1600'
@@ -1321,6 +1322,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100ME_SFP, 'SFP (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
+                (TYPE_2GE_SFP, 'SFP (2.5GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
                 (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
                 (TYPE_10GE_XFP, 'XFP (10GE)'),
