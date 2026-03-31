@@ -42,16 +42,10 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
 
         # For multipart requests, nested serializer fields (data_source, data_file) are
         # silently dropped by DRF's HTML parser, so also check initial_data for raw values.
-        # These checks must run before super().validate() calls full_clean(), which would
-        # otherwise surface confusing unique-constraint errors for empty file_path values.
         has_data_file = data.get('data_file') or self.initial_data.get('data_file')
         has_data_source = data.get('data_source') or self.initial_data.get('data_source')
 
-        if upload_file and has_data_file:
-            raise serializers.ValidationError(
-                _("Cannot upload a file and sync from an existing file.")
-            )
-        if upload_file and has_data_source:
+        if upload_file and (has_data_file or has_data_source):
             raise serializers.ValidationError(
                 _("Cannot upload a file and sync from a data source.")
             )
