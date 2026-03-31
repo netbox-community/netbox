@@ -311,6 +311,7 @@ class TableConfigOrderingPanel(panels.ObjectPanel):
 
 class NotificationGroupPanel(panels.ObjectAttributesPanel):
     title = _('Notification Group')
+
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
 
