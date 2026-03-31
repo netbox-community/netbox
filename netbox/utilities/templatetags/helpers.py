@@ -18,7 +18,6 @@ __all__ = (
     'applied_filters',
     'as_range',
     'divide',
-    'get_capacity_unit_label',
     'get_item',
     'get_key',
     'humanize_disk_capacity',
@@ -207,13 +206,6 @@ def humanize_speed(speed):
     if speed >= 1000:
         return '{} Mbps'.format(float(speed) / 1000)
     return '{} Kbps'.format(speed)
-
-
-def get_capacity_unit_label(divisor=1000):
-    """
-    Return the appropriate base unit label: 'MiB' for binary (1024), 'MB' for decimal (1000).
-    """
-    return 'MiB' if divisor == 1024 else 'MB'
 
 
 def _humanize_capacity(value, divisor=1000):

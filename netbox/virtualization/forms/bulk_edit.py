@@ -14,8 +14,8 @@ from tenancy.models import Tenant
 from utilities.forms import BulkRenameForm, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
+from utilities.forms.utils import get_capacity_unit_label
 from utilities.forms.widgets import BulkEditNullBooleanSelect
-from utilities.templatetags.helpers import get_capacity_unit_label
 from virtualization.choices import *
 from virtualization.models import *
 

@@ -14,6 +14,7 @@ __all__ = (
     'expand_alphanumeric_pattern',
     'expand_ipaddress_pattern',
     'form_from_model',
+    'get_capacity_unit_label',
     'get_field_value',
     'get_selected_values',
     'parse_alphanumeric_range',
@@ -128,6 +129,13 @@ def expand_ipaddress_pattern(string, family):
                 yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
         else:
             yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])
+
+
+def get_capacity_unit_label(divisor=1000):
+    """
+    Return the appropriate base unit label: 'MiB' for binary (1024), 'MB' for decimal (1000).
+    """
+    return 'MiB' if divisor == 1024 else 'MB'
 
 
 def get_field_value(form, field_name):

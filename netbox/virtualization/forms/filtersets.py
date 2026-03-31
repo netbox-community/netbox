@@ -13,7 +13,7 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
-from utilities.templatetags.helpers import get_capacity_unit_label
+from utilities.forms.utils import get_capacity_unit_label
 from virtualization.choices import *
 from virtualization.models import *
 from vpn.models import L2VPN

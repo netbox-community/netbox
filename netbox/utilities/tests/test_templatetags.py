@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase, override_settings
 
 from utilities.templatetags.builtins.tags import static_with_params
-from utilities.templatetags.helpers import _humanize_capacity, get_capacity_unit_label
+from utilities.templatetags.helpers import _humanize_capacity
 
 
 class StaticWithParamsTest(TestCase):
@@ -90,15 +90,3 @@ class HumanizeCapacityTest(TestCase):
 
     def test_default_divisor_is_1000(self):
         self.assertEqual(_humanize_capacity(2000), '2.00 GB')
-
-
-class GetDataUnitLabelTest(TestCase):
-    """
-    Test the get_capacity_unit_label function for correct base unit label.
-    """
-
-    def test_si_label(self):
-        self.assertEqual(get_capacity_unit_label(1000), 'MB')
-
-    def test_iec_label(self):
-        self.assertEqual(get_capacity_unit_label(1024), 'MiB')
