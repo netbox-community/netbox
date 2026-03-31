@@ -64,7 +64,6 @@ class ScriptFilterSet(BaseFilterSet):
         )
 
 
-
 @register_filterset
 class WebhookFilterSet(OwnerFilterMixin, NetBoxModelFilterSet):
     q = django_filters.CharFilter(

@@ -113,7 +113,6 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
                     pass
 
 
-
 class ScriptSerializer(ValidatedModelSerializer):
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)

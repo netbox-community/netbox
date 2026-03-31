@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -1503,4 +1502,3 @@ class ScriptModuleTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
         self.assertEqual(response.data['file_path'], 'test_datasource.py')
         self.assertTrue(ScriptModule.objects.filter(file_path='test_datasource.py').exists())
-
