@@ -1390,42 +1390,23 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
 
 class ScriptModuleTest(APITestCase):
     """
-    Tests for the /api/extras/script-modules/ endpoint.
+    Tests for the POST /api/extras/scripts/upload/ endpoint.
 
     ScriptModule is a proxy of core.ManagedFile (a different app) so the standard
-    APIViewTestCases mixins cannot be used directly:
-      - GraphQLTestCase: ScriptModule has no GraphQL type.
-      - CreateObjectViewTestCase: requires multipart file upload, not plain JSON create_data.
-      - Get/List/Update/DeleteObjectViewTestCase: the mixin's ObjectPermission setup resolves
-        ScriptModule to ManagedFile's ContentType (core.managedfile), producing a
-        core.change_managedfile grant. But TokenPermissions checks extras.change_scriptmodule,
-        causing a 403 despite the ObjectPermission existing.
-    All tests therefore use add_permissions() with explicit Django model-level permissions.
+    APIViewTestCases mixins cannot be used directly. All tests use add_permissions()
+    with explicit Django model-level permissions.
     """
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.data_source = DataSource.objects.create(name='Test Source', type='local', source_url='/tmp')
-        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
-        cls.data_file = DataFile.objects.create(
-            source=cls.data_source,
-            path='test_datasource.py',
-            last_updated=now(),
-            size=len(script_content),
-            hash=hashlib.sha256(script_content).hexdigest(),
-            data=script_content,
-        )
 
     def setUp(self):
         super().setUp()
-        self.url_list = reverse('extras-api:scriptmodule-list')  # /api/extras/script-upload/
+        self.url = reverse('extras-api:scriptmodule-list')  # /api/extras/scripts/upload/
 
     def test_upload_script_module_without_permission(self):
         script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
         upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
         response = self.client.post(
-            self.url_list,
-            {'upload_file': upload_file},
+            self.url,
+            {'file': upload_file},
             format='multipart',
             **self.header,
         )
@@ -1442,8 +1423,8 @@ class ScriptModuleTest(APITestCase):
             mock_storages.create_storage.return_value = mock_storage
             mock_storages.backends = {'scripts': {}}
             response = self.client.post(
-                self.url_list,
-                {'upload_file': upload_file},
+                self.url,
+                {'file': upload_file},
                 format='multipart',
                 **self.header,
             )
@@ -1452,53 +1433,7 @@ class ScriptModuleTest(APITestCase):
         mock_storage.save.assert_called_once()
         self.assertTrue(ScriptModule.objects.filter(file_path='test_upload.py').exists())
 
-    def test_upload_with_data_source_fails(self):
-        """Supplying both upload_file and data_source must be rejected."""
-        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
-        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
-        upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
-        response = self.client.post(
-            self.url_list,
-            {'upload_file': upload_file, 'data_source': self.data_source.pk},
-            format='multipart',
-            **self.header,
-        )
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-
-    def test_data_source_without_data_file_fails(self):
-        """data_source alone (without data_file) must be rejected."""
-        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
-        response = self.client.post(
-            self.url_list,
-            {'data_source': self.data_source.pk},
-            format='multipart',
-            **self.header,
-        )
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
-        response = self.client.post(self.url_list, {}, format='json', **self.header)
+        response = self.client.post(self.url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_script_module_from_data_file(self):
-        """POST with data_source + data_file (JSON) creates a ScriptModule with the correct file_path."""
-        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
-        mock_storage = MagicMock()
-        # Patch storages in both the serializer (for _sync_data_file) and the model
-        # (for ManagedFile.sync_data(), which is called by SyncedDataMixin.clean() during
-        # ValidatedModelSerializer.validate() → full_clean()).
-        with patch('extras.api.serializers_.scripts.storages') as mock_ser_storages, \
-                patch('core.models.files.storages') as mock_model_storages:
-            for m in (mock_ser_storages, mock_model_storages):
-                m.create_storage.return_value = mock_storage
-                m.backends = {'scripts': {}}
-            response = self.client.post(
-                self.url_list,
-                {'data_source': self.data_source.pk, 'data_file': self.data_file.pk},
-                format='json',
-                **self.header,
-            )
-        self.assertHttpStatus(response, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['file_path'], 'test_datasource.py')
-        self.assertTrue(ScriptModule.objects.filter(file_path='test_datasource.py').exists())

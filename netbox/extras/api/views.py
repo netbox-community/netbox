@@ -1,4 +1,5 @@
 from django.http import Http404
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -268,6 +269,10 @@ class ScriptModuleViewSet(CreateModelMixin, BaseViewSet):
     serializer_class = serializers.ScriptModuleSerializer
 
 
+@extend_schema_view(
+    update=extend_schema(request=serializers.ScriptInputSerializer),
+    partial_update=extend_schema(request=serializers.ScriptInputSerializer),
+)
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.all()

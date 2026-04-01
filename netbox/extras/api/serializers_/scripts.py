@@ -1,13 +1,9 @@
-import os
-
 from django.core.files.storage import storages
 from django.db import IntegrityError
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.api.serializers_.data import DataFileSerializer, DataSourceSerializer
 from core.api.serializers_.jobs import JobSerializer
 from core.choices import ManagedFileRootPathChoices
 from extras.models import Script, ScriptModule
@@ -23,92 +19,42 @@ __all__ = (
 
 
 class ScriptModuleSerializer(ValidatedModelSerializer):
-    data_source = DataSourceSerializer(nested=True, required=False, allow_null=True)
-    data_file = DataFileSerializer(nested=True, required=False, allow_null=True)
-    upload_file = serializers.FileField(write_only=True, required=False, allow_null=True)
+    file = serializers.FileField(write_only=True)
     file_path = serializers.CharField(read_only=True)
 
     class Meta:
         model = ScriptModule
-        fields = [
-            'id', 'display', 'file_path', 'upload_file',
-            'data_source', 'data_file', 'auto_sync_enabled',
-            'created', 'last_updated',
-        ]
+        fields = ['id', 'display', 'file_path', 'file', 'created', 'last_updated']
         brief_fields = ('id', 'display')
 
     def validate(self, data):
-        upload_file = data.pop('upload_file', None)
-
-        # For multipart requests, nested serializer fields (data_source, data_file) are
-        # silently dropped by DRF's HTML parser, so also check initial_data for raw values.
-        has_data_file = data.get('data_file') or self.initial_data.get('data_file')
-        has_data_source = data.get('data_source') or self.initial_data.get('data_source')
-
-        if upload_file and (has_data_file or has_data_source):
-            raise serializers.ValidationError(
-                _("Cannot upload a file and sync from a data source.")
-            )
-        if has_data_source and not has_data_file:
-            raise serializers.ValidationError(
-                _("A data file must be specified when syncing from a data source.")
-            )
-        if self.instance is None and not upload_file and not has_data_file:
-            raise serializers.ValidationError(
-                _("Must upload a file or select a data file to sync.")
-            )
-
-        # ScriptModule.save() sets file_root; inject it here so full_clean() succeeds
+        # ScriptModule.save() sets file_root; inject it here so full_clean() succeeds.
+        # Pop 'file' before model instantiation — ScriptModule has no such field.
+        file = data.pop('file', None)
         data['file_root'] = ManagedFileRootPathChoices.SCRIPTS
         data = super().validate(data)
         data.pop('file_root', None)
-        if upload_file is not None:
-            data['upload_file'] = upload_file
-
+        if file is not None:
+            data['file'] = file
         return data
 
-    def _save_upload(self, upload_file, validated_data):
+    def create(self, validated_data):
+        upload_file = validated_data.pop('file')
         storage = storages.create_storage(storages.backends["scripts"])
         validated_data['file_path'] = storage.save(upload_file.name, upload_file)
-
-    def _sync_data_file(self, data_file, validated_data):
-        """
-        Pre-populate file_path/data_path and write the file to disk before create(),
-        so that save() → sync_classes() fires once with the correct file_path — matching
-        the UI path where full_clean() sets these fields on the actual instance before save().
-        """
-        file_path = os.path.basename(data_file.path)
-        validated_data['data_path'] = data_file.path
-        validated_data['file_path'] = file_path
-        validated_data['data_synced'] = timezone.now()
-        storage = storages.create_storage(storages.backends["scripts"])
-        with storage.open(file_path, 'wb+') as f:
-            f.write(data_file.data)
-
-    def create(self, validated_data):
-        upload_file = validated_data.pop('upload_file', None)
-        if upload_file:
-            self._save_upload(upload_file, validated_data)
-        elif data_file := validated_data.get('data_file'):
-            self._sync_data_file(data_file, validated_data)
         created = False
         try:
             instance = super().create(validated_data)
             created = True
             return instance
         except IntegrityError:
-            # ManagedFile has a single unique constraint: (file_root, file_path), so an
-            # IntegrityError here always means a duplicate file name regardless of which
-            # path (upload or data_file sync) set validated_data['file_path'].
             raise serializers.ValidationError(
                 _("A script module with this file name already exists.")
             )
         finally:
-            # On any failure, remove the file written to disk so no orphans are left behind.
-            # Uses best-effort deletion (ignores errors) to avoid masking the original exception.
             if not created and (file_path := validated_data.get('file_path')):
                 try:
-                    storages.create_storage(storages.backends["scripts"]).delete(file_path)
+                    storage.delete(file_path)
                 except Exception:
                     pass
 
