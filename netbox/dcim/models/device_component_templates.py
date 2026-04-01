@@ -9,6 +9,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
+from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -165,34 +166,15 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
                 _("A component template must be associated with either a device type or a module type.")
             )
 
-    def _get_module_tree(self, module):
-        modules = []
-        while module:
-            modules.append(module)
-            if module.module_bay:
-                module = module.module_bay.module
-            else:
-                module = None
-
-        modules.reverse()
-        return modules
-
-    def _resolve_module_placeholder(self, value, module):
-        if MODULE_TOKEN not in value or not module:
-            return value
-        modules = self._get_module_tree(module)
-        token_count = value.count(MODULE_TOKEN)
-        if token_count == 1:
-            return value.replace(MODULE_TOKEN, modules[-1].module_bay.position)
-        for m in modules:
-            value = value.replace(MODULE_TOKEN, m.module_bay.position, 1)
-        return value
-
     def resolve_name(self, module):
-        return self._resolve_module_placeholder(self.name, module)
+        if MODULE_TOKEN not in self.name or not module:
+            return self.name
+        return resolve_module_placeholder(self.name, get_module_bay_positions(module.module_bay))
 
     def resolve_label(self, module):
-        return self._resolve_module_placeholder(self.label, module)
+        if MODULE_TOKEN not in self.label or not module:
+            return self.label
+        return resolve_module_placeholder(self.label, get_module_bay_positions(module.module_bay))
 
 
 class ConsolePortTemplate(ModularComponentTemplateModel):
@@ -723,7 +705,9 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('module bay templates')
 
     def resolve_position(self, module):
-        return self._resolve_module_placeholder(self.position, module)
+        if MODULE_TOKEN not in self.position or not module:
+            return self.position
+        return resolve_module_placeholder(self.position, get_module_bay_positions(module.module_bay))
 
     def instantiate(self, **kwargs):
         return self.component_model(

@@ -6,8 +6,9 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.choices import *
-from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS
+from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS, MODULE_TOKEN
 from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
+from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
@@ -158,6 +159,60 @@ class ModuleSerializer(PrimaryModelSerializer):
             'asset_tag', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
+
+    def validate(self, data):
+        data = super().validate(data)
+
+        if self.nested:
+            return data
+
+        # Skip validation for existing modules (updates)
+        if self.instance is not None:
+            return data
+
+        module_bay = data.get('module_bay')
+        module_type = data.get('module_type')
+        device = data.get('device')
+
+        if not all((module_bay, module_type, device)):
+            return data
+
+        positions = get_module_bay_positions(module_bay)
+
+        for templates, component_attribute in [
+            ("consoleporttemplates", "consoleports"),
+            ("consoleserverporttemplates", "consoleserverports"),
+            ("interfacetemplates", "interfaces"),
+            ("powerporttemplates", "powerports"),
+            ("poweroutlettemplates", "poweroutlets"),
+            ("rearporttemplates", "rearports"),
+            ("frontporttemplates", "frontports"),
+        ]:
+            installed_components = {
+                component.name: component for component in getattr(device, component_attribute).all()
+            }
+
+            for template in getattr(module_type, templates).all():
+                resolved_name = template.name
+                if MODULE_TOKEN in template.name:
+                    if not module_bay.position:
+                        raise serializers.ValidationError(
+                            _("Cannot install module with placeholder values in a module bay with no position defined.")
+                        )
+                    try:
+                        resolved_name = resolve_module_placeholder(template.name, positions)
+                    except ValueError as e:
+                        raise serializers.ValidationError(str(e))
+
+                if resolved_name in installed_components:
+                    raise serializers.ValidationError(
+                        _("A {model} named {name} already exists").format(
+                            model=template.component_model.__name__,
+                            name=resolved_name
+                        )
+                    )
+
+        return data
 
 
 class MACAddressSerializer(PrimaryModelSerializer):
