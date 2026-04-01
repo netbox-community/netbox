@@ -4,7 +4,9 @@ import { getElements } from '../util';
  * Enable/disable registered action checkboxes based on selected object_types.
  */
 export function initRegisteredActions(): void {
-  const selectedList = document.getElementById('id_object_types_1') as HTMLSelectElement;
+  const selectedList = document.querySelector<HTMLSelectElement>(
+    'select[data-object-types-selected]',
+  );
 
   if (!selectedList) {
     return;
@@ -22,7 +24,7 @@ export function initRegisteredActions(): void {
     const selectedModels = new Set<string>();
 
     // Get model keys from selected options
-    for (const option of Array.from(selectedList.options)) {
+    for (const option of Array.from(selectedList!.options)) {
       const modelKey = option.dataset.modelKey;
       if (modelKey) {
         selectedModels.add(modelKey);
@@ -54,7 +56,7 @@ export function initRegisteredActions(): void {
   for (const btn of getElements<HTMLButtonElement>('.move-option')) {
     btn.addEventListener('click', () => {
       // Wait for DOM update
-      setTimeout(updateState, 50);
+      setTimeout(updateState, 0);
     });
   }
 }

@@ -346,7 +346,7 @@ class ObjectPermissionForm(forms.ModelForm):
     registered_actions = forms.MultipleChoiceField(
         required=False,
         widget=RegisteredActionsWidget(),
-        label=_('Custom actions'),
+        label=_('Registered actions'),
     )
     actions = SimpleArrayField(
         label=_('Additional actions'),

@@ -42,6 +42,6 @@ class RegisteredActionsWidget(forms.CheckboxSelectMultiple):
         """
         option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
         action_name = str(value)
-        option['model_keys'] = ','.join(self._action_model_keys.get(action_name, set()))
+        option['model_keys'] = ','.join(sorted(self._action_model_keys.get(action_name, set())))
         option['help_text'] = self._action_help_text.get(action_name, '')
         return option
