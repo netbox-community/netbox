@@ -4,10 +4,17 @@ import { getElements } from '../util';
  * Enable/disable registered action checkboxes based on selected object_types.
  */
 export function initRegisteredActions(): void {
-  const actionsContainer = document.getElementById('id_registered_actions_container');
   const selectedList = document.getElementById('id_object_types_1') as HTMLSelectElement;
 
-  if (!actionsContainer || !selectedList) {
+  if (!selectedList) {
+    return;
+  }
+
+  const actionCheckboxes = Array.from(
+    document.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-models]'),
+  );
+
+  if (actionCheckboxes.length === 0) {
     return;
   }
 
@@ -22,30 +29,22 @@ export function initRegisteredActions(): void {
       }
     }
 
-    // Enable/disable action groups based on selected models
-    const groups = actionsContainer!.querySelectorAll('.model-actions');
-
-    groups.forEach(group => {
-      const modelKey = group.getAttribute('data-model');
-      const enabled = modelKey !== null && selectedModels.has(modelKey);
-      const el = group as HTMLElement;
-
-      // Toggle disabled on checkboxes, overriding Bootstrap's disabled opacity
-      // to keep them visible in dark mode
-      for (const checkbox of Array.from(
-        el.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
-      )) {
-        checkbox.disabled = !enabled;
-        checkbox.style.opacity = enabled ? '' : '0.75';
+    // Enable a checkbox if any of its supported models is selected
+    for (const checkbox of actionCheckboxes) {
+      const modelKeys = (checkbox.dataset.models ?? '').split(',').filter(Boolean);
+      const enabled = modelKeys.some(m => selectedModels.has(m));
+      checkbox.disabled = !enabled;
+      if (!enabled) {
+        checkbox.checked = false;
       }
+      checkbox.style.opacity = enabled ? '' : '0.75';
 
-      // Fade text for disabled groups
-      for (const label of Array.from(
-        el.querySelectorAll<HTMLElement>('small, .form-check-label'),
-      )) {
+      // Fade the label text when disabled
+      const label = checkbox.nextElementSibling as HTMLElement | null;
+      if (label) {
         label.style.opacity = enabled ? '' : '0.5';
       }
-    });
+    }
   }
 
   // Initial update

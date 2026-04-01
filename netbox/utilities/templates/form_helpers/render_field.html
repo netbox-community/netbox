@@ -2,6 +2,19 @@
 {% load helpers %}
 {% load i18n %}
 
+{# RegisteredActionsWidget emits its own row markup per option #}
+{% if field|widget_type == 'registeredactionswidget' %}
+  {{ field }}
+  {% if field.errors %}
+    <div class="row mb-3">
+      <div class="col offset-3">
+        <div class="form-text text-danger">
+          {% for error in field.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% else %}
 <div class="row mb-3{% if field.errors %} has-errors{% endif %}">
 
   {# Render the field label (if any), except for checkboxes #}
@@ -70,3 +83,4 @@
   </div>
 
 </div>
+{% endif %}

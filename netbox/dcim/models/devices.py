@@ -759,6 +759,9 @@ class Device(
         )
         verbose_name = _('device')
         verbose_name_plural = _('devices')
+        permissions = [
+            ('render_config', 'Render device configuration'),
+        ]
 
     def __str__(self):
         if self.label and self.asset_tag:

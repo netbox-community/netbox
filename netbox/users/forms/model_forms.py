@@ -27,7 +27,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker, ObjectTypeSplitMultiSelectWidget, RegisteredActionsWidget
-from utilities.permissions import qs_filter_from_constraints
+from utilities.permissions import get_action_model_map, qs_filter_from_constraints
 from utilities.string import title
 
 __all__ = (
@@ -401,13 +401,16 @@ class ObjectPermissionForm(forms.ModelForm):
         }
         self.fields['object_types'].widget.set_model_key_map(pk_to_model_key)
 
-        # Configure registered_actions widget and field choices
+        # Configure registered_actions widget and field choices (flat, deduplicated by name)
         model_actions = dict(registry['model_actions'])
-        self.fields['registered_actions'].widget.model_actions = model_actions
+        self.fields['registered_actions'].widget.set_model_actions(model_actions)
+        seen = set()
         choices = []
-        for model_key, actions in model_actions.items():
+        for actions in model_actions.values():
             for action in actions:
-                choices.append((f'{model_key}.{action.name}', action.name))
+                if action.name not in seen:
+                    choices.append((action.name, action.name))
+                    seen.add(action.name)
         self.fields['registered_actions'].choices = choices
 
         # Make the actions field optional since the form uses it only for non-CRUD actions
@@ -428,15 +431,16 @@ class ObjectPermissionForm(forms.ModelForm):
                     self.fields[f'can_{action}'].initial = True
                     remaining_actions.remove(action)
 
-            # Pre-select registered actions
+            # Pre-select registered actions: action is checked if it's in instance.actions
+            # AND at least one assigned object type supports it
             selected_registered = []
             consumed_actions = set()
             for ct in self.instance.object_types.all():
                 model_key = f'{ct.app_label}.{ct.model}'
                 if model_key in model_actions:
                     for ma in model_actions[model_key]:
-                        if ma.name in remaining_actions:
-                            selected_registered.append(f'{model_key}.{ma.name}')
+                        if ma.name in remaining_actions and ma.name not in consumed_actions:
+                            selected_registered.append(ma.name)
                             consumed_actions.add(ma.name)
             self.fields['registered_actions'].initial = selected_registered
 
@@ -472,15 +476,18 @@ class ObjectPermissionForm(forms.ModelForm):
         # Build set of selected model keys for validation
         selected_models = {f'{ct.app_label}.{ct.model}' for ct in object_types}
 
-        # Validate registered actions match selected object_types and collect action names
+        # Build map of action_name -> set of model_keys that support it
+        action_model_keys = get_action_model_map(dict(registry['model_actions']))
+
+        # Validate each selected action is supported by at least one selected object type
         final_actions = []
-        for action_key in registered_actions:
-            model_key, action_name = action_key.rsplit('.', 1)
-            if model_key not in selected_models:
+        for action_name in registered_actions:
+            supported_models = action_model_keys.get(action_name, set())
+            if not supported_models & selected_models:
                 raise forms.ValidationError({
                     'registered_actions': _(
-                        'Action "{action}" is for {model} which is not selected.'
-                    ).format(action=action_name, model=model_key)
+                        'Action "{action}" is not supported by any of the selected object types.'
+                    ).format(action=action_name)
                 })
             if action_name not in final_actions:
                 final_actions.append(action_name)

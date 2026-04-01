@@ -25,6 +25,7 @@ from netbox.registry import registry
 from netbox.signals import post_clean
 from netbox.utils import register_model_feature
 from utilities.json import CustomFieldJSONEncoder
+from utilities.permissions import ModelAction, register_model_actions
 from utilities.serialization import serialize_object
 
 __all__ = (
@@ -752,3 +753,12 @@ def register_models(*models):
             register_model_view(model, 'sync', kwargs={'model': model})(
                 'netbox.views.generic.ObjectSyncDataView'
             )
+
+        # Auto-register custom permission actions declared in Meta.permissions
+        if meta_permissions := getattr(model._meta, 'permissions', None):
+            actions = [
+                ModelAction(codename, help_text=_(name))
+                for codename, name in meta_permissions
+            ]
+            if actions:
+                register_model_actions(model, actions)

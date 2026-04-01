@@ -39,11 +39,12 @@ class ModelActionTest(TestCase):
 class RegisterModelActionsTest(TestCase):
 
     def setUp(self):
-        self.original_actions = dict(registry['model_actions'])
+        self._original_actions = dict(registry['model_actions'])
+        registry['model_actions'].clear()
 
     def tearDown(self):
         registry['model_actions'].clear()
-        registry['model_actions'].update(self.original_actions)
+        registry['model_actions'].update(self._original_actions)
 
     def test_register_model_action_objects(self):
         register_model_actions(Site, [
@@ -91,17 +92,39 @@ class RegisterModelActionsTest(TestCase):
             with self.assertRaises(ValueError):
                 register_model_actions(Site, [ModelAction(action_name)])
 
+    def test_empty_action_name_rejected(self):
+        with self.assertRaises(ValueError):
+            register_model_actions(Site, [ModelAction('')])
+
+    def test_flat_choices_no_duplicates(self):
+        """Same action name registered for multiple models should appear once in flat choices."""
+        register_model_actions(Device, [ModelAction('render_config')])
+        register_model_actions(VirtualMachine, [ModelAction('render_config')])
+
+        device_ct = ObjectType.objects.get_for_model(Device)
+        form = ObjectPermissionForm(data={
+            'name': 'test',
+            'object_types_0': [],
+            'object_types_1': [device_ct.pk],
+            'can_view': True,
+        })
+        choices = form.fields['registered_actions'].choices
+        names = [name for name, label in choices]
+        self.assertEqual(names.count('render_config'), 1)
+
 
 class ObjectPermissionFormTest(TestCase):
 
     def setUp(self):
-        self.original_actions = dict(registry['model_actions'])
+        self._original_actions = dict(registry['model_actions'])
+        registry['model_actions'].clear()
 
     def tearDown(self):
         registry['model_actions'].clear()
-        registry['model_actions'].update(self.original_actions)
+        registry['model_actions'].update(self._original_actions)
 
     def test_shared_action_preselection(self):
+        """Editing a permission with render_config should pre-select 'render_config' (plain name)."""
         register_model_actions(Device, [ModelAction('render_config')])
         register_model_actions(VirtualMachine, [ModelAction('render_config')])
 
@@ -117,10 +140,46 @@ class ObjectPermissionFormTest(TestCase):
         form = ObjectPermissionForm(instance=permission)
 
         initial = form.fields['registered_actions'].initial
-        self.assertIn('dcim.device.render_config', initial)
-        self.assertIn('virtualization.virtualmachine.render_config', initial)
+        self.assertIn('render_config', initial)
+        # Should not use the old model-prefixed format
+        self.assertNotIn('dcim.device.render_config', initial)
+        self.assertNotIn('virtualization.virtualmachine.render_config', initial)
+        # Should only appear once despite being registered for two models
+        self.assertEqual(initial.count('render_config'), 1)
 
         # Should not leak into the additional actions field
         self.assertEqual(form.initial['actions'], [])
 
         permission.delete()
+
+    def test_clean_accepts_valid_registered_action(self):
+        """clean() should accept a plain action name when the matching object type is selected."""
+        register_model_actions(Device, [ModelAction('render_config')])
+
+        device_ct = ObjectType.objects.get_for_model(Device)
+        form = ObjectPermissionForm(data={
+            'name': 'test perm',
+            'object_types_0': [],
+            'object_types_1': [device_ct.pk],
+            'registered_actions': ['render_config'],
+            'can_view': True,
+            'actions': '',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertIn('render_config', form.cleaned_data['actions'])
+
+    def test_clean_rejects_action_without_matching_object_type(self):
+        """clean() should reject a registered action when no matching object type is selected."""
+        register_model_actions(Device, [ModelAction('render_config')])
+
+        site_ct = ObjectType.objects.get_for_model(Site)
+        form = ObjectPermissionForm(data={
+            'name': 'test perm',
+            'object_types_0': [],
+            'object_types_1': [site_ct.pk],
+            'registered_actions': ['render_config'],
+            'can_view': True,
+            'actions': '',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('registered_actions', form.errors)
