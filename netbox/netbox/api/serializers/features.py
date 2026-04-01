@@ -29,8 +29,8 @@ class CustomFieldModelSerializer(serializers.Serializer):
         We can't call super().many_init() and change the outcome because by the time it returns,
         the plain ListSerializer is already instantiated.
         Because every NetBox serializer defines its own Meta which doesn't inherit from a parent Meta,
-        so this would silently not apply to any real serializer.
-        Thats why this method replicated many_init from parent and changed the default value for list_serializer_class.
+        this would silently not apply to any real serializer.
+        Thats why this method replicates many_init from parent and changed the default value for list_serializer_class.
         """
         list_kwargs = {}
         for key in serializers.LIST_SERIALIZER_KWARGS_REMOVE:
