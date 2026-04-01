@@ -62,7 +62,7 @@ class SimpleLayout(Layout):
     """
     A layout with one row of two columns and a second row with one column.
 
-    Plugin content registered for `left_page`, `right_page`, or `full_width_path` is included automatically. Most object
+    Plugin content registered for `left_page`, `right_page`, or `full_width_page` is included automatically. Most object
     views in NetBox utilize this layout.
 
     ```

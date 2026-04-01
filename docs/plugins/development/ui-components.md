@@ -85,26 +85,6 @@ NetBox also includes a set of panels suite for specific uses, such as display ob
 
 ::: netbox.ui.panels.ObjectAttributesPanel
 
-#### Object Attributes
-
-The following classes are available to represent object attributes within an ObjectAttributesPanel. Additionally, plugins can subclass `netbox.ui.attrs.ObjectAttribute` to create custom classes.
-
-| Class                                | Description                                      |
-|--------------------------------------|--------------------------------------------------|
-| `netbox.ui.attrs.AddressAttr`        | A physical or mailing address.                   |
-| `netbox.ui.attrs.BooleanAttr`        | A boolean value                                  |
-| `netbox.ui.attrs.ColorAttr`          | A color expressed in RGB                         |
-| `netbox.ui.attrs.ChoiceAttr`         | A selection from a set of choices                |
-| `netbox.ui.attrs.GPSCoordinatesAttr` | GPS coordinates (latitude and longitude)         |
-| `netbox.ui.attrs.ImageAttr`          | An attached image (displays the image)           |
-| `netbox.ui.attrs.NestedObjectAttr`   | A related nested object                          |
-| `netbox.ui.attrs.NumericAttr`        | An integer or float value                        |
-| `netbox.ui.attrs.RelatedObjectAttr`  | A related object                                 |
-| `netbox.ui.attrs.TemplatedAttr`      | Renders an attribute using a custom template     |
-| `netbox.ui.attrs.TextAttr`           | A string (text) value                            |
-| `netbox.ui.attrs.TimezoneAttr`       | A timezone with annotated offset                 |
-| `netbox.ui.attrs.UtilizationAttr`    | A numeric value expressed as a utilization graph |
-
 ::: netbox.ui.panels.OrganizationalObjectPanel
 
 ::: netbox.ui.panels.NestedGroupObjectPanel
@@ -119,9 +99,13 @@ The following classes are available to represent object attributes within an Obj
 
 ::: netbox.ui.panels.TemplatePanel
 
+::: netbox.ui.panels.TextCodePanel
+
+::: netbox.ui.panels.ContextTablePanel
+
 ::: netbox.ui.panels.PluginContentPanel
 
-## Panel Actions
+### Panel Actions
 
 Each panel may have actions associated with it. These render as links or buttons within the panel header, opposite the panel's title. For example, a common use case is to include an "Add" action on a panel which displays a list of objects. Below is an example of this.
 
@@ -146,3 +130,60 @@ panels.ObjectsTablePanel(
 ::: netbox.ui.actions.AddObject
 
 ::: netbox.ui.actions.CopyContent
+
+## Object Attributes
+
+The following classes are available to represent object attributes within an ObjectAttributesPanel. Additionally, plugins can subclass `netbox.ui.attrs.ObjectAttribute` to create custom classes.
+
+| Class                                    | Description                                      |
+|------------------------------------------|--------------------------------------------------|
+| `netbox.ui.attrs.AddressAttr`            | A physical or mailing address.                   |
+| `netbox.ui.attrs.BooleanAttr`            | A boolean value                                  |
+| `netbox.ui.attrs.ChoiceAttr`             | A selection from a set of choices                |
+| `netbox.ui.attrs.ColorAttr`              | A color expressed in RGB                         |
+| `netbox.ui.attrs.DateTimeAttr`           | A date or datetime value                         |
+| `netbox.ui.attrs.GenericForeignKeyAttr`  | A related object via a generic foreign key       |
+| `netbox.ui.attrs.GPSCoordinatesAttr`     | GPS coordinates (latitude and longitude)         |
+| `netbox.ui.attrs.ImageAttr`              | An attached image (displays the image)           |
+| `netbox.ui.attrs.NestedObjectAttr`       | A related nested object (includes ancestors)     |
+| `netbox.ui.attrs.NumericAttr`            | An integer or float value                        |
+| `netbox.ui.attrs.RelatedObjectAttr`      | A related object                                 |
+| `netbox.ui.attrs.RelatedObjectListAttr`  | A list of related objects                        |
+| `netbox.ui.attrs.TemplatedAttr`          | Renders an attribute using a custom template     |
+| `netbox.ui.attrs.TextAttr`               | A string (text) value                            |
+| `netbox.ui.attrs.TimezoneAttr`           | A timezone with annotated offset                 |
+| `netbox.ui.attrs.UtilizationAttr`        | A numeric value expressed as a utilization graph |
+
+::: netbox.ui.attrs.ObjectAttribute
+
+::: netbox.ui.attrs.AddressAttr
+
+::: netbox.ui.attrs.BooleanAttr
+
+::: netbox.ui.attrs.ChoiceAttr
+
+::: netbox.ui.attrs.ColorAttr
+
+::: netbox.ui.attrs.DateTimeAttr
+
+::: netbox.ui.attrs.GenericForeignKeyAttr
+
+::: netbox.ui.attrs.GPSCoordinatesAttr
+
+::: netbox.ui.attrs.ImageAttr
+
+::: netbox.ui.attrs.NestedObjectAttr
+
+::: netbox.ui.attrs.NumericAttr
+
+::: netbox.ui.attrs.RelatedObjectAttr
+
+::: netbox.ui.attrs.RelatedObjectListAttr
+
+::: netbox.ui.attrs.TemplatedAttr
+
+::: netbox.ui.attrs.TextAttr
+
+::: netbox.ui.attrs.TimezoneAttr
+
+::: netbox.ui.attrs.UtilizationAttr

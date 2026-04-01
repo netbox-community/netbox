@@ -225,9 +225,10 @@ class CommentsPanel(ObjectPanel):
         self.field_name = field_name
 
     def get_context(self, context):
+        ctx = super().get_context(context)
         return {
-            **super().get_context(context),
-            'comments': getattr(context['object'], self.field_name),
+            **ctx,
+            'comments': getattr(ctx['object'], self.field_name),
         }
 
 
@@ -249,9 +250,10 @@ class JSONPanel(ObjectPanel):
             self.actions.append(CopyContent(f'panel_{field_name}'))
 
     def get_context(self, context):
+        ctx = super().get_context(context)
         return {
-            **super().get_context(context),
-            'data': getattr(context['object'], self.field_name),
+            **ctx,
+            'data': getattr(ctx['object'], self.field_name),
             'field_name': self.field_name,
         }
 

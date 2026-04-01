@@ -59,7 +59,7 @@ class PanelAction:
         """
         # Enforce permissions
         user = context['request'].user
-        if not user.has_perms(self.permissions):
+        if self.permissions and not user.has_perms(self.permissions):
             return ''
 
         return render_to_string(self.template_name, self.get_context(context))
