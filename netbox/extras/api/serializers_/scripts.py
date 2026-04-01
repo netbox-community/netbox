@@ -39,18 +39,20 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         return data
 
     def create(self, validated_data):
-        upload_file = validated_data.pop('file')
+        file = validated_data.pop('file')
         storage = storages.create_storage(storages.backends["scripts"])
-        validated_data['file_path'] = storage.save(upload_file.name, upload_file)
+        validated_data['file_path'] = storage.save(file.name, file)
         created = False
         try:
             instance = super().create(validated_data)
             created = True
             return instance
-        except IntegrityError:
-            raise serializers.ValidationError(
-                _("A script module with this file name already exists.")
-            )
+        except IntegrityError as e:
+            if 'file_path' in str(e):
+                raise serializers.ValidationError(
+                    _("A script module with this file name already exists.")
+                )
+            raise
         finally:
             if not created and (file_path := validated_data.get('file_path')):
                 try:
