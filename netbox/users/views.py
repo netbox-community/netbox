@@ -272,7 +272,6 @@ class ObjectPermissionView(generic.ObjectView):
         left_panels=[
             panels.ObjectPermissionPanel(),
             panels.ObjectPermissionActionsPanel(),
-            panels.ObjectPermissionCustomActionsPanel(),
             JSONPanel('constraints', title=_('Constraints')),
         ],
         right_panels=[

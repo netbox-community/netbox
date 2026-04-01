@@ -6,7 +6,22 @@ For example, a plugin might define a "sync" action for a model that syncs data f
 
 ## Registering Model Actions
 
-To register custom actions for a model, call `register_model_actions()` in your plugin's `ready()` method:
+The preferred way to register custom actions is via Django's `Meta.permissions` on the model class. NetBox will automatically register these as model actions when the app is loaded:
+
+```python
+from netbox.models import NetBoxModel
+
+class MyModel(NetBoxModel):
+    # ...
+
+    class Meta:
+        permissions = [
+            ('sync', 'Synchronize data from external source'),
+            ('export', 'Export data to external system'),
+        ]
+```
+
+For dynamic registration (e.g. when actions depend on runtime state), you can call `register_model_actions()` directly, typically in your plugin's `ready()` method:
 
 ```python
 # __init__.py
@@ -29,7 +44,7 @@ class MyPluginConfig(PluginConfig):
 config = MyPluginConfig
 ```
 
-Once registered, these actions will appear grouped under your model's name when creating or editing an ObjectPermission that includes your model as an object type.
+Once registered, these actions appear as checkboxes in a flat list when creating or editing an ObjectPermission.
 
 ::: utilities.permissions.ModelAction
 

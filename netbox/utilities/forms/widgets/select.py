@@ -218,7 +218,7 @@ class ObjectTypeSelectedOptions(ObjectTypeSelectMultiple):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        context['widget']['attrs']['data-object-types-selected'] = True
+        context['widget']['attrs']['data-object-types-selected'] = 'true'
         return context
 
 
