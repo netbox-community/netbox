@@ -159,7 +159,7 @@ class BaseTable(tables.Table):
         columns = None
         ordering = None
 
-        if self.prefixed_order_by_field in request.GET:
+        if request.user.is_authenticated and self.prefixed_order_by_field in request.GET:
             if request.GET[self.prefixed_order_by_field]:
                 # If an ordering has been specified as a query parameter, save it as the
                 # user's preferred ordering for this table.
