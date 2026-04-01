@@ -3,8 +3,6 @@ import logging
 from django.core.files.storage import storages
 from django.db import IntegrityError
 from django.utils.translation import gettext_lazy as _
-
-logger = logging.getLogger(__name__)
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -13,6 +11,8 @@ from core.choices import ManagedFileRootPathChoices
 from extras.models import Script, ScriptModule
 from netbox.api.serializers import ValidatedModelSerializer
 from utilities.datetime import local_now
+
+logger = logging.getLogger(__name__)
 
 __all__ = (
     'ScriptDetailSerializer',
