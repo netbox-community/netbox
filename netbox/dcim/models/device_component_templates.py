@@ -9,6 +9,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
+from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
@@ -185,65 +186,27 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
         return VC_POSITION_RE.sub(replacer, value)
 
-    def _get_module_tree(self, module):
-        modules = []
-        while module:
-            modules.append(module)
-            if module.module_bay:
-                module = module.module_bay.module
-            else:
-                module = None
-
-        modules.reverse()
-        return modules
-
-    def _get_inherited_positions(self, module):
-        """
-        Build a list of module bay positions (root to leaf), resolving any
-        {module} tokens in each position using the parent bay's position.
-        This enables position inheritance: a bay with position '{module}/2'
-        under a parent with position '1' resolves to '1/2'.
-        """
-        modules = self._get_module_tree(module)
-        positions = []
-        for m in modules:
-            pos = m.module_bay.position
-            if positions and MODULE_TOKEN in pos:
-                pos = pos.replace(MODULE_TOKEN, positions[-1])
-            positions.append(pos)
-        return positions
-
-    def _resolve_module_placeholder(self, value, module):
-        if MODULE_TOKEN not in value or not module:
-            return value
-        positions = self._get_inherited_positions(module)
-        token_count = value.count(MODULE_TOKEN)
-        if token_count == 1:
-            return value.replace(MODULE_TOKEN, positions[-1])
-        for pos in positions:
-            value = value.replace(MODULE_TOKEN, pos, 1)
-        return value
-
-    def _resolve_placeholders(self, value, module=None, device=None):
+    def _resolve_all_placeholders(self, value, module=None, device=None):
         has_module = MODULE_TOKEN in value
         has_vc = VC_POSITION_RE.search(value) is not None
         if not has_module and not has_vc:
             return value
         if has_module and module:
-            value = self._resolve_module_placeholder(value, module)
+            positions = get_module_bay_positions(module.module_bay)
+            value = resolve_module_placeholder(value, positions)
         if has_vc:
             resolved_device = (module.device if module else None) or device
             value = self._resolve_vc_position(value, resolved_device)
         return value
 
     def resolve_name(self, module=None, device=None):
-        return self._resolve_placeholders(self.name, module, device)
+        return self._resolve_all_placeholders(self.name, module, device)
 
     def resolve_label(self, module=None, device=None):
-        return self._resolve_placeholders(self.label, module, device)
+        return self._resolve_all_placeholders(self.label, module, device)
 
     def resolve_position(self, module=None, device=None):
-        return self._resolve_placeholders(self.position, module, device)
+        return self._resolve_all_placeholders(self.position, module, device)
 
 
 class ConsolePortTemplate(ModularComponentTemplateModel):

@@ -3,6 +3,59 @@ from collections import defaultdict
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import router, transaction
+from django.utils.translation import gettext as _
+
+from dcim.constants import MODULE_TOKEN
+
+
+def get_module_bay_positions(module_bay):
+    """
+    Given a module bay, traverse up the module hierarchy and return
+    a list of bay position strings from root to leaf, resolving any
+    {module} tokens in each position using the parent position
+    (position inheritance).
+    """
+    positions = []
+    while module_bay:
+        pos = module_bay.position or ''
+        if positions and MODULE_TOKEN in pos:
+            pos = pos.replace(MODULE_TOKEN, positions[-1])
+        positions.append(pos)
+        if module_bay.module:
+            module_bay = module_bay.module.module_bay
+        else:
+            module_bay = None
+    positions.reverse()
+    return positions
+
+
+def resolve_module_placeholder(value, positions):
+    """
+    Resolve {module} placeholder tokens in a string using the given
+    list of module bay positions (ordered root to leaf).
+
+    A single {module} token resolves to the leaf (immediate parent) bay's position.
+    Multiple tokens must match the tree depth and resolve level-by-level.
+
+    Returns the resolved string.
+    Raises ValueError if token count is greater than 1 and doesn't match tree depth.
+    """
+    if MODULE_TOKEN not in value:
+        return value
+
+    token_count = value.count(MODULE_TOKEN)
+    if token_count == 1:
+        return value.replace(MODULE_TOKEN, positions[-1])
+    if token_count == len(positions):
+        for pos in positions:
+            value = value.replace(MODULE_TOKEN, pos, 1)
+        return value
+    raise ValueError(
+        _("Cannot install module with placeholder values in a module bay tree "
+          "{level} levels deep but {tokens} placeholders given.").format(
+            level=len(positions), tokens=token_count
+        )
+    )
 
 
 def compile_path_node(ct_id, object_id):

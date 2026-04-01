@@ -8,6 +8,7 @@ from rest_framework import serializers
 from dcim.choices import *
 from dcim.constants import MACADDRESS_ASSIGNMENT_MODELS, MODULE_TOKEN
 from dcim.models import Device, DeviceBay, MACAddress, Module, VirtualDeviceContext
+from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
@@ -207,13 +208,7 @@ class ModuleSerializer(PrimaryModelSerializer):
         if not all([device, module_type, module_bay]):
             return data
 
-        # Build module bay tree for MODULE_TOKEN placeholder resolution (outermost to innermost)
-        module_bays = []
-        current_bay = module_bay
-        while current_bay:
-            module_bays.append(current_bay)
-            current_bay = current_bay.module.module_bay if current_bay.module else None
-        module_bays.reverse()
+        positions = get_module_bay_positions(module_bay)
 
         for templates_attr, component_attr in [
             ('consoleporttemplates', 'consoleports'),
@@ -236,17 +231,10 @@ class ModuleSerializer(PrimaryModelSerializer):
                         raise serializers.ValidationError(
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
-                    if template.name.count(MODULE_TOKEN) != len(module_bays):
-                        raise serializers.ValidationError(
-                            _(
-                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
-                                "but {tokens} placeholders given."
-                            ).format(
-                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
-                            )
-                        )
-                    for bay in module_bays:
-                        resolved_name = resolved_name.replace(MODULE_TOKEN, bay.position, 1)
+                    try:
+                        resolved_name = resolve_module_placeholder(template.name, positions)
+                    except ValueError as e:
+                        raise serializers.ValidationError(str(e))
 
                 existing_item = installed_components.get(resolved_name)
 
