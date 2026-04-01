@@ -532,7 +532,7 @@ class VirtualCircuitPanel(panels.ObjectPanel):
 
     def render(self, context):
         obj = context.get('object')
-        if not obj or not obj.is_virtual or not obj.virtual_circuit_termination:
+        if not obj or not obj.is_virtual or not hasattr(obj, 'virtual_circuit_termination'):
             return ''
         ctx = self.get_context(context)
         return render_to_string(self.template_name, ctx, request=ctx.get('request'))
