@@ -8,7 +8,6 @@ from netbox.ui import actions, layout
 from netbox.ui.panels import (
     CommentsPanel,
     ObjectsTablePanel,
-    Panel,
     RelatedObjectsPanel,
 )
 from netbox.views import generic
@@ -508,10 +507,7 @@ class CircuitTerminationView(generic.ObjectView):
     queryset = CircuitTermination.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            Panel(
-                template_name='circuits/panels/circuit_termination.html',
-                title=_('Circuit Termination'),
-            )
+            panels.CircuitTerminationPanel(),
         ],
         right_panels=[
             CustomFieldsPanel(),

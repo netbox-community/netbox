@@ -58,6 +58,26 @@ class CircuitGroupAssignmentsPanel(panels.ObjectsTablePanel):
         )
 
 
+class CircuitTerminationPanel(panels.ObjectAttributesPanel):
+    title = _('Circuit Termination')
+    circuit = attrs.RelatedObjectAttr('circuit', linkify=True)
+    provider = attrs.RelatedObjectAttr('circuit.provider', linkify=True)
+    termination = attrs.GenericForeignKeyAttr('termination', linkify=True, label=_('Termination point'))
+    connection = attrs.TemplatedAttr(
+        'pk',
+        template_name='circuits/circuit_termination/attrs/connection.html',
+        label=_('Connection'),
+    )
+    speed = attrs.TemplatedAttr(
+        'port_speed',
+        template_name='circuits/circuit_termination/attrs/speed.html',
+        label=_('Speed'),
+    )
+    xconnect_id = attrs.TextAttr('xconnect_id', label=_('Cross-Connect'), style='font-monospace')
+    pp_info = attrs.TextAttr('pp_info', label=_('Patch Panel/Port'))
+    description = attrs.TextAttr('description')
+
+
 class CircuitGroupPanel(panels.OrganizationalObjectPanel):
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
 
