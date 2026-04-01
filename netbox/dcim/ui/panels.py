@@ -420,14 +420,23 @@ class VirtualChassisMembersPanel(panels.ObjectPanel):
     """
     A panel which lists all members of a virtual chassis.
     """
+
     template_name = 'dcim/panels/virtual_chassis_members.html'
     title = _('Virtual Chassis Members')
     actions = [
         actions.AddObject(
             'dcim.device',
             url_params={
-                'site': lambda ctx: ctx['object'].master.site_id if ctx['object'].master else '',
-                'rack': lambda ctx: ctx['object'].master.rack_id if ctx['object'].master else '',
+                'site': lambda ctx: (
+                    ctx['virtual_chassis'].master.site_id
+                    if ctx['virtual_chassis'] and ctx['virtual_chassis'].master_id
+                    else ''
+                ),
+                'rack': lambda ctx: (
+                    ctx['virtual_chassis'].master.rack_id
+                    if ctx['virtual_chassis'] and ctx['virtual_chassis'].master_id
+                    else ''
+                ),
             },
         ),
     ]
