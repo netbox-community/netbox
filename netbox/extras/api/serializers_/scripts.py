@@ -1,6 +1,10 @@
+import logging
+
 from django.core.files.storage import storages
 from django.db import IntegrityError
 from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -58,7 +62,7 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
                 try:
                     storage.delete(file_path)
                 except Exception:
-                    pass
+                    logger.warning(f"Failed to delete orphaned script file '{file_path}' from storage.")
 
 
 class ScriptSerializer(ValidatedModelSerializer):

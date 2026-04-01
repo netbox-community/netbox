@@ -21,6 +21,7 @@ from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
+from netbox.api.viewsets.mixins import ObjectValidationMixin
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 
@@ -264,7 +265,7 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
-class ScriptModuleViewSet(CreateModelMixin, BaseViewSet):
+class ScriptModuleViewSet(ObjectValidationMixin, CreateModelMixin, BaseViewSet):
     queryset = ScriptModule.objects.all()
     serializer_class = serializers.ScriptModuleSerializer
 

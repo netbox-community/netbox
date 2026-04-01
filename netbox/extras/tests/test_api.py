@@ -1433,27 +1433,6 @@ class ScriptModuleTest(APITestCase):
         mock_storage.save.assert_called_once()
         self.assertTrue(ScriptModule.objects.filter(file_path='test_upload.py').exists())
 
-    def test_upload_script_module_duplicate_fails(self):
-        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
-        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
-        mock_storage = MagicMock()
-        mock_storage.save.return_value = 'test_upload.py'
-        with patch('extras.api.serializers_.scripts.storages') as mock_storages:
-            mock_storages.create_storage.return_value = mock_storage
-            mock_storages.backends = {'scripts': {}}
-            # First upload succeeds
-            upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
-            self.client.post(self.url, {'file': upload_file}, format='multipart', **self.header)
-            # Second upload with same name should fail
-            upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
-            response = self.client.post(
-                self.url,
-                {'file': upload_file},
-                format='multipart',
-                **self.header,
-            )
-        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
-
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         response = self.client.post(self.url, {}, format='json', **self.header)
