@@ -49,7 +49,7 @@ class CustomFieldsDataField(Field):
         # TODO: Fix circular import
         from utilities.api import get_serializer_for_model
         data = {}
-        cache = getattr(self, '_cf_object_cache', None)
+        cache = self.parent.context.get('cf_object_cache')
 
         for cf in self._get_custom_fields():
             if cache is not None and cf.type in (
@@ -131,5 +131,5 @@ class CustomFieldListSerializer(ListSerializer):
                             pks.add(raw)
                 for obj in model.objects.filter(pk__in=pks):
                     cache[(model, obj.pk)] = obj
-            cf_field._cf_object_cache = cache
+            self.child.context['cf_object_cache'] = cache
         return super().to_representation(data)
