@@ -187,7 +187,7 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
             'attrs': [
                 {
                     'label': attr.label or self._name_to_label(name),
-                    'value': attr.render(ctx['object'], {'name': name}),
+                    'value': attr.render(ctx['object'], {'name': name, 'perms': ctx['perms']}),
                 } for name, attr in self._attrs.items() if name in attr_names
             ],
         }

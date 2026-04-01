@@ -506,6 +506,7 @@ class TemplatedAttr(ObjectAttribute):
 
     def get_context(self, obj, context):
         return {
+            **context,
             **self.context,
             'object': obj,
         }
