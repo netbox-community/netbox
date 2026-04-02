@@ -148,10 +148,8 @@ class CopyContent(PanelAction):
         super().__init__(**kwargs)
         self.target_id = target_id
 
-    def render(self, context):
-        return render_to_string(self.template_name, {
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
             'target_id': self.target_id,
-            'label': self.label,
-            'button_class': self.button_class,
-            'button_icon': self.button_icon,
-        })
+        }
