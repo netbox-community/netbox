@@ -48,11 +48,13 @@ class FilterModifierWidget(forms.Widget):
             Just the value string for form validation. The modifier is reconstructed
             during rendering from the query parameter names.
         """
-        # Special handling for empty - check if field__empty exists
+        # Special handling for empty modifier: return None so the underlying field does not
+        # attempt to validate 'true'/'false' as a field value (e.g. a model PK). The
+        # `__empty` query parameter is consumed directly by the filterset and by
+        # `applied_filters`, so no value from the field itself is needed here.
         empty_param = f"{name}__empty"
         if empty_param in data:
-            # Return the boolean value for empty lookup
-            return data.get(empty_param)
+            return None
 
         # Try exact field name first
         value = self.original_widget.value_from_datadict(data, files, name)
@@ -113,8 +115,13 @@ class FilterModifierWidget(forms.Widget):
                     # Build a minimal choice list with just the selected values
                     choices = []
                     if pk_values:
-                        selected_objects = original_choices.queryset.filter(pk__in=pk_values)
-                        choices = [(obj.pk, str(obj)) for obj in selected_objects]
+                        try:
+                            selected_objects = original_choices.queryset.filter(pk__in=pk_values)
+                            choices = [(obj.pk, str(obj)) for obj in selected_objects]
+                        except (ValueError, TypeError):
+                            # pk_values may contain non-PK strings (e.g. 'true'/'false' from the
+                            # empty modifier); silently skip rendering selected choices in that case.
+                            pass
 
                     # Re-add the "None" option if it was selected via the null choice value
                     if settings.FILTERS_NULL_CHOICE_VALUE in values:

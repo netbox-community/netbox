@@ -481,6 +481,35 @@ def applied_filters(context, model, form, query_params):
             'link_text': link_text,
         })
 
+    # Handle empty modifier pills separately. `FilterModifierWidget.value_from_datadict()`
+    # returns None for fields with a `field__empty` query parameter so that the underlying
+    # form field does not attempt to validate 'true'/'false' as a real field value (which
+    # would raise a ValidationError for ModelChoiceField). Because the value is None, these
+    # fields never appear in `form.changed_data`, so we build their pills directly from the
+    # query parameters here.
+    for param_name, param_value in query_params.items():
+        if not param_name.endswith('__empty'):
+            continue
+        field_name = param_name[:-len('__empty')]
+        if field_name not in form.fields or field_name == 'filter_id':
+            continue
+
+        querydict = query_params.copy()
+        querydict.pop(param_name)
+        label = form.fields[field_name].label or field_name
+
+        if param_value.lower() in ('true', '1'):
+            link_text = f'{label} {_("is empty")}'
+        else:
+            link_text = f'{label} {_("is not empty")}'
+
+        applied_filters.append({
+            'name': param_name,
+            'value': param_value,
+            'link_url': f'?{querydict.urlencode()}',
+            'link_text': link_text,
+        })
+
     save_link = None
     if user.has_perm('extras.add_savedfilter') and 'filter_id' not in context['request'].GET:
         object_type = ObjectType.objects.get_for_model(model).pk
