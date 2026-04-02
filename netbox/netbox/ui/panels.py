@@ -89,9 +89,9 @@ class Panel:
         Parameters:
             context (dict): The template context
         """
-        if not self.should_render(context):
-            return ''
         ctx = self.get_context(context)
+        if not self.should_render(ctx):
+            return ''
         return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
 
@@ -427,4 +427,4 @@ class ContextTablePanel(ObjectPanel):
         }
 
     def should_render(self, context):
-        return self._resolve_table(context) is not None
+        return context.get('table') is not None

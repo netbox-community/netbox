@@ -64,12 +64,8 @@ class CustomFieldsPanel(panels.ObjectPanel):
             'custom_fields': obj.get_custom_fields_by_group(),
         }
 
-    def render(self, context):
-        ctx = self.get_context(context)
-        # Hide the panel if no custom fields exist
-        if not ctx['custom_fields']:
-            return ''
-        return super().render(context)
+    def should_render(self, context):
+        return bool(context['custom_fields'])
 
 
 class ImageAttachmentsPanel(panels.ObjectsTablePanel):
