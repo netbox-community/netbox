@@ -3,9 +3,6 @@
 !!! note "New in NetBox v4.5"
     All UI components described here were introduced in NetBox v4.5. Be sure to set the minimum NetBox version to 4.5.0 for your plugin before incorporating any of these resources.
 
-!!! danger "Beta Feature"
-    UI components are considered a beta feature, and are still under active development. Please be aware that the API for resources on this page is subject to change in future releases.
-
 To simplify the process of designing your plugin's user interface, and to encourage a consistent look and feel throughout the entire application, NetBox provides a set of components that enable programmatic UI design. These make it possible to declare complex page layouts with little or no custom HTML.
 
 ## Page Layout
