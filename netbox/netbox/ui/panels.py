@@ -106,9 +106,15 @@ class ObjectPanel(Panel):
 
     def get_context(self, context):
         obj = resolve_attr_path(context, self.accessor)
+        if self.title is not None:
+            title_ = self.title
+        elif obj is not None:
+            title_ = title(obj._meta.verbose_name)
+        else:
+            title_ = None
         return {
             **super().get_context(context),
-            'title': self.title or title(obj._meta.verbose_name),
+            'title': title_,
             'object': obj,
         }
 
