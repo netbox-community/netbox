@@ -55,8 +55,7 @@ class Panel:
             self.title = title
         if actions is not None:
             self.actions = actions
-        if self.actions is None:
-            self.actions = []
+        self.actions = list(self.actions) if self.actions else []
 
     def get_context(self, context):
         """
@@ -309,20 +308,25 @@ class ObjectsTablePanel(Panel):
     def __init__(self, model, filters=None, **kwargs):
         super().__init__(**kwargs)
 
-        # Resolve the model class from its app.name label
-        try:
-            app_label, model_name = model.split('.')
-            self.model = apps.get_model(app_label, model_name)
-        except (ValueError, LookupError):
+        # Validate the model label format
+        if '.' not in model:
             raise ValueError(f"Invalid model label: {model}")
-
+        self.model_label = model
         self.filters = filters or {}
 
-        # If no title is specified, derive one from the model name
-        if self.title is None:
-            self.title = title(self.model._meta.verbose_name_plural)
+    @property
+    def model(self):
+        try:
+            return apps.get_model(self.model_label)
+        except LookupError:
+            raise ValueError(f"Invalid model label: {self.model_label}")
 
     def get_context(self, context):
+        model = self.model
+
+        # If no title is specified, derive one from the model name
+        panel_title = self.title or title(model._meta.verbose_name_plural)
+
         url_params = {
             k: v(context) if callable(v) else v for k, v in self.filters.items()
         }
@@ -330,7 +334,8 @@ class ObjectsTablePanel(Panel):
             url_params['return_url'] = context['object'].get_absolute_url()
         return {
             **super().get_context(context),
-            'viewname': get_viewname(self.model, 'list'),
+            'title': panel_title,
+            'viewname': get_viewname(model, 'list'),
             'url_params': dict_to_querydict(url_params),
         }
 
@@ -346,13 +351,13 @@ class TemplatePanel(Panel):
         self.template_name = template_name
         super().__init__(**kwargs)
 
-    def render(self, context):
+    def get_context(self, context):
         # Pass the entire context to the template, but let the panel's own context take precedence
         # for panel-specific variables (title, actions, panel_class)
-        return render_to_string(self.template_name, {
+        return {
             **context.flatten(),
-            **self.get_context(context),
-        })
+            **super().get_context(context)
+        }
 
 
 class TextCodePanel(ObjectPanel):
@@ -422,4 +427,4 @@ class ContextTablePanel(ObjectPanel):
         }
 
     def should_render(self, context):
-        return context.get('table') is not None
+        return self._resolve_table(context) is not None
