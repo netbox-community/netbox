@@ -78,7 +78,7 @@ class Panel:
         Determines whether the panel should render on the page. (Default: True)
 
         Parameters:
-            context (dict): The template context
+            context (dict): The panel's prepared context (the return value of get_context())
         """
         return True
 
@@ -245,7 +245,7 @@ class CommentsPanel(ObjectPanel):
         ctx = super().get_context(context)
         return {
             **ctx,
-            'comments': getattr(ctx['object'], self.field_name),
+            'comments': getattr(ctx['object'], self.field_name, None),
         }
 
 
@@ -270,7 +270,7 @@ class JSONPanel(ObjectPanel):
         ctx = super().get_context(context)
         return {
             **ctx,
-            'data': getattr(ctx['object'], self.field_name),
+            'data': getattr(ctx['object'], self.field_name, None),
             'field_name': self.field_name,
         }
 
@@ -372,10 +372,11 @@ class TextCodePanel(ObjectPanel):
         self.show_sync_warning = show_sync_warning
 
     def get_context(self, context):
+        ctx = super().get_context(context)
         return {
-            **super().get_context(context),
+            **ctx,
             'show_sync_warning': self.show_sync_warning,
-            'value': getattr(context.get('object'), self.field_name, None),
+            'value': getattr(ctx['object'], self.field_name, None),
         }
 
 
@@ -391,6 +392,8 @@ class PluginContentPanel(Panel):
         self.method = method
 
     def render(self, context):
+        if not self.should_render(context):
+            return ''
         obj = context.get('object')
         return _get_registered_content(obj, self.method, context)
 

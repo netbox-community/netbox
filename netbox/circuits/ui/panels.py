@@ -13,13 +13,9 @@ class CircuitCircuitTerminationPanel(panels.ObjectPanel):
     template_name = 'circuits/panels/circuit_circuit_termination.html'
     title = _('Termination')
 
-    def __init__(self, accessor=None, side=None, **kwargs):
-        super().__init__(**kwargs)
-
-        if accessor is not None:
-            self.accessor = accessor
-        if side is not None:
-            self.side = side
+    def __init__(self, side, accessor=None, **kwargs):
+        super().__init__(accessor=accessor, **kwargs)
+        self.side = side
 
     def get_context(self, context):
         return {
