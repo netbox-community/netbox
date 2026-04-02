@@ -16,6 +16,7 @@ from netbox.ui.panels import (
     CommentsPanel,
     ContextTablePanel,
     ObjectsTablePanel,
+    PluginContentPanel,
     RelatedObjectsPanel,
     TemplatePanel,
 )
@@ -55,11 +56,13 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
             layout.Column(
                 panels.VRFPanel(),
                 TagsPanel(),
+                PluginContentPanel('left_page'),
             ),
             layout.Column(
                 RelatedObjectsPanel(),
                 CustomFieldsPanel(),
                 CommentsPanel(),
+                PluginContentPanel('right_page'),
             ),
         ),
         layout.Row(
@@ -68,6 +71,11 @@ class VRFView(GetRelatedModelsMixin, generic.ObjectView):
             ),
             layout.Column(
                 ContextTablePanel('export_targets_table', title=_('Export route targets')),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
             ),
         ),
     )
@@ -169,10 +177,12 @@ class RouteTargetView(generic.ObjectView):
             layout.Column(
                 panels.RouteTargetPanel(),
                 TagsPanel(),
+                PluginContentPanel('left_page'),
             ),
             layout.Column(
                 CustomFieldsPanel(),
                 CommentsPanel(),
+                PluginContentPanel('right_page'),
             ),
         ),
         layout.Row(
@@ -205,6 +215,11 @@ class RouteTargetView(generic.ObjectView):
                     filters={'export_target_id': lambda ctx: ctx['object'].pk},
                     title=_('Exporting L2VPNs'),
                 ),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
             ),
         ),
     )

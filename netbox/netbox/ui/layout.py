@@ -21,9 +21,15 @@ class Layout:
     """
     def __init__(self, *rows):
         for i, row in enumerate(rows):
-            if type(row) is not Row:
+            if not isinstance(row, Row):
                 raise TypeError(f"Row {i} must be a Row instance, not {type(row)}.")
         self.rows = rows
+
+    def __iter__(self):
+        return iter(self.rows)
+
+    def __repr__(self):
+        return f"Layout({len(self.rows)} rows)"
 
 
 class Row:
@@ -35,9 +41,15 @@ class Row:
     """
     def __init__(self, *columns):
         for i, column in enumerate(columns):
-            if type(column) is not Column:
+            if not isinstance(column, Column):
                 raise TypeError(f"Column {i} must be a Column instance, not {type(column)}.")
         self.columns = columns
+
+    def __iter__(self):
+        return iter(self.columns)
+
+    def __repr__(self):
+        return f"Row({len(self.columns)} columns)"
 
 
 class Column:
@@ -52,6 +64,12 @@ class Column:
             if not isinstance(panel, Panel):
                 raise TypeError(f"Panel {i} must be an instance of a Panel, not {type(panel)}.")
         self.panels = panels
+
+    def __iter__(self):
+        return iter(self.panels)
+
+    def __repr__(self):
+        return f"Column({len(self.panels)} panels)"
 
 
 #
