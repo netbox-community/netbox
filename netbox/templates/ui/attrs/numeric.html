@@ -1,5 +1,5 @@
 {% load i18n %}
-<span{% if style %} class="{{ style }}"{% endif %}>
+<span>
   <span{% if name %} id="attr_{{ name }}"{% endif %}>{{ value }}</span>
   {% if unit %}
     {{ unit|lower }}

@@ -74,7 +74,7 @@ class RackReservationPanel(panels.ObjectAttributesPanel):
     unit_count = attrs.TextAttr('unit_count', label=_("Total U's"))
     status = attrs.ChoiceAttr('status')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    user = attrs.RelatedObjectAttr('user')
+    user = attrs.RelatedObjectAttr('user', linkify=True)
     description = attrs.TextAttr('description')
 
 
@@ -219,8 +219,8 @@ class PowerPortPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
     description = attrs.TextAttr('description')
-    maximum_draw = attrs.TextAttr('maximum_draw')
-    allocated_draw = attrs.TextAttr('allocated_draw')
+    maximum_draw = attrs.TextAttr('maximum_draw', format_string='{}W')
+    allocated_draw = attrs.TextAttr('allocated_draw', format_string='{}W')
 
 
 class PowerOutletPanel(panels.ObjectAttributesPanel):
@@ -243,7 +243,7 @@ class FrontPortPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
     color = attrs.ColorAttr('color')
-    positions = attrs.TextAttr('positions')
+    positions = attrs.NumericAttr('positions')
     description = attrs.TextAttr('description')
 
 
@@ -254,7 +254,7 @@ class RearPortPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
     color = attrs.ColorAttr('color')
-    positions = attrs.TextAttr('positions')
+    positions = attrs.NumericAttr('positions')
     description = attrs.TextAttr('description')
 
 
@@ -472,7 +472,7 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     type = attrs.ChoiceAttr('type')
     speed = attrs.TemplatedAttr('speed', template_name='dcim/interface/attrs/speed.html', label=_('Speed'))
     duplex = attrs.ChoiceAttr('duplex')
-    mtu = attrs.TextAttr('mtu', label=_('MTU'))
+    mtu = attrs.NumericAttr('mtu', label=_('MTU'))
     enabled = attrs.BooleanAttr('enabled')
     mgmt_only = attrs.BooleanAttr('mgmt_only', label=_('Management only'))
     description = attrs.TextAttr('description')
@@ -481,7 +481,7 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     mode = attrs.ChoiceAttr('mode', label=_('802.1Q mode'))
     qinq_svlan = attrs.RelatedObjectAttr('qinq_svlan', linkify=True, label=_('Q-in-Q SVLAN'))
     untagged_vlan = attrs.RelatedObjectAttr('untagged_vlan', linkify=True, label=_('Untagged VLAN'))
-    tx_power = attrs.TextAttr('tx_power', label=_('Transmit power (dBm)'))
+    tx_power = attrs.TextAttr('tx_power', label=_('Transmit power'), format_string='{} dBm')
     tunnel = attrs.RelatedObjectAttr('tunnel_termination.tunnel', linkify=True, label=_('Tunnel'))
     l2vpn = attrs.RelatedObjectAttr('l2vpn_termination.l2vpn', linkify=True, label=_('L2VPN'))
 

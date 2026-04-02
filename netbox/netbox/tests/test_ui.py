@@ -76,7 +76,7 @@ class ChoiceAttrTest(TestCase):
             self.termination.get_role_display(),
         )
         self.assertEqual(
-            attr.get_context(self.termination, {}),
+            attr.get_context(self.termination, 'role', attr.get_value(self.termination), {}),
             {'bg_color': self.termination.get_role_color()},
         )
 
@@ -88,7 +88,7 @@ class ChoiceAttrTest(TestCase):
             self.termination.interface.get_type_display(),
         )
         self.assertEqual(
-            attr.get_context(self.termination, {}),
+            attr.get_context(self.termination, 'interface.type', attr.get_value(self.termination), {}),
             {'bg_color': None},
         )
 
@@ -100,7 +100,9 @@ class ChoiceAttrTest(TestCase):
             self.termination.virtual_circuit.get_status_display(),
         )
         self.assertEqual(
-            attr.get_context(self.termination, {}),
+            attr.get_context(
+                self.termination, 'virtual_circuit.status', attr.get_value(self.termination), {}
+            ),
             {'bg_color': self.termination.virtual_circuit.get_status_color()},
         )
 
