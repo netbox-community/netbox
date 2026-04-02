@@ -9,6 +9,7 @@ from django_rq import get_queue
 
 from core.events import *
 from core.models import ObjectType
+from dcim.models import CabledObjectModel
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.models.features import has_feature
@@ -107,7 +108,12 @@ def enqueue_event(queue, instance, request, event_type):
             request_id=request.id,           # DEPRECATED, will be removed in NetBox v4.7.0
         )
     # Force serialization of objects prior to them actually being deleted
-    if event_type == OBJECT_DELETED:
+    if (
+        event_type == OBJECT_DELETED
+        # Changing cables deletes related objects such as path traces and makes them inaccessible
+        or isinstance(instance, CabledObjectModel)
+        and getattr(instance, '_prechange_snapshot', {}).get('cable') != instance.cable_id
+    ):
         queue[key]['data'] = serialize_for_event(instance)
 
 
