@@ -25,16 +25,54 @@ logger = logging.getLogger('netbox.events_processor')
 
 class EventContext(UserDict):
     """
-    A custom dictionary that automatically serializes its associated object on demand.
+    Dictionary-compatible wrapper for queued events that lazily serializes
+    ``event['data']`` on first access.
+
+    Backward-compatible with the plain-dict interface expected by existing
+    EVENTS_PIPELINE consumers. When the same object is enqueued more than once
+    in a single request, the serialization source is updated so consumers see
+    the latest state.
     """
 
-    # We're emulating a dictionary here (rather than using a custom class) because prior to NetBox v4.5.2, events were
-    # queued as dictionaries for processing by handles in EVENTS_PIPELINE. We need to avoid introducing any breaking
-    # changes until a suitable minor release.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Track which model instance should be serialized if/when `data` is
+        # requested. This may be refreshed on duplicate enqueue, while leaving
+        # the public `object` entry untouched for compatibility.
+        self._serialization_source = None
+        if 'object' in self:
+            self._serialization_source = super().__getitem__('object')
+
+    def refresh_serialization_source(self, instance):
+        """
+        Point lazy serialization at a fresher instance, invalidating any
+        already-materialized ``data``.
+        """
+        self._serialization_source = instance
+        # UserDict.__contains__ checks the backing dict directly, so `in`
+        # does not trigger __getitem__'s lazy serialization.
+        if 'data' in self:
+            del self['data']
+
+    def freeze_data(self, instance):
+        """
+        Eagerly serialize and cache the payload for delete events, where the
+        object may become inaccessible after deletion.
+        """
+        super().__setitem__('data', serialize_for_event(instance))
+        self._serialization_source = None
+
     def __getitem__(self, item):
         if item == 'data' and 'data' not in self:
-            data = serialize_for_event(self['object'])
-            self.__setitem__('data', data)
+            # Materialize the payload only when an event consumer asks for it.
+            #
+            # On coalesced events, use the latest explicitly queued instance so
+            # webhooks/scripts/notifications observe the final queued state for
+            # that object within the request.
+            source = self._serialization_source or super().__getitem__('object')
+            super().__setitem__('data', serialize_for_event(source))
+
         return super().__getitem__(item)
 
 
@@ -76,8 +114,9 @@ def get_snapshots(instance, event_type):
 
 def enqueue_event(queue, instance, request, event_type):
     """
-    Enqueue a serialized representation of a created/updated/deleted object for the processing of
-    events once the request has completed.
+    Enqueue (or coalesce) an event for a created/updated/deleted object.
+
+    Events are processed after the request completes.
     """
     # Bail if this type of object does not support event rules
     if not has_feature(instance, 'event_rules'):
@@ -88,11 +127,18 @@ def enqueue_event(queue, instance, request, event_type):
 
     assert instance.pk is not None
     key = f'{app_label}.{model_name}:{instance.pk}'
+
     if key in queue:
         queue[key]['snapshots']['postchange'] = get_snapshots(instance, event_type)['postchange']
-        # If the object is being deleted, update any prior "update" event to "delete"
+
+        # If the object is being deleted, convert any prior update event into a
+        # delete event and freeze the payload before the object (or related
+        # rows) become inaccessible.
         if event_type == OBJECT_DELETED:
             queue[key]['event_type'] = event_type
+        else:
+            # Keep the public `object` entry stable for compatibility.
+            queue[key].refresh_serialization_source(instance)
     else:
         queue[key] = EventContext(
             object_type=ObjectType.objects.get_for_model(instance),
@@ -106,9 +152,11 @@ def enqueue_event(queue, instance, request, event_type):
             username=request.user.username,  # DEPRECATED, will be removed in NetBox v4.7.0
             request_id=request.id,           # DEPRECATED, will be removed in NetBox v4.7.0
         )
-    # Force serialization of objects prior to them actually being deleted
+
+    # For delete events, eagerly serialize the payload before the row is gone.
+    # This covers both first-time enqueues and coalesced update→delete promotions.
     if event_type == OBJECT_DELETED:
-        queue[key]['data'] = serialize_for_event(instance)
+        queue[key].freeze_data(instance)
 
 
 def process_event_rules(event_rules, object_type, event):
@@ -133,9 +181,9 @@ def process_event_rules(event_rules, object_type, event):
         if not event_rule.eval_conditions(event['data']):
             continue
 
-        # Compile event data
-        event_data = event_rule.action_data or {}
-        event_data.update(event['data'])
+        # Merge rule-specific action_data with the event payload.
+        # Copy to avoid mutating the rule's stored action_data dict.
+        event_data = {**(event_rule.action_data or {}), **event['data']}
 
         # Webhooks
         if event_rule.action_type == EventRuleActionChoices.WEBHOOK:

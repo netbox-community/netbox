@@ -5,6 +5,7 @@ from circuits.models import *
 from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
+from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
 from netbox.choices import WeightUnitChoices
@@ -1344,6 +1345,65 @@ class CableTestCase(TestCase):
         b_terms = [ct.termination for ct in CableTermination.objects.filter(cable=cable, cable_end='B')]
         self.assertEqual(a_terms, [interface1])
         self.assertEqual(b_terms, [interface2])
+
+    @tag('regression')  # #21498
+    def test_path_refreshes_replaced_cablepath_reference(self):
+        """
+        An already-instantiated interface should refresh its denormalized
+        `_path` foreign key when the referenced CablePath row has been
+        replaced in the database.
+        """
+        stale_interface = Interface.objects.get(device__name='TestDevice1', name='eth0')
+        old_path = CablePath.objects.get(pk=stale_interface._path_id)
+
+        new_path = CablePath(
+            path=old_path.path,
+            is_active=old_path.is_active,
+            is_complete=old_path.is_complete,
+            is_split=old_path.is_split,
+        )
+        old_path_id = old_path.pk
+        old_path.delete()
+        new_path.save()
+
+        # The old CablePath no longer exists
+        self.assertFalse(CablePath.objects.filter(pk=old_path_id).exists())
+
+        # The already-instantiated interface still points to the deleted path
+        # until the accessor refreshes `_path` from the database.
+        self.assertEqual(stale_interface._path_id, old_path_id)
+        self.assertEqual(stale_interface.path.pk, new_path.pk)
+
+    @tag('regression')  # #21498
+    def test_serialize_for_event_handles_stale_cablepath_reference_after_retermination(self):
+        """
+        Serializing an interface whose previously cached `_path` row has been
+        deleted during cable retermination must not raise.
+        """
+        stale_interface = Interface.objects.get(device__name='TestDevice2', name='eth0')
+        old_path_id = stale_interface._path_id
+        new_peer = Interface.objects.get(device__name='TestDevice2', name='eth1')
+        cable = stale_interface.cable
+
+        self.assertIsNotNone(cable)
+        self.assertIsNotNone(old_path_id)
+        self.assertEqual(stale_interface.cable_end, 'B')
+
+        cable.b_terminations = [new_peer]
+        cable.save()
+
+        # The old CablePath was deleted during retrace.
+        self.assertFalse(CablePath.objects.filter(pk=old_path_id).exists())
+
+        # The stale in-memory instance still holds the deleted FK value.
+        self.assertEqual(stale_interface._path_id, old_path_id)
+
+        # Serialization must not raise ObjectDoesNotExist. Because this interface
+        # was the former B-side termination, it is now disconnected.
+        data = serialize_for_event(stale_interface)
+        self.assertIsNone(data['connected_endpoints'])
+        self.assertIsNone(data['connected_endpoints_type'])
+        self.assertFalse(data['connected_endpoints_reachable'])
 
 
 class VirtualDeviceContextTestCase(TestCase):

@@ -38,7 +38,15 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.BooleanField)
     def get_connected_endpoints_reachable(self, obj):
-        return obj._path and obj._path.is_complete and obj._path.is_active
+        """
+        Return whether the connected endpoints are reachable via a complete, active cable path.
+        """
+        # Use the public `path` accessor rather than dereferencing `_path`
+        # directly. `path` already handles the stale in-memory relation case
+        # that can occur while CablePath rows are rebuilt during cable edits.
+        if path := obj.path:
+            return path.is_complete and path.is_active
+        return False
 
 
 class PortSerializer(serializers.ModelSerializer):
