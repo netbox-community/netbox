@@ -58,12 +58,19 @@ class Column:
 
     Parameters:
         *panels: One or more Panel instances
+        width: Bootstrap grid column width (1-12). If unset, the column will expand to fill available space.
     """
-    def __init__(self, *panels):
+    def __init__(self, *panels, width=None):
         for i, panel in enumerate(panels):
             if not isinstance(panel, Panel):
                 raise TypeError(f"Panel {i} must be an instance of a Panel, not {type(panel)}.")
+        if width is not None:
+            if type(width) is not int:
+                raise ValueError(f"Column width must be an integer, not {type(width)}")
+            if width not in range(1, 13):
+                raise ValueError(f"Column width must be an integer between 1 and 12 (got {width}).")
         self.panels = panels
+        self.width = width
 
     def __iter__(self):
         return iter(self.panels)
