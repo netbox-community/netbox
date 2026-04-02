@@ -74,6 +74,15 @@ class Panel:
             'panel_class': self.__class__.__name__,
         }
 
+    def should_render(self, context):
+        """
+        Determines whether the panel should render on the page. (Default: True)
+
+        Parameters:
+            context (dict): The template context
+        """
+        return True
+
     def render(self, context):
         """
         Render the panel as HTML.
@@ -81,6 +90,8 @@ class Panel:
         Parameters:
             context (dict): The template context
         """
+        if not self.should_render(context):
+            return ''
         ctx = self.get_context(context)
         return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
@@ -405,14 +416,10 @@ class ContextTablePanel(ObjectPanel):
         return context.get(self.table)
 
     def get_context(self, context):
-        table = self._resolve_table(context)
         return {
             **super().get_context(context),
-            'table': table,
+            'table': self._resolve_table(context),
         }
 
-    def render(self, context):
-        table = self._resolve_table(context)
-        if table is None:
-            return ''
-        return super().render(context)
+    def should_render(self, context):
+        return context.get('table') is not None

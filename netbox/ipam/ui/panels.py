@@ -229,11 +229,9 @@ class VLANCustomerVLANsPanel(panels.ObjectsTablePanel):
             ],
         )
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if not obj or obj.qinq_role != 'svlan':
-            return ''
-        return super().render(context)
+        return False if (obj is None or obj.qinq_role != 'svlan') else True
 
 
 class ServiceTemplatePanel(panels.ObjectAttributesPanel):

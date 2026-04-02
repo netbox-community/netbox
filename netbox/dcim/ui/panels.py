@@ -442,10 +442,8 @@ class VirtualChassisMembersPanel(panels.ObjectPanel):
             'vc_members': context.get('vc_members'),
         }
 
-    def render(self, context):
-        if not context.get('vc_members'):
-            return ''
-        return super().render(context)
+    def should_render(self, context):
+        return bool(context.get('vc_members'))
 
 
 class PowerUtilizationPanel(panels.ObjectPanel):
@@ -461,11 +459,9 @@ class PowerUtilizationPanel(panels.ObjectPanel):
             'vc_members': context.get('vc_members'),
         }
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context['object']
-        if not obj.powerports.exists() or not obj.poweroutlets.exists():
-            return ''
-        return super().render(context)
+        return obj.powerports.exists() and obj.poweroutlets.exists()
 
 
 class InterfacePanel(panels.ObjectAttributesPanel):
@@ -518,11 +514,9 @@ class InterfaceConnectionPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_connection.html'
     title = _('Connection')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if obj and obj.is_virtual:
-            return ''
-        return super().render(context)
+        return False if (obj is None or obj.is_virtual) else True
 
 
 class VirtualCircuitPanel(panels.ObjectPanel):
@@ -532,11 +526,11 @@ class VirtualCircuitPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_virtual_circuit.html'
     title = _('Virtual Circuit')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
         if not obj or not obj.is_virtual or not hasattr(obj, 'virtual_circuit_termination'):
-            return ''
-        return super().render(context)
+            return False
+        return True
 
 
 class InterfaceWirelessPanel(panels.ObjectPanel):
@@ -546,11 +540,9 @@ class InterfaceWirelessPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_wireless.html'
     title = _('Wireless')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if not obj or not obj.is_wireless:
-            return ''
-        return super().render(context)
+        return False if (obj is None or not obj.is_wireless) else True
 
 
 class WirelessLANsPanel(panels.ObjectPanel):
@@ -560,8 +552,6 @@ class WirelessLANsPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_wireless_lans.html'
     title = _('Wireless LANs')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if not obj or not obj.is_wireless:
-            return ''
-        return super().render(context)
+        return False if (obj is None or not obj.is_wireless) else True
