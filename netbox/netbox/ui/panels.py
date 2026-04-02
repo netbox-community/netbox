@@ -53,7 +53,10 @@ class Panel:
     def __init__(self, title=None, actions=None):
         if title is not None:
             self.title = title
-        self.actions = actions or self.actions or []
+        if actions is not None:
+            self.actions = actions
+        if self.actions is None:
+            self.actions = []
 
     def get_context(self, context):
         """
