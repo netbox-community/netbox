@@ -1,5 +1,6 @@
 from django import template as template_
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
 from netbox.plugins import PluginTemplateExtension
@@ -38,8 +39,11 @@ def _get_registered_content(obj, method, template_context):
         context['config'] = settings.PLUGINS_CONFIG.get(plugin_name, {})
 
         # Call the method to render content
-        instance = template_extension(context)
-        content = getattr(instance, method)()
+        try:
+            instance = template_extension(context)
+            content = getattr(instance, method)()
+        except Exception as e:
+            content = render_to_string('ui/exception.html', {'plugin': plugin_name, 'exception': repr(e)})
         html += content
 
     return mark_safe(html)

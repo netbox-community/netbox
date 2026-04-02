@@ -1,0 +1,12 @@
+{% load i18n %}
+<div class="alert alert-danger" role="alert">
+  <div class="alert-icon">
+    <i class="mdi mdi-alert"></i>
+  </div>
+  <div>
+    <p>
+      {% blocktrans %}An error occurred when loading content from plugin {{ plugin }}:{% endblocktrans %}
+    </p>
+    <pre class="p-0">{{ exception }}</pre>
+  </div>
+</div>
