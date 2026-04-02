@@ -1149,7 +1149,7 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, PrimaryModelTable):
     )
     device = tables.Column(
         verbose_name=_('Device'),
-        order_by=('device___name',),
+        order_by=('device__name',),
         linkify=True
     )
     status = columns.ChoiceFieldColumn(

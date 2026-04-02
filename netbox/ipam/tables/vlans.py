@@ -247,6 +247,6 @@ class VLANTranslationRuleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLANTranslationRule
         fields = (
-            'pk', 'id', 'name', 'policy', 'local_vid', 'remote_vid', 'description', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'policy', 'local_vid', 'remote_vid', 'description', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'policy', 'local_vid', 'remote_vid', 'description')

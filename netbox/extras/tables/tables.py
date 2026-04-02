@@ -417,6 +417,7 @@ class NotificationTable(NetBoxTable):
     icon = columns.TemplateColumn(
         template_code=NOTIFICATION_ICON,
         accessor=tables.A('event'),
+        orderable=False,
         attrs={
             'td': {'class': 'w-1'},
             'th': {'class': 'w-1'},
@@ -479,8 +480,8 @@ class WebhookTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    ssl_validation = columns.BooleanColumn(
-        verbose_name=_('SSL Validation')
+    ssl_verification = columns.BooleanColumn(
+        verbose_name=_('SSL Verification'),
     )
     owner = tables.Column(
         linkify=True,
