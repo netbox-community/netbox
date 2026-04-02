@@ -267,11 +267,26 @@ class ModuleBayPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
 
 
+class InstalledModulePanel(panels.ObjectAttributesPanel):
+    title = _('Installed Module')
+    module = attrs.RelatedObjectAttr('installed_module', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('installed_module.module_type.manufacturer', linkify=True)
+    module_type = attrs.RelatedObjectAttr('installed_module.module_type', linkify=True)
+    serial = attrs.TextAttr('installed_module.serial', label=_('Serial number'), style='font-monospace')
+    asset_tag = attrs.TextAttr('installed_module.asset_tag', style='font-monospace')
+
+
 class DeviceBayPanel(panels.ObjectAttributesPanel):
     device = attrs.RelatedObjectAttr('device', linkify=True)
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
     description = attrs.TextAttr('description')
+
+
+class InstalledDevicePanel(panels.ObjectAttributesPanel):
+    title = _('Installed Device')
+    device = attrs.RelatedObjectAttr('installed_device', linkify=True)
+    device_type = attrs.RelatedObjectAttr('installed_device.device_type')
 
 
 class InventoryItemPanel(panels.ObjectAttributesPanel):

@@ -3739,10 +3739,7 @@ class ModuleBayView(generic.ObjectView):
         ],
         right_panels=[
             CustomFieldsPanel(),
-            TemplatePanel(
-                title=_('Installed Module'),
-                template_name='dcim/panels/installed_module.html',
-            ),
+            panels.InstalledModulePanel(),
         ],
     )
 
@@ -3814,10 +3811,7 @@ class DeviceBayView(generic.ObjectView):
             TagsPanel(),
         ],
         right_panels=[
-            TemplatePanel(
-                title=_('Installed Device'),
-                template_name='dcim/panels/installed_device.html',
-            ),
+            panels.InstalledDevicePanel(),
         ],
     )
 

@@ -10,7 +10,6 @@ from netbox.ui.panels import (
     ObjectsTablePanel,
     PluginContentPanel,
     RelatedObjectsPanel,
-    TemplatePanel,
 )
 from netbox.views import generic
 from utilities.query import count_related
@@ -589,8 +588,8 @@ class IPSecProfileView(generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            TemplatePanel('vpn/panels/ipsecprofile_ike_policy.html'),
-            TemplatePanel('vpn/panels/ipsecprofile_ipsec_policy.html'),
+            panels.IPSecProfileIKEPolicyPanel(),
+            panels.IPSecProfileIPSecPolicyPanel(),
         ],
     )
 
