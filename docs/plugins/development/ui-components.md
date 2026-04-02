@@ -6,7 +6,7 @@
 !!! danger "Beta Feature"
     UI components are considered a beta feature, and are still under active development. Please be aware that the API for resources on this page is subject to change in future releases.
 
-To simply the process of designing your plugin's user interface, and to encourage a consistent look and feel throughout the entire application, NetBox provides a set of components that enable programmatic UI design. These make it possible to declare complex page layouts with little or no custom HTML.
+To simplify the process of designing your plugin's user interface, and to encourage a consistent look and feel throughout the entire application, NetBox provides a set of components that enable programmatic UI design. These make it possible to declare complex page layouts with little or no custom HTML.
 
 ## Page Layout
 
@@ -77,7 +77,7 @@ class RecentChangesPanel(Panel):
         }
 ```
 
-NetBox also includes a set of panels suite for specific uses, such as display object details or embedding a table of related objects. These are listed below.
+NetBox also includes a set of panels suited for specific uses, such as display object details or embedding a table of related objects. These are listed below.
 
 ::: netbox.ui.panels.Panel
 
