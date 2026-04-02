@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, attrs, panels
@@ -393,10 +392,6 @@ class ConnectionPanel(panels.ObjectPanel):
             'show_endpoints': self.show_endpoints,
         }
 
-    def render(self, context):
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
-
 
 class InventoryItemsPanel(panels.ObjectPanel):
     """
@@ -413,10 +408,6 @@ class InventoryItemsPanel(panels.ObjectPanel):
             },
         ),
     ]
-
-    def render(self, context):
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
 
 class VirtualChassisMembersPanel(panels.ObjectPanel):
@@ -531,8 +522,7 @@ class InterfaceConnectionPanel(panels.ObjectPanel):
         obj = context.get('object')
         if obj and obj.is_virtual:
             return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return super().render(context)
 
 
 class VirtualCircuitPanel(panels.ObjectPanel):
@@ -546,8 +536,7 @@ class VirtualCircuitPanel(panels.ObjectPanel):
         obj = context.get('object')
         if not obj or not obj.is_virtual or not hasattr(obj, 'virtual_circuit_termination'):
             return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return super().render(context)
 
 
 class InterfaceWirelessPanel(panels.ObjectPanel):
@@ -561,8 +550,7 @@ class InterfaceWirelessPanel(panels.ObjectPanel):
         obj = context.get('object')
         if not obj or not obj.is_wireless:
             return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return super().render(context)
 
 
 class WirelessLANsPanel(panels.ObjectPanel):
@@ -576,5 +564,4 @@ class WirelessLANsPanel(panels.ObjectPanel):
         obj = context.get('object')
         if not obj or not obj.is_wireless:
             return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return super().render(context)

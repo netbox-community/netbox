@@ -78,7 +78,8 @@ class Panel:
         Parameters:
             context (dict): The template context
         """
-        return render_to_string(self.template_name, self.get_context(context))
+        ctx = self.get_context(context)
+        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
 
 #

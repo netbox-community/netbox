@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, attrs, panels
@@ -70,7 +69,7 @@ class CustomFieldsPanel(panels.ObjectPanel):
         # Hide the panel if no custom fields exist
         if not ctx['custom_fields']:
             return ''
-        return render_to_string(self.template_name, self.get_context(context))
+        return super().render(context)
 
 
 class ImageAttachmentsPanel(panels.ObjectsTablePanel):
