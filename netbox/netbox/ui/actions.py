@@ -118,31 +118,19 @@ class AddObject(LinkAction):
         url_params (dict): A dictionary of arbitrary URL parameters to append to the resolved URL
     """
     def __init__(self, model, url_params=None, **kwargs):
-        # Validate the model label format
+        # Resolve the model from its label
         if '.' not in model:
             raise ValueError(f"Invalid model label: {model}")
-        self.model_label = model
+        try:
+            self.model = apps.get_model(model)
+        except LookupError:
+            raise ValueError(f"Invalid model label: {model}")
 
         kwargs.setdefault('label', _('Add'))
         kwargs.setdefault('button_icon', 'plus-thick')
+        kwargs.setdefault('permissions', [get_permission_for_model(self.model, 'add')])
 
-        # Defer model resolution; view_name and permissions are resolved at render time
-        super().__init__(view_name=None, url_params=url_params, **kwargs)
-
-    @property
-    def model(self):
-        try:
-            return apps.get_model(self.model_label)
-        except LookupError:
-            raise ValueError(f"Invalid model label: {self.model_label}")
-
-    def get_url(self, context):
-        self.view_name = get_viewname(self.model, 'add')
-        return super().get_url(context)
-
-    def render(self, context):
-        self.permissions = [get_permission_for_model(self.model, 'add')]
-        return super().render(context)
+        super().__init__(view_name=get_viewname(self.model, 'add'), url_params=url_params, **kwargs)
 
 
 class CopyContent(PanelAction):
