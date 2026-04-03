@@ -392,8 +392,7 @@ class PluginContentPanel(Panel):
         self.method = method
 
     def render(self, context):
-        if not self.should_render(context):
-            return ''
+        # Override the default render() method to simply embed rendered plugin content
         obj = context.get('object')
         return _get_registered_content(obj, self.method, context)
 
