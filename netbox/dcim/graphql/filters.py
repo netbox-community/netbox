@@ -47,7 +47,13 @@ if TYPE_CHECKING:
         VRFFilter,
     )
     from netbox.graphql.enums import ColorEnum
-    from netbox.graphql.filter_lookups import FloatLookup, IntegerArrayLookup, IntegerLookup, TreeNodeFilter
+    from netbox.graphql.filter_lookups import (
+        BigIntegerLookup,
+        FloatLookup,
+        IntegerArrayLookup,
+        IntegerLookup,
+        TreeNodeFilter,
+    )
     from users.graphql.filters import UserFilter
     from virtualization.graphql.filters import ClusterFilter
     from vpn.graphql.filters import L2VPNFilter, TunnelTerminationFilter
@@ -519,7 +525,7 @@ class InterfaceFilter(
         strawberry_django.filter_field()
     )
     mgmt_only: FilterLookup[bool] | None = strawberry_django.filter_field()
-    speed: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    speed: Annotated['BigIntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     duplex: BaseFilterLookup[Annotated['InterfaceDuplexEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (

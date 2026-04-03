@@ -26,6 +26,7 @@ from tenancy.models import *
 from users.filterset_mixins import OwnerFilterMixin
 from users.models import User
 from utilities.filters import (
+    MultiValueBigNumberFilter,
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueMACAddressFilter,
@@ -2175,7 +2176,7 @@ class InterfaceFilterSet(
         distinct=False,
         label=_('LAG interface (ID)'),
     )
-    speed = MultiValueNumberFilter()
+    speed = MultiValueBigNumberFilter(min_value=0)
     duplex = django_filters.MultipleChoiceFilter(
         choices=InterfaceDuplexChoices,
         distinct=False,

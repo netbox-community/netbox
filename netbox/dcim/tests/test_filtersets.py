@@ -4655,7 +4655,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 enabled=True,
                 mgmt_only=True,
                 tx_power=40,
-                speed=100000,
+                speed=16_000_000_000,
                 duplex='full',
                 poe_mode=InterfacePoEModeChoices.MODE_PD,
                 poe_type=InterfacePoETypeChoices.TYPE_2_8023AT,
@@ -4757,7 +4757,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_speed(self):
-        params = {'speed': [1000000, 100000]}
+        params = {'speed': [16_000_000_000, 1_000_000, 100_000]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_duplex(self):

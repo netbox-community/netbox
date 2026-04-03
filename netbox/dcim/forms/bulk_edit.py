@@ -20,7 +20,13 @@ from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
-from utilities.forms.fields import ColorField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField
+from utilities.forms.fields import (
+    ColorField,
+    DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField,
+    JSONField,
+    PositiveBigIntegerField,
+)
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from virtualization.models import Cluster
@@ -1420,7 +1426,7 @@ class InterfaceBulkEditForm(
             'device_id': '$device',
         }
     )
-    speed = forms.IntegerField(
+    speed = PositiveBigIntegerField(
         label=_('Speed'),
         required=False,
         widget=NumberWithOptions(
