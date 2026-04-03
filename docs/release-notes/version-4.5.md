@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#21095](https://github.com/netbox-community/netbox/issues/21095) - Adopt IEC unit labels (e.g. GiB) for virtual machine resources
+* [#21696](https://github.com/netbox-community/netbox/issues/21696) - Add support for django-rq 4.0 and introduce `RQ` configuration parameter
 * [#21701](https://github.com/netbox-community/netbox/issues/21701) - Support uploading custom scripts via the REST API (`/api/extras/scripts/upload/`)
 * [#21760](https://github.com/netbox-community/netbox/issues/21760) - Add a 1C2P:2C1P breakout cable profile
 
