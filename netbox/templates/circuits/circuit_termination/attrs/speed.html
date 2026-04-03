@@ -1,8 +1,8 @@
 {% load helpers i18n %}
 {% if object.upstream_speed %}
-  <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ object.port_speed|humanize_speed }}
+  <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ value|humanize_speed }}
   <i class="mdi mdi-slash-forward"></i>
   <i class="mdi mdi-arrow-up-bold" title="{% trans "Upstream" %}"></i> {{ object.upstream_speed|humanize_speed }}
 {% else %}
-  {{ object.port_speed|humanize_speed }}
+  {{ value|humanize_speed }}
 {% endif %}
