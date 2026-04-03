@@ -480,17 +480,20 @@ class ObjectPermissionForm(forms.ModelForm):
         action_model_keys = get_action_model_map(dict(registry['model_actions']))
 
         # Validate each selected action is supported by at least one selected object type
+        errors = []
         final_actions = []
         for action_name in registered_actions:
             supported_models = action_model_keys.get(action_name, set())
             if not supported_models & selected_models:
-                raise forms.ValidationError({
-                    'registered_actions': _(
-                        'Action "{action}" is not supported by any of the selected object types.'
-                    ).format(action=action_name)
-                })
-            if action_name not in final_actions:
+                errors.append(
+                    _('Action "{action}" is not supported by any of the selected object types.').format(
+                        action=action_name
+                    )
+                )
+            elif action_name not in final_actions:
                 final_actions.append(action_name)
+        if errors:
+            raise forms.ValidationError({'registered_actions': errors})
 
         # Append any of the selected CRUD checkboxes to the actions list
         for action in RESERVED_ACTIONS:
