@@ -11552,7 +11552,7 @@ msgstr "主要 IP"
 
 #: netbox/ipam/ui/panels.py:134
 msgid "OOB IP"
-msgstr "哈哈哈哈哈哈的"
+msgstr "带外管理 IP"
 
 #: netbox/ipam/ui/panels.py:190
 msgid "Authentication Type"
