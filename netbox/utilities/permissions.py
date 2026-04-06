@@ -32,6 +32,12 @@ class ModelAction:
     name: str
     help_text: str = ''
 
+    def __post_init__(self):
+        if not self.name:
+            raise ValueError("Action name must not be empty.")
+        if self.name in RESERVED_ACTIONS:
+            raise ValueError(f"'{self.name}' is a reserved action and cannot be registered.")
+
     def __hash__(self):
         return hash(self.name)
 
@@ -54,10 +60,6 @@ def register_model_actions(model: type[Model], actions: list[ModelAction | str])
     for action in actions:
         if isinstance(action, str):
             action = ModelAction(name=action)
-        if not action.name:
-            raise ValueError("Action name must not be empty.")
-        if action.name in RESERVED_ACTIONS:
-            raise ValueError(f"'{action.name}' is a reserved action and cannot be registered.")
         registry['model_actions'][label].add(action)
 
 
