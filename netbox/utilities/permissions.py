@@ -58,8 +58,7 @@ def register_model_actions(model: type[Model], actions: list[ModelAction | str])
             raise ValueError("Action name must not be empty.")
         if action.name in RESERVED_ACTIONS:
             raise ValueError(f"'{action.name}' is a reserved action and cannot be registered.")
-        if action not in registry['model_actions'][label]:
-            registry['model_actions'][label].append(action)
+        registry['model_actions'][label].add(action)
 
 
 def get_action_model_map(model_actions):

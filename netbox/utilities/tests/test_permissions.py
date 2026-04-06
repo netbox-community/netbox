@@ -52,16 +52,17 @@ class RegisterModelActionsTest(TestCase):
         ])
         actions = registry['model_actions']['dcim.site']
         self.assertEqual(len(actions), 1)
-        self.assertEqual(actions[0].name, 'test_action')
-        self.assertEqual(actions[0].help_text, 'Test help')
+        action = next(iter(actions))
+        self.assertEqual(action.name, 'test_action')
+        self.assertEqual(action.help_text, 'Test help')
 
     def test_register_string_actions(self):
         register_model_actions(Site, ['action1', 'action2'])
         actions = registry['model_actions']['dcim.site']
         self.assertEqual(len(actions), 2)
-        self.assertIsInstance(actions[0], ModelAction)
-        self.assertEqual(actions[0].name, 'action1')
-        self.assertEqual(actions[1].name, 'action2')
+        action_names = {a.name for a in actions}
+        self.assertEqual(action_names, {'action1', 'action2'})
+        self.assertTrue(all(isinstance(a, ModelAction) for a in actions))
 
     def test_register_mixed_actions(self):
         register_model_actions(Site, [
@@ -70,16 +71,17 @@ class RegisterModelActionsTest(TestCase):
         ])
         actions = registry['model_actions']['dcim.site']
         self.assertEqual(len(actions), 2)
-        self.assertEqual(actions[0].help_text, 'Has help')
-        self.assertEqual(actions[1].help_text, '')
+        actions_by_name = {a.name: a for a in actions}
+        self.assertEqual(actions_by_name['with_help'].help_text, 'Has help')
+        self.assertEqual(actions_by_name['without_help'].help_text, '')
 
     def test_multiple_registrations_append(self):
         register_model_actions(Site, [ModelAction('first')])
         register_model_actions(Site, [ModelAction('second')])
         actions = registry['model_actions']['dcim.site']
         self.assertEqual(len(actions), 2)
-        self.assertEqual(actions[0].name, 'first')
-        self.assertEqual(actions[1].name, 'second')
+        action_names = {a.name for a in actions}
+        self.assertEqual(action_names, {'first', 'second'})
 
     def test_duplicate_registration_ignored(self):
         register_model_actions(Site, [ModelAction('sync')])
