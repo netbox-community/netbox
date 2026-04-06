@@ -1,9 +1,10 @@
 from django.test import RequestFactory, TestCase
 from netaddr import IPNetwork
 
-from ipam.models import IPAddress, IPRange, Prefix
-from ipam.tables import AnnotatedIPAddressTable
+from ipam.models import FHRPGroupAssignment, IPAddress, IPRange, Prefix
+from ipam.tables import *
 from ipam.utils import annotate_ip_space
+from utilities.testing import TableTestCases
 
 
 class AnnotatedIPAddressTableTest(TestCase):
@@ -168,3 +169,85 @@ class AnnotatedIPAddressTableTest(TestCase):
         # Pools are fully usable
         self.assertEqual(available.first_ip, '2001:db8:1::/126')
         self.assertEqual(available.size, 4)
+
+
+#
+# Table ordering tests
+#
+
+class VRFTableTest(TableTestCases.StandardTableTestCase):
+    table = VRFTable
+
+
+class RouteTargetTableTest(TableTestCases.StandardTableTestCase):
+    table = RouteTargetTable
+
+
+class RIRTableTest(TableTestCases.StandardTableTestCase):
+    table = RIRTable
+
+
+class AggregateTableTest(TableTestCases.StandardTableTestCase):
+    table = AggregateTable
+
+
+class RoleTableTest(TableTestCases.StandardTableTestCase):
+    table = RoleTable
+
+
+class PrefixTableTest(TableTestCases.StandardTableTestCase):
+    table = PrefixTable
+
+
+class IPRangeTableTest(TableTestCases.StandardTableTestCase):
+    table = IPRangeTable
+
+
+class IPAddressTableTest(TableTestCases.StandardTableTestCase):
+    table = IPAddressTable
+
+
+class FHRPGroupTableTest(TableTestCases.StandardTableTestCase):
+    table = FHRPGroupTable
+
+
+class FHRPGroupAssignmentTableTest(TableTestCases.StandardTableTestCase):
+    table = FHRPGroupAssignmentTable
+
+    # No ObjectListView exists for this table; it is only rendered inline on
+    # the FHRPGroup detail view. Provide an explicit queryset source.
+    queryset_sources = [
+        ('FHRPGroupAssignment.objects.all()', FHRPGroupAssignment.objects.all()),
+    ]
+
+
+class VLANGroupTableTest(TableTestCases.StandardTableTestCase):
+    table = VLANGroupTable
+
+
+class VLANTableTest(TableTestCases.StandardTableTestCase):
+    table = VLANTable
+
+
+class VLANTranslationPolicyTableTest(TableTestCases.StandardTableTestCase):
+    table = VLANTranslationPolicyTable
+
+
+class VLANTranslationRuleTableTest(TableTestCases.StandardTableTestCase):
+    table = VLANTranslationRuleTable
+
+
+class ASNRangeTableTest(TableTestCases.StandardTableTestCase):
+    table = ASNRangeTable
+
+
+class ASNTableTest(TableTestCases.StandardTableTestCase):
+    table = ASNTable
+
+
+class ServiceTemplateTableTest(TableTestCases.StandardTableTestCase):
+    table = ServiceTemplateTable
+
+
+class ServiceTableTest(TableTestCases.StandardTableTestCase):
+    table = ServiceTable
