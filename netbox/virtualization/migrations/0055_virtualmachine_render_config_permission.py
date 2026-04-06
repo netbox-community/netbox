@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='virtualmachine',
-            options={'ordering': ('name', 'pk'), 'permissions': [('render_config', 'Render VM configuration')]},
+            options={'ordering': ('name', 'pk'), 'permissions': [('render_config', 'Render configuration')]},
         ),
     ]

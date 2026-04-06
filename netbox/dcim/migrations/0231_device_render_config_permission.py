@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterModelOptions(
             name='device',
-            options={'ordering': ('name', 'pk'), 'permissions': [('render_config', 'Render device configuration')]},
+            options={'ordering': ('name', 'pk'), 'permissions': [('render_config', 'Render configuration')]},
         ),
     ]
