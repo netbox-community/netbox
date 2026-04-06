@@ -1,7 +1,7 @@
 # UI Components
 
-!!! note "New in NetBox v4.5"
-    All UI components described here were introduced in NetBox v4.5. Be sure to set the minimum NetBox version to 4.5.0 for your plugin before incorporating any of these resources.
+!!! note "New in NetBox v4.6"
+    All UI components described here were introduced in NetBox v4.6. Be sure to set the minimum NetBox version to 4.6.0 for your plugin before incorporating any of these resources.
 
 To simplify the process of designing your plugin's user interface, and to encourage a consistent look and feel throughout the entire application, NetBox provides a set of components that enable programmatic UI design. These make it possible to declare complex page layouts with little or no custom HTML.
 
@@ -72,9 +72,12 @@ class RecentChangesPanel(Panel):
             **super().get_context(context),
             'changes': get_changes()[:10],
         }
+
+    def should_render(self, context):
+        return len(context['changes']) > 0
 ```
 
-NetBox also includes a set of panels suited for specific uses, such as display object details or embedding a table of related objects. These are listed below.
+NetBox also includes a set of panels suited for specific uses, such as displaying object details or embedding a table of related objects. These are listed below.
 
 ::: netbox.ui.panels.Panel
 

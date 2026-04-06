@@ -88,7 +88,7 @@ class ObjectAttribute:
             obj (object): The object for which the attribute is being rendered
             attr (str): The name of the attribute being rendered
             value: The value of the attribute on the object
-            context (dict): The root template context
+            context (dict): The panel template context
         """
         return {}
 
@@ -385,12 +385,11 @@ class NestedObjectAttr(ObjectAttribute):
         self.max_depth = max_depth
 
     def get_context(self, obj, attr, value, context):
+        nodes = []
         if value is not None:
             nodes = value.get_ancestors(include_self=True)
             if self.max_depth:
                 nodes = list(nodes)[-self.max_depth:]
-        else:
-            nodes = []
         return {
             'nodes': nodes,
             'linkify': self.linkify,

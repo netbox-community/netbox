@@ -127,7 +127,7 @@ Context:
   {% for row in layout %}
     <div class="row">
       {% for column in row %}
-        <div class="col{% if column.width %}-{{ column.width }}{% endif %}">
+        <div class="col-12 col-md{% if column.width %}-{{ column.width }}{% endif %}">
           {% for panel in column %}
             {% render panel %}
           {% endfor %}
