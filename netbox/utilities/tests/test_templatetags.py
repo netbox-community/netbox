@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
+from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 
-from utilities.templatetags.builtins.tags import static_with_params
+from utilities.templatetags.builtins.tags import badge, static_with_params
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
 
 
@@ -47,6 +48,20 @@ class StaticWithParamsTest(TestCase):
                 # Check that new parameter value is used
                 self.assertIn('v=new_version', result)
                 self.assertNotIn('v=old_version', result)
+
+
+class BadgeTest(TestCase):
+    """
+    Test the badge template tag functionality.
+    """
+
+    def test_badge_with_hex_color_and_url(self):
+        html = render_to_string('builtins/badge.html', badge('Role', hex_color='ff0000', url='/dcim/device-roles/1/'))
+
+        self.assertIn('href="/dcim/device-roles/1/"', html)
+        self.assertIn('background-color: #ff0000', html)
+        self.assertIn('color: #ffffff', html)
+        self.assertIn('>Role<', html)
 
 
 class HumanizeCapacityTest(TestCase):

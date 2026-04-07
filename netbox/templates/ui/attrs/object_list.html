@@ -1,7 +1,7 @@
 <ul class="list-unstyled mb-0">
   {% for item in items %}
     <li>
-      {% include "ui/attrs/object.html" with value=item.value group=item.group linkify=linkify only %}
+      {% include "ui/attrs/object.html" with value=item.value group=item.group linkify=linkify colored=colored only %}
     </li>
   {% endfor %}
   {% if overflow_indicator %}

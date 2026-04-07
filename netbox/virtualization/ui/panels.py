@@ -17,7 +17,7 @@ class VirtualMachinePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     status = attrs.ChoiceAttr('status')
     start_on_boot = attrs.ChoiceAttr('start_on_boot')
-    role = attrs.RelatedObjectAttr('role', linkify=True)
+    role = attrs.RelatedObjectAttr('role', linkify=True, colored=True)
     platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
     description = attrs.TextAttr('description')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
