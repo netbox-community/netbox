@@ -467,7 +467,7 @@ class JobsMixin(models.Model):
         """
         Return a list of the most recent jobs for this instance.
         """
-        return self.jobs.filter(status__in=JobStatusChoices.TERMINAL_STATE_CHOICES).order_by('-created').defer('data')
+        return self.jobs.filter(status__in=JobStatusChoices.TERMINAL_STATE_CHOICES).order_by('-started').defer('data')
 
 
 class JournalingMixin(models.Model):
