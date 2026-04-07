@@ -86,7 +86,7 @@ class ObjectPermission(CloningMixin, models.Model):
 
     def get_registered_actions(self):
         """
-        Return a list of (action_name, is_enabled, model_keys_csv) tuples for all
+        Return a list of (action_name, is_enabled, model_keys) tuples for all
         registered actions, indicating which are enabled on this permission.
         """
         enabled_actions = set(self.actions) - set(RESERVED_ACTIONS)
@@ -97,7 +97,7 @@ class ObjectPermission(CloningMixin, models.Model):
                 action_models.setdefault(action.name, []).append(model_key)
 
         return [
-            (name, name in enabled_actions, ', '.join(sorted(action_models[name])))
+            (name, name in enabled_actions, sorted(action_models[name]))
             for name in sorted(action_models)
         ]
 

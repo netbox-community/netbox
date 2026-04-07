@@ -167,11 +167,11 @@ class ObjectPermissionFormTest(TestCase):
 
         registered = permission.get_registered_actions()
         self.assertEqual(len(registered), 1)
-        action_name, is_enabled, models_csv = registered[0]
+        action_name, is_enabled, model_keys = registered[0]
         self.assertEqual(action_name, 'render_config')
         self.assertTrue(is_enabled)
-        self.assertIn('dcim.device', models_csv)
-        self.assertIn('virtualization.virtualmachine', models_csv)
+        self.assertIn('dcim.device', model_keys)
+        self.assertIn('virtualization.virtualmachine', model_keys)
 
         permission.delete()
 
