@@ -13,7 +13,6 @@ __all__ = (
     'get_permission_for_model',
     'permission_is_exempt',
     'qs_filter_from_constraints',
-    'register_model_actions',
     'resolve_permission',
     'resolve_permission_type',
 )

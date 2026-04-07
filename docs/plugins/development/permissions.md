@@ -21,31 +21,4 @@ class MyModel(NetBoxModel):
         ]
 ```
 
-For dynamic registration (e.g. when actions depend on runtime state), you can call `register_model_actions()` directly, typically in your plugin's `ready()` method:
-
-```python
-# __init__.py
-from netbox.plugins import PluginConfig
-
-class MyPluginConfig(PluginConfig):
-    name = 'my_plugin'
-    # ...
-
-    def ready(self):
-        super().ready()
-        from utilities.permissions import ModelAction, register_model_actions
-        from .models import MyModel
-
-        register_model_actions(MyModel, [
-            ModelAction('sync', help_text='Synchronize data from external source'),
-            ModelAction('export', help_text='Export data to external system'),
-        ])
-
-config = MyPluginConfig
-```
-
 Once registered, these actions appear as checkboxes in a flat list when creating or editing an ObjectPermission.
-
-::: utilities.permissions.ModelAction
-
-::: utilities.permissions.register_model_actions
