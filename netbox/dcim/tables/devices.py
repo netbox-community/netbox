@@ -382,6 +382,17 @@ class PathEndpointTable(CableTerminationTable):
         orderable=False
     )
 
+    def value_connection(self, value):
+        if value:
+            connections = []
+            for termination in value:
+                if hasattr(termination, 'parent_object'):
+                    connections.append(f'{termination.parent_object} > {termination}')
+                else:
+                    connections.append(str(termination))
+            return ', '.join(connections)
+        return None
+
 
 class ConsolePortTable(ModularDeviceComponentTable, PathEndpointTable):
     device = tables.Column(
@@ -682,6 +693,15 @@ class InterfaceTable(BaseInterfaceTable, ModularDeviceComponentTable, PathEndpoi
         verbose_name=_('Connection'),
         orderable=False
     )
+
+    def value_connection(self, record, value):
+        if record.is_virtual and hasattr(record, 'virtual_circuit_termination') and record.virtual_circuit_termination:
+            connections = [
+                f"{t.interface.parent_object} > {t.interface} via {t.parent_object}"
+                for t in record.connected_endpoints
+            ]
+            return ', '.join(connections)
+        return super().value_connection(value)
 
     class Meta(DeviceComponentTable.Meta):
         model = models.Interface
