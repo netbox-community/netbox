@@ -91,19 +91,14 @@ class ObjectPermission(CloningMixin, models.Model):
         """
         enabled_actions = set(self.actions) - set(RESERVED_ACTIONS)
 
-        seen = []
-        seen_set = set()
         action_models = {}
         for model_key, model_actions in registry['model_actions'].items():
             for action in model_actions:
-                if action.name not in seen_set:
-                    seen.append(action.name)
-                    seen_set.add(action.name)
                 action_models.setdefault(action.name, []).append(model_key)
 
         return [
-            (action, action in enabled_actions, ', '.join(sorted(action_models[action])))
-            for action in seen
+            (name, name in enabled_actions, ', '.join(sorted(action_models[name])))
+            for name in sorted(action_models)
         ]
 
     def get_absolute_url(self):

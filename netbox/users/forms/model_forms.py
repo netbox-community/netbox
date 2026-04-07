@@ -389,14 +389,12 @@ class ObjectPermissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Build dynamic BooleanFields for registered actions (deduplicated by name)
+        # Build dynamic BooleanFields for registered actions (deduplicated, sorted by name)
         seen = set()
-        registered_action_names = []
         for actions in registry['model_actions'].values():
             for action in actions:
-                if action.name not in seen:
-                    registered_action_names.append(action.name)
-                    seen.add(action.name)
+                seen.add(action.name)
+        registered_action_names = sorted(seen)
 
         action_field_names = []
         for action_name in registered_action_names:

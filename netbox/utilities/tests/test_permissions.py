@@ -99,7 +99,6 @@ class RegisterModelActionsTest(TestCase):
             register_model_actions(Site, [ModelAction('')])
 
     def test_no_duplicate_action_fields(self):
-        """Same action name registered for multiple models should produce only one form field."""
         register_model_actions(Device, [ModelAction('render_config')])
         register_model_actions(VirtualMachine, [ModelAction('render_config')])
 
@@ -119,7 +118,6 @@ class ObjectPermissionFormTest(TestCase):
         registry['model_actions'].update(self._original_actions)
 
     def test_shared_action_preselection(self):
-        """Editing a permission with render_config should pre-select the action_render_config checkbox."""
         register_model_actions(Device, [ModelAction('render_config')])
         register_model_actions(VirtualMachine, [ModelAction('render_config')])
 
@@ -136,13 +134,11 @@ class ObjectPermissionFormTest(TestCase):
 
         self.assertTrue(form.fields['action_render_config'].initial)
 
-        # Should not leak into the additional actions field
         self.assertEqual(form.initial['actions'], [])
 
         permission.delete()
 
     def test_clean_accepts_valid_registered_action(self):
-        """clean() should include checked registered action in saved actions."""
         register_model_actions(Device, [ModelAction('render_config')])
 
         device_ct = ObjectType.objects.get_for_model(Device)
@@ -158,7 +154,6 @@ class ObjectPermissionFormTest(TestCase):
         self.assertIn('render_config', form.cleaned_data['actions'])
 
     def test_get_registered_actions(self):
-        """ObjectPermission.get_registered_actions() should return tuples of (name, is_enabled, models)."""
         register_model_actions(Device, [ModelAction('render_config')])
         register_model_actions(VirtualMachine, [ModelAction('render_config')])
 
@@ -175,5 +170,30 @@ class ObjectPermissionFormTest(TestCase):
         action_name, is_enabled, models_csv = registered[0]
         self.assertEqual(action_name, 'render_config')
         self.assertTrue(is_enabled)
+        self.assertIn('dcim.device', models_csv)
+        self.assertIn('virtualization.virtualmachine', models_csv)
 
         permission.delete()
+
+    def test_form_with_no_registered_actions(self):
+        device_ct = ObjectType.objects.get_for_model(Device)
+        form = ObjectPermissionForm(data={
+            'name': 'test perm',
+            'object_types_0': [],
+            'object_types_1': [device_ct.pk],
+            'can_view': True,
+            'actions': '',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertIn('view', form.cleaned_data['actions'])
+        action_fields = [k for k in form.fields if k.startswith('action_')]
+        self.assertEqual(action_fields, [])
+
+    def test_clone_preselects_registered_actions(self):
+        register_model_actions(Device, [ModelAction('render_config')])
+
+        form = ObjectPermissionForm(initial={
+            'actions': ['view', 'render_config'],
+        })
+        self.assertTrue(form.fields['action_render_config'].initial)
+        self.assertNotIn('render_config', form.initial['actions'])
