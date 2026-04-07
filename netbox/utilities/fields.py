@@ -6,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.fields.mixins import FieldCacheMixin
 from django.utils.functional import cached_property
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from .forms.widgets import ColorSelect
@@ -31,7 +30,6 @@ class ColorField(models.CharField):
 
     def formfield(self, **kwargs):
         kwargs['widget'] = ColorSelect
-        kwargs['help_text'] = mark_safe(_('RGB color in hexadecimal. Example: ') + '<code>00ff00</code>')
         return super().formfield(**kwargs)
 
 
