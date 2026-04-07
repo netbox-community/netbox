@@ -1,8 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from netbox.registry import registry
 from netbox.ui import actions, attrs, panels
-from users.constants import RESERVED_ACTIONS
 
 
 class TokenPanel(panels.ObjectAttributesPanel):
@@ -61,28 +59,10 @@ class ObjectPermissionActionsPanel(panels.ObjectPanel):
             (_('Delete'), 'delete' in obj.actions),
         ]
 
-        enabled_actions = set(obj.actions) - set(RESERVED_ACTIONS)
-
-        # Collect all registered actions from the full registry, deduplicating by name.
-        seen = []
-        seen_set = set()
-        action_models = {}
-        for model_key, model_actions in registry['model_actions'].items():
-            for action in model_actions:
-                if action.name not in seen_set:
-                    seen.append(action.name)
-                    seen_set.add(action.name)
-                action_models.setdefault(action.name, []).append(model_key)
-
-        registered_display = [
-            (action, action in enabled_actions, ', '.join(sorted(action_models[action])))
-            for action in seen
-        ]
-
         return {
             **super().get_context(context),
             'crud_actions': crud_actions,
-            'registered_actions': registered_display,
+            'registered_actions': obj.get_registered_actions(),
         }
 
 

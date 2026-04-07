@@ -26,8 +26,8 @@ from utilities.forms.fields import (
     JSONField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import DateTimePicker, ObjectTypeSplitMultiSelectWidget, RegisteredActionsWidget
-from utilities.permissions import get_action_model_map, qs_filter_from_constraints
+from utilities.forms.widgets import DateTimePicker, SplitMultiSelectWidget
+from utilities.permissions import qs_filter_from_constraints
 from utilities.string import title
 
 __all__ = (
@@ -326,7 +326,7 @@ class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.all(),
-        widget=ObjectTypeSplitMultiSelectWidget(
+        widget=SplitMultiSelectWidget(
             choices=get_object_types_choices
         ),
         help_text=_('Select the types of objects to which the permission will apply.')
@@ -342,11 +342,6 @@ class ObjectPermissionForm(forms.ModelForm):
     )
     can_delete = forms.BooleanField(
         required=False
-    )
-    registered_actions = forms.MultipleChoiceField(
-        required=False,
-        widget=RegisteredActionsWidget(),
-        label=_('Registered actions'),
     )
     actions = SimpleArrayField(
         label=_('Additional actions'),
@@ -378,7 +373,7 @@ class ObjectPermissionForm(forms.ModelForm):
         FieldSet('name', 'description', 'enabled'),
         FieldSet('object_types', name=_('Objects')),
         FieldSet(
-            'can_view', 'can_add', 'can_change', 'can_delete', 'registered_actions', 'actions',
+            'can_view', 'can_add', 'can_change', 'can_delete', 'actions',
             name=_('Actions')
         ),
         FieldSet('groups', 'users', name=_('Assignment')),
@@ -394,24 +389,38 @@ class ObjectPermissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Build PK to model key mapping for object_types widget
-        pk_to_model_key = {
-            ot.pk: f'{ot.app_label}.{ot.model}'
-            for ot in ObjectType.objects.filter(OBJECTPERMISSION_OBJECT_TYPES)
-        }
-        self.fields['object_types'].widget.set_model_key_map(pk_to_model_key)
-
-        # Configure registered_actions widget and field choices (flat, deduplicated by name)
-        model_actions = dict(registry['model_actions'])
-        self.fields['registered_actions'].widget.set_model_actions(model_actions)
+        # Build dynamic BooleanFields for registered actions (deduplicated by name)
         seen = set()
-        choices = []
-        for actions in model_actions.values():
+        registered_action_names = []
+        for actions in registry['model_actions'].values():
             for action in actions:
                 if action.name not in seen:
-                    choices.append((action.name, action.name))
+                    registered_action_names.append(action.name)
                     seen.add(action.name)
-        self.fields['registered_actions'].choices = choices
+
+        action_field_names = []
+        for action_name in registered_action_names:
+            field_name = f'action_{action_name}'
+            self.fields[field_name] = forms.BooleanField(
+                required=False,
+                label=action_name,
+            )
+            action_field_names.append(field_name)
+
+        # Rebuild the Actions fieldset to include dynamic fields
+        if action_field_names:
+            self.fieldsets = (
+                FieldSet('name', 'description', 'enabled'),
+                FieldSet('object_types', name=_('Objects')),
+                FieldSet(
+                    'can_view', 'can_add', 'can_change', 'can_delete',
+                    *action_field_names,
+                    'actions',
+                    name=_('Actions')
+                ),
+                FieldSet('groups', 'users', name=_('Assignment')),
+                FieldSet('constraints', name=_('Constraints')),
+            )
 
         # Make the actions field optional since the form uses it only for non-CRUD actions
         self.fields['actions'].required = False
@@ -431,23 +440,14 @@ class ObjectPermissionForm(forms.ModelForm):
                     self.fields[f'can_{action}'].initial = True
                     remaining_actions.remove(action)
 
-            # Pre-select registered actions: action is checked if it's in instance.actions
-            # AND at least one assigned object type supports it
-            selected_registered = []
-            consumed_actions = set()
-            for ct in self.instance.object_types.all():
-                model_key = f'{ct.app_label}.{ct.model}'
-                if model_key in model_actions:
-                    for ma in model_actions[model_key]:
-                        if ma.name in remaining_actions and ma.name not in consumed_actions:
-                            selected_registered.append(ma.name)
-                            consumed_actions.add(ma.name)
-            self.fields['registered_actions'].initial = selected_registered
+            # Pre-select registered action checkboxes
+            for action_name in registered_action_names:
+                if action_name in remaining_actions:
+                    self.fields[f'action_{action_name}'].initial = True
+                    remaining_actions.remove(action_name)
 
             # Remaining actions go to the additional actions field
-            self.initial['actions'] = [
-                a for a in remaining_actions if a not in consumed_actions
-            ]
+            self.initial['actions'] = remaining_actions
 
         # Populate initial data for a new ObjectPermission
         elif self.initial:
@@ -461,6 +461,11 @@ class ObjectPermissionForm(forms.ModelForm):
                         if action in cloned_actions:
                             self.fields[f'can_{action}'].initial = True
                             self.initial['actions'].remove(action)
+                    # Pre-select registered action checkboxes from cloned data
+                    for action_name in registered_action_names:
+                        if action_name in cloned_actions:
+                            self.fields[f'action_{action_name}'].initial = True
+                            self.initial['actions'].remove(action_name)
             # Convert data delivered via initial data to JSON data
             if 'constraints' in self.initial:
                 if type(self.initial['constraints']) is str:
@@ -470,37 +475,20 @@ class ObjectPermissionForm(forms.ModelForm):
         super().clean()
 
         object_types = self.cleaned_data.get('object_types', [])
-        registered_actions = self.cleaned_data.get('registered_actions', [])
         constraints = self.cleaned_data.get('constraints')
 
-        # Build set of selected model keys for validation
-        selected_models = {f'{ct.app_label}.{ct.model}' for ct in object_types}
-
-        # Build map of action_name -> set of model_keys that support it
-        action_model_keys = get_action_model_map(dict(registry['model_actions']))
-
-        # Validate each selected action is supported by at least one selected object type
-        errors = []
+        # Merge all actions: registered action checkboxes, CRUD checkboxes, and additional
         final_actions = []
-        for action_name in registered_actions:
-            supported_models = action_model_keys.get(action_name, set())
-            if not supported_models & selected_models:
-                errors.append(
-                    _('Action "{action}" is not supported by any of the selected object types.').format(
-                        action=action_name
-                    )
-                )
-            elif action_name not in final_actions:
-                final_actions.append(action_name)
-        if errors:
-            raise forms.ValidationError({'registered_actions': errors})
+        for key, value in self.cleaned_data.items():
+            if key.startswith('action_') and value:
+                action_name = key[7:]
+                if action_name not in final_actions:
+                    final_actions.append(action_name)
 
-        # Append any of the selected CRUD checkboxes to the actions list
         for action in RESERVED_ACTIONS:
             if self.cleaned_data.get(f'can_{action}') and action not in final_actions:
                 final_actions.append(action)
 
-        # Add additional/manual actions
         if additional_actions := self.cleaned_data.get('actions'):
             for action in additional_actions:
                 if action not in final_actions:

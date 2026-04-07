@@ -4,6 +4,8 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models.features import CloningMixin
+from netbox.registry import registry
+from users.constants import RESERVED_ACTIONS
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -81,6 +83,28 @@ class ObjectPermission(CloningMixin, models.Model):
         if type(self.constraints) is not list:
             return [self.constraints]
         return self.constraints
+
+    def get_registered_actions(self):
+        """
+        Return a list of (action_name, is_enabled, model_keys_csv) tuples for all
+        registered actions, indicating which are enabled on this permission.
+        """
+        enabled_actions = set(self.actions) - set(RESERVED_ACTIONS)
+
+        seen = []
+        seen_set = set()
+        action_models = {}
+        for model_key, model_actions in registry['model_actions'].items():
+            for action in model_actions:
+                if action.name not in seen_set:
+                    seen.append(action.name)
+                    seen_set.add(action.name)
+                action_models.setdefault(action.name, []).append(model_key)
+
+        return [
+            (action, action in enabled_actions, ', '.join(sorted(action_models[action])))
+            for action in seen
+        ]
 
     def get_absolute_url(self):
         return reverse('users:objectpermission', args=[self.pk])

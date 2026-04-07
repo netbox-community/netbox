@@ -10,7 +10,6 @@ from users.constants import CONSTRAINT_TOKEN_USER, RESERVED_ACTIONS
 
 __all__ = (
     'ModelAction',
-    'get_action_model_map',
     'get_permission_for_model',
     'permission_is_exempt',
     'qs_filter_from_constraints',
@@ -61,23 +60,6 @@ def register_model_actions(model: type[Model], actions: list[ModelAction | str])
         if isinstance(action, str):
             action = ModelAction(name=action)
         registry['model_actions'][label].add(action)
-
-
-def get_action_model_map(model_actions):
-    """
-    Build a mapping of action name to the set of model keys that support it.
-
-    Args:
-        model_actions: Dict of {model_key: [ModelAction, ...]} from the registry
-
-    Returns:
-        Dict of {action_name: {model_key, ...}}
-    """
-    mapping = {}
-    for model_key, actions in model_actions.items():
-        for action in actions:
-            mapping.setdefault(action.name, set()).add(model_key)
-    return mapping
 
 
 def get_permission_for_model(model, action):
