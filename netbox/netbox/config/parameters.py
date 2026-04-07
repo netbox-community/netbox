@@ -186,7 +186,7 @@ PARAMS = (
     ConfigParam(
         name='CHANGELOG_RETAIN_CREATE_LAST_UPDATE',
         label=_('Retain create & last update changelog records'),
-        default=True,
+        default=False,
         description=_(
             "Retain each object's create record and most recent update record when pruning expired changelog entries "
             "(excluding objects with a delete record)."
