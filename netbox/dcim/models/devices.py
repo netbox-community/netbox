@@ -275,6 +275,21 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             data['rear-ports'] = [
                 c.to_yaml() for c in self.rearporttemplates.all()
             ]
+
+        # Port mappings
+        port_mappings = []
+
+        for mapping in self.port_mappings.all():
+            port_mappings.append({
+                'front_port': mapping.front_port.name,
+                'front_port_position': mapping.front_port_position,
+                'rear_port': mapping.rear_port.name,
+                'rear_port_position': mapping.rear_port_position,
+            })
+
+        if port_mappings:
+            data['port-mappings'] = port_mappings
+                
         if self.modulebaytemplates.exists():
             data['module-bays'] = [
                 c.to_yaml() for c in self.modulebaytemplates.all()
