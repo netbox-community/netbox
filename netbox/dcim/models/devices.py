@@ -289,7 +289,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
         if port_mappings:
             data['port-mappings'] = port_mappings
-                
+
         if self.modulebaytemplates.exists():
             data['module-bays'] = [
                 c.to_yaml() for c in self.modulebaytemplates.all()
