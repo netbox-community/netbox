@@ -549,7 +549,15 @@ class PortTemplateMapping(PortMappingBase):
         self.module_type = self.front_port.module_type
         super().save(*args, **kwargs)
 
+    def to_yaml(self):
+        return {
+            'front_port': self.front_port.name,
+            'front_port_position': self.front_port_position,
+            'rear_port': self.rear_port.name,
+            'rear_port_position': self.rear_port_position,
+        }
 
+        
 class FrontPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
