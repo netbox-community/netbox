@@ -557,7 +557,7 @@ class PortTemplateMapping(PortMappingBase):
             'rear_port_position': self.rear_port_position,
         }
 
-        
+
 class FrontPortTemplate(ModularComponentTemplateModel):
     """
     Template for a pass-through port on the front of a new Device.
