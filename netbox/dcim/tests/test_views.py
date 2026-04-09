@@ -3603,6 +3603,21 @@ class CableTestCase(
         cable3 = Cable(a_terminations=[interfaces[2]], b_terminations=[interfaces[5]], type=CableTypeChoices.TYPE_CAT6)
         cable3.save()
 
+        # Power panel, power feeds, and power ports for powerfeed-to-powerport cable import tests
+        power_panel = PowerPanel.objects.create(site=sites[0], name='Power Panel 1')
+        power_feeds = (
+            PowerFeed(name='Power Feed 1', power_panel=power_panel),
+            PowerFeed(name='Power Feed 2', power_panel=power_panel),
+            PowerFeed(name='Power Feed 3', power_panel=power_panel),
+        )
+        PowerFeed.objects.bulk_create(power_feeds)
+        power_ports = (
+            PowerPort(device=devices[3], name='Power Port 1'),
+            PowerPort(device=devices[3], name='Power Port 2'),
+            PowerPort(device=devices[3], name='Power Port 3'),
+        )
+        PowerPort.objects.bulk_create(power_ports)
+
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
@@ -3640,7 +3655,14 @@ class CableTestCase(
                 "Site 1,Device 3,dcim.interface,Interface 3,Site 2,Device 1,dcim.interface,Interface 3",
                 "Site 1,Device 1,dcim.interface,Device 2 Interface,Site 2,Device 1,dcim.interface,Interface 4",
                 "Site 1,Device 1,dcim.interface,Device 3 Interface,Site 2,Device 1,dcim.interface,Interface 5",
-            )
+            ),
+            'powerfeed-to-powerport': (
+                # Ensure that powerfeed-to-powerport cables can be imported via CSV using side_a_power_panel
+                "side_a_power_panel,side_a_type,side_a_name,side_b_device,side_b_type,side_b_name",
+                "Power Panel 1,dcim.powerfeed,Power Feed 1,Device 4,dcim.powerport,Power Port 1",
+                "Power Panel 1,dcim.powerfeed,Power Feed 2,Device 4,dcim.powerport,Power Port 2",
+                "Power Panel 1,dcim.powerfeed,Power Feed 3,Device 4,dcim.powerport,Power Port 3",
+            ),
         }
 
         cls.csv_update_data = (
