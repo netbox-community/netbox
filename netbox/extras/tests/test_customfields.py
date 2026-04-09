@@ -7,7 +7,7 @@ from django.test import tag
 from django.urls import reverse
 from rest_framework import status
 
-from core.models import ObjectType
+from core.models import ObjectChange, ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
@@ -1193,6 +1193,82 @@ class CustomFieldAPITest(APITestCase):
             list(site2.cf['multiobject_field']),
             list(original_cfvs['multiobject_field'])
         )
+
+    @tag('regression')
+    def test_update_single_object_rejects_unknown_custom_fields(self):
+        site2 = Site.objects.get(name='Site 2')
+        original_cf_data = {**site2.custom_field_data}
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        data = {
+            'custom_fields': {
+                'text_field': 'valid',
+                'thisfieldshouldntexist': 'random text here',
+            },
+        }
+
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('custom_fields', response.data)
+        self.assertIn('thisfieldshouldntexist', response.data['custom_fields'])
+
+        # Ensure the object was not modified
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data, original_cf_data)
+
+    @tag('regression')
+    def test_update_single_object_prunes_stale_custom_field_data_from_database_and_postchange_data(self):
+        stale_key = 'thisfieldshouldntexist'
+        stale_value = 'random text here'
+        updated_text_value = 'ABCD'
+
+        site2 = Site.objects.get(name='Site 2')
+        original_text_value = site2.custom_field_data['text_field']
+        object_type = ObjectType.objects.get_for_model(Site)
+
+        # Seed stale custom field data directly in the database to mimic a polluted row.
+        Site.objects.filter(pk=site2.pk).update(
+            custom_field_data={
+                **site2.custom_field_data,
+                stale_key: stale_value,
+            }
+        )
+        site2.refresh_from_db()
+        self.assertIn(stale_key, site2.custom_field_data)
+
+        existing_change_ids = set(
+            ObjectChange.objects.filter(
+                changed_object_type=object_type,
+                changed_object_id=site2.pk,
+            ).values_list('pk', flat=True)
+        )
+
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+        data = {
+            'custom_fields': {
+                'text_field': updated_text_value,
+            },
+        }
+
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        site2.refresh_from_db()
+        self.assertEqual(site2.cf['text_field'], updated_text_value)
+        self.assertNotIn(stale_key, site2.custom_field_data)
+
+        object_changes = ObjectChange.objects.filter(
+            changed_object_type=object_type,
+            changed_object_id=site2.pk,
+        ).exclude(pk__in=existing_change_ids)
+        self.assertEqual(object_changes.count(), 1)
+
+        object_change = object_changes.get()
+        self.assertEqual(object_change.prechange_data['custom_fields']['text_field'], original_text_value)
+        self.assertEqual(object_change.postchange_data['custom_fields']['text_field'], updated_text_value)
+        self.assertNotIn(stale_key, object_change.postchange_data['custom_fields'])
 
     def test_specify_related_object_by_attr(self):
         site1 = Site.objects.get(name='Site 1')

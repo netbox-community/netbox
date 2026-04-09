@@ -95,9 +95,6 @@ class ValidatedModelSerializer(BaseModelSerializer):
 
         attrs = data.copy()
 
-        # Remove custom field data (if any) prior to model validation
-        attrs.pop('custom_fields', None)
-
         # Skip ManyToManyFields
         opts = self.Meta.model._meta
         m2m_values = {}
@@ -115,5 +112,9 @@ class ValidatedModelSerializer(BaseModelSerializer):
         instance._m2m_values = m2m_values
         # Skip uniqueness validation of individual fields inside `full_clean()` (this is handled by the serializer)
         instance.full_clean(validate_unique=False)
+
+        # Preserve any normalization performed by model.clean() (e.g. stale custom field pruning)
+        if 'custom_field_data' in attrs:
+            data['custom_field_data'] = instance.custom_field_data
 
         return data
