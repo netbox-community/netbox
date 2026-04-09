@@ -6,8 +6,11 @@ from django.template import Context
 from django.test import RequestFactory, TestCase
 
 import dcim.filtersets  # noqa: F401 - Import to register Device filterset
-from dcim.forms.filtersets import DeviceFilterForm
-from dcim.models import Device
+from core.models import ObjectType
+from dcim.forms.filtersets import DeviceFilterForm, SiteFilterForm
+from dcim.models import Device, Manufacturer, Site
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField
 from netbox.filtersets import BaseFilterSet
 from tenancy.models import Tenant
 from users.models import User
@@ -338,3 +341,70 @@ class EmptyLookupTest(TestCase):
         self.assertGreater(len(result['applied_filters']), 0)
         filter_pill = result['applied_filters'][0]
         self.assertIn('not empty', filter_pill['link_text'].lower())
+
+
+class ObjectCustomFieldEmptyLookupTest(TestCase):
+    """
+    Regression test for https://github.com/netbox-community/netbox/issues/21535.
+
+    Rendering a filter form with an object-type custom field and the __empty modifier
+    must not raise a ValueError or produce a form validation error.
+    Filter pills must still appear for the empty modifier.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create(username='test_user_obj_cf')
+        site_type = ObjectType.objects.get_for_model(Site)
+        cf = CustomField(
+            name='test_obj_cf',
+            type=CustomFieldTypeChoices.TYPE_OBJECT,
+            related_object_type=ObjectType.objects.get_for_model(Manufacturer),
+        )
+        cf.save()
+        cf.object_types.set([site_type])
+
+    def _make_form_and_result(self, querystring):
+        query_params = QueryDict(querystring)
+        form = SiteFilterForm(query_params)
+        request = RequestFactory().get('/', query_params)
+        request.user = self.user
+        context = Context({'request': request})
+        result = applied_filters(context, Site, form, query_params)
+        return form, result
+
+    def test_render_form_with_empty_true_no_error(self):
+        """Rendering SiteFilterForm with cf__empty=true must not raise ValueError."""
+        query_params = QueryDict('cf_test_obj_cf__empty=true')
+        form = SiteFilterForm(query_params)
+        try:
+            str(form['cf_test_obj_cf'])
+        except ValueError as e:
+            self.fail(f"Rendering object-type custom field with __empty=true raised ValueError: {e}")
+
+    def test_render_form_with_empty_false_no_error(self):
+        """Rendering SiteFilterForm with cf__empty=false must not raise ValueError."""
+        query_params = QueryDict('cf_test_obj_cf__empty=false')
+        form = SiteFilterForm(query_params)
+        try:
+            str(form['cf_test_obj_cf'])
+        except ValueError as e:
+            self.fail(f"Rendering object-type custom field with __empty=false raised ValueError: {e}")
+
+    def test_no_validation_error_on_empty_true(self):
+        """The filter form must not have a validation error for the field when __empty=true."""
+        form, _ = self._make_form_and_result('cf_test_obj_cf__empty=true')
+        form.is_valid()
+        self.assertNotIn('cf_test_obj_cf', form.errors)
+
+    def test_filter_pill_appears_for_empty_true(self):
+        """A filter pill showing 'is empty' must be generated for an object-type CF with __empty=true."""
+        _, result = self._make_form_and_result('cf_test_obj_cf__empty=true')
+        self.assertGreater(len(result['applied_filters']), 0)
+        self.assertIn('empty', result['applied_filters'][0]['link_text'].lower())
+
+    def test_filter_pill_appears_for_empty_false(self):
+        """A filter pill showing 'is not empty' must be generated for an object-type CF with __empty=false."""
+        _, result = self._make_form_and_result('cf_test_obj_cf__empty=false')
+        self.assertGreater(len(result['applied_filters']), 0)
+        self.assertIn('not empty', result['applied_filters'][0]['link_text'].lower())

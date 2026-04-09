@@ -5,7 +5,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('circuits', '0056_gfk_indexes'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('dcim', '0230_interface_rf_channel_frequency_precision'),
+        ('dcim', '0231_interface_rf_channel_frequency_precision'),
         ('extras', '0136_customfield_validation_schema'),
         ('tenancy', '0023_add_mptt_tree_indexes'),
         ('users', '0015_owner'),

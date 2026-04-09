@@ -85,8 +85,18 @@ class CustomFieldsDataField(Field):
                 "values."
             )
 
+        custom_fields = {cf.name: cf for cf in self._get_custom_fields()}
+
+        # Reject any unknown custom field names
+        invalid_fields = set(data) - set(custom_fields)
+        if invalid_fields:
+            raise ValidationError({
+                field: _("Custom field '{name}' does not exist for this object type.").format(name=field)
+                for field in sorted(invalid_fields)
+            })
+
         # Serialize object and multi-object values
-        for cf in self._get_custom_fields():
+        for cf in custom_fields.values():
             if cf.name in data and data[cf.name] not in CUSTOMFIELD_EMPTY_VALUES and cf.type in (
                     CustomFieldTypeChoices.TYPE_OBJECT,
                     CustomFieldTypeChoices.TYPE_MULTIOBJECT

@@ -924,7 +924,14 @@ class ScriptValidationErrorTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        module = ScriptModule.objects.create(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='test_script.py')
+        # Avoid trying to import a non-existent on-disk module during setup.
+        # This test creates the Script row explicitly and monkey-patches
+        # Script.python_class below.
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='test_script.py',
+            )
         cls.script = Script.objects.create(module=module, name='Test script', is_executable=True)
 
     def setUp(self):
@@ -986,7 +993,14 @@ class ScriptDefaultValuesTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        module = ScriptModule.objects.create(file_root=ManagedFileRootPathChoices.SCRIPTS, file_path='test_script.py')
+        # Avoid trying to import a non-existent on-disk module during setup.
+        # This test creates the Script row explicitly and monkey-patches
+        # Script.python_class below.
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='test_script.py',
+            )
         cls.script = Script.objects.create(module=module, name='Test script', is_executable=True)
 
     def setUp(self):

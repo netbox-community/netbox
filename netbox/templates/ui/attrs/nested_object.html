@@ -1,7 +1,15 @@
 <ol class="breadcrumb" aria-label="breadcrumbs">
   {% for node in nodes %}
     <li class="breadcrumb-item">
-      {% if linkify %}
+      {% if forloop.last and colored and node.color %}
+        {% if linkify %}
+          {% with badge_url=node.get_absolute_url %}
+            {% badge node hex_color=node.color url=badge_url %}
+          {% endwith %}
+        {% else %}
+          {% badge node hex_color=node.color %}
+        {% endif %}
+      {% elif linkify %}
         <a href="{{ node.get_absolute_url }}">{{ node }}</a>
       {% else %}
         {{ node }}

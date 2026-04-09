@@ -1,5 +1,31 @@
 # NetBox v4.5
 
+## v4.5.7 (2026-04-03)
+
+### Enhancements
+
+* [#21095](https://github.com/netbox-community/netbox/issues/21095) - Adopt IEC unit labels (e.g. GiB) for virtual machine resources
+* [#21696](https://github.com/netbox-community/netbox/issues/21696) - Add support for django-rq 4.0 and introduce `RQ` configuration parameter
+* [#21701](https://github.com/netbox-community/netbox/issues/21701) - Support uploading custom scripts via the REST API (`/api/extras/scripts/upload/`)
+* [#21760](https://github.com/netbox-community/netbox/issues/21760) - Add a 1C2P:2C1P breakout cable profile
+
+### Performance Improvements
+
+* [#21655](https://github.com/netbox-community/netbox/issues/21655) - Optimize queries for object and multi-object type custom fields
+
+### Bug Fixes
+
+* [#20474](https://github.com/netbox-community/netbox/issues/20474) - Fix installation of modules with placeholder values in component names
+* [#21498](https://github.com/netbox-community/netbox/issues/21498) - Fix server error triggered by event rules referencing deleted objects
+* [#21533](https://github.com/netbox-community/netbox/issues/21533) - Ensure read-only fields are included in REST API responses upon object creation
+* [#21535](https://github.com/netbox-community/netbox/issues/21535) - Fix filtering of object-type custom fields when "is empty" is selected
+* [#21784](https://github.com/netbox-community/netbox/issues/21784) - Fix `AttributeError` exception when sorting a table as an anonymous user
+* [#21808](https://github.com/netbox-community/netbox/issues/21808) - Fix `RelatedObjectDoesNotExist` exception when viewing an interface with a virtual circuit termination
+* [#21810](https://github.com/netbox-community/netbox/issues/21810) - Fix `AttributeError` exception when viewing virtual chassis member
+* [#21825](https://github.com/netbox-community/netbox/issues/21825) - Fix sorting by broken columns in several object lists
+
+---
+
 ## v4.5.6 (2026-03-31)
 
 ### Enhancements

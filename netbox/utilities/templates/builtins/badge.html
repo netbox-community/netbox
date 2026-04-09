@@ -1,1 +1,5 @@
-{% if value or show_empty %}<span class="badge text-bg-{{ bg_color }}">{{ value }}</span>{% endif %}
+{% load helpers %}
+
+{% if value or show_empty %}
+  {% if url %}<a href="{{ url }}">{% endif %}<span class="badge{% if not hex_color %} text-bg-{{ bg_color }}{% endif %}"{% if hex_color %} style="color: {{ hex_color|fgcolor }}; background-color: #{{ hex_color }}"{% endif %}>{{ value }}</span>{% if url %}</a>{% endif %}
+{% endif %}

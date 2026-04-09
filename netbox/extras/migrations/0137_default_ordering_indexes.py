@@ -6,7 +6,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contenttypes', '0002_remove_content_type_name'),
         ('core', '0022_default_ordering_indexes'),
-        ('dcim', '0231_default_ordering_indexes'),
+        ('dcim', '0232_default_ordering_indexes'),
         ('extras', '0136_customfield_validation_schema'),
         ('tenancy', '0023_add_mptt_tree_indexes'),
         ('users', '0015_owner'),

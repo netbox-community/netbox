@@ -3,7 +3,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0231_default_ordering_indexes'),
+        ('dcim', '0232_default_ordering_indexes'),
         ('extras', '0137_default_ordering_indexes'),
         ('ipam', '0089_default_ordering_indexes'),
         ('tenancy', '0024_default_ordering_indexes'),

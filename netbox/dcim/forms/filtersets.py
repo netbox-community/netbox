@@ -19,7 +19,7 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from tenancy.models import Tenant
 from users.models import User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
-from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, PositiveBigIntegerField, TagFilterField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import NumberWithOptions
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine
@@ -1652,7 +1652,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         choices=InterfaceTypeChoices,
         required=False
     )
-    speed = forms.IntegerField(
+    speed = PositiveBigIntegerField(
         label=_('Speed'),
         required=False,
         widget=NumberWithOptions(

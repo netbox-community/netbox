@@ -20,6 +20,10 @@ PLUGINS = [
     'netbox.tests.dummy_plugin',
 ]
 
+RQ = {
+    'COMMIT_MODE': 'auto',
+}
+
 REDIS = {
     'tasks': {
         'HOST': 'localhost',

@@ -56,7 +56,9 @@ class ModuleTypeTable(PrimaryModelTable):
         template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
-    attributes = columns.DictColumn()
+    attributes = columns.DictColumn(
+        orderable=False,
+    )
     module_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},

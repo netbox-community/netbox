@@ -2,7 +2,7 @@ import importlib
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured, SuspiciousFileOperation
-from django.core.files.storage import default_storage
+from django.core.files.storage import Storage, default_storage
 from django.core.files.utils import validate_file_name
 from django.db import models
 from django.db.models import Q
@@ -67,15 +67,13 @@ def is_taggable(obj):
     return False
 
 
-def image_upload(instance, filename):
+def _build_image_attachment_path(instance, filename, *, storage=default_storage):
     """
-    Return a path for uploading image attachments.
+    Build a deterministic relative path for an image attachment.
 
     - Normalizes browser paths (e.g., C:\\fake_path\\photo.jpg)
     - Uses the instance.name if provided (sanitized to a *basename*, no ext)
     - Prefixes with a machine-friendly identifier
-
-    Note: Relies on Django's default_storage utility.
     """
     upload_dir = 'image-attachments'
     default_filename = 'unnamed'
@@ -92,20 +90,36 @@ def image_upload(instance, filename):
     # Rely on Django's get_valid_filename to perform sanitization.
     stem = (instance.name or file_path.stem).strip()
     try:
-        safe_stem = default_storage.get_valid_name(stem)
+        safe_stem = storage.get_valid_name(stem)
     except SuspiciousFileOperation:
         safe_stem = default_filename
 
     # Append the uploaded extension only if it's an allowed image type
-    final_name = f"{safe_stem}.{ext}" if ext in allowed_img_extensions else safe_stem
+    final_name = f'{safe_stem}.{ext}' if ext in allowed_img_extensions else safe_stem
 
     # Create a machine-friendly prefix from the instance
-    prefix = f"{instance.object_type.model}_{instance.object_id}"
-    name_with_path = f"{upload_dir}/{prefix}_{final_name}"
+    prefix = f'{instance.object_type.model}_{instance.object_id}'
+    name_with_path = f'{upload_dir}/{prefix}_{final_name}'
 
     # Validate the generated relative path (blocks absolute/traversal)
     validate_file_name(name_with_path, allow_relative_path=True)
     return name_with_path
+
+
+def image_upload(instance, filename):
+    """
+    Return a relative upload path for an image attachment, applying Django's
+    usual suffix-on-collision behavior regardless of storage backend.
+    """
+    field = instance.image.field
+    name_with_path = _build_image_attachment_path(instance, filename, storage=field.storage)
+
+    # Intentionally call Django's base Storage implementation here. Some
+    # backends override get_available_name() to reuse the incoming name
+    # unchanged, but we want Django's normal suffix-on-collision behavior
+    # while still dispatching exists() / get_alternative_name() to the
+    # configured storage instance.
+    return Storage.get_available_name(field.storage, name_with_path, max_length=field.max_length)
 
 
 def is_script(obj):

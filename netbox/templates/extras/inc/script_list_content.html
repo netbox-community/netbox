@@ -11,7 +11,7 @@
       <h2 class="card-header" id="module{{ module.pk }}">
         <i class="mdi mdi-file-document-outline"></i> {{ module }}
         <div class="card-actions">
-          {% if perms.extras.edit_scriptmodule %}
+          {% if perms.extras.change_scriptmodule %}
             <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-ghost-warning btn-sm">
               <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
             </a>
@@ -54,7 +54,7 @@
                     <td>{{ script.python_class.description|markdown|placeholder }}</td>
                     {% if last_job %}
                       <td>
-                        <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|isodatetime }}</a>
+                        <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.started|isodatetime }}</a>
                       </td>
                       <td>
                         {% badge last_job.get_status_display last_job.get_status_color %}

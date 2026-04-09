@@ -50,7 +50,7 @@ class RackPanel(panels.ObjectAttributesPanel):
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     status = attrs.ChoiceAttr('status')
     rack_type = attrs.RelatedObjectAttr('rack_type', linkify=True, grouped_by='manufacturer')
-    role = attrs.RelatedObjectAttr('role', linkify=True)
+    role = attrs.RelatedObjectAttr('role', linkify=True, colored=True)
     description = attrs.TextAttr('description')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
@@ -104,7 +104,7 @@ class DeviceManagementPanel(panels.ObjectAttributesPanel):
     title = _('Management')
 
     status = attrs.ChoiceAttr('status')
-    role = attrs.NestedObjectAttr('role', linkify=True, max_depth=3)
+    role = attrs.NestedObjectAttr('role', linkify=True, max_depth=3, colored=True)
     platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
     primary_ip4 = attrs.TemplatedAttr(
         'primary_ip4',
@@ -295,7 +295,7 @@ class InventoryItemPanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
     status = attrs.ChoiceAttr('status')
-    role = attrs.RelatedObjectAttr('role', linkify=True)
+    role = attrs.RelatedObjectAttr('role', linkify=True, colored=True)
     component = attrs.GenericForeignKeyAttr('component', linkify=True)
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     part_id = attrs.TextAttr('part_id', label=_('Part ID'))

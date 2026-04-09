@@ -2,7 +2,7 @@ from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -307,11 +307,12 @@ class PathEndpoint(models.Model):
 
     `connected_endpoints()` is a convenience method for returning the destination of the associated CablePath, if any.
     """
+
     _path = models.ForeignKey(
         to='dcim.CablePath',
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
     )
 
     class Meta:
@@ -323,11 +324,14 @@ class PathEndpoint(models.Model):
 
         # Construct the complete path (including e.g. bridged interfaces)
         while origin is not None:
-
-            if origin._path is None:
+            # Go through the public accessor rather than dereferencing `_path`
+            # directly. During cable edits, CablePath rows can be deleted and
+            # recreated while this endpoint instance is still in memory.
+            cable_path = origin.path
+            if cable_path is None:
                 break
 
-            path.extend(origin._path.path_objects)
+            path.extend(cable_path.path_objects)
 
             # If the path ends at a non-connected pass-through port, pad out the link and far-end terminations
             if len(path) % 3 == 1:
@@ -336,8 +340,8 @@ class PathEndpoint(models.Model):
             elif len(path) % 3 == 2:
                 path.insert(-1, [])
 
-            # Check for a bridged relationship to continue the trace
-            destinations = origin._path.destinations
+            # Check for a bridged relationship to continue the trace.
+            destinations = cable_path.destinations
             if len(destinations) == 1:
                 origin = getattr(destinations[0], 'bridge', None)
             else:
@@ -348,14 +352,42 @@ class PathEndpoint(models.Model):
 
     @property
     def path(self):
-        return self._path
+        """
+        Return this endpoint's current CablePath, if any.
+
+        `_path` is a denormalized reference that is updated from CablePath
+        save/delete handlers, including queryset.update() calls on origin
+        endpoints. That means an already-instantiated endpoint can briefly hold
+        a stale in-memory `_path` relation while the database already points to
+        a different CablePath (or to no path at all).
+
+        If the cached relation points to a CablePath that has just been
+        deleted, refresh only the `_path` field from the database and retry.
+        This keeps the fix cheap and narrowly scoped to the denormalized FK.
+        """
+        if self._path_id is None:
+            return None
+
+        try:
+            return self._path
+        except ObjectDoesNotExist:
+            # Refresh only the denormalized FK instead of the whole model.
+            # The expected problem here is in-memory staleness during path
+            # rebuilds, not persistent database corruption.
+            self.refresh_from_db(fields=['_path'])
+            return self._path if self._path_id else None
 
     @cached_property
     def connected_endpoints(self):
         """
-        Caching accessor for the attached CablePath's destination (if any)
+        Caching accessor for the attached CablePath's destinations (if any).
+
+        Always route through `path` so stale in-memory `_path` references are
+        repaired before we cache the result for the lifetime of this instance.
         """
-        return self._path.destinations if self._path else []
+        if cable_path := self.path:
+            return cable_path.destinations
+        return []
 
 
 #
@@ -774,7 +806,7 @@ class Interface(
         verbose_name=_('management only'),
         help_text=_('This interface is used only for out-of-band management')
     )
-    speed = models.PositiveIntegerField(
+    speed = models.PositiveBigIntegerField(
         blank=True,
         null=True,
         verbose_name=_('speed (Kbps)')

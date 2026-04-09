@@ -113,6 +113,7 @@ class ModuleCommonForm(forms.Form):
                         raise forms.ValidationError(
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
+
                     try:
                         resolved_name = resolve_module_placeholder(template.name, positions)
                     except ValueError as e:

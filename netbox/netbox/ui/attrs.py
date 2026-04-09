@@ -275,19 +275,22 @@ class RelatedObjectAttr(ObjectAttribute):
          linkify (bool): If True, the rendered value will be hyperlinked to the related object's detail view
          grouped_by (str): A second-order object to annotate alongside the related object; for example, an attribute
             representing the dcim.Site model might specify grouped_by="region"
+         colored (bool): If True, render the object as a colored badge when it exposes a `color` attribute
     """
     template_name = 'ui/attrs/object.html'
 
-    def __init__(self, *args, linkify=None, grouped_by=None, **kwargs):
+    def __init__(self, *args, linkify=None, grouped_by=None, colored=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.linkify = linkify
         self.grouped_by = grouped_by
+        self.colored = colored
 
     def get_context(self, obj, attr, value, context):
         group = getattr(value, self.grouped_by, None) if self.grouped_by else None
         return {
             'linkify': self.linkify,
             'group': group,
+            'colored': self.colored,
         }
 
 
@@ -344,6 +347,7 @@ class RelatedObjectListAttr(RelatedObjectAttr):
 
         return {
             'linkify': self.linkify,
+            'colored': self.colored,
             'items': [
                 {
                     'value': item,
@@ -376,13 +380,15 @@ class NestedObjectAttr(ObjectAttribute):
     Parameters:
          linkify (bool): If True, the rendered value will be hyperlinked to the related object's detail view
          max_depth (int): Maximum number of ancestors to display (default: all)
+         colored (bool): If True, render the object as a colored badge when it exposes a `color` attribute
     """
     template_name = 'ui/attrs/nested_object.html'
 
-    def __init__(self, *args, linkify=None, max_depth=None, **kwargs):
+    def __init__(self, *args, linkify=None, max_depth=None, colored=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.linkify = linkify
         self.max_depth = max_depth
+        self.colored = colored
 
     def get_context(self, obj, attr, value, context):
         nodes = []
@@ -393,6 +399,7 @@ class NestedObjectAttr(ObjectAttribute):
         return {
             'nodes': nodes,
             'linkify': self.linkify,
+            'colored': self.colored,
         }
 
 

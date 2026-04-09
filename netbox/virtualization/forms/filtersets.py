@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -12,6 +13,7 @@ from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
+from utilities.forms.utils import get_capacity_unit_label
 from vpn.models import L2VPN
 
 from ..choices import *
@@ -327,8 +329,14 @@ class VirtualDiskFilterForm(OwnerFilterMixin, NetBoxModelFilterSetForm):
         label=_('Virtual machine')
     )
     size = forms.IntegerField(
-        label=_('Size (MB)'),
+        label=_('Size'),
         required=False,
         min_value=1
     )
     tag = TagFilterField(model)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set unit label based on configured DISK_BASE_UNIT (MB vs MiB)
+        self.fields['size'].label = _('Size ({unit})').format(unit=get_capacity_unit_label(settings.DISK_BASE_UNIT))

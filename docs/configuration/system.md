@@ -248,20 +248,48 @@ STORAGES = {
 
 Within the `STORAGES` dictionary, `"default"` is used for image uploads, "staticfiles" is for static files and `"scripts"` is used for custom scripts.
 
-If using a remote storage like S3, define the config as `STORAGES[key]["OPTIONS"]` for each storage item as needed. For example:
+If using a remote storage such as S3 or an S3-compatible service, define the configuration as `STORAGES[key]["OPTIONS"]` for each storage item as needed. For example:
 
 ```python
-STORAGES = { 
-    "scripts": { 
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage", 
-        "OPTIONS": { 
-            'access_key': 'access key', 
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': 'netbox',
+            'access_key': 'access key',
             'secret_key': 'secret key',
-            "allow_overwrite": True,
-        }
-    }, 
+            'region_name': 'us-east-1',
+            'endpoint_url': 'https://s3.example.com',
+            'location': 'media/',
+        },
+    },
+    'staticfiles': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': 'netbox',
+            'access_key': 'access key',
+            'secret_key': 'secret key',
+            'region_name': 'us-east-1',
+            'endpoint_url': 'https://s3.example.com',
+            'location': 'static/',
+        },
+    },
+    'scripts': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': {
+            'bucket_name': 'netbox',
+            'access_key': 'access key',
+            'secret_key': 'secret key',
+            'region_name': 'us-east-1',
+            'endpoint_url': 'https://s3.example.com',
+            'location': 'scripts/',
+            'file_overwrite': True,
+        },
+    },
 }
 ```
+
+`bucket_name` is required for `S3Storage`. When using an S3-compatible service, set `region_name` and `endpoint_url` according to your provider.
 
 The specific configuration settings for each storage backend can be found in the [django-storages documentation](https://django-storages.readthedocs.io/en/latest/index.html).
 
@@ -286,6 +314,7 @@ STORAGES = {
             'bucket_name': os.environ.get('AWS_STORAGE_BUCKET_NAME'),
             'access_key': os.environ.get('AWS_S3_ACCESS_KEY_ID'),
             'secret_key': os.environ.get('AWS_S3_SECRET_ACCESS_KEY'),
+            'region_name': os.environ.get('AWS_S3_REGION_NAME'),
             'endpoint_url': os.environ.get('AWS_S3_ENDPOINT_URL'),
             'location': 'media/',
         }
@@ -296,6 +325,7 @@ STORAGES = {
             'bucket_name': os.environ.get('AWS_STORAGE_BUCKET_NAME'),
             'access_key': os.environ.get('AWS_S3_ACCESS_KEY_ID'),
             'secret_key': os.environ.get('AWS_S3_SECRET_ACCESS_KEY'),
+            'region_name': os.environ.get('AWS_S3_REGION_NAME'),
             'endpoint_url': os.environ.get('AWS_S3_ENDPOINT_URL'),
             'location': 'static/',
         }

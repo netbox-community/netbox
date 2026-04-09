@@ -2431,9 +2431,9 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
             {
                 'device': device.pk,
                 'name': 'Interface 4',
-                'type': '1000base-t',
+                'type': 'other',
                 'mode': InterfaceModeChoices.MODE_TAGGED,
-                'speed': 1000000,
+                'speed': 16_000_000_000,
                 'duplex': 'full',
                 'vrf': vrfs[0].pk,
                 'poe_mode': InterfacePoEModeChoices.MODE_PD,

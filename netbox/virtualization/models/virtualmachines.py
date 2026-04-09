@@ -214,12 +214,12 @@ class VirtualMachine(
     memory = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('memory (MB)')
+        verbose_name=_('memory')
     )
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('disk (MB)')
+        verbose_name=_('disk')
     )
     serial = models.CharField(
         verbose_name=_('serial number'),
@@ -568,7 +568,7 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
 
 class VirtualDisk(ComponentModel, TrackingModelMixin):
     size = models.PositiveIntegerField(
-        verbose_name=_('size (MB)'),
+        verbose_name=_('size'),
     )
 
     class Meta(ComponentModel.Meta):

@@ -2413,6 +2413,23 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.remove_permissions('dcim.view_device')
         self.assertHttpStatus(self.client.get(url), 403)
 
+    def test_device_role_display_colored(self):
+        parent_role = DeviceRole.objects.create(name='Parent Role', slug='parent-role', color='111111')
+        child_role = DeviceRole.objects.create(name='Child Role', slug='child-role', parent=parent_role, color='aa00bb')
+
+        device = Device.objects.first()
+        device.role = child_role
+        device.save()
+
+        self.add_permissions('dcim.view_device')
+        response = self.client.get(device.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Parent Role')
+        self.assertContains(response, 'Child Role')
+        self.assertContains(response, 'background-color: #aa00bb')
+        self.assertNotContains(response, 'background-color: #111111')
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_import_duplicate_ids_error_message(self):
         device = Device.objects.first()
@@ -3056,13 +3073,13 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.form_data = {
             'device': device.pk,
             'name': 'Interface X',
-            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'type': InterfaceTypeChoices.TYPE_OTHER,
             'enabled': False,
             'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 65000,
-            'speed': 1000000,
+            'speed': 16_000_000_000,
             'duplex': 'full',
             'mgmt_only': True,
             'description': 'A front port',
@@ -3080,13 +3097,13 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name': 'Interface [4-6]',
-            'type': InterfaceTypeChoices.TYPE_1GE_GBIC,
+            'type': InterfaceTypeChoices.TYPE_OTHER,
             'enabled': False,
             'bridge': interfaces[4].pk,
             'lag': interfaces[3].pk,
             'wwn': EUI('01:02:03:04:05:06:07:08', version=64),
             'mtu': 2000,
-            'speed': 100000,
+            'speed': 16_000_000_000,
             'duplex': 'half',
             'mgmt_only': True,
             'description': 'A front port',

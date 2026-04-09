@@ -1,7 +1,10 @@
 import datetime
 import hashlib
+import io
+from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -1011,10 +1014,14 @@ class ScriptTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        module = ScriptModule.objects.create(
-            file_root=ManagedFileRootPathChoices.SCRIPTS,
-            file_path='script.py',
-        )
+        # Avoid trying to import a non-existent on-disk module during setup.
+        # This test creates the Script row explicitly and monkey-patches
+        # Script.python_class below.
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='script.py',
+            )
         script = Script.objects.create(
             module=module,
             name='Test script',
@@ -1384,3 +1391,66 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
                 'event_type': OBJECT_DELETED,
             },
         ]
+
+
+class ScriptModuleTest(APITestCase):
+    """
+    Tests for the POST /api/extras/scripts/upload/ endpoint.
+
+    ScriptModule is a proxy of core.ManagedFile (a different app) so the standard
+    APIViewTestCases mixins cannot be used directly. All tests use add_permissions()
+    with explicit Django model-level permissions.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('extras-api:scriptmodule-list')  # /api/extras/scripts/upload/
+
+    def test_upload_script_module_without_permission(self):
+        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
+        upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
+        response = self.client.post(
+            self.url,
+            {'file': upload_file},
+            format='multipart',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+    def test_upload_script_module(self):
+        # ScriptModule is a proxy of core.ManagedFile; both permissions required.
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        script_content = b"from extras.scripts import Script\nclass TestScript(Script):\n    pass\n"
+        upload_file = SimpleUploadedFile('test_upload.py', script_content, content_type='text/plain')
+        mock_storage = MagicMock()
+        mock_storage.save.return_value = 'test_upload.py'
+
+        # The upload serializer writes the file via storages.create_storage(...).save(),
+        # but ScriptModule.sync_classes() later imports it via storages["scripts"].open().
+        # Provide both behaviors so the uploaded module can actually be loaded during the test.
+        mock_storage.open.side_effect = lambda *args, **kwargs: io.BytesIO(script_content)
+
+        with (
+            patch('extras.api.serializers_.scripts.storages') as mock_serializer_storages,
+            patch('extras.models.mixins.storages') as mock_module_storages,
+        ):
+            mock_serializer_storages.create_storage.return_value = mock_storage
+            mock_serializer_storages.backends = {'scripts': {}}
+            mock_module_storages.__getitem__.return_value = mock_storage
+
+            response = self.client.post(
+                self.url,
+                {'file': upload_file},
+                format='multipart',
+                **self.header,
+            )
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['file_path'], 'test_upload.py')
+        mock_storage.save.assert_called_once()
+        self.assertTrue(ScriptModule.objects.filter(file_path='test_upload.py').exists())
+        self.assertTrue(Script.objects.filter(module__file_path='test_upload.py', name='TestScript').exists())
+
+    def test_upload_script_module_without_file_fails(self):
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        response = self.client.post(self.url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)

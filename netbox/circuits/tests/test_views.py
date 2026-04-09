@@ -196,6 +196,20 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
+    def test_circuit_type_display_colored(self):
+        circuit_type = CircuitType.objects.first()
+        circuit_type.color = '12ab34'
+        circuit_type.save()
+
+        circuit = Circuit.objects.first()
+
+        self.add_permissions('circuits.view_circuit')
+        response = self.client.get(circuit.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, circuit_type.name)
+        self.assertContains(response, 'background-color: #12ab34')
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_terminations(self):
         site = Site.objects.first()

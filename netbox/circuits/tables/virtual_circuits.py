@@ -95,6 +95,7 @@ class VirtualCircuitTerminationTable(NetBoxTable):
         verbose_name=_('Provider network')
     )
     provider_account = tables.Column(
+        accessor=tables.A('virtual_circuit__provider_account'),
         linkify=True,
         verbose_name=_('Account')
     )
@@ -112,7 +113,7 @@ class VirtualCircuitTerminationTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VirtualCircuitTermination
         fields = (
-            'pk', 'id', 'virtual_circuit', 'provider', 'provider_network', 'provider_account', 'role', 'interfaces',
+            'pk', 'id', 'virtual_circuit', 'provider', 'provider_network', 'provider_account', 'role', 'interface',
             'description', 'created', 'last_updated', 'actions',
         )
         default_columns = (

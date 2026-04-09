@@ -4,7 +4,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0228_cable_bundle'),
+        ('dcim', '0229_cable_bundle'),
         ('extras', '0135_configtemplate_debug'),
         ('ipam', '0088_rename_vlangroup_total_vlan_ids'),
         ('tenancy', '0023_add_mptt_tree_indexes'),

@@ -2,7 +2,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_redis_connection
-from django_rq.settings import QUEUES_LIST
+from django_rq.settings import get_queues_list
 from django_rq.utils import get_statistics
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -195,7 +195,7 @@ class BackgroundWorkerViewSet(BaseRQViewSet):
         return 'Background Workers'
 
     def get_data(self):
-        config = QUEUES_LIST[0]
+        config = get_queues_list()[0]
         return Worker.all(get_redis_connection(config['connection_config']))
 
     @extend_schema(
@@ -205,7 +205,7 @@ class BackgroundWorkerViewSet(BaseRQViewSet):
     )
     def retrieve(self, request, name):
         # all the RQ queues should use the same connection
-        config = QUEUES_LIST[0]
+        config = get_queues_list()[0]
         workers = Worker.all(get_redis_connection(config['connection_config']))
         worker = next((item for item in workers if item.name == name), None)
         if not worker:
@@ -229,7 +229,7 @@ class BackgroundTaskViewSet(BaseRQViewSet):
         return get_rq_jobs()
 
     def get_task_from_id(self, task_id):
-        config = QUEUES_LIST[0]
+        config = get_queues_list()[0]
         task = RQ_Job.fetch(task_id, connection=get_redis_connection(config['connection_config']))
         if not task:
             raise Http404

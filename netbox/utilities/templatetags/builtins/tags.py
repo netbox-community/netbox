@@ -58,18 +58,22 @@ def customfield_value(customfield, value):
 
 
 @register.inclusion_tag('builtins/badge.html')
-def badge(value, bg_color=None, show_empty=False):
+def badge(value, bg_color=None, hex_color=None, url=None, show_empty=False):
     """
-    Display the specified number as a badge.
+    Display the specified value as a badge.
 
     Args:
         value: The value to be displayed within the badge
         bg_color: Background color CSS name
+        hex_color: Background color in hexadecimal RRGGBB format
+        url: If provided, wrap the badge in a hyperlink
         show_empty: If true, display the badge even if value is None or zero
     """
     return {
         'value': value,
         'bg_color': bg_color or 'secondary',
+        'hex_color': hex_color.lstrip('#') if hex_color else None,
+        'url': url,
         'show_empty': show_empty,
     }
 

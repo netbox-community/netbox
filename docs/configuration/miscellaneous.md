@@ -237,6 +237,14 @@ This parameter defines the URL of the repository that will be checked for new Ne
 
 ---
 
+## RQ
+
+Default: `{}` (Empty)
+
+This is a wrapper for passing global configuration parameters to [Django RQ](https://github.com/rq/django-rq) to customize its behavior. It is employed within NetBox primarily to alter conditions during testing.
+
+---
+
 ## RQ_DEFAULT_TIMEOUT
 
 Default: `300`

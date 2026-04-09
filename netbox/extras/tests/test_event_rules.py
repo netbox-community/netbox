@@ -1,8 +1,10 @@
 import json
 import uuid
+from unittest import skipIf
 from unittest.mock import Mock, patch
 
 import django_rq
+from django.conf import settings
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.urls import reverse
@@ -343,6 +345,7 @@ class EventRuleTest(APITestCase):
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
+    @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, 'dummy_plugin not in settings.PLUGINS')
     def test_send_webhook(self):
         request_id = uuid.uuid4()
         url_path = reverse('dcim:site_add')
@@ -430,6 +433,97 @@ class EventRuleTest(APITestCase):
         self.assertEqual(job.kwargs['event_type'], JOB_COMPLETED)
         self.assertEqual(job.kwargs['object_type'], script_type)
         self.assertEqual(job.kwargs['username'], self.user.username)
+
+    def test_duplicate_enqueue_refreshes_lazy_payload(self):
+        """
+        When the same object is enqueued more than once in a single request,
+        lazy serialization should use the most recently enqueued instance while
+        preserving the original event['object'] reference.
+        """
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        stale_site = Site.objects.get(pk=site.pk)
+
+        queue = {}
+        enqueue_event(queue, stale_site, request, OBJECT_UPDATED)
+
+        event = queue[f'dcim.site:{site.pk}']
+
+        # Data should not be materialized yet (lazy serialization)
+        self.assertNotIn('data', event.data)
+
+        fresh_site = Site.objects.get(pk=site.pk)
+        fresh_site.description = 'foo'
+        fresh_site.save()
+
+        enqueue_event(queue, fresh_site, request, OBJECT_UPDATED)
+
+        # The original object reference should be preserved
+        self.assertIs(event['object'], stale_site)
+
+        # But serialized data should reflect the fresher instance
+        self.assertEqual(event['data']['description'], 'foo')
+        self.assertEqual(event['snapshots']['postchange']['description'], 'foo')
+
+    def test_duplicate_enqueue_invalidates_materialized_data(self):
+        """
+        If event['data'] has already been materialized before a second enqueue
+        for the same object, the stale payload should be discarded and rebuilt
+        from the fresher instance on next access.
+        """
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        queue = {}
+        enqueue_event(queue, site, request, OBJECT_UPDATED)
+
+        event = queue[f'dcim.site:{site.pk}']
+
+        # Force early materialization
+        self.assertEqual(event['data']['description'], '')
+
+        # Now update and re-enqueue
+        fresh_site = Site.objects.get(pk=site.pk)
+        fresh_site.description = 'updated'
+        fresh_site.save()
+
+        enqueue_event(queue, fresh_site, request, OBJECT_UPDATED)
+
+        # Stale data should have been invalidated; new access should reflect update
+        self.assertEqual(event['data']['description'], 'updated')
+
+    def test_update_then_delete_enqueue_freezes_payload(self):
+        """
+        When an update event is coalesced with a subsequent delete, the event
+        type should be promoted to OBJECT_DELETED and the payload should be
+        eagerly frozen (since the object will be inaccessible after deletion).
+        """
+        request = RequestFactory().get(reverse('dcim:site_add'))
+        request.id = uuid.uuid4()
+        request.user = self.user
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        queue = {}
+        enqueue_event(queue, site, request, OBJECT_UPDATED)
+
+        event = queue[f'dcim.site:{site.pk}']
+
+        enqueue_event(queue, site, request, OBJECT_DELETED)
+
+        # Event type should have been promoted
+        self.assertEqual(event['event_type'], OBJECT_DELETED)
+
+        # Data should already be materialized (frozen), not lazy
+        self.assertIn('data', event.data)
+        self.assertEqual(event['data']['name'], 'Site 1')
+        self.assertIsNone(event['snapshots']['postchange'])
 
     def test_duplicate_triggers(self):
         """

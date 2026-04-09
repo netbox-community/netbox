@@ -384,6 +384,18 @@ A calendar date. Returns a `datetime.date` object.
 
 A complete date & time. Returns a `datetime.datetime` object.
 
+## Uploading Scripts via the API
+
+Script modules can be uploaded to NetBox via the REST API by sending a `multipart/form-data` POST request to `/api/extras/scripts/upload/`. The caller must have the `extras.add_scriptmodule` and `core.add_managedfile` permissions.
+
+```no-highlight
+curl -X POST \
+-H "Authorization: Token $TOKEN" \
+-H "Accept: application/json; indent=4" \
+-F "file=@/path/to/myscript.py" \
+http://netbox/api/extras/scripts/upload/
+```
+
 ## Running Custom Scripts
 
 !!! note

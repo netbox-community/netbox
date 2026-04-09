@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
@@ -13,6 +14,7 @@ from tenancy.models import Tenant
 from utilities.forms import BulkRenameForm, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
+from utilities.forms.utils import get_capacity_unit_label
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 from ..choices import *
@@ -171,11 +173,11 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
     )
     memory = forms.IntegerField(
         required=False,
-        label=_('Memory (MB)')
+        label=_('Memory')
     )
     disk = forms.IntegerField(
         required=False,
-        label=_('Disk (MB)')
+        label=_('Disk')
     )
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
@@ -193,6 +195,13 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
         'virtual_machine_type', 'role', 'site', 'cluster', 'device', 'platform', 'vcpus', 'memory', 'disk', 'tenant',
         'description', 'comments',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set unit labels based on configured RAM_BASE_UNIT / DISK_BASE_UNIT (MB vs MiB)
+        self.fields['memory'].label = _('Memory ({unit})').format(unit=get_capacity_unit_label(settings.RAM_BASE_UNIT))
+        self.fields['disk'].label = _('Disk ({unit})').format(unit=get_capacity_unit_label(settings.DISK_BASE_UNIT))
 
 
 class VMInterfaceBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
@@ -347,7 +356,7 @@ class VirtualDiskBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
     )
     size = forms.IntegerField(
         required=False,
-        label=_('Size (MB)')
+        label=_('Size')
     )
     description = forms.CharField(
         label=_('Description'),
@@ -360,6 +369,12 @@ class VirtualDiskBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         FieldSet('size', 'description'),
     )
     nullable_fields = ('description',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set unit label based on configured DISK_BASE_UNIT (MB vs MiB)
+        self.fields['size'].label = _('Size ({unit})').format(unit=get_capacity_unit_label(settings.DISK_BASE_UNIT))
 
 
 class VirtualDiskBulkRenameForm(BulkRenameForm):

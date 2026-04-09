@@ -21,8 +21,8 @@ __all__ = (
     'divide',
     'get_item',
     'get_key',
-    'humanize_disk_megabytes',
-    'humanize_ram_megabytes',
+    'humanize_disk_capacity',
+    'humanize_ram_capacity',
     'humanize_speed',
     'icon_from_status',
     'kg_to_pounds',
@@ -187,64 +187,100 @@ def action_url(parser, token):
     return ActionURLNode(model, action, kwargs, asvar)
 
 
+def _format_speed(speed, divisor, unit):
+    """
+    Format a speed value with a given divisor and unit.
+
+    Handles decimal values and strips trailing zeros for clean output.
+    """
+    whole, remainder = divmod(speed, divisor)
+    if remainder == 0:
+        return f'{whole} {unit}'
+
+    # Divisors are powers of 10, so len(str(divisor)) - 1 matches the decimal precision.
+    precision = len(str(divisor)) - 1
+    fraction = f'{remainder:0{precision}d}'.rstrip('0')
+    return f'{whole}.{fraction} {unit}'
+
+
 @register.filter()
 def humanize_speed(speed):
     """
-    Humanize speeds given in Kbps. Examples:
+    Humanize speeds given in Kbps, always using the largest appropriate unit.
 
-        1544 => "1.544 Mbps"
-        100000 => "100 Mbps"
-        10000000 => "10 Gbps"
+    Decimal values are displayed when the result is not a whole number;
+    trailing zeros after the decimal point are stripped for clean output.
+
+    Examples:
+
+        1_544 => "1.544 Mbps"
+        100_000 => "100 Mbps"
+        1_000_000 => "1 Gbps"
+        2_500_000 => "2.5 Gbps"
+        10_000_000 => "10 Gbps"
+        800_000_000 => "800 Gbps"
+        1_600_000_000 => "1.6 Tbps"
     """
     if not speed:
         return ''
-    if speed >= 1000000000 and speed % 1000000000 == 0:
-        return '{} Tbps'.format(int(speed / 1000000000))
-    if speed >= 1000000 and speed % 1000000 == 0:
-        return '{} Gbps'.format(int(speed / 1000000))
-    if speed >= 1000 and speed % 1000 == 0:
-        return '{} Mbps'.format(int(speed / 1000))
-    if speed >= 1000:
-        return '{} Mbps'.format(float(speed) / 1000)
-    return '{} Kbps'.format(speed)
+
+    speed = int(speed)
+
+    if speed >= 1_000_000_000:
+        return _format_speed(speed, 1_000_000_000, 'Tbps')
+    if speed >= 1_000_000:
+        return _format_speed(speed, 1_000_000, 'Gbps')
+    if speed >= 1_000:
+        return _format_speed(speed, 1_000, 'Mbps')
+    return f'{speed} Kbps'
 
 
-def _humanize_megabytes(mb, divisor=1000):
+def _humanize_capacity(value, divisor=1000):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
+    Express a capacity value in the most suitable unit (e.g. GB, TiB, etc.).
+
+    The value is treated as a unitless base-unit quantity; the divisor determines
+    both the scaling thresholds and the label convention:
+      - 1000: SI labels (MB, GB, TB, PB)
+      - 1024: IEC labels (MiB, GiB, TiB, PiB)
     """
-    if not mb:
+    if not value:
         return ""
+
+    if divisor == 1024:
+        labels = ('MiB', 'GiB', 'TiB', 'PiB')
+    else:
+        labels = ('MB', 'GB', 'TB', 'PB')
 
     PB_SIZE = divisor**3
     TB_SIZE = divisor**2
     GB_SIZE = divisor
 
-    if mb >= PB_SIZE:
-        return f"{mb / PB_SIZE:.2f} PB"
-    if mb >= TB_SIZE:
-        return f"{mb / TB_SIZE:.2f} TB"
-    if mb >= GB_SIZE:
-        return f"{mb / GB_SIZE:.2f} GB"
-    return f"{mb} MB"
+    if value >= PB_SIZE:
+        return f"{value / PB_SIZE:.2f} {labels[3]}"
+    if value >= TB_SIZE:
+        return f"{value / TB_SIZE:.2f} {labels[2]}"
+    if value >= GB_SIZE:
+        return f"{value / GB_SIZE:.2f} {labels[1]}"
+    return f"{value} {labels[0]}"
 
 
 @register.filter()
-def humanize_disk_megabytes(mb):
+def humanize_disk_capacity(value):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
-    Use the DISK_BASE_UNIT setting to determine the divisor. Default is 1000.
+    Express a disk capacity in the most suitable unit, using the DISK_BASE_UNIT
+    setting to select SI (MB/GB) or IEC (MiB/GiB) labels.
     """
-    return _humanize_megabytes(mb, DISK_BASE_UNIT)
+    return _humanize_capacity(value, DISK_BASE_UNIT)
 
 
 @register.filter()
-def humanize_ram_megabytes(mb):
+def humanize_ram_capacity(value):
     """
-    Express a number of megabytes in the most suitable unit (e.g. gigabytes, terabytes, etc.).
-    Use the RAM_BASE_UNIT setting to determine the divisor. Default is 1000.
+    Express a RAM capacity in the most suitable unit, using the RAM_BASE_UNIT
+    setting to select SI (MB/GB) or IEC (MiB/GiB) labels.
     """
-    return _humanize_megabytes(mb, RAM_BASE_UNIT)
+    return _humanize_capacity(value, RAM_BASE_UNIT)
 
 
 @register.filter()
@@ -483,6 +519,35 @@ def applied_filters(context, model, form, query_params):
         applied_filters.append({
             'name': param_name,  # Use actual param name for removal link
             'value': form.cleaned_data.get(filter_name),
+            'link_url': f'?{querydict.urlencode()}',
+            'link_text': link_text,
+        })
+
+    # Handle empty modifier pills separately. `FilterModifierWidget.value_from_datadict()`
+    # returns None for fields with a `field__empty` query parameter so that the underlying
+    # form field does not attempt to validate 'true'/'false' as a real field value (which
+    # would raise a ValidationError for ModelChoiceField). Because the value is None, these
+    # fields never appear in `form.changed_data`, so we build their pills directly from the
+    # query parameters here.
+    for param_name, param_value in query_params.items():
+        if not param_name.endswith('__empty'):
+            continue
+        field_name = param_name[:-len('__empty')]
+        if field_name not in form.fields or field_name == 'filter_id':
+            continue
+
+        querydict = query_params.copy()
+        querydict.pop(param_name)
+        label = form.fields[field_name].label or field_name
+
+        if param_value.lower() in ('true', '1'):
+            link_text = f'{label} {_("is empty")}'
+        else:
+            link_text = f'{label} {_("is not empty")}'
+
+        applied_filters.append({
+            'name': param_name,
+            'value': param_value,
             'link_url': f'?{querydict.urlencode()}',
             'link_text': link_text,
         })

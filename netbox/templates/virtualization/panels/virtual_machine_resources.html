@@ -12,7 +12,7 @@
       <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
       <td>
         {% if object.memory %}
-          <span title={{ object.memory }}>{{ object.memory|humanize_ram_megabytes }}</span>
+          <span title={{ object.memory }}>{{ object.memory|humanize_ram_capacity }}</span>
         {% else %}
           {{ ''|placeholder }}
         {% endif %}
@@ -24,7 +24,7 @@
       </th>
       <td>
         {% if object.disk %}
-          {{ object.disk|humanize_disk_megabytes }}
+          {{ object.disk|humanize_disk_capacity }}
         {% else %}
           {{ ''|placeholder }}
         {% endif %}

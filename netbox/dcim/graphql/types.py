@@ -447,6 +447,7 @@ class MACAddressType(PrimaryObjectType):
 )
 class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     _name: str
+    speed: BigInt | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
     bridge: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None

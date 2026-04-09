@@ -26,6 +26,7 @@ router.register('journal-entries', views.JournalEntryViewSet)
 router.register('config-contexts', views.ConfigContextViewSet)
 router.register('config-context-profiles', views.ConfigContextProfileViewSet)
 router.register('config-templates', views.ConfigTemplateViewSet)
+router.register('scripts/upload', views.ScriptModuleViewSet)
 router.register('scripts', views.ScriptViewSet, basename='script')
 
 app_name = 'extras-api'

@@ -7,9 +7,12 @@ from django_filters.constants import EMPTY_VALUES
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 
+from .forms.fields import BigIntegerField
+
 __all__ = (
     'ContentTypeFilter',
     'MultiValueArrayFilter',
+    'MultiValueBigNumberFilter',
     'MultiValueCharFilter',
     'MultiValueContentTypeFilter',
     'MultiValueDateFilter',
@@ -75,6 +78,11 @@ class MultiValueDateTimeFilter(django_filters.MultipleChoiceFilter):
 @extend_schema_field(OpenApiTypes.INT32)
 class MultiValueNumberFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.IntegerField)
+
+
+@extend_schema_field(OpenApiTypes.INT64)
+class MultiValueBigNumberFilter(MultiValueNumberFilter):
+    field_class = multivalue_field_factory(BigIntegerField)
 
 
 @extend_schema_field(OpenApiTypes.DECIMAL)

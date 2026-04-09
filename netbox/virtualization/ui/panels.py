@@ -40,7 +40,7 @@ class VirtualMachinePanel(panels.ObjectAttributesPanel):
     virtual_machine_type = attrs.RelatedObjectAttr('virtual_machine_type', linkify=True, label=_('Type'))
     status = attrs.ChoiceAttr('status')
     start_on_boot = attrs.ChoiceAttr('start_on_boot')
-    role = attrs.RelatedObjectAttr('role', linkify=True)
+    role = attrs.RelatedObjectAttr('role', linkify=True, colored=True)
     platform = attrs.NestedObjectAttr('platform', linkify=True, max_depth=3)
     description = attrs.TextAttr('description')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)

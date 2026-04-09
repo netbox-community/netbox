@@ -195,6 +195,14 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 c.to_yaml() for c in self.rearporttemplates.all()
             ]
 
+        # Port mappings
+        port_mapping_data = [
+            c.to_yaml() for c in self.port_mappings.all()
+        ]
+
+        if port_mapping_data:
+            data['port-mappings'] = port_mapping_data
+
         return yaml.dump(dict(data), sort_keys=False)
 
 

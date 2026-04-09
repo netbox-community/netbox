@@ -6,7 +6,7 @@ from datetime import datetime
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
-from django_rq.settings import QUEUES_MAP
+from django_rq.settings import get_queues_map
 from django_rq.workers import get_worker
 from rq.job import Job as RQ_Job
 from rq.job import JobStatus
@@ -189,7 +189,7 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_tasks_list_default(self):
         queue = get_queue('default')
         queue.enqueue(self.dummy_job_default)
-        queue_index = QUEUES_MAP['default']
+        queue_index = get_queues_map()['default']
 
         response = self.client.get(reverse('core:background_task_list', args=[queue_index, 'queued']))
         self.assertEqual(response.status_code, 200)
@@ -198,7 +198,7 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_tasks_list_high(self):
         queue = get_queue('high')
         queue.enqueue(self.dummy_job_high)
-        queue_index = QUEUES_MAP['high']
+        queue_index = get_queues_map()['high']
 
         response = self.client.get(reverse('core:background_task_list', args=[queue_index, 'queued']))
         self.assertEqual(response.status_code, 200)
@@ -207,7 +207,7 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_tasks_list_finished(self):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
-        queue_index = QUEUES_MAP['default']
+        queue_index = get_queues_map()['default']
 
         registry = FinishedJobRegistry(queue.name, queue.connection)
         registry.add(job, 2)
@@ -218,7 +218,7 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_tasks_list_failed(self):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
-        queue_index = QUEUES_MAP['default']
+        queue_index = get_queues_map()['default']
 
         registry = FailedJobRegistry(queue.name, queue.connection)
         registry.add(job, 2)
@@ -229,7 +229,7 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_tasks_scheduled(self):
         queue = get_queue('default')
         queue.enqueue_at(datetime.now(), self.dummy_job_default)
-        queue_index = QUEUES_MAP['default']
+        queue_index = get_queues_map()['default']
 
         response = self.client.get(reverse('core:background_task_list', args=[queue_index, 'scheduled']))
         self.assertEqual(response.status_code, 200)
@@ -238,7 +238,7 @@ class BackgroundTaskTestCase(TestCase):
     def test_background_tasks_list_deferred(self):
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_default)
-        queue_index = QUEUES_MAP['default']
+        queue_index = get_queues_map()['default']
 
         registry = DeferredJobRegistry(queue.name, queue.connection)
         registry.add(job, 2)
@@ -335,7 +335,7 @@ class BackgroundTaskTestCase(TestCase):
         worker2 = get_worker('high')
         worker2.register_birth()
 
-        queue_index = QUEUES_MAP['default']
+        queue_index = get_queues_map()['default']
         response = self.client.get(reverse('core:worker_list', args=[queue_index]))
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(worker1.name), str(response.content))

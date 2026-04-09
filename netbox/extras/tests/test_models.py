@@ -1,10 +1,15 @@
+import io
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.test import TestCase, tag
+from PIL import Image
 
 from core.models import AutoSyncRecord, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
@@ -22,10 +27,50 @@ from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
+class OverwriteStyleMemoryStorage(Storage):
+    """
+    In-memory storage that mimics overwrite-style backends by returning the
+    incoming name unchanged from get_available_name().
+    """
+
+    def __init__(self):
+        self.files = {}
+
+    def _open(self, name, mode='rb'):
+        return ContentFile(self.files[name], name=name)
+
+    def _save(self, name, content):
+        self.files[name] = content.read()
+        return name
+
+    def delete(self, name):
+        self.files.pop(name, None)
+
+    def exists(self, name):
+        return name in self.files
+
+    def get_available_name(self, name, max_length=None):
+        return name
+
+    def get_alternative_name(self, file_root, file_ext):
+        return f'{file_root}_sdmmer4{file_ext}'
+
+    def listdir(self, path):
+        return [], list(self.files)
+
+    def size(self, name):
+        return len(self.files[name])
+
+    def url(self, name):
+        return f'https://example.invalid/{name}'
+
+
 class ImageAttachmentTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.ct_rack = ContentType.objects.get_by_natural_key('dcim', 'rack')
+        cls.ct_site = ContentType.objects.get_by_natural_key('dcim', 'site')
+        cls.site = Site.objects.create(name='Site 1')
         cls.image_content = b''
 
     def _stub_image_attachment(self, object_id, image_filename, name=None):
@@ -48,6 +93,15 @@ class ImageAttachmentTests(TestCase):
             ),
         )
         return ia
+
+    def _uploaded_png(self, filename):
+        image = io.BytesIO()
+        Image.new('RGB', (1, 1)).save(image, format='PNG')
+        return SimpleUploadedFile(
+            name=filename,
+            content=image.getvalue(),
+            content_type='image/png',
+        )
 
     def test_filename_strips_expected_prefix(self):
         """
@@ -96,6 +150,37 @@ class ImageAttachmentTests(TestCase):
         """
         ia = self._stub_image_attachment(12, 'image-attachments/rack_12_file.png', name='')
         self.assertEqual('file.png', str(ia))
+
+    def test_duplicate_uploaded_names_get_suffixed_with_overwrite_style_storage(self):
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            first = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('action-buttons.png'),
+            )
+            first.save()
+
+            second = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('action-buttons.png'),
+            )
+            second.save()
+
+        base_name = f'image-attachments/site_{self.site.pk}_action-buttons.png'
+        suffixed_name = f'image-attachments/site_{self.site.pk}_action-buttons_sdmmer4.png'
+
+        self.assertEqual(first.image.name, base_name)
+        self.assertEqual(second.image.name, suffixed_name)
+        self.assertNotEqual(first.image.name, second.image.name)
+
+        self.assertEqual(first.filename, 'action-buttons.png')
+        self.assertEqual(second.filename, 'action-buttons_sdmmer4.png')
+
+        self.assertCountEqual(storage.files.keys(), {base_name, suffixed_name})
 
 
 class TagTest(TestCase):

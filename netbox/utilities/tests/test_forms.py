@@ -6,7 +6,12 @@ from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.forms import BulkRenameForm
-from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipnetwork_pattern, get_field_value
+from utilities.forms.utils import (
+    expand_alphanumeric_pattern,
+    expand_ipnetwork_pattern,
+    get_capacity_unit_label,
+    get_field_value,
+)
 from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
 
 
@@ -550,3 +555,15 @@ class SelectMultipleWidgetTest(TestCase):
         self.assertEqual(widget.choices[0][1], [(2, 'Option 2')])
         self.assertEqual(widget.choices[1][0], 'Group B')
         self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])
+
+
+class GetCapacityUnitLabelTest(TestCase):
+    """
+    Test the get_capacity_unit_label function for correct base unit label.
+    """
+
+    def test_si_label(self):
+        self.assertEqual(get_capacity_unit_label(1000), 'MB')
+
+    def test_iec_label(self):
+        self.assertEqual(get_capacity_unit_label(1024), 'MiB')
