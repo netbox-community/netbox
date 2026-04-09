@@ -473,9 +473,13 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         unoccupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U11')
 
         self.assertEqual(occupied_unit['device']['id'], device.pk)
-        self.assertEqual(occupied_unit['display'], f'U10 - {device}')
-        self.assertEqual(occupied_unit['description'], str(device.device_type))
+        self.assertEqual(occupied_unit['display'], 'U10')
+        self.assertEqual(occupied_unit['device_display'], f'U10 - {device}')
+        self.assertEqual(occupied_unit['device_type'], str(device.device_type))
+        self.assertEqual(unoccupied_unit['device'], None)
         self.assertEqual(unoccupied_unit['display'], 'U11')
+        self.assertEqual(unoccupied_unit['device_display'], None)
+        self.assertEqual(unoccupied_unit['device_type'], None)
 
     def test_get_rack_elevation_svg(self):
         """
