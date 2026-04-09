@@ -6,7 +6,7 @@ Default: `False`
 
 This setting enables debugging and displays a debugging toolbar in the user interface. Debugging should be enabled only during development or troubleshooting.
 
-Note that the debugging toolbar will be displayed only for requests originating from an [internal IP address](./system.md#internal_ips), if defined. If no internal IPs are defined, the toolbar will be displayed for all requests.
+Note that the debugging toolbar will be displayed only for requests originating from [internal IP addresses](./system.md#internal_ips), if defined. If no internal IPs are defined, the toolbar will be displayed for all requests.
 
 !!! warning
     Never enable debugging on a production system, as it can expose sensitive data to unauthenticated users and impose a
