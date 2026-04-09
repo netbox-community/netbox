@@ -37,6 +37,7 @@ class RackUnitSerializer(serializers.Serializer):
     def get_device_display(self, obj):
         if obj['occupied'] and (device := obj['device']):
             return _('{rack_unit} - {device}').format(rack_unit=obj['name'], device=device)
+        return obj['name']
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_device_type(self, obj):
