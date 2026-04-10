@@ -55,31 +55,33 @@
             <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">{% trans "Circuit Termination" %}</a></li>
           </ul>
         </div>
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th scope="row">{% trans "Speed" %}</th>
+    <td>
+      {% if termination.port_speed and termination.upstream_speed %}
+        <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
+        <i class="mdi mdi-arrow-up-bold" title="{% trans "Upstream" %}"></i> {{ termination.upstream_speed|humanize_speed }}
+      {% elif termination.port_speed %}
+        {{ termination.port_speed|humanize_speed }}
+      {% else %}
+        {{ ''|placeholder }}
       {% endif %}
     </td>
   </tr>
   <tr>
-      <th scope="row">{% trans "Speed" %}</th>
-      <td>
-      {% if termination.port_speed and termination.upstream_speed %}
-          <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
-          <i class="mdi mdi-arrow-up-bold" title="{% trans "Upstream" %}"></i> {{ termination.upstream_speed|humanize_speed }}
-      {% elif termination.port_speed %}
-          {{ termination.port_speed|humanize_speed }}
-      {% else %}
-          {{ ''|placeholder }}
-      {% endif %}
-      </td>
+    <th scope="row">{% trans "Cross-Connect" %}</th>
+    <td>{{ termination.xconnect_id|placeholder }}</td>
   </tr>
   <tr>
-      <th scope="row">{% trans "Cross-Connect" %}</th>
-      <td>{{ termination.xconnect_id|placeholder }}</td>
+    <th scope="row">{% trans "Patch Panel/Port" %}</th>
+    <td>{{ termination.pp_info|placeholder }}</td>
   </tr>
   <tr>
-      <th scope="row">{% trans "Patch Panel/Port" %}</th>
-      <td>{{ termination.pp_info|placeholder }}</td>
-  </tr>
-  <tr>
-      <th scope="row">{% trans "Description" %}</th>
-      <td>{{ termination.description|placeholder }}</td>
+    <th scope="row">{% trans "Description" %}</th>
+    <td>{{ termination.description|placeholder }}</td>
   </tr>

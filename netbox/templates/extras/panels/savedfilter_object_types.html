@@ -1,0 +1,16 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  <div class="list-group list-group-flush" role="presentation">
+    {% for object_type in object.object_types.all %}
+      {% with object_type.model_class|validated_viewname:"list" as viewname %}
+        {% if viewname %}
+          <a href="{% url viewname %}?{{ object.url_params }}" class="list-group-item list-group-item-action">{{ object_type }}</a>
+        {% else %}
+          <div class="list-group-item list-group-item-action">{{ object_type }}</div>
+        {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+{% endblock panel_content %}

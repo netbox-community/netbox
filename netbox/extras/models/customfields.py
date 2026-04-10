@@ -4,6 +4,7 @@ import re
 from datetime import date, datetime
 
 import django_filters
+import jsonschema
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -15,6 +16,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from core.models import ObjectType
 from extras.choices import *
@@ -40,6 +42,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
+from utilities.jsonschema import validate_schema
 from utilities.querysets import RestrictedQuerySet
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import validate_regex
@@ -74,7 +77,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
                 return custom_fields
 
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        custom_fields = self.get_queryset().filter(object_types=content_type)
+        custom_fields = self.get_queryset().filter(object_types=content_type).select_related('related_object_type')
 
         # Populate the request cache to avoid redundant lookups
         if cache is not None:
@@ -222,6 +225,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
+    validation_schema = models.JSONField(
+        blank=True,
+        null=True,
+        validators=[validate_schema],
+        verbose_name=_('validation schema'),
+        help_text=_('A JSON schema definition for validating the custom field value')
+    )
     choice_set = models.ForeignKey(
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
@@ -259,11 +269,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
     clone_fields = (
         'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'unique',
         'search_weight', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
-        'validation_regex', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'validation_regex', 'validation_schema', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
+        indexes = (
+            models.Index(fields=('group_name', 'weight', 'name')),  # Default ordering
+        )
         verbose_name = _('custom field')
         verbose_name_plural = _('custom fields')
 
@@ -387,6 +400,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': _("Regular expression validation is supported only for text and URL fields")
+            })
+
+        # Schema validation can be set only for JSON fields
+        if self.validation_schema and self.type != CustomFieldTypeChoices.TYPE_JSON:
+            raise ValidationError({
+                'validation_schema': _("JSON schema validation is supported only for JSON fields")
             })
 
         # Uniqueness can not be enforced for boolean fields
@@ -814,6 +833,16 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 for id in value:
                     if type(id) is not int:
                         raise ValidationError(_("Found invalid object ID: {id}").format(id=id))
+
+            # Validate JSON against schema (if defined)
+            elif self.type == CustomFieldTypeChoices.TYPE_JSON:
+                if self.validation_schema:
+                    try:
+                        jsonschema.validate(value, schema=self.validation_schema)
+                    except JSONValidationError as e:
+                        raise ValidationError(
+                            _("Value does not conform to the assigned schema: {error}").format(error=e.message)
+                        )
 
         elif self.required:
             raise ValidationError(_("Required field cannot be empty."))

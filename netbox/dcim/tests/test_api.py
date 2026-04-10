@@ -5,16 +5,17 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
-from extras.models import ConfigTemplate
+from extras.models import ConfigTemplate, Tag
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.constants import TOKEN_PREFIX
-from users.models import Token, User
+from users.models import ObjectPermission, Token, User
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -194,6 +195,222 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'asns': [asns[4].pk, asns[5].pk],
             },
         ]
+
+    def test_add_tags(self):
+        """
+        Add tags to an existing object via the add_tags field.
+        """
+        site = Site.objects.first()
+        tags = Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+            Tag(name='Charlie', slug='charlie'),
+        ))
+        site.tags.set([tags[0], tags[1]])
+
+        # Grant change permission
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        url = self._get_detail_url(site)
+        data = {
+            'add_tags': [{'name': 'Charlie'}],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Verify all three tags are now assigned
+        tag_names = sorted(site.tags.values_list('name', flat=True))
+        self.assertEqual(tag_names, ['Alpha', 'Bravo', 'Charlie'])
+
+        # Verify add_tags and remove_tags are not in the response
+        self.assertNotIn('add_tags', response.data)
+        self.assertNotIn('remove_tags', response.data)
+        self.assertIn('tags', response.data)
+
+    def test_remove_tags(self):
+        """
+        Remove tags from an existing object via the remove_tags field.
+        """
+        site = Site.objects.first()
+        tags = Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+            Tag(name='Charlie', slug='charlie'),
+        ))
+        site.tags.set(tags)
+
+        # Grant change permission
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        url = self._get_detail_url(site)
+        data = {
+            'remove_tags': [{'name': 'Charlie'}],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Verify only Alpha and Bravo remain
+        tag_names = sorted(site.tags.values_list('name', flat=True))
+        self.assertEqual(tag_names, ['Alpha', 'Bravo'])
+
+    def test_remove_tags_not_assigned(self):
+        """
+        Removing a tag that is not assigned should not raise an error.
+        """
+        site = Site.objects.first()
+        tags = Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+            Tag(name='Charlie', slug='charlie'),
+        ))
+        site.tags.set([tags[0], tags[1]])
+
+        # Grant change permission
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        url = self._get_detail_url(site)
+        data = {
+            'remove_tags': [{'name': 'Charlie'}],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Tags should be unchanged
+        tag_names = sorted(site.tags.values_list('name', flat=True))
+        self.assertEqual(tag_names, ['Alpha', 'Bravo'])
+
+    def test_add_and_remove_tags(self):
+        """
+        Add and remove tags in the same request.
+        """
+        site = Site.objects.first()
+        tags = Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+            Tag(name='Charlie', slug='charlie'),
+        ))
+        site.tags.set([tags[0], tags[1]])
+
+        # Grant change permission
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        url = self._get_detail_url(site)
+        data = {
+            'add_tags': [{'name': 'Charlie'}],
+            'remove_tags': [{'name': 'Alpha'}],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Verify Bravo and Charlie remain
+        tag_names = sorted(site.tags.values_list('name', flat=True))
+        self.assertEqual(tag_names, ['Bravo', 'Charlie'])
+
+    def test_tags_with_add_tags_error(self):
+        """
+        Specifying tags together with add_tags or remove_tags should raise a validation error.
+        """
+        site = Site.objects.first()
+        Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+        ))
+
+        # Grant change permission
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        url = self._get_detail_url(site)
+        data = {
+            'tags': [{'name': 'Alpha'}],
+            'add_tags': [{'name': 'Bravo'}],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_with_add_tags(self):
+        """
+        Create a new object using add_tags.
+        """
+        Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+        ))
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = {
+            'name': 'Site 10',
+            'slug': 'site-10',
+            'add_tags': [{'name': 'Alpha'}, {'name': 'Bravo'}],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        site = Site.objects.get(pk=response.data['id'])
+        tag_names = sorted(site.tags.values_list('name', flat=True))
+        self.assertEqual(tag_names, ['Alpha', 'Bravo'])
+
+    def test_create_with_remove_tags_error(self):
+        """
+        Using remove_tags when creating a new object should raise a validation error.
+        """
+        Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+        ))
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        data = {
+            'name': 'Site 10',
+            'slug': 'site-10',
+            'remove_tags': [{'name': 'Alpha'}],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_and_remove_same_tag_error(self):
+        """
+        Including the same tag in both add_tags and remove_tags should raise a validation error.
+        """
+        site = Site.objects.first()
+        Tag.objects.bulk_create((
+            Tag(name='Alpha', slug='alpha'),
+            Tag(name='Bravo', slug='bravo'),
+        ))
+
+        obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        url = self._get_detail_url(site)
+        data = {
+            'add_tags': [{'name': 'Alpha'}, {'name': 'Bravo'}],
+            'remove_tags': [{'name': 'Alpha'}],
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
 class LocationTest(APIViewTestCases.APIViewTestCase):

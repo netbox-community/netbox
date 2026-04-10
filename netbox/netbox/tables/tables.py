@@ -159,7 +159,7 @@ class BaseTable(tables.Table):
         columns = None
         ordering = None
 
-        if self.prefixed_order_by_field in request.GET:
+        if request.user.is_authenticated and self.prefixed_order_by_field in request.GET:
             if request.GET[self.prefixed_order_by_field]:
                 # If an ordering has been specified as a query parameter, save it as the
                 # user's preferred ordering for this table.
@@ -185,6 +185,18 @@ class BaseTable(tables.Table):
             columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
 
         self._set_columns(columns)
+
+        # Apply column inclusion/exclusion (overrides user preferences)
+        if columns_param := request.GET.get('include_columns'):
+            for column_name in columns_param.split(','):
+                if column_name in self.columns.names():
+                    self.columns.show(column_name)
+        if exclude_columns := request.GET.get('exclude_columns'):
+            exclude_columns = exclude_columns.split(',')
+            for column_name in exclude_columns:
+                if column_name in self.columns.names() and column_name not in self.exempt_columns:
+                    self.columns.hide(column_name)
+
         self._apply_prefetching()
         if ordering is not None:
             self.order_by = ordering

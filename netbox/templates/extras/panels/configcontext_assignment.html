@@ -1,0 +1,21 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    {% for title, objects in assigned_objects %}
+      <tr>
+        <th scope="row">{{ title }}</th>
+        <td>
+          <ul class="list-unstyled mb-0">
+            {% for obj in objects %}
+              <li>{{ obj|linkify }}</li>
+            {% empty %}
+              <li class="text-muted">{% trans "None" %}</li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock panel_content %}

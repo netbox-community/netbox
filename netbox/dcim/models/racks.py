@@ -390,6 +390,9 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
                 name='%(app_label)s_%(class)s_unique_location_facility_id'
             ),
         )
+        indexes = (
+            models.Index(fields=('site', 'location', 'name', 'id')),  # Default ordering
+        )
         verbose_name = _('rack')
         verbose_name_plural = _('racks')
 
@@ -738,6 +741,9 @@ class RackReservation(PrimaryModel):
 
     class Meta:
         ordering = ['created', 'pk']
+        indexes = (
+            models.Index(fields=('created', 'id')),  # Default ordering
+        )
         verbose_name = _('rack reservation')
         verbose_name_plural = _('rack reservations')
 

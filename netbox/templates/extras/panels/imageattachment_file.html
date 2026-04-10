@@ -1,0 +1,24 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "Filename" %}</th>
+      <td>
+        <a href="{{ object.image.url }}" target="_blank">{{ object.filename }}</a>
+        <i class="mdi mdi-open-in-new"></i>
+      </td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Dimensions" %}</th>
+      <td>{{ object.image_width }} &times; {{ object.image_height }}</td>
+    </tr>
+    <tr>
+      <th scope="row">{% trans "Size" %}</th>
+      <td>
+        <span title="{{ object.size }} {% trans "bytes" %}">{{ object.size|filesizeformat }}</span>
+      </td>
+    </tr>
+  </table>
+{% endblock panel_content %}

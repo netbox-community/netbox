@@ -1,0 +1,5 @@
+{% load helpers i18n %}
+{% include 'inc/sync_warning.html' %}
+<div class="card">
+  {% include 'extras/inc/configcontext_data.html' with title="Data" data=object.data format=format copyid="data" %}
+</div>

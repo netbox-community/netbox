@@ -2,7 +2,7 @@ from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.fields import Field
-from rest_framework.serializers import ValidationError
+from rest_framework.serializers import ListSerializer, ValidationError
 
 from extras.choices import CustomFieldTypeChoices
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
@@ -49,8 +49,25 @@ class CustomFieldsDataField(Field):
         # TODO: Fix circular import
         from utilities.api import get_serializer_for_model
         data = {}
+        cache = self.parent.context.get('cf_object_cache')
+
         for cf in self._get_custom_fields():
-            value = cf.deserialize(obj.get(cf.name))
+            if cache is not None and cf.type in (
+                CustomFieldTypeChoices.TYPE_OBJECT,
+                CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+            ):
+                raw = obj.get(cf.name)
+                if raw is None:
+                    value = None
+                elif cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
+                    model = cf.related_object_type.model_class()
+                    value = cache.get((model, raw))
+                else:
+                    model = cf.related_object_type.model_class()
+                    value = [cache[(model, pk)] for pk in raw if (model, pk) in cache] or None
+            else:
+                value = cf.deserialize(obj.get(cf.name))
+
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
                 serializer = get_serializer_for_model(cf.related_object_type.model_class())
                 value = serializer(value, nested=True, context=self.parent.context).data
@@ -87,3 +104,32 @@ class CustomFieldsDataField(Field):
             data = {**self.parent.instance.custom_field_data, **data}
 
         return data
+
+
+class CustomFieldListSerializer(ListSerializer):
+    """
+    ListSerializer that pre-fetches all OBJECT/MULTIOBJECT custom field related objects
+    in bulk before per-item serialization.
+    """
+    def to_representation(self, data):
+        cf_field = self.child.fields.get('custom_fields')
+        if isinstance(cf_field, CustomFieldsDataField):
+            object_type_cfs = [
+                cf for cf in cf_field._get_custom_fields()
+                if cf.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT)
+            ]
+            cache = {}
+            for cf in object_type_cfs:
+                model = cf.related_object_type.model_class()
+                pks = set()
+                for item in data:
+                    raw = item.custom_field_data.get(cf.name)
+                    if raw is not None:
+                        if cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
+                            pks.update(raw)
+                        else:
+                            pks.add(raw)
+                for obj in model.objects.filter(pk__in=pks):
+                    cache[(model, obj.pk)] = obj
+            self.child.context['cf_object_cache'] = cache
+        return super().to_representation(data)

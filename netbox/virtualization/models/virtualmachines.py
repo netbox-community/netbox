@@ -92,6 +92,9 @@ class VirtualMachineType(ImageAttachmentsMixin, PrimaryModel):
                 violation_error_message=_('Virtual machine type slug must be unique.'),
             ),
         )
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         verbose_name = _('virtual machine type')
         verbose_name_plural = _('virtual machine types')
 
@@ -249,6 +252,9 @@ class VirtualMachine(
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
+        indexes = (
+            models.Index(fields=('name', 'id')),  # Default ordering
+        )
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'cluster', 'tenant',

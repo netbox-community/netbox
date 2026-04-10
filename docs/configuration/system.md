@@ -105,6 +105,13 @@ A list of IP addresses recognized as internal to the system, used to control the
 example, the debugging toolbar will be viewable only when a client is accessing NetBox from one of the listed IP
 addresses (and [`DEBUG`](./development.md#debug) is `True`).
 
+!!! info "New in NetBox v4.6"
+    Setting this parameter to an empty list will enable the toolbar for all requests provided debugging is enabled:
+
+    ```python
+    INTERNAL_IPS = []
+    ```
+
 ---
 
 ## ISOLATED_DEPLOYMENT

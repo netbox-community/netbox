@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.template import Context, Template
 from django.test import RequestFactory, TestCase
 
@@ -45,6 +46,16 @@ class BaseTableTest(TestCase):
         table.configure(request)
         prefetch_lookups = table.data.data._prefetch_related_lookups
         self.assertEqual(prefetch_lookups, tuple())
+
+    def test_configure_anonymous_user_with_ordering(self):
+        """
+        Verify that table.configure() does not raise an error when an anonymous
+        user sorts a table column.
+        """
+        request = RequestFactory().get('/?sort=name')
+        request.user = AnonymousUser()
+        table = DeviceTable(Device.objects.all())
+        table.configure(request)
 
 
 class TagColumnTable(NetBoxTable):

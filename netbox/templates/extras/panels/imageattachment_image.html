@@ -1,0 +1,9 @@
+{% extends "ui/panels/_base.html" %}
+
+{% block panel_content %}
+  <div class="card-body">
+    <a href="{{ object.image.url }}" title="{{ object.name }}">
+      {{ object.html_tag }}
+    </a>
+  </div>
+{% endblock panel_content %}

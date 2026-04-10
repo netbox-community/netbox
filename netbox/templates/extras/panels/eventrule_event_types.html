@@ -1,0 +1,23 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers %}
+
+{% block panel_content %}
+  <ul class="list-group list-group-flush">
+    {% for name, event in registry.event_types.items %}
+      <li class="list-group-item">
+        <div class="row align-items-center">
+          <div class="col-auto">
+            {% if name in object.event_types %}
+              {% checkmark True %}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </div>
+          <div class="col">
+            {{ event }}
+          </div>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock panel_content %}

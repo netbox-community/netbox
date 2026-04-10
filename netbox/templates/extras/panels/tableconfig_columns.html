@@ -1,0 +1,15 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers %}
+{% load i18n %}
+
+{% block panel_content %}
+  <ul class="list-group list-group-flush" role="presentation">
+    {% for name in object.columns %}
+      <li class="list-group-item list-group-item-action">
+        {% with column=columns|get_key:name %}
+          {{ column.verbose_name }}
+        {% endwith %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock panel_content %}

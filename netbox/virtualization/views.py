@@ -492,6 +492,7 @@ class VirtualMachineView(generic.ObjectView):
                 model='ipam.Service',
                 title=_('Application Services'),
                 filters={'virtual_machine_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject(
                         'ipam.Service',
@@ -508,6 +509,7 @@ class VirtualMachineView(generic.ObjectView):
             ObjectsTablePanel(
                 model='virtualization.VirtualDisk',
                 filters={'virtual_machine_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['virtual_machine'],
                 actions=[
                     actions.AddObject(
                         'virtualization.VirtualDisk', url_params={'virtual_machine': lambda ctx: ctx['object'].pk}
@@ -649,6 +651,7 @@ class VMInterfaceView(generic.ObjectView):
             ObjectsTablePanel(
                 model='ipam.IPaddress',
                 filters={'vminterface_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['assigned', 'assigned_object', 'assigned_object_parent'],
                 actions=[
                     actions.AddObject(
                         'ipam.IPaddress',
@@ -662,6 +665,7 @@ class VMInterfaceView(generic.ObjectView):
             ObjectsTablePanel(
                 model='dcim.MACAddress',
                 filters={'vminterface_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['assigned_object', 'assigned_object_parent'],
                 actions=[
                     actions.AddObject(
                         'dcim.MACAddress', url_params={'vminterface': lambda ctx: ctx['object'].pk}

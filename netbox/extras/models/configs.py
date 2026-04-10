@@ -176,6 +176,9 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
 
     class Meta:
         ordering = ['weight', 'name']
+        indexes = (
+            models.Index(fields=('weight', 'name')),  # Default ordering
+        )
         verbose_name = _('config context')
         verbose_name_plural = _('config contexts')
 
@@ -294,6 +297,9 @@ class ConfigTemplate(
 
     class Meta:
         ordering = ('name',)
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         verbose_name = _('config template')
         verbose_name_plural = _('config templates')
 

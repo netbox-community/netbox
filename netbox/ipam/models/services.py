@@ -93,6 +93,7 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
 
     class Meta:
         indexes = (
+            models.Index(fields=('protocol', 'ports', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
         )
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique

@@ -1,10 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
-{% load custom_links %}
 {% load helpers %}
 {% load perms %}
-{% load plugins %}
-{% load static %}
 {% load i18n %}
 
 {% block breadcrumbs %}
@@ -27,22 +24,3 @@
     </div>
   {% endif %}
 {% endblock subtitle %}
-
-{% block content %}
-  <div class="row">
-    <div class="col col-md-12">
-      <div class="card">
-        <h2 class="card-header">{% trans "Configuration Data" %}</h2>
-        {% include 'core/inc/config_data.html' %}
-      </div>
-
-      <div class="card">
-        <h2 class="card-header">{% trans "Comment" %}</h2>
-        <div class="card-body">
-          {{ object.comment|placeholder }}
-        </div>
-      </div>
-
-    </div>
-  </div>
-{% endblock %}

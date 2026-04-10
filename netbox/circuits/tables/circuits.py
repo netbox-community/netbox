@@ -190,14 +190,16 @@ class CircuitGroupAssignmentTable(NetBoxTable):
     provider = tables.Column(
         accessor='member__provider',
         verbose_name=_('Provider'),
-        linkify=True
+        orderable=False,
+        linkify=True,
     )
     member_type = columns.ContentTypeColumn(
         verbose_name=_('Type')
     )
     member = tables.Column(
         verbose_name=_('Circuit'),
-        linkify=True
+        orderable=False,
+        linkify=True,
     )
     priority = tables.Column(
         verbose_name=_('Priority'),

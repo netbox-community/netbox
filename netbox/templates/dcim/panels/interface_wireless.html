@@ -1,0 +1,72 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  {% with peer=object.connected_endpoints.0 %}
+    <table class="table table-hover attr-table">
+      <thead>
+        <tr class="border-bottom">
+          <th></th>
+          <th>{% trans "Local" %}</th>
+          {% if peer %}
+            <th>{% trans "Peer" %}</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tr>
+        <th scope="row">{% trans "Role" %}</th>
+        <td>{{ object.get_rf_role_display|placeholder }}</td>
+        {% if peer %}
+          <td>{{ peer.get_rf_role_display|placeholder }}</td>
+        {% endif %}
+      </tr>
+      <tr>
+        <th scope="row">{% trans "Channel" %}</th>
+        <td>{{ object.get_rf_channel_display|placeholder }}</td>
+        {% if peer %}
+          <td{% if peer.rf_channel != object.rf_channel %} class="text-danger"{% endif %}>
+            {{ peer.get_rf_channel_display|placeholder }}
+          </td>
+        {% endif %}
+      </tr>
+      <tr>
+        <th scope="row">{% trans "Channel frequency" %}</th>
+        <td>
+          {% if object.rf_channel_frequency %}
+            {{ object.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" %}
+          {% else %}
+            {{ ''|placeholder }}
+          {% endif %}
+        </td>
+        {% if peer %}
+          <td{% if peer.rf_channel_frequency != object.rf_channel_frequency %} class="text-danger"{% endif %}>
+            {% if peer.rf_channel_frequency %}
+              {{ peer.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" %}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+        {% endif %}
+      </tr>
+      <tr>
+        <th scope="row">{% trans "Channel width" %}</th>
+        <td>
+          {% if object.rf_channel_width %}
+            {{ object.rf_channel_width|floatformat:"-3" }} {% trans "MHz" %}
+          {% else %}
+            {{ ''|placeholder }}
+          {% endif %}
+        </td>
+        {% if peer %}
+          <td{% if peer.rf_channel_width != object.rf_channel_width %} class="text-danger"{% endif %}>
+            {% if peer.rf_channel_width %}
+              {{ peer.rf_channel_width|floatformat:"-3" }} {% trans "MHz" %}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+        {% endif %}
+      </tr>
+    </table>
+  {% endwith %}
+{% endblock panel_content %}

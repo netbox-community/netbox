@@ -17,15 +17,16 @@ from extras.ui.panels import CustomFieldsPanel, ImageAttachmentsPanel, TagsPanel
 from extras.views import ObjectConfigContextView, ObjectRenderConfigView
 from ipam.models import ASN, VLAN, IPAddress, Prefix, VLANGroup
 from ipam.tables import VLANTranslationRuleTable
+from ipam.ui.panels import FHRPGroupAssignmentsPanel
 from netbox.object_actions import *
 from netbox.ui import actions, layout
 from netbox.ui.panels import (
     CommentsPanel,
+    ContextTablePanel,
     JSONPanel,
     NestedGroupObjectPanel,
     ObjectsTablePanel,
     OrganizationalObjectPanel,
-    Panel,
     RelatedObjectsPanel,
     TemplatePanel,
 )
@@ -256,6 +257,7 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.Region',
                 title=_('Child Regions'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.Region', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -388,6 +390,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.SiteGroup',
                 title=_('Child Groups'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.SiteGroup', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -538,6 +541,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='dcim.Location',
                 filters={'site_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['site'],
                 actions=[
                     actions.AddObject('dcim.Location', url_params={'site': lambda ctx: ctx['object'].pk}),
                 ],
@@ -550,6 +554,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                     'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
                     'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
                 },
+                exclude_columns=['site'],
                 actions=[
                     actions.AddObject('dcim.Device', url_params={'site': lambda ctx: ctx['object'].pk}),
                 ],
@@ -672,6 +677,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.Location',
                 title=_('Child Locations'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject(
                         'dcim.Location',
@@ -690,6 +696,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                     'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
                     'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
                 },
+                exclude_columns=['location'],
                 actions=[
                     actions.AddObject(
                         'dcim.Device',
@@ -1664,7 +1671,7 @@ class ModuleTypeProfileListView(generic.ObjectListView):
 
 
 @register_model_view(ModuleTypeProfile)
-class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
+class ModuleTypeProfileView(generic.ObjectView):
     template_name = 'generic/object.html'
     queryset = ModuleTypeProfile.objects.all()
     layout = layout.SimpleLayout(
@@ -1684,6 +1691,7 @@ class ModuleTypeProfileView(GetRelatedModelsMixin, generic.ObjectView):
                 filters={
                     'profile_id': lambda ctx: ctx['object'].pk,
                 },
+                exclude_columns=['profile'],
                 actions=[
                     actions.AddObject(
                         'dcim.ModuleType',
@@ -1762,7 +1770,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            Panel(
+            TemplatePanel(
                 title=_('Attributes'),
                 template_name='dcim/panels/module_type_attributes.html',
             ),
@@ -2425,6 +2433,7 @@ class DeviceRoleView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.DeviceRole',
                 title=_('Child Device Roles'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.DeviceRole', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -2525,6 +2534,7 @@ class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.Platform',
                 title=_('Child Platforms'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.Platform', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -2603,6 +2613,7 @@ class DeviceView(generic.ObjectView):
             ObjectsTablePanel(
                 model='dcim.VirtualDeviceContext',
                 filters={'device_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['device'],
                 actions=[
                     actions.AddObject('dcim.VirtualDeviceContext', url_params={'device': lambda ctx: ctx['object'].pk}),
                 ],
@@ -2615,6 +2626,7 @@ class DeviceView(generic.ObjectView):
                 model='ipam.Service',
                 title=_('Application Services'),
                 filters={'device_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject(
                         'ipam.Service',
@@ -2642,6 +2654,7 @@ class DeviceView(generic.ObjectView):
             vc_members = []
 
         return {
+            'virtual_chassis': instance.virtual_chassis,
             'vc_members': vc_members,
             'svg_extra': f'highlight=id:{instance.pk}',
         }
@@ -2931,7 +2944,7 @@ class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            Panel(
+            TemplatePanel(
                 title=_('Module Type'),
                 template_name='dcim/panels/module_type.html',
             ),
@@ -2994,6 +3007,28 @@ class ConsolePortListView(generic.ObjectListView):
 @register_model_view(ConsolePort)
 class ConsolePortView(generic.ObjectView):
     queryset = ConsolePort.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ConsolePortPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:consoleport_trace',
+                connect_options=[
+                    {
+                        'a_type': 'dcim.consoleport',
+                        'b_type': 'dcim.consoleserverport',
+                        'label': _('Console Server Port'),
+                    },
+                    {'a_type': 'dcim.consoleport', 'b_type': 'dcim.frontport', 'label': _('Front Port')},
+                    {'a_type': 'dcim.consoleport', 'b_type': 'dcim.rearport', 'label': _('Rear Port')},
+                ],
+            ),
+            panels.InventoryItemsPanel(),
+        ],
+    )
 
 
 @register_model_view(ConsolePort, 'add', detail=False)
@@ -3065,6 +3100,24 @@ class ConsoleServerPortListView(generic.ObjectListView):
 @register_model_view(ConsoleServerPort)
 class ConsoleServerPortView(generic.ObjectView):
     queryset = ConsoleServerPort.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ConsoleServerPortPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:consoleserverport_trace',
+                connect_options=[
+                    {'a_type': 'dcim.consoleserverport', 'b_type': 'dcim.consoleport', 'label': _('Console Port')},
+                    {'a_type': 'dcim.consoleserverport', 'b_type': 'dcim.frontport', 'label': _('Front Port')},
+                    {'a_type': 'dcim.consoleserverport', 'b_type': 'dcim.rearport', 'label': _('Rear Port')},
+                ],
+            ),
+            panels.InventoryItemsPanel(),
+        ],
+    )
 
 
 @register_model_view(ConsoleServerPort, 'add', detail=False)
@@ -3136,6 +3189,23 @@ class PowerPortListView(generic.ObjectListView):
 @register_model_view(PowerPort)
 class PowerPortView(generic.ObjectView):
     queryset = PowerPort.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PowerPortPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:powerport_trace',
+                connect_options=[
+                    {'a_type': 'dcim.powerport', 'b_type': 'dcim.poweroutlet', 'label': _('Power Outlet')},
+                    {'a_type': 'dcim.powerport', 'b_type': 'dcim.powerfeed', 'label': _('Power Feed')},
+                ],
+            ),
+            panels.InventoryItemsPanel(),
+        ],
+    )
 
 
 @register_model_view(PowerPort, 'add', detail=False)
@@ -3207,6 +3277,22 @@ class PowerOutletListView(generic.ObjectListView):
 @register_model_view(PowerOutlet)
 class PowerOutletView(generic.ObjectView):
     queryset = PowerOutlet.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PowerOutletPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:poweroutlet_trace',
+                connect_options=[
+                    {'a_type': 'dcim.poweroutlet', 'b_type': 'dcim.powerport', 'label': _('Power Port')},
+                ],
+            ),
+            panels.InventoryItemsPanel(),
+        ],
+    )
 
 
 @register_model_view(PowerOutlet, 'add', detail=False)
@@ -3278,6 +3364,47 @@ class InterfaceListView(generic.ObjectListView):
 @register_model_view(Interface)
 class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.InterfacePanel(),
+            panels.RelatedInterfacesPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            ContextTablePanel('vdc_table', title=_('Virtual Device Contexts')),
+            panels.InterfaceAddressingPanel(),
+            panels.VirtualCircuitPanel(),
+            panels.InterfaceConnectionPanel(),
+            panels.InterfaceWirelessPanel(),
+            panels.WirelessLANsPanel(),
+            FHRPGroupAssignmentsPanel(),
+            panels.InventoryItemsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='ipam.IPAddress',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('IP Addresses'),
+                exclude_columns=['assigned', 'assigned_object', 'assigned_object_parent'],
+            ),
+            ObjectsTablePanel(
+                model='dcim.MACAddress',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('MAC Addresses'),
+                exclude_columns=['assigned_object', 'assigned_object_parent'],
+            ),
+            ObjectsTablePanel(
+                model='ipam.VLAN',
+                filters={'interface_id': lambda ctx: ctx['object'].pk},
+                title=_('VLANs'),
+            ),
+            ContextTablePanel('lag_interfaces_table', title=_('LAG Members')),
+            ContextTablePanel('vlan_translation_table', title=_('VLAN Translation')),
+            ContextTablePanel('bridge_interfaces_table', title=_('Bridged Interfaces')),
+            ContextTablePanel('child_interfaces_table', title=_('Child Interfaces')),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         # Get assigned VDCs
@@ -3292,30 +3419,29 @@ class InterfaceView(generic.ObjectView):
         vdc_table.configure(request)
 
         # Get bridge interfaces
-        bridge_interfaces = Interface.objects.restrict(request.user, 'view').filter(bridge=instance)
         bridge_interfaces_table = tables.InterfaceTable(
-            bridge_interfaces,
+            Interface.objects.restrict(request.user, 'view').filter(bridge=instance),
             exclude=('device', 'parent'),
             orderable=False
         )
         bridge_interfaces_table.configure(request)
 
         # Get child interfaces
-        child_interfaces = Interface.objects.restrict(request.user, 'view').filter(parent=instance)
         child_interfaces_table = tables.InterfaceTable(
-            child_interfaces,
+            Interface.objects.restrict(request.user, 'view').filter(parent=instance),
             exclude=('device', 'parent'),
             orderable=False
         )
         child_interfaces_table.configure(request)
 
-        # Get LAG interfaces
-        lag_interfaces = Interface.objects.restrict(request.user, 'view').filter(lag=instance)
-        lag_interfaces_table = tables.InterfaceLAGMemberTable(
-            lag_interfaces,
-            orderable=False
-        )
-        lag_interfaces_table.configure(request)
+        # Get LAG members (only for LAG interfaces)
+        lag_interfaces_table = None
+        if instance.is_lag:
+            lag_interfaces_table = tables.InterfaceLAGMemberTable(
+                Interface.objects.restrict(request.user, 'view').filter(lag=instance),
+                orderable=False
+            )
+            lag_interfaces_table.configure(request)
 
         # Get VLAN translation rules
         vlan_translation_table = None
@@ -3328,7 +3454,6 @@ class InterfaceView(generic.ObjectView):
 
         return {
             'vdc_table': vdc_table,
-            'bridge_interfaces': bridge_interfaces,
             'bridge_interfaces_table': bridge_interfaces_table,
             'child_interfaces_table': child_interfaces_table,
             'lag_interfaces_table': lag_interfaces_table,
@@ -3416,6 +3541,33 @@ class FrontPortListView(generic.ObjectListView):
 @register_model_view(FrontPort)
 class FrontPortView(generic.ObjectView):
     queryset = FrontPort.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.FrontPortPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            panels.InventoryItemsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:frontport_trace',
+                show_endpoints=False,
+                connect_options=[
+                    {'a_type': 'dcim.frontport', 'b_type': 'dcim.interface', 'label': _('Interface')},
+                    {'a_type': 'dcim.frontport', 'b_type': 'dcim.consoleserverport', 'label': _('Console Server Port')},
+                    {'a_type': 'dcim.frontport', 'b_type': 'dcim.consoleport', 'label': _('Console Port')},
+                    {'a_type': 'dcim.frontport', 'b_type': 'dcim.frontport', 'label': _('Front Port')},
+                    {'a_type': 'dcim.frontport', 'b_type': 'dcim.rearport', 'label': _('Rear Port')},
+                    {
+                        'a_type': 'dcim.frontport',
+                        'b_type': 'circuits.circuittermination',
+                        'label': _('Circuit Termination'),
+                    },
+                ],
+            ),
+            TemplatePanel('dcim/panels/front_port_mappings.html'),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -3492,6 +3644,31 @@ class RearPortListView(generic.ObjectListView):
 @register_model_view(RearPort)
 class RearPortView(generic.ObjectView):
     queryset = RearPort.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.RearPortPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            panels.InventoryItemsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:rearport_trace',
+                show_endpoints=False,
+                connect_options=[
+                    {'a_type': 'dcim.rearport', 'b_type': 'dcim.interface', 'label': _('Interface')},
+                    {'a_type': 'dcim.rearport', 'b_type': 'dcim.frontport', 'label': _('Front Port')},
+                    {'a_type': 'dcim.rearport', 'b_type': 'dcim.rearport', 'label': _('Rear Port')},
+                    {
+                        'a_type': 'dcim.rearport',
+                        'b_type': 'circuits.circuittermination',
+                        'label': _('Circuit Termination'),
+                    },
+                ],
+            ),
+            TemplatePanel('dcim/panels/rear_port_mappings.html'),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -3568,6 +3745,16 @@ class ModuleBayListView(generic.ObjectListView):
 @register_model_view(ModuleBay)
 class ModuleBayView(generic.ObjectView):
     queryset = ModuleBay.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.ModuleBayPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            CustomFieldsPanel(),
+            panels.InstalledModulePanel(),
+        ],
+    )
 
 
 @register_model_view(ModuleBay, 'add', detail=False)
@@ -3630,6 +3817,16 @@ class DeviceBayListView(generic.ObjectListView):
 @register_model_view(DeviceBay)
 class DeviceBayView(generic.ObjectView):
     queryset = DeviceBay.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.DeviceBayPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            panels.InstalledDevicePanel(),
+        ],
+    )
 
 
 @register_model_view(DeviceBay, 'add', detail=False)
@@ -3773,6 +3970,13 @@ class InventoryItemListView(generic.ObjectListView):
 @register_model_view(InventoryItem)
 class InventoryItemView(generic.ObjectView):
     queryset = InventoryItem.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.InventoryItemPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+    )
 
 
 @register_model_view(InventoryItem, 'edit')
@@ -3854,12 +4058,23 @@ class InventoryItemRoleListView(generic.ObjectListView):
 
 
 @register_model_view(InventoryItemRole)
-class InventoryItemRoleView(generic.ObjectView):
+class InventoryItemRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = InventoryItemRole.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.InventoryItemRolePanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
-            'inventoryitem_count': InventoryItem.objects.filter(role=instance).count(),
+            'related_models': self.get_related_models(request, instance),
         }
 
 
@@ -4093,6 +4308,24 @@ class CableListView(generic.ObjectListView):
 @register_model_view(Cable)
 class CableView(generic.ObjectView):
     queryset = Cable.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.CablePanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            TemplatePanel(
+                title=_('Termination A'),
+                template_name='dcim/panels/cable_termination_a.html',
+            ),
+            TemplatePanel(
+                title=_('Termination B'),
+                template_name='dcim/panels/cable_termination_b.html',
+            ),
+        ],
+    )
 
 
 @register_model_view(Cable, 'add', detail=False)
@@ -4225,12 +4458,23 @@ class VirtualChassisListView(generic.ObjectListView):
 @register_model_view(VirtualChassis)
 class VirtualChassisView(generic.ObjectView):
     queryset = VirtualChassis.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualChassisPanel(),
+            TagsPanel(),
+            CustomFieldsPanel(),
+        ],
+        right_panels=[
+            panels.VirtualChassisMembersPanel(),
+            CommentsPanel(),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
-        members = Device.objects.restrict(request.user).filter(virtual_chassis=instance)
-
+        vc_members = Device.objects.restrict(request.user).filter(virtual_chassis=instance).order_by('vc_position')
         return {
-            'members': members,
+            'virtual_chassis': instance,
+            'vc_members': vc_members,
         }
 
 
@@ -4470,6 +4714,27 @@ class PowerPanelListView(generic.ObjectListView):
 @register_model_view(PowerPanel)
 class PowerPanelView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = PowerPanel.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PowerPanelPanel(),
+            TagsPanel(),
+            CommentsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            ImageAttachmentsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.PowerFeed',
+                filters={'power_panel_id': lambda ctx: ctx['object'].pk},
+                actions=[
+                    actions.AddObject('dcim.PowerFeed', url_params={'power_panel': lambda ctx: ctx['object'].pk}),
+                ],
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -4533,6 +4798,23 @@ class PowerFeedListView(generic.ObjectListView):
 @register_model_view(PowerFeed)
 class PowerFeedView(generic.ObjectView):
     queryset = PowerFeed.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.PowerFeedPanel(),
+            panels.PowerFeedElectricalPanel(),
+            CustomFieldsPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            panels.ConnectionPanel(
+                trace_url_name='dcim:powerfeed_trace',
+                connect_options=[
+                    {'a_type': 'dcim.powerfeed', 'b_type': 'dcim.powerport', 'label': _('Power Port')},
+                ],
+            ),
+            CommentsPanel(),
+        ],
+    )
 
 
 @register_model_view(PowerFeed, 'add', detail=False)
@@ -4601,6 +4883,23 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 @register_model_view(VirtualDeviceContext)
 class VirtualDeviceContextView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.VirtualDeviceContextPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CommentsPanel(),
+            CustomFieldsPanel(),
+        ],
+        bottom_panels=[
+            ObjectsTablePanel(
+                model='dcim.Interface',
+                filters={'vdc_id': lambda ctx: ctx['object'].pk},
+            ),
+        ],
+    )
 
     def get_extra_context(self, request, instance):
         return {
@@ -4669,6 +4968,16 @@ class MACAddressListView(generic.ObjectListView):
 @register_model_view(MACAddress)
 class MACAddressView(generic.ObjectView):
     queryset = MACAddress.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            panels.MACAddressPanel(),
+            TagsPanel(),
+            CustomFieldsPanel(),
+        ],
+        right_panels=[
+            CommentsPanel(),
+        ],
+    )
 
 
 @register_model_view(MACAddress, 'add', detail=False)

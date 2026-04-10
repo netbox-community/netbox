@@ -113,6 +113,9 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 name='%(app_label)s_%(class)s_unique_manufacturer_model'
             ),
         )
+        indexes = (
+            models.Index(fields=('profile', 'manufacturer', 'model')),  # Default ordering
+        )
         verbose_name = _('module type')
         verbose_name_plural = _('module types')
 

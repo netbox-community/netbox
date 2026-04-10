@@ -1,6 +1,7 @@
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
-from netbox.ui import attrs, panels
+from netbox.ui import actions, attrs, panels
 
 
 class SitePanel(panels.ObjectAttributesPanel):
@@ -73,7 +74,7 @@ class RackReservationPanel(panels.ObjectAttributesPanel):
     unit_count = attrs.TextAttr('unit_count', label=_("Total U's"))
     status = attrs.ChoiceAttr('status')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    user = attrs.RelatedObjectAttr('user')
+    user = attrs.RelatedObjectAttr('user', linkify=True)
     description = attrs.TextAttr('description')
 
 
@@ -191,23 +192,273 @@ class PlatformPanel(panels.NestedGroupObjectPanel):
     config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
 
 
-class VirtualChassisMembersPanel(panels.ObjectPanel):
+class ConsolePortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    speed = attrs.ChoiceAttr('speed')
+    description = attrs.TextAttr('description')
+
+
+class ConsoleServerPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    speed = attrs.ChoiceAttr('speed')
+    description = attrs.TextAttr('description')
+
+
+class PowerPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    description = attrs.TextAttr('description')
+    maximum_draw = attrs.TextAttr('maximum_draw', format_string='{}W')
+    allocated_draw = attrs.TextAttr('allocated_draw', format_string='{}W')
+
+
+class PowerOutletPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    color = attrs.ColorAttr('color')
+    power_port = attrs.RelatedObjectAttr('power_port', linkify=True)
+    feed_leg = attrs.ChoiceAttr('feed_leg')
+
+
+class FrontPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    color = attrs.ColorAttr('color')
+    positions = attrs.NumericAttr('positions')
+    description = attrs.TextAttr('description')
+
+
+class RearPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    color = attrs.ColorAttr('color')
+    positions = attrs.NumericAttr('positions')
+    description = attrs.TextAttr('description')
+
+
+class ModuleBayPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    position = attrs.TextAttr('position')
+    description = attrs.TextAttr('description')
+
+
+class InstalledModulePanel(panels.ObjectAttributesPanel):
+    title = _('Installed Module')
+    module = attrs.RelatedObjectAttr('installed_module', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('installed_module.module_type.manufacturer', linkify=True)
+    module_type = attrs.RelatedObjectAttr('installed_module.module_type', linkify=True)
+    serial = attrs.TextAttr('installed_module.serial', label=_('Serial number'), style='font-monospace')
+    asset_tag = attrs.TextAttr('installed_module.asset_tag', style='font-monospace')
+
+
+class DeviceBayPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    description = attrs.TextAttr('description')
+
+
+class InstalledDevicePanel(panels.ObjectAttributesPanel):
+    title = _('Installed Device')
+    device = attrs.RelatedObjectAttr('installed_device', linkify=True)
+    device_type = attrs.RelatedObjectAttr('installed_device.device_type')
+
+
+class InventoryItemPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    parent = attrs.RelatedObjectAttr('parent', linkify=True, label=_('Parent item'))
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    status = attrs.ChoiceAttr('status')
+    role = attrs.RelatedObjectAttr('role', linkify=True)
+    component = attrs.GenericForeignKeyAttr('component', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
+    part_id = attrs.TextAttr('part_id', label=_('Part ID'))
+    serial = attrs.TextAttr('serial')
+    asset_tag = attrs.TextAttr('asset_tag')
+    description = attrs.TextAttr('description')
+
+
+class InventoryItemRolePanel(panels.OrganizationalObjectPanel):
+    color = attrs.ColorAttr('color')
+
+
+class CablePanel(panels.ObjectAttributesPanel):
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    profile = attrs.ChoiceAttr('profile')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    bundle = attrs.RelatedObjectAttr('bundle', linkify=True)
+    label = attrs.TextAttr('label')
+    description = attrs.TextAttr('description')
+    color = attrs.ColorAttr('color')
+    length = attrs.NumericAttr('length', unit_accessor='get_length_unit_display')
+
+
+class VirtualChassisPanel(panels.ObjectAttributesPanel):
+    domain = attrs.TextAttr('domain')
+    master = attrs.RelatedObjectAttr('master', linkify=True)
+    description = attrs.TextAttr('description')
+
+
+class PowerPanelPanel(panels.ObjectAttributesPanel):
+    site = attrs.RelatedObjectAttr('site', linkify=True)
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    description = attrs.TextAttr('description')
+
+
+class PowerFeedPanel(panels.ObjectAttributesPanel):
+    power_panel = attrs.RelatedObjectAttr('power_panel', linkify=True)
+    rack = attrs.RelatedObjectAttr('rack', linkify=True)
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    description = attrs.TextAttr('description')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    connected_device = attrs.TemplatedAttr(
+        'connected_endpoints',
+        label=_('Connected device'),
+        template_name='dcim/powerfeed/attrs/connected_device.html',
+    )
+    utilization = attrs.TemplatedAttr(
+        'connected_endpoints',
+        label=_('Utilization (allocated)'),
+        template_name='dcim/powerfeed/attrs/utilization.html',
+    )
+
+
+class PowerFeedElectricalPanel(panels.ObjectAttributesPanel):
+    title = _('Electrical Characteristics')
+
+    supply = attrs.ChoiceAttr('supply')
+    voltage = attrs.TextAttr('voltage', format_string=_('{}V'))
+    amperage = attrs.TextAttr('amperage', format_string=_('{}A'))
+    phase = attrs.ChoiceAttr('phase')
+    max_utilization = attrs.TextAttr('max_utilization', format_string='{}%')
+
+
+class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):
+    name = attrs.TextAttr('name')
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    identifier = attrs.TextAttr('identifier')
+    status = attrs.ChoiceAttr('status')
+    primary_ip4 = attrs.TemplatedAttr(
+        'primary_ip4',
+        label=_('Primary IPv4'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )
+    primary_ip6 = attrs.TemplatedAttr(
+        'primary_ip6',
+        label=_('Primary IPv6'),
+        template_name='dcim/device/attrs/ipaddress.html',
+    )
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+
+
+class MACAddressPanel(panels.ObjectAttributesPanel):
+    mac_address = attrs.TextAttr('mac_address', label=_('MAC address'), style='font-monospace', copy_button=True)
+    description = attrs.TextAttr('description')
+    assignment = attrs.RelatedObjectAttr('assigned_object', linkify=True, grouped_by='parent_object')
+    is_primary = attrs.BooleanAttr('is_primary', label=_('Primary for interface'))
+
+
+class ConnectionPanel(panels.ObjectPanel):
     """
-    A panel which lists all members of a virtual chassis.
+    A panel which displays connection information for a cabled object.
     """
-    template_name = 'dcim/panels/virtual_chassis_members.html'
-    title = _('Virtual Chassis Members')
+    template_name = 'dcim/panels/connection.html'
+    title = _('Connection')
+
+    def __init__(self, trace_url_name, connect_options=None, show_endpoints=True, **kwargs):
+        super().__init__(**kwargs)
+        self.trace_url_name = trace_url_name
+        self.connect_options = connect_options or []
+        self.show_endpoints = show_endpoints
 
     def get_context(self, context):
         return {
             **super().get_context(context),
+            'trace_url_name': self.trace_url_name,
+            'connect_options': self.connect_options,
+            'show_endpoints': self.show_endpoints,
+        }
+
+
+class InventoryItemsPanel(panels.ObjectPanel):
+    """
+    A panel which displays inventory items associated with a component.
+    """
+    template_name = 'dcim/panels/component_inventory_items.html'
+    title = _('Inventory Items')
+    actions = [
+        actions.AddObject(
+            'dcim.inventoryitem',
+            url_params={
+                'component_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                'component_id': lambda ctx: ctx['object'].pk,
+            },
+        ),
+    ]
+
+
+class VirtualChassisMembersPanel(panels.ObjectPanel):
+    """
+    A panel which lists all members of a virtual chassis.
+    """
+
+    template_name = 'dcim/panels/virtual_chassis_members.html'
+    title = _('Virtual Chassis Members')
+    actions = [
+        actions.AddObject(
+            'dcim.device',
+            url_params={
+                'site': lambda ctx: (
+                    ctx['virtual_chassis'].master.site_id
+                    if ctx['virtual_chassis'] and ctx['virtual_chassis'].master_id
+                    else ''
+                ),
+                'rack': lambda ctx: (
+                    ctx['virtual_chassis'].master.rack_id
+                    if ctx['virtual_chassis'] and ctx['virtual_chassis'].master_id
+                    else ''
+                ),
+            },
+        ),
+    ]
+
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
+            'virtual_chassis': context.get('virtual_chassis'),
             'vc_members': context.get('vc_members'),
         }
 
-    def render(self, context):
-        if not context.get('vc_members'):
-            return ''
-        return super().render(context)
+    def should_render(self, context):
+        return bool(context.get('vc_members'))
 
 
 class PowerUtilizationPanel(panels.ObjectPanel):
@@ -223,8 +474,99 @@ class PowerUtilizationPanel(panels.ObjectPanel):
             'vc_members': context.get('vc_members'),
         }
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context['object']
-        if not obj.powerports.exists() or not obj.poweroutlets.exists():
-            return ''
-        return super().render(context)
+        return obj.powerports.exists() and obj.poweroutlets.exists()
+
+
+class InterfacePanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    speed = attrs.TemplatedAttr('speed', template_name='dcim/interface/attrs/speed.html', label=_('Speed'))
+    duplex = attrs.ChoiceAttr('duplex')
+    mtu = attrs.NumericAttr('mtu', label=_('MTU'))
+    enabled = attrs.BooleanAttr('enabled')
+    mgmt_only = attrs.BooleanAttr('mgmt_only', label=_('Management only'))
+    description = attrs.TextAttr('description')
+    poe_mode = attrs.ChoiceAttr('poe_mode', label=_('PoE mode'))
+    poe_type = attrs.ChoiceAttr('poe_type', label=_('PoE type'))
+    mode = attrs.ChoiceAttr('mode', label=_('802.1Q mode'))
+    qinq_svlan = attrs.RelatedObjectAttr('qinq_svlan', linkify=True, label=_('Q-in-Q SVLAN'))
+    untagged_vlan = attrs.RelatedObjectAttr('untagged_vlan', linkify=True, label=_('Untagged VLAN'))
+    tx_power = attrs.TextAttr('tx_power', label=_('Transmit power'), format_string='{} dBm')
+    tunnel = attrs.RelatedObjectAttr('tunnel_termination.tunnel', linkify=True, label=_('Tunnel'))
+    l2vpn = attrs.RelatedObjectAttr('l2vpn_termination.l2vpn', linkify=True, label=_('L2VPN'))
+
+
+class RelatedInterfacesPanel(panels.ObjectAttributesPanel):
+    title = _('Related Interfaces')
+
+    parent = attrs.RelatedObjectAttr('parent', linkify=True)
+    bridge = attrs.RelatedObjectAttr('bridge', linkify=True)
+    lag = attrs.RelatedObjectAttr('lag', linkify=True, label=_('LAG'))
+
+
+class InterfaceAddressingPanel(panels.ObjectAttributesPanel):
+    title = _('Addressing')
+
+    mac_address = attrs.TemplatedAttr(
+        'primary_mac_address',
+        template_name='dcim/interface/attrs/mac_address.html',
+        label=_('MAC address'),
+    )
+    wwn = attrs.TextAttr('wwn', style='font-monospace', label=_('WWN'))
+    vrf = attrs.RelatedObjectAttr('vrf', linkify=True, label=_('VRF'))
+    vlan_translation = attrs.RelatedObjectAttr('vlan_translation_policy', linkify=True, label=_('VLAN translation'))
+
+
+class InterfaceConnectionPanel(panels.ObjectPanel):
+    """
+    A connection panel for interfaces, which handles cable, wireless link, and virtual circuit cases.
+    """
+    template_name = 'dcim/panels/interface_connection.html'
+    title = _('Connection')
+
+    def should_render(self, context):
+        obj = context.get('object')
+        return False if (obj is None or obj.is_virtual) else True
+
+
+class VirtualCircuitPanel(panels.ObjectPanel):
+    """
+    A panel which displays virtual circuit information for a virtual interface.
+    """
+    template_name = 'dcim/panels/interface_virtual_circuit.html'
+    title = _('Virtual Circuit')
+
+    def should_render(self, context):
+        obj = context.get('object')
+        if not obj or not obj.is_virtual or not hasattr(obj, 'virtual_circuit_termination'):
+            return False
+        return True
+
+
+class InterfaceWirelessPanel(panels.ObjectPanel):
+    """
+    A panel which displays wireless RF attributes for an interface, comparing local and peer values.
+    """
+    template_name = 'dcim/panels/interface_wireless.html'
+    title = _('Wireless')
+
+    def should_render(self, context):
+        obj = context.get('object')
+        return False if (obj is None or not obj.is_wireless) else True
+
+
+class WirelessLANsPanel(panels.ObjectPanel):
+    """
+    A panel which lists the wireless LANs associated with an interface.
+    """
+    template_name = 'dcim/panels/interface_wireless_lans.html'
+    title = _('Wireless LANs')
+
+    def should_render(self, context):
+        obj = context.get('object')
+        return False if (obj is None or not obj.is_wireless) else True

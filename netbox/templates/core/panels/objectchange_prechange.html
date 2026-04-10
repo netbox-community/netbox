@@ -1,0 +1,20 @@
+{% load helpers %}
+{% load i18n %}
+<div class="card">
+  <h2 class="card-header">{% trans "Pre-Change Data" %}</h2>
+  <div class="card-body">
+    {% if object.prechange_data %}
+      {% spaceless %}
+        <pre class="change-data">
+          {% for k, v in object.prechange_data_clean.items %}
+            <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
+          {% endfor %}
+        </pre>
+      {% endspaceless %}
+    {% elif non_atomic_change %}
+      {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'core:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
+    {% else %}
+      <span class="text-muted">{% trans "None" %}</span>
+    {% endif %}
+  </div>
+</div>

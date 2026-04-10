@@ -243,6 +243,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
             # Validate each new object independently.
             if model_form.is_valid():
+                model_form.instance._changelog_message = model_form.cleaned_data.get('changelog_message', '')
                 obj = model_form.save()
                 new_objects.append(obj)
             else:

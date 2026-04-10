@@ -121,6 +121,10 @@ class CustomFieldTable(NetBoxTable):
     validation_regex = tables.Column(
         verbose_name=_('Validation Regex'),
     )
+    validation_schema = columns.BooleanColumn(
+        verbose_name=_('Validation Schema'),
+        false_mark=None,
+    )
     owner = tables.Column(
         linkify=True,
         verbose_name=_('Owner')
@@ -132,7 +136,7 @@ class CustomFieldTable(NetBoxTable):
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
             'unique', 'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
             'is_cloneable', 'weight', 'choice_set', 'choices', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'comments', 'created', 'last_updated',
+            'validation_regex', 'validation_schema', 'comments', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'unique', 'description',
@@ -510,8 +514,9 @@ class EventRuleTable(NetBoxTable):
         verbose_name=_('Type'),
     )
     action_object = tables.Column(
-        linkify=True,
         verbose_name=_('Object'),
+        orderable=False,
+        linkify=True,
     )
     object_types = columns.ContentTypesColumn(
         verbose_name=_('Object Types'),

@@ -1,0 +1,22 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>{% trans "Value" %}</th>
+        <th>{% trans "Label" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for value, label in choices %}
+        <tr>
+          <td>{{ value }}</td>
+          <td>{{ label }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include 'inc/paginator.html' with page=choices %}
+{% endblock panel_content %}

@@ -356,6 +356,9 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMod
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
+        indexes = (
+            models.Index(fields=('group_name', 'weight', 'name')),  # Default ordering
+        )
         verbose_name = _('custom link')
         verbose_name_plural = _('custom links')
 
@@ -429,6 +432,9 @@ class ExportTemplate(
 
     class Meta:
         ordering = ('name',)
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         verbose_name = _('export template')
         verbose_name_plural = _('export templates')
 
@@ -515,6 +521,9 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
     class Meta:
         ordering = ('weight', 'name')
+        indexes = (
+            models.Index(fields=('weight', 'name')),  # Default ordering
+        )
         verbose_name = _('saved filter')
         verbose_name_plural = _('saved filters')
 
@@ -597,6 +606,9 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('weight', 'name')
+        indexes = (
+            models.Index(fields=('weight', 'name')),  # Default ordering
+        )
         verbose_name = _('table config')
         verbose_name_plural = _('table configs')
 
@@ -700,6 +712,7 @@ class ImageAttachment(ChangeLoggedModel):
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
         indexes = (
+            models.Index(fields=('name', 'id')),  # Default ordering
             models.Index(fields=('object_type', 'object_id')),
         )
         verbose_name = _('image attachment')
@@ -810,6 +823,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
     class Meta:
         ordering = ('-created',)
         indexes = (
+            models.Index(fields=('-created',)),  # Default ordering
             models.Index(fields=('assigned_object_type', 'assigned_object_id')),
         )
         verbose_name = _('journal entry')
@@ -865,6 +879,7 @@ class Bookmark(models.Model):
     class Meta:
         ordering = ('created', 'pk')
         indexes = (
+            models.Index(fields=('created', 'id')),  # Default ordering
             models.Index(fields=('object_type', 'object_id')),
         )
         constraints = (

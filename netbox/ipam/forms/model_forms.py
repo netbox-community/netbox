@@ -483,7 +483,7 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
         return ipaddress
 
 
-class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
+class IPAddressBulkAddForm(TenancyForm, PrimaryModelForm):
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -498,7 +498,8 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'description', 'tenant_group', 'tenant', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'tenant_group', 'tenant', 'description', 'owner',
+            'comments', 'tags',
         ]
 
 

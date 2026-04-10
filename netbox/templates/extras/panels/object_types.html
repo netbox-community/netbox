@@ -1,0 +1,11 @@
+{% extends "ui/panels/_base.html" %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    {% for ct in object.object_types.all %}
+      <tr>
+        <td>{{ ct }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock panel_content %}

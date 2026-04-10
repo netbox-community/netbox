@@ -1,0 +1,8 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <div class="card-body">
+    <pre>{{ object.data_as_string }}</pre>
+  </div>
+{% endblock panel_content %}

@@ -55,6 +55,9 @@ class ObjectPermission(CloningMixin, models.Model):
 
     class Meta:
         ordering = ['name']
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         verbose_name = _('permission')
         verbose_name_plural = _('permissions')
 

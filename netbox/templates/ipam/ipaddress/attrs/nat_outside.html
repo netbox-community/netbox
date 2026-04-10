@@ -1,0 +1,2 @@
+{% load helpers %}
+{% for ip in value.all %}{{ ip|linkify }}{% if ip.assigned_object %} ({{ ip.assigned_object.parent_object|linkify }}){% endif %}<br/>{% empty %}<span class="text-muted">&mdash;</span>{% endfor %}

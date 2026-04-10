@@ -76,6 +76,11 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     choice_set = DynamicModelChoiceField(
         queryset=CustomFieldChoiceSet.objects.all()
     )
+    validation_schema = JSONField(
+        label=_('Validation schema'),
+        required=False,
+        help_text=_('A JSON schema definition for validating the custom field value')
+    )
     comments = CommentField()
 
     fieldsets = (
@@ -143,6 +148,16 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         else:
             del self.fields['validation_minimum']
             del self.fields['validation_maximum']
+
+        # Adjust for JSON fields
+        if field_type == CustomFieldTypeChoices.TYPE_JSON:
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('validation_schema', name=_('Validation')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['validation_schema']
 
         # Adjust for object & multi-object fields
         if field_type in (

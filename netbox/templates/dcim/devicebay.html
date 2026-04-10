@@ -1,6 +1,4 @@
 {% extends 'generic/object.html' %}
-{% load helpers %}
-{% load plugins %}
 {% load i18n %}
 
 {% block breadcrumbs %}
@@ -8,64 +6,4 @@
   <li class="breadcrumb-item">
     <a href="{% url 'dcim:device_devicebays' pk=object.device.pk %}">{{ object.device }}</a>
   </li>
-{% endblock %}
-
-{% block content %}
-    <div class="row">
-        <div class="col col-12 col-md-6">
-            <div class="card">
-                <h2 class="card-header">{% trans "Device Bay" %}</h2>
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Device" %}</th>
-                        <td>{{ object.device|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Name" %}</th>
-                        <td>{{ object.name }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Label" %}</th>
-                        <td>{{ object.label|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Description" %}</th>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                </table>
-            </div>
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
-        {% plugin_left_page object %}
-        </div>
-        <div class="col col-12 col-md-6">
-            <div class="card">
-                <h2 class="card-header">{% trans "Installed Device" %}</h2>
-                {% if object.installed_device %}
-                    {% with device=object.installed_device %}
-                        <table class="table table-hover attr-table">
-                            <tr>
-                                <th scope="row">{% trans "Device" %}</th>
-                                <td>{{ device|linkify }}</td>
-                            </tr>
-                            <tr>
-                                <th scope="row">{% trans "Device Type" %}</th>
-                                <td>{{ device.device_type }}</td>
-                            </tr>
-                        </table>
-                    {% endwith %}
-                {% else %}
-                    <div class="card-body text-muted">
-                        {% trans "None" %}
-                    </div>
-                {% endif %}
-            </div>
-            {% plugin_right_page object %}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col col-md-12">
-            {% plugin_full_width_page object %}
-        </div>
-    </div>
 {% endblock %}

@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from utilities.forms import get_field_value
 
 __all__ = (
@@ -70,18 +71,6 @@ class InterfaceCommonForm(forms.Form):
 
 class ModuleCommonForm(forms.Form):
 
-    def _get_module_bay_tree(self, module_bay):
-        module_bays = []
-        while module_bay:
-            module_bays.append(module_bay)
-            if module_bay.module:
-                module_bay = module_bay.module.module_bay
-            else:
-                module_bay = None
-
-        module_bays.reverse()
-        return module_bays
-
     def clean(self):
         super().clean()
 
@@ -100,7 +89,7 @@ class ModuleCommonForm(forms.Form):
             self.instance._disable_replication = True
             return
 
-        module_bays = self._get_module_bay_tree(module_bay)
+        positions = get_module_bay_positions(module_bay)
 
         for templates, component_attribute in [
                 ("consoleporttemplates", "consoleports"),
@@ -119,25 +108,15 @@ class ModuleCommonForm(forms.Form):
             # Get the templates for the module type.
             for template in getattr(module_type, templates).all():
                 resolved_name = template.name
-                # Installing modules with placeholders require that the bay has a position value
                 if MODULE_TOKEN in template.name:
                     if not module_bay.position:
                         raise forms.ValidationError(
                             _("Cannot install module with placeholder values in a module bay with no position defined.")
                         )
-
-                    if len(module_bays) != template.name.count(MODULE_TOKEN):
-                        raise forms.ValidationError(
-                            _(
-                                "Cannot install module with placeholder values in a module bay tree {level} in tree "
-                                "but {tokens} placeholders given."
-                            ).format(
-                                level=len(module_bays), tokens=template.name.count(MODULE_TOKEN)
-                            )
-                        )
-
-                    for module_bay in module_bays:
-                        resolved_name = resolved_name.replace(MODULE_TOKEN, module_bay.position, 1)
+                    try:
+                        resolved_name = resolve_module_placeholder(template.name, positions)
+                    except ValueError as e:
+                        raise forms.ValidationError(str(e))
 
                 existing_item = installed_components.get(resolved_name)
 

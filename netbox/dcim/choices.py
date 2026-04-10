@@ -1003,10 +1003,16 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_800GE_SR8 = '800gbase-sr8'
     TYPE_800GE_VR8 = '800gbase-vr8'
 
+    # 1.6 Tbps Ethernet
+    TYPE_1TE_CR8 = '1.6tbase-cr8'
+    TYPE_1TE_DR8 = '1.6tbase-dr8'
+    TYPE_1TE_DR8_2 = '1.6tbase-dr8-2'
+
     # Ethernet (modular)
     TYPE_100ME_SFP = '100base-x-sfp'
     TYPE_1GE_GBIC = '1000base-x-gbic'
     TYPE_1GE_SFP = '1000base-x-sfp'
+    TYPE_2GE_SFP = '2.5gbase-x-sfp'
     TYPE_10GE_SFP_PLUS = '10gbase-x-sfpp'
     TYPE_10GE_XFP = '10gbase-x-xfp'
     TYPE_10GE_XENPAK = '10gbase-x-xenpak'
@@ -1034,8 +1040,11 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_400GE_OSFP_RHS = '400gbase-x-osfp-rhs'
     TYPE_400GE_CDFP = '400gbase-x-cdfp'
     TYPE_400GE_CFP8 = '400gbase-x-cfp8'
-    TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
-    TYPE_800GE_OSFP = '800gbase-x-osfp'
+    TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'  # TODO: Rename to _QSFP_DD800
+    TYPE_800GE_OSFP = '800gbase-x-osfp'  # TODO: Rename to _OSFP800
+    TYPE_1TE_OSFP1600 = '1.6tbase-x-osfp1600'
+    TYPE_1TE_OSFP1600_RHS = '1.6tbase-x-osfp1600-rhs'
+    TYPE_1TE_QSFP_DD1600 = '1.6tbase-x-qsfpdd1600'
 
     # Backplane Ethernet
     TYPE_1GE_KX = '1000base-kx'
@@ -1049,6 +1058,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_KP4 = '100gbase-kp4'
     TYPE_100GE_KR2 = '100gbase-kr2'
     TYPE_100GE_KR4 = '100gbase-kr4'
+    TYPE_1TE_KR8 = '1.6tbase-kr8'
 
     # Wireless
     TYPE_80211A = 'ieee802.11a'
@@ -1299,11 +1309,20 @@ class InterfaceTypeChoices(ChoiceSet):
             )
         ),
         (
+            _('1.6 Tbps Ethernet'),
+            (
+                (TYPE_1TE_CR8, '1.6TBASE-CR8 (1.6TE)'),
+                (TYPE_1TE_DR8, '1.6TBASE-DR8 (1.6TE)'),
+                (TYPE_1TE_DR8_2, '1.6TBASE-DR8-2 (1.6TE)'),
+            )
+        ),
+        (
             _('Pluggable transceivers'),
             (
                 (TYPE_100ME_SFP, 'SFP (100ME)'),
                 (TYPE_1GE_GBIC, 'GBIC (1GE)'),
                 (TYPE_1GE_SFP, 'SFP (1GE)'),
+                (TYPE_2GE_SFP, 'SFP (2.5GE)'),
                 (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
                 (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
                 (TYPE_10GE_XFP, 'XFP (10GE)'),
@@ -1333,6 +1352,9 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_400GE_OSFP_RHS, 'OSFP-RHS (400GE)'),
                 (TYPE_800GE_OSFP, 'OSFP (800GE)'),
                 (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
+                (TYPE_1TE_OSFP1600, 'OSFP1600 (1.6TE)'),
+                (TYPE_1TE_OSFP1600_RHS, 'OSFP1600-RHS (1.6TE)'),
+                (TYPE_1TE_QSFP_DD1600, 'QSFP-DD1600 (1.6TE)'),
             )
         ),
         (
@@ -1349,6 +1371,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_KP4, '100GBASE-KP4 (100GE)'),
                 (TYPE_100GE_KR2, '100GBASE-KR2 (100GE)'),
                 (TYPE_100GE_KR4, '100GBASE-KR4 (100GE)'),
+                (TYPE_1TE_KR8, '1.6TBASE-KR8 (1.6TE)'),
             )
         ),
         (
@@ -1495,9 +1518,12 @@ class InterfaceSpeedChoices(ChoiceSet):
         (10000000, '10 Gbps'),
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
+        (50000000, '50 Gbps'),
         (100000000, '100 Gbps'),
         (200000000, '200 Gbps'),
         (400000000, '400 Gbps'),
+        (800000000, '800 Gbps'),
+        (1600000000, '1.6 Tbps'),
     ]
 
 

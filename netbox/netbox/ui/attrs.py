@@ -18,6 +18,7 @@ __all__ = (
     'NumericAttr',
     'ObjectAttribute',
     'RelatedObjectAttr',
+    'RelatedObjectListAttr',
     'TemplatedAttr',
     'TextAttr',
     'TimezoneAttr',
@@ -28,10 +29,26 @@ PLACEHOLDER_HTML = '<span class="text-muted">&mdash;</span>'
 
 IMAGE_DECODING_CHOICES = ('auto', 'async', 'sync')
 
+
+#
+# Mixins
+#
+
+class MapURLMixin:
+    _map_url = None
+
+    @property
+    def map_url(self):
+        if self._map_url is True:
+            return get_config().MAPS_URL
+        if self._map_url:
+            return self._map_url
+        return None
+
+
 #
 # Attributes
 #
-
 
 class ObjectAttribute:
     """
@@ -63,17 +80,20 @@ class ObjectAttribute:
         """
         return resolve_attr_path(obj, self.accessor)
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         """
         Return any additional template context used to render the attribute value.
 
         Parameters:
             obj (object): The object for which the attribute is being rendered
-            context (dict): The root template context
+            attr (str): The name of the attribute being rendered
+            value: The value of the attribute on the object
+            context (dict): The panel template context
         """
         return {}
 
     def render(self, obj, context):
+        name = context['name']
         value = self.get_value(obj)
 
         # If the value is empty, render a placeholder
@@ -81,8 +101,8 @@ class ObjectAttribute:
             return self.placeholder
 
         return render_to_string(self.template_name, {
-            **self.get_context(obj, context),
-            'name': context['name'],
+            **self.get_context(obj, name, value, context),
+            'name': name,
             'value': value,
         })
 
@@ -111,7 +131,7 @@ class TextAttr(ObjectAttribute):
             return self.format_string.format(value)
         return value
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         return {
             'style': self.style,
             'copy_button': self.copy_button,
@@ -133,7 +153,7 @@ class NumericAttr(ObjectAttribute):
         self.unit_accessor = unit_accessor
         self.copy_button = copy_button
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         unit = resolve_attr_path(obj, self.unit_accessor) if self.unit_accessor else None
         return {
             'unit': unit,
@@ -145,22 +165,40 @@ class ChoiceAttr(ObjectAttribute):
     """
     A selection from a set of choices.
 
-    The class calls get_FOO_display() on the object to retrieve the human-friendly choice label. If a get_FOO_color()
-    method exists on the object, it will be used to render a background color for the attribute value.
+    The class calls get_FOO_display() on the terminal object resolved by the accessor
+    to retrieve the human-friendly choice label. For example, accessor="interface.type"
+    will call interface.get_type_display().
+    If a get_FOO_color() method exists on that object, it will be used to render a
+    background color for the attribute value.
     """
     template_name = 'ui/attrs/choice.html'
 
-    def get_value(self, obj):
-        try:
-            return getattr(obj, f'get_{self.accessor}_display')()
-        except AttributeError:
-            return resolve_attr_path(obj, self.accessor)
+    def _resolve_target(self, obj):
+        if not self.accessor or '.' not in self.accessor:
+            return obj, self.accessor
 
-    def get_context(self, obj, context):
-        try:
-            bg_color = getattr(obj, f'get_{self.accessor}_color')()
-        except AttributeError:
-            bg_color = None
+        object_accessor, field_name = self.accessor.rsplit('.', 1)
+        return resolve_attr_path(obj, object_accessor), field_name
+
+    def get_value(self, obj):
+        target, field_name = self._resolve_target(obj)
+        if target is None:
+            return None
+
+        display = getattr(target, f'get_{field_name}_display', None)
+        if callable(display):
+            return display()
+
+        return resolve_attr_path(target, field_name)
+
+    def get_context(self, obj, attr, value, context):
+        target, field_name = self._resolve_target(obj)
+        if target is None:
+            return {'bg_color': None}
+
+        get_color = getattr(target, f'get_{field_name}_color', None)
+        bg_color = get_color() if callable(get_color) else None
+
         return {
             'bg_color': bg_color,
         }
@@ -222,7 +260,7 @@ class ImageAttr(ObjectAttribute):
             decoding = 'async'
         self.decoding = decoding
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         return {
             'decoding': self.decoding,
             'load_lazy': self.load_lazy,
@@ -245,13 +283,89 @@ class RelatedObjectAttr(ObjectAttribute):
         self.linkify = linkify
         self.grouped_by = grouped_by
 
-    def get_context(self, obj, context):
-        value = self.get_value(obj)
+    def get_context(self, obj, attr, value, context):
         group = getattr(value, self.grouped_by, None) if self.grouped_by else None
         return {
             'linkify': self.linkify,
             'group': group,
         }
+
+
+class RelatedObjectListAttr(RelatedObjectAttr):
+    """
+    An attribute representing a list of related objects.
+
+    The accessor may resolve to a related manager or queryset.
+
+    Parameters:
+        max_items (int): Maximum number of items to display
+        overflow_indicator (str | None): Marker rendered as a final list item when
+            additional objects exist beyond `max_items`; set to None to suppress it
+    """
+
+    template_name = 'ui/attrs/object_list.html'
+
+    def __init__(self, *args, max_items=None, overflow_indicator='…', **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if max_items is not None and (type(max_items) is not int or max_items < 1):
+            raise ValueError(
+                _('Invalid max_items value: {max_items}! Must be a positive integer or None.').format(
+                    max_items=max_items
+                )
+            )
+
+        self.max_items = max_items
+        self.overflow_indicator = overflow_indicator
+
+    def _get_items(self, items):
+        """
+        Retrieve items from the given object using the accessor path.
+
+        Returns a tuple of (items, has_more) where items is a list of resolved objects
+        and has_more indicates whether additional items exist beyond the max_items limit.
+        """
+        if items is None:
+            return [], False
+
+        if hasattr(items, 'all'):
+            items = items.all()
+
+        if self.max_items is None:
+            return list(items), False
+
+        items = list(items[:self.max_items + 1])
+        has_more = len(items) > self.max_items
+
+        return items[:self.max_items], has_more
+
+    def get_context(self, obj, attr, value, context):
+        items, has_more = self._get_items(value)
+
+        return {
+            'linkify': self.linkify,
+            'items': [
+                {
+                    'value': item,
+                    'group': getattr(item, self.grouped_by, None) if self.grouped_by else None,
+                }
+                for item in items
+            ],
+            'overflow_indicator': self.overflow_indicator if has_more else None,
+        }
+
+    def render(self, obj, context):
+        name = context['name']
+        value = self.get_value(obj)
+        context_data = self.get_context(obj, name, value, context)
+
+        if not context_data['items']:
+            return self.placeholder
+
+        return render_to_string(self.template_name, {
+            'name': name,
+            **context_data,
+        })
 
 
 class NestedObjectAttr(ObjectAttribute):
@@ -270,11 +384,12 @@ class NestedObjectAttr(ObjectAttribute):
         self.linkify = linkify
         self.max_depth = max_depth
 
-    def get_context(self, obj, context):
-        value = self.get_value(obj)
-        nodes = value.get_ancestors(include_self=True)
-        if self.max_depth:
-            nodes = list(nodes)[-self.max_depth:]
+    def get_context(self, obj, attr, value, context):
+        nodes = []
+        if value is not None:
+            nodes = value.get_ancestors(include_self=True)
+            if self.max_depth:
+                nodes = list(nodes)[-self.max_depth:]
         return {
             'nodes': nodes,
             'linkify': self.linkify,
@@ -298,40 +413,35 @@ class GenericForeignKeyAttr(ObjectAttribute):
         super().__init__(*args, **kwargs)
         self.linkify = linkify
 
-    def get_context(self, obj, context):
-        value = self.get_value(obj)
-        content_type = value._meta.verbose_name
+    def get_context(self, obj, attr, value, context):
+        content_type = value._meta.verbose_name if value is not None else None
         return {
             'content_type': content_type,
             'linkify': self.linkify,
         }
 
 
-class AddressAttr(ObjectAttribute):
+class AddressAttr(MapURLMixin, ObjectAttribute):
     """
     A physical or mailing address.
 
     Parameters:
-         map_url (bool): If true, the address will render as a hyperlink using settings.MAPS_URL
+         map_url (bool/str): The URL to use when rendering the address. If True, the address will render as a
+            hyperlink using settings.MAPS_URL.
     """
     template_name = 'ui/attrs/address.html'
 
     def __init__(self, *args, map_url=True, **kwargs):
         super().__init__(*args, **kwargs)
-        if map_url is True:
-            self.map_url = get_config().MAPS_URL
-        elif map_url:
-            self.map_url = map_url
-        else:
-            self.map_url = None
+        self._map_url = map_url
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         return {
             'map_url': self.map_url,
         }
 
 
-class GPSCoordinatesAttr(ObjectAttribute):
+class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
     """
     A GPS coordinates pair comprising latitude and longitude values.
 
@@ -344,24 +454,18 @@ class GPSCoordinatesAttr(ObjectAttribute):
     label = _('GPS coordinates')
 
     def __init__(self, latitude_attr='latitude', longitude_attr='longitude', map_url=True, **kwargs):
-        super().__init__(accessor=None, **kwargs)
+        super().__init__(accessor=latitude_attr, **kwargs)
         self.latitude_attr = latitude_attr
         self.longitude_attr = longitude_attr
-        if map_url is True:
-            self.map_url = get_config().MAPS_URL
-        elif map_url:
-            self.map_url = map_url
-        else:
-            self.map_url = None
+        self._map_url = map_url
 
-    def render(self, obj, context=None):
-        context = context or {}
+    def render(self, obj, context):
         latitude = resolve_attr_path(obj, self.latitude_attr)
         longitude = resolve_attr_path(obj, self.longitude_attr)
         if latitude is None or longitude is None:
             return self.placeholder
         return render_to_string(self.template_name, {
-            **context,
+            'name': context['name'],
             'latitude': latitude,
             'longitude': longitude,
             'map_url': self.map_url,
@@ -382,7 +486,7 @@ class DateTimeAttr(ObjectAttribute):
         super().__init__(*args, **kwargs)
         self.spec = spec
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         return {
             'spec': self.spec,
         }
@@ -408,8 +512,9 @@ class TemplatedAttr(ObjectAttribute):
         self.template_name = template_name
         self.context = context or {}
 
-    def get_context(self, obj, context):
+    def get_context(self, obj, attr, value, context):
         return {
+            **context,
             **self.context,
             'object': obj,
         }

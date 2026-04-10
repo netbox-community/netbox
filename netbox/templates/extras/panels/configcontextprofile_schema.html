@@ -1,0 +1,6 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers %}
+
+{% block panel_content %}
+  <pre class="card-body rendered-context-data m-0" id="schema">{{ object.schema|json }}</pre>
+{% endblock panel_content %}

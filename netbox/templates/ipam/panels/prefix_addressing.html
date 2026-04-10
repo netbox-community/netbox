@@ -1,0 +1,62 @@
+{% load humanize helpers i18n %}
+<div class="card">
+  <h2 class="card-header">
+    {% trans "Addressing" %}
+    {% if object.prefix.version == 4 %}
+      <div class="card-actions">
+        <a class="btn btn-ghost-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
+          <i class="mdi mdi-information-outline" aria-hidden="true"></i> {% trans "Addressing Details" %}
+        </a>
+      </div>
+    {% endif %}
+  </h2>
+  <table class="table table-hover attr-table">
+    <tr>
+      <th scope="row">{% trans "Utilization" %}</th>
+      <td>
+        {% if object.mark_utilized %}
+          {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
+          <small>({% trans "Marked fully utilized" %})</small>
+        {% else %}
+          {% utilization_graph object.get_utilization %}
+        {% endif %}
+      </td>
+    </tr>
+    {% with child_ip_count=object.get_child_ips.count %}
+      <tr>
+        <th scope="row">{% trans "Child IPs" %}</th>
+        <td>
+          <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">{{ child_ip_count }}</a>
+        </td>
+      </tr>
+    {% endwith %}
+    {% with available_count=object.get_available_ips.size %}
+      <tr>
+        <th scope="row">{% trans "Available IPs" %}</th>
+        <td>
+          {% if available_count > 1000000 %}
+            {{ available_count|intword }}
+          {% else %}
+            {{ available_count|intcomma }}
+          {% endif %}
+        </td>
+      </tr>
+    {% endwith %}
+    <tr>
+      <th scope="row">{% trans "First available IP" %}</th>
+      <td>
+        {% with first_available_ip=object.get_first_available_ip %}
+          {% if first_available_ip %}
+            {% if perms.ipam.add_ipaddress %}
+              <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}">{{ first_available_ip }}</a>
+            {% else %}
+              {{ first_available_ip }}
+            {% endif %}
+          {% else %}
+            {{ ''|placeholder }}
+          {% endif %}
+        {% endwith %}
+      </td>
+    </tr>
+  </table>
+</div>

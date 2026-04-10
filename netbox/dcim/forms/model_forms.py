@@ -23,7 +23,7 @@ from utilities.forms.fields import (
     NumericArrayField,
     SlugField,
 )
-from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
+from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields, TabbedGroups
 from utilities.forms.widgets import (
     APISelect,
     ClearableFileInput,
@@ -144,6 +144,16 @@ class SiteForm(TenancyForm, PrimaryModelForm):
         label=_('ASNs'),
         required=False
     )
+    add_asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('Add ASNs'),
+        required=False
+    )
+    remove_asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('Remove ASNs'),
+        required=False
+    )
     slug = SlugField()
     time_zone = TimeZoneFormField(
         label=_('Time zone'),
@@ -153,7 +163,8 @@ class SiteForm(TenancyForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet(
-            'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
+            'name', 'slug', 'status', 'region', 'group', 'facility', M2MAddRemoveFields('asns'), 'time_zone',
+            'description', 'tags',
             name=_('Site')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
@@ -163,7 +174,7 @@ class SiteForm(TenancyForm, PrimaryModelForm):
     class Meta:
         model = Site
         fields = (
-            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'asns', 'time_zone',
+            'name', 'slug', 'status', 'region', 'group', 'tenant_group', 'tenant', 'facility', 'time_zone',
             'description', 'physical_address', 'shipping_address', 'latitude', 'longitude', 'owner', 'comments', 'tags',
         )
         widgets = {
@@ -178,6 +189,21 @@ class SiteForm(TenancyForm, PrimaryModelForm):
                 }
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and (count := self.instance.asns.count()) >= M2MAddRemoveFields.THRESHOLD:
+            # Add/remove mode for large M2M sets
+            self.fields.pop('asns')
+            self.fields['add_asns'].widget.add_query_param('site_id__n', self.instance.pk)
+            self.fields['remove_asns'].widget.add_query_param('site_id', self.instance.pk)
+            self.fields['remove_asns'].help_text = _("{count} ASNs currently assigned").format(count=count)
+        else:
+            # Simple mode for new objects or small M2M sets
+            self.fields.pop('add_asns')
+            self.fields.pop('remove_asns')
+            if self.instance.pk:
+                self.initial['asns'] = list(self.instance.asns.values_list('pk', flat=True))
 
 
 class LocationForm(TenancyForm, NestedGroupModelForm):

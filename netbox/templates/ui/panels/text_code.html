@@ -1,0 +1,15 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <div class="card-body">
+    {% if value %}
+      <pre>{{ value }}</pre>
+    {% else %}
+      {% if show_sync_warning %}
+        {% include 'inc/sync_warning.html' %}
+      {% endif %}
+      <span class="text-muted">{% trans "None" %}</span>
+    {% endif %}
+  </div>
+{% endblock panel_content %}

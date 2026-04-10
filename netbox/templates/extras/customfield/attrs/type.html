@@ -1,0 +1,1 @@
+{% load helpers %}{{ object.get_type_display }}{% if object.related_object_type %} ({{ object.related_object_type.model|bettertitle }}){% endif %}

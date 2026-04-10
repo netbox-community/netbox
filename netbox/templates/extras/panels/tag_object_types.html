@@ -1,0 +1,16 @@
+{% extends "ui/panels/_base.html" %}
+{% load i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    {% for ct in object.object_types.all %}
+      <tr>
+        <td>{{ ct }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td class="text-muted">{% trans "Any" %}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock panel_content %}

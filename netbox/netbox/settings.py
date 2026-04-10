@@ -587,6 +587,10 @@ SERIALIZATION_MODULES = {
     'json': 'utilities.serializers.json',
 }
 
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'utilities.debug.show_toolbar',
+}
+
 
 #
 # Permissions & authentication

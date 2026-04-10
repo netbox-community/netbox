@@ -1,0 +1,1 @@
+{% if object.user and object.user.get_full_name %}{{ object.user.get_full_name }} ({{ value }}){% else %}{{ value }}{% endif %}

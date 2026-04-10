@@ -53,6 +53,7 @@ class WirelessLANGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 model='wireless.WirelessLANGroup',
                 title=_('Child Groups'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject(
                         'wireless.WirelessLANGroup',

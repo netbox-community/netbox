@@ -37,6 +37,9 @@ class ConfigRevision(models.Model):
 
     class Meta:
         ordering = ['-created']
+        indexes = (
+            models.Index(fields=('-created',)),  # Default ordering
+        )
         verbose_name = _('config revision')
         verbose_name_plural = _('config revisions')
         constraints = [

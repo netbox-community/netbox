@@ -117,6 +117,9 @@ class Token(models.Model):
 
     class Meta:
         ordering = ('-created',)
+        indexes = (
+            models.Index(fields=('-created',)),  # Default ordering
+        )
         verbose_name = _('token')
         verbose_name_plural = _('tokens')
         constraints = [

@@ -5,7 +5,8 @@ from django.test import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
@@ -544,6 +545,37 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             )
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_prefixes_with_changelog_message(self):
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        changelog_message = 'Bulk-created prefixes'
+        prefixes = [IPNetwork(f'198.18.{i}.0/24') for i in range(3)]
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': '198.18.[0-2].0/24',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+            'changelog_message': changelog_message,
+        }
+
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+
+        created_prefixes = list(Prefix.objects.filter(prefix__in=prefixes))
+        self.assertEqual(len(created_prefixes), len(prefixes))
+
+        objectchanges = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+            changed_object_type=ContentType.objects.get_for_model(Prefix),
+            changed_object_id__in=[obj.pk for obj in created_prefixes],
+        )
+        self.assertEqual(objectchanges.count(), len(prefixes))
+        for objectchange in objectchanges:
+            self.assertEqual(objectchange.message, changelog_message)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_prefixes(self):
         prefixes = (
             Prefix(prefix=IPNetwork('192.168.0.0/16')),
@@ -907,6 +939,39 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dns_name': 'example',
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipaddresses_with_changelog_message(self):
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(IPAddress))
+
+        vrf = VRF.objects.get(name='VRF 1')
+        changelog_message = 'Bulk-created IP addresses'
+        addresses = [IPNetwork(f'198.51.100.{i}/24') for i in range(10, 13)]
+        url = reverse('ipam:ipaddress_bulk_add')
+        data = {
+            'pattern': '198.51.100.[10-12]/24',
+            'vrf': vrf.pk,
+            'status': IPAddressStatusChoices.STATUS_ACTIVE,
+            'changelog_message': changelog_message,
+        }
+
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+
+        created_addresses = list(IPAddress.objects.filter(address__in=addresses, vrf=vrf))
+        self.assertEqual(len(created_addresses), len(addresses))
+
+        objectchanges = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+            changed_object_type=ContentType.objects.get_for_model(IPAddress),
+            changed_object_id__in=[obj.pk for obj in created_addresses],
+        )
+        self.assertEqual(objectchanges.count(), len(addresses))
+        for objectchange in objectchanges:
+            self.assertEqual(objectchange.message, changelog_message)
 
 
 class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):

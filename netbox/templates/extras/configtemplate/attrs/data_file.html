@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if object.data_file %}
+  <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
+{% else %}
+  <div class="float-end text-warning">
+    <i class="mdi mdi-alert" title="{% trans "The data file associated with this object has been deleted" %}."></i>
+  </div>
+  {{ value }}
+{% endif %}

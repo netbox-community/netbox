@@ -118,3 +118,7 @@ For numeric custom fields only. The maximum valid value (optional).
 ### Validation Regex
 
 For string-based custom fields only. A regular expression used to validate the field's value (optional).
+
+### Validation Schema
+
+For JSON custom fields, users have the option of defining a [validation schema](https://json-schema.org). Any value applied to this custom field on a model will be validated against the provided schema, if any.

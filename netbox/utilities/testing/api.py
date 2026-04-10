@@ -286,7 +286,7 @@ class APIViewTestCases:
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
                 for field in self.create_data[i]:
-                    if field == 'changelog_message':
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
                         # Write-only field
                         continue
                     if field not in self.validation_excluded_fields:
@@ -444,7 +444,7 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             for i, obj in enumerate(response.data):
                 for field in self.bulk_update_data:
-                    if field == 'changelog_data':
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
                         # Write-only field
                         continue
                     self.assertIn(field, obj, f"Bulk update field '{field}' missing from object {i} in response")

@@ -1,0 +1,2 @@
+{% load helpers %}
+{% if object.changed_object and object.changed_object.get_absolute_url %}{{ object.changed_object|linkify }}{% else %}{{ value }}{% endif %}

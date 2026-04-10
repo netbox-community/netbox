@@ -110,6 +110,9 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     class Meta:
         ordering = ('prefix', 'pk')  # prefix may be non-unique
+        indexes = (
+            models.Index(fields=('prefix', 'id')),  # Default ordering
+        )
         verbose_name = _('aggregate')
         verbose_name_plural = _('aggregates')
 
@@ -159,9 +162,11 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     @property
     def family(self):
-        if self.prefix:
-            return self.prefix.version
-        return None
+        if not self.prefix:
+            return None
+        if isinstance(self.prefix, str):
+            return netaddr.IPNetwork(self.prefix).version
+        return self.prefix.version
 
     @property
     def ipv6_full(self):
@@ -198,6 +203,9 @@ class Role(OrganizationalModel):
 
     class Meta:
         ordering = ('weight', 'name')
+        indexes = (
+            models.Index(fields=('weight', 'name')),  # Default ordering
+        )
         verbose_name = _('role')
         verbose_name_plural = _('roles')
 
@@ -335,11 +343,19 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
     @property
     def family(self):
-        return self.prefix.version if self.prefix else None
+        if not self.prefix:
+            return None
+        if isinstance(self.prefix, str):
+            return netaddr.IPNetwork(self.prefix).version
+        return self.prefix.version
 
     @property
     def mask_length(self):
-        return self.prefix.prefixlen if self.prefix else None
+        if not self.prefix:
+            return None
+        if isinstance(self.prefix, str):
+            return netaddr.IPNetwork(self.prefix).prefixlen
+        return self.prefix.prefixlen
 
     @property
     def ipv6_full(self):
@@ -366,6 +382,16 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
     def get_status_color(self):
         return PrefixStatusChoices.colors.get(self.status)
+
+    @cached_property
+    def aggregate(self):
+        """
+        Return the containing Aggregate for this Prefix, if any.
+        """
+        try:
+            return Aggregate.objects.get(prefix__net_contains_or_equals=str(self.prefix))
+        except Aggregate.DoesNotExist:
+            return None
 
     def get_parents(self, include_self=False):
         """
@@ -632,7 +658,11 @@ class IPRange(ContactsMixin, PrimaryModel):
 
     @property
     def family(self):
-        return self.start_address.version if self.start_address else None
+        if not self.start_address:
+            return None
+        if isinstance(self.start_address, str):
+            return netaddr.IPAddress(self.start_address.split('/')[0]).version
+        return self.start_address.version
 
     @property
     def range(self):
@@ -809,6 +839,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
         indexes = (
+            models.Index(fields=('address', 'id')),  # Default ordering
             models.Index(Cast(Host('address'), output_field=IPAddressField()), name='ipam_ipaddress_host'),
             models.Index(fields=('assigned_object_type', 'assigned_object_id')),
         )
@@ -980,9 +1011,11 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
     @property
     def family(self):
-        if self.address:
-            return self.address.version
-        return None
+        if not self.address:
+            return None
+        if isinstance(self.address, str):
+            return netaddr.IPNetwork(self.address).version
+        return self.address.version
 
     @property
     def is_oob_ip(self):

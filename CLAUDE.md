@@ -54,7 +54,8 @@ python manage.py nbshell   # NetBox-enhanced shell
 
 ## Architecture Conventions
 - **Apps**: Each Django app owns its models, views, API serializers, filtersets, forms, and tests.
-- **REST API**: DRF serializers live in `<app>/api/serializers.py`; viewsets in `<app>/api/views.py`; URLs auto-registered in `<app>/api/urls.py`.
+- **Views**: Use `register_model_view()` to register model views by action (e.g. "add", "list", etc.). List views typically don't need to add `select_related()` or `prefetch_related()` on their querysets: Prefetching is handled dynamically by the table class so that only relevant fields are prefetched.
+- **REST API**: DRF serializers live in `<app>/api/serializers.py`; viewsets in `<app>/api/views.py`; URLs auto-registered in `<app>/api/urls.py`. REST API views typically don't need to add `select_related()` or `prefetch_related()` on their querysets: Prefetching is handled dynamically by the serializer so that only relevant fields are prefetched.
 - **GraphQL**: Strawberry types in `<app>/graphql/types.py`.
 - **Filtersets**: `<app>/filtersets.py` — used for both UI filtering and API `?filter=` params.
 - **Tables**: `django-tables2` used for all object list views (`<app>/tables.py`).
@@ -68,6 +69,8 @@ python manage.py nbshell   # NetBox-enhanced shell
 - API serializers must include a `url` field (absolute URL of the object).
 - Use `FeatureQuery` for generic relations (config contexts, custom fields, tags, etc.).
 - Avoid adding new dependencies without strong justification.
+- Avoid running `ruff format` on existing files, as this tends to introduce unnecessary style changes.
+- Don't craft Django database migrations manually: Prompt the user to run `manage.py makemigrations` instead.
 
 ## Branch & PR Conventions
 - Branch naming: `<issue-number>-short-description` (e.g., `1234-device-typerror`)

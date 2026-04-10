@@ -200,7 +200,10 @@ class GroupView(generic.ObjectView):
             OrganizationalObjectPanel(),
         ],
         right_panels=[
-            ObjectsTablePanel('users.User', filters={'group_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel(
+                'users.User',
+                filters={'group_id': lambda ctx: ctx['object'].pk},
+            ),
             ObjectsTablePanel(
                 'users.ObjectPermission',
                 title=_('Assigned Permissions'),
@@ -345,6 +348,7 @@ class OwnerGroupView(generic.ObjectView):
                 'users.Owner',
                 filters={'group_id': lambda ctx: ctx['object'].pk},
                 title=_('Members'),
+                exclude_columns=['group'],
                 actions=[
                     actions.AddObject(
                         'users.Owner',
@@ -412,8 +416,14 @@ class OwnerView(GetRelatedModelsMixin, generic.ObjectView):
     layout = layout.SimpleLayout(
         left_panels=[
             panels.OwnerPanel(),
-            ObjectsTablePanel('users.Group', filters={'owner_id': lambda ctx: ctx['object'].pk}),
-            ObjectsTablePanel('users.User', filters={'owner_id': lambda ctx: ctx['object'].pk}),
+            ObjectsTablePanel(
+                'users.Group',
+                filters={'owner_id': lambda ctx: ctx['object'].pk},
+            ),
+            ObjectsTablePanel(
+                'users.User',
+                filters={'owner_id': lambda ctx: ctx['object'].pk},
+            ),
         ],
         right_panels=[
             RelatedObjectsPanel(),
