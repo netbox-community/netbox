@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0021_job_queue_name'),
+        ('core', '0022_default_ordering_indexes'),
     ]
 
     operations = [
