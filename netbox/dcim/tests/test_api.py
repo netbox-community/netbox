@@ -16,7 +16,13 @@ from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.constants import TOKEN_PREFIX
 from users.models import ObjectPermission, Token, User
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
+from utilities.testing import (
+    APITestCase,
+    APIViewTestCases,
+    create_test_device,
+    create_test_nat_ip_pair,
+    disable_logging,
+)
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
@@ -1901,6 +1907,81 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         token.save()
         response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_list_object_includes_nat_inside_on_primary_ip(self):
+        device = create_test_device('natted-device')
+        interface = Interface.objects.create(device=device, name='eth0', type='other')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.0.10/32',
+            nat_address='198.51.100.10/32',
+            inside_interface=interface,
+        )
+
+        device.primary_ip4 = nat_ip
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(f'{self._get_list_url()}?id={device.pk}', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        result = response.data['results'][0]
+        for field in ('primary_ip', 'primary_ip4'):
+            self.assertEqual(result[field]['address'], str(nat_ip.address))
+            self.assertEqual(result[field]['nat_inside']['address'], str(real_ip.address))
+            self.assertEqual(result[field]['nat_outside'], [])
+
+    def test_get_object_includes_nat_outside_on_primary_ip(self):
+        device = create_test_device('real-ip-device')
+        interface = Interface.objects.create(device=device, name='eth0', type='other')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.0.11/32',
+            nat_address='198.51.100.11/32',
+            inside_interface=interface,
+        )
+
+        device.primary_ip4 = real_ip
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(device)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        for field in ('primary_ip', 'primary_ip4'):
+            self.assertEqual(response.data[field]['address'], str(real_ip.address))
+            self.assertIsNone(response.data[field]['nat_inside'])
+            self.assertCountEqual(
+                [ip['address'] for ip in response.data[field]['nat_outside']],
+                [str(nat_ip.address)],
+            )
+
+    def test_get_object_includes_nat_on_oob_ip(self):
+        device = create_test_device('oob-nat-device')
+        interface = Interface.objects.create(device=device, name='oob0', type='other')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.0.12/32',
+            nat_address='198.51.100.12/32',
+            inside_interface=interface,
+        )
+
+        device.oob_ip = nat_ip
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(device)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['oob_ip']['address'], str(nat_ip.address))
+        self.assertEqual(response.data['oob_ip']['nat_inside']['address'], str(real_ip.address))
+        self.assertEqual(response.data['oob_ip']['nat_outside'], [])
 
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):

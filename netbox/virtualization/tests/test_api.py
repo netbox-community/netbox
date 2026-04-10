@@ -18,6 +18,7 @@ from utilities.testing import (
     APITestCase,
     APIViewTestCases,
     create_test_device,
+    create_test_nat_ip_pair,
     create_test_virtualmachine,
     disable_logging,
 )
@@ -504,6 +505,57 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         token.save()
         response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_list_object_includes_nat_inside_on_primary_ip(self):
+        virtualmachine = create_test_virtualmachine('natted-vm')
+        interface = VMInterface.objects.create(virtual_machine=virtualmachine, name='eth0')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.1.10/32',
+            nat_address='198.51.100.20/32',
+            inside_interface=interface,
+        )
+
+        virtualmachine.primary_ip4 = nat_ip
+        virtualmachine.save()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
+        response = self.client.get(f'{self._get_list_url()}?id={virtualmachine.pk}', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        result = response.data['results'][0]
+        for field in ('primary_ip', 'primary_ip4'):
+            self.assertEqual(result[field]['address'], str(nat_ip.address))
+            self.assertEqual(result[field]['nat_inside']['address'], str(real_ip.address))
+            self.assertEqual(result[field]['nat_outside'], [])
+
+    def test_get_object_includes_nat_outside_on_primary_ip(self):
+        virtualmachine = create_test_virtualmachine('real-ip-vm')
+        interface = VMInterface.objects.create(virtual_machine=virtualmachine, name='eth0')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.1.11/32',
+            nat_address='198.51.100.21/32',
+            inside_interface=interface,
+        )
+
+        virtualmachine.primary_ip4 = real_ip
+        virtualmachine.save()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(virtualmachine)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        for field in ('primary_ip', 'primary_ip4'):
+            self.assertEqual(response.data[field]['address'], str(real_ip.address))
+            self.assertIsNone(response.data[field]['nat_inside'])
+            self.assertCountEqual(
+                [ip['address'] for ip in response.data[field]['nat_outside']],
+                [str(nat_ip.address)],
+            )
 
 
 class VMInterfaceTest(APIViewTestCases.APIViewTestCase):

@@ -58,10 +58,30 @@ class DeviceSerializer(PrimaryModelSerializer):
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
-    primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
-    primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
-    primary_ip6 = IPAddressSerializer(nested=True, required=False, allow_null=True)
-    oob_ip = IPAddressSerializer(nested=True, required=False, allow_null=True)
+    primary_ip = IPAddressSerializer(
+        nested=True,
+        read_only=True,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    primary_ip4 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    primary_ip6 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    oob_ip = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
     parent_device = serializers.SerializerMethodField()
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True)
     virtual_chassis = VirtualChassisSerializer(nested=True, required=False, allow_null=True, default=None)

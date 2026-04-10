@@ -8,8 +8,9 @@ from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
+from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
-from utilities.api import get_view_name
+from utilities.api import get_prefetches_for_serializer, get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -394,3 +395,82 @@ class GetViewNameTestCase(TestCase):
 
         name = get_view_name(view)
         self.assertEqual(name, 'Mock List')
+
+
+class GetPrefetchesForSerializerTestCase(TestCase):
+
+    def test_nested_serializer_honors_explicit_fields(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent')
+                brief_fields = ('id', 'name')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = RegionSerializer(nested=True, fields=('id', 'parent'))
+
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
+
+    def test_nested_serializer_honors_explicit_omit(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent')
+                brief_fields = ('id', 'name')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = RegionSerializer(nested=True, omit=('name',))
+
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
+
+    def test_many_nested_serializer_honors_explicit_fields(self):
+        class SiteSerializer(BaseModelSerializer):
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region')
+                brief_fields = ('id', 'name')
+
+        class RegionSerializer(BaseModelSerializer):
+            sites = SiteSerializer(nested=True, many=True, fields=('id', 'region'))
+
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'sites')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region'],
+        )
+
+    def test_nested_serializer_uses_source_for_prefetch_path(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent')
+                brief_fields = ('id', 'name')
+
+        class SiteSerializer(BaseModelSerializer):
+            region_detail = RegionSerializer(source='region', nested=True, fields=('id', 'parent'))
+
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region_detail')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )

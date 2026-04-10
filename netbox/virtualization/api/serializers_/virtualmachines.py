@@ -1,8 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from dcim.api.serializers_.device_components import MACAddressSerializer
-from dcim.api.serializers_.devices import DeviceSerializer
+from dcim.api.serializers_.devices import DeviceSerializer, MACAddressSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
@@ -58,9 +57,24 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
     role = DeviceRoleSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
     platform = PlatformSerializer(nested=True, required=False, allow_null=True)
-    primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
-    primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
-    primary_ip6 = IPAddressSerializer(nested=True, required=False, allow_null=True)
+    primary_ip = IPAddressSerializer(
+        nested=True,
+        read_only=True,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    primary_ip4 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    primary_ip6 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Counter fields
