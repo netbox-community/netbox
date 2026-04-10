@@ -180,15 +180,15 @@ SECURE_HSTS_PRELOAD = getattr(configuration, 'SECURE_HSTS_PRELOAD', False)
 SECURE_HSTS_SECONDS = getattr(configuration, 'SECURE_HSTS_SECONDS', 0)
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_CONFIG = getattr(configuration, 'SENTRY_CONFIG', {})
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -619,6 +619,11 @@ MAINTENANCE_EXEMPT_PATHS = (
 #
 # Sentry
 #
+
+# Warn on the presence of deprecated Sentry config parameters
+for config_param in ('SENTRY_DSN', 'SENTRY_SAMPLE_RATE', 'SENTRY_SEND_DEFAULT_PII', 'SENTRY_TRACES_SAMPLE_RATE'):
+    if hasattr(configuration, config_param):
+        warnings.warn(f"{config_param} is deprecated and will be removed in NetBox v4.7. Use SENTRY_CONFIG instead.")
 
 if SENTRY_ENABLED:
     try:
