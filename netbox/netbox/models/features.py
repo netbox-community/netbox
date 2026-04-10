@@ -723,10 +723,10 @@ def register_models(*models):
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
-        # TODO: Remove in NetBox v4.5
-        # Register public models
+        # TODO: Remove in NetBox v4.7
+        # Register public models (access the underlying dict directly to avoid triggering the deprecation warning)
         if not getattr(model, '_netbox_private', False):
-            registry['models'][app_label].add(model_name)
+            dict.__getitem__(registry, 'models')[app_label].add(model_name)
 
         # Register applicable feature views for the model
         if issubclass(model, ContactsMixin):
