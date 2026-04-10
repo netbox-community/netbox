@@ -63,6 +63,7 @@ class ObjectPermissionActionsPanel(panels.ObjectPanel):
             **super().get_context(context),
             'crud_actions': crud_actions,
             'registered_actions': obj.get_registered_actions(),
+            'additional_actions': obj.get_additional_actions(),
         }
 
 
