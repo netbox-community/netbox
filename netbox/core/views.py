@@ -701,6 +701,69 @@ class SystemView(UserPassesTestMixin, View):
             if model := ot.model_class():
                 objects[ot] = model.objects.count()
 
+        # Database schema
+        db_schema = []
+        try:
+            with connection.cursor() as cursor:
+                # Fetch all columns for all public tables in one query
+                cursor.execute("""
+                    SELECT table_name, column_name, data_type, is_nullable, column_default
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    ORDER BY table_name, ordinal_position
+                """)
+                columns_by_table = {}
+                for table_name, column_name, data_type, is_nullable, column_default in cursor.fetchall():
+                    columns_by_table.setdefault(table_name, []).append({
+                        'name': column_name,
+                        'type': data_type,
+                        'nullable': is_nullable == 'YES',
+                        'default': column_default,
+                    })
+
+                # Fetch all indexes for all public tables in one query
+                cursor.execute("""
+                    SELECT tablename, indexname, indexdef
+                    FROM pg_indexes
+                    WHERE schemaname = 'public'
+                    ORDER BY tablename, indexname
+                """)
+                indexes_by_table = {}
+                for table_name, index_name, index_def in cursor.fetchall():
+                    indexes_by_table.setdefault(table_name, []).append({
+                        'name': index_name,
+                        'definition': index_def,
+                    })
+
+            for table_name in sorted(columns_by_table.keys()):
+                db_schema.append({
+                    'name': table_name,
+                    'columns': columns_by_table[table_name],
+                    'indexes': indexes_by_table.get(table_name, []),
+                })
+        except ProgrammingError:
+            pass
+
+        # Group tables by app prefix (e.g. "dcim", "ipam")
+        _groups = {}
+        for table in db_schema:
+            prefix = table['name'].split('_')[0] if '_' in table['name'] else 'other'
+            _groups.setdefault(prefix, []).append(table)
+        db_schema_groups = [
+            {
+                'name': name,
+                'tables': tables,
+                'index_count': sum(len(t['indexes']) for t in tables),
+            }
+            for name, tables in sorted(_groups.items())
+        ]
+
+        db_schema_stats = {
+            'total_tables': len(db_schema),
+            'total_columns': sum(len(t['columns']) for t in db_schema),
+            'total_indexes': sum(len(t['indexes']) for t in db_schema),
+        }
+
         # Raw data export
         if 'export' in request.GET:
             stats['netbox_release'] = stats['netbox_release'].asdict()
@@ -714,6 +777,12 @@ class SystemView(UserPassesTestMixin, View):
                 },
                 'objects': {
                     f'{ot.app_label}.{ot.model}': count for ot, count in objects.items()
+                },
+                'db_schema': {
+                    table['name']: {
+                        'columns': table['columns'],
+                        'indexes': table['indexes'],
+                    } for table in db_schema
                 },
             }
             response = HttpResponse(json.dumps(data, cls=ConfigJSONEncoder, indent=4), content_type='text/json')
@@ -731,6 +800,9 @@ class SystemView(UserPassesTestMixin, View):
             'config': config,
             'plugins': plugins,
             'objects': objects,
+            'db_schema': db_schema,
+            'db_schema_groups': db_schema_groups,
+            'db_schema_stats': db_schema_stats,
         })
 
 

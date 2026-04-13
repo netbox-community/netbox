@@ -3,6 +3,7 @@
 {% load helpers %}
 {% load i18n %}
 {% load render_table from django_tables2 %}
+{% load humanize %}
 
 {% block title %}{% trans "System" %}{% endblock %}
 
@@ -32,6 +33,11 @@
     <li class="nav-item" role="presentation">
       <a class="nav-link" id="objects-tab" data-bs-toggle="tab" data-bs-target="#objects-panel" type="button" role="tab">
         {% trans "Object Counts" %}
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="database-tab" data-bs-toggle="tab" data-bs-target="#database-panel" type="button" role="tab">
+        {% trans "Database" %}
       </a>
     </li>
   </ul>
@@ -172,5 +178,136 @@
         </div>
       </div>
     </div>
+  </div>
+  {# Database panel #}
+  <div class="tab-pane" id="database-panel" role="tabpanel" aria-labelledby="database-tab">
+    {% if db_schema %}
+      {# Summary boxes #}
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <div class="display-6 fw-bold">{{ db_schema_stats.total_tables|intcomma }}</div>
+              <div class="text-muted">{% trans "Tables" %}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <div class="display-6 fw-bold">{{ db_schema_stats.total_columns|intcomma }}</div>
+              <div class="text-muted">{% trans "Columns" %}</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <div class="display-6 fw-bold">{{ db_schema_stats.total_indexes|intcomma }}</div>
+              <div class="text-muted">{% trans "Indexes" %}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {# Tables grouped by app prefix #}
+      <style>
+        .db-group-chevron, .db-table-chevron { transition: transform 0.2s; }
+        [aria-expanded="true"] .db-group-chevron,
+        [aria-expanded="true"] .db-table-chevron { transform: rotate(90deg); }
+      </style>
+      {% for group in db_schema_groups %}
+        <div class="card mb-3">
+          <h2 class="card-header d-flex align-items-center gap-2" role="button" tabindex="0"
+              style="cursor: pointer; user-select: none;"
+              data-bs-toggle="collapse" data-bs-target="#db-group-body-{{ group.name }}"
+              aria-expanded="false" aria-controls="db-group-body-{{ group.name }}">
+            <i class="mdi mdi-chevron-right db-group-chevron"></i>
+            {{ group.name }}
+            <span class="badge bg-secondary text-white ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
+            <span class="badge bg-secondary text-white ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
+          </h2>
+          <div id="db-group-body-{{ group.name }}" class="collapse">
+            <div class="accordion accordion-flush" id="db-group-{{ group.name }}">
+              {% for table in group.tables %}
+                <div class="accordion-item">
+                  <h3 class="accordion-header" id="table-heading-{{ group.name }}-{{ forloop.counter }}">
+                    <button class="accordion-button collapsed font-monospace" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#table-collapse-{{ group.name }}-{{ forloop.counter }}"
+                            aria-expanded="false" aria-controls="table-collapse-{{ group.name }}-{{ forloop.counter }}">
+                      <i class="mdi mdi-chevron-right db-table-chevron me-2"></i>{{ table.name }}
+                      <span class="badge bg-secondary text-white ms-2">{{ table.columns|length }} {% trans "columns" %}</span>
+                      {% if table.indexes %}
+                        <span class="badge bg-secondary text-white ms-1">{{ table.indexes|length }} {% trans "indexes" %}</span>
+                      {% endif %}
+                    </button>
+                  </h3>
+                  <div id="table-collapse-{{ group.name }}-{{ forloop.counter }}" class="accordion-collapse collapse"
+                       aria-labelledby="table-heading-{{ group.name }}-{{ forloop.counter }}">
+                    <div class="accordion-body p-0">
+                      <div class="px-3 py-2">
+                        <strong>{% trans "Columns" %}</strong>
+                        <table class="table table-hover table-sm mb-0 mt-1">
+                          <thead>
+                            <tr>
+                              <th>{% trans "Column" %}</th>
+                              <th>{% trans "Type" %}</th>
+                              <th>{% trans "Nullable" %}</th>
+                              <th>{% trans "Default" %}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for column in table.columns %}
+                              <tr>
+                                <td class="font-monospace">{{ column.name }}</td>
+                                <td class="font-monospace text-muted">{{ column.type }}</td>
+                                <td>
+                                  {% if column.nullable %}
+                                    <span class="text-success">{% trans "yes" %}</span>
+                                  {% else %}
+                                    <span class="text-muted">{% trans "no" %}</span>
+                                  {% endif %}
+                                </td>
+                                <td class="font-monospace text-muted">{{ column.default|default:"" }}</td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                      {% if table.indexes %}
+                        <div class="px-3 py-2 border-top">
+                          <strong>{% trans "Indexes" %}</strong>
+                          <table class="table table-hover table-sm mb-0 mt-1">
+                            <thead>
+                              <tr>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Definition" %}</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for index in table.indexes %}
+                                <tr>
+                                  <td class="font-monospace">{{ index.name }}</td>
+                                  <td class="font-monospace text-muted">{{ index.definition }}</td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="card mb-3">
+        <div class="card-body text-muted">
+          {% trans "Schema information unavailable." %}
+        </div>
+      </div>
+    {% endif %}
   </div>
 {% endblock content %}
