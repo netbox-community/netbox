@@ -663,9 +663,7 @@ class SystemView(UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_superuser
 
-    def get(self, request):
-
-        # System status
+    def _get_stats(self):
         psql_version = db_name = db_size = None
         try:
             with connection.cursor() as cursor:
@@ -678,7 +676,7 @@ class SystemView(UserPassesTestMixin, View):
                 db_size = cursor.fetchone()[0]
         except (ProgrammingError, IndexError):
             pass
-        stats = {
+        return {
             'netbox_release': settings.RELEASE,
             'django_version': django_version,
             'python_version': platform.python_version(),
@@ -688,26 +686,17 @@ class SystemView(UserPassesTestMixin, View):
             'rq_worker_count': Worker.count(get_connection('default')),
         }
 
-        # Django apps
-        django_apps = get_installed_apps()
-
-        # Configuration
-        config = get_config()
-
-        # Plugins
-        plugins = get_installed_plugins()
-
-        # Object counts
+    def _get_object_counts(self):
         objects = {}
         for ot in ObjectType.objects.public().order_by('app_label', 'model'):
             if model := ot.model_class():
                 objects[ot] = model.objects.count()
+        return objects
 
-        # Database schema
+    def _get_db_schema(self):
         db_schema = []
         try:
             with connection.cursor() as cursor:
-                # Fetch all columns for all public tables in one query
                 cursor.execute("""
                     SELECT table_name, column_name, data_type, is_nullable, column_default
                     FROM information_schema.columns
@@ -723,7 +712,6 @@ class SystemView(UserPassesTestMixin, View):
                         'default': column_default,
                     })
 
-                # Fetch all indexes for all public tables in one query
                 cursor.execute("""
                     SELECT tablename, indexname, indexdef
                     FROM pg_indexes
@@ -745,22 +733,20 @@ class SystemView(UserPassesTestMixin, View):
                 })
         except ProgrammingError:
             pass
+        return db_schema
 
-        # Collect plugin app labels so their tables can be separated
+    def _get_db_schema_groups(self, db_schema):
         plugin_app_labels = {
             app_config.label
             for app_config in django_apps_registry.get_app_configs()
             if isinstance(app_config, PluginConfig)
         }
-
-        # Group tables by app prefix (e.g. "dcim", "ipam"), plugins last.
-        # Sort plugin labels longest-first so a label like "netbox_branching" is
-        # matched before a shorter label that shares the same prefix.
-        _sorted_plugin_labels = sorted(plugin_app_labels, key=len, reverse=True)
-        _groups = {}
+        # Sort longest-first so "netbox_branching" matches before "netbox"
+        sorted_plugin_labels = sorted(plugin_app_labels, key=len, reverse=True)
+        groups = {}
         for table in db_schema:
             matched_plugin = next(
-                (label for label in _sorted_plugin_labels if table['name'].startswith(label + '_')),
+                (label for label in sorted_plugin_labels if table['name'].startswith(label + '_')),
                 None,
             )
             if matched_plugin:
@@ -769,8 +755,8 @@ class SystemView(UserPassesTestMixin, View):
                 prefix = table['name'].split('_')[0]
             else:
                 prefix = 'other'
-            _groups.setdefault(prefix, []).append(table)
-        db_schema_groups = sorted(
+            groups.setdefault(prefix, []).append(table)
+        return sorted(
             [
                 {
                     'name': name,
@@ -778,11 +764,19 @@ class SystemView(UserPassesTestMixin, View):
                     'index_count': sum(len(t['indexes']) for t in tables),
                     'is_plugin': name in plugin_app_labels,
                 }
-                for name, tables in _groups.items()
+                for name, tables in groups.items()
             ],
             key=lambda g: (g['is_plugin'], g['name']),
         )
 
+    def get(self, request):
+        stats = self._get_stats()
+        django_apps = get_installed_apps()
+        config = get_config()
+        plugins = get_installed_plugins()
+        objects = self._get_object_counts()
+        db_schema = self._get_db_schema()
+        db_schema_groups = self._get_db_schema_groups(db_schema)
         db_schema_stats = {
             'total_tables': len(db_schema),
             'total_columns': sum(len(t['columns']) for t in db_schema),
