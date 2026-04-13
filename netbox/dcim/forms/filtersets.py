@@ -1041,7 +1041,10 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, PrimaryM
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'device_id', name=_('Location')),
-        FieldSet('profile_id', 'manufacturer_id', 'module_type_id', 'status', 'serial', 'asset_tag', name=_('Hardware')),
+        FieldSet(
+            'profile_id', 'manufacturer_id', 'module_type_id', 'status', 'serial', 'asset_tag',
+            name=_('Hardware')
+        ),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id', 'profile_id')

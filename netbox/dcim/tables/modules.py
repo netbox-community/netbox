@@ -112,7 +112,8 @@ class ModuleTable(PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Module
         fields = (
-            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'profile', 'module_type', 'status', 'serial', 'asset_tag',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'profile', 'module_type', 'status',
+            'serial', 'asset_tag',
             'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
