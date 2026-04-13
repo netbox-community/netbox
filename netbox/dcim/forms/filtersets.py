@@ -1040,9 +1040,10 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, PrimaryM
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'device_id', name=_('Location')),
-        FieldSet('manufacturer_id', 'module_type_id', 'status', 'serial', 'asset_tag', name=_('Hardware')),
+        FieldSet('profile_id', 'manufacturer_id', 'module_type_id', 'status', 'serial', 'asset_tag', name=_('Hardware')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
+    selector_fields = ('filter_id', 'q', 'manufacturer_id', 'profile_id')
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
@@ -1095,10 +1096,16 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, PrimaryM
         required=False,
         label=_('Manufacturer')
     )
+    profile_id = DynamicModelMultipleChoiceField(
+        queryset=ModuleTypeProfile.objects.all(),
+        required=False,
+        label=_('Profile')
+    )
     module_type_id = DynamicModelMultipleChoiceField(
         queryset=ModuleType.objects.all(),
         required=False,
         query_params={
+            'profile_id': '$profile_id',
             'manufacturer_id': '$manufacturer_id'
         },
         label=_('Type')

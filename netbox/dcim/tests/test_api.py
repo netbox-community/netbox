@@ -1645,12 +1645,17 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        profiles = (
+            ModuleTypeProfile(name='CPU'),
+            ModuleTypeProfile(name='Hard disk'),
+        )
+        ModuleTypeProfile.objects.bulk_create(profiles)
         device = create_test_device('Test Device 1')
 
         module_types = (
-            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
-            ModuleType(manufacturer=manufacturer, model='Module Type 2'),
-            ModuleType(manufacturer=manufacturer, model='Module Type 3'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 1', profile=profiles[0]),
+            ModuleType(manufacturer=manufacturer, model='Module Type 2', profile=profiles[0]),
+            ModuleType(manufacturer=manufacturer, model='Module Type 3', profile=profiles[1]),
         )
         ModuleType.objects.bulk_create(module_types)
 
@@ -1698,6 +1703,26 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
                 'asset_tag': 'Foo3',
             },
         ]
+
+    def test_list_objects_by_profile_id(self):
+        profiles = ModuleTypeProfile.objects.all()
+        response = self.client.get(self._get_list_url(), {'profile_id': [profiles[0].pk]}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+
+        response = self.client.get(self._get_list_url(), {'profile_id': [profiles[1].pk]}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+
+    def test_list_objects_by_profile(self):
+        profiles = ModuleTypeProfile.objects.all()
+        response = self.client.get(self._get_list_url(), {'profile': [profiles[0].name]}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 2)
+
+        response = self.client.get(self._get_list_url(), {'profile': [profiles[1].name]}, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
 
 
 class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):

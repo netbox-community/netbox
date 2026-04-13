@@ -1537,6 +1537,19 @@ class VirtualDeviceContextFilterSet(PrimaryModelFilterSet, TenancyFilterSet, Pri
 
 @register_filterset
 class ModuleFilterSet(PrimaryModelFilterSet):
+    profile_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__profile',
+        queryset=ModuleTypeProfile.objects.all(),
+        distinct=False,
+        label=_('Profile (ID)'),
+    )
+    profile = django_filters.ModelMultipleChoiceFilter(
+        field_name='module_type__profile__name',
+        queryset=ModuleTypeProfile.objects.all(),
+        distinct=False,
+        to_field_name='name',
+        label=_('Profile (name)'),
+    )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='module_type__manufacturer',
         queryset=Manufacturer.objects.all(),
