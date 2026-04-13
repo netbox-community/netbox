@@ -32,6 +32,9 @@ Core model features are listed in the [features matrix](./models.md#features-mat
 
 ### `models`
 
+!!! warning "Deprecated"
+    Usage of this key has been deprecated and will be removed in NetBox v4.7. Use `ObjectType.objects.public()` to find registered models.
+
 This key lists all models which have been registered in NetBox which are not designated for private use. (Setting `_netbox_private` to True on a model excludes it from this list.) As with individual features under `model_features`, models are organized by app label.
 
 ### `plugins`
