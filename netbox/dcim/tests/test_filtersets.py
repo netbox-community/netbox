@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -3086,8 +3087,8 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Manufacturer.objects.bulk_create(manufacturers)
         module_type_profiles = (
-            ModuleTypeProfile(name='CPU'),
-            ModuleTypeProfile(name='Hard disk'),
+            ModuleTypeProfile(name='Test CPU'),
+            ModuleTypeProfile(name='Test Hard disk'),
         )
         ModuleTypeProfile.objects.bulk_create(module_type_profiles)
 
@@ -3154,8 +3155,8 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         module_types = (
             ModuleType(manufacturer=manufacturers[0], model='Module Type 1', profile=module_type_profiles[0]),
-            ModuleType(manufacturer=manufacturers[1], model='Module Type 2', profile=module_type_profiles[0]),
-            ModuleType(manufacturer=manufacturers[2], model='Module Type 3', profile=module_type_profiles[1]),
+            ModuleType(manufacturer=manufacturers[1], model='Module Type 2', profile=module_type_profiles[1]),
+            ModuleType(manufacturer=manufacturers[2], model='Module Type 3'),
         )
         ModuleType.objects.bulk_create(module_types)
 
@@ -3273,12 +3274,14 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_profile(self):
         profiles = ModuleTypeProfile.objects.all()
         params = {'profile_id': [profiles[0].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'profile': [profiles[0].name]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'profile_id': [profiles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'profile': [profiles[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'profile_id': [settings.FILTERS_NULL_CHOICE_VALUE]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_description(self):
