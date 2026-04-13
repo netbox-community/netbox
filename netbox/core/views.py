@@ -3,6 +3,7 @@ import platform
 from copy import deepcopy
 
 from django import __version__ as django_version
+from django.apps import apps as django_apps_registry
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -26,7 +27,6 @@ from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, r
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.config import PARAMS, get_config
 from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObject
-from django.apps import apps as django_apps_registry
 from netbox.plugins import PluginConfig
 from netbox.plugins.utils import get_installed_plugins
 from netbox.ui import layout
