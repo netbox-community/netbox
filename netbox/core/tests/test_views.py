@@ -373,6 +373,7 @@ class SystemTestCase(TestCase):
         self.assertIn('plugins', data)
         self.assertIn('config', data)
         self.assertIn('objects', data)
+        self.assertIn('db_schema', data)
 
     def test_system_view_with_config_revision(self):
         ConfigRevision.objects.create()

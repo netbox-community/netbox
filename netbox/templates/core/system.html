@@ -210,22 +210,18 @@
         </div>
       </div>
       {# Tables grouped by app prefix #}
-      <style>
-        .db-group-chevron, .db-table-chevron { transition: transform 0.2s; }
-        [aria-expanded="true"] .db-group-chevron,
-        [aria-expanded="true"] .db-table-chevron { transform: rotate(90deg); }
-      </style>
       {% for group in db_schema_groups %}
         <div class="card mb-3">
-          <h2 class="card-header d-flex align-items-center gap-2" role="button" tabindex="0"
-              style="cursor: pointer; user-select: none;"
-              data-bs-toggle="collapse" data-bs-target="#db-group-body-{{ group.name }}"
-              aria-expanded="false" aria-controls="db-group-body-{{ group.name }}">
-            <i class="mdi mdi-chevron-right db-group-chevron"></i>
-            {{ group.name }}
-            {% if group.is_plugin %}<span class="badge bg-purple text-white ms-1">{% trans "plugin" %}</span>{% endif %}
-            <span class="badge bg-secondary text-white ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
-            <span class="badge bg-secondary text-white ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
+          <h2 class="card-header">
+            <button class="accordion-button collapsed p-0 w-100" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#db-group-body-{{ group.name }}"
+                    aria-expanded="false" aria-controls="db-group-body-{{ group.name }}">
+              {{ group.name }}
+              {% if group.is_plugin %}<span class="badge bg-purple text-white ms-1">{% trans "plugin" %}</span>{% endif %}
+              <span class="badge bg-secondary text-white ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
+              <span class="badge bg-secondary text-white ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
+              <span class="accordion-button-toggle"><i class="mdi mdi-chevron-down"></i></span>
+            </button>
           </h2>
           <div id="db-group-body-{{ group.name }}" class="collapse">
             <div class="accordion accordion-flush" id="db-group-{{ group.name }}">
@@ -235,11 +231,12 @@
                     <button class="accordion-button collapsed font-monospace" type="button"
                             data-bs-toggle="collapse" data-bs-target="#table-collapse-{{ group.name }}-{{ forloop.counter }}"
                             aria-expanded="false" aria-controls="table-collapse-{{ group.name }}-{{ forloop.counter }}">
-                      <i class="mdi mdi-chevron-right db-table-chevron me-2"></i>{{ table.name }}
+                      {{ table.name }}
                       <span class="badge bg-secondary text-white ms-2">{{ table.columns|length }} {% trans "columns" %}</span>
                       {% if table.indexes %}
                         <span class="badge bg-secondary text-white ms-1">{{ table.indexes|length }} {% trans "indexes" %}</span>
                       {% endif %}
+                      <span class="accordion-button-toggle"><i class="mdi mdi-chevron-down"></i></span>
                     </button>
                   </h3>
                   <div id="table-collapse-{{ group.name }}-{{ forloop.counter }}" class="accordion-collapse collapse"
