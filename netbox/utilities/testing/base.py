@@ -83,6 +83,20 @@ class TestCase(_TestCase):
     # Custom assertions
     #
 
+    def assertObjectChangeData(self, objectchange, prechange_data, postchange_data):
+        """
+        Assert that an ObjectChange record has the expected prechange_data and postchange_data.
+        Pass None to assert the field is null; pass any non-None value to assert it is populated.
+        """
+        if prechange_data is None:
+            self.assertIsNone(objectchange.prechange_data, "Expected prechange_data to be None")
+        else:
+            self.assertIsNotNone(objectchange.prechange_data, "Expected prechange_data to be populated")
+        if postchange_data is None:
+            self.assertIsNone(objectchange.postchange_data, "Expected postchange_data to be None")
+        else:
+            self.assertIsNotNone(objectchange.postchange_data, "Expected postchange_data to be populated")
+
     def assertHttpStatus(self, response, expected_status):
         """
         TestCase method. Provide more detail in the event of an unexpected HTTP response.
