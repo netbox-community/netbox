@@ -1100,6 +1100,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, PrimaryM
     profile_id = DynamicModelMultipleChoiceField(
         queryset=ModuleTypeProfile.objects.all(),
         required=False,
+        null_option='None',
         label=_('Profile')
     )
     module_type_id = DynamicModelMultipleChoiceField(

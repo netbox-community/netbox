@@ -3272,7 +3272,7 @@ class ModuleTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_profile(self):
-        profiles = ModuleTypeProfile.objects.all()
+        profiles = ModuleTypeProfile.objects.filter(name__startswith='Test').order_by('name')
         params = {'profile_id': [profiles[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'profile': [profiles[0].name]}

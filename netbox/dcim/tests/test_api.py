@@ -1641,7 +1641,13 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'serial': '1234ABCD',
     }
-    user_permissions = ('dcim.view_modulebay', 'dcim.view_moduletype', 'dcim.view_device')
+    user_permissions = (
+        'dcim.view_module',
+        'dcim.view_modulebay',
+        'dcim.view_moduletype',
+        'dcim.view_moduletypeprofile',
+        'dcim.view_device',
+    )
 
     @classmethod
     def setUpTestData(cls):
@@ -1706,7 +1712,7 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
         ]
 
     def test_list_objects_by_profile_id(self):
-        profiles = ModuleTypeProfile.objects.all()
+        profiles = ModuleTypeProfile.objects.filter(name__startswith='Test').order_by('name')
         response = self.client.get(self._get_list_url(), {'profile_id': [profiles[0].pk]}, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -1724,7 +1730,7 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(len(response.data['results']), 1)
 
     def test_list_objects_by_profile(self):
-        profiles = ModuleTypeProfile.objects.all()
+        profiles = ModuleTypeProfile.objects.filter(name__startswith='Test').order_by('name')
         response = self.client.get(self._get_list_url(), {'profile': [profiles[0].name]}, **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)

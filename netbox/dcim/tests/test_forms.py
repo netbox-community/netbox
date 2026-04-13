@@ -1,3 +1,4 @@
+from django.http import QueryDict
 from django.test import TestCase
 
 from dcim.choices import (
@@ -108,6 +109,16 @@ class DeviceTestCase(TestCase):
         })
         self.assertTrue(form.is_valid())
         self.assertTrue(form.save())
+
+
+class ModuleFilterFormTestCase(TestCase):
+
+    def test_profile_filter_shows_null_choice_when_unselected(self):
+        form = ModuleFilterForm(QueryDict(''))
+        html = form['profile_id'].as_widget()
+
+        self.assertIn('value="null"', html)
+        self.assertIn('None', html)
 
     def test_racked_device_occupied(self):
         form = DeviceForm(data={

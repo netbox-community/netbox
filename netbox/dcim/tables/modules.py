@@ -93,6 +93,11 @@ class ModuleTable(PrimaryModelTable):
         accessor=tables.A('module_type__manufacturer'),
         linkify=True
     )
+    profile = tables.Column(
+        verbose_name=_('Profile'),
+        accessor=tables.A('module_type__profile'),
+        linkify=True,
+    )
     module_type = tables.Column(
         verbose_name=_('Module Type'),
         linkify=True
@@ -107,7 +112,7 @@ class ModuleTable(PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = Module
         fields = (
-            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'module_type', 'status', 'serial', 'asset_tag',
+            'pk', 'id', 'device', 'module_bay', 'manufacturer', 'profile', 'module_type', 'status', 'serial', 'asset_tag',
             'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (

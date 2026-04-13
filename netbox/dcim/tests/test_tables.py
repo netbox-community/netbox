@@ -70,6 +70,9 @@ class ModuleTypeTableTest(TableTestCases.StandardTableTestCase):
 class ModuleTableTest(TableTestCases.StandardTableTestCase):
     table = ModuleTable
 
+    def test_profile_column_available(self):
+        self.assertIn('profile', self.table.base_columns)
+
 
 #
 # Devices
