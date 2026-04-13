@@ -29,7 +29,6 @@ from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObjec
 from django.apps import apps as django_apps_registry
 from netbox.plugins import PluginConfig
 from netbox.plugins.utils import get_installed_plugins
-from netbox.registry import registry
 from netbox.ui import layout
 from netbox.ui.panels import (
     CommentsPanel,
@@ -747,20 +746,12 @@ class SystemView(UserPassesTestMixin, View):
         except ProgrammingError:
             pass
 
-        # Collect plugin app labels so their tables can be separated.
-        # Combine two sources:
-        # 1. PluginConfig subclasses in Django's app registry (directly registered plugins)
-        # 2. registry['plugins']['installed'] names (catches sub-apps registered via
-        #    django_apps that use plain AppConfig instead of PluginConfig)
+        # Collect plugin app labels so their tables can be separated
         plugin_app_labels = {
             app_config.label
             for app_config in django_apps_registry.get_app_configs()
             if isinstance(app_config, PluginConfig)
         }
-        plugin_app_labels.update(
-            plugin_name.rsplit('.', 1)[-1]
-            for plugin_name in registry['plugins']['installed']
-        )
 
         # Group tables by app prefix (e.g. "dcim", "ipam"), plugins last.
         # Sort plugin labels longest-first so a label like "netbox_branching" is
