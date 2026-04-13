@@ -223,6 +223,7 @@
               aria-expanded="false" aria-controls="db-group-body-{{ group.name }}">
             <i class="mdi mdi-chevron-right db-group-chevron"></i>
             {{ group.name }}
+            {% if group.is_plugin %}<span class="badge bg-purple text-white ms-1">{% trans "plugin" %}</span>{% endif %}
             <span class="badge bg-secondary text-white ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
             <span class="badge bg-secondary text-white ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
           </h2>

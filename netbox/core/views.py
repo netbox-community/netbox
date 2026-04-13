@@ -26,7 +26,10 @@ from core.utils import delete_rq_job, enqueue_rq_job, get_rq_jobs_from_status, r
 from extras.ui.panels import CustomFieldsPanel, TagsPanel
 from netbox.config import PARAMS, get_config
 from netbox.object_actions import AddObject, BulkDelete, BulkExport, DeleteObject
+from django.apps import apps as django_apps_registry
+from netbox.plugins import PluginConfig
 from netbox.plugins.utils import get_installed_plugins
+from netbox.registry import registry
 from netbox.ui import layout
 from netbox.ui.panels import (
     CommentsPanel,
@@ -744,19 +747,50 @@ class SystemView(UserPassesTestMixin, View):
         except ProgrammingError:
             pass
 
-        # Group tables by app prefix (e.g. "dcim", "ipam")
+        # Collect plugin app labels so their tables can be separated.
+        # Combine two sources:
+        # 1. PluginConfig subclasses in Django's app registry (directly registered plugins)
+        # 2. registry['plugins']['installed'] names (catches sub-apps registered via
+        #    django_apps that use plain AppConfig instead of PluginConfig)
+        plugin_app_labels = {
+            app_config.label
+            for app_config in django_apps_registry.get_app_configs()
+            if isinstance(app_config, PluginConfig)
+        }
+        plugin_app_labels.update(
+            plugin_name.rsplit('.', 1)[-1]
+            for plugin_name in registry['plugins']['installed']
+        )
+
+        # Group tables by app prefix (e.g. "dcim", "ipam"), plugins last.
+        # Sort plugin labels longest-first so a label like "netbox_branching" is
+        # matched before a shorter label that shares the same prefix.
+        _sorted_plugin_labels = sorted(plugin_app_labels, key=len, reverse=True)
         _groups = {}
         for table in db_schema:
-            prefix = table['name'].split('_')[0] if '_' in table['name'] else 'other'
+            matched_plugin = next(
+                (label for label in _sorted_plugin_labels if table['name'].startswith(label + '_')),
+                None,
+            )
+            if matched_plugin:
+                prefix = matched_plugin
+            elif '_' in table['name']:
+                prefix = table['name'].split('_')[0]
+            else:
+                prefix = 'other'
             _groups.setdefault(prefix, []).append(table)
-        db_schema_groups = [
-            {
-                'name': name,
-                'tables': tables,
-                'index_count': sum(len(t['indexes']) for t in tables),
-            }
-            for name, tables in sorted(_groups.items())
-        ]
+        db_schema_groups = sorted(
+            [
+                {
+                    'name': name,
+                    'tables': tables,
+                    'index_count': sum(len(t['indexes']) for t in tables),
+                    'is_plugin': name in plugin_app_labels,
+                }
+                for name, tables in _groups.items()
+            ],
+            key=lambda g: (g['is_plugin'], g['name']),
+        )
 
         db_schema_stats = {
             'total_tables': len(db_schema),
