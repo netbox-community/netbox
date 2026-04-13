@@ -2,12 +2,6 @@
 
 ## v4.6.0 (FUTURE)
 
-### Breaking Changes
-
-* NetBox now uses django-tables2 v3.0. Plugin developers are advised review the list of [breaking changes](https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md#300-2026-04-13) in that release. Specifically:
-    * The `querystring` template tag has been renamed to `querystring_replace` to avoid conflicting with Django's new built-in `querystring` tag.
-    * `RelatedLinkColumn` has been removed.
-
 ### New Features
 
 #### Virtual Machine Types ([#5795](https://github.com/netbox-community/netbox/issues/5795))
@@ -81,7 +75,6 @@ A new `start` query parameter has been introduced as an efficient alternative to
 
 * [#20984](https://github.com/netbox-community/netbox/issues/20984) - Upgrade to Django 6.0
 * [#21635](https://github.com/netbox-community/netbox/issues/21635) - Migrate documentation site from mkdocs to Zensical
-* [#21902](https://github.com/netbox-community/netbox/issues/21902) - Upgrade `django-tables2` to v3.0
 
 ### REST API Changes
 
