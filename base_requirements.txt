@@ -55,7 +55,8 @@ django-storages
 
 # Abstraction models for rendering and paginating HTML tables
 # https://github.com/jieter/django-tables2/blob/master/CHANGELOG.md
-django-tables2
+# See #21902 for upgrading to django-tables2 v3.0+
+django-tables2<3.0
 
 # User-defined tags for objects
 # https://github.com/jazzband/django-taggit/blob/master/CHANGELOG.rst

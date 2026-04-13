@@ -1,5 +1,5 @@
 colorama==0.4.6
-Django==5.2.12
+Django==5.2.13
 django-cors-headers==4.9.0
 django-debug-toolbar==6.3.0
 django-filter==25.2
@@ -10,7 +10,7 @@ django-pglocks==1.0.4
 django-prometheus==2.4.1
 django-redis==6.0.0
 django-rich==2.2.0
-django-rq==4.0.1
+django-rq==4.1.0
 django-storages==1.14.6
 django-tables2==2.8.0
 django-taggit==6.1.0
@@ -37,7 +37,7 @@ rq==2.7.0
 social-auth-app-django==5.7.0
 social-auth-core==4.8.5
 sorl-thumbnail==13.0.0
-strawberry-graphql==0.312.2
+strawberry-graphql==0.314.3
 strawberry-graphql-django==0.82.1
 svgwrite==1.4.3
 tablib==3.9.0

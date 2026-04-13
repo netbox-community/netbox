@@ -18,7 +18,7 @@ class JobTableTest(TableTestCases.StandardTableTestCase):
 class ObjectChangeTableTest(TableTestCases.StandardTableTestCase):
     table = ObjectChangeTable
     queryset_sources = [
-        ('ObjectChangeListView', ObjectChange.objects.valid_models()),
+        ('ObjectChangeListView', ObjectChange.objects.all()),
     ]
 
 

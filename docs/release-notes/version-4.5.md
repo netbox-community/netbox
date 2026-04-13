@@ -1,5 +1,27 @@
 # NetBox v4.5
 
+## v4.5.8 (2026-04-14)
+
+### Enhancements
+
+* [#21430](https://github.com/netbox-community/netbox/issues/21430) - Display the device role's color in the device view
+* [#21795](https://github.com/netbox-community/netbox/issues/21795) - Update `humanize_speed` template filter to support decimal Gbps/Tbps values
+
+### Bug Fixes
+
+* [#21529](https://github.com/netbox-community/netbox/issues/21529) - Exclude non-existent custom fields from object changelog data returned via the REST API
+* [#21542](https://github.com/netbox-community/netbox/issues/21542) - Expand interface speed field to 64-bit integer to prevent overflow for LAG interfaces exceeding ~2.1 Tbps
+* [#21704](https://github.com/netbox-community/netbox/issues/21704) - Fix missing port mappings in device type YAML export
+* [#21783](https://github.com/netbox-community/netbox/issues/21783) - Fix support for bulk import of cables connected to power feeds
+* [#21801](https://github.com/netbox-community/netbox/issues/21801) - Prevent duplicate filename collision when uploading files using S3 storage
+* [#21814](https://github.com/netbox-community/netbox/issues/21814) - Fix custom script "last run" time to reflect job start time rather than creation time
+* [#21835](https://github.com/netbox-community/netbox/issues/21835) - Correct help text for color selection form fields
+* [#21841](https://github.com/netbox-community/netbox/issues/21841) - Restore visibility of the edit button for script modules to non-superusers
+* [#21845](https://github.com/netbox-community/netbox/issues/21845) - Fix CSV export of connection columns rendering template whitespace instead of a formatted value
+* [#21869](https://github.com/netbox-community/netbox/issues/21869) - Remove redundant `ScriptModule` class synchronization triggered on save
+
+---
+
 ## v4.5.7 (2026-04-03)
 
 ### Enhancements
