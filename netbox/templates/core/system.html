@@ -217,9 +217,9 @@
                     data-bs-toggle="collapse" data-bs-target="#db-group-body-{{ group.name }}"
                     aria-expanded="false" aria-controls="db-group-body-{{ group.name }}">
               {{ group.name }}
-              {% if group.is_plugin %}<span class="badge bg-purple text-white ms-1">{% trans "plugin" %}</span>{% endif %}
-              <span class="badge bg-secondary text-white ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
-              <span class="badge bg-secondary text-white ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
+              {% if group.is_plugin %}<span class="badge text-bg-purple ms-1">{% trans "plugin" %}</span>{% endif %}
+              <span class="badge bg-secondary text-bg-gray ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
+              <span class="badge bg-secondary text-bg-gray ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
               <span class="accordion-button-toggle"><i class="mdi mdi-chevron-down"></i></span>
             </button>
           </h2>
@@ -227,8 +227,8 @@
             <div class="accordion accordion-flush" id="db-group-{{ group.name }}">
               {% for table in group.tables %}
                 <div class="accordion-item">
-                  <h3 class="accordion-header" id="table-heading-{{ group.name }}-{{ forloop.counter }}">
-                    <button class="accordion-button collapsed font-monospace" type="button"
+                  <h5 class="accordion-header" id="table-heading-{{ group.name }}-{{ forloop.counter }}">
+                    <button class="accordion-button border-bottom collapsed font-monospace" type="button"
                             data-bs-toggle="collapse" data-bs-target="#table-collapse-{{ group.name }}-{{ forloop.counter }}"
                             aria-expanded="false" aria-controls="table-collapse-{{ group.name }}-{{ forloop.counter }}">
                       {{ table.name }}
@@ -238,7 +238,7 @@
                       {% endif %}
                       <span class="accordion-button-toggle"><i class="mdi mdi-chevron-down"></i></span>
                     </button>
-                  </h3>
+                  </h5>
                   <div id="table-collapse-{{ group.name }}-{{ forloop.counter }}" class="accordion-collapse collapse"
                        aria-labelledby="table-heading-{{ group.name }}-{{ forloop.counter }}">
                     <div class="accordion-body p-0">

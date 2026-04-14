@@ -700,7 +700,7 @@ class SystemView(UserPassesTestMixin, View):
                 cursor.execute("""
                     SELECT table_name, column_name, data_type, is_nullable, column_default
                     FROM information_schema.columns
-                    WHERE table_schema = 'public'
+                    WHERE table_schema = current_schema()
                     ORDER BY table_name, ordinal_position
                 """)
                 columns_by_table = {}
@@ -715,7 +715,7 @@ class SystemView(UserPassesTestMixin, View):
                 cursor.execute("""
                     SELECT tablename, indexname, indexdef
                     FROM pg_indexes
-                    WHERE schemaname = 'public'
+                    WHERE schemaname = current_schema()
                     ORDER BY tablename, indexname
                 """)
                 indexes_by_table = {}
