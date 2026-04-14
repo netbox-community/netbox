@@ -1,5 +1,5 @@
 colorama==0.4.6
-Django==6.0.3
+Django==6.0.4
 django-cors-headers==4.9.0
 django-debug-toolbar==6.3.0
 django-filter==25.2
@@ -42,4 +42,4 @@ strawberry-graphql-django==0.82.1
 svgwrite==1.4.3
 tablib==3.9.0
 tzdata==2026.1
-zensical==0.0.28
+zensical==0.0.33

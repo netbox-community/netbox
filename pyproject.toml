@@ -3,14 +3,14 @@
 
 [project]
 name = "netbox"
-version = "4.5.8"
+version = "4.6.0-beta1"
 requires-python = ">=3.12"
 description = "The premier source of truth powering network automation."
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE.txt"]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Framework :: Django",
     "Natural Language :: English",
     "Programming Language :: Python",

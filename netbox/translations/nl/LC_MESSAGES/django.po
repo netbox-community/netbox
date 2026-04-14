@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-10 05:39+0000\n"
+"POT-Creation-Date: 2026-04-14 05:39+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2026\n"
 "Language-Team: Dutch (https://app.transifex.com/netbox-community/teams/178115/nl/)\n"
@@ -183,8 +183,8 @@ msgstr "Sitegroep (slug)"
 #: netbox/dcim/forms/bulk_edit.py:329 netbox/dcim/forms/bulk_edit.py:679
 #: netbox/dcim/forms/bulk_edit.py:866 netbox/dcim/forms/bulk_import.py:146
 #: netbox/dcim/forms/bulk_import.py:247 netbox/dcim/forms/bulk_import.py:349
-#: netbox/dcim/forms/bulk_import.py:640 netbox/dcim/forms/bulk_import.py:1612
-#: netbox/dcim/forms/bulk_import.py:1640 netbox/dcim/forms/filtersets.py:106
+#: netbox/dcim/forms/bulk_import.py:640 netbox/dcim/forms/bulk_import.py:1659
+#: netbox/dcim/forms/bulk_import.py:1687 netbox/dcim/forms/filtersets.py:106
 #: netbox/dcim/forms/filtersets.py:256 netbox/dcim/forms/filtersets.py:379
 #: netbox/dcim/forms/filtersets.py:483 netbox/dcim/forms/filtersets.py:855
 #: netbox/dcim/forms/filtersets.py:1073 netbox/dcim/forms/filtersets.py:1147
@@ -462,7 +462,7 @@ msgstr "Service-ID"
 #: netbox/dcim/forms/bulk_edit.py:611 netbox/dcim/forms/bulk_edit.py:809
 #: netbox/dcim/forms/bulk_edit.py:1063 netbox/dcim/forms/bulk_edit.py:1162
 #: netbox/dcim/forms/bulk_edit.py:1189 netbox/dcim/forms/bulk_edit.py:1723
-#: netbox/dcim/forms/bulk_import.py:1484 netbox/dcim/forms/filtersets.py:1220
+#: netbox/dcim/forms/bulk_import.py:1500 netbox/dcim/forms/filtersets.py:1220
 #: netbox/dcim/forms/filtersets.py:1545 netbox/dcim/forms/filtersets.py:1761
 #: netbox/dcim/forms/filtersets.py:1780 netbox/dcim/forms/filtersets.py:1804
 #: netbox/dcim/forms/filtersets.py:1823 netbox/dcim/tables/devices.py:806
@@ -494,8 +494,8 @@ msgstr "Kleur"
 #: netbox/dcim/forms/bulk_import.py:813 netbox/dcim/forms/bulk_import.py:839
 #: netbox/dcim/forms/bulk_import.py:865 netbox/dcim/forms/bulk_import.py:886
 #: netbox/dcim/forms/bulk_import.py:972 netbox/dcim/forms/bulk_import.py:1101
-#: netbox/dcim/forms/bulk_import.py:1120 netbox/dcim/forms/bulk_import.py:1465
-#: netbox/dcim/forms/bulk_import.py:1677 netbox/dcim/forms/filtersets.py:1104
+#: netbox/dcim/forms/bulk_import.py:1120 netbox/dcim/forms/bulk_import.py:1481
+#: netbox/dcim/forms/bulk_import.py:1724 netbox/dcim/forms/filtersets.py:1104
 #: netbox/dcim/forms/filtersets.py:1205 netbox/dcim/forms/filtersets.py:1333
 #: netbox/dcim/forms/filtersets.py:1424 netbox/dcim/forms/filtersets.py:1444
 #: netbox/dcim/forms/filtersets.py:1464 netbox/dcim/forms/filtersets.py:1484
@@ -553,8 +553,8 @@ msgstr "Provideraccount"
 #: netbox/dcim/forms/bulk_import.py:103 netbox/dcim/forms/bulk_import.py:162
 #: netbox/dcim/forms/bulk_import.py:265 netbox/dcim/forms/bulk_import.py:374
 #: netbox/dcim/forms/bulk_import.py:605 netbox/dcim/forms/bulk_import.py:765
-#: netbox/dcim/forms/bulk_import.py:1230 netbox/dcim/forms/bulk_import.py:1453
-#: netbox/dcim/forms/bulk_import.py:1672 netbox/dcim/forms/bulk_import.py:1735
+#: netbox/dcim/forms/bulk_import.py:1230 netbox/dcim/forms/bulk_import.py:1469
+#: netbox/dcim/forms/bulk_import.py:1719 netbox/dcim/forms/bulk_import.py:1782
 #: netbox/dcim/forms/filtersets.py:208 netbox/dcim/forms/filtersets.py:268
 #: netbox/dcim/forms/filtersets.py:396 netbox/dcim/forms/filtersets.py:504
 #: netbox/dcim/forms/filtersets.py:901 netbox/dcim/forms/filtersets.py:1024
@@ -615,8 +615,8 @@ msgstr "Status"
 #: netbox/dcim/forms/bulk_edit.py:799 netbox/dcim/forms/bulk_edit.py:1746
 #: netbox/dcim/forms/bulk_import.py:122 netbox/dcim/forms/bulk_import.py:167
 #: netbox/dcim/forms/bulk_import.py:258 netbox/dcim/forms/bulk_import.py:379
-#: netbox/dcim/forms/bulk_import.py:579 netbox/dcim/forms/bulk_import.py:1471
-#: netbox/dcim/forms/bulk_import.py:1728 netbox/dcim/forms/filtersets.py:143
+#: netbox/dcim/forms/bulk_import.py:579 netbox/dcim/forms/bulk_import.py:1487
+#: netbox/dcim/forms/bulk_import.py:1775 netbox/dcim/forms/filtersets.py:143
 #: netbox/dcim/forms/filtersets.py:202 netbox/dcim/forms/filtersets.py:235
 #: netbox/dcim/forms/filtersets.py:363 netbox/dcim/forms/filtersets.py:442
 #: netbox/dcim/forms/filtersets.py:463 netbox/dcim/forms/filtersets.py:823
@@ -802,7 +802,7 @@ msgstr "Omschrijving"
 
 #: netbox/circuits/forms/bulk_edit.py:192
 #: netbox/circuits/forms/model_forms.py:199
-#: netbox/dcim/forms/bulk_import.py:1419 netbox/dcim/forms/bulk_import.py:1444
+#: netbox/dcim/forms/bulk_import.py:1427 netbox/dcim/forms/bulk_import.py:1460
 msgid "Termination type"
 msgstr "Soort beëindiging"
 
@@ -932,7 +932,7 @@ msgstr "Soort circuit"
 #: netbox/dcim/forms/bulk_import.py:105 netbox/dcim/forms/bulk_import.py:164
 #: netbox/dcim/forms/bulk_import.py:267 netbox/dcim/forms/bulk_import.py:376
 #: netbox/dcim/forms/bulk_import.py:607 netbox/dcim/forms/bulk_import.py:767
-#: netbox/dcim/forms/bulk_import.py:1232 netbox/dcim/forms/bulk_import.py:1674
+#: netbox/dcim/forms/bulk_import.py:1232 netbox/dcim/forms/bulk_import.py:1721
 #: netbox/ipam/forms/bulk_import.py:200 netbox/ipam/forms/bulk_import.py:264
 #: netbox/ipam/forms/bulk_import.py:300 netbox/ipam/forms/bulk_import.py:531
 #: netbox/ipam/forms/bulk_import.py:544
@@ -948,8 +948,8 @@ msgstr "Operationele status"
 #: netbox/circuits/forms/bulk_import.py:235
 #: netbox/dcim/forms/bulk_import.py:126 netbox/dcim/forms/bulk_import.py:171
 #: netbox/dcim/forms/bulk_import.py:383 netbox/dcim/forms/bulk_import.py:583
-#: netbox/dcim/forms/bulk_import.py:1475 netbox/dcim/forms/bulk_import.py:1669
-#: netbox/dcim/forms/bulk_import.py:1732 netbox/ipam/forms/bulk_import.py:49
+#: netbox/dcim/forms/bulk_import.py:1491 netbox/dcim/forms/bulk_import.py:1716
+#: netbox/dcim/forms/bulk_import.py:1779 netbox/ipam/forms/bulk_import.py:49
 #: netbox/ipam/forms/bulk_import.py:78 netbox/ipam/forms/bulk_import.py:106
 #: netbox/ipam/forms/bulk_import.py:126 netbox/ipam/forms/bulk_import.py:146
 #: netbox/ipam/forms/bulk_import.py:174 netbox/ipam/forms/bulk_import.py:259
@@ -1022,8 +1022,8 @@ msgstr "Interface"
 #: netbox/dcim/forms/bulk_edit.py:445 netbox/dcim/forms/bulk_edit.py:684
 #: netbox/dcim/forms/bulk_edit.py:733 netbox/dcim/forms/bulk_edit.py:875
 #: netbox/dcim/forms/bulk_import.py:252 netbox/dcim/forms/bulk_import.py:355
-#: netbox/dcim/forms/bulk_import.py:646 netbox/dcim/forms/bulk_import.py:1618
-#: netbox/dcim/forms/bulk_import.py:1652 netbox/dcim/forms/filtersets.py:114
+#: netbox/dcim/forms/bulk_import.py:646 netbox/dcim/forms/bulk_import.py:1665
+#: netbox/dcim/forms/bulk_import.py:1699 netbox/dcim/forms/filtersets.py:114
 #: netbox/dcim/forms/filtersets.py:358 netbox/dcim/forms/filtersets.py:393
 #: netbox/dcim/forms/filtersets.py:438 netbox/dcim/forms/filtersets.py:491
 #: netbox/dcim/forms/filtersets.py:820 netbox/dcim/forms/filtersets.py:864
@@ -1451,7 +1451,7 @@ msgstr ""
 #: netbox/extras/models/models.py:417 netbox/extras/models/models.py:482
 #: netbox/extras/models/models.py:567 netbox/extras/models/models.py:692
 #: netbox/extras/models/notifications.py:126
-#: netbox/extras/models/scripts.py:31 netbox/ipam/models/asns.py:18
+#: netbox/extras/models/scripts.py:29 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:51
 #: netbox/ipam/models/services.py:80 netbox/ipam/models/vlans.py:38
 #: netbox/ipam/models/vlans.py:217 netbox/ipam/models/vlans.py:363
@@ -1696,7 +1696,7 @@ msgstr "Beëindigingen"
 #: netbox/dcim/forms/bulk_import.py:1096 netbox/dcim/forms/bulk_import.py:1115
 #: netbox/dcim/forms/bulk_import.py:1134 netbox/dcim/forms/bulk_import.py:1146
 #: netbox/dcim/forms/bulk_import.py:1194 netbox/dcim/forms/bulk_import.py:1316
-#: netbox/dcim/forms/bulk_import.py:1722 netbox/dcim/forms/connections.py:34
+#: netbox/dcim/forms/bulk_import.py:1769 netbox/dcim/forms/connections.py:34
 #: netbox/dcim/forms/filtersets.py:156 netbox/dcim/forms/filtersets.py:1021
 #: netbox/dcim/forms/filtersets.py:1054 netbox/dcim/forms/filtersets.py:1202
 #: netbox/dcim/forms/filtersets.py:1418 netbox/dcim/forms/filtersets.py:1441
@@ -4315,8 +4315,8 @@ msgstr "Luchtstroom"
 
 #: netbox/dcim/forms/bulk_edit.py:444 netbox/dcim/forms/bulk_edit.py:897
 #: netbox/dcim/forms/bulk_import.py:362 netbox/dcim/forms/bulk_import.py:365
-#: netbox/dcim/forms/bulk_import.py:653 netbox/dcim/forms/bulk_import.py:1659
-#: netbox/dcim/forms/bulk_import.py:1663 netbox/dcim/forms/filtersets.py:123
+#: netbox/dcim/forms/bulk_import.py:653 netbox/dcim/forms/bulk_import.py:1706
+#: netbox/dcim/forms/bulk_import.py:1710 netbox/dcim/forms/filtersets.py:123
 #: netbox/dcim/forms/filtersets.py:359 netbox/dcim/forms/filtersets.py:448
 #: netbox/dcim/forms/filtersets.py:462 netbox/dcim/forms/filtersets.py:501
 #: netbox/dcim/forms/filtersets.py:874 netbox/dcim/forms/filtersets.py:1086
@@ -4377,7 +4377,7 @@ msgstr "Schema"
 
 #: netbox/dcim/forms/bulk_edit.py:555 netbox/dcim/forms/bulk_edit.py:562
 #: netbox/dcim/forms/bulk_edit.py:793 netbox/dcim/forms/bulk_import.py:460
-#: netbox/dcim/forms/bulk_import.py:1459 netbox/dcim/forms/filtersets.py:690
+#: netbox/dcim/forms/bulk_import.py:1475 netbox/dcim/forms/filtersets.py:690
 #: netbox/dcim/forms/filtersets.py:1215 netbox/dcim/forms/model_forms.py:444
 #: netbox/dcim/forms/model_forms.py:457 netbox/dcim/tables/modules.py:43
 #: netbox/extras/forms/filtersets.py:413
@@ -4502,8 +4502,8 @@ msgstr "Label"
 msgid "Length"
 msgstr "Lengte"
 
-#: netbox/dcim/forms/bulk_edit.py:818 netbox/dcim/forms/bulk_import.py:1478
-#: netbox/dcim/forms/bulk_import.py:1481 netbox/dcim/forms/filtersets.py:1228
+#: netbox/dcim/forms/bulk_edit.py:818 netbox/dcim/forms/bulk_import.py:1494
+#: netbox/dcim/forms/bulk_import.py:1497 netbox/dcim/forms/filtersets.py:1228
 msgid "Length unit"
 msgstr "Lengte-eenheid"
 
@@ -4511,17 +4511,17 @@ msgstr "Lengte-eenheid"
 msgid "Domain"
 msgstr "Domein"
 
-#: netbox/dcim/forms/bulk_edit.py:892 netbox/dcim/forms/bulk_import.py:1646
+#: netbox/dcim/forms/bulk_edit.py:892 netbox/dcim/forms/bulk_import.py:1693
 #: netbox/dcim/forms/filtersets.py:1316 netbox/dcim/forms/model_forms.py:891
 msgid "Power panel"
 msgstr "Voedingspaneel"
 
-#: netbox/dcim/forms/bulk_edit.py:914 netbox/dcim/forms/bulk_import.py:1682
+#: netbox/dcim/forms/bulk_edit.py:914 netbox/dcim/forms/bulk_import.py:1729
 #: netbox/dcim/forms/filtersets.py:1338
 msgid "Supply"
 msgstr "Levering"
 
-#: netbox/dcim/forms/bulk_edit.py:920 netbox/dcim/forms/bulk_import.py:1687
+#: netbox/dcim/forms/bulk_edit.py:920 netbox/dcim/forms/bulk_import.py:1734
 #: netbox/dcim/forms/filtersets.py:1343
 msgid "Phase"
 msgstr "Fase"
@@ -4753,7 +4753,7 @@ msgid "available options"
 msgstr "beschikbare opties"
 
 #: netbox/dcim/forms/bulk_import.py:149 netbox/dcim/forms/bulk_import.py:643
-#: netbox/dcim/forms/bulk_import.py:1643 netbox/ipam/forms/bulk_import.py:512
+#: netbox/dcim/forms/bulk_import.py:1690 netbox/ipam/forms/bulk_import.py:512
 #: netbox/virtualization/forms/bulk_import.py:64
 #: netbox/virtualization/forms/bulk_import.py:102
 msgid "Assigned site"
@@ -4818,7 +4818,7 @@ msgstr ""
 msgid "Parent site"
 msgstr "Site voor ouders"
 
-#: netbox/dcim/forms/bulk_import.py:359 netbox/dcim/forms/bulk_import.py:1656
+#: netbox/dcim/forms/bulk_import.py:359 netbox/dcim/forms/bulk_import.py:1703
 msgid "Rack's location (if any)"
 msgstr "Locatie van het rek (indien aanwezig)"
 
@@ -4886,7 +4886,7 @@ msgstr "Platform niet gevonden."
 msgid "Limit platform assignments to this manufacturer"
 msgstr "Beperk de platformtoewijzingen aan deze fabrikant"
 
-#: netbox/dcim/forms/bulk_import.py:576 netbox/dcim/forms/bulk_import.py:1725
+#: netbox/dcim/forms/bulk_import.py:576 netbox/dcim/forms/bulk_import.py:1772
 #: netbox/tenancy/forms/bulk_import.py:116
 msgid "Assigned role"
 msgstr "Toegewezen rol"
@@ -5097,7 +5097,7 @@ msgid "VDC {vdc} is not assigned to device {device}"
 msgstr "VDC {vdc} is niet toegewezen aan het apparaat {device}"
 
 #: netbox/dcim/forms/bulk_import.py:1103 netbox/dcim/forms/bulk_import.py:1121
-#: netbox/dcim/forms/bulk_import.py:1468
+#: netbox/dcim/forms/bulk_import.py:1484
 msgid "Physical medium classification"
 msgstr "Classificatie van fysieke media"
 
@@ -5200,70 +5200,93 @@ msgstr "Site van ouderapparaat A (indien aanwezig)"
 msgid "Side A device"
 msgstr "Side A-apparaat"
 
-#: netbox/dcim/forms/bulk_import.py:1413 netbox/dcim/forms/bulk_import.py:1438
-msgid "Device name"
-msgstr "Naam van het apparaat"
+#: netbox/dcim/forms/bulk_import.py:1414 netbox/dcim/forms/bulk_import.py:1447
+msgid "Device name (for device component terminations)"
+msgstr ""
 
-#: netbox/dcim/forms/bulk_import.py:1416
+#: netbox/dcim/forms/bulk_import.py:1417
+msgid "Side A power panel"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1421 netbox/dcim/forms/bulk_import.py:1454
+msgid "Power panel name (for power feed terminations)"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1424
 msgid "Side A type"
 msgstr "Type kant A"
 
-#: netbox/dcim/forms/bulk_import.py:1422
+#: netbox/dcim/forms/bulk_import.py:1430
 msgid "Side A name"
 msgstr "Naam van kant A"
 
-#: netbox/dcim/forms/bulk_import.py:1423 netbox/dcim/forms/bulk_import.py:1448
+#: netbox/dcim/forms/bulk_import.py:1431 netbox/dcim/forms/bulk_import.py:1464
 msgid "Termination name"
 msgstr "Naam van beëindiging"
 
-#: netbox/dcim/forms/bulk_import.py:1428
+#: netbox/dcim/forms/bulk_import.py:1436
 msgid "Side B site"
 msgstr "Site aan kant B"
 
-#: netbox/dcim/forms/bulk_import.py:1432
+#: netbox/dcim/forms/bulk_import.py:1440
 #: netbox/wireless/forms/bulk_import.py:114
 msgid "Site of parent device B (if any)"
 msgstr "Site van ouderapparaat B (indien aanwezig)"
 
-#: netbox/dcim/forms/bulk_import.py:1435
+#: netbox/dcim/forms/bulk_import.py:1443
 msgid "Side B device"
 msgstr "Side B-apparaat"
 
-#: netbox/dcim/forms/bulk_import.py:1441
+#: netbox/dcim/forms/bulk_import.py:1450
+msgid "Side B power panel"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1457
 msgid "Side B type"
 msgstr "Type kant B"
 
-#: netbox/dcim/forms/bulk_import.py:1447
+#: netbox/dcim/forms/bulk_import.py:1463
 msgid "Side B name"
 msgstr "Naam van kant B"
 
-#: netbox/dcim/forms/bulk_import.py:1456
+#: netbox/dcim/forms/bulk_import.py:1472
 #: netbox/templates/dcim/panels/connection.html:60
 #: netbox/wireless/forms/bulk_import.py:133
 msgid "Connection status"
 msgstr "Status van de verbinding"
 
-#: netbox/dcim/forms/bulk_import.py:1462
+#: netbox/dcim/forms/bulk_import.py:1478
 msgid "Cable connection profile"
 msgstr "Kabelaansluitprofiel"
 
-#: netbox/dcim/forms/bulk_import.py:1487
+#: netbox/dcim/forms/bulk_import.py:1503
 msgid "Color name (e.g. \"Red\") or hex code (e.g. \"f44336\")"
 msgstr ""
 "Kleurnaam (bijvoorbeeld „Rood”) of hexadecimale code (bijvoorbeeld "
 "„f44336\")"
 
-#: netbox/dcim/forms/bulk_import.py:1542
+#: netbox/dcim/forms/bulk_import.py:1564
+#, python-brace-format
+msgid ""
+"Side {side_upper}: {power_panel} {termination_object} is already connected"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1570
+#, python-brace-format
+msgid "{side_upper} side termination not found: {power_panel} {name}"
+msgstr ""
+
+#: netbox/dcim/forms/bulk_import.py:1588
 #, python-brace-format
 msgid "Side {side_upper}: {device} {termination_object} is already connected"
 msgstr "Kant {side_upper}: {device} {termination_object} is al verbonden"
 
-#: netbox/dcim/forms/bulk_import.py:1548
+#: netbox/dcim/forms/bulk_import.py:1594
 #, python-brace-format
 msgid "{side_upper} side termination not found: {device} {name}"
 msgstr "{side_upper} nevenbeëindiging niet gevonden: {device} {name}"
 
-#: netbox/dcim/forms/bulk_import.py:1569
+#: netbox/dcim/forms/bulk_import.py:1616
 #, python-brace-format
 msgid ""
 "{color} did not match any used color name and was longer than six "
@@ -5272,53 +5295,53 @@ msgstr ""
 "{color} kwam niet overeen met een gebruikte kleurnaam en bestond uit meer "
 "dan zes tekens: ongeldige hexadecimale waarde."
 
-#: netbox/dcim/forms/bulk_import.py:1594 netbox/dcim/forms/model_forms.py:926
+#: netbox/dcim/forms/bulk_import.py:1641 netbox/dcim/forms/model_forms.py:926
 #: netbox/dcim/tables/devices.py:1144
 #: netbox/templates/dcim/panels/virtual_chassis_members.html:10
 msgid "Master"
 msgstr "Meester"
 
-#: netbox/dcim/forms/bulk_import.py:1598
+#: netbox/dcim/forms/bulk_import.py:1645
 msgid "Master device"
 msgstr "Master-apparaat"
 
-#: netbox/dcim/forms/bulk_import.py:1615
+#: netbox/dcim/forms/bulk_import.py:1662
 msgid "Name of parent site"
 msgstr "Naam van de moedersite"
 
-#: netbox/dcim/forms/bulk_import.py:1649
+#: netbox/dcim/forms/bulk_import.py:1696
 msgid "Upstream power panel"
 msgstr "Stroomopwaarts stroompaneel"
 
-#: netbox/dcim/forms/bulk_import.py:1679
+#: netbox/dcim/forms/bulk_import.py:1726
 msgid "Primary or redundant"
 msgstr "Primair of redundant"
 
-#: netbox/dcim/forms/bulk_import.py:1684
+#: netbox/dcim/forms/bulk_import.py:1731
 msgid "Supply type (AC/DC)"
 msgstr "Soort voeding (AC/DC)"
 
-#: netbox/dcim/forms/bulk_import.py:1689
+#: netbox/dcim/forms/bulk_import.py:1736
 msgid "Single or three-phase"
 msgstr "Enkel- of driefasig"
 
-#: netbox/dcim/forms/bulk_import.py:1739 netbox/dcim/forms/model_forms.py:1901
+#: netbox/dcim/forms/bulk_import.py:1786 netbox/dcim/forms/model_forms.py:1901
 #: netbox/dcim/ui/panels.py:110 netbox/dcim/ui/panels.py:354
 #: netbox/virtualization/ui/panels.py:28
 msgid "Primary IPv4"
 msgstr "Primaire IPv4"
 
-#: netbox/dcim/forms/bulk_import.py:1743
+#: netbox/dcim/forms/bulk_import.py:1790
 msgid "IPv4 address with mask, e.g. 1.2.3.4/24"
 msgstr "IPv4-adres met masker, bijvoorbeeld 1.2.3.4/24"
 
-#: netbox/dcim/forms/bulk_import.py:1746 netbox/dcim/forms/model_forms.py:1910
+#: netbox/dcim/forms/bulk_import.py:1793 netbox/dcim/forms/model_forms.py:1910
 #: netbox/dcim/ui/panels.py:115 netbox/dcim/ui/panels.py:359
 #: netbox/virtualization/ui/panels.py:33
 msgid "Primary IPv6"
 msgstr "Primaire IPv6"
 
-#: netbox/dcim/forms/bulk_import.py:1750
+#: netbox/dcim/forms/bulk_import.py:1797
 msgid "IPv6 address with prefix length, e.g. 2001:db8::1/64"
 msgstr "IPv6-adres met prefixlengte, bijvoorbeeld 2001:db8: :1/64"
 
@@ -10131,23 +10154,23 @@ msgstr "abonnement"
 msgid "subscriptions"
 msgstr "abonnementen"
 
-#: netbox/extras/models/scripts.py:43
+#: netbox/extras/models/scripts.py:41
 msgid "is executable"
 msgstr "is uitvoerbaar"
 
-#: netbox/extras/models/scripts.py:65
+#: netbox/extras/models/scripts.py:63
 msgid "script"
 msgstr "script"
 
-#: netbox/extras/models/scripts.py:66
+#: netbox/extras/models/scripts.py:64
 msgid "scripts"
 msgstr "scripts"
 
-#: netbox/extras/models/scripts.py:112
+#: netbox/extras/models/scripts.py:110
 msgid "script module"
 msgstr "scriptmodule"
 
-#: netbox/extras/models/scripts.py:113
+#: netbox/extras/models/scripts.py:111
 msgid "script modules"
 msgstr "scriptmodules"
 

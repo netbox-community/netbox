@@ -1,6 +1,6 @@
 # NetBox v4.6
 
-## v4.6.0 (FUTURE)
+## v4.6.0-beta1 (2026-04-14)
 
 ### New Features
 
