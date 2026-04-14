@@ -54,7 +54,7 @@ A new `start` query parameter has been introduced as an efficient alternative to
 
 ### Performance
 
-* [#21455](https://github.com/netbox-community/netbox/issues/21455) - Ensure PostgreSQL indexes exists to support the default ordering of each model
+* [#21455](https://github.com/netbox-community/netbox/issues/21455) - Ensure PostgreSQL indexes exist to support the default ordering of each model
 
 ### Plugins
 
