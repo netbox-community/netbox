@@ -35,7 +35,7 @@ A new `start` query parameter has been introduced as an efficient alternative to
 * [#19138](https://github.com/netbox-community/netbox/issues/19138) - Include NAT addresses for primary & out-of-band IP addresses in REST API
 * [#19796](https://github.com/netbox-community/netbox/issues/19796) - Support `{module}` position inheritance for nested module bays
 * [#19953](https://github.com/netbox-community/netbox/issues/19953) - Enable debugging support for ConfigTemplate rendering
-* [#20123](https://github.com/netbox-community/netbox/issues/20123) - Introduce options to control adoption/replication of device components (replicates UI behavior)
+* [#20123](https://github.com/netbox-community/netbox/issues/20123) - Introduce options to control adoption/replication of device components via REST API (replicates UI behavior)
 * [#20152](https://github.com/netbox-community/netbox/issues/20152) - Support for marking module and device bays as disabled
 * [#20162](https://github.com/netbox-community/netbox/issues/20162) - Provide an option to execute as a background job when adding components to devices in bulk
 * [#20163](https://github.com/netbox-community/netbox/issues/20163) - Add changelog message support for bulk device component creation
@@ -87,8 +87,8 @@ A new `start` query parameter has been introduced as an efficient alternative to
     * `GET/PUT/PATCH/DELETE /api/dcim/cable-bundles/<id>/`
     * `GET/POST /api/dcim/rack-groups/`
     * `GET/PUT/PATCH/DELETE /api/dcim/rack-groups/<id>/`
-    * `GET/POST /api/virtualization/vm-types/`
-    * `GET/PUT/PATCH/DELETE /api/virtualization/vm-types/<id>/`
+    * `GET/POST /api/virtualization/virtual-machine-types/`
+    * `GET/PUT/PATCH/DELETE /api/virtualization/virtual-machine-types/<id>/`
 * `dcim.Cable`
     * Add optional foreign key field `bundle`
 * `dcim.Device`
