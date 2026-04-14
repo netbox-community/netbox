@@ -658,6 +658,84 @@ class WorkerView(BaseRQView):
 # System
 #
 
+def get_db_schema():
+    db_schema = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT table_name, column_name, data_type, is_nullable, column_default
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                ORDER BY table_name, ordinal_position
+            """)
+            columns_by_table = {}
+            for table_name, column_name, data_type, is_nullable, column_default in cursor.fetchall():
+                columns_by_table.setdefault(table_name, []).append({
+                    'name': column_name,
+                    'type': data_type,
+                    'nullable': is_nullable == 'YES',
+                    'default': column_default,
+                })
+
+            cursor.execute("""
+                SELECT tablename, indexname, indexdef
+                FROM pg_indexes
+                WHERE schemaname = current_schema()
+                ORDER BY tablename, indexname
+            """)
+            indexes_by_table = {}
+            for table_name, index_name, index_def in cursor.fetchall():
+                indexes_by_table.setdefault(table_name, []).append({
+                    'name': index_name,
+                    'definition': index_def,
+                })
+
+        for table_name in sorted(columns_by_table.keys()):
+            db_schema.append({
+                'name': table_name,
+                'columns': columns_by_table[table_name],
+                'indexes': indexes_by_table.get(table_name, []),
+            })
+    except DatabaseError:
+        pass
+    return db_schema
+
+
+def get_db_schema_groups(db_schema):
+    plugin_app_labels = {
+        app_config.label
+        for app_config in django_apps_registry.get_app_configs()
+        if isinstance(app_config, PluginConfig)
+    }
+    # Sort longest-first so "netbox_branching" matches before "netbox"
+    sorted_plugin_labels = sorted(plugin_app_labels, key=len, reverse=True)
+    groups = {}
+    for table in db_schema:
+        matched_plugin = next(
+            (label for label in sorted_plugin_labels if table['name'].startswith(label + '_')),
+            None,
+        )
+        if matched_plugin:
+            prefix = matched_plugin
+        elif '_' in table['name']:
+            prefix = table['name'].split('_')[0]
+        else:
+            prefix = 'other'
+        groups.setdefault(prefix, []).append(table)
+    return sorted(
+        [
+            {
+                'name': name,
+                'tables': tables,
+                'index_count': sum(len(t['indexes']) for t in tables),
+                'is_plugin': name in plugin_app_labels,
+            }
+            for name, tables in groups.items()
+        ],
+        key=lambda g: (g['is_plugin'], g['name']),
+    )
+
+
 class SystemView(UserPassesTestMixin, View):
 
     def test_func(self):
@@ -693,98 +771,16 @@ class SystemView(UserPassesTestMixin, View):
                 objects[ot] = model.objects.count()
         return objects
 
-    def _get_db_schema(self):
-        db_schema = []
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT table_name, column_name, data_type, is_nullable, column_default
-                    FROM information_schema.columns
-                    WHERE table_schema = current_schema()
-                    ORDER BY table_name, ordinal_position
-                """)
-                columns_by_table = {}
-                for table_name, column_name, data_type, is_nullable, column_default in cursor.fetchall():
-                    columns_by_table.setdefault(table_name, []).append({
-                        'name': column_name,
-                        'type': data_type,
-                        'nullable': is_nullable == 'YES',
-                        'default': column_default,
-                    })
-
-                cursor.execute("""
-                    SELECT tablename, indexname, indexdef
-                    FROM pg_indexes
-                    WHERE schemaname = current_schema()
-                    ORDER BY tablename, indexname
-                """)
-                indexes_by_table = {}
-                for table_name, index_name, index_def in cursor.fetchall():
-                    indexes_by_table.setdefault(table_name, []).append({
-                        'name': index_name,
-                        'definition': index_def,
-                    })
-
-            for table_name in sorted(columns_by_table.keys()):
-                db_schema.append({
-                    'name': table_name,
-                    'columns': columns_by_table[table_name],
-                    'indexes': indexes_by_table.get(table_name, []),
-                })
-        except DatabaseError:
-            pass
-        return db_schema
-
-    def _get_db_schema_groups(self, db_schema):
-        plugin_app_labels = {
-            app_config.label
-            for app_config in django_apps_registry.get_app_configs()
-            if isinstance(app_config, PluginConfig)
-        }
-        # Sort longest-first so "netbox_branching" matches before "netbox"
-        sorted_plugin_labels = sorted(plugin_app_labels, key=len, reverse=True)
-        groups = {}
-        for table in db_schema:
-            matched_plugin = next(
-                (label for label in sorted_plugin_labels if table['name'].startswith(label + '_')),
-                None,
-            )
-            if matched_plugin:
-                prefix = matched_plugin
-            elif '_' in table['name']:
-                prefix = table['name'].split('_')[0]
-            else:
-                prefix = 'other'
-            groups.setdefault(prefix, []).append(table)
-        return sorted(
-            [
-                {
-                    'name': name,
-                    'tables': tables,
-                    'index_count': sum(len(t['indexes']) for t in tables),
-                    'is_plugin': name in plugin_app_labels,
-                }
-                for name, tables in groups.items()
-            ],
-            key=lambda g: (g['is_plugin'], g['name']),
-        )
-
     def get(self, request):
         stats = self._get_stats()
         django_apps = get_installed_apps()
         config = get_config()
         plugins = get_installed_plugins()
         objects = self._get_object_counts()
-        db_schema = self._get_db_schema()
-        db_schema_groups = self._get_db_schema_groups(db_schema)
-        db_schema_stats = {
-            'total_tables': len(db_schema),
-            'total_columns': sum(len(t['columns']) for t in db_schema),
-            'total_indexes': sum(len(t['indexes']) for t in db_schema),
-        }
 
         # Raw data export
         if 'export' in request.GET:
+            db_schema = get_db_schema()
             stats['netbox_release'] = stats['netbox_release'].asdict()
             params = [param.name for param in PARAMS]
             data = {
@@ -819,6 +815,23 @@ class SystemView(UserPassesTestMixin, View):
             'config': config,
             'plugins': plugins,
             'objects': objects,
+        })
+
+
+class SystemDBSchemaView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def get(self, request):
+        db_schema = get_db_schema()
+        db_schema_groups = get_db_schema_groups(db_schema)
+        db_schema_stats = {
+            'total_tables': len(db_schema),
+            'total_columns': sum(len(t['columns']) for t in db_schema),
+            'total_indexes': sum(len(t['indexes']) for t in db_schema),
+        }
+        return render(request, 'core/htmx/system_db_schema.html', {
             'db_schema': db_schema,
             'db_schema_groups': db_schema_groups,
             'db_schema_stats': db_schema_stats,

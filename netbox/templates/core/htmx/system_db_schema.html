@@ -1,0 +1,128 @@
+{% load i18n %}
+{% load humanize %}
+{% if db_schema %}
+  {# Summary boxes #}
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <div class="display-6 fw-bold">{{ db_schema_stats.total_tables|intcomma }}</div>
+          <div class="text-muted">{% trans "Tables" %}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <div class="display-6 fw-bold">{{ db_schema_stats.total_columns|intcomma }}</div>
+          <div class="text-muted">{% trans "Columns" %}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <div class="display-6 fw-bold">{{ db_schema_stats.total_indexes|intcomma }}</div>
+          <div class="text-muted">{% trans "Indexes" %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {# Tables grouped by app prefix #}
+  {% for group in db_schema_groups %}
+    <div class="card mb-3">
+      <h2 class="card-header">
+        <button class="accordion-button collapsed p-0 w-100" type="button"
+                data-bs-toggle="collapse" data-bs-target="#db-group-body-{{ group.name }}"
+                aria-expanded="false" aria-controls="db-group-body-{{ group.name }}">
+          {{ group.name }}
+          {% if group.is_plugin %}<span class="badge text-bg-purple ms-1">{% trans "plugin" %}</span>{% endif %}
+          <span class="badge bg-secondary text-bg-gray ms-1">{{ group.tables|length }} {% trans "tables" %}</span>
+          <span class="badge bg-secondary text-bg-gray ms-1">{{ group.index_count }} {% trans "indexes" %}</span>
+          <span class="accordion-button-toggle"><i class="mdi mdi-chevron-down"></i></span>
+        </button>
+      </h2>
+      <div id="db-group-body-{{ group.name }}" class="collapse">
+        <div class="accordion accordion-flush" id="db-group-{{ group.name }}">
+          {% for table in group.tables %}
+            <div class="accordion-item">
+              <h5 class="accordion-header" id="table-heading-{{ group.name }}-{{ forloop.counter }}">
+                <button class="accordion-button border-bottom collapsed font-monospace" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#table-collapse-{{ group.name }}-{{ forloop.counter }}"
+                        aria-expanded="false" aria-controls="table-collapse-{{ group.name }}-{{ forloop.counter }}">
+                  {{ table.name }}
+                  <span class="badge bg-secondary text-white ms-2">{{ table.columns|length }} {% trans "columns" %}</span>
+                  {% if table.indexes %}
+                    <span class="badge bg-secondary text-white ms-1">{{ table.indexes|length }} {% trans "indexes" %}</span>
+                  {% endif %}
+                  <span class="accordion-button-toggle"><i class="mdi mdi-chevron-down"></i></span>
+                </button>
+              </h5>
+              <div id="table-collapse-{{ group.name }}-{{ forloop.counter }}" class="accordion-collapse collapse"
+                   aria-labelledby="table-heading-{{ group.name }}-{{ forloop.counter }}">
+                <div class="accordion-body p-0">
+                  <div class="px-3 py-2">
+                    <strong>{% trans "Columns" %}</strong>
+                    <table class="table table-hover table-sm mb-0 mt-1">
+                      <thead>
+                        <tr>
+                          <th>{% trans "Column" %}</th>
+                          <th>{% trans "Type" %}</th>
+                          <th>{% trans "Nullable" %}</th>
+                          <th>{% trans "Default" %}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for column in table.columns %}
+                          <tr>
+                            <td class="font-monospace">{{ column.name }}</td>
+                            <td class="font-monospace text-muted">{{ column.type }}</td>
+                            <td>
+                              {% if column.nullable %}
+                                <span class="text-success">{% trans "yes" %}</span>
+                              {% else %}
+                                <span class="text-muted">{% trans "no" %}</span>
+                              {% endif %}
+                            </td>
+                            <td class="font-monospace text-muted">{{ column.default|default:"" }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  {% if table.indexes %}
+                    <div class="px-3 py-2 border-top">
+                      <strong>{% trans "Indexes" %}</strong>
+                      <table class="table table-hover table-sm mb-0 mt-1">
+                        <thead>
+                          <tr>
+                            <th>{% trans "Name" %}</th>
+                            <th>{% trans "Definition" %}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for index in table.indexes %}
+                            <tr>
+                              <td class="font-monospace">{{ index.name }}</td>
+                              <td class="font-monospace text-muted">{{ index.definition }}</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  <div class="card mb-3">
+    <div class="card-body text-muted">
+      {% trans "Schema information unavailable." %}
+    </div>
+  </div>
+{% endif %}
