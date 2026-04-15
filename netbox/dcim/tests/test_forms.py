@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.http import QueryDict
 from django.test import TestCase
-from django.conf import settings
 
 from dcim.choices import (
     DeviceFaceChoices,
