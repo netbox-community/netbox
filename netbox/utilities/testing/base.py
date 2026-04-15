@@ -96,7 +96,7 @@ class TestCase(_TestCase):
         if message is not None:
             self.assertEqual(objectchange.message, message)
 
-        # For creates, prechange must be absent; for updates, snapshots must differ; for deletes, postchange must be absent
+        # Verify pre/postchange data presence and integrity based on action type
         if action == ObjectChangeActionChoices.ACTION_CREATE:
             self.assertIsNone(objectchange.prechange_data, "Expected prechange_data to be None for a create")
             self.assertIsNotNone(objectchange.postchange_data, "Expected postchange_data to be populated for a create")
