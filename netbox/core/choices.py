@@ -72,6 +72,18 @@ class JobStatusChoices(ChoiceSet):
     )
 
 
+class JobNotificationChoices(ChoiceSet):
+    NOTIFICATION_ALWAYS = 'always'
+    NOTIFICATION_ON_FAILURE = 'on_failure'
+    NOTIFICATION_NEVER = 'never'
+
+    CHOICES = (
+        (NOTIFICATION_ALWAYS, _('Always')),
+        (NOTIFICATION_ON_FAILURE, _('On failure')),
+        (NOTIFICATION_NEVER, _('Never')),
+    )
+
+
 class JobIntervalChoices(ChoiceSet):
     INTERVAL_MINUTELY = 1
     INTERVAL_HOURLY = 60

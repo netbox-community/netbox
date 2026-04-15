@@ -2,7 +2,7 @@ from django import forms
 from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
 
-from core.choices import JobIntervalChoices
+from core.choices import JobIntervalChoices, JobNotificationChoices
 from core.forms import ManagedFileForm
 from utilities.datetime import local_now
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
@@ -34,6 +34,13 @@ class ScriptForm(forms.Form):
             options=JobIntervalChoices
         ),
         help_text=_("Interval at which this script is re-run (in minutes)")
+    )
+    _notifications = forms.ChoiceField(
+        required=False,
+        choices=JobNotificationChoices,
+        initial=JobNotificationChoices.NOTIFICATION_ALWAYS,
+        label=_("Notifications"),
+        help_text=_("When to notify the user of job completion")
     )
 
     def __init__(self, *args, scheduling_enabled=True, **kwargs):

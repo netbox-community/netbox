@@ -26,13 +26,14 @@ class JobSerializer(BaseModelSerializer):
     object = serializers.SerializerMethodField(
         read_only=True
     )
+    notifications = ChoiceField(choices=JobNotificationChoices, read_only=True)
 
     class Meta:
         model = Job
         fields = [
             'id', 'url', 'display_url', 'display', 'object_type', 'object_id', 'object', 'name', 'status', 'created',
             'scheduled', 'interval', 'started', 'completed', 'user', 'data', 'error', 'job_id', 'queue_name',
-            'log_entries',
+            'notifications', 'log_entries',
         ]
         brief_fields = ('url', 'created', 'completed', 'user', 'status')
 

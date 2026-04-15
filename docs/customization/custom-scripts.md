@@ -115,6 +115,20 @@ commit_default = False
 
 By default, a script can be scheduled for execution at a later time. Setting `scheduling_enabled` to False disables this ability: Only immediate execution will be possible. (This also disables the ability to set a recurring execution interval.)
 
+### `notifications_default`
+
+By default, a notification is generated for the requesting user each time a script finishes running. This attribute sets the initial value for the notifications field when running a script. Valid values are `always` (default), `on_failure`, and `never`.
+
+```python
+notifications_default = 'on_failure'
+```
+
+| Value | Behavior |
+|-------|----------|
+| `always` | Notify on every completion (default) |
+| `on_failure` | Notify only when the job fails or errors |
+| `never` | Never send a notification |
+
 ### `job_timeout`
 
 Set the maximum allowed runtime for the script. If not set, `RQ_DEFAULT_TIMEOUT` will be used.

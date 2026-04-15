@@ -13,6 +13,7 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet
 from rq import Worker
 
+from core.choices import JobNotificationChoices
 from extras import filtersets
 from extras.jobs import ScriptJob
 from extras.models import *
@@ -338,7 +339,10 @@ class ScriptViewSet(ModelViewSet):
                 commit=input_serializer.data['commit'],
                 job_timeout=script.python_class.job_timeout,
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
-                interval=input_serializer.validated_data.get('interval')
+                interval=input_serializer.validated_data.get('interval'),
+                notifications=input_serializer.validated_data.get(
+                    'notifications', JobNotificationChoices.NOTIFICATION_ALWAYS
+                ),
             )
             serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 

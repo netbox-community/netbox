@@ -13,7 +13,7 @@ from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
-from core.choices import ManagedFileRootPathChoices
+from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from core.models import Job
 from core.object_actions import BulkSync
 from dcim.models import Device, DeviceRole, Platform
@@ -1707,6 +1707,7 @@ class ScriptView(BaseScriptView):
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
+                notifications=form.cleaned_data.pop('_notifications', '') or JobNotificationChoices.NOTIFICATION_ALWAYS,
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
                 job_timeout=script.python_class.job_timeout,

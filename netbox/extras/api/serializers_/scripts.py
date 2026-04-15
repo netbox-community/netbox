@@ -7,7 +7,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from core.api.serializers_.jobs import JobSerializer
-from core.choices import ManagedFileRootPathChoices
+from core.choices import JobNotificationChoices, ManagedFileRootPathChoices
 from extras.models import Script, ScriptModule
 from netbox.api.serializers import ValidatedModelSerializer
 from utilities.datetime import local_now
@@ -114,6 +114,20 @@ class ScriptInputSerializer(serializers.Serializer):
     commit = serializers.BooleanField()
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
     interval = serializers.IntegerField(required=False, allow_null=True)
+    notifications = serializers.CharField(required=False, default=JobNotificationChoices.NOTIFICATION_ALWAYS)
+
+    def validate_notifications(self, value):
+        """
+        Validates the provided notifications value.
+        """
+        valid_choices = dict(JobNotificationChoices.CHOICES).keys()
+        if value not in valid_choices:
+            raise serializers.ValidationError(
+                _('Invalid choice. Valid choices are: {choices}').format(
+                    choices=', '.join(valid_choices)
+                )
+            )
+        return value
 
     def validate_schedule_at(self, value):
         """

@@ -142,6 +142,7 @@ class JobRunner(ABC):
                     user=job.user,
                     schedule_at=new_scheduled_time,
                     interval=job.interval,
+                    notifications=job.notifications,
                     **kwargs,
                 )
 
