@@ -84,7 +84,8 @@ class TestCase(_TestCase):
     # Custom assertions
     #
 
-    def assertObjectChange(self, objectchange, *, action, message=None, prechange_is_none: bool, postchange_is_none: bool):
+    def assertObjectChange(self, objectchange, *, action, message=None, prechange_is_none: bool,
+                           postchange_is_none: bool):
         """
         Assert that an ObjectChange record has the expected attributes. If message is provided, it will be
         compared against objectchange.message. For UPDATE actions, also asserts that prechange_data and
