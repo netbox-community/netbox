@@ -14,7 +14,7 @@ from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
 from core.models import ObjectType
-from extras.choices import ObjectChangeActionChoices
+from core.choices import ObjectChangeActionChoices
 from users.models import ObjectPermission, User
 from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
