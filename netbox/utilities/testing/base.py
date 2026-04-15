@@ -14,6 +14,7 @@ from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
 from core.models import ObjectType
+from extras.choices import ObjectChangeActionChoices
 from users.models import ObjectPermission, User
 from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
@@ -83,11 +84,15 @@ class TestCase(_TestCase):
     # Custom assertions
     #
 
-    def assertObjectChangeData(self, objectchange, *, prechange_is_none: bool, postchange_is_none: bool):
+    def assertObjectChange(self, objectchange, *, action, message=None, prechange_is_none: bool, postchange_is_none: bool):
         """
-        Assert that an ObjectChange record has the expected prechange_data and postchange_data.
-        Set prechange_is_none=True to assert the field is null, False to assert it is populated.
+        Assert that an ObjectChange record has the expected attributes. If message is provided, it will be
+        compared against objectchange.message. For UPDATE actions, also asserts that prechange_data and
+        postchange_data differ.
         """
+        self.assertEqual(objectchange.action, action)
+        if message is not None:
+            self.assertEqual(objectchange.message, message)
         if prechange_is_none:
             self.assertIsNone(objectchange.prechange_data, "Expected prechange_data to be None")
         else:
@@ -96,6 +101,8 @@ class TestCase(_TestCase):
             self.assertIsNone(objectchange.postchange_data, "Expected postchange_data to be None")
         else:
             self.assertIsNotNone(objectchange.postchange_data, "Expected postchange_data to be populated")
+        if action == ObjectChangeActionChoices.ACTION_UPDATE:
+            self.assertNotEqual(objectchange.prechange_data, objectchange.postchange_data)
 
     def assertHttpStatus(self, response, expected_status):
         """
