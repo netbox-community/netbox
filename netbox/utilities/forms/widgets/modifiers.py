@@ -131,14 +131,8 @@ class FilterModifierWidget(forms.Widget):
                 else:
                     self.original_widget.choices = [choice for choice in original_choices if choice[0] in values]
             else:
-                # No selection - render just the null option if one is configured, otherwise an empty select.
-                null_option = self.original_widget.attrs.get('data-null-option')
-                if null_option:
-                    self.original_widget.choices = [
-                        (settings.FILTERS_NULL_CHOICE_VALUE, null_option),
-                    ]
-                else:
-                    self.original_widget.choices = []
+                # No selection - render empty select element
+                self.original_widget.choices = []
 
         # Get context from the original widget
         original_context = self.original_widget.get_context(name, value, attrs)

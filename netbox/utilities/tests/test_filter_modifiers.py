@@ -125,18 +125,6 @@ class FilterModifierWidgetTest(TestCase):
         self.assertIn(f'value="{null_value}"', html)
         self.assertIn(null_label, html)
 
-    def test_get_context_shows_null_choice_when_unselected(self):
-        """Widget should show the null choice even before any selection is made."""
-
-        null_value = settings.FILTERS_NULL_CHOICE_VALUE
-        null_label = settings.FILTERS_NULL_CHOICE_LABEL
-
-        form = DeviceFilterForm(QueryDict(''))
-        html = form['tenant_id'].as_widget()
-
-        self.assertIn(f'value="{null_value}"', html)
-        self.assertIn(null_label, html)
-
     def test_get_context_handles_mixed_selection(self):
         """Widget should preserve both real objects and the 'null' choice together."""
 
