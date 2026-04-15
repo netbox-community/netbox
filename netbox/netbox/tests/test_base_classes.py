@@ -204,6 +204,7 @@ class FilterSetClassesTestCase(TestCase):
         for model in apps.get_models():
             if base_class := self.get_model_filterset_base_class(model):
                 filterset = self.get_filterset_for_model(model)
+                self.assertIsNotNone(filterset, f"No registered filterset found for model {model}")
                 self.assertTrue(
                     issubclass(filterset, base_class),
                     f"{filterset} does not inherit from {base_class}",
