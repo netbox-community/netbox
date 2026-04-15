@@ -1,6 +1,5 @@
 import importlib
-import importlib.util
-import os
+import types
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured, SuspiciousFileOperation
@@ -143,9 +142,8 @@ def validate_script_content(content, filename):
     and executing it. Raises an exception if the script cannot be loaded.
     """
     code = compile(content, filename, 'exec')
-    module_name = os.path.splitext(filename)[0]
-    spec = importlib.util.spec_from_loader(module_name, loader=None)
-    module = importlib.util.module_from_spec(spec)
+    module_name = Path(filename).stem
+    module = types.ModuleType(module_name)
     exec(code, module.__dict__)
 
 
