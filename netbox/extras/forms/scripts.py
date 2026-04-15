@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import JobIntervalChoices
 from core.forms import ManagedFileForm
+from extras.utils import validate_script_content
 from utilities.datetime import local_now
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
 
@@ -64,6 +65,22 @@ class ScriptFileForm(ManagedFileForm):
     """
     ManagedFileForm with a custom save method to use django-storages.
     """
+    def clean(self):
+        super().clean()
+
+        if upload_file := self.cleaned_data.get('upload_file'):
+            # Validate that the uploaded script can be loaded as a Python module
+            content = upload_file.read()
+            upload_file.seek(0)
+            try:
+                validate_script_content(content, upload_file.name)
+            except Exception as e:
+                raise forms.ValidationError(
+                    _("Error loading script: {error}").format(error=e)
+                )
+
+        return self.cleaned_data
+
     def save(self, *args, **kwargs):
         # If a file was uploaded, save it to disk
         if self.cleaned_data['upload_file']:

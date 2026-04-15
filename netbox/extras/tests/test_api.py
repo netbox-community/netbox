@@ -1450,6 +1450,21 @@ class ScriptModuleTest(APITestCase):
         self.assertTrue(ScriptModule.objects.filter(file_path='test_upload.py').exists())
         self.assertTrue(Script.objects.filter(module__file_path='test_upload.py', name='TestScript').exists())
 
+    def test_upload_faulty_script_module(self):
+        """Uploading a script with an import error should return 400 and not create a DB record."""
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        # 'extras.script' is invalid; the correct module is 'extras.scripts'
+        script_content = b"from extras.script import Script\nclass TestScript(Script):\n    pass\n"
+        upload_file = SimpleUploadedFile('test_faulty.py', script_content, content_type='text/plain')
+        response = self.client.post(
+            self.url,
+            {'file': upload_file},
+            format='multipart',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(ScriptModule.objects.filter(file_path='test_faulty.py').exists())
+
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
         response = self.client.post(self.url, {}, format='json', **self.header)

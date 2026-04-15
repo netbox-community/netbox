@@ -9,6 +9,7 @@ from rest_framework import serializers
 from core.api.serializers_.jobs import JobSerializer
 from core.choices import ManagedFileRootPathChoices
 from extras.models import Script, ScriptModule
+from extras.utils import validate_script_content
 from netbox.api.serializers import ValidatedModelSerializer
 from utilities.datetime import local_now
 
@@ -39,6 +40,15 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         data = super().validate(data)
         data.pop('file_root', None)
         if file is not None:
+            # Validate that the uploaded script can be loaded as a Python module
+            content = file.read()
+            file.seek(0)
+            try:
+                validate_script_content(content, file.name)
+            except Exception as e:
+                raise serializers.ValidationError(
+                    _("Error loading script: {error}").format(error=e)
+                )
             data['file'] = file
         return data
 
