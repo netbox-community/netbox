@@ -42,13 +42,7 @@ class TenantViewSet(NetBoxModelViewSet):
 #
 
 class ContactGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
-    queryset = ContactGroup.objects.add_related_count(
-        ContactGroup.objects.all(),
-        Contact,
-        'groups',
-        'contact_count',
-        cumulative=True
-    )
+    queryset = ContactGroup.objects.annotate_contacts()
     serializer_class = serializers.ContactGroupSerializer
     filterset_class = filtersets.ContactGroupFilterSet
 
