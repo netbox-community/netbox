@@ -248,7 +248,7 @@ class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 request,
                 groups,
                 extra=(
-                    (Contact.objects.restrict(request.user, 'view').filter(groups__in=groups), 'group_id'),
+                    (Contact.objects.restrict(request.user, 'view').filter(groups__in=groups).distinct(), 'group_id'),
                 ),
             ),
         }
