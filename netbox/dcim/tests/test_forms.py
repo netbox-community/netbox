@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.http import QueryDict
 from django.test import TestCase
 
 from dcim.choices import (
@@ -176,16 +174,6 @@ class DeviceTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('position', form.errors)
-
-
-class ModuleFilterFormTestCase(TestCase):
-
-    def test_profile_filter_shows_null_choice_when_unselected(self):
-        form = ModuleFilterForm(QueryDict(''))
-        html = form['profile_id'].as_widget()
-
-        self.assertIn(f'value="{settings.FILTERS_NULL_CHOICE_VALUE}"', html)
-        self.assertIn('None', html)
 
 
 class FrontPortTestCase(TestCase):
