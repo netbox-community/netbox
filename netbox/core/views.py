@@ -192,6 +192,12 @@ class DataFileView(generic.ObjectView):
             layout.Column(
                 panels.DataFilePanel(),
                 panels.DataFileContentPanel(),
+                PluginContentPanel('left_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
             ),
         ),
     )
@@ -253,6 +259,12 @@ class JobLogView(generic.ObjectView):
         layout.Row(
             layout.Column(
                 ContextTablePanel('table', title=_('Log Entries')),
+                PluginContentPanel('left_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
             ),
         ),
     )
@@ -393,6 +405,12 @@ class ConfigRevisionView(generic.ObjectView):
             layout.Column(
                 TemplatePanel('core/panels/configrevision_data.html'),
                 TemplatePanel('core/panels/configrevision_comment.html'),
+                PluginContentPanel('left_page'),
+            ),
+        ),
+        layout.Row(
+            layout.Column(
+                PluginContentPanel('full_width_page'),
             ),
         ),
     )
