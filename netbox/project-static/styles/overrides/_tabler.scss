@@ -173,6 +173,18 @@ pre code {
   height: auto;
 }
 
+// Center the accordion chevron inside Tabler's toggle box.
+.accordion-button-toggle {
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+
+  > i {
+    display: block;
+    line-height: 1;
+  }
+}
+
 // Theme-based visibility utilities
 :root:not(.dummy)[data-bs-theme='light'] .hide-theme-light,
 :root:not(.dummy)[data-bs-theme='dark'] .hide-theme-dark {
