@@ -51,6 +51,7 @@ class VRFListView(generic.ObjectListView):
 @register_model_view(VRF)
 class VRFView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VRF.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.Layout(
         layout.Row(
             layout.Column(
@@ -172,6 +173,7 @@ class RouteTargetListView(generic.ObjectListView):
 @register_model_view(RouteTarget)
 class RouteTargetView(generic.ObjectView):
     queryset = RouteTarget.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.Layout(
         layout.Row(
             layout.Column(
@@ -1332,6 +1334,7 @@ class VLANTranslationPolicyListView(generic.ObjectListView):
 @register_model_view(VLANTranslationPolicy)
 class VLANTranslationPolicyView(generic.ObjectView):
     queryset = VLANTranslationPolicy.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.VLANTranslationPolicyPanel(),
@@ -1414,6 +1417,7 @@ class VLANTranslationRuleListView(generic.ObjectListView):
 @register_model_view(VLANTranslationRule)
 class VLANTranslationRuleView(generic.ObjectView):
     queryset = VLANTranslationRule.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.VLANTranslationRulePanel(),
@@ -1753,6 +1757,7 @@ class ServiceTemplateListView(generic.ObjectListView):
 @register_model_view(ServiceTemplate)
 class ServiceTemplateView(generic.ObjectView):
     queryset = ServiceTemplate.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ServiceTemplatePanel(),

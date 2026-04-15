@@ -143,6 +143,7 @@ class WirelessLANListView(generic.ObjectListView):
 @register_model_view(WirelessLAN)
 class WirelessLANView(generic.ObjectView):
     queryset = WirelessLAN.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.WirelessLANPanel(),
@@ -218,6 +219,7 @@ class WirelessLinkListView(generic.ObjectListView):
 @register_model_view(WirelessLink)
 class WirelessLinkView(generic.ObjectView):
     queryset = WirelessLink.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.WirelessLinkInterfacePanel('interface_a', title=_('Interface A')),

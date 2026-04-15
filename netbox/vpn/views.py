@@ -208,6 +208,7 @@ class TunnelTerminationListView(generic.ObjectListView):
 @register_model_view(TunnelTermination)
 class TunnelTerminationView(generic.ObjectView):
     queryset = TunnelTermination.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.TunnelTerminationPanel(),
@@ -278,6 +279,7 @@ class IKEProposalListView(generic.ObjectListView):
 @register_model_view(IKEProposal)
 class IKEProposalView(generic.ObjectView):
     queryset = IKEProposal.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.IKEProposalPanel(),
@@ -351,6 +353,7 @@ class IKEPolicyListView(generic.ObjectListView):
 @register_model_view(IKEPolicy)
 class IKEPolicyView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = IKEPolicy.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.IKEPolicyPanel(),
@@ -430,6 +433,7 @@ class IPSecProposalListView(generic.ObjectListView):
 @register_model_view(IPSecProposal)
 class IPSecProposalView(generic.ObjectView):
     queryset = IPSecProposal.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.IPSecProposalPanel(),
@@ -503,6 +507,7 @@ class IPSecPolicyListView(generic.ObjectListView):
 @register_model_view(IPSecPolicy)
 class IPSecPolicyView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = IPSecPolicy.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.IPSecPolicyPanel(),
@@ -582,6 +587,7 @@ class IPSecProfileListView(generic.ObjectListView):
 @register_model_view(IPSecProfile)
 class IPSecProfileView(generic.ObjectView):
     queryset = IPSecProfile.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.IPSecProfilePanel(),
@@ -650,6 +656,7 @@ class L2VPNListView(generic.ObjectListView):
 @register_model_view(L2VPN)
 class L2VPNView(generic.ObjectView):
     queryset = L2VPN.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.Layout(
         layout.Row(
             layout.Column(
@@ -764,6 +771,7 @@ class L2VPNTerminationListView(generic.ObjectListView):
 @register_model_view(L2VPNTermination)
 class L2VPNTerminationView(generic.ObjectView):
     queryset = L2VPNTermination.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.L2VPNTerminationPanel(),

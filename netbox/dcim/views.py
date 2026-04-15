@@ -4060,6 +4060,7 @@ class InventoryItemRoleListView(generic.ObjectListView):
 @register_model_view(InventoryItemRole)
 class InventoryItemRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = InventoryItemRole.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.InventoryItemRolePanel(),
@@ -4308,6 +4309,7 @@ class CableListView(generic.ObjectListView):
 @register_model_view(Cable)
 class CableView(generic.ObjectView):
     queryset = Cable.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.CablePanel(),
@@ -4458,6 +4460,7 @@ class VirtualChassisListView(generic.ObjectListView):
 @register_model_view(VirtualChassis)
 class VirtualChassisView(generic.ObjectView):
     queryset = VirtualChassis.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.VirtualChassisPanel(),
@@ -4883,6 +4886,7 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 @register_model_view(VirtualDeviceContext)
 class VirtualDeviceContextView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.VirtualDeviceContextPanel(),
@@ -4968,6 +4972,7 @@ class MACAddressListView(generic.ObjectListView):
 @register_model_view(MACAddress)
 class MACAddressView(generic.ObjectView):
     queryset = MACAddress.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.MACAddressPanel(),
