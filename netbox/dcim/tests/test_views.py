@@ -194,6 +194,28 @@ class SiteTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_get_object_with_only_site_view_permission_hides_unauthorized_embedded_panels(self):
+        site = self._get_queryset().first()
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['view'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        response = self.client.get(site.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+
+        for panel, url in (
+            ('locations', reverse('dcim:location_list')),
+            ('devices', reverse('dcim:device_list')),
+            ('image attachments', reverse('extras:imageattachment_list')),
+        ):
+            with self.subTest(panel=panel):
+                self.assertNotContains(response, url)
+
 
 class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Location
