@@ -2424,13 +2424,14 @@ class ModuleTestCase(
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
+        module_type_profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1')
         devices = (
             create_test_device('Device 1'),
             create_test_device('Device 2'),
         )
 
         module_types = (
-            ModuleType(manufacturer=manufacturer, model='Module Type 1'),
+            ModuleType(manufacturer=manufacturer, model='Module Type 1', profile=module_type_profile),
             ModuleType(manufacturer=manufacturer, model='Module Type 2'),
             ModuleType(manufacturer=manufacturer, model='Module Type 3'),
             ModuleType(manufacturer=manufacturer, model='Module Type 4'),
@@ -2488,6 +2489,12 @@ class ModuleTestCase(
             f"{modules[1].pk},offline,Serial 3",
             f"{modules[2].pk},offline,Serial 1",
         )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_module_detail_includes_module_type_profile(self):
+        response = self.client.get(self._get_queryset().first().get_absolute_url())
+
+        self.assertContains(response, 'Module Type Profile 1')
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_module_component_replication(self):

@@ -11,6 +11,10 @@
       <th scope="row">{% trans "Model" %}</th>
       <td>{{ object.module_type|linkify }}</td>
     </tr>
+    <tr>
+      <th scope="row">{% trans "Profile" %}</th>
+      <td>{{ object.module_type.profile|linkify|placeholder }}</td>
+    </tr>
     {% for k, v in object.module_type.attributes.items %}
       <tr>
         <th scope="row">{{ k }}</th>
