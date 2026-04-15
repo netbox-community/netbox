@@ -254,7 +254,7 @@ class APIViewTestCases:
                     action=ObjectChangeActionChoices.ACTION_CREATE,
                 )
                 self.assertObjectChange(objectchange, action=ObjectChangeActionChoices.ACTION_CREATE,
-                    message=data['changelog_message'], prechange_is_none=True, postchange_is_none=False)
+                    message=data['changelog_message'])
 
         def test_bulk_create_objects(self):
             """
@@ -308,7 +308,7 @@ class APIViewTestCases:
                 self.assertEqual(len(objectchanges), len(self.create_data))
                 for oc in objectchanges:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_CREATE,
-                        message=changelog_message, prechange_is_none=True, postchange_is_none=False)
+                        message=changelog_message)
 
     class UpdateObjectViewTestCase(APITestCase):
         update_data = {}
@@ -367,7 +367,7 @@ class APIViewTestCases:
                     changed_object_id=instance.pk
                 )
                 self.assertObjectChange(objectchange, action=ObjectChangeActionChoices.ACTION_UPDATE,
-                    message=data['changelog_message'], prechange_is_none=False, postchange_is_none=False)
+                    message=data['changelog_message'])
 
         def test_bulk_update_objects(self):
             """
@@ -417,7 +417,7 @@ class APIViewTestCases:
                 self.assertEqual(len(objectchanges), len(data))
                 for oc in objectchanges:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_UPDATE,
-                        message=changelog_message, prechange_is_none=False, postchange_is_none=False)
+                        message=changelog_message)
 
     class DeleteObjectViewTestCase(APITestCase):
 
@@ -465,7 +465,7 @@ class APIViewTestCases:
                     changed_object_id=instance.pk
                 )
                 self.assertObjectChange(objectchange, action=ObjectChangeActionChoices.ACTION_DELETE,
-                    message=data['changelog_message'], prechange_is_none=False, postchange_is_none=True)
+                    message=data['changelog_message'])
 
         def test_bulk_delete_objects(self):
             """
@@ -506,7 +506,7 @@ class APIViewTestCases:
                 self.assertEqual(len(objectchanges), len(data))
                 for oc in objectchanges:
                     self.assertObjectChange(oc, action=ObjectChangeActionChoices.ACTION_DELETE,
-                        message=changelog_message, prechange_is_none=False, postchange_is_none=True)
+                        message=changelog_message)
 
     class GraphQLTestCase(APITestCase):
 

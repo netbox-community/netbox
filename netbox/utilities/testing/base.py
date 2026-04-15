@@ -84,26 +84,29 @@ class TestCase(_TestCase):
     # Custom assertions
     #
 
-    def assertObjectChange(self, objectchange, *, action, message=None, prechange_is_none: bool,
-                           postchange_is_none: bool):
+    def assertObjectChange(self, objectchange, *, action, message=None):
         """
         Assert that an ObjectChange record has the expected attributes. If message is provided, it will be
-        compared against objectchange.message. For UPDATE actions, also asserts that prechange_data and
-        postchange_data differ.
+        compared against objectchange.message.
         """
+        # Verify the change action (create, update, delete)
         self.assertEqual(objectchange.action, action)
+
+        # Verify the changelog message if provided
         if message is not None:
             self.assertEqual(objectchange.message, message)
-        if prechange_is_none:
-            self.assertIsNone(objectchange.prechange_data, "Expected prechange_data to be None")
-        else:
-            self.assertIsNotNone(objectchange.prechange_data, "Expected prechange_data to be populated")
-        if postchange_is_none:
-            self.assertIsNone(objectchange.postchange_data, "Expected postchange_data to be None")
-        else:
-            self.assertIsNotNone(objectchange.postchange_data, "Expected postchange_data to be populated")
-        if action == ObjectChangeActionChoices.ACTION_UPDATE:
+
+        # For creates, prechange must be absent; for updates, snapshots must differ; for deletes, postchange must be absent
+        if action == ObjectChangeActionChoices.ACTION_CREATE:
+            self.assertIsNone(objectchange.prechange_data, "Expected prechange_data to be None for a create")
+            self.assertIsNotNone(objectchange.postchange_data, "Expected postchange_data to be populated for a create")
+        elif action == ObjectChangeActionChoices.ACTION_UPDATE:
+            self.assertIsNotNone(objectchange.prechange_data, "Expected prechange_data to be populated for an update")
+            self.assertIsNotNone(objectchange.postchange_data, "Expected postchange_data to be populated for an update")
             self.assertNotEqual(objectchange.prechange_data, objectchange.postchange_data)
+        elif action == ObjectChangeActionChoices.ACTION_DELETE:
+            self.assertIsNotNone(objectchange.prechange_data, "Expected prechange_data to be populated for a delete")
+            self.assertIsNone(objectchange.postchange_data, "Expected postchange_data to be None for a delete")
 
     def assertHttpStatus(self, response, expected_status):
         """
