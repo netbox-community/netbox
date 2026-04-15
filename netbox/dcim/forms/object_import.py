@@ -155,14 +155,18 @@ class PortTemplateMappingImportForm(forms.ModelForm):
 
     def clean_device_type(self):
         if device_type := self.cleaned_data['device_type']:
-            self.fields['front_port'].queryset = FrontPortTemplate.objects.filter(device_type=device_type)
-            self.fields['rear_port'].queryset = RearPortTemplate.objects.filter(device_type=device_type)
+            front_port = self.fields['front_port']
+            rear_port = self.fields['rear_port']
+            front_port.queryset = front_port.queryset.filter(device_type=device_type)
+            rear_port.queryset = rear_port.queryset.filter(device_type=device_type)
         return device_type
 
     def clean_module_type(self):
         if module_type := self.cleaned_data['module_type']:
-            self.fields['front_port'].queryset = FrontPortTemplate.objects.filter(module_type=module_type)
-            self.fields['rear_port'].queryset = RearPortTemplate.objects.filter(module_type=module_type)
+            front_port = self.fields['front_port']
+            rear_port = self.fields['rear_port']
+            front_port.queryset = front_port.queryset.filter(module_type=module_type)
+            rear_port.queryset = rear_port.queryset.filter(module_type=module_type)
         return module_type
 
 
