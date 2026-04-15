@@ -1,5 +1,6 @@
 from django.http import QueryDict
 from django.test import TestCase
+from django.conf import settings
 
 from dcim.choices import (
     DeviceFaceChoices,
@@ -183,7 +184,7 @@ class ModuleFilterFormTestCase(TestCase):
         form = ModuleFilterForm(QueryDict(''))
         html = form['profile_id'].as_widget()
 
-        self.assertIn('value="null"', html)
+        self.assertIn(f'value="{settings.FILTERS_NULL_CHOICE_VALUE}"', html)
         self.assertIn('None', html)
 
 
