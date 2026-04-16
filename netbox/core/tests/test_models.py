@@ -1,13 +1,16 @@
+import uuid
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
-from core.choices import ObjectChangeActionChoices
+from core.choices import JobNotificationChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.models import DataSource, Job, ObjectType
 from dcim.models import Device, Location, Site
+from extras.models import Notification
 from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
+from users.models import User
 
 
 class DataSourceIgnoreRulesTestCase(TestCase):
@@ -226,6 +229,18 @@ class ObjectTypeTest(TestCase):
 
 class JobTest(TestCase):
 
+    def _make_job(self, user, notifications):
+        """
+        Create and return a persisted Job with the given user and notifications setting.
+        """
+        return Job.objects.create(
+            name='Test Job',
+            job_id=uuid.uuid4(),
+            user=user,
+            notifications=notifications,
+            status=JobStatusChoices.STATUS_RUNNING,
+        )
+
     @patch('core.models.jobs.django_rq.get_queue')
     def test_delete_cancels_job_from_correct_queue(self, mock_get_queue):
         """
@@ -257,3 +272,75 @@ class JobTest(TestCase):
         mock_get_queue.assert_called_with(custom_queue)
         mock_queue.fetch_job.assert_called_with(str(job.job_id))
         mock_rq_job.cancel.assert_called_once()
+
+    @patch('core.models.jobs.job_end')
+    def test_terminate_notification_always(self, mock_job_end):
+        """
+        With notifications=always, a Notification should be created for every
+        terminal status (completed, failed, errored).
+        """
+        user = User.objects.create_user(username='notification-always')
+
+        for status in (
+            JobStatusChoices.STATUS_COMPLETED,
+            JobStatusChoices.STATUS_FAILED,
+            JobStatusChoices.STATUS_ERRORED,
+        ):
+            with self.subTest(status=status):
+                job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ALWAYS)
+                job.terminate(status=status)
+                self.assertEqual(
+                    Notification.objects.filter(user=user, object_id=job.pk).count(),
+                    1,
+                    msg=f"Expected a notification for status={status} with notifications=always",
+                )
+
+    @patch('core.models.jobs.job_end')
+    def test_terminate_notification_on_failure(self, mock_job_end):
+        """
+        With notifications=on_failure, a Notification should be created only for
+        non-completed terminal statuses (failed, errored), not for completed.
+        """
+        user = User.objects.create_user(username='notification-on-failure')
+
+        # No notification on successful completion
+        job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ON_FAILURE)
+        job.terminate(status=JobStatusChoices.STATUS_COMPLETED)
+        self.assertEqual(
+            Notification.objects.filter(user=user, object_id=job.pk).count(),
+            0,
+            msg="Expected no notification for status=completed with notifications=on_failure",
+        )
+
+        # Notification on failure/error
+        for status in (JobStatusChoices.STATUS_FAILED, JobStatusChoices.STATUS_ERRORED):
+            with self.subTest(status=status):
+                job = self._make_job(user, JobNotificationChoices.NOTIFICATION_ON_FAILURE)
+                job.terminate(status=status)
+                self.assertEqual(
+                    Notification.objects.filter(user=user, object_id=job.pk).count(),
+                    1,
+                    msg=f"Expected a notification for status={status} with notifications=on_failure",
+                )
+
+    @patch('core.models.jobs.job_end')
+    def test_terminate_notification_never(self, mock_job_end):
+        """
+        With notifications=never, no Notification should be created regardless
+        of terminal status.
+        """
+        user = User.objects.create_user(username='notification-never')
+
+        for status in (
+            JobStatusChoices.STATUS_COMPLETED,
+            JobStatusChoices.STATUS_FAILED,
+            JobStatusChoices.STATUS_ERRORED,
+        ):
+            with self.subTest(status=status):
+                job = self._make_job(user, JobNotificationChoices.NOTIFICATION_NEVER)
+                job.terminate(status=status)
+                self.assertEqual(
+                    Notification.objects.filter(user=user, object_id=job.pk).count(),
+                    0,
+                    msg=f"Expected no notification for status={status} with notifications=never",
+                )
