@@ -403,6 +403,7 @@ class ContactListView(generic.ObjectListView):
 @register_model_view(Contact)
 class ContactView(generic.ObjectView):
     queryset = Contact.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ContactPanel(),
