@@ -205,6 +205,7 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
         # Gather all Jobs for this object
         jobs = self.get_jobs(obj)
         jobs_table = JobTable(data=jobs, orderable=False)
+        jobs_table.configure(request)
 
         return render(request, 'core/object_jobs.html', {
             'object': obj,
