@@ -70,6 +70,7 @@ A new `start` query parameter has been introduced as an efficient alternative to
 * [#21884](https://github.com/netbox-community/netbox/issues/21884) - Deprecate the obsolete `DEFAULT_ACTION_PERMISSIONS` mapping
 * [#21887](https://github.com/netbox-community/netbox/issues/21887) - Deprecate support for legacy view actions
 * [#21890](https://github.com/netbox-community/netbox/issues/21890) - Deprecate `models` key in application registry
+* [#21936](https://github.com/netbox-community/netbox/issues/21936) - Deprecate the `LOGIN_REQUIRED` configuration parameter
 
 ### Other Changes
 

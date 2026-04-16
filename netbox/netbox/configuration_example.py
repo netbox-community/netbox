@@ -162,9 +162,6 @@ LOGGING = {}
 # authenticated to NetBox indefinitely.
 LOGIN_PERSISTENCE = False
 
-# Setting this to False will permit unauthenticated users to access most areas of NetBox (but not make any changes).
-LOGIN_REQUIRED = True
-
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
 # re-authenticate. (Default: 1209600 [14 days])
 LOGIN_TIMEOUT = None

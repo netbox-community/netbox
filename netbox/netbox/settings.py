@@ -243,11 +243,18 @@ for path in PROXY_ROUTERS:
         except ImportError:
             raise ImproperlyConfigured(f"Invalid path in PROXY_ROUTERS: {path}")
 
-# Warn on presence of deprecated configuration parameters
+# Warn on the presence of deprecated configuration parameters
 if not LOGIN_REQUIRED:
     warnings.warn(
         "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. Consider disabling this functionality in "
-        "the near future.",
+        "the near future by removing LOGIN_REQUIRED from your configuration file to avoid a breaking change when "
+        "upgrading to v5.0.",
+        DeprecationWarning,
+    )
+elif hasattr(configuration, 'LOGIN_REQUIRED'):
+    warnings.warn(
+        "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. This parameter can be removed from your "
+        "configuration file",
         DeprecationWarning,
     )
 
