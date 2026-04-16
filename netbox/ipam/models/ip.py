@@ -497,20 +497,27 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             )
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             utilization = float(child_prefixes.size) / self.prefix.size * 100
-        else:
-            # Compile an IPSet to avoid counting duplicate IPs
-            child_ips = netaddr.IPSet()
-            for iprange in self.get_child_ranges().filter(mark_utilized=True):
-                child_ips.add(iprange.range)
-            for ip in self.get_child_ips():
-                child_ips.add(ip.address.ip)
+            return min(utilization, 100)
 
-            prefix_size = self.prefix.size
-            if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
-                prefix_size -= 2
-            utilization = float(child_ips.size) / prefix_size * 100
+        prefix_size = self.prefix.size
+        if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
+            prefix_size -= 2
 
-        return min(utilization, 100)
+        child_ranges = self.get_child_ranges().filter(mark_utilized=True)
+        if not child_ranges.exists():
+            # Avoid compling an IPSet here for speed.
+            # Without utilized ranges, counting distinct child IP hosts gives the same result.
+            child_ip_count = self.get_child_ips().values('address__host').distinct().count()
+            return min(float(child_ip_count) / prefix_size * 100, 100)
+
+        # Compile an IPSet to avoid counting duplicate IPs
+        child_ips = netaddr.IPSet()
+        for iprange in child_ranges:
+            child_ips.add(iprange.range)
+        for ip in self.get_child_ips():
+            child_ips.add(ip.address.ip)
+
+        return min(float(child_ips.size) / prefix_size * 100, 100)
 
 
 class IPRange(ContactsMixin, PrimaryModel):
