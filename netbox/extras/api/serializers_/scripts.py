@@ -114,20 +114,11 @@ class ScriptInputSerializer(serializers.Serializer):
     commit = serializers.BooleanField()
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
     interval = serializers.IntegerField(required=False, allow_null=True)
-    notifications = serializers.CharField(required=False, default=JobNotificationChoices.NOTIFICATION_ALWAYS)
-
-    def validate_notifications(self, value):
-        """
-        Validates the provided notifications value.
-        """
-        valid_choices = dict(JobNotificationChoices.CHOICES).keys()
-        if value not in valid_choices:
-            raise serializers.ValidationError(
-                _('Invalid choice. Valid choices are: {choices}').format(
-                    choices=', '.join(valid_choices)
-                )
-            )
-        return value
+    notifications = serializers.ChoiceField(
+        choices=JobNotificationChoices,
+        required=False,
+        default=JobNotificationChoices.NOTIFICATION_ALWAYS,
+    )
 
     def validate_schedule_at(self, value):
         """

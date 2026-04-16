@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
+from core.choices import JobNotificationChoices
 from extras.choices import LogLevelChoices
 from extras.models import ScriptModule
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
@@ -391,7 +392,7 @@ class BaseScript:
 
     @classproperty
     def notifications_default(self):
-        return getattr(self.Meta, 'notifications_default', 'always')
+        return getattr(self.Meta, 'notifications_default', JobNotificationChoices.NOTIFICATION_ALWAYS)
 
     @property
     def filename(self):
