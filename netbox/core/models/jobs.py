@@ -277,7 +277,7 @@ class Job(models.Model):
             interval=None,
             immediate=False,
             queue_name=None,
-            notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
+            notifications=None,
             **kwargs
     ):
         """
@@ -315,7 +315,7 @@ class Job(models.Model):
             user=user,
             job_id=uuid.uuid4(),
             queue_name=rq_queue_name,
-            notifications=notifications
+            notifications=notifications or JobNotificationChoices.NOTIFICATION_ALWAYS
         )
         job.full_clean()
         job.save()
