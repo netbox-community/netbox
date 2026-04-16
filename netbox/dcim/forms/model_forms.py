@@ -1974,7 +1974,7 @@ class MACAddressForm(PrimaryModelForm):
     class Meta:
         model = MACAddress
         fields = [
-            'mac_address', 'interface', 'vminterface', 'description', 'owner', 'tags',
+            'mac_address', 'interface', 'vminterface', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
