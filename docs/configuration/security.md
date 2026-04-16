@@ -161,6 +161,9 @@ Note that enabling this setting causes NetBox to update a user's session in the 
 
 ## LOGIN_REQUIRED
 
+!!! warning "Legacy Configuration Parameter"
+    The `LOGIN_REQUIRED` configuration parameter is deprecated and will be removed in NetBox v5.0. Unauthenticated access to the application will no longer be supported once this configuration parameter is removed.
+
 Default: `True`
 
 When enabled, only authenticated users are permitted to access any part of NetBox. Disabling this will allow unauthenticated users to access most areas of NetBox (but not make any changes).

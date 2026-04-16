@@ -243,6 +243,14 @@ for path in PROXY_ROUTERS:
         except ImportError:
             raise ImproperlyConfigured(f"Invalid path in PROXY_ROUTERS: {path}")
 
+# Warn on presence of deprecated configuration parameters
+if not LOGIN_REQUIRED:
+    warnings.warn(
+        "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. Consider disabling this functionality in "
+        "the near future.",
+        DeprecationWarning,
+    )
+
 
 #
 # Database
@@ -270,12 +278,14 @@ if STORAGE_BACKEND is not None:
         )
     else:
         warnings.warn(
-            "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead."
+            "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead.",
+            DeprecationWarning,
         )
 
 if STORAGE_CONFIG is not None:
     warnings.warn(
-        "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead."
+        "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead.",
+        DeprecationWarning,
     )
 
 # Default STORAGES for Django
@@ -623,7 +633,10 @@ MAINTENANCE_EXEMPT_PATHS = (
 # Warn on the presence of deprecated Sentry config parameters
 for config_param in ('SENTRY_DSN', 'SENTRY_SAMPLE_RATE', 'SENTRY_SEND_DEFAULT_PII', 'SENTRY_TRACES_SAMPLE_RATE'):
     if hasattr(configuration, config_param):
-        warnings.warn(f"{config_param} is deprecated and will be removed in NetBox v4.7. Use SENTRY_CONFIG instead.")
+        warnings.warn(
+            f"{config_param} is deprecated and will be removed in NetBox v4.7. Use SENTRY_CONFIG instead.",
+            DeprecationWarning,
+        )
 
 if SENTRY_ENABLED:
     try:
