@@ -34,7 +34,7 @@ NetBox ships with a reasonable default configuration for most environments, but 
 
 #### Reduce the Maximum Page Size
 
-NetBox paginates large result sets to reduce the overall response size. The [`MAX_PAGE_SIZE`](../configuration/miscellaneous.md#max_page_size) parameter specifies the maximum number of results per page that a client can request. This is set to 1,000 by default. Consider lowering this number if you find that API clients are frequently requesting very large result sets.
+NetBox paginates large result sets to reduce the overall response size. The [`MAX_PAGE_SIZE`](../configuration/miscellaneous.md#max_page_size) parameter specifies the maximum number of results per page that a client can request. This is set to 1,000 by default. Consider lowering this number if you find that API clients are frequently requesting very large result sets. `MAX_PAGE_SIZE` applies to both the REST API (`?limit=`) and the GraphQL API (`pagination: {limit: …}`), so lowering it reduces the maximum size of responses from either API.
 
 #### Limit GraphQL Aliases
 
@@ -185,3 +185,5 @@ Like the REST API, the GraphQL API supports pagination. Queries which return a l
   }
 }
 ```
+
+The requested `limit` is capped by [`MAX_PAGE_SIZE`](../configuration/miscellaneous.md#max_page_size).

@@ -141,7 +141,13 @@ To ensure consistent ordering, objects will always be ordered by their primary k
 
 !!! note "Cursor-based pagination was introduced in NetBox v4.5.2."
 
-Both pagination strategies support passing an optional `limit` parameter. In both approaches, this specifies the maximum number of objects to include in the response. If no limit is specified, a default value of 100 is used.
+Both pagination strategies support an optional `limit` parameter specifying the maximum number of objects to include in the response. The [`MAX_PAGE_SIZE`](../configuration/miscellaneous.md#max_page_size) configuration parameter (default `1000`) sets a hard ceiling on this value; if no limit is specified, up to `MAX_PAGE_SIZE` records are returned.
+
+When `MAX_PAGE_SIZE` is set to `0` or `None`:
+
+* Omitting the `pagination` argument entirely returns all matching records.
+* Supplying `pagination` without a `limit` returns up to Strawberry Django's default of 100 records.
+* Supplying `pagination: {limit: 0}` returns _zero_ records — the opposite of the REST API's `?limit=0` semantics.
 
 ### Offset Pagination
 

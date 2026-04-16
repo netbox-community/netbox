@@ -45,7 +45,7 @@ Sets content for the top banner in the user interface.
 
 !!! tip
     If you'd like the top and bottom banners to match, set the following:
-    
+
     ```python
     BANNER_TOP = 'Your banner text'
     BANNER_BOTTOM = BANNER_TOP
@@ -171,7 +171,9 @@ This specifies the URL to use when presenting a map of a physical location by st
 
 Default: `1000`
 
-A web user or API consumer can request an arbitrary number of objects by appending the "limit" parameter to the URL (e.g. `?limit=1000`). This parameter defines the maximum acceptable limit. Setting this to `0` or `None` will allow a client to retrieve _all_ matching objects at once with no limit by specifying `?limit=0`.
+Defines the maximum number of objects that may be returned in a single page across the web UI, REST API, and GraphQL API. Setting `MAX_PAGE_SIZE` to `0` or `None` removes the limit.
+
+See the [REST API](../integrations/rest-api.md#pagination) and [GraphQL API](../integrations/graphql-api.md#pagination) pagination documentation for details.
 
 ---
 
