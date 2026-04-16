@@ -35,9 +35,17 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Details
+      label: Observations
       description: >
-        Describe in detail the operations being performed and the indications of a performance issue.
-        Include any relevant testing parameters, benchmarks, and expected results.
+        Describe in detail the operations being performed and the indications of a performance issue. Include any
+        relevant testing parameters, benchmarks, and expected results.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Proposed Changes
+      description: >
+        What specific improvement(s) do you propose to improve application performance? (If you're not sure about this,
+        consider starting a [discussion](https://github.com/netbox-community/netbox/discussions/new/choose) instead.
     validations:
       required: true
