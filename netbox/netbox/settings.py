@@ -246,15 +246,14 @@ for path in PROXY_ROUTERS:
 # Warn on the presence of deprecated configuration parameters
 if not LOGIN_REQUIRED:
     warnings.warn(
-        "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. Consider disabling this functionality in "
-        "the near future by removing LOGIN_REQUIRED from your configuration file to avoid a breaking change when "
-        "upgrading to v5.0.",
+        "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. Unauthenticated access to the application "
+        "will no longer be supported. Please plan to require authentication for all users before upgrading.",
         DeprecationWarning,
     )
 elif hasattr(configuration, 'LOGIN_REQUIRED'):
     warnings.warn(
         "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. This parameter can be removed from your "
-        "configuration file",
+        "configuration file.",
         DeprecationWarning,
     )
 
