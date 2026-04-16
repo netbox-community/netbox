@@ -45,7 +45,7 @@ body:
     attributes:
       label: Proposed Changes
       description: >
-        What specific improvement(s) do you propose to improve application performance? (If you're not sure about this,
-        consider starting a [discussion](https://github.com/netbox-community/netbox/discussions/new/choose) instead.
+        What specific changes do you propose to improve application performance? (If you're not sure about this,
+        consider starting a [discussion](https://github.com/netbox-community/netbox/discussions/new/choose) instead.)
     validations:
       required: true
