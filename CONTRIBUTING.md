@@ -20,7 +20,7 @@ In her book [Working in Public](https://www.amazon.com/Working-Public-Making-Mai
 
 > Stadiums are projects with low contributor growth and high user growth. While they may receive casual contributions, their regular contributor base does not grow proportionately to their users. As a result, they tend to be powered by one or a few developers.
 
-The bulk of NetBox's development is carried out by a handful of core maintainers, with occasional contributions from collaborators in the community. We find the stadium analogy very useful in conveying the roles and obligations of both contributors and users.
+The bulk of NetBox's development is carried out by a handful of core maintainers at [NetBox Labs](https://netboxlabs.com), with occasional contributions from collaborators in the community. We find the stadium analogy very useful in conveying the roles and obligations of both contributors and users.
 
 If you're a contributor, actively working on the center stage, you have an obligation to produce quality content that will benefit the project as a whole. Conversely, if you're in the audience consuming the work being produced, you have the option of making requests and suggestions, but must also recognize that contributors are under no obligation to act on them.
 
@@ -33,6 +33,9 @@ NetBox users are welcome to participate in either role, on stage or in the crowd
 * To help mitigate notification spam, please avoid "bumping" issues with no activity. (To vote an issue up or down, use a :thumbsup: or :thumbsdown: reaction.)
 * Please avoid pinging members with `@` unless they've previously expressed interest or involvement with that particular issue.
 * Familiarize yourself with [this list of discussion anti-patterns](https://github.com/bradfitz/issue-tracker-behaviors) and make every effort to avoid them.
+
+> [!CAUTION]
+> We do not currently accept issues submitted via GitHub's API: All issues must be submitted via one of the [provided templates](https://github.com/netbox-community/netbox/issues/new/choose). Not only do the templates help ensure high quality submissions, they also automatically assign issue types and labels for categorization. This does not happen when issues are submitted via the API.
 
 ## :bug: Reporting Bugs
 
@@ -58,7 +61,7 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * First, check the GitHub [issues list](https://github.com/netbox-community/netbox/issues?q=is%3Aissue) to see if the feature you have in mind has already been proposed. If you happen to find an open feature request that matches your idea, click "add a reaction" in the top right corner of the issue and add a thumbs up ( :thumbsup: ). This ensures that the issue has a better chance of receiving attention. Also feel free to add a comment with any additional justification for the feature.
 
-* Please don't submit duplicate issues! Sometimes we reject feature requests, for various reasons. Even if you disagree with those reasons, please **do not** submit a duplicate feature request. It is very disrepectful of the maintainers' time, and you may be barred from opening future issues.
+* Please don't submit duplicate issues! Sometimes we reject feature requests, for various reasons. Even if you disagree with those reasons, please **do not** submit a duplicate feature request. It is very disrespectful of the maintainers' time, and you may be barred from opening future issues.
 
 * If you have a rough idea that's not quite ready for formal submission yet, start a [GitHub discussion](https://github.com/netbox-community/netbox/discussions) instead. This is a great way to test the viability and narrow down the scope of a new feature prior to submitting a formal proposal, and can serve to generate interest in your idea from other community members.
 
@@ -84,7 +87,7 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * It's very important that you not submit a pull request until a relevant issue has been opened **and** assigned to you. Otherwise, you risk wasting time on work that may ultimately not be needed.
 
-* Community members are limited to a maximum of **three open PRs** at any time. This is to avoid the accumulation of too much parallel work and maintain focus on already PRs under review. If you already have three NetBox PRs open, please wait for at least one of them to be merged (or closed) before opening another.
+* Community members are limited to a maximum of **three open PRs** at any time. This is to avoid the accumulation of too much parallel work and maintain focus on PRs already under review. If you already have three NetBox PRs open, please wait for at least one of them to be merged (or closed) before opening another.
 
 * New pull requests should generally be based off of the `main` branch. This branch, in keeping with the [trunk-based development](https://trunkbaseddevelopment.com/) approach, is used for ongoing development and bug fixes and always represents the newest stable code, from which releases are periodically branched. (If you're developing for an upcoming minor release, use `feature` instead.)
 
@@ -93,12 +96,11 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 * All code submissions must meet the following criteria (CI will enforce these checks where feasible):
   * Consist entirely of original work
   * Python syntax is valid
-  * All tests pass when run with `./manage.py test`
-  * PEP 8 compliance is enforced, with the exception that lines may be
-      greater than 80 characters in length
+  * All tests pass when run with `NETBOX_CONFIGURATION=netbox.configuration_testing ./manage.py test`
+  * `ruff check` successfully validates style compliance
 
 > [!CAUTION]
-> Any contributions which include solely AI-generated or reproduced content will be rejected. All PRs must be submitted by a human.
+> Any contributions which include solely AI-generated content will be rejected. All PRs must be submitted by a human.
 
 * Some other tips to keep in mind:
   * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (GitHub allows only people who have commented on an issue to be assigned as its owner.)
