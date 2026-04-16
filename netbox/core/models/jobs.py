@@ -315,7 +315,7 @@ class Job(models.Model):
             user=user,
             job_id=uuid.uuid4(),
             queue_name=rq_queue_name,
-            notifications=notifications or JobNotificationChoices.NOTIFICATION_ALWAYS
+            notifications=notifications if notifications is not None else JobNotificationChoices.NOTIFICATION_ALWAYS
         )
         job.full_clean()
         job.save()

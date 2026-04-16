@@ -120,6 +120,14 @@ class ScriptInputSerializer(serializers.Serializer):
         default=JobNotificationChoices.NOTIFICATION_ALWAYS,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Default to script's Meta.notifications_default if set
+        script = self.context.get('script')
+        if script and script.python_class:
+            self.fields['notifications'].default = script.python_class.notifications_default
+
     def validate_schedule_at(self, value):
         """
         Validates the specified schedule time for a script execution.
