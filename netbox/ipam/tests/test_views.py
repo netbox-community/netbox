@@ -482,6 +482,22 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_prefixes_addressing_panel(self):
+        """Test full-page and HTMX partial rendering for the addressing panel."""
+        prefix = Prefix.objects.first()
+        url = reverse('ipam:prefix', kwargs={'pk': prefix.pk})
+
+        # Test a full page request.
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+        self.assertTemplateUsed(response, 'ipam/prefix.html')
+
+        # Test an HTMX partial request for the addressing panel.
+        response = self.client.get(url, {'addressing': 'true'}, HTTP_HX_REQUEST='true')
+        self.assertHttpStatus(response, 200)
+        self.assertTemplateUsed(response, 'ipam/panels/prefix_addressing_content.html')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_ipranges(self):
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_ranges = (
