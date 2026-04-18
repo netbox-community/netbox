@@ -26,7 +26,8 @@ class CoreConfig(AppConfig):
         from netbox import context_managers  # noqa: F401
         from netbox.models.features import register_models
 
-        from . import data_backends, events, search  # noqa: F401
+        from netbox import global_side_effects  # noqa: F401
+        from . import data_backends, events, search, side_effects  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

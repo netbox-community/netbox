@@ -8,7 +8,7 @@ class VirtualizationConfig(AppConfig):
         from netbox.models.features import register_models
         from utilities.counters import connect_counters
 
-        from . import search, signals  # noqa: F401
+        from . import search, side_effects, signals  # noqa: F401
         from .models import VirtualMachine
 
         # Register models
