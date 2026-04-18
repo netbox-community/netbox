@@ -1,0 +1,71 @@
+"""
+Extracted, composable validators for vpn models.
+"""
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+from netbox.validators import ModelValidator, ValidatorCategory, validator_registry
+
+_fs = frozenset
+
+
+def validate_l2vpn_termination_unique(instance):
+    """Only one L2VPN termination per assigned object; P2P has max 2."""
+    from vpn.models import L2VPNTermination
+    from vpn.choices import L2VPNTypeChoices
+
+    existing = L2VPNTermination.objects.filter(
+        assigned_object_type=instance.assigned_object_type,
+        assigned_object_id=instance.assigned_object_id,
+    ).exclude(pk=instance.pk)
+    if existing.exists():
+        raise ValidationError({
+            'assigned_object': _("This object is already assigned to an L2VPN termination.")
+        })
+
+    if instance.l2vpn and instance.l2vpn.type in L2VPNTypeChoices.P2P:
+        count = L2VPNTermination.objects.filter(l2vpn=instance.l2vpn).exclude(pk=instance.pk).count()
+        if count >= 2:
+            raise ValidationError(
+                _("A point-to-point L2VPN may have no more than two terminations.")
+            )
+
+
+def validate_tunnel_termination_unique(instance):
+    """Termination object cannot be on multiple tunnels."""
+    if not instance.termination_id:
+        return
+    from vpn.models import TunnelTermination
+    existing = TunnelTermination.objects.filter(
+        termination_type=instance.termination_type,
+        termination_id=instance.termination_id,
+    ).exclude(pk=instance.pk)
+    if existing.exists():
+        raise ValidationError({
+            'termination': _("This interface is already assigned to a tunnel.")
+        })
+
+
+validator_registry.register('vpn.l2vpntermination',
+    ModelValidator(
+        name='l2vpn_termination_unique',
+        model_label='vpn.l2vpntermination',
+        fields=_fs({'assigned_object_type', 'assigned_object_id', 'l2vpn'}),
+        category=ValidatorCategory.UNIQUENESS,
+        validate=validate_l2vpn_termination_unique,
+        queries_db=True,
+        description='One L2VPN termination per object; P2P max 2',
+    ),
+)
+
+validator_registry.register('vpn.tunneltermination',
+    ModelValidator(
+        name='tunnel_termination_unique',
+        model_label='vpn.tunneltermination',
+        fields=_fs({'termination_type', 'termination_id'}),
+        category=ValidatorCategory.UNIQUENESS,
+        validate=validate_tunnel_termination_unique,
+        queries_db=True,
+        description='Interface can only be assigned to one tunnel',
+    ),
+)

@@ -118,44 +118,9 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        if self.prefix:
-
-            # /0 masks are not acceptable
-            if self.prefix.prefixlen == 0:
-                raise ValidationError({
-                    'prefix': _("Cannot create aggregate with /0 mask.")
-                })
-
-            # Ensure that the aggregate being added is not covered by an existing aggregate
-            covering_aggregates = Aggregate.objects.filter(
-                prefix__net_contains_or_equals=str(self.prefix)
-            )
-            if self.pk:
-                covering_aggregates = covering_aggregates.exclude(pk=self.pk)
-            if covering_aggregates:
-                raise ValidationError({
-                    'prefix': _(
-                        "Aggregates cannot overlap. {prefix} is already covered by an existing aggregate ({aggregate})."
-                    ).format(
-                        prefix=self.prefix,
-                        aggregate=covering_aggregates[0]
-                    )
-                })
-
-            # Ensure that the aggregate being added does not cover an existing aggregate
-            covered_aggregates = Aggregate.objects.filter(prefix__net_contained=str(self.prefix))
-            if self.pk:
-                covered_aggregates = covered_aggregates.exclude(pk=self.pk)
-            if covered_aggregates:
-                raise ValidationError({
-                    'prefix': _(
-                        "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate ({aggregate})."
-                    ).format(
-                        prefix=self.prefix,
-                        aggregate=covered_aggregates[0]
-                    )
-                })
+        from ipam.validators import validate_aggregate_mask, validate_aggregate_no_overlap
+        validate_aggregate_mask(self)
+        validate_aggregate_no_overlap(self)
 
     @property
     def family(self):
@@ -302,26 +267,9 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
     def clean(self):
         super().clean()
-
-        if self.prefix:
-
-            # /0 masks are not acceptable
-            if self.prefix.prefixlen == 0:
-                raise ValidationError({
-                    'prefix': _("Cannot create prefix with /0 mask.")
-                })
-
-            # Enforce unique IP space (if applicable)
-            if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
-                duplicate_prefixes = self.get_duplicates()
-                if duplicate_prefixes:
-                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
-                    raise ValidationError({
-                        'prefix': _("Duplicate prefix found in {table}: {prefix}").format(
-                            table=table,
-                            prefix=duplicate_prefixes.first(),
-                        )
-                    })
+        from ipam.validators import validate_prefix_mask, validate_prefix_unique
+        validate_prefix_mask(self)
+        validate_prefix_unique(self)
 
     @property
     def family(self):
@@ -572,64 +520,22 @@ class IPRange(ContactsMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
         if self.start_address and self.end_address:
-
-            # Check that start & end IP versions match
-            if self.start_address.version != self.end_address.version:
-                raise ValidationError({
-                    'end_address': _("Starting and ending IP address versions must match")
-                })
-
-            # Check that the start & end IP prefix lengths match
+            from ipam.validators import (
+                validate_iprange_family,
+                validate_iprange_order,
+                validate_iprange_max_size,
+                validate_iprange_no_overlap,
+            )
+            # Prefix length match (kept inline — not extracted)
             if self.start_address.prefixlen != self.end_address.prefixlen:
                 raise ValidationError({
                     'end_address': _("Starting and ending IP address masks must match")
                 })
-
-            # Check that the ending address is greater than the starting address
-            if not self.end_address > self.start_address:
-                raise ValidationError({
-                    'end_address': _(
-                        "Ending address must be greater than the starting address ({start_address})"
-                    ).format(start_address=self.start_address)
-                })
-
-            # Check for overlapping ranges
-            overlapping_ranges = (
-                IPRange.objects.exclude(pk=self.pk)
-                .filter(vrf=self.vrf)
-                .filter(
-                    # Starts inside
-                    Q(
-                        start_address__host__inet__gte=self.start_address.ip,
-                        start_address__host__inet__lte=self.end_address.ip,
-                    ) |
-                    # Ends inside
-                    Q(
-                        end_address__host__inet__gte=self.start_address.ip,
-                        end_address__host__inet__lte=self.end_address.ip,
-                    ) |
-                    # Starts & ends outside
-                    Q(
-                        start_address__host__inet__lte=self.start_address.ip,
-                        end_address__host__inet__gte=self.end_address.ip,
-                    )
-                )
-            )
-            if overlapping_ranges.exists():
-                raise ValidationError(
-                    _("Defined addresses overlap with range {overlapping_range} in VRF {vrf}").format(
-                        overlapping_range=overlapping_ranges.first(),
-                        vrf=self.vrf
-                    ))
-
-            # Validate maximum size
-            MAX_SIZE = 2 ** 32 - 1
-            if int(self.end_address.ip - self.start_address.ip) + 1 > MAX_SIZE:
-                raise ValidationError(
-                    _("Defined range exceeds maximum supported size ({max_size})").format(max_size=MAX_SIZE)
-                )
+            validate_iprange_family(self)
+            validate_iprange_order(self)
+            validate_iprange_no_overlap(self)
+            validate_iprange_max_size(self)
 
     @property
     def family(self):

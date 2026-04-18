@@ -183,14 +183,9 @@ class RackType(ImageAttachmentsMixin, RackBase):
 
     def clean(self):
         super().clean()
-
-        # Validate outer dimensions and unit
-        if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
-            raise ValidationError(_("Must specify a unit when setting an outer dimension"))
-
-        # Validate max_weight and weight_unit
-        if self.max_weight and not self.weight_unit:
-            raise ValidationError(_("Must specify a unit when setting a maximum weight"))
+        from dcim.validators import validate_racktype_outer_dimensions, validate_racktype_max_weight
+        validate_racktype_outer_dimensions(self)
+        validate_racktype_max_weight(self)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -361,51 +356,16 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
 
     def clean(self):
         super().clean()
-
-        # Validate location/site assignment
-        if self.site_id and self.location_id and self.location.site_id != self.site_id:
-            raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
-
-        # Validate outer dimensions and unit
-        if any([self.outer_width, self.outer_depth, self.outer_height]) and not self.outer_unit:
-            raise ValidationError(_("Must specify a unit when setting an outer dimension"))
-
-        # Validate max_weight and weight_unit
-        if self.max_weight and not self.weight_unit:
-            raise ValidationError(_("Must specify a unit when setting a maximum weight"))
-
-        if not self._state.adding:
-            mounted_devices = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('position')
-
-            effective_u_height = self.rack_type.u_height if self.rack_type else self.u_height
-            effective_starting_unit = self.rack_type.starting_unit if self.rack_type else self.starting_unit
-
-            # Validate that Rack is tall enough to house the highest mounted Device
-            if top_device := mounted_devices.last():
-                min_height = top_device.position + top_device.device_type.u_height - effective_starting_unit
-                if effective_u_height < min_height:
-                    field = 'rack_type' if self.rack_type else 'u_height'
-                    raise ValidationError({
-                        field: _(
-                            "Rack must be at least {min_height}U tall to house currently installed devices."
-                        ).format(min_height=min_height)
-                    })
-
-            # Validate that the Rack's starting unit is less than or equal to the position of the lowest mounted Device
-            if last_device := mounted_devices.first():
-                if effective_starting_unit > last_device.position:
-                    field = 'rack_type' if self.rack_type else 'starting_unit'
-                    raise ValidationError({
-                        field: _("Rack unit numbering must begin at {position} or less to house "
-                                 "currently installed devices.").format(position=last_device.position)
-                    })
-
-            # Validate that Rack was assigned a Location of its same site, if applicable
-            if self.location:
-                if self.location.site != self.site:
-                    raise ValidationError({
-                        'location': _("Location must be from the same site, {site}.").format(site=self.site)
-                    })
+        from dcim.validators import (
+            validate_rack_location_site,
+            validate_rack_outer_dimensions,
+            validate_rack_max_weight,
+            validate_rack_height_vs_devices,
+        )
+        validate_rack_location_site(self)
+        validate_rack_outer_dimensions(self)
+        validate_rack_max_weight(self)
+        validate_rack_height_vs_devices(self)
 
     def save(self, *args, **kwargs):
         self.copy_racktype_attrs()

@@ -126,8 +126,8 @@ class VLANGroup(OrganizationalModel):
                 })
 
         # Check for overlapping VID ranges
-        if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
-            raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
+        from ipam.validators import validate_vlangroup_vid_ranges
+        validate_vlangroup_vid_ranges(self)
 
     def get_available_vids(self):
         """

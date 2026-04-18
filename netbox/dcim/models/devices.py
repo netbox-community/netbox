@@ -772,174 +772,26 @@ class Device(
 
     def clean(self):
         super().clean()
+        from dcim.validators import (
+            validate_device_site_rack_location,
+            validate_device_rack_position,
+            validate_device_type_constraints,
+            validate_device_rack_space,
+            validate_device_primary_ips,
+            validate_device_platform_manufacturer,
+            validate_device_cluster,
+            validate_device_vc_position,
+        )
+        validate_device_site_rack_location(self)
+        validate_device_rack_position(self)
+        validate_device_type_constraints(self)
+        validate_device_rack_space(self)
+        validate_device_primary_ips(self)
+        validate_device_platform_manufacturer(self)
+        validate_device_cluster(self)
+        validate_device_vc_position(self)
 
-        # Validate site/location/rack combination
-        if self.rack and self.site != self.rack.site:
-            raise ValidationError({
-                'rack': _("Rack {rack} does not belong to site {site}.").format(rack=self.rack, site=self.site),
-            })
-        if self.location and self.site != self.location.site:
-            raise ValidationError({
-                'location': _(
-                    "Location {location} does not belong to site {site}."
-                ).format(location=self.location, site=self.site)
-            })
-        if self.rack and self.location and self.rack.location != self.location:
-            raise ValidationError({
-                'rack': _(
-                    "Rack {rack} does not belong to location {location}."
-                ).format(rack=self.rack, location=self.location)
-            })
-
-        if self.rack is None:
-            if self.face:
-                raise ValidationError({
-                    'face': _("Cannot select a rack face without assigning a rack."),
-                })
-            if self.position:
-                raise ValidationError({
-                    'position': _("Cannot select a rack position without assigning a rack."),
-                })
-
-        # Validate rack position and face
-        if self.position and self.position % decimal.Decimal(0.5):
-            raise ValidationError({
-                'position': _("Position must be in increments of 0.5 rack units.")
-            })
-        if self.position and not self.face:
-            raise ValidationError({
-                'face': _("Must specify rack face when defining rack position."),
-            })
-
-        # Prevent 0U devices from being assigned to a specific position
-        if hasattr(self, 'device_type'):
-            if self.position and self.device_type.u_height == 0:
-                raise ValidationError({
-                    'position': _(
-                        "A 0U device type ({device_type}) cannot be assigned to a rack position."
-                    ).format(device_type=self.device_type)
-                })
-
-        if self.rack:
-
-            try:
-                # Child devices cannot be assigned to a rack face/unit
-                if self.device_type.is_child_device and self.face:
-                    raise ValidationError({
-                        'face': _(
-                            "Child device types cannot be assigned to a rack face. This is an attribute of the parent "
-                            "device."
-                        )
-                    })
-                if self.device_type.is_child_device and self.position:
-                    raise ValidationError({
-                        'position': _(
-                            "Child device types cannot be assigned to a rack position. This is an attribute of the "
-                            "parent device."
-                        )
-                    })
-
-                # Validate rack space
-                rack_face = self.face if not self.device_type.is_full_depth else None
-                exclude_list = [self.pk] if self.pk else []
-                available_units = self.rack.get_available_units(
-                    u_height=self.device_type.u_height, rack_face=rack_face, exclude=exclude_list
-                )
-                if self.position and self.position not in available_units:
-                    raise ValidationError({
-                        'position': _(
-                            "U{position} is already occupied or does not have sufficient space to accommodate this "
-                            "device type: {device_type} ({u_height}U)"
-                        ).format(
-                            position=self.position, device_type=self.device_type, u_height=self.device_type.u_height
-                        )
-                    })
-
-            except DeviceType.DoesNotExist:
-                pass
-
-        # Validate primary & OOB IP addresses
-        vc_interfaces = self.vc_interfaces(if_master=False)
-        if self.primary_ip4:
-            if self.primary_ip4.family != 4:
-                raise ValidationError({
-                    'primary_ip4': _("{ip} is not an IPv4 address.").format(ip=self.primary_ip4)
-                })
-            if self.primary_ip4.assigned_object in vc_interfaces:
-                pass
-            elif (
-                    self.primary_ip4.nat_inside is not None and
-                    self.primary_ip4.nat_inside.assigned_object in vc_interfaces
-            ):
-                pass
-            else:
-                raise ValidationError({
-                    'primary_ip4': _(
-                        "The specified IP address ({ip}) is not assigned to this device."
-                    ).format(ip=self.primary_ip4)
-                })
-        if self.primary_ip6:
-            if self.primary_ip6.family != 6:
-                raise ValidationError({
-                    'primary_ip6': _("{ip} is not an IPv6 address.").format(ip=self.primary_ip6)
-                })
-            if self.primary_ip6.assigned_object in vc_interfaces:
-                pass
-            elif (
-                    self.primary_ip6.nat_inside is not None and
-                    self.primary_ip6.nat_inside.assigned_object in vc_interfaces
-            ):
-                pass
-            else:
-                raise ValidationError({
-                    'primary_ip6': _(
-                        "The specified IP address ({ip}) is not assigned to this device."
-                    ).format(ip=self.primary_ip6)
-                })
-        if self.oob_ip:
-            if self.oob_ip.assigned_object in vc_interfaces:
-                pass
-            elif self.oob_ip.nat_inside is not None and self.oob_ip.nat_inside.assigned_object in vc_interfaces:
-                pass
-            else:
-                raise ValidationError({
-                    'oob_ip': f"The specified IP address ({self.oob_ip}) is not assigned to this device."
-                })
-
-        # Validate manufacturer/platform
-        if hasattr(self, 'device_type') and self.platform:
-            if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
-                raise ValidationError({
-                    'platform': _(
-                        "The assigned platform is limited to {platform_manufacturer} device types, but this device's "
-                        "type belongs to {devicetype_manufacturer}."
-                    ).format(
-                        platform_manufacturer=self.platform.manufacturer,
-                        devicetype_manufacturer=self.device_type.manufacturer
-                    )
-                })
-
-        # A Device can only be assigned to a Cluster in the same Site (or no Site)
-        if self.cluster and self.cluster._site is not None and self.cluster._site != self.site:
-            raise ValidationError({
-                'cluster': _("The assigned cluster belongs to a different site ({site})").format(
-                    site=self.cluster._site
-                )
-            })
-
-        if self.cluster and self.cluster._location is not None and self.cluster._location != self.location:
-            raise ValidationError({
-                'cluster': _("The assigned cluster belongs to a different location ({location})").format(
-                    site=self.cluster._location
-                )
-            })
-
-        # Validate virtual chassis assignment
-        if self.virtual_chassis and self.vc_position is None:
-            raise ValidationError({
-                'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
-            })
-
+        # VC master removal check (kept inline — references reverse relation)
         if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
             raise ValidationError({
                 'virtual_chassis': _(
