@@ -392,7 +392,7 @@ class AvailablePrefixesView(AvailableObjectsView):
     @extend_schema(
         methods=["post"],
         responses={201: serializers.PrefixSerializer(many=True)},
-        request=serializers.PrefixSerializer(many=True),
+        request=serializers.PrefixLengthSerializer(many=True),
     )
     def post(self, request, pk):
         return super().post(request, pk)
