@@ -27,7 +27,11 @@ class CoreConfig(AppConfig):
         from netbox.models.features import register_models
 
         from netbox import global_side_effects  # noqa: F401
+        from netbox import denorm_mixins  # noqa: F401
+        from netbox.denorm import connect_denorm_signal
         from . import data_backends, events, search, side_effects  # noqa: F401
+
+        connect_denorm_signal()
 
         # Register models
         register_models(*self.get_models())

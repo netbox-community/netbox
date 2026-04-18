@@ -128,14 +128,6 @@ class ComponentModel(OwnerMixin, NetBoxModel):
                 "device": _("Components cannot be moved to a different device.")
             })
 
-    def save(self, *args, **kwargs):
-        # Save denormalized references
-        self._site = self.device.site
-        self._location = self.device.location
-        self._rack = self.device.rack
-
-        super().save(*args, **kwargs)
-
     @property
     def parent_object(self):
         return self.device
@@ -1169,11 +1161,6 @@ class PortMapping(PortMappingBase):
                 )
             })
 
-    def save(self, *args, **kwargs):
-        # Associate the mapping with the parent Device
-        self.device = self.front_port.device
-        super().save(*args, **kwargs)
-
 
 class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
@@ -1323,13 +1310,6 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
                 modules.append(module.pk)
                 module_bays.append(module.module_bay.pk)
                 module = module.module_bay.module if module.module_bay else None
-
-    def save(self, *args, **kwargs):
-        if self.module:
-            self.parent = self.module.module_bay
-        else:
-            self.parent = None
-        super().save(*args, **kwargs)
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):

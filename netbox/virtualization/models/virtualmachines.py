@@ -242,14 +242,6 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
                         field: _("The specified IP address ({ip}) is not assigned to this VM.").format(ip=ip),
                     })
 
-    def save(self, *args, **kwargs):
-
-        # Assign site from cluster if not set
-        if self.cluster and not self.site:
-            self.site = self.cluster._site
-
-        super().save(*args, **kwargs)
-
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)
 

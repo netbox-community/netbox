@@ -129,14 +129,6 @@ class VLANGroup(OrganizationalModel):
         if self.vid_ranges and check_ranges_overlap(self.vid_ranges):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
 
-    def save(self, *args, **kwargs):
-        self._total_vlan_ids = 0
-        for vid_range in self.vid_ranges:
-            # VID range is inclusive on lower-bound, exclusive on upper-bound
-            self._total_vlan_ids += vid_range.upper - vid_range.lower
-
-        super().save(*args, **kwargs)
-
     def get_available_vids(self):
         """
         Return all available VLANs within this group.

@@ -18,7 +18,6 @@ from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel, PrimaryModel
-from utilities.conversion import to_meters
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, GenericArrayForeignKey
 from utilities.querysets import RestrictedQuerySet
@@ -276,16 +275,6 @@ class Cable(PrimaryModel):
 
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         _created = self.pk is None
-
-        # Store the given length (if any) in meters for use in database ordering
-        if self.length is not None and self.length_unit:
-            self._abs_length = to_meters(self.length, self.length_unit)
-        else:
-            self._abs_length = None
-
-        # Clear length_unit if no length is defined
-        if self.length is None:
-            self.length_unit = None
 
         # If this is a new Cable, save it before attempting to create its CableTerminations
         if self._state.adding:
@@ -584,13 +573,9 @@ class CableTermination(ChangeLoggedModel):
             raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
 
     def save(self, *args, **kwargs):
-
-        # Cache objects associated with the terminating object (for filtering)
-        self.cache_related_objects()
-
         super().save(*args, **kwargs)
 
-        # Set the cable on the terminating object
+        # Set the cable on the terminating object (cascade, not denorm)
         termination = self.termination._meta.model.objects.get(pk=self.termination_id)
         termination.snapshot()
         termination.set_cable_termination(self)
@@ -700,9 +685,6 @@ class CablePath(models.Model):
         return f"Path #{self.pk}: {len(self.path)} hops"
 
     def save(self, *args, **kwargs):
-
-        # Save the flattened nodes list
-        self._nodes = list(itertools.chain(*self.path))
 
         super().save(*args, **kwargs)
 

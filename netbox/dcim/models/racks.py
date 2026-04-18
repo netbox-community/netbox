@@ -17,7 +17,6 @@ from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
-from utilities.conversion import to_grams
 from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, CounterCacheField
 from utilities.tracking import TrackingModelMixin
@@ -194,19 +193,9 @@ class RackType(ImageAttachmentsMixin, RackBase):
             raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
     def save(self, *args, **kwargs):
-        # Store the given max weight (if any) in grams for use in database ordering
-        if self.max_weight and self.weight_unit:
-            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
-        else:
-            self._abs_max_weight = None
-
-        # Clear unit if outer width & depth are not set
-        if not any([self.outer_width, self.outer_depth, self.outer_height]):
-            self.outer_unit = None
-
         super().save(*args, **kwargs)
 
-        # Update all Racks associated with this RackType
+        # Update all Racks associated with this RackType (cascade, not denorm)
         for rack in self.racks.all():
             rack.snapshot()
             rack.copy_racktype_attrs()
@@ -420,17 +409,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
 
     def save(self, *args, **kwargs):
         self.copy_racktype_attrs()
-
-        # Store the given max weight (if any) in grams for use in database ordering
-        if self.max_weight and self.weight_unit:
-            self._abs_max_weight = to_grams(self.max_weight, self.weight_unit)
-        else:
-            self._abs_max_weight = None
-
-        # Clear unit if outer width & depth are not set
-        if not any([self.outer_width, self.outer_depth, self.outer_height]):
-            self.outer_unit = None
-
         super().save(*args, **kwargs)
 
     def copy_racktype_attrs(self):

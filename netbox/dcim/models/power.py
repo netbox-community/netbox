@@ -186,17 +186,6 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
                 "voltage": _("Voltage cannot be negative for AC supply")
             })
 
-    def save(self, *args, **kwargs):
-
-        # Cache the available_power property on the instance
-        kva = abs(self.voltage) * self.amperage * (self.max_utilization / 100)
-        if self.phase == PowerFeedPhaseChoices.PHASE_3PHASE:
-            self.available_power = round(kva * 1.732)
-        else:
-            self.available_power = round(kva)
-
-        super().save(*args, **kwargs)
-
     @property
     def parent_object(self):
         return self.power_panel

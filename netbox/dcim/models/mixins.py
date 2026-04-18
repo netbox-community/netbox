@@ -96,12 +96,6 @@ class CachedScopeMixin(models.Model):
             )
         super().clean()
 
-    def save(self, *args, **kwargs):
-        # Cache objects associated with the terminating object (for filtering)
-        self.cache_related_objects()
-
-        super().save(*args, **kwargs)
-
     def cache_related_objects(self):
         self._region = self._site_group = self._site = self._location = None
         if self.scope_type:

@@ -370,8 +370,6 @@ class CircuitTermination(
         is_new = self._state.adding
         update_fields = kwargs.get('update_fields')
 
-        # Only consider circuit/term_side changes if those fields
-        # are actually being persisted
         if update_fields is not None:
             tracking_relevant = 'circuit' in update_fields or 'term_side' in update_fields
         else:
@@ -380,23 +378,18 @@ class CircuitTermination(
         circuit_changed = tracking_relevant and self._orig_circuit_id and self._orig_circuit_id != self.circuit_id
         term_side_changed = tracking_relevant and self._orig_term_side and self._orig_term_side != self.term_side
 
-        # Cache objects associated with the terminating object (for filtering)
-        self.cache_related_objects()
-
         super().save(*args, **kwargs)
 
-        # Clear the old termination reference if circuit or term_side changed
+        # Clear the old termination reference if circuit or term_side changed (cascade)
         if circuit_changed or term_side_changed:
             old_termination_name = f'termination_{self._orig_term_side.lower()}'
             Circuit.objects.filter(pk=self._orig_circuit_id).update(**{old_termination_name: None})
 
-        # Update the cache if this is a new termination or circuit/term_side changed
+        # Update the cache if this is a new termination or circuit/term_side changed (cascade)
         if is_new or circuit_changed or term_side_changed:
-            # Update the new circuit's termination reference
             termination_name = f'termination_{self.term_side.lower()}'
             Circuit.objects.filter(pk=self.circuit_id).update(**{termination_name: self.pk})
 
-            # Update cached values for subsequent saves
             self._orig_circuit_id = self.circuit_id
             self._orig_term_side = self.term_side
 

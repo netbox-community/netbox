@@ -217,10 +217,3 @@ class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
                     "{type} is not a wireless interface."
                 ).format(type=self.interface_b.get_type_display())
             })
-
-    def save(self, *args, **kwargs):
-        # Store the parent Device for the A and B interfaces
-        self._interface_a_device = self.interface_a.device
-        self._interface_b_device = self.interface_b.device
-
-        super().save(*args, **kwargs)

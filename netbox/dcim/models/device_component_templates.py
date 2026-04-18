@@ -543,11 +543,13 @@ class PortTemplateMapping(PortMappingBase):
                 )
             })
 
-    def save(self, *args, **kwargs):
-        # Associate the mapping with the parent DeviceType/ModuleType
-        self.device_type = self.front_port.device_type
-        self.module_type = self.front_port.module_type
-        super().save(*args, **kwargs)
+    def to_yaml(self):
+        return {
+            'front_port': self.front_port.name,
+            'front_port_position': self.front_port_position,
+            'rear_port': self.rear_port.name,
+            'rear_port_position': self.rear_port_position,
+        }
 
 
 class FrontPortTemplate(ModularComponentTemplateModel):

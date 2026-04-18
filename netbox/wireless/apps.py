@@ -7,7 +7,7 @@ class WirelessConfig(AppConfig):
     def ready(self):
         from netbox.models.features import register_models
 
-        from . import search, side_effects, signals  # noqa: F401
+        from . import denorm, search, side_effects, signals  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

@@ -323,18 +323,6 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
                         )
                     })
 
-    def save(self, *args, **kwargs):
-
-        if isinstance(self.prefix, netaddr.IPNetwork):
-
-            # Clear host bits from prefix
-            self.prefix = self.prefix.cidr
-
-        # Cache objects associated with the terminating object (for filtering)
-        self.cache_related_objects()
-
-        super().save(*args, **kwargs)
-
     @property
     def family(self):
         if not self.prefix:
@@ -642,13 +630,6 @@ class IPRange(ContactsMixin, PrimaryModel):
                 raise ValidationError(
                     _("Defined range exceeds maximum supported size ({max_size})").format(max_size=MAX_SIZE)
                 )
-
-    def save(self, *args, **kwargs):
-
-        # Record the range's size (number of IP addresses)
-        self.size = int(self.end_address.ip - self.start_address.ip) + 1
-
-        super().save(*args, **kwargs)
 
     @property
     def family(self):
@@ -980,13 +961,6 @@ class IPAddress(ContactsMixin, PrimaryModel):
             raise ValidationError({
                 'status': _("Only IPv6 addresses can be assigned SLAAC status")
             })
-
-    def save(self, *args, **kwargs):
-
-        # Force dns_name to lowercase
-        self.dns_name = self.dns_name.lower()
-
-        super().save(*args, **kwargs)
 
     def clone(self):
         attrs = super().clone()
