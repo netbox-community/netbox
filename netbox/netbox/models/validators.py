@@ -1,9 +1,10 @@
 """
-Extracted, composable validators for mixin models (WeightMixin, DistanceMixin,
-NestedGroupModel, CustomFieldsMixin).
+Extracted, composable validators for mixin models (BaseModel, WeightMixin,
+DistanceMixin, NestedGroupModel, CustomFieldsMixin).
 
 Per-model validators are registered directly against concrete model labels.
-Mixin-level validators use the sentinel pattern (see CustomFieldsMixin section).
+Mixin-level validators use the sentinel pattern (see BaseModel and
+CustomFieldsMixin sections).
 """
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +12,80 @@ from django.utils.translation import gettext_lazy as _
 from netbox.validators import ModelValidator, ValidatorCategory, validator_registry
 
 _fs = frozenset
+
+
+# ──────────────────────────────────────────────────────────────────────
+# BaseModel — GFK consistency and existence validation
+#
+# Every NetBox model inherits BaseModel. Its clean() validates that
+# GenericForeignKey fields have consistent content-type / object-id
+# pairs and that the referenced object actually exists, then populates
+# the GFK descriptor via setattr (a normalization mutation).
+#
+# Uses the sentinel pattern so a single registration covers every
+# concrete model.
+# ──────────────────────────────────────────────────────────────────────
+
+_BASEMODEL_SENTINEL = '__mixin:BaseModel__'
+
+
+def validate_gfk_fields(instance):
+    """
+    Validate GenericForeignKey consistency and existence.
+
+    For each GFK on the model:
+    1. content-type and object-id must both be null or both be set
+    2. If both are set, the referenced object must exist in the DB
+    3. Populate the GFK descriptor with the resolved object (normalization)
+    """
+    from django.contrib.contenttypes.fields import GenericForeignKey
+    from django.core.exceptions import ObjectDoesNotExist
+
+    for field in instance._meta.get_fields():
+        if not isinstance(field, GenericForeignKey):
+            continue
+
+        ct_value = getattr(instance, field.ct_field, None)
+        fk_value = getattr(instance, field.fk_field, None)
+
+        if ct_value is None and fk_value is not None:
+            raise ValidationError({
+                field.ct_field: "This field cannot be null.",
+            })
+        if fk_value is None and ct_value is not None:
+            raise ValidationError({
+                field.fk_field: "This field cannot be null.",
+            })
+
+        if ct_value and fk_value:
+            klass = getattr(instance, field.ct_field).model_class()
+            try:
+                obj = klass.objects.get(pk=fk_value)
+            except ObjectDoesNotExist:
+                raise ValidationError({
+                    field.fk_field: f"Related object not found using the provided value: {fk_value}."
+                })
+            setattr(instance, field.name, obj)
+
+
+def _register_basemodel_sentinel():
+    from netbox.models import BaseModel
+
+    validator_registry.register_mixin_sentinel(_BASEMODEL_SENTINEL, BaseModel)
+    validator_registry.register(
+        _BASEMODEL_SENTINEL,
+        ModelValidator(
+            name='gfk_consistency_and_existence',
+            model_label=_BASEMODEL_SENTINEL,
+            category=ValidatorCategory.NORMALIZATION,
+            validate=validate_gfk_fields,
+            queries_db=True,
+            description='Validate GFK content-type/object-id consistency, verify referenced object exists, and populate the GFK descriptor',
+        ),
+    )
+
+
+_register_basemodel_sentinel()
 
 
 # ──────────────────────────────────────────────────────────────────────

@@ -1,7 +1,4 @@
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -66,36 +63,14 @@ class BaseModel(models.Model):
         abstract = True
 
     def clean(self):
-        """
-        Validate the model for GenericForeignKey fields to ensure that the content type and object ID exist.
-        """
         super().clean()
-
-        for field in self._meta.get_fields():
-            if isinstance(field, GenericForeignKey):
-                ct_value = getattr(self, field.ct_field, None)
-                fk_value = getattr(self, field.fk_field, None)
-
-                if ct_value is None and fk_value is not None:
-                    raise ValidationError({
-                        field.ct_field: "This field cannot be null.",
-                    })
-                if fk_value is None and ct_value is not None:
-                    raise ValidationError({
-                        field.fk_field: "This field cannot be null.",
-                    })
-
-                if ct_value and fk_value:
-                    klass = getattr(self, field.ct_field).model_class()
-                    try:
-                        obj = klass.objects.get(pk=fk_value)
-                    except ObjectDoesNotExist:
-                        raise ValidationError({
-                            field.fk_field: f"Related object not found using the provided value: {fk_value}."
-                        })
-
-                    # update the GFK field value
-                    setattr(self, field.name, obj)
+        # GFK validation is extracted to a standalone function registered in
+        # the ValidatorRegistry under __mixin:BaseModel__ for introspection.
+        # We call it directly here (not via the registry) to avoid running
+        # ALL validators twice when subclasses call both super().clean() and
+        # validator_registry.validate().
+        from netbox.models.validators import validate_gfk_fields
+        validate_gfk_fields(self)
 
 
 class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, EventRulesMixin, BaseModel):
