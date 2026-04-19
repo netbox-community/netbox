@@ -195,3 +195,203 @@ class SideEffectRegistry:
 
 # Global singleton — populated by app registrations in AppConfig.ready()
 effect_registry = SideEffectRegistry()
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Mixin-level save() side effects (METADATA-ONLY — code stays imperative)
+# ══════════════════════════════════════════════════════════════════════
+
+effect_registry.register_many(
+    Effect(
+        effect_type=EffectType.FIELD_NORMALIZATION,
+        source_model='*',
+        description=(
+            'PARTIAL: CustomFieldsMixin.save() populates default values for custom fields '
+            'not already present in custom_field_data. Applies to all CF-enabled models.'
+        ),
+        timing=EffectTiming.PRE_SAVE,
+        handler='netbox.models.features.CustomFieldsMixin.save',
+    ),
+    Effect(
+        effect_type=EffectType.ENTITY_INSTANTIATION,
+        source_model='*',
+        description=(
+            'PARTIAL: SyncedDataMixin.save() creates or deletes AutoSyncRecord based on '
+            'auto_sync_enabled. Applies to all synced-data models.'
+        ),
+        timing=EffectTiming.POST_SAVE,
+        handler='netbox.models.features.SyncedDataMixin.save',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='extras.scriptmodule',
+        description=(
+            'PARTIAL: ScriptModule.save() sets file_root and calls sync_classes() to '
+            'discover/update script classes from the module file.'
+        ),
+        timing=EffectTiming.POST_SAVE,
+        handler='extras.models.scripts.ScriptModule.save',
+    ),
+)
+
+
+# ══════════════════════════════════════════════════════════════════════
+# Infrastructure signal handlers (METADATA-ONLY)
+# ══════════════════════════════════════════════════════════════════════
+
+effect_registry.register_many(
+
+    # -- core/signals.py --
+
+    Effect(
+        effect_type=EffectType.EVENT_DISPATCH,
+        source_model='*',
+        description='handle_changed_object: creates ObjectChange record and queues events on post_save/m2m_changed',
+        timing=EffectTiming.POST_SAVE,
+        produces_object_change=True,
+        handler='core.signals.handle_changed_object',
+    ),
+    Effect(
+        effect_type=EffectType.EVENT_DISPATCH,
+        source_model='*',
+        description=(
+            'handle_deleted_object: runs protection rules, creates ObjectChange record, '
+            'touches reverse M2M/FK relations, and queues delete events on pre_delete'
+        ),
+        timing=EffectTiming.PRE_DELETE,
+        produces_object_change=True,
+        handler='core.signals.handle_deleted_object',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='*',
+        description='update_object_types: creates/updates ObjectType records for each model on post_migrate',
+        handler='core.signals.update_object_types',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='*',
+        description='clear_signal_history: clears thread-local pre_delete signal set on request_finished',
+        handler='core.signals.clear_signal_history',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='*',
+        description='clear_events_queue: resets the events queue on clear_events signal',
+        handler='core.signals.clear_events_queue',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='core.datasource',
+        description='enqueue_sync_job: enqueues or removes periodic sync jobs when DataSource is saved',
+        timing=EffectTiming.POST_SAVE,
+        handler='core.signals.enqueue_sync_job',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='core.datasource',
+        description='auto_sync: iterates AutoSyncRecords and syncs objects after DataSource sync completes',
+        handler='core.signals.auto_sync',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='extras.configrevision',
+        description='update_config: activates new config revision on post_save',
+        timing=EffectTiming.POST_SAVE,
+        handler='core.signals.update_config',
+    ),
+
+    # -- extras/signals.py --
+
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='*',
+        description='run_save_validators: runs CUSTOM_VALIDATORS from config on post_clean for all models',
+        handler='extras.signals.run_save_validators',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='extras.taggeditem',
+        description='validate_assigned_tags: checks tag object-type restrictions on m2m_changed pre_add',
+        handler='extras.signals.validate_assigned_tags',
+    ),
+    Effect(
+        effect_type=EffectType.EVENT_DISPATCH,
+        source_model='*',
+        description='process_job_start_event_rules: processes EventRules for JOB_STARTED on job_start signal',
+        handler='extras.signals.process_job_start_event_rules',
+    ),
+    Effect(
+        effect_type=EffectType.EVENT_DISPATCH,
+        source_model='*',
+        description='process_job_end_event_rules: processes EventRules for JOB_COMPLETED on job_end signal',
+        handler='extras.signals.process_job_end_event_rules',
+    ),
+    Effect(
+        effect_type=EffectType.EVENT_DISPATCH,
+        source_model='*',
+        description=(
+            'notify_object_changed: creates Notification objects for subscribed users '
+            'on post_save (update) and pre_delete'
+        ),
+        timing=EffectTiming.POST_SAVE,
+        handler='extras.signals.notify_object_changed',
+    ),
+
+    # -- extras/models/scripts.py --
+
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='extras.scriptmodule',
+        description='script_module_post_save_handler: calls sync_classes() on ScriptModule post_save signal',
+        timing=EffectTiming.POST_SAVE,
+        handler='extras.models.scripts.script_module_post_save_handler',
+    ),
+
+    # -- users/signals.py --
+
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='users.user',
+        description='log_user_login_failed: logs failed login attempts with client IP on user_login_failed signal',
+        handler='users.signals.log_user_login_failed',
+    ),
+    Effect(
+        effect_type=EffectType.OTHER,
+        source_model='users.user',
+        description=(
+            'set_language_on_login: stores preferred language on request '
+            'for middleware cookie on user_logged_in signal'
+        ),
+        handler='users.signals.set_language_on_login',
+    ),
+    Effect(
+        effect_type=EffectType.ENTITY_INSTANTIATION,
+        source_model='users.user',
+        description='create_userconfig: creates UserConfig with default preferences when User is created',
+        timing=EffectTiming.POST_SAVE,
+        only_on_create=True,
+        handler='users.signals.create_userconfig',
+    ),
+
+    # -- netbox/search/backends.py --
+
+    Effect(
+        effect_type=EffectType.DENORMALIZATION,
+        source_model='*',
+        target_model='extras.cachedvalue',
+        description='search caching_handler: updates CachedValue entries on post_save for searchable models',
+        timing=EffectTiming.POST_SAVE,
+        uses_bulk_sql=True,
+        handler='netbox.search.backends.SearchBackend.caching_handler',
+    ),
+    Effect(
+        effect_type=EffectType.DENORMALIZATION,
+        source_model='*',
+        target_model='extras.cachedvalue',
+        description='search removal_handler: deletes CachedValue entries on post_delete for searchable models',
+        timing=EffectTiming.POST_DELETE,
+        uses_bulk_sql=True,
+        handler='netbox.search.backends.SearchBackend.removal_handler',
+    ),
+)
