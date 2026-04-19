@@ -15,46 +15,22 @@ from utilities.exceptions import AbortRequest
 from .models import CustomField, TaggedItem
 from .utils import run_validators
 
+# ──────────────────────────────────────────────────────────────────────
+# CustomField cascade handlers (handle_cf_added_obj_types,
+# handle_cf_removed_obj_types, handle_cf_renamed, handle_cf_deleted)
+# have been moved to extras/cascades.py as declarative CascadeSpecs.
 #
-# Custom fields
-#
+# The M2M signals for CustomField.object_types are still connected here
+# because the cascade registry doesn't yet support m2m_changed. These
+# delegate to the same handlers defined in extras/cascades.py.
+# ──────────────────────────────────────────────────────────────────────
 
+from extras.cascades import _cf_added_obj_types, _cf_deleted, _cf_removed_obj_types, _cf_renamed
 
-def handle_cf_added_obj_types(instance, action, pk_set, **kwargs):
-    """
-    Handle the population of default/null values when a CustomField is added to one or more ContentTypes.
-    """
-    if action == 'post_add':
-        instance.populate_initial_data(ContentType.objects.filter(pk__in=pk_set))
-
-
-def handle_cf_removed_obj_types(instance, action, pk_set, **kwargs):
-    """
-    Handle the cleanup of old custom field data when a CustomField is removed from one or more ContentTypes.
-    """
-    if action == 'post_remove':
-        instance.remove_stale_data(ContentType.objects.filter(pk__in=pk_set))
-
-
-def handle_cf_renamed(instance, created, **kwargs):
-    """
-    Handle the renaming of custom field data on objects when a CustomField is renamed.
-    """
-    if not created and instance.name != instance._name:
-        instance.rename_object_data(old_name=instance._name, new_name=instance.name)
-
-
-def handle_cf_deleted(instance, **kwargs):
-    """
-    Handle the cleanup of old custom field data when a CustomField is deleted.
-    """
-    instance.remove_stale_data(instance.object_types.all())
-
-
-post_save.connect(handle_cf_renamed, sender=CustomField)
-pre_delete.connect(handle_cf_deleted, sender=CustomField)
-m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.object_types.through)
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.object_types.through)
+post_save.connect(_cf_renamed, sender=CustomField)
+pre_delete.connect(_cf_deleted, sender=CustomField)
+m2m_changed.connect(_cf_added_obj_types, sender=CustomField.object_types.through)
+m2m_changed.connect(_cf_removed_obj_types, sender=CustomField.object_types.through)
 
 
 #
@@ -84,7 +60,6 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
     if action != 'pre_add':
         return
     ct = ContentType.objects.get_for_model(instance)
-    # Retrieve any applied Tags that are restricted to certain object types
     for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
         if ct not in tag.object_types.all():
             raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")
@@ -136,23 +111,19 @@ def process_job_end_event_rules(sender, **kwargs):
 
 @receiver((post_save, pre_delete))
 def notify_object_changed(sender, instance, **kwargs):
-    # Skip for newly-created objects
     if kwargs.get('created'):
         return
 
-    # Determine event type
     if 'created' in kwargs:
         event_type = OBJECT_UPDATED
     else:
         event_type = OBJECT_DELETED
 
-    # Skip unsupported object types
     if not has_feature(instance, 'notifications'):
         return
 
     ct = ContentType.objects.get_for_model(instance)
 
-    # Find all subscribed Users
     subscribed_users = Subscription.objects.filter(
         object_type=ct,
         object_id=instance.pk
@@ -160,14 +131,12 @@ def notify_object_changed(sender, instance, **kwargs):
     if not subscribed_users:
         return
 
-    # Delete any existing Notifications for the object
     Notification.objects.filter(
         object_type=ct,
         object_id=instance.pk,
         user__in=subscribed_users
     ).delete()
 
-    # Create Notifications for Subscribers
     Notification.objects.bulk_create([
         Notification(
             user_id=user,

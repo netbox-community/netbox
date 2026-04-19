@@ -29,9 +29,16 @@ class CoreConfig(AppConfig):
         from netbox import global_side_effects  # noqa: F401
         from netbox import denorm_mixins  # noqa: F401
         from netbox.denorm import connect_denorm_signal
+        from netbox.cascades import connect_cascade_signals
+        import dcim.cascades  # noqa: F401
+        import ipam.cascades  # noqa: F401
+        import virtualization.cascades  # noqa: F401
+        import wireless.cascades  # noqa: F401
+        import extras.cascades  # noqa: F401
         from . import data_backends, events, search, side_effects  # noqa: F401
 
         connect_denorm_signal()
+        connect_cascade_signals()
 
         # Register models
         register_models(*self.get_models())

@@ -4,7 +4,7 @@ from django.db import connection
 from django.db.models import Q
 
 from dcim.models import CablePath, ConsolePort, ConsoleServerPort, Interface, PowerFeed, PowerOutlet, PowerPort
-from dcim.signals import create_cablepaths
+from dcim.utils import create_cablepaths
 
 ENDPOINT_MODELS = (
     ConsolePort,
