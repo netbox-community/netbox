@@ -31,3 +31,4 @@ netbox.pid
 .coverage
 .vscode
 .python-version
+netbox/netbox/granian.py
