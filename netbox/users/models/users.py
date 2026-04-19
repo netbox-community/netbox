@@ -177,13 +177,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def clean(self):
         super().clean()
 
-        # Normalize email address
+        # Normalize email address (mutation — keep in clean())
         self.email = self.__class__.objects.normalize_email(self.email)
 
-        # Check for any existing Users with names that differ only in case
-        model = self._meta.model
-        if model.objects.exclude(pk=self.pk).filter(username__iexact=self.username).exists():
-            raise ValidationError(_("A user with this username already exists."))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_full_name(self):
         """

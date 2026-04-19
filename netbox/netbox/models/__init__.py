@@ -187,12 +187,8 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
 
     def clean(self):
         super().clean()
-
-        # An MPTT model cannot be its own parent
-        if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
-            raise ValidationError({
-                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class OrganizationalModel(OwnerMixin, NetBoxModel):

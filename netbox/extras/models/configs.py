@@ -191,19 +191,8 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
 
     def clean(self):
         super().clean()
-
-        # Verify that JSON data is provided as an object
-        if type(self.data) is not dict:
-            raise ValidationError(
-                {'data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
-            )
-
-        # Validate config data against the assigned profile's schema (if any)
-        if self.profile and self.profile.schema:
-            try:
-                jsonschema.validate(self.data, schema=self.profile.schema)
-            except JSONValidationError as e:
-                raise ValidationError(_("Data does not conform to profile schema: {error}").format(error=e))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def sync_data(self):
         """
@@ -254,12 +243,8 @@ class ConfigContextModel(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Verify that JSON data is provided as an object
-        if self.local_context_data is not None and type(self.local_context_data) is not dict:
-            raise ValidationError(
-                {'local_context_data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 #

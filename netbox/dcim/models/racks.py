@@ -353,12 +353,13 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-        self.copy_racktype_attrs()
+        # RackType field copying is now handled by DenormRegistry (dcim/denorm.py)
         super().save(*args, **kwargs)
 
     def copy_racktype_attrs(self):
         """
         Copy physical attributes from the assigned RackType (if any).
+        Kept for CascadeSpec use (RackType save → push to Racks).
         """
         if self.rack_type:
             for field_name in self.RACKTYPE_FIELDS:

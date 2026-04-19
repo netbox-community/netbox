@@ -29,7 +29,6 @@ from netbox.models.features import (
     ExportTemplatesMixin,
     SyncedDataMixin,
     TagsMixin,
-    has_feature,
 )
 from netbox.models.mixins import OwnerMixin
 from utilities.html import clean_html
@@ -135,13 +134,8 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, OwnerMixin, TagsMixin, 
 
     def clean(self):
         super().clean()
-
-        # Validate that any conditions are in the correct format
-        if self.conditions:
-            try:
-                ConditionSet(self.conditions)
-            except ValueError as e:
-                raise ValidationError({'conditions': e})
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def eval_conditions(self, data):
         """
@@ -265,12 +259,8 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, OwnerMixin, Ch
 
     def clean(self):
         super().clean()
-
-        # CA file path requires SSL verification enabled
-        if not self.ssl_verification and self.ca_file_path:
-            raise ValidationError({
-                'ca_file_path': _('Do not specify a CA certificate file if SSL verification is disabled.')
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def render_headers(self, context):
         """
@@ -444,11 +434,8 @@ class ExportTemplate(
 
     def clean(self):
         super().clean()
-
-        if self.name.lower() == 'table':
-            raise ValidationError({
-                'name': _('"{name}" is a reserved name. Please choose a different name.').format(name=self.name)
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def sync_data(self):
         """
@@ -536,12 +523,8 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
     def clean(self):
         super().clean()
-
-        # Verify that `parameters` is a JSON object
-        if type(self.parameters) is not dict:
-            raise ValidationError(
-                {'parameters': _('Filter parameters must be stored as a dictionary of keyword arguments.')}
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def url_params(self):
@@ -638,30 +621,8 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
 
     def clean(self):
         super().clean()
-
-        # Validate table
-        if self.table_class is None:
-            raise ValidationError({
-                'table': _("Unknown table: {name}").format(name=self.table)
-            })
-
-        table = self.table_class([])
-
-        # Validate ordering columns
-        for name in self.ordering:
-            if name.startswith('-'):
-                name = name[1:]  # Strip leading hyphen
-            if name not in table.columns:
-                raise ValidationError({
-                    'ordering': _('Unknown column: {name}').format(name=name)
-                })
-
-        # Validate selected columns
-        for name in self.columns:
-            if name not in table.columns:
-                raise ValidationError({
-                    'columns': _('Unknown column: {name}').format(name=name)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class ImageAttachment(ChangeLoggedModel):
@@ -719,12 +680,8 @@ class ImageAttachment(ChangeLoggedModel):
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.object_type, 'image_attachments'):
-            raise ValidationError(
-                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def delete(self, *args, **kwargs):
 
@@ -833,12 +790,8 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.assigned_object_type, 'journaling'):
-            raise ValidationError(
-                _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
@@ -892,9 +845,5 @@ class Bookmark(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.object_type, 'bookmarks'):
-            raise ValidationError(
-                _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

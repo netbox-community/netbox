@@ -7,7 +7,7 @@ class TenancyConfig(AppConfig):
     def ready(self):
         from netbox.models.features import register_models
 
-        from . import search  # noqa: F401
+        from . import search, validators  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

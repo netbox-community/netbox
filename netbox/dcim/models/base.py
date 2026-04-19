@@ -46,16 +46,5 @@ class PortMappingBase(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate rear port position
-        if self.rear_port_position > self.rear_port.positions:
-            raise ValidationError({
-                "rear_port_position": _(
-                    "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
-                    "positions."
-                ).format(
-                    rear_port_position=self.rear_port_position,
-                    name=self.rear_port.name,
-                    positions=self.rear_port.positions
-                )
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

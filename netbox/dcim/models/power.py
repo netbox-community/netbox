@@ -61,13 +61,8 @@ class PowerPanel(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Location must belong to assigned Site
-        if self.location and self.location.site != self.site:
-            raise ValidationError(
-                _("Location {location} ({location_site}) is in a different site than {site}").format(
-                    location=self.location, location_site=self.location.site, site=self.site)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
@@ -168,23 +163,8 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
     def clean(self):
         super().clean()
-
-        # Rack must belong to same Site as PowerPanel
-        if self.rack and self.rack.site != self.power_panel.site:
-            raise ValidationError(_(
-                "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) are in different sites."
-            ).format(
-                rack=self.rack,
-                rack_site=self.rack.site,
-                powerpanel=self.power_panel,
-                powerpanel_site=self.power_panel.site
-            ))
-
-        # AC voltage cannot be negative
-        if self.voltage < 0 and self.supply == PowerFeedSupplyChoices.SUPPLY_AC:
-            raise ValidationError({
-                "voltage": _("Voltage cannot be negative for AC supply")
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def parent_object(self):

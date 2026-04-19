@@ -357,9 +357,5 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
 
     def clean(self):
         super().clean()
-
-        # Parent Location (if any) must belong to the same Site
-        if self.parent and self.parent.site != self.site:
-            raise ValidationError(_(
-                "Parent location ({parent}) must belong to the same site ({site})."
-            ).format(parent=self.parent, site=self.site))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

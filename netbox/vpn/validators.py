@@ -69,3 +69,46 @@ validator_registry.register('vpn.tunneltermination',
         description='Interface can only be assigned to one tunnel',
     ),
 )
+
+# ──────────────────────────────────────────────────────────────────────
+# IKEPolicy
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_ikepolicy_mode(instance):
+    from vpn.choices import IKEVersionChoices
+    if instance.version == IKEVersionChoices.VERSION_1 and not instance.mode:
+        raise ValidationError(_("Mode is required for selected IKE version"))
+    if instance.version == IKEVersionChoices.VERSION_2 and instance.mode:
+        raise ValidationError(_("Mode cannot be used for selected IKE version"))
+
+
+validator_registry.register('vpn.ikepolicy',
+    ModelValidator(
+        name='ikepolicy_mode',
+        model_label='vpn.ikepolicy',
+        fields=_fs({'version', 'mode'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_ikepolicy_mode,
+        description='IKEv1 requires mode; IKEv2 forbids it',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# IPSecProposal
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_ipsecproposal_algorithm(instance):
+    if not instance.encryption_algorithm and not instance.authentication_algorithm:
+        raise ValidationError(_("Encryption and/or authentication algorithm must be defined"))
+
+
+validator_registry.register('vpn.ipsecproposal',
+    ModelValidator(
+        name='ipsecproposal_algorithm',
+        model_label='vpn.ipsecproposal',
+        fields=_fs({'encryption_algorithm', 'authentication_algorithm'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_ipsecproposal_algorithm,
+        description='At least one algorithm must be defined',
+    ),
+)

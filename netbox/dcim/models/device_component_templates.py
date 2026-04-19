@@ -105,11 +105,8 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        if not self._state.adding and self._original_device_type != self.device_type_id:
-            raise ValidationError({
-                "device_type": _("Component templates cannot be moved to a different device type.")
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class ModularComponentTemplateModel(ComponentTemplateModel):
@@ -155,16 +152,8 @@ class ModularComponentTemplateModel(ComponentTemplateModel):
 
     def clean(self):
         super().clean()
-
-        # A component template must belong to a DeviceType *or* to a ModuleType
-        if self.device_type and self.module_type:
-            raise ValidationError(
-                _("A component template cannot be associated with both a device type and a module type.")
-            )
-        if not self.device_type and not self.module_type:
-            raise ValidationError(
-                _("A component template must be associated with either a device type or a module type.")
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def resolve_name(self, module):
         if MODULE_TOKEN not in self.name or not module:
@@ -293,14 +282,8 @@ class PowerPortTemplate(ModularComponentTemplateModel):
 
     def clean(self):
         super().clean()
-
-        if self.maximum_draw is not None and self.allocated_draw is not None:
-            if self.allocated_draw > self.maximum_draw:
-                raise ValidationError({
-                    'allocated_draw': _(
-                        "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
-                    ).format(maximum_draw=self.maximum_draw)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def to_yaml(self):
         return {
@@ -352,21 +335,8 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
 
     def clean(self):
         super().clean()
-
-        # Validate power port assignment
-        if self.power_port:
-            if self.device_type and self.power_port.device_type != self.device_type:
-                raise ValidationError(
-                    _("Parent power port ({power_port}) must belong to the same device type").format(
-                        power_port=self.power_port
-                    )
-                )
-            if self.module_type and self.power_port.module_type != self.module_type:
-                raise ValidationError(
-                    _("Parent power port ({power_port}) must belong to the same module type").format(
-                        power_port=self.power_port
-                    )
-                )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def instantiate(self, **kwargs):
         if self.power_port:
@@ -459,20 +429,8 @@ class InterfaceTemplate(InterfaceValidationMixin, ModularComponentTemplateModel)
 
     def clean(self):
         super().clean()
-
-        if self.bridge:
-            if self.device_type and self.device_type != self.bridge.device_type:
-                raise ValidationError({
-                    'bridge': _(
-                        "Bridge interface ({bridge}) must belong to the same device type"
-                    ).format(bridge=self.bridge)
-                })
-            if self.module_type and self.module_type != self.bridge.module_type:
-                raise ValidationError({
-                    'bridge': _(
-                        "Bridge interface ({bridge}) must belong to the same module type"
-                    ).format(bridge=self.bridge)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -534,14 +492,8 @@ class PortTemplateMapping(PortMappingBase):
 
     def clean(self):
         super().clean()
-
-        # Validate rear port assignment
-        if self.front_port.device_type_id != self.rear_port.device_type_id:
-            raise ValidationError({
-                "rear_port": _("Rear port ({rear_port}) must belong to the same device type").format(
-                    rear_port=self.rear_port
-                )
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def to_yaml(self):
         return {
@@ -592,16 +544,8 @@ class FrontPortTemplate(ModularComponentTemplateModel):
 
     def clean(self):
         super().clean()
-
-        # Check that positions is greater than or equal to the number of associated RearPortTemplates
-        if not self._state.adding:
-            mapping_count = self.mappings.count()
-            if self.positions < mapping_count:
-                raise ValidationError({
-                    "positions": _(
-                        "The number of positions cannot be less than the number of mapped rear port templates ({count})"
-                    ).format(count=mapping_count)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -655,17 +599,8 @@ class RearPortTemplate(ModularComponentTemplateModel):
 
     def clean(self):
         super().clean()
-
-        # Check that positions is greater than or equal to the number of associated FrontPortTemplates
-        if not self._state.adding:
-            mapping_count = self.mappings.count()
-            if self.positions < mapping_count:
-                raise ValidationError({
-                    "positions": _(
-                        "The number of positions cannot be less than the number of mapped front port templates "
-                        "({count})"
-                    ).format(count=mapping_count)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -748,12 +683,9 @@ class DeviceBayTemplate(ComponentTemplateModel):
     instantiate.do_not_call_in_templates = True
 
     def clean(self):
-        if self.device_type and self.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
-            raise ValidationError(
-                _(
-                    'Subdevice role of device type ({device_type}) must be set to "parent" to allow device bays.'
-                ).format(device_type=self.device_type)
-            )
+        super().clean()
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def to_yaml(self):
         return {

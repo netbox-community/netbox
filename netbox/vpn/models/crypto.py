@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -109,14 +108,8 @@ class IKEPolicy(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Mode is required
-        if self.version == IKEVersionChoices.VERSION_1 and not self.mode:
-            raise ValidationError(_("Mode is required for selected IKE version"))
-
-        # Mode cannot be used
-        if self.version == IKEVersionChoices.VERSION_2 and self.mode:
-            raise ValidationError(_("Mode cannot be used for selected IKE version"))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 #
@@ -169,10 +162,8 @@ class IPSecProposal(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Encryption and/or authentication algorithm must be defined
-        if not self.encryption_algorithm and not self.authentication_algorithm:
-            raise ValidationError(_("Encryption and/or authentication algorithm must be defined"))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class IPSecPolicy(PrimaryModel):

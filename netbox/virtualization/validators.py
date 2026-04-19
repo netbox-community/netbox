@@ -199,3 +199,71 @@ validator_registry.register('virtualization.virtualmachine',
         description='Primary IPs must be assigned to VM interfaces',
     ),
 )
+
+# ──────────────────────────────────────────────────────────────────────
+# VMInterface
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_vminterface_parent(instance):
+    if instance.pk and instance.parent_id == instance.pk:
+        raise ValidationError({'parent': _("An interface cannot be its own parent.")})
+    if instance.parent and instance.parent.virtual_machine != instance.virtual_machine:
+        raise ValidationError({
+            'parent': _(
+                "The selected parent interface ({parent}) belongs to a different virtual machine "
+                "({virtual_machine})."
+            ).format(parent=instance.parent, virtual_machine=instance.parent.virtual_machine)
+        })
+
+
+def validate_vminterface_bridge(instance):
+    if instance.pk and instance.bridge_id == instance.pk:
+        raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
+    if instance.bridge and instance.bridge.virtual_machine != instance.virtual_machine:
+        raise ValidationError({
+            'bridge': _(
+                "The selected bridge interface ({bridge}) belongs to a different virtual machine "
+                "({virtual_machine})."
+            ).format(bridge=instance.bridge, virtual_machine=instance.bridge.virtual_machine)
+        })
+
+
+def validate_vminterface_vlan_site(instance):
+    if instance.untagged_vlan and instance.untagged_vlan.site not in [instance.virtual_machine.site, None]:
+        raise ValidationError({
+            'untagged_vlan': _(
+                "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
+                "virtual machine, or it must be global."
+            ).format(untagged_vlan=instance.untagged_vlan)
+        })
+
+
+validator_registry.register('virtualization.vminterface',
+    ModelValidator(
+        name='vminterface_parent',
+        model_label='virtualization.vminterface',
+        fields=_fs({'parent', 'virtual_machine'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_vminterface_parent,
+        queries_db=True,
+        description='Parent interface must belong to the same VM',
+    ),
+    ModelValidator(
+        name='vminterface_bridge',
+        model_label='virtualization.vminterface',
+        fields=_fs({'bridge', 'virtual_machine'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_vminterface_bridge,
+        queries_db=True,
+        description='Bridge interface must belong to the same VM',
+    ),
+    ModelValidator(
+        name='vminterface_vlan_site',
+        model_label='virtualization.vminterface',
+        fields=_fs({'untagged_vlan', 'virtual_machine'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_vminterface_vlan_site,
+        queries_db=True,
+        description='Untagged VLAN must match VM site',
+    ),
+)

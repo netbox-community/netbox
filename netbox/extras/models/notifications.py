@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.querysets import NotificationQuerySet
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import has_feature
+
 from netbox.registry import registry
 from users.models import User
 from utilities.querysets import RestrictedQuerySet
@@ -92,18 +92,10 @@ class Notification(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.object_type, 'notifications'):
-            raise ValidationError(
-                _("Objects of this type ({type}) do not support notifications.").format(type=self.object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-        # Record a string representation of the associated object
-        if self.object:
-            self.object_repr = self.get_object_repr(self.object)
-
         super().save(*args, **kwargs)
 
     @cached_property
@@ -236,9 +228,5 @@ class Subscription(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.object_type, 'notifications'):
-            raise ValidationError(
-                _("Objects of this type ({type}) do not support notifications.").format(type=self.object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

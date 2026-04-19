@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, has_feature
+from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, TagsMixin
 from tenancy.choices import *
 
 __all__ = (
@@ -151,12 +151,8 @@ class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, Chan
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.object_type, 'contacts'):
-            raise ValidationError(
-                _("Contacts cannot be assigned to this object type ({type}).").format(type=self.object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

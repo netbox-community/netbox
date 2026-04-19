@@ -1,9 +1,7 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
-from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
 from netbox.models import NestedGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
@@ -203,17 +201,5 @@ class WirelessLink(WirelessAuthenticationBase, DistanceMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Validate interface types
-        if hasattr(self, "interface_a") and self.interface_a.type not in WIRELESS_IFACE_TYPES:
-            raise ValidationError({
-                'interface_a': _(
-                    "{type} is not a wireless interface."
-                ).format(type=self.interface_a.get_type_display())
-            })
-        if hasattr(self, "interface_b") and self.interface_b.type not in WIRELESS_IFACE_TYPES:
-            raise ValidationError({
-                'interface_b': _(
-                    "{type} is not a wireless interface."
-                ).format(type=self.interface_b.get_type_display())
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

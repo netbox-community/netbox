@@ -120,32 +120,12 @@ class DataSource(JobsMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Validate data backend type
-        if self.type and self.type not in registry['data_backends']:
-            raise ValidationError({
-                'type': _("Unknown backend type: {type}".format(type=self.type))
-            })
-
-        # Ensure URL scheme matches selected type
-        if self.backend_class.is_local and self.url_scheme not in ('file', ''):
-            raise ValidationError({
-                'source_url': _("URLs for local sources must start with {scheme} (or specify no scheme)").format(
-                    scheme='file://'
-                )
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-
-        # If recurring sync is disabled for an existing DataSource, clear any pending sync jobs for it and reset its
-        # "queued" status
-        if not self._state.adding and not self.sync_interval:
-            self.jobs.filter(status=JobStatusChoices.STATUS_PENDING).delete()
-            if self.status == DataSourceStatusChoices.QUEUED and self.last_synced:
-                self.status = DataSourceStatusChoices.COMPLETED
-            elif self.status == DataSourceStatusChoices.QUEUED:
-                self.status = DataSourceStatusChoices.NEW
-
+        # Status reset is handled by DenormRegistry (core/denorm.py)
+        # Pending job cleanup is handled by CascadeRegistry (core/cascades.py)
         super().save(*args, **kwargs)
 
     def to_objectchange(self, action):

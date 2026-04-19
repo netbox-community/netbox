@@ -10,7 +10,7 @@ from mptt.models import MPTTModel
 
 from core.choices import ObjectChangeActionChoices
 from core.querysets import ObjectChangeQuerySet
-from netbox.models.features import ChangeLoggingMixin, has_feature
+from netbox.models.features import ChangeLoggingMixin
 from utilities.data import shallow_compare_dict
 
 __all__ = (
@@ -121,23 +121,10 @@ class ObjectChange(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if not has_feature(self.changed_object_type, 'change_logging'):
-            raise ValidationError(
-                _("Change logging is not supported for this object type ({type}).").format(
-                    type=self.changed_object_type
-                )
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-
-        # Record the user's name and the object's representation as static strings
-        if not self.user_name:
-            self.user_name = self.user.username
-        if not self.object_repr:
-            self.object_repr = str(self.changed_object)
-
         return super().save(*args, **kwargs)
 
     def get_absolute_url(self):

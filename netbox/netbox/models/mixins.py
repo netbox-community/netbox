@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -53,10 +52,6 @@ class WeightMixin(models.Model):
     def clean(self):
         super().clean()
 
-        # Validate weight and weight_unit
-        if self.weight and not self.weight_unit:
-            raise ValidationError(_("Must specify a unit when setting a weight"))
-
 
 class DistanceMixin(models.Model):
     distance = models.DecimalField(
@@ -86,7 +81,3 @@ class DistanceMixin(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate distance and distance_unit
-        if self.distance and not self.distance_unit:
-            raise ValidationError(_("Must specify a unit when setting a distance"))

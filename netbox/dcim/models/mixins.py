@@ -4,8 +4,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from dcim.constants import VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES
-
 __all__ = (
     'CachedScopeMixin',
     'InterfaceValidationMixin',
@@ -89,12 +87,9 @@ class CachedScopeMixin(models.Model):
         abstract = True
 
     def clean(self):
-        if self.scope_type and not (self.scope or self.scope_id):
-            scope_type = self.scope_type.model_class()
-            raise ValidationError(
-                _("Please select a {scope_type}.").format(scope_type=scope_type._meta.model_name)
-            )
         super().clean()
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def cache_related_objects(self):
         self._region = self._site_group = self._site = self._location = None
@@ -120,27 +115,5 @@ class InterfaceValidationMixin:
 
     def clean(self):
         super().clean()
-
-        # An interface cannot be bridged to itself
-        if self.pk and self.bridge_id == self.pk:
-            raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
-
-        # Only physical interfaces may have a PoE mode/type assigned
-        if self.poe_mode and self.type in VIRTUAL_IFACE_TYPES:
-            raise ValidationError({
-                'poe_mode': _("Virtual interfaces cannot have a PoE mode.")
-            })
-        if self.poe_type and self.type in VIRTUAL_IFACE_TYPES:
-            raise ValidationError({
-                'poe_type': _("Virtual interfaces cannot have a PoE type.")
-            })
-
-        # An interface with a PoE type set must also specify a mode
-        if self.poe_type and not self.poe_mode:
-            raise ValidationError({
-                'poe_type': _("Must specify PoE mode when designating a PoE type.")
-            })
-
-        # RF role may be set only for wireless interfaces
-        if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
-            raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

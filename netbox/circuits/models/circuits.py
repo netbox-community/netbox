@@ -155,9 +155,8 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
 
     def clean(self):
         super().clean()
-
-        if self.provider_account and self.provider != self.provider_account.provider:
-            raise ValidationError({'provider_account': "The assigned account must belong to the assigned provider."})
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class CircuitGroup(OrganizationalModel):
@@ -362,9 +361,8 @@ class CircuitTermination(
 
     def clean(self):
         super().clean()
-
-        if self.termination is None:
-            raise ValidationError(_("A circuit termination must attach to a terminating object."))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

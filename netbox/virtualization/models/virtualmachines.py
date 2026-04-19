@@ -310,47 +310,8 @@ class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        # Parent validation
-
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': _("An interface cannot be its own parent.")})
-
-        # An interface's parent must belong to the same virtual machine
-        if self.parent and self.parent.virtual_machine != self.virtual_machine:
-            raise ValidationError({
-                'parent': _(
-                    "The selected parent interface ({parent}) belongs to a different virtual machine "
-                    "({virtual_machine})."
-                ).format(parent=self.parent, virtual_machine=self.parent.virtual_machine)
-            })
-
-        # Bridge validation
-
-        # An interface cannot be bridged to itself
-        if self.pk and self.bridge_id == self.pk:
-            raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
-
-        # A bridged interface belong to the same virtual machine
-        if self.bridge and self.bridge.virtual_machine != self.virtual_machine:
-            raise ValidationError({
-                'bridge': _(
-                    "The selected bridge interface ({bridge}) belongs to a different virtual machine "
-                    "({virtual_machine})."
-                ).format(bridge=self.bridge, virtual_machine=self.bridge.virtual_machine)
-            })
-
-        # VLAN validation
-
-        # Validate untagged VLAN
-        if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
-            raise ValidationError({
-                'untagged_vlan': _(
-                    "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
-                    "virtual machine, or it must be global."
-                ).format(untagged_vlan=self.untagged_vlan)
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def l2vpn_termination(self):

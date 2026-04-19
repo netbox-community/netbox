@@ -1,7 +1,6 @@
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -108,11 +107,8 @@ class VirtualCircuit(ContactsMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        if self.provider_account and self.provider_network.provider != self.provider_account.provider:
-            raise ValidationError({
-                'provider_account': "The assigned account must belong to the provider of the assigned network."
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def provider(self):
@@ -190,6 +186,5 @@ class VirtualCircuitTermination(
 
     def clean(self):
         super().clean()
-
-        if self.interface and not self.interface.is_virtual:
-            raise ValidationError("Virtual circuits may be terminated only to virtual interfaces.")
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

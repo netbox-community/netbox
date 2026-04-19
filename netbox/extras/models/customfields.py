@@ -355,81 +355,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
     def clean(self):
         super().clean()
-
-        # Validate the field's default value (if any)
-        if self.default is not None:
-            try:
-                if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
-                    default_value = str(self.default)
-                else:
-                    default_value = self.default
-                self.validate(default_value)
-            except ValidationError as err:
-                raise ValidationError({
-                    'default': _(
-                        'Invalid default value "{value}": {error}'
-                    ).format(value=self.default, error=err.message)
-                })
-
-        # Minimum/maximum values can be set only for numeric fields
-        if self.type not in (CustomFieldTypeChoices.TYPE_INTEGER, CustomFieldTypeChoices.TYPE_DECIMAL):
-            if self.validation_minimum:
-                raise ValidationError({'validation_minimum': _("A minimum value may be set only for numeric fields")})
-            if self.validation_maximum:
-                raise ValidationError({'validation_maximum': _("A maximum value may be set only for numeric fields")})
-
-        # Regex validation can be set only for text fields
-        regex_types = (
-            CustomFieldTypeChoices.TYPE_TEXT,
-            CustomFieldTypeChoices.TYPE_LONGTEXT,
-            CustomFieldTypeChoices.TYPE_URL,
-        )
-        if self.validation_regex and self.type not in regex_types:
-            raise ValidationError({
-                'validation_regex': _("Regular expression validation is supported only for text and URL fields")
-            })
-
-        # Uniqueness can not be enforced for boolean fields
-        if self.unique and self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
-            raise ValidationError({
-                'unique': _("Uniqueness cannot be enforced for boolean fields")
-            })
-
-        # Choice set must be set on selection fields, and *only* on selection fields
-        if self.type in (
-                CustomFieldTypeChoices.TYPE_SELECT,
-                CustomFieldTypeChoices.TYPE_MULTISELECT
-        ):
-            if not self.choice_set:
-                raise ValidationError({
-                    'choice_set': _("Selection fields must specify a set of choices.")
-                })
-        elif self.choice_set:
-            raise ValidationError({
-                'choice_set': _("Choices may be set only on selection fields.")
-            })
-
-        # Object fields must define an object_type; other fields must not
-        if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
-            if not self.related_object_type:
-                raise ValidationError({
-                    'related_object_type': _("Object fields must define an object type.")
-                })
-        elif self.related_object_type:
-            raise ValidationError({
-                'type': _("{type} fields may not define an object type.") .format(type=self.get_type_display())
-            })
-
-        # Related object filter can be set only for object-type fields, and must contain a dictionary mapping (if set)
-        if self.related_object_filter is not None:
-            if self.type not in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
-                raise ValidationError({
-                    'related_object_filter': _("A related object filter can be defined only for object fields.")
-                })
-            if type(self.related_object_filter) is not dict:
-                raise ValidationError({
-                    'related_object_filter': _("Filter must be defined as a dictionary mapping attributes to values.")
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def serialize(self, value):
         """
@@ -897,49 +824,9 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         return (x[0] for x in self.choices)
 
     def clean(self):
-        if not self.base_choices and not self.extra_choices:
-            raise ValidationError(_("Must define base or extra choices."))
-
-        # Check for duplicate values in extra_choices
-        choice_values = [c[0] for c in self.extra_choices] if self.extra_choices else []
-        if len(set(choice_values)) != len(choice_values):
-            # At least one duplicate value is present. Find the first one and raise an error.
-            _seen = []
-            for value in choice_values:
-                if value in _seen:
-                    raise ValidationError(_("Duplicate value '{value}' found in extra choices.").format(value=value))
-                _seen.append(value)
-
-        # Check whether any choices have been removed. If so, check whether any of the removed
-        # choices are still set in custom field data for any object.
-        original_choices = set([
-            c[0] for c in self._original_extra_choices
-        ]) if self._original_extra_choices else set()
-        current_choices = set([
-            c[0] for c in self.extra_choices
-        ]) if self.extra_choices else set()
-        if removed_choices := original_choices - current_choices:
-            for custom_field in self.choices_for.all():
-                for object_type in custom_field.object_types.all():
-                    model = object_type.model_class()
-                    for choice in removed_choices:
-                        # Form the query based on the type of custom field
-                        if custom_field.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-                            query_args = {f"custom_field_data__{custom_field.name}__contains": choice}
-                        else:
-                            query_args = {f"custom_field_data__{custom_field.name}": choice}
-                        # Raise a ValidationError if there are any objects which still reference the removed choice
-                        if model.objects.filter(models.Q(**query_args)).exists():
-                            raise ValidationError(
-                                _(
-                                    "Cannot remove choice {choice} as there are {model} objects which reference it."
-                                ).format(choice=choice, model=object_type)
-                            )
+        super().clean()
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-
-        # Sort choices if alphabetical ordering is enforced
-        if self.order_alphabetically:
-            self.extra_choices = sorted(self.extra_choices, key=lambda x: x[0])
-
         return super().save(*args, **kwargs)

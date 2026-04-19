@@ -350,7 +350,7 @@ def validate_ipaddress_unique_with_roles(instance):
     """Enforce unique IP space, with exception for non-unique roles."""
     if not instance.address:
         return
-    from ipam.choices import IPADDRESS_ROLES_NONUNIQUE
+    from ipam.constants import IPADDRESS_ROLES_NONUNIQUE
     from netbox.config import get_config
     if (instance.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (instance.vrf and instance.vrf.enforce_unique):
         duplicate_ips = instance.get_duplicates()
@@ -572,7 +572,7 @@ validator_registry.register('ipam.vlan',
 # ──────────────────────────────────────────────────────────────────────
 
 def validate_vlangroup_vid_ranges(instance):
-    from ipam.utils import check_ranges_overlap
+    from utilities.data import check_ranges_overlap
     if instance.vid_ranges and check_ranges_overlap(instance.vid_ranges):
         raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
 

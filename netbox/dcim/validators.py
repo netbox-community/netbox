@@ -5,6 +5,8 @@ Each function is standalone and raises ValidationError on failure.
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
+from dcim.choices import InterfaceModeChoices
+from dcim.constants import VIRTUAL_IFACE_TYPES, WIRELESS_IFACE_TYPES
 from netbox.validators import ModelValidator, ValidatorCategory, validator_registry
 
 _fs = frozenset
@@ -412,6 +414,8 @@ def validate_cable_termination_unique(instance):
         termination_id=instance.termination_id,
         cable_end=instance.cable_end,
     ).exclude(pk=instance.pk)
+    if instance.cable_id:
+        existing = existing.exclude(cable_id=instance.cable_id)
     if existing.exists():
         raise ValidationError(
             _("A cable termination for {type} {id} ({end}) already exists").format(
@@ -436,7 +440,7 @@ def validate_cable_termination_mark_connected(instance):
 
 def validate_cable_termination_iface_type(instance):
     """Non-connectable interface types cannot have cables."""
-    from dcim.choices import NONCONNECTABLE_IFACE_TYPES
+    from dcim.constants import NONCONNECTABLE_IFACE_TYPES
     if instance.termination_type.model == 'interface' and instance.termination.type in NONCONNECTABLE_IFACE_TYPES:
         raise ValidationError(
             _("Cables cannot be terminated to {type_display} interfaces").format(
@@ -713,5 +717,1269 @@ validator_registry.register('dcim.devicetype',
         validate=validate_devicetype_subdevice_role,
         queries_db=True,
         description='Subdevice role vs bay templates and child u_height constraints',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# Interface
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_interface_virtual_cable(instance):
+    from dcim.constants import VIRTUAL_IFACE_TYPES
+    if instance.type in VIRTUAL_IFACE_TYPES and instance.cable:
+        raise ValidationError({
+            'type': _("{display_type} interfaces cannot have a cable attached.").format(
+                display_type=instance.get_type_display()
+            )
+        })
+
+
+def validate_interface_virtual_mark_connected(instance):
+    from dcim.constants import VIRTUAL_IFACE_TYPES
+    if instance.type in VIRTUAL_IFACE_TYPES and instance.mark_connected:
+        raise ValidationError({
+            'mark_connected': _("{display_type} interfaces cannot be marked as connected.".format(
+                display_type=instance.get_type_display())
+            )
+        })
+
+
+def validate_interface_parent_device(instance):
+    if instance.pk and instance.parent_id == instance.pk:
+        raise ValidationError({'parent': _("An interface cannot be its own parent.")})
+
+    from dcim.choices import InterfaceTypeChoices
+    if instance.type != InterfaceTypeChoices.TYPE_VIRTUAL and instance.parent is not None:
+        raise ValidationError({'parent': _("Only virtual interfaces may be assigned to a parent interface.")})
+
+    if instance.parent and instance.parent.device != instance.device:
+        if instance.device.virtual_chassis is None:
+            raise ValidationError({
+                'parent': _(
+                    "The selected parent interface ({interface}) belongs to a different device ({device})"
+                ).format(interface=instance.parent, device=instance.parent.device)
+            })
+        if instance.parent.device.virtual_chassis != instance.device.virtual_chassis:
+            raise ValidationError({
+                'parent': _(
+                    "The selected parent interface ({interface}) belongs to {device}, which is not part of "
+                    "virtual chassis {virtual_chassis}."
+                ).format(
+                    interface=instance.parent,
+                    device=instance.parent.device,
+                    virtual_chassis=instance.device.virtual_chassis
+                )
+            })
+
+
+def validate_interface_bridge_device(instance):
+    if instance.bridge and instance.bridge.device != instance.device:
+        if instance.device.virtual_chassis is None:
+            raise ValidationError({
+                'bridge': _(
+                    "The selected bridge interface ({bridge}) belongs to a different device ({device})."
+                ).format(bridge=instance.bridge, device=instance.bridge.device)
+            })
+        if instance.bridge.device.virtual_chassis != instance.device.virtual_chassis:
+            raise ValidationError({
+                'bridge': _(
+                    "The selected bridge interface ({interface}) belongs to {device}, which is not part of virtual "
+                    "chassis {virtual_chassis}."
+                ).format(
+                    interface=instance.bridge, device=instance.bridge.device, virtual_chassis=instance.device.virtual_chassis
+                )
+            })
+
+
+def validate_interface_lag_device(instance):
+    from dcim.choices import InterfaceTypeChoices
+    if instance.type == InterfaceTypeChoices.TYPE_VIRTUAL and instance.lag is not None:
+        raise ValidationError({'lag': _("Virtual interfaces cannot have a parent LAG interface.")})
+
+    if instance.pk and instance.lag_id == instance.pk:
+        raise ValidationError({'lag': _("A LAG interface cannot be its own parent.")})
+
+    if instance.lag and instance.lag.device != instance.device:
+        if instance.device.virtual_chassis is None:
+            raise ValidationError({
+                'lag': _(
+                    "The selected LAG interface ({lag}) belongs to a different device ({device})."
+                ).format(lag=instance.lag, device=instance.lag.device)
+            })
+        if instance.lag.device.virtual_chassis != instance.device.virtual_chassis:
+            raise ValidationError({
+                'lag': _(
+                    "The selected LAG interface ({lag}) belongs to {device}, which is not part of virtual chassis "
+                    "{virtual_chassis}.".format(
+                        lag=instance.lag, device=instance.lag.device, virtual_chassis=instance.device.virtual_chassis)
+                )
+            })
+
+
+def validate_interface_wireless_rf(instance):
+    from dcim.constants import WIRELESS_IFACE_TYPES
+    from wireless.utils import get_channel_attr
+
+    is_wireless = instance.type in WIRELESS_IFACE_TYPES
+
+    if instance.rf_channel and not is_wireless:
+        raise ValidationError({'rf_channel': _("Channel may be set only on wireless interfaces.")})
+
+    if instance.rf_channel_frequency:
+        if not is_wireless:
+            raise ValidationError({
+                'rf_channel_frequency': _("Channel frequency may be set only on wireless interfaces."),
+            })
+        if instance.rf_channel and instance.rf_channel_frequency != get_channel_attr(instance.rf_channel, 'frequency'):
+            raise ValidationError({
+                'rf_channel_frequency': _("Cannot specify custom frequency with channel selected."),
+            })
+
+    if instance.rf_channel_width:
+        if not is_wireless:
+            raise ValidationError({'rf_channel_width': _("Channel width may be set only on wireless interfaces.")})
+        if instance.rf_channel and instance.rf_channel_width != get_channel_attr(instance.rf_channel, 'width'):
+            raise ValidationError({'rf_channel_width': _("Cannot specify custom width with channel selected.")})
+
+
+def validate_interface_vlan_mode(instance):
+    if not instance.mode and instance.untagged_vlan:
+        raise ValidationError({'untagged_vlan': _("Interface mode does not support an untagged vlan.")})
+
+
+def validate_interface_vlan_site(instance):
+    if instance.untagged_vlan and instance.untagged_vlan.site not in [instance.device.site, None]:
+        raise ValidationError({
+            'untagged_vlan': _(
+                "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
+                "device, or it must be global."
+            ).format(untagged_vlan=instance.untagged_vlan)
+        })
+
+
+validator_registry.register('dcim.interface',
+    ModelValidator(
+        name='interface_virtual_cable',
+        model_label='dcim.interface',
+        fields=_fs({'type', 'cable'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_interface_virtual_cable,
+        description='Virtual interfaces cannot have cables',
+    ),
+    ModelValidator(
+        name='interface_virtual_mark_connected',
+        model_label='dcim.interface',
+        fields=_fs({'type', 'mark_connected'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_interface_virtual_mark_connected,
+        description='Virtual interfaces cannot be marked as connected',
+    ),
+    ModelValidator(
+        name='interface_parent_device',
+        model_label='dcim.interface',
+        fields=_fs({'parent', 'device', 'type'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_interface_parent_device,
+        queries_db=True,
+        description='Parent interface must be on same device or VC member',
+    ),
+    ModelValidator(
+        name='interface_bridge_device',
+        model_label='dcim.interface',
+        fields=_fs({'bridge', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_interface_bridge_device,
+        queries_db=True,
+        description='Bridge must be on same device or VC member',
+    ),
+    ModelValidator(
+        name='interface_lag_device',
+        model_label='dcim.interface',
+        fields=_fs({'lag', 'device', 'type'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_interface_lag_device,
+        queries_db=True,
+        description='LAG must be on same device or VC member',
+    ),
+    ModelValidator(
+        name='interface_wireless_rf',
+        model_label='dcim.interface',
+        fields=_fs({'type', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_interface_wireless_rf,
+        description='RF channel/frequency/width constraints for wireless interfaces',
+    ),
+    ModelValidator(
+        name='interface_vlan_mode',
+        model_label='dcim.interface',
+        fields=_fs({'mode', 'untagged_vlan'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_interface_vlan_mode,
+        description='Untagged VLAN requires interface mode',
+    ),
+    ModelValidator(
+        name='interface_vlan_site',
+        model_label='dcim.interface',
+        fields=_fs({'untagged_vlan', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_interface_vlan_site,
+        queries_db=True,
+        description='Untagged VLAN must match device site',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# InterfaceValidationMixin (dcim.Interface + dcim.InterfaceTemplate)
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_interface_bridge_self(instance):
+    if instance.pk and instance.bridge_id == instance.pk:
+        raise ValidationError({'bridge': _("An interface cannot be bridged to itself.")})
+
+
+def validate_interface_poe_constraints(instance):
+    if instance.poe_mode and instance.type in VIRTUAL_IFACE_TYPES:
+        raise ValidationError({
+            'poe_mode': _("Virtual interfaces cannot have a PoE mode.")
+        })
+    if instance.poe_type and instance.type in VIRTUAL_IFACE_TYPES:
+        raise ValidationError({
+            'poe_type': _("Virtual interfaces cannot have a PoE type.")
+        })
+    if instance.poe_type and not instance.poe_mode:
+        raise ValidationError({
+            'poe_type': _("Must specify PoE mode when designating a PoE type.")
+        })
+
+
+def validate_interface_rf_role(instance):
+    if instance.rf_role and instance.type not in WIRELESS_IFACE_TYPES:
+        raise ValidationError({'rf_role': _("Wireless role may be set only on wireless interfaces.")})
+
+
+_interface_mixin_validators = [
+    ModelValidator(
+        name='interface_bridge_self',
+        model_label='',
+        fields=_fs({'bridge'}),
+        category=ValidatorCategory.FIELD,
+        validate=validate_interface_bridge_self,
+        description='An interface cannot be bridged to itself',
+    ),
+    ModelValidator(
+        name='interface_poe_constraints',
+        model_label='',
+        fields=_fs({'poe_mode', 'poe_type', 'type'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_interface_poe_constraints,
+        description='PoE mode/type constraints for non-virtual interfaces',
+    ),
+    ModelValidator(
+        name='interface_rf_role',
+        model_label='',
+        fields=_fs({'rf_role', 'type'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_interface_rf_role,
+        description='RF role may only be set on wireless interfaces',
+    ),
+]
+
+for _label in ('dcim.interface', 'dcim.interfacetemplate'):
+    validator_registry.register(_label, *_interface_mixin_validators)
+
+# ──────────────────────────────────────────────────────────────────────
+# CabledObjectModel
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_cabledobject_cable_fields(instance):
+    if instance.cable:
+        if not instance.cable_end:
+            raise ValidationError({
+                "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
+            })
+        if instance.cable_connector and not instance.cable_positions:
+            raise ValidationError({
+                "cable_positions": _("Must specify position(s) when specifying a cable connector.")
+            })
+        if instance.cable_positions and not instance.cable_connector:
+            raise ValidationError({
+                "cable_positions": _("Cable positions cannot be set without a cable connector.")
+            })
+        if instance.mark_connected:
+            raise ValidationError({
+                "mark_connected": _("Cannot mark as connected with a cable attached.")
+            })
+    else:
+        if instance.cable_end:
+            raise ValidationError({
+                "cable_end": _("Cable end must not be set without a cable.")
+            })
+        if instance.cable_connector:
+            raise ValidationError({
+                "cable_connector": _("Cable connector must not be set without a cable.")
+            })
+        if instance.cable_positions:
+            raise ValidationError({
+                "cable_positions": _("Cable termination positions must not be set without a cable.")
+            })
+
+
+_cabled_models = [
+    'dcim.consoleport', 'dcim.consoleserverport',
+    'dcim.powerport', 'dcim.poweroutlet',
+    'dcim.interface', 'dcim.frontport', 'dcim.rearport',
+    'dcim.powerfeed', 'circuits.circuittermination',
+]
+
+for _label in _cabled_models:
+    validator_registry.register(_label,
+        ModelValidator(
+            name='cabledobject_cable_fields',
+            model_label=_label,
+            fields=_fs({'cable', 'cable_end', 'cable_connector', 'cable_positions', 'mark_connected'}),
+            category=ValidatorCategory.CROSS_FIELD,
+            validate=validate_cabledobject_cable_fields,
+            description='Cable, cable_end, connector, positions, and mark_connected consistency',
+        ),
+    )
+
+# ──────────────────────────────────────────────────────────────────────
+# BaseInterface (dcim.Interface + virtualization.VMInterface)
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_baseinterface_qinq_svlan(instance):
+    if instance.qinq_svlan and instance.mode != InterfaceModeChoices.MODE_Q_IN_Q:
+        raise ValidationError({
+            'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
+        })
+
+
+def validate_baseinterface_primary_mac(instance):
+    if (
+            instance.primary_mac_address and
+            instance.primary_mac_address.assigned_object is not None and
+            instance.primary_mac_address.assigned_object != instance
+    ):
+        raise ValidationError({
+            'primary_mac_address': _(
+                "MAC address {mac_address} is assigned to a different interface ({interface})."
+            ).format(
+                mac_address=instance.primary_mac_address,
+                interface=instance.primary_mac_address.assigned_object,
+            )
+        })
+
+
+_baseinterface_validators = [
+    ModelValidator(
+        name='baseinterface_qinq_svlan',
+        model_label='',
+        fields=_fs({'qinq_svlan', 'mode'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_baseinterface_qinq_svlan,
+        description='SVLAN requires Q-in-Q mode',
+    ),
+    ModelValidator(
+        name='baseinterface_primary_mac',
+        model_label='',
+        fields=_fs({'primary_mac_address'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_baseinterface_primary_mac,
+        queries_db=True,
+        description='Primary MAC must be assigned to this interface',
+    ),
+]
+
+for _label in ('dcim.interface', 'virtualization.vminterface'):
+    validator_registry.register(_label, *_baseinterface_validators)
+
+# ──────────────────────────────────────────────────────────────────────
+# PowerPanel
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_powerpanel_location_site(instance):
+    if instance.location and instance.location.site != instance.site:
+        raise ValidationError(
+            _("Location {location} ({location_site}) is in a different site than {site}").format(
+                location=instance.location, location_site=instance.location.site, site=instance.site)
+        )
+
+
+validator_registry.register('dcim.powerpanel',
+    ModelValidator(
+        name='powerpanel_location_site',
+        model_label='dcim.powerpanel',
+        fields=_fs({'location', 'site'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_powerpanel_location_site,
+        description='Location must belong to the assigned site',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# Location
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_location_parent_site(instance):
+    if instance.parent and instance.parent.site != instance.site:
+        raise ValidationError(_(
+            "Parent location ({parent}) must belong to the same site ({site})."
+        ).format(parent=instance.parent, site=instance.site))
+
+
+validator_registry.register('dcim.location',
+    ModelValidator(
+        name='location_parent_site',
+        model_label='dcim.location',
+        fields=_fs({'parent', 'site'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_location_parent_site,
+        description='Parent location must belong to the same site',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# PowerFeed
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_powerfeed_rack_site(instance):
+    if instance.rack and instance.rack.site != instance.power_panel.site:
+        raise ValidationError(_(
+            "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) are in different sites."
+        ).format(
+            rack=instance.rack,
+            rack_site=instance.rack.site,
+            powerpanel=instance.power_panel,
+            powerpanel_site=instance.power_panel.site
+        ))
+
+
+def validate_powerfeed_ac_voltage(instance):
+    from dcim.choices import PowerFeedSupplyChoices
+    if instance.voltage < 0 and instance.supply == PowerFeedSupplyChoices.SUPPLY_AC:
+        raise ValidationError({
+            "voltage": _("Voltage cannot be negative for AC supply")
+        })
+
+
+validator_registry.register('dcim.powerfeed',
+    ModelValidator(
+        name='powerfeed_rack_site',
+        model_label='dcim.powerfeed',
+        fields=_fs({'rack', 'power_panel'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_powerfeed_rack_site,
+        description='Rack must belong to same site as power panel',
+    ),
+    ModelValidator(
+        name='powerfeed_ac_voltage',
+        model_label='dcim.powerfeed',
+        fields=_fs({'voltage', 'supply'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_powerfeed_ac_voltage,
+        description='AC voltage cannot be negative',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# InventoryItem
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_inventoryitem_parent_self(instance):
+    if instance.pk and instance.parent_id == instance.pk:
+        raise ValidationError({
+            "parent": _("Cannot assign self as parent.")
+        })
+
+
+def validate_inventoryitem_parent_device(instance):
+    if not instance._state.adding and instance.parent and instance.parent.device != instance.device:
+        raise ValidationError({
+            "parent": _("Parent inventory item does not belong to the same device.")
+        })
+
+
+def validate_inventoryitem_children_device(instance):
+    if instance._state.adding:
+        return
+    first_child = instance.get_children().first()
+    if first_child and first_child.device != instance.device:
+        raise ValidationError(_("Cannot move an inventory item with dependent children"))
+
+
+def validate_inventoryitem_component_device_new(instance):
+    if instance._state.adding and instance.component and instance.component.device != instance.device:
+        raise ValidationError({
+            "device": _("Cannot assign inventory item to component on another device")
+        })
+
+
+validator_registry.register('dcim.inventoryitem',
+    ModelValidator(
+        name='inventoryitem_parent_self',
+        model_label='dcim.inventoryitem',
+        fields=_fs({'parent'}),
+        category=ValidatorCategory.FIELD,
+        validate=validate_inventoryitem_parent_self,
+        description='InventoryItem cannot be its own parent',
+    ),
+    ModelValidator(
+        name='inventoryitem_parent_device',
+        model_label='dcim.inventoryitem',
+        fields=_fs({'parent', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_inventoryitem_parent_device,
+        queries_db=True,
+        description='Parent must belong to the same device',
+    ),
+    ModelValidator(
+        name='inventoryitem_children_device',
+        model_label='dcim.inventoryitem',
+        fields=_fs({'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_inventoryitem_children_device,
+        queries_db=True,
+        description='Cannot move item with children on different device',
+    ),
+    ModelValidator(
+        name='inventoryitem_component_device_new',
+        model_label='dcim.inventoryitem',
+        fields=_fs({'component_type', 'component_id', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_inventoryitem_component_device_new,
+        queries_db=True,
+        description='New item component must belong to same device',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# Cable
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_cable_length_unit(instance):
+    if instance.length is not None and not instance.length_unit:
+        raise ValidationError(_("Must specify a unit when setting a cable length"))
+
+
+def validate_cable_new_terminations(instance):
+    if instance._state.adding and instance.pk is None and (
+        not instance.a_terminations or not instance.b_terminations
+    ):
+        raise ValidationError(_("Must define A and B terminations when creating a new cable."))
+
+
+def validate_cable_profile(instance):
+    if instance.profile:
+        instance.profile_class().clean(instance)
+
+
+def validate_cable_termination_types(instance):
+    if not instance._terminations_modified:
+        return
+    for terms in (instance.a_terminations, instance.b_terminations):
+        if len(terms) > 1 and not all(isinstance(t, type(terms[0])) for t in terms[1:]):
+            raise ValidationError(_("Cannot connect different termination types to same end of cable."))
+
+
+def validate_cable_termination_compatibility(instance):
+    if not instance._terminations_modified:
+        return
+    if not (instance.a_terminations and instance.b_terminations):
+        return
+    from dcim.constants import COMPATIBLE_TERMINATION_TYPES
+    a_type = instance.a_terminations[0]._meta.model_name
+    b_type = instance.b_terminations[0]._meta.model_name
+    if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
+        raise ValidationError(
+            _("Incompatible termination types: {type_a} and {type_b}").format(type_a=a_type, type_b=b_type)
+        )
+    if a_type == b_type:
+        a_pks = set(obj.pk for obj in instance.a_terminations if obj.pk)
+        b_pks = set(obj.pk for obj in instance.b_terminations if obj.pk)
+        if a_pks & b_pks:
+            raise ValidationError(
+                _("A and B terminations cannot connect to the same object.")
+            )
+
+
+validator_registry.register('dcim.cable',
+    ModelValidator(
+        name='cable_length_unit',
+        model_label='dcim.cable',
+        fields=_fs({'length', 'length_unit'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_cable_length_unit,
+        description='Cable length requires a unit',
+    ),
+    ModelValidator(
+        name='cable_new_terminations',
+        model_label='dcim.cable',
+        fields=frozenset(),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_cable_new_terminations,
+        description='New cables must have A and B terminations',
+    ),
+    ModelValidator(
+        name='cable_profile',
+        model_label='dcim.cable',
+        fields=_fs({'profile'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_cable_profile,
+        description='Terminations must match cable profile constraints',
+    ),
+    ModelValidator(
+        name='cable_termination_types',
+        model_label='dcim.cable',
+        fields=frozenset(),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_cable_termination_types,
+        description='All terminations on each end must be the same type',
+    ),
+    ModelValidator(
+        name='cable_termination_compatibility',
+        model_label='dcim.cable',
+        fields=frozenset(),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_cable_termination_compatibility,
+        queries_db=True,
+        description='A/B termination types must be compatible',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# ComponentModel — blocks changing device on existing components
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_component_device_immutable(instance):
+    from dcim.models.device_components import InventoryItem
+    if type(instance) not in [InventoryItem] and instance.pk is not None and instance._original_device != instance.device_id:
+        raise ValidationError({
+            "device": _("Components cannot be moved to a different device.")
+        })
+
+
+_component_model_labels = [
+    'dcim.consoleport', 'dcim.consoleserverport',
+    'dcim.powerport', 'dcim.poweroutlet',
+    'dcim.interface', 'dcim.frontport', 'dcim.rearport',
+    'dcim.modulebay', 'dcim.devicebay',
+]
+
+for _label in _component_model_labels:
+    validator_registry.register(_label,
+        ModelValidator(
+            name='component_device_immutable',
+            model_label=_label,
+            fields=_fs({'device'}),
+            category=ValidatorCategory.FIELD,
+            validate=validate_component_device_immutable,
+            description='Components cannot be moved to a different device',
+        ),
+    )
+
+# ──────────────────────────────────────────────────────────────────────
+# PowerPort — allocated_draw ≤ maximum_draw
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_powerport_draw(instance):
+    if instance.maximum_draw is not None and instance.allocated_draw is not None:
+        if instance.allocated_draw > instance.maximum_draw:
+            raise ValidationError({
+                'allocated_draw': _(
+                    "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
+                ).format(maximum_draw=instance.maximum_draw)
+            })
+
+
+validator_registry.register('dcim.powerport',
+    ModelValidator(
+        name='powerport_draw',
+        model_label='dcim.powerport',
+        fields=_fs({'allocated_draw', 'maximum_draw'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_powerport_draw,
+        description='Allocated draw cannot exceed maximum draw',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# PowerOutlet — parent power port on same device
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_poweroutlet_power_port(instance):
+    if instance.power_port and instance.power_port.device != instance.device:
+        raise ValidationError(
+            _("Parent power port ({power_port}) must belong to the same device").format(power_port=instance.power_port)
+        )
+
+
+validator_registry.register('dcim.poweroutlet',
+    ModelValidator(
+        name='poweroutlet_power_port',
+        model_label='dcim.poweroutlet',
+        fields=_fs({'power_port', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_poweroutlet_power_port,
+        queries_db=True,
+        description='Parent power port must belong to the same device',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# PortMapping — front/rear ports same device
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_portmapping_same_device(instance):
+    if instance.front_port.device_id != instance.rear_port.device_id:
+        raise ValidationError({
+            "rear_port": _("Rear port ({rear_port}) must belong to the same device").format(
+                rear_port=instance.rear_port
+            )
+        })
+
+
+validator_registry.register('dcim.portmapping',
+    ModelValidator(
+        name='portmapping_same_device',
+        model_label='dcim.portmapping',
+        fields=_fs({'front_port', 'rear_port'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_portmapping_same_device,
+        queries_db=True,
+        description='Front and rear ports must belong to the same device',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# PortMappingBase — rear port position ≤ rear_port.positions
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_portmappingbase_rear_position(instance):
+    if instance.rear_port_position > instance.rear_port.positions:
+        raise ValidationError({
+            "rear_port_position": _(
+                "Invalid rear port position ({rear_port_position}): Rear port {name} has only {positions} "
+                "positions."
+            ).format(
+                rear_port_position=instance.rear_port_position,
+                name=instance.rear_port.name,
+                positions=instance.rear_port.positions
+            )
+        })
+
+
+for _label in ('dcim.portmapping', 'dcim.porttemplatemapping'):
+    validator_registry.register(_label,
+        ModelValidator(
+            name='portmappingbase_rear_position',
+            model_label=_label,
+            fields=_fs({'rear_port_position', 'rear_port'}),
+            category=ValidatorCategory.CROSS_MODEL,
+            validate=validate_portmappingbase_rear_position,
+            queries_db=True,
+            description='Rear port position must not exceed rear port positions count',
+        ),
+    )
+
+# ──────────────────────────────────────────────────────────────────────
+# FrontPort / RearPort — positions ≥ mapping count
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_frontport_positions(instance):
+    if not instance._state.adding:
+        mapping_count = instance.mappings.count()
+        if instance.positions < mapping_count:
+            raise ValidationError({
+                "positions": _(
+                    "The number of positions cannot be less than the number of mapped rear ports ({count})"
+                ).format(count=mapping_count)
+            })
+
+
+def validate_rearport_positions(instance):
+    if not instance._state.adding:
+        mapping_count = instance.mappings.count()
+        if instance.positions < mapping_count:
+            raise ValidationError({
+                "positions": _(
+                    "The number of positions cannot be less than the number of mapped front ports "
+                    "({count})"
+                ).format(count=mapping_count)
+            })
+
+
+validator_registry.register('dcim.frontport',
+    ModelValidator(
+        name='frontport_positions',
+        model_label='dcim.frontport',
+        fields=_fs({'positions'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_frontport_positions,
+        queries_db=True,
+        description='Positions must be >= mapped rear port count',
+    ),
+)
+
+validator_registry.register('dcim.rearport',
+    ModelValidator(
+        name='rearport_positions',
+        model_label='dcim.rearport',
+        fields=_fs({'positions'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_rearport_positions,
+        queries_db=True,
+        description='Positions must be >= mapped front port count',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# ModuleBay — walks module/bay chain to prevent recursion
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_modulebay_recursion(instance):
+    if module := instance.module:
+        module_bays = [instance.pk]
+        modules = []
+        while module:
+            if module.pk in modules or module.module_bay.pk in module_bays:
+                raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+            modules.append(module.pk)
+            module_bays.append(module.module_bay.pk)
+            module = module.module_bay.module if module.module_bay else None
+
+
+validator_registry.register('dcim.modulebay',
+    ModelValidator(
+        name='modulebay_recursion',
+        model_label='dcim.modulebay',
+        fields=_fs({'module'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_modulebay_recursion,
+        queries_db=True,
+        description='Module bay cannot belong to a module installed within it',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# Module — bay/device match + recursion guard
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_module_bay_device(instance):
+    if hasattr(instance, "module_bay") and (instance.module_bay.device != instance.device):
+        raise ValidationError(
+            _("Module must be installed within a module bay belonging to the assigned device ({device}).").format(
+                device=instance.device
+            )
+        )
+
+
+def validate_module_recursion(instance):
+    module = instance
+    module_bays = []
+    modules = []
+    while module:
+        module_module_bay = getattr(module, "module_bay", None)
+        if module.pk in modules or (module_module_bay and module_module_bay.pk in module_bays):
+            raise ValidationError(_("A module bay cannot belong to a module installed within it."))
+        modules.append(module.pk)
+        if module_module_bay:
+            module_bays.append(module_module_bay.pk)
+        module = module_module_bay.module if module_module_bay else None
+
+
+validator_registry.register('dcim.module',
+    ModelValidator(
+        name='module_bay_device',
+        model_label='dcim.module',
+        fields=_fs({'module_bay', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_module_bay_device,
+        queries_db=True,
+        description='Module bay must belong to the assigned device',
+    ),
+    ModelValidator(
+        name='module_recursion',
+        model_label='dcim.module',
+        fields=_fs({'module_bay'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_module_recursion,
+        queries_db=True,
+        description='Module bay cannot belong to a module installed within it',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# MACAddress — primary MAC cannot be cleared/reassigned wrongly
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_macaddress_primary(instance):
+    from django.contrib.contenttypes.models import ContentType
+    if instance._original_assigned_object_id and instance._original_assigned_object_type_id:
+        assigned_object = instance.assigned_object
+        ct = ContentType.objects.get_for_id(instance._original_assigned_object_type_id)
+        original_assigned_object = ct.get_object_for_this_type(pk=instance._original_assigned_object_id)
+
+        if (
+            original_assigned_object.primary_mac_address
+            and original_assigned_object.primary_mac_address.pk == instance.pk
+        ):
+            if not assigned_object:
+                raise ValidationError(
+                    _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
+                )
+            if original_assigned_object != assigned_object:
+                raise ValidationError(
+                    _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
+                )
+
+
+validator_registry.register('dcim.macaddress',
+    ModelValidator(
+        name='macaddress_primary',
+        model_label='dcim.macaddress',
+        fields=_fs({'assigned_object_type', 'assigned_object_id'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_macaddress_primary,
+        queries_db=True,
+        description='Primary MAC cannot be unassigned or reassigned while designated as primary',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# VirtualDeviceContext — primary IP family + interface membership
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_vdc_primary_ips(instance):
+    for primary_ip, family in ((instance.primary_ip4, 4), (instance.primary_ip6, 6)):
+        if not primary_ip:
+            continue
+        if primary_ip.family != family:
+            raise ValidationError({
+                f'primary_ip{family}': _(
+                    "{ip} is not an IPv{family} address."
+                ).format(family=family, ip=primary_ip)
+            })
+        device_interfaces = instance.device.vc_interfaces(if_master=False)
+        if primary_ip.assigned_object not in device_interfaces:
+            raise ValidationError({
+                f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
+            })
+
+
+validator_registry.register('dcim.virtualdevicecontext',
+    ModelValidator(
+        name='vdc_primary_ips',
+        model_label='dcim.virtualdevicecontext',
+        fields=_fs({'primary_ip4', 'primary_ip6', 'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_vdc_primary_ips,
+        queries_db=True,
+        description='VDC primary IPs must match family and belong to device interfaces',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# PowerFeed — rack vs panel site; AC voltage sign
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_powerfeed_rack_site(instance):
+    if instance.rack and instance.rack.site != instance.power_panel.site:
+        raise ValidationError(_(
+            "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) are in different sites."
+        ).format(
+            rack=instance.rack,
+            rack_site=instance.rack.site,
+            powerpanel=instance.power_panel,
+            powerpanel_site=instance.power_panel.site
+        ))
+
+
+def validate_powerfeed_voltage(instance):
+    from dcim.choices import PowerFeedSupplyChoices
+    if instance.voltage < 0 and instance.supply == PowerFeedSupplyChoices.SUPPLY_AC:
+        raise ValidationError({
+            "voltage": _("Voltage cannot be negative for AC supply")
+        })
+
+
+validator_registry.register('dcim.powerfeed',
+    ModelValidator(
+        name='powerfeed_rack_site',
+        model_label='dcim.powerfeed',
+        fields=_fs({'rack', 'power_panel'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_powerfeed_rack_site,
+        queries_db=True,
+        description='Rack and power panel must belong to the same site',
+    ),
+    ModelValidator(
+        name='powerfeed_voltage',
+        model_label='dcim.powerfeed',
+        fields=_fs({'voltage', 'supply'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_powerfeed_voltage,
+        description='AC voltage cannot be negative',
+    ),
+)
+
+# ──────────────────────────────────────────────────────────────────────
+# CachedScopeMixin — scope GFK consistency
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_cached_scope(instance):
+    if instance.scope_type and not (instance.scope or instance.scope_id):
+        scope_type = instance.scope_type.model_class()
+        raise ValidationError(
+            _("Please select a {scope_type}.").format(scope_type=scope_type._meta.model_name)
+        )
+
+
+_cached_scope_labels = [
+    'virtualization.cluster', 'ipam.prefix', 'wireless.wirelesslan',
+]
+
+for _label in _cached_scope_labels:
+    validator_registry.register(_label,
+        ModelValidator(
+            name='cached_scope_consistency',
+            model_label=_label,
+            fields=_fs({'scope_type', 'scope_id'}),
+            category=ValidatorCategory.CROSS_FIELD,
+            validate=validate_cached_scope,
+            description='Scope type requires a scope object to be selected',
+        ),
+    )
+
+# ──────────────────────────────────────────────────────────────────────
+# Component Templates
+# ──────────────────────────────────────────────────────────────────────
+
+def validate_component_template_device_type_immutable(instance):
+    if not instance._state.adding and instance._original_device_type != instance.device_type_id:
+        raise ValidationError({
+            "device_type": _("Component templates cannot be moved to a different device type.")
+        })
+
+
+_component_template_labels = [
+    'dcim.consoleporttemplate', 'dcim.consoleserverporttemplate',
+    'dcim.powerporttemplate', 'dcim.poweroutlettemplate',
+    'dcim.interfacetemplate', 'dcim.frontporttemplate', 'dcim.rearporttemplate',
+    'dcim.modulebaytemplate', 'dcim.devicebaytemplate',
+]
+
+for _label in _component_template_labels:
+    validator_registry.register(_label,
+        ModelValidator(
+            name='component_template_device_type_immutable',
+            model_label=_label,
+            fields=_fs({'device_type'}),
+            category=ValidatorCategory.FIELD,
+            validate=validate_component_template_device_type_immutable,
+            description='Component templates cannot be moved to a different device type',
+        ),
+    )
+
+
+def validate_modular_template_exclusive(instance):
+    if instance.device_type and instance.module_type:
+        raise ValidationError(
+            _("A component template cannot be associated with both a device type and a module type.")
+        )
+    if not instance.device_type and not instance.module_type:
+        raise ValidationError(
+            _("A component template must be associated with either a device type or a module type.")
+        )
+
+
+_modular_template_labels = [
+    'dcim.consoleporttemplate', 'dcim.consoleserverporttemplate',
+    'dcim.powerporttemplate', 'dcim.poweroutlettemplate',
+    'dcim.interfacetemplate', 'dcim.frontporttemplate', 'dcim.rearporttemplate',
+    'dcim.modulebaytemplate',
+]
+
+for _label in _modular_template_labels:
+    validator_registry.register(_label,
+        ModelValidator(
+            name='modular_template_exclusive',
+            model_label=_label,
+            fields=_fs({'device_type', 'module_type'}),
+            category=ValidatorCategory.CROSS_FIELD,
+            validate=validate_modular_template_exclusive,
+            description='Template must belong to device type XOR module type',
+        ),
+    )
+
+
+def validate_powerport_template_draw(instance):
+    if instance.maximum_draw is not None and instance.allocated_draw is not None:
+        if instance.allocated_draw > instance.maximum_draw:
+            raise ValidationError({
+                'allocated_draw': _(
+                    "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
+                ).format(maximum_draw=instance.maximum_draw)
+            })
+
+
+validator_registry.register('dcim.powerporttemplate',
+    ModelValidator(
+        name='powerport_template_draw',
+        model_label='dcim.powerporttemplate',
+        fields=_fs({'allocated_draw', 'maximum_draw'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_powerport_template_draw,
+        description='Allocated draw cannot exceed maximum draw',
+    ),
+)
+
+
+def validate_poweroutlet_template_power_port(instance):
+    if instance.power_port:
+        if instance.device_type and instance.power_port.device_type != instance.device_type:
+            raise ValidationError(
+                _("Parent power port ({power_port}) must belong to the same device type").format(
+                    power_port=instance.power_port
+                )
+            )
+        if instance.module_type and instance.power_port.module_type != instance.module_type:
+            raise ValidationError(
+                _("Parent power port ({power_port}) must belong to the same module type").format(
+                    power_port=instance.power_port
+                )
+            )
+
+
+validator_registry.register('dcim.poweroutlettemplate',
+    ModelValidator(
+        name='poweroutlet_template_power_port',
+        model_label='dcim.poweroutlettemplate',
+        fields=_fs({'power_port', 'device_type', 'module_type'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_poweroutlet_template_power_port,
+        queries_db=True,
+        description='Power port template must belong to the same device/module type',
+    ),
+)
+
+
+def validate_interface_template_bridge(instance):
+    if instance.bridge:
+        if instance.device_type and instance.device_type != instance.bridge.device_type:
+            raise ValidationError({
+                'bridge': _(
+                    "Bridge interface ({bridge}) must belong to the same device type"
+                ).format(bridge=instance.bridge)
+            })
+        if instance.module_type and instance.module_type != instance.bridge.module_type:
+            raise ValidationError({
+                'bridge': _(
+                    "Bridge interface ({bridge}) must belong to the same module type"
+                ).format(bridge=instance.bridge)
+            })
+
+
+validator_registry.register('dcim.interfacetemplate',
+    ModelValidator(
+        name='interface_template_bridge',
+        model_label='dcim.interfacetemplate',
+        fields=_fs({'bridge', 'device_type', 'module_type'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_interface_template_bridge,
+        queries_db=True,
+        description='Bridge interface template must belong to same device/module type',
+    ),
+)
+
+
+def validate_port_template_mapping_same_device_type(instance):
+    if instance.front_port.device_type_id != instance.rear_port.device_type_id:
+        raise ValidationError({
+            "rear_port": _("Rear port ({rear_port}) must belong to the same device type").format(
+                rear_port=instance.rear_port
+            )
+        })
+
+
+validator_registry.register('dcim.porttemplatemapping',
+    ModelValidator(
+        name='port_template_mapping_same_device_type',
+        model_label='dcim.porttemplatemapping',
+        fields=_fs({'front_port', 'rear_port'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_port_template_mapping_same_device_type,
+        queries_db=True,
+        description='Front and rear port templates must belong to the same device type',
+    ),
+)
+
+
+def validate_frontport_template_positions(instance):
+    if not instance._state.adding:
+        mapping_count = instance.mappings.count()
+        if instance.positions < mapping_count:
+            raise ValidationError({
+                "positions": _(
+                    "The number of positions cannot be less than the number of mapped rear port templates ({count})"
+                ).format(count=mapping_count)
+            })
+
+
+def validate_rearport_template_positions(instance):
+    if not instance._state.adding:
+        mapping_count = instance.mappings.count()
+        if instance.positions < mapping_count:
+            raise ValidationError({
+                "positions": _(
+                    "The number of positions cannot be less than the number of mapped front port templates "
+                    "({count})"
+                ).format(count=mapping_count)
+            })
+
+
+validator_registry.register('dcim.frontporttemplate',
+    ModelValidator(
+        name='frontport_template_positions',
+        model_label='dcim.frontporttemplate',
+        fields=_fs({'positions'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_frontport_template_positions,
+        queries_db=True,
+        description='Positions must be >= mapped rear port template count',
+    ),
+)
+
+validator_registry.register('dcim.rearporttemplate',
+    ModelValidator(
+        name='rearport_template_positions',
+        model_label='dcim.rearporttemplate',
+        fields=_fs({'positions'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_rearport_template_positions,
+        queries_db=True,
+        description='Positions must be >= mapped front port template count',
+    ),
+)
+
+
+def validate_devicebay_template_subdevice_role(instance):
+    from dcim.choices import SubdeviceRoleChoices
+    if instance.device_type and instance.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
+        raise ValidationError(
+            _(
+                'Subdevice role of device type ({device_type}) must be set to "parent" to allow device bays.'
+            ).format(device_type=instance.device_type)
+        )
+
+
+validator_registry.register('dcim.devicebaytemplate',
+    ModelValidator(
+        name='devicebay_template_subdevice_role',
+        model_label='dcim.devicebaytemplate',
+        fields=_fs({'device_type'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_devicebay_template_subdevice_role,
+        queries_db=True,
+        description='Device type must have parent subdevice role for device bays',
     ),
 )

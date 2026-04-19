@@ -25,10 +25,12 @@ from .utils import run_validators
 # delegate to the same handlers defined in extras/cascades.py.
 # ──────────────────────────────────────────────────────────────────────
 
-from extras.cascades import _cf_added_obj_types, _cf_deleted, _cf_removed_obj_types, _cf_renamed
+from extras.cascades import _cf_added_obj_types, _cf_removed_obj_types
 
-post_save.connect(_cf_renamed, sender=CustomField)
-pre_delete.connect(_cf_deleted, sender=CustomField)
+# _cf_renamed (post_save) and _cf_deleted (pre_delete) are handled by the
+# cascade registry dispatcher — no direct signal connection needed here.
+# M2M signals aren't supported by the cascade registry yet, so we connect
+# these directly.
 m2m_changed.connect(_cf_added_obj_types, sender=CustomField.object_types.through)
 m2m_changed.connect(_cf_removed_obj_types, sender=CustomField.object_types.through)
 
