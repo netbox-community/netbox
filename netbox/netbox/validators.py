@@ -54,14 +54,35 @@ class ValidatorRegistry:
 
     Validators are grouped by model label and can be filtered by category,
     fields, and whether they query the database.
+
+    Supports mixin sentinels: pseudo-labels like ``__mixin:CustomFieldsMixin__``
+    that match any model whose MRO includes the registered mixin class. This
+    lets a single registration cover every concrete model inheriting that mixin,
+    without per-model wiring.
     """
 
     def __init__(self):
         self._validators: dict[str, list[ModelValidator]] = defaultdict(list)
+        self._mixin_sentinels: dict[str, type] = {}
 
     def register(self, model_label: str, *validators: ModelValidator):
         for v in validators:
             self._validators[model_label].append(v)
+
+    def register_mixin_sentinel(self, sentinel_label: str, mixin_class: type):
+        """
+        Associate a sentinel pseudo-label with an abstract mixin class.
+
+        Any future call to ``get_validators(instance=...)`` will also return
+        validators registered under this sentinel if the instance inherits
+        from *mixin_class*.
+        """
+        self._mixin_sentinels[sentinel_label] = mixin_class
+
+    def _sentinel_labels_for(self, instance) -> list[str]:
+        """Return sentinel labels whose mixin class appears in instance's MRO."""
+        mro = type(instance).__mro__
+        return [label for label, cls in self._mixin_sentinels.items() if cls in mro]
 
     def get_validators(
         self,
@@ -69,9 +90,17 @@ class ValidatorRegistry:
         categories: Optional[set[ValidatorCategory]] = None,
         exclude_categories: Optional[set[ValidatorCategory]] = None,
         fields: Optional[set[str]] = None,
+        instance=None,
     ) -> list[ModelValidator]:
-        """Get validators for a model, optionally filtered."""
+        """Get validators for a model, optionally filtered.
+
+        If *instance* is provided, also includes validators registered under
+        any matching mixin sentinel labels.
+        """
         result = list(self._validators.get(model_label, []))
+        if instance is not None:
+            for sentinel_label in self._sentinel_labels_for(instance):
+                result.extend(self._validators.get(sentinel_label, []))
         if categories:
             result = [v for v in result if v.category in categories]
         if exclude_categories:
@@ -98,6 +127,7 @@ class ValidatorRegistry:
             categories=categories,
             exclude_categories=exclude_categories,
             fields=fields,
+            instance=instance,
         )
         errors = {}
         for v in validators:
@@ -133,11 +163,22 @@ class ValidatorRegistry:
             fields=changed_fields,
         )
 
-    def has_validators(self, model_label: str) -> bool:
-        return model_label in self._validators
+    def has_validators(self, model_label: str, instance=None) -> bool:
+        if model_label in self._validators:
+            return True
+        if instance is not None:
+            return any(
+                sentinel in self._validators
+                for sentinel in self._sentinel_labels_for(instance)
+            )
+        return False
 
     def registered_models(self) -> set[str]:
         return set(self._validators.keys())
+
+    def registered_sentinels(self) -> dict[str, str]:
+        """Return sentinel labels and their mixin class names."""
+        return {label: cls.__name__ for label, cls in self._mixin_sentinels.items()}
 
     def cross_model_validators(self, model_label: str) -> list[ModelValidator]:
         """Get only the validators that query the database."""

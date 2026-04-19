@@ -62,6 +62,18 @@ class CounterRegistry:
     def get_for_child(self, model_label: str) -> list[CounterSpec]:
         return [s for s in self._specs if s.child_model == model_label]
 
+    def connect_all(self):
+        """
+        Resolve parent model classes from registered specs and wire up
+        counter cache signals via connect_counters().
+        """
+        from django.apps import apps
+        from utilities.counters import connect_counters
+
+        parent_labels = sorted(set(spec.parent_model for spec in self._specs))
+        parent_models = [apps.get_model(label) for label in parent_labels]
+        connect_counters(*parent_models)
+
     def export(self) -> dict:
         parents = sorted(set(s.parent_model for s in self._specs))
         return {

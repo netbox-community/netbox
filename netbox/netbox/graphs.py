@@ -16,6 +16,7 @@ Usage:
     # Export all graph rules
     schema = graph_registry.export()
 """
+import importlib
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -137,11 +138,15 @@ graph_registry.register(
     GraphSpec(
         trigger_model='dcim.cable',
         graph_type=GraphType.CABLE_PATH,
-        trigger_event='post_save',
+        trigger_event='custom:trace_paths',
         trigger_fields=frozenset({'status'}),
         affected_model='dcim.cablepath',
         handler='dcim.signals.update_connected_endpoints',
-        description='Retrace cable paths when cable status or terminations change',
+        description=(
+            'Retrace cable paths when cable status or terminations change. '
+            'Connected via custom trace_paths signal in dcim/signals.py, '
+            'not dispatched by GraphRegistry.'
+        ),
     ),
     GraphSpec(
         trigger_model='dcim.cable',
@@ -223,3 +228,43 @@ graph_registry.register(
         description='Rebuild cable paths through peer circuit termination on save/delete',
     ),
 )
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Signal dispatch
+# ──────────────────────────────────────────────────────────────────────
+
+_handler_cache = {}
+
+
+def _resolve_handler(handler_str):
+    """Import and cache a handler function from a dotted path."""
+    if handler_str not in _handler_cache:
+        module_path, func_name = handler_str.rsplit('.', 1)
+        module = importlib.import_module(module_path)
+        _handler_cache[handler_str] = getattr(module, func_name)
+    return _handler_cache[handler_str]
+
+
+def _handle_graph_post_save(sender, instance, **kwargs):
+    label = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    specs = graph_registry.get_for_trigger(label)
+    for spec in specs:
+        if spec.trigger_event in ('post_save', 'both') and spec.handler:
+            handler = _resolve_handler(spec.handler)
+            handler(sender=sender, instance=instance, **kwargs)
+
+
+def _handle_graph_post_delete(sender, instance, **kwargs):
+    label = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    specs = graph_registry.get_for_trigger(label)
+    for spec in specs:
+        if spec.trigger_event in ('post_delete', 'both') and spec.handler:
+            handler = _resolve_handler(spec.handler)
+            handler(sender=sender, instance=instance, **kwargs)
+
+
+def connect_graph_signals():
+    from django.db.models.signals import post_save, post_delete
+    post_save.connect(_handle_graph_post_save, dispatch_uid='netbox.graphs.post_save')
+    post_delete.connect(_handle_graph_post_delete, dispatch_uid='netbox.graphs.post_delete')

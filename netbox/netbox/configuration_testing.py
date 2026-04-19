@@ -11,7 +11,7 @@ DATABASES = {
         'USER': 'netbox',
         'PASSWORD': 'netbox',
         'HOST': 'localhost',
-        'PORT': '',
+        'PORT': '15432',
         'CONN_MAX_AGE': 300,
     }
 }
@@ -27,7 +27,7 @@ RQ = {
 REDIS = {
     'tasks': {
         'HOST': 'localhost',
-        'PORT': 6379,
+        'PORT': 16379,
         'USERNAME': '',
         'PASSWORD': '',
         'DATABASE': 0,
@@ -35,7 +35,7 @@ REDIS = {
     },
     'caching': {
         'HOST': 'localhost',
-        'PORT': 6379,
+        'PORT': 16379,
         'USERNAME': '',
         'PASSWORD': '',
         'DATABASE': 1,

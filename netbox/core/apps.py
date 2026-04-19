@@ -30,6 +30,9 @@ class CoreConfig(AppConfig):
         from netbox import denorm_mixins  # noqa: F401
         from netbox.denorm import connect_denorm_signal
         from netbox.cascades import connect_cascade_signals
+        from netbox.graphs import connect_graph_signals
+        from netbox.counters import counter_registry
+        import core.cascades  # noqa: F401
         import dcim.cascades  # noqa: F401
         import dcim.instantiation  # noqa: F401
         import ipam.cascades  # noqa: F401
@@ -38,10 +41,13 @@ class CoreConfig(AppConfig):
         import extras.cascades  # noqa: F401
         import netbox.graphs  # noqa: F401
         import netbox.counters  # noqa: F401
-        from . import data_backends, events, search, side_effects  # noqa: F401
+        import netbox.models.validators  # noqa: F401
+        from . import data_backends, denorm, events, search, side_effects, validators  # noqa: F401
 
         connect_denorm_signal()
         connect_cascade_signals()
+        connect_graph_signals()
+        counter_registry.connect_all()
 
         # Register models
         register_models(*self.get_models())

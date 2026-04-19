@@ -40,6 +40,7 @@ class DenormSpec:
     source_path: Optional[str] = None
     compute: Optional[Callable] = None
     depends_on: frozenset = field(default_factory=frozenset)
+    only_on_create: bool = False
 
     def resolve(self, instance):
         """Compute the denormalized value from the instance."""
@@ -62,34 +63,71 @@ class DenormRegistry:
     Models register their denormalized fields here. A pre_save signal
     handler calls compute_all() before each save, replacing the need
     for save() overrides.
+
+    Supports mixin sentinels: pseudo-labels like ``__mixin:CustomFieldsMixin__``
+    that match any model whose MRO includes the registered mixin class.
     """
 
     def __init__(self):
         self._specs: dict[str, list[DenormSpec]] = defaultdict(list)
+        self._mixin_sentinels: dict[str, type] = {}
 
     def register(self, model_label: str, *specs: DenormSpec):
         for spec in specs:
             self._specs[model_label].append(spec)
 
+    def register_mixin_sentinel(self, sentinel_label: str, mixin_class: type):
+        """
+        Associate a sentinel pseudo-label with an abstract mixin class.
+
+        Any future call to ``compute_all()`` will also apply specs registered
+        under this sentinel if the instance inherits from *mixin_class*.
+        """
+        self._mixin_sentinels[sentinel_label] = mixin_class
+
+    def _sentinel_labels_for(self, instance) -> list[str]:
+        """Return sentinel labels whose mixin class appears in instance's MRO."""
+        mro = type(instance).__mro__
+        return [label for label, cls in self._mixin_sentinels.items() if cls in mro]
+
     def get_specs(self, model_label: str) -> list[DenormSpec]:
         return self._specs.get(model_label, [])
 
-    def has_specs(self, model_label: str) -> bool:
-        return model_label in self._specs
+    def has_specs(self, model_label: str, instance=None) -> bool:
+        if model_label in self._specs:
+            return True
+        if instance is not None:
+            return any(
+                sentinel in self._specs
+                for sentinel in self._sentinel_labels_for(instance)
+            )
+        return False
+
+    def _all_specs_for(self, instance) -> list[DenormSpec]:
+        """Return concrete-label specs + all matching sentinel specs."""
+        label = f'{instance._meta.app_label}.{instance._meta.model_name}'
+        specs = list(self._specs.get(label, []))
+        for sentinel_label in self._sentinel_labels_for(instance):
+            specs.extend(self._specs.get(sentinel_label, []))
+        return specs
 
     def compute_all(self, instance):
         """Compute and set all denormalized fields on an instance (pre-save)."""
-        label = f'{instance._meta.app_label}.{instance._meta.model_name}'
-        for spec in self._specs.get(label, []):
+        is_new = instance.pk is None
+        for spec in self._all_specs_for(instance):
+            if spec.only_on_create and not is_new:
+                continue
             value = spec.resolve(instance)
             field_name = spec.field_name
-            # For FK fields, setattr on the descriptor name works correctly
             setattr(instance, field_name, value)
 
     def compute_if_changed(self, instance, changed_fields: set[str]):
         """Compute only denormalized fields affected by changed_fields."""
         label = f'{instance._meta.app_label}.{instance._meta.model_name}'
+        is_new = instance.pk is None
         for spec in self._specs.get(label, []):
+            if spec.only_on_create and not is_new:
+                continue
             if not spec.depends_on or spec.depends_on & changed_fields:
                 value = spec.resolve(instance)
                 setattr(instance, spec.field_name, value)
@@ -163,7 +201,7 @@ def _handle_pre_save(sender, instance, raw=False, **kwargs):
     if raw:
         return
     label = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    if denorm_registry.has_specs(label):
+    if denorm_registry.has_specs(label, instance=instance):
         denorm_registry.compute_all(instance)
 
 

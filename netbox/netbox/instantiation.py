@@ -98,6 +98,29 @@ class InstantiationRegistry:
             ],
         }
 
+    def execute(self, instance, **context):
+        """
+        Run all registered instantiation handlers for the given instance's model.
+
+        Looks up specs by the instance's model label (app_label.model_name).
+        Specs with a handler set are called; specs without a handler are skipped
+        (they exist for introspection only). After all handler specs have run,
+        any specs with a post_instantiate callback are invoked.
+        """
+        model_label = instance._meta.label_lower
+        specs = self.get_for_source(model_label)
+        if not specs:
+            logger.debug("No instantiation specs for %s", model_label)
+            return
+
+        for spec in specs:
+            if spec.handler is not None:
+                spec.handler(instance, **context)
+
+        for spec in specs:
+            if spec.post_instantiate is not None:
+                spec.post_instantiate(instance, **context)
+
     def summary(self) -> dict:
         return {
             'source_models': len(self._specs),

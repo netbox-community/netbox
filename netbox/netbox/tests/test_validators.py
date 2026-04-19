@@ -167,7 +167,8 @@ class GlobalRegistryPopulationTests(TestCase):
         validators = validator_registry.get_validators('virtualization.virtualmachine')
         names = {v.name for v in validators}
         self.assertIn('vm_site_cluster', names)
-        self.assertIn('vm_primary_ips', names)
+        self.assertIn('vm_primary_ip_family', names)
+        self.assertIn('vm_primary_ip_assignment', names)
 
     def test_cross_model_count(self):
         """At least 15 cross-model/uniqueness validators across all models."""
