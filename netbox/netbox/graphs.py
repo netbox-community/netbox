@@ -138,14 +138,15 @@ graph_registry.register(
     GraphSpec(
         trigger_model='dcim.cable',
         graph_type=GraphType.CABLE_PATH,
-        trigger_event='custom:trace_paths',
+        trigger_event='post_save_direct',
         trigger_fields=frozenset({'status'}),
         affected_model='dcim.cablepath',
         handler='dcim.signals.update_connected_endpoints',
         description=(
             'Retrace cable paths when cable status or terminations change. '
-            'Connected via custom trace_paths signal in dcim/signals.py, '
-            'not dispatched by GraphRegistry.'
+            'Called directly from Cable.save() after the double-save pattern '
+            'completes. Uses post_save_direct (not post_save) to prevent the '
+            'GraphRegistry dispatcher from double-firing on the two super().save() calls.'
         ),
     ),
     GraphSpec(

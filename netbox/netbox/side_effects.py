@@ -374,6 +374,22 @@ effect_registry.register_many(
         handler='users.signals.create_userconfig',
     ),
 
+    # -- netbox/denormalized.py --
+
+    Effect(
+        effect_type=EffectType.DENORMALIZATION,
+        source_model='*',
+        description=(
+            'update_denormalized_fields: bulk-updates cross-model FK denormalized '
+            'copies on post_save (skips created/raw). Registered per-model in apps.py '
+            'ready() via denormalized.register(). Currently: CableTermination._device/_rack/_location, '
+            'CircuitTermination._site/_location, Prefix._site/_location.'
+        ),
+        timing=EffectTiming.POST_SAVE,
+        uses_bulk_sql=True,
+        handler='netbox.denormalized.update_denormalized_fields',
+    ),
+
     # -- netbox/search/backends.py --
 
     Effect(

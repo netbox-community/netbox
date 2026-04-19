@@ -7,7 +7,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.dispatch import Signal
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
@@ -33,8 +32,6 @@ __all__ = (
 )
 
 logger = logging.getLogger(f'netbox.{__name__}')
-
-trace_paths = Signal()
 
 
 #
@@ -241,21 +238,25 @@ class Cable(PrimaryModel):
     def save(self, *args, force_insert=False, force_update=False, using=None, update_fields=None):
         _created = self.pk is None
 
-        # If this is a new Cable, save it before attempting to create its CableTerminations
+        # Phase 1: Ensure Cable has a PK (needed for CableTermination FK)
         if self._state.adding:
             super().save(*args, force_insert=True, using=using, update_fields=update_fields)
-            # Update the private PK used in __str__()
             self._pk = self.pk
 
-        if self._orig_profile != self.profile:
-            self.update_terminations(force=True)
-        elif self._terminations_modified:
-            self.update_terminations()
+        # Phase 2: Sync CableTerminations (registry-driven)
+        from netbox.instantiation import instantiation_registry
+        instantiation_registry.execute(self)
 
+        # Phase 3: Final persist
         super().save(*args, force_update=True, using=using, update_fields=update_fields)
 
+        # Phase 4: Graph rebuild — called directly (not via custom signal)
+        # to avoid double-fire from the two super().save() calls above.
+        # The GraphSpec for dcim.cable documents this relationship for
+        # external tools; see netbox/graphs.py.
+        from dcim.signals import update_connected_endpoints
         try:
-            trace_paths.send(Cable, instance=self, created=_created)
+            update_connected_endpoints(instance=self, created=_created)
         except UnsupportedCablePath as e:
             raise AbortRequest(e)
 

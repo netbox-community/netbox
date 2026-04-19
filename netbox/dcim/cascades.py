@@ -637,6 +637,6 @@ cascade_registry.register(
         method=CascadeMethod.CUSTOM,
         handler=None,
         skip_on_create=False,
-        description='PARTIAL: Cable.save() sends trace_paths signal for path recomputation (see also GraphRegistry)',
+        description='Cable.save() calls update_connected_endpoints directly for path recomputation (see also GraphRegistry)',
     ),
 )

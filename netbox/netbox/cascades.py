@@ -128,23 +128,43 @@ class CascadeRegistry:
     Query methods let callers understand the full impact of any model
     change without executing it. The dispatch handler executes cascades
     from the registry on save/delete.
+
+    Supports mixin sentinels: pseudo-labels like ``__mixin:SyncedDataMixin__``
+    that match any model whose MRO includes the registered mixin class. This
+    lets a single registration cover every concrete model inheriting that mixin.
     """
 
     def __init__(self):
         self._specs: dict[str, list[CascadeSpec]] = defaultdict(list)
+        self._mixin_sentinels: dict[str, type] = {}
 
     def register(self, *specs: CascadeSpec):
         for spec in specs:
             self._specs[spec.source_model].append(spec)
+
+    def register_mixin_sentinel(self, sentinel_label: str, mixin_class: type):
+        self._mixin_sentinels[sentinel_label] = mixin_class
+
+    def _sentinel_labels_for(self, instance) -> list[str]:
+        mro = type(instance).__mro__
+        return [label for label, cls in self._mixin_sentinels.items() if cls in mro]
 
     def get_for_source(
         self,
         model_label: str,
         changed_fields: Optional[set[str]] = None,
         timing: Optional[CascadeTiming] = None,
+        instance=None,
     ) -> list[CascadeSpec]:
-        """Get cascades triggered by a change to source model."""
+        """Get cascades triggered by a change to source model.
+
+        If *instance* is provided, also includes cascades registered under
+        matching mixin sentinel labels.
+        """
         specs = list(self._specs.get(model_label, []))
+        if instance is not None:
+            for sentinel_label in self._sentinel_labels_for(instance):
+                specs.extend(self._specs.get(sentinel_label, []))
         if timing:
             specs = [s for s in specs if s.timing == timing]
         if changed_fields is not None:
@@ -274,7 +294,7 @@ def _handle_post_save(sender, instance, created, raw=False, **kwargs):
         return
 
     label = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    specs = cascade_registry.get_for_source(label, timing=CascadeTiming.POST_SAVE)
+    specs = cascade_registry.get_for_source(label, timing=CascadeTiming.POST_SAVE, instance=instance)
     for spec in specs:
         _execute_cascade(spec, instance, created=created, **kwargs)
 
@@ -282,7 +302,7 @@ def _handle_post_save(sender, instance, created, raw=False, **kwargs):
 def _handle_post_delete(sender, instance, **kwargs):
     """Post-delete signal handler that executes cascades from the registry."""
     label = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    specs = cascade_registry.get_for_source(label, timing=CascadeTiming.POST_DELETE)
+    specs = cascade_registry.get_for_source(label, timing=CascadeTiming.POST_DELETE, instance=instance)
     for spec in specs:
         _execute_cascade(spec, instance, **kwargs)
 
@@ -290,7 +310,7 @@ def _handle_post_delete(sender, instance, **kwargs):
 def _handle_pre_delete(sender, instance, **kwargs):
     """Pre-delete signal handler that executes cascades from the registry."""
     label = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    specs = cascade_registry.get_for_source(label, timing=CascadeTiming.PRE_DELETE)
+    specs = cascade_registry.get_for_source(label, timing=CascadeTiming.PRE_DELETE, instance=instance)
     for spec in specs:
         _execute_cascade(spec, instance, **kwargs)
 

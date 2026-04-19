@@ -1,18 +1,14 @@
 import logging
 
 from django.db.models import Q
-from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
 
 from .models import (
-    Cable,
     CablePath,
     CableTermination,
     PathEndpoint,
-    PortMapping,
 )
-from .models.cables import trace_paths
 from .utils import create_cablepaths, rebuild_paths
 
 # ──────────────────────────────────────────────────────────────────────
@@ -23,12 +19,12 @@ from .utils import create_cablepaths, rebuild_paths
 
 # ──────────────────────────────────────────────────────────────────────
 # Cable graph operations
-# Dispatched by GraphRegistry (netbox/graphs.py) except for the custom
-# trace_paths signal on Cable which remains connected here.
+# All dispatched by GraphRegistry (netbox/graphs.py) for post_delete,
+# or called directly from Cable.save() for post-save path rebuild.
+# The custom trace_paths signal has been eliminated.
 # ──────────────────────────────────────────────────────────────────────
 
-@receiver(trace_paths, sender=Cable)
-def update_connected_endpoints(instance, created, raw=False, **kwargs):
+def update_connected_endpoints(instance, created=False, raw=False, **kwargs):
     """
     When a Cable is saved with new terminations, retrace any affected cable paths.
     """

@@ -237,6 +237,32 @@ instantiation_registry.register(
 
 
 # ──────────────────────────────────────────────────────────────────────
+# Cable save → sync CableTerminations to match A/B termination lists
+# ──────────────────────────────────────────────────────────────────────
+
+def _cable_sync_terminations(instance, **context):
+    """
+    Sync CableTerminations when a Cable's termination lists or profile change.
+    Replaces the imperative update_terminations() calls in Cable.save().
+    """
+    if instance._orig_profile != instance.profile:
+        instance.update_terminations(force=True)
+    elif instance._terminations_modified:
+        instance.update_terminations()
+
+
+instantiation_registry.register(
+    InstantiationSpec(
+        source_model='dcim.cable',
+        target_model='dcim.cabletermination',
+        template_relation='a_terminations',
+        handler=_cable_sync_terminations,
+        description='Sync CableTerminations to reflect cable A/B termination lists and profile changes',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
 # Module creation → instantiate components from ModuleType templates
 # Master handler drives all component creation/adoption at runtime.
 # Per-component specs retained for introspection.

@@ -329,3 +329,170 @@ def _register_cf_sentinel():
 
 
 _register_cf_sentinel()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# SyncedDataMixin — sentinel-based registration
+#
+# SyncedDataMixin.clean() derives data_source/data_path from data_file
+# and calls sync(). This is a normalization step with I/O side effects.
+# SyncedDataMixin.save() manages AutoSyncRecord rows (cascade).
+# SyncedDataMixin.delete() cleans up AutoSyncRecord rows (cascade).
+# ──────────────────────────────────────────────────────────────────────
+
+_SYNCED_SENTINEL = '__mixin:SyncedDataMixin__'
+
+
+def _synced_data_normalize(instance):
+    """
+    Derive data_source/data_path from data_file and call sync(),
+    or clear sync fields when no data_file is set.
+    """
+    if instance.data_file:
+        instance.data_source = instance.data_file.source
+        instance.data_path = instance.data_file.path
+        instance.sync()
+    else:
+        instance.data_source = None
+        instance.data_path = ''
+        instance.auto_sync_enabled = False
+        instance.data_synced = None
+
+
+def _synced_data_post_save(instance, **kwargs):
+    """Create/update/delete AutoSyncRecord after save."""
+    from core.models import AutoSyncRecord, ObjectType
+
+    object_type = ObjectType.objects.get_for_model(instance)
+    if instance.auto_sync_enabled:
+        AutoSyncRecord.objects.update_or_create(
+            object_type=object_type,
+            object_id=instance.pk,
+            defaults={'datafile': instance.data_file}
+        )
+    else:
+        AutoSyncRecord.objects.filter(
+            object_type=object_type,
+            object_id=instance.pk
+        ).delete()
+
+
+def _synced_data_pre_delete(instance, **kwargs):
+    """Delete AutoSyncRecord before object deletion."""
+    from core.models import AutoSyncRecord, ObjectType
+
+    object_type = ObjectType.objects.get_for_model(instance)
+    AutoSyncRecord.objects.filter(
+        object_type=object_type,
+        object_id=instance.pk
+    ).delete()
+
+
+def _register_synced_sentinel():
+    from netbox.cascades import CascadeMethod, CascadeSpec, CascadeTiming, cascade_registry
+    from netbox.models.features import SyncedDataMixin
+
+    validator_registry.register_mixin_sentinel(_SYNCED_SENTINEL, SyncedDataMixin)
+    validator_registry.register(
+        _SYNCED_SENTINEL,
+        ModelValidator(
+            name='synced_data_normalize',
+            model_label=_SYNCED_SENTINEL,
+            category=ValidatorCategory.NORMALIZATION,
+            validate=_synced_data_normalize,
+            queries_db=True,
+            description='Derive data_source/data_path from data_file and call sync(), or clear sync fields',
+        ),
+    )
+
+    cascade_registry.register_mixin_sentinel(_SYNCED_SENTINEL, SyncedDataMixin)
+    cascade_registry.register(
+        CascadeSpec(
+            source_model=_SYNCED_SENTINEL,
+            target_model='core.autosyncrecord',
+            method=CascadeMethod.CUSTOM,
+            timing=CascadeTiming.POST_SAVE,
+            handler=_synced_data_post_save,
+            skip_on_create=False,
+            description='Create/update/delete AutoSyncRecord to track sync state',
+        ),
+        CascadeSpec(
+            source_model=_SYNCED_SENTINEL,
+            target_model='core.autosyncrecord',
+            method=CascadeMethod.CUSTOM,
+            timing=CascadeTiming.PRE_DELETE,
+            handler=_synced_data_pre_delete,
+            description='Delete AutoSyncRecord before object deletion',
+        ),
+    )
+
+
+_register_synced_sentinel()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# CustomValidationMixin — sentinel-based registration
+#
+# Sends the post_clean signal for user-configured validation rules.
+# The signal dispatch is inherently imperative but is declared here so
+# external tools know it exists.
+# ──────────────────────────────────────────────────────────────────────
+
+_CUSTOMVAL_SENTINEL = '__mixin:CustomValidationMixin__'
+
+
+def _custom_validation_post_clean(instance):
+    """Send the post_clean signal for user-configured validators."""
+    if getattr(instance, '_replicated_base', False):
+        return
+    from netbox.signals import post_clean
+    post_clean.send(sender=instance.__class__, instance=instance)
+
+
+def _register_customval_sentinel():
+    from netbox.models.features import CustomValidationMixin
+
+    validator_registry.register_mixin_sentinel(_CUSTOMVAL_SENTINEL, CustomValidationMixin)
+    validator_registry.register(
+        _CUSTOMVAL_SENTINEL,
+        ModelValidator(
+            name='custom_validation_post_clean',
+            model_label=_CUSTOMVAL_SENTINEL,
+            category=ValidatorCategory.NORMALIZATION,
+            validate=_custom_validation_post_clean,
+            description='Send post_clean signal for user-configured CUSTOM_VALIDATORS (plugin API)',
+        ),
+    )
+
+
+_register_customval_sentinel()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# TrackingModelMixin — sentinel-based registration (metadata only)
+# ──────────────────────────────────────────────────────────────────────
+
+_TRACKING_SENTINEL = '__mixin:TrackingModelMixin__'
+
+
+def _register_tracking_sentinel():
+    from utilities.tracking import TrackingModelMixin
+    validator_registry.register_mixin_sentinel(_TRACKING_SENTINEL, TrackingModelMixin)
+
+
+_register_tracking_sentinel()
+
+
+# ──────────────────────────────────────────────────────────────────────
+# DeleteMixin — sentinel-based registration (metadata only)
+# ──────────────────────────────────────────────────────────────────────
+
+_DELETE_SENTINEL = '__mixin:DeleteMixin__'
+
+
+def _register_delete_sentinel():
+    from netbox.models.deletion import DeleteMixin
+    validator_registry.register_mixin_sentinel(_DELETE_SENTINEL, DeleteMixin)
+
+
+_register_delete_sentinel()

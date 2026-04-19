@@ -295,17 +295,17 @@ effect_registry.register_many(
         source_model='dcim.cable',
         target_model='dcim.cabletermination',
         timing=EffectTiming.POST_SAVE,
-        description='Creates/updates CableTermination rows via update_terminations().',
+        description='Creates/updates CableTermination rows via instantiation_registry.execute().',
         produces_object_change=True,
-        handler='dcim.models.cables.Cable.save',
+        handler='dcim.instantiation._cable_sync_terminations',
     ),
     Effect(
         effect_type=EffectType.GRAPH_RECOMPUTATION,
         source_model='dcim.cable',
         target_model='dcim.cablepath',
         timing=EffectTiming.POST_SAVE,
-        description='Sends trace_paths signal to rebuild cable path graph.',
-        handler='dcim.models.cables.Cable.save',
+        description='Calls update_connected_endpoints directly for cable path rebuild.',
+        handler='dcim.signals.update_connected_endpoints',
     ),
 
     # --- CableTermination.save ---
@@ -448,13 +448,13 @@ effect_registry.register_many(
         only_on_create=True,
     ),
 
-    # --- update_connected_endpoints (trace_paths Cable) ---
+    # --- update_connected_endpoints (called directly from Cable.save) ---
     Effect(
         effect_type=EffectType.GRAPH_RECOMPUTATION,
         source_model='dcim.cable',
         target_model='dcim.cablepath',
         timing=EffectTiming.POST_SAVE,
-        description='Creates or rebuilds CablePath objects after cable trace_paths signal.',
+        description='Creates or rebuilds CablePath objects after Cable.save() completes.',
         handler='dcim.signals.update_connected_endpoints',
     ),
 

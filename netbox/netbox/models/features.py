@@ -325,13 +325,11 @@ class CustomValidationMixin(models.Model):
 
     def clean(self):
         super().clean()
-
-        # If the instance is a base for replications, skip custom validation
-        if getattr(self, '_replicated_base', False):
-            return
-
-        # Send the post_clean signal
-        post_clean.send(sender=self.__class__, instance=self)
+        # post_clean signal dispatch for user-configured CUSTOM_VALIDATORS
+        # is handled by ValidatorRegistry via __mixin:CustomValidationMixin__
+        # sentinel. See netbox/models/validators.py.
+        from netbox.models.validators import _custom_validation_post_clean
+        _custom_validation_post_clean(self)
 
 
 class ExportTemplatesMixin(models.Model):
@@ -525,51 +523,23 @@ class SyncedDataMixin(models.Model):
         return self.data_file and self.data_synced >= self.data_file.last_updated
 
     def clean(self):
-
-        if self.data_file:
-            self.data_source = self.data_file.source
-            self.data_path = self.data_file.path
-            self.sync()
-        else:
-            self.data_source = None
-            self.data_path = ''
-            self.auto_sync_enabled = False
-            self.data_synced = None
-
+        # Field normalization (data_source/data_path derivation + sync)
+        # is handled by ValidatorRegistry via __mixin:SyncedDataMixin__
+        # sentinel. Called directly here to ensure it runs before
+        # super().clean() and its validators.
+        from netbox.models.validators import _synced_data_normalize
+        _synced_data_normalize(self)
         super().clean()
     clean.alters_data = True
 
     def save(self, *args, **kwargs):
-        from core.models import AutoSyncRecord
-
-        ret = super().save(*args, **kwargs)
-
-        # Create/delete AutoSyncRecord as needed
-        object_type = ObjectType.objects.get_for_model(self)
-        if self.auto_sync_enabled:
-            AutoSyncRecord.objects.update_or_create(
-                object_type=object_type,
-                object_id=self.pk,
-                defaults={'datafile': self.data_file}
-            )
-        else:
-            AutoSyncRecord.objects.filter(
-                object_type=object_type,
-                object_id=self.pk
-            ).delete()
-
-        return ret
+        # AutoSyncRecord management is handled by CascadeRegistry via
+        # __mixin:SyncedDataMixin__ sentinel (post_save cascade).
+        return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        from core.models import AutoSyncRecord
-
-        # Delete AutoSyncRecord
-        object_type = ObjectType.objects.get_for_model(self)
-        AutoSyncRecord.objects.filter(
-            object_type=object_type,
-            object_id=self.pk
-        ).delete()
-
+        # AutoSyncRecord cleanup is handled by CascadeRegistry via
+        # __mixin:SyncedDataMixin__ sentinel (pre_delete cascade).
         return super().delete(*args, **kwargs)
 
     def resolve_data_file(self):

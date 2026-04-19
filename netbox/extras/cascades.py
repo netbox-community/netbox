@@ -89,16 +89,22 @@ _CF_M2M_SPECS = {
 # image.name after file deletion for UI display during the request.
 # ──────────────────────────────────────────────────────────────────────
 
+def _imageattachment_delete_file(instance, **kwargs):
+    """Delete image file from disk after DB row is deleted, then restore filename for display."""
+    _name = instance.image.name
+    instance.image.delete(save=False)
+    instance.image.name = _name
+
+
 cascade_registry.register(
     CascadeSpec(
         source_model='extras.imageattachment',
         target_model='(filesystem)',
         timing=CascadeTiming.POST_DELETE,
         method=CascadeMethod.CUSTOM,
-        handler=None,
+        handler=_imageattachment_delete_file,
         skip_on_create=False,
-        description='PARTIAL: Delete image file from disk and restore filename for display. '
-                    'Kept in model delete() because image.name must be restored after deletion.',
+        description='Delete image file from disk and restore filename for post-request display',
     ),
 )
 
@@ -117,27 +123,15 @@ cascade_registry.register(
         method=CascadeMethod.CUSTOM,
         handler=None,
         skip_on_create=False,
-        description='METADATA-ONLY: Script.delete() supports soft_delete param (sets is_executable=False '
-                    'instead of deleting when jobs exist). Cannot be expressed as a signal cascade.',
+        description='Script.delete() supports soft_delete param: sets is_executable=False '
+                    'instead of deleting when jobs exist. Handled directly in model delete() '
+                    'because the soft_delete flag is a method parameter, not model state.',
     ),
 )
 
 
 # ──────────────────────────────────────────────────────────────────────
-# SyncedDataMixin delete → remove AutoSyncRecord
-# PARTIAL: Declared but mixin-driven. The mixin's delete() applies to
-# many concrete models so a single CascadeSpec can't target them all.
+# SyncedDataMixin save/delete → AutoSyncRecord management
+# Now handled by sentinel cascade registration in netbox/models/validators.py
+# via __mixin:SyncedDataMixin__ sentinel.
 # ──────────────────────────────────────────────────────────────────────
-
-cascade_registry.register(
-    CascadeSpec(
-        source_model='netbox.synceddatamixin',
-        target_model='core.autosyncrecord',
-        timing=CascadeTiming.PRE_DELETE,
-        method=CascadeMethod.CUSTOM,
-        handler=None,
-        skip_on_create=False,
-        description='PARTIAL: Delete AutoSyncRecord for the object. Mixin-driven '
-                    '(SyncedDataMixin.delete()), not registry-driven.',
-    ),
-)

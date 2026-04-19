@@ -684,17 +684,9 @@ class ImageAttachment(ChangeLoggedModel):
         validator_registry.validate(self)
 
     def delete(self, *args, **kwargs):
-
-        _name = self.image.name
-
+        # File cleanup + filename restore handled by CascadeRegistry
+        # (post_delete cascade in extras/cascades.py).
         super().delete(*args, **kwargs)
-
-        # Delete file from disk
-        self.image.delete(save=False)
-
-        # Deleting the file erases its name. We restore the image's filename here in case we still need to reference it
-        # before the request finishes. (For example, to display a message indicating the ImageAttachment was deleted.)
-        self.image.name = _name
 
     @property
     def filename(self):
