@@ -292,48 +292,19 @@ class CustomFieldsMixin(models.Model):
 
     def clean(self):
         super().clean()
-        from extras.models import CustomField
-
-        custom_fields = {
-            cf.name: cf for cf in CustomField.objects.get_for_model(self)
-        }
-
-        # Remove any stale custom field data
-        self.custom_field_data = {
-            k: v for k, v in self.custom_field_data.items() if k in custom_fields.keys()
-        }
-
-        # Validate all field values
-        for field_name, value in self.custom_field_data.items():
-            try:
-                custom_fields[field_name].validate(value)
-            except ValidationError as e:
-                raise ValidationError(_("Invalid value for custom field '{name}': {error}").format(
-                    name=field_name, error=e.message
-                ))
-
-            # Validate uniqueness if enforced
-            if custom_fields[field_name].unique and value not in CUSTOMFIELD_EMPTY_VALUES:
-                if self._meta.model.objects.exclude(pk=self.pk).filter(**{
-                    f'custom_field_data__{field_name}': value
-                }).exists():
-                    raise ValidationError(_("Custom field '{name}' must have a unique value.").format(
-                        name=field_name
-                    ))
-
-        # Check for missing required values
-        for cf in custom_fields.values():
-            if cf.required and cf.name not in self.custom_field_data:
-                raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
+        # Normalize CF data (prune stale keys, fill defaults) before validation.
+        # Also runs at pre_save via DenormSpec for direct save() calls.
+        from netbox.models.validators import _normalize_custom_field_data
+        self.custom_field_data = _normalize_custom_field_data(self)
+        # CF validation (per-field, uniqueness, required) is handled by
+        # ValidatorRegistry via the __mixin:CustomFieldsMixin__ sentinel.
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-        from extras.models import CustomField
-
-        # Populate default values for custom fields not already present in the object data
-        for cf in CustomField.objects.get_for_model(self):
-            if cf.name not in self.custom_field_data and cf.default is not None:
-                self.custom_field_data[cf.name] = cf.default
-
+        # CF default-filling and stale-key pruning is handled by
+        # DenormRegistry via the __mixin:CustomFieldsMixin__ sentinel.
+        # See netbox/models/validators.py for the DenormSpec registration.
         super().save(*args, **kwargs)
 
 
