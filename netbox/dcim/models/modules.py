@@ -2,14 +2,11 @@ import jsonschema
 import yaml
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
-from mptt.models import MPTTModel
 
 from dcim.choices import *
-from dcim.utils import create_port_mappings, update_interface_bridges
-from extras.models import ConfigContextModel, CustomField
+from extras.models import ConfigContextModel
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
@@ -138,15 +135,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     def clean(self):
         super().clean()
-
-        # Validate any attributes against the assigned profile's schema
-        if self.profile and self.profile.schema:
-            try:
-                jsonschema.validate(self.attribute_data, schema=self.profile.schema)
-            except JSONValidationError as e:
-                raise ValidationError(_("Invalid schema: {error}").format(error=e))
-        else:
-            self.attribute_data = None
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def to_yaml(self):
         data = {
@@ -250,128 +240,18 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
 
     def clean(self):
         super().clean()
-
-        if hasattr(self, "module_bay") and (self.module_bay.device != self.device):
-            raise ValidationError(
-                _("Module must be installed within a module bay belonging to the assigned device ({device}).").format(
-                    device=self.device
-                )
-            )
-
-        # Check for recursion
-        module = self
-        module_bays = []
-        modules = []
-        while module:
-            module_module_bay = getattr(module, "module_bay", None)
-            if module.pk in modules or (module_module_bay and module_module_bay.pk in module_bays):
-                raise ValidationError(_("A module bay cannot belong to a module installed within it."))
-            modules.append(module.pk)
-            if module_module_bay:
-                module_bays.append(module_module_bay.pk)
-            module = module_module_bay.module if module_module_bay else None
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
         super().save(*args, **kwargs)
 
-        adopt_components = getattr(self, '_adopt_components', False)
-        disable_replication = getattr(self, '_disable_replication', False)
-
-        # We skip adding components if the module is being edited or
-        # both replication and component adoption is disabled
-        if not is_new or (disable_replication and not adopt_components):
-            return
-
-        # Iterate all component types
-        for templates, component_attribute, component_model in [
-            ("consoleporttemplates", "consoleports", ConsolePort),
-            ("consoleserverporttemplates", "consoleserverports", ConsoleServerPort),
-            ("interfacetemplates", "interfaces", Interface),
-            ("powerporttemplates", "powerports", PowerPort),
-            ("poweroutlettemplates", "poweroutlets", PowerOutlet),
-            ("rearporttemplates", "rearports", RearPort),
-            ("frontporttemplates", "frontports", FrontPort),
-            ("modulebaytemplates", "modulebays", ModuleBay),
-        ]:
-            create_instances = []
-            update_instances = []
-
-            # Prefetch installed components
-            installed_components = {
-                component.name: component
-                for component in getattr(self.device, component_attribute).filter(module__isnull=True)
-            }
-
-            # Get the template for the module type.
-            for template in getattr(self.module_type, templates).all():
-                template_instance = template.instantiate(device=self.device, module=self)
-
-                if adopt_components:
-                    existing_item = installed_components.get(template_instance.name)
-
-                    # Check if there's a component with the same name already
-                    if existing_item:
-                        # Assign it to the module
-                        existing_item.module = self
-                        update_instances.append(existing_item)
-                        continue
-
-                # Only create new components if replication is enabled
-                if not disable_replication:
-                    create_instances.append(template_instance)
-
-            # Set default values for any applicable custom fields
-            if cf_defaults := CustomField.objects.get_defaults_for_model(component_model):
-                for component in create_instances:
-                    component.custom_field_data = cf_defaults
-
-            # Set denormalized references
-            for component in create_instances:
-                component._site = self.device.site
-                component._location = self.device.location
-                component._rack = self.device.rack
-
-            # we handle create and update separately - this is for create
-            if not issubclass(component_model, MPTTModel):
-                component_model.objects.bulk_create(create_instances)
-                # Emit the post_save signal for each newly created object
-                for component in create_instances:
-                    post_save.send(
-                        sender=component_model,
-                        instance=component,
-                        created=True,
-                        raw=False,
-                        using='default',
-                        update_fields=None
-                    )
-            else:
-                # MPTT models must be saved individually to maintain tree structure
-                for instance in create_instances:
-                    instance.save()
-
-            update_fields = ['module']
-
-            # we handle create and update separately - this is for update
-            component_model.objects.bulk_update(update_instances, update_fields)
-            # Emit the post_save signal for each updated object
-            for component in update_instances:
-                post_save.send(
-                    sender=component_model,
-                    instance=component,
-                    created=False,
-                    raw=False,
-                    using='default',
-                    update_fields=update_fields
-                )
-
-            # Rebuild MPTT tree if needed (bulk_update bypasses model save)
-            if issubclass(component_model, MPTTModel) and update_instances:
-                component_model.objects.rebuild()
-
-        # Replicate any front/rear port mappings from the ModuleType
-        create_port_mappings(self.device, self.module_type, self)
-
-        # Interface bridges have to be set after interface instantiation
-        update_interface_bridges(self.device, self.module_type.interfacetemplates, self)
+        if is_new:
+            from netbox.instantiation import instantiation_registry
+            instantiation_registry.execute(
+                self,
+                adopt_components=getattr(self, '_adopt_components', False),
+                disable_replication=getattr(self, '_disable_replication', False),
+            )

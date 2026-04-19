@@ -9,10 +9,9 @@ class DCIMConfig(AppConfig):
 
     def ready(self):
         from netbox.models.features import register_models
-        from utilities.counters import connect_counters
 
         from . import denorm, search, side_effects, signals, validators  # noqa: F401
-        from .models import CableTermination, Device, DeviceType, ModuleType, RackType, VirtualChassis
+        from .models import CableTermination
 
         # Register models
         register_models(*self.get_models())
@@ -30,6 +29,3 @@ class DCIMConfig(AppConfig):
         denormalized.register(CableTermination, '_location', {
             '_site': 'site',
         })
-
-        # Register counters
-        connect_counters(Device, DeviceType, ModuleType, RackType, VirtualChassis)

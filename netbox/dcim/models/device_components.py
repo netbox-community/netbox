@@ -121,12 +121,8 @@ class ComponentModel(OwnerMixin, NetBoxModel):
 
     def clean(self):
         super().clean()
-
-        # Check list of Modules that allow device field to be changed
-        if (type(self) not in [InventoryItem]) and (self.pk is not None) and (self._original_device != self.device_id):
-            raise ValidationError({
-                "device": _("Components cannot be moved to a different device.")
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def parent_object(self):
@@ -206,37 +202,8 @@ class CabledObjectModel(models.Model):
 
     def clean(self):
         super().clean()
-
-        if self.cable:
-            if not self.cable_end:
-                raise ValidationError({
-                    "cable_end": _("Must specify cable end (A or B) when attaching a cable.")
-                })
-            if self.cable_connector and not self.cable_positions:
-                raise ValidationError({
-                    "cable_positions": _("Must specify position(s) when specifying a cable connector.")
-                })
-            if self.cable_positions and not self.cable_connector:
-                raise ValidationError({
-                    "cable_positions": _("Cable positions cannot be set without a cable connector.")
-                })
-            if self.mark_connected:
-                raise ValidationError({
-                    "mark_connected": _("Cannot mark as connected with a cable attached.")
-                })
-        else:
-            if self.cable_end:
-                raise ValidationError({
-                    "cable_end": _("Cable end must not be set without a cable.")
-                })
-            if self.cable_connector:
-                raise ValidationError({
-                    "cable_connector": _("Cable connector must not be set without a cable.")
-                })
-            if self.cable_positions:
-                raise ValidationError({
-                    "cable_positions": _("Cable termination positions must not be set without a cable.")
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def link(self):
@@ -479,14 +446,8 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
 
     def clean(self):
         super().clean()
-
-        if self.maximum_draw is not None and self.allocated_draw is not None:
-            if self.allocated_draw > self.maximum_draw:
-                raise ValidationError({
-                    'allocated_draw': _(
-                        "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
-                    ).format(maximum_draw=self.maximum_draw)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_downstream_powerports(self, leg=None):
         """
@@ -606,12 +567,8 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
     def clean(self):
         super().clean()
-
-        # Validate power port assignment
-        if self.power_port and self.power_port.device != self.device:
-            raise ValidationError(
-                _("Parent power port ({power_port}) must belong to the same device").format(power_port=self.power_port)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_status_color(self):
         return PowerOutletStatusChoices.colors.get(self.status)
@@ -705,39 +662,8 @@ class BaseInterface(models.Model):
 
     def clean(self):
         super().clean()
-
-        # SVLAN can be defined only for Q-in-Q interfaces
-        if self.qinq_svlan and self.mode != InterfaceModeChoices.MODE_Q_IN_Q:
-            raise ValidationError({
-                'qinq_svlan': _("Only Q-in-Q interfaces may specify a service VLAN.")
-            })
-
-        # Check that the primary MAC address (if any) is assigned to this interface
-        if (
-                self.primary_mac_address and
-                self.primary_mac_address.assigned_object is not None and
-                self.primary_mac_address.assigned_object != self
-        ):
-            raise ValidationError({
-                'primary_mac_address': _(
-                    "MAC address {mac_address} is assigned to a different interface ({interface})."
-                ).format(
-                    mac_address=self.primary_mac_address,
-                    interface=self.primary_mac_address.assigned_object,
-                )
-            })
-
-    def save(self, *args, **kwargs):
-
-        # Remove untagged VLAN assignment for non-802.1Q interfaces
-        if not self.mode:
-            self.untagged_vlan = None
-
-        # Only "tagged" interfaces may have tagged VLANs assigned. ("tagged all" implies all VLANs are assigned.)
-        if not self._state.adding and self.mode != InterfaceModeChoices.MODE_TAGGED:
-            self.tagged_vlans.clear()
-
-        return super().save(*args, **kwargs)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def tunnel_termination(self):
@@ -933,145 +859,10 @@ class Interface(
 
     def clean(self):
         super().clean()
-
-        # Virtual Interfaces cannot have a Cable attached
-        if self.is_virtual and self.cable:
-            raise ValidationError({
-                'type': _("{display_type} interfaces cannot have a cable attached.").format(
-                    display_type=self.get_type_display()
-                )
-            })
-
-        # Virtual Interfaces cannot be marked as connected
-        if self.is_virtual and self.mark_connected:
-            raise ValidationError({
-                'mark_connected': _("{display_type} interfaces cannot be marked as connected.".format(
-                    display_type=self.get_type_display())
-                )
-            })
-
-        # Parent validation
-
-        # An interface cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({'parent': _("An interface cannot be its own parent.")})
-
-        # A physical interface cannot have a parent interface
-        if self.type != InterfaceTypeChoices.TYPE_VIRTUAL and self.parent is not None:
-            raise ValidationError({'parent': _("Only virtual interfaces may be assigned to a parent interface.")})
-
-        # An interface's parent must belong to the same device or virtual chassis
-        if self.parent and self.parent.device != self.device:
-            if self.device.virtual_chassis is None:
-                raise ValidationError({
-                    'parent': _(
-                        "The selected parent interface ({interface}) belongs to a different device ({device})"
-                    ).format(interface=self.parent, device=self.parent.device)
-                })
-            if self.parent.device.virtual_chassis != self.device.virtual_chassis:
-                raise ValidationError({
-                    'parent': _(
-                        "The selected parent interface ({interface}) belongs to {device}, which is not part of "
-                        "virtual chassis {virtual_chassis}."
-                    ).format(
-                        interface=self.parent,
-                        device=self.parent.device,
-                        virtual_chassis=self.device.virtual_chassis
-                    )
-                })
-
-        # Bridge validation
-
-        # A bridged interface belongs to the same device or virtual chassis
-        if self.bridge and self.bridge.device != self.device:
-            if self.device.virtual_chassis is None:
-                raise ValidationError({
-                    'bridge': _(
-                        "The selected bridge interface ({bridge}) belongs to a different device ({device})."
-                    ).format(bridge=self.bridge, device=self.bridge.device)
-                })
-            if self.bridge.device.virtual_chassis != self.device.virtual_chassis:
-                raise ValidationError({
-                    'bridge': _(
-                        "The selected bridge interface ({interface}) belongs to {device}, which is not part of virtual "
-                        "chassis {virtual_chassis}."
-                    ).format(
-                        interface=self.bridge, device=self.bridge.device, virtual_chassis=self.device.virtual_chassis
-                    )
-                })
-
-        # LAG validation
-
-        # A virtual interface cannot have a parent LAG
-        if self.type == InterfaceTypeChoices.TYPE_VIRTUAL and self.lag is not None:
-            raise ValidationError({'lag': _("Virtual interfaces cannot have a parent LAG interface.")})
-
-        # A LAG interface cannot be its own parent
-        if self.pk and self.lag_id == self.pk:
-            raise ValidationError({'lag': _("A LAG interface cannot be its own parent.")})
-
-        # An interface's LAG must belong to the same device or virtual chassis
-        if self.lag and self.lag.device != self.device:
-            if self.device.virtual_chassis is None:
-                raise ValidationError({
-                    'lag': _(
-                        "The selected LAG interface ({lag}) belongs to a different device ({device})."
-                    ).format(lag=self.lag, device=self.lag.device)
-                })
-            if self.lag.device.virtual_chassis != self.device.virtual_chassis:
-                raise ValidationError({
-                    'lag': _(
-                        "The selected LAG interface ({lag}) belongs to {device}, which is not part of virtual chassis "
-                        "{virtual_chassis}.".format(
-                            lag=self.lag, device=self.lag.device, virtual_chassis=self.device.virtual_chassis)
-                    )
-                })
-
-        # Wireless validation
-
-        # RF channel may only be set for wireless interfaces
-        if self.rf_channel and not self.is_wireless:
-            raise ValidationError({'rf_channel': _("Channel may be set only on wireless interfaces.")})
-
-        # Validate channel frequency against interface type and selected channel (if any)
-        if self.rf_channel_frequency:
-            if not self.is_wireless:
-                raise ValidationError({
-                    'rf_channel_frequency': _("Channel frequency may be set only on wireless interfaces."),
-                })
-            if self.rf_channel and self.rf_channel_frequency != get_channel_attr(self.rf_channel, 'frequency'):
-                raise ValidationError({
-                    'rf_channel_frequency': _("Cannot specify custom frequency with channel selected."),
-                })
-
-        # Validate channel width against interface type and selected channel (if any)
-        if self.rf_channel_width:
-            if not self.is_wireless:
-                raise ValidationError({'rf_channel_width': _("Channel width may be set only on wireless interfaces.")})
-            if self.rf_channel and self.rf_channel_width != get_channel_attr(self.rf_channel, 'width'):
-                raise ValidationError({'rf_channel_width': _("Cannot specify custom width with channel selected.")})
-
-        # VLAN validation
-        if not self.mode and self.untagged_vlan:
-            raise ValidationError({'untagged_vlan': _("Interface mode does not support an untagged vlan.")})
-
-        # Validate untagged VLAN
-        if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
-            raise ValidationError({
-                'untagged_vlan': _(
-                    "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
-                    "device, or it must be global."
-                ).format(untagged_vlan=self.untagged_vlan)
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-
-        # Set absolute channel attributes from selected options
-        if self.rf_channel and not self.rf_channel_frequency:
-            self.rf_channel_frequency = get_channel_attr(self.rf_channel, 'frequency')
-        if self.rf_channel and not self.rf_channel_width:
-            self.rf_channel_width = get_channel_attr(self.rf_channel, 'width')
-
         super().save(*args, **kwargs)
 
     @property
@@ -1152,14 +943,8 @@ class PortMapping(PortMappingBase):
 
     def clean(self):
         super().clean()
-
-        # Both ports must belong to the same device
-        if self.front_port.device_id != self.rear_port.device_id:
-            raise ValidationError({
-                "rear_port": _("Rear port ({rear_port}) must belong to the same device").format(
-                    rear_port=self.rear_port
-                )
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
@@ -1198,16 +983,8 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        # Check that positions is greater than or equal to the number of associated RearPorts
-        if not self._state.adding:
-            mapping_count = self.mappings.count()
-            if self.positions < mapping_count:
-                raise ValidationError({
-                    "positions": _(
-                        "The number of positions cannot be less than the number of mapped rear ports ({count})"
-                    ).format(count=mapping_count)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
@@ -1240,17 +1017,8 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        # Check that positions count is greater than or equal to the number of associated FrontPorts
-        if not self._state.adding:
-            mapping_count = self.mappings.count()
-            if self.positions < mapping_count:
-                raise ValidationError({
-                    "positions": _(
-                        "The number of positions cannot be less than the number of mapped front ports "
-                        "({count})"
-                    ).format(count=mapping_count)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 #
@@ -1299,17 +1067,8 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
 
     def clean(self):
         super().clean()
-
-        # Check for recursion
-        if module := self.module:
-            module_bays = [self.pk]
-            modules = []
-            while module:
-                if module.pk in modules or module.module_bay.pk in module_bays:
-                    raise ValidationError(_("A module bay cannot belong to a module installed within it."))
-                modules.append(module.pk)
-                module_bays.append(module.module_bay.pk)
-                module = module.module_bay.module if module.module_bay else None
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 class DeviceBay(ComponentModel, TrackingModelMixin):
@@ -1450,33 +1209,11 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     def clean(self):
         super().clean()
 
-        # An InventoryItem cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({
-                "parent": _("Cannot assign self as parent.")
-            })
+        if not self._state.adding and self.component and self.component.device != self.device:
+            self.component = None
 
-        # Validation for moving InventoryItems
-        if not self._state.adding:
-            # Cannot move an InventoryItem to another device if it has a parent
-            if self.parent and self.parent.device != self.device:
-                raise ValidationError({
-                    "parent": _("Parent inventory item does not belong to the same device.")
-                })
-
-            # Prevent moving InventoryItems with children
-            first_child = self.get_children().first()
-            if first_child and first_child.device != self.device:
-                raise ValidationError(_("Cannot move an inventory item with dependent children"))
-
-            # When moving an InventoryItem to another device, remove any associated component
-            if self.component and self.component.device != self.device:
-                self.component = None
-        else:
-            if self.component and self.component.device != self.device:
-                raise ValidationError({
-                    "device": _("Cannot assign inventory item to component on another device")
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_status_color(self):
         return InventoryItemStatusChoices.colors.get(self.status)

@@ -1,12 +1,10 @@
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
-
 from dcim.utils import rebuild_paths
 
-from .models import CircuitTermination
+# ──────────────────────────────────────────────────────────────────────
+# Dispatched by GraphRegistry (netbox/graphs.py).
+# ──────────────────────────────────────────────────────────────────────
 
 
-@receiver((post_save, post_delete), sender=CircuitTermination)
 def rebuild_cablepaths(instance, raw=False, **kwargs):
     """
     Rebuild any CablePaths which traverse the peer CircuitTermination.

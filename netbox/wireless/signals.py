@@ -1,26 +1,18 @@
 import logging
 
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
-
 from dcim.exceptions import UnsupportedCablePath
 from dcim.models import CablePath
 from dcim.utils import create_cablepaths
 from utilities.exceptions import AbortRequest
 
-from .models import WirelessLink
-
 # ──────────────────────────────────────────────────────────────────────
 # Cascade handlers (update_connected_interfaces, nullify_connected_interfaces)
 # have been moved to wireless/cascades.py as declarative CascadeSpecs.
 #
-# Cable path creation on WirelessLink create and cable path deletion
-# on WirelessLink delete will be moved to GraphRegistry in a future phase.
-# For now, keep cable path creation here.
+# Cable path handlers are now dispatched by GraphRegistry (netbox/graphs.py).
 # ──────────────────────────────────────────────────────────────────────
 
 
-@receiver(post_save, sender=WirelessLink)
 def create_wireless_cable_paths(instance, created, raw=False, **kwargs):
     """
     When a WirelessLink is first created, create cable paths for its interfaces.
@@ -38,7 +30,6 @@ def create_wireless_cable_paths(instance, created, raw=False, **kwargs):
                 raise AbortRequest(e)
 
 
-@receiver(post_delete, sender=WirelessLink)
 def delete_wireless_cable_paths(instance, **kwargs):
     """
     When a WirelessLink is deleted, delete and retrace any dependent cable paths.

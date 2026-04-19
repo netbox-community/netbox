@@ -1,6 +1,3 @@
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
-
 from .models import Prefix
 
 # ──────────────────────────────────────────────────────────────────────
@@ -8,10 +5,10 @@ from .models import Prefix
 # to ipam/cascades.py as declarative CascadeSpecs.
 # ──────────────────────────────────────────────────────────────────────
 
-#
+# ──────────────────────────────────────────────────────────────────────
 # Prefix hierarchy maintenance
-# These will be moved to GraphRegistry in a future phase.
-#
+# Dispatched by GraphRegistry (netbox/graphs.py).
+# ──────────────────────────────────────────────────────────────────────
 
 
 def update_parents_children(prefix):
@@ -34,7 +31,6 @@ def update_children_depth(prefix):
     Prefix.objects.bulk_update(children, ['_depth'], batch_size=100)
 
 
-@receiver(post_save, sender=Prefix)
 def handle_prefix_saved(instance, created, **kwargs):
 
     if created or instance.vrf_id != instance._vrf_id or instance.prefix != instance._prefix:
@@ -48,7 +44,6 @@ def handle_prefix_saved(instance, created, **kwargs):
             update_children_depth(old_prefix)
 
 
-@receiver(post_delete, sender=Prefix)
 def handle_prefix_deleted(instance, **kwargs):
 
     update_parents_children(instance)
