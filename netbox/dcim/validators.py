@@ -422,7 +422,45 @@ def validate_cable_termination_unique(instance):
         )
 
 
+def validate_cable_termination_mark_connected(instance):
+    """Cannot connect cable to an object flagged as mark_connected."""
+    termination = getattr(instance, 'termination', None)
+    if termination is not None and getattr(termination, "mark_connected", False):
+        raise ValidationError(
+            _("Cannot connect a cable to {obj_parent} > {obj} because it is marked as connected.").format(
+                obj_parent=termination.parent_object,
+                obj=termination,
+            )
+        )
+
+
+def validate_cable_termination_iface_type(instance):
+    """Non-connectable interface types cannot have cables."""
+    from dcim.choices import NONCONNECTABLE_IFACE_TYPES
+    if instance.termination_type.model == 'interface' and instance.termination.type in NONCONNECTABLE_IFACE_TYPES:
+        raise ValidationError(
+            _("Cables cannot be terminated to {type_display} interfaces").format(
+                type_display=instance.termination.get_type_display()
+            )
+        )
+
+
+def validate_cable_termination_provider_network(instance):
+    """CircuitTermination attached to ProviderNetwork cannot be cabled."""
+    if instance.termination_type.model == 'circuittermination' and instance.termination._provider_network is not None:
+        raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
+
+
 validator_registry.register('dcim.cabletermination',
+    ModelValidator(
+        name='cable_termination_mark_connected',
+        model_label='dcim.cabletermination',
+        fields=_fs({'termination_type', 'termination_id'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_cable_termination_mark_connected,
+        queries_db=True,
+        description='Cannot cable to an object marked as connected',
+    ),
     ModelValidator(
         name='cable_termination_unique',
         model_label='dcim.cabletermination',
@@ -432,11 +470,44 @@ validator_registry.register('dcim.cabletermination',
         queries_db=True,
         description='No duplicate cable terminations for the same object',
     ),
+    ModelValidator(
+        name='cable_termination_iface_type',
+        model_label='dcim.cabletermination',
+        fields=_fs({'termination_type', 'termination_id'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_cable_termination_iface_type,
+        queries_db=True,
+        description='Non-connectable interface types cannot have cables',
+    ),
+    ModelValidator(
+        name='cable_termination_provider_network',
+        model_label='dcim.cabletermination',
+        fields=_fs({'termination_type', 'termination_id'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_cable_termination_provider_network,
+        queries_db=True,
+        description='Circuit termination attached to provider network cannot be cabled',
+    ),
 )
 
 # ──────────────────────────────────────────────────────────────────────
 # DeviceBay
 # ──────────────────────────────────────────────────────────────────────
+
+def validate_devicebay_parent_supports_bays(instance):
+    """Parent Device must support device bays."""
+    if hasattr(instance, 'device') and not instance.device.device_type.is_parent_device:
+        raise ValidationError(
+            _("This type of device ({device_type}) does not support device bays.").format(
+                device_type=instance.device.device_type
+            )
+        )
+
+
+def validate_devicebay_no_self_install(instance):
+    if instance.installed_device and getattr(instance, 'device', None) == instance.installed_device:
+        raise ValidationError(_("Cannot install a device into itself."))
+
 
 def validate_devicebay_installed_device(instance):
     """Installed device cannot already be in another bay."""
@@ -455,6 +526,23 @@ def validate_devicebay_installed_device(instance):
 
 
 validator_registry.register('dcim.devicebay',
+    ModelValidator(
+        name='devicebay_parent_supports_bays',
+        model_label='dcim.devicebay',
+        fields=_fs({'device'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_devicebay_parent_supports_bays,
+        queries_db=True,
+        description='Parent device type must support device bays',
+    ),
+    ModelValidator(
+        name='devicebay_no_self_install',
+        model_label='dcim.devicebay',
+        fields=_fs({'device', 'installed_device'}),
+        category=ValidatorCategory.CROSS_FIELD,
+        validate=validate_devicebay_no_self_install,
+        description='Cannot install device into itself',
+    ),
     ModelValidator(
         name='devicebay_installed_device',
         model_label='dcim.devicebay',
@@ -478,6 +566,30 @@ def validate_vc_master_in_members(instance):
             })
 
 
+def validate_device_vc_master_removal(instance):
+    """Device cannot be removed from VC if it's the master."""
+    if hasattr(instance, 'vc_master_for') and instance.vc_master_for and instance.vc_master_for != instance.virtual_chassis:
+        raise ValidationError({
+            'virtual_chassis': _(
+                'Device cannot be removed from virtual chassis {virtual_chassis} because it is currently '
+                'designated as its master.'
+            ).format(virtual_chassis=instance.vc_master_for)
+        })
+
+
+validator_registry.register('dcim.device',
+    ModelValidator(
+        name='device_vc_master_removal',
+        model_label='dcim.device',
+        fields=_fs({'virtual_chassis'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_device_vc_master_removal,
+        queries_db=True,
+        description='Cannot remove a device from VC if it is the master',
+    ),
+)
+
+
 validator_registry.register('dcim.virtualchassis',
     ModelValidator(
         name='vc_master_in_members',
@@ -494,18 +606,62 @@ validator_registry.register('dcim.virtualchassis',
 # DeviceType
 # ──────────────────────────────────────────────────────────────────────
 
-def validate_devicetype_u_height(instance):
+def validate_devicetype_u_height_increment(instance):
+    import decimal
+    if decimal.Decimal(instance.u_height) % decimal.Decimal(0.5):
+        raise ValidationError({
+            'u_height': _("U height must be in increments of 0.5 rack units.")
+        })
+
+
+def validate_devicetype_u_height_expansion(instance):
+    """When increasing u_height, verify all mounted devices still fit."""
+    if instance._state.adding:
+        return
+    if instance.u_height <= instance._original_u_height:
+        return
+    from dcim.models import Device
+    for d in Device.objects.filter(device_type=instance, position__isnull=False):
+        face_required = None if instance.is_full_depth else d.face
+        u_available = d.rack.get_available_units(
+            u_height=instance.u_height,
+            rack_face=face_required,
+            exclude=[d.pk]
+        )
+        if d.position not in u_available:
+            raise ValidationError({
+                'u_height': _(
+                    "Device {device} in rack {rack} does not have sufficient space to accommodate a "
+                    "height of {height}U"
+                ).format(device=d, rack=d.rack, height=instance.u_height)
+            })
+
+
+def validate_devicetype_u_height_zero(instance):
+    """Cannot set 0U if devices are racked."""
+    if instance._state.adding:
+        return
+    if not (instance._original_u_height > 0 and instance.u_height == 0):
+        return
+    from dcim.models import Device
+    racked_instance_count = Device.objects.filter(
+        device_type=instance,
+        position__isnull=False
+    ).count()
+    if racked_instance_count:
+        from django.urls import reverse
+        from django.utils.safestring import mark_safe
+        url = f"{reverse('dcim:device_list')}?manufactuer_id={instance.manufacturer_id}&device_type_id={instance.pk}"
+        raise ValidationError({
+            'u_height': mark_safe(_(
+                'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
+                'mounted within racks.'
+            ).format(url=url, racked_instance_count=racked_instance_count))
+        })
+
+
+def validate_devicetype_subdevice_role(instance):
     from dcim.choices import SubdeviceRoleChoices
-    if not instance._state.adding:
-        from dcim.models import Device
-        if instance.u_height and instance.u_height < instance._original_u_height:
-            devices = Device.objects.filter(device_type=instance, position__isnull=False)
-            if devices.exists():
-                raise ValidationError({
-                    'u_height': _(
-                        "Device type is currently mounted in racks; cannot reduce its height."
-                    )
-                })
     if instance.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
         if instance.pk:
             from dcim.models.device_component_templates import DeviceBayTemplate
@@ -524,12 +680,38 @@ def validate_devicetype_u_height(instance):
 
 validator_registry.register('dcim.devicetype',
     ModelValidator(
-        name='devicetype_u_height',
+        name='devicetype_u_height_increment',
         model_label='dcim.devicetype',
-        fields=_fs({'u_height', 'subdevice_role'}),
+        fields=_fs({'u_height'}),
+        category=ValidatorCategory.FIELD,
+        validate=validate_devicetype_u_height_increment,
+        description='U height must be in 0.5 increments',
+    ),
+    ModelValidator(
+        name='devicetype_u_height_expansion',
+        model_label='dcim.devicetype',
+        fields=_fs({'u_height'}),
         category=ValidatorCategory.CROSS_MODEL,
-        validate=validate_devicetype_u_height,
+        validate=validate_devicetype_u_height_expansion,
         queries_db=True,
-        description='Height reduction blocked by mounted devices; parent role requires bays',
+        description='Height expansion blocked if mounted devices cannot accommodate',
+    ),
+    ModelValidator(
+        name='devicetype_u_height_zero',
+        model_label='dcim.devicetype',
+        fields=_fs({'u_height'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_devicetype_u_height_zero,
+        queries_db=True,
+        description='Cannot set 0U if devices are currently racked',
+    ),
+    ModelValidator(
+        name='devicetype_subdevice_role',
+        model_label='dcim.devicetype',
+        fields=_fs({'subdevice_role', 'u_height'}),
+        category=ValidatorCategory.CROSS_MODEL,
+        validate=validate_devicetype_subdevice_role,
+        queries_db=True,
+        description='Subdevice role vs bay templates and child u_height constraints',
     ),
 )

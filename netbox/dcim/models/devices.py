@@ -288,59 +288,8 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     def clean(self):
         super().clean()
-
-        # U height must be divisible by 0.5
-        if decimal.Decimal(self.u_height) % decimal.Decimal(0.5):
-            raise ValidationError({
-                'u_height': _("U height must be in increments of 0.5 rack units.")
-            })
-
-        # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
-        # room to expand within their racks. This validation will impose a very high performance penalty when there are
-        # many instances to check, but increasing the u_height of a DeviceType should be a very rare occurrence.
-        if not self._state.adding and self.u_height > self._original_u_height:
-            for d in Device.objects.filter(device_type=self, position__isnull=False):
-                face_required = None if self.is_full_depth else d.face
-                u_available = d.rack.get_available_units(
-                    u_height=self.u_height,
-                    rack_face=face_required,
-                    exclude=[d.pk]
-                )
-                if d.position not in u_available:
-                    raise ValidationError({
-                        'u_height': _(
-                            "Device {device} in rack {rack} does not have sufficient space to accommodate a "
-                            "height of {height}U"
-                        ).format(device=d, rack=d.rack, height=self.u_height)
-                    })
-
-        # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
-        elif not self._state.adding and self._original_u_height > 0 and self.u_height == 0:
-            racked_instance_count = Device.objects.filter(
-                device_type=self,
-                position__isnull=False
-            ).count()
-            if racked_instance_count:
-                url = f"{reverse('dcim:device_list')}?manufactuer_id={self.manufacturer_id}&device_type_id={self.pk}"
-                raise ValidationError({
-                    'u_height': mark_safe(_(
-                        'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
-                        'mounted within racks.'
-                    ).format(url=url, racked_instance_count=racked_instance_count))
-                })
-
-        if (
-                self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
-        ) and self.pk and self.devicebaytemplates.count():
-            raise ValidationError({
-                'subdevice_role': _("Must delete all device bay templates associated with this device before "
-                                  "declassifying it as a parent device.")
-            })
-
-        if self.u_height and self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD:
-            raise ValidationError({
-                'u_height': _("Child device types must be 0U.")
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
         ret = super().save(*args, **kwargs)
@@ -772,33 +721,8 @@ class Device(
 
     def clean(self):
         super().clean()
-        from dcim.validators import (
-            validate_device_site_rack_location,
-            validate_device_rack_position,
-            validate_device_type_constraints,
-            validate_device_rack_space,
-            validate_device_primary_ips,
-            validate_device_platform_manufacturer,
-            validate_device_cluster,
-            validate_device_vc_position,
-        )
-        validate_device_site_rack_location(self)
-        validate_device_rack_position(self)
-        validate_device_type_constraints(self)
-        validate_device_rack_space(self)
-        validate_device_primary_ips(self)
-        validate_device_platform_manufacturer(self)
-        validate_device_cluster(self)
-        validate_device_vc_position(self)
-
-        # VC master removal check (kept inline — references reverse relation)
-        if hasattr(self, 'vc_master_for') and self.vc_master_for and self.vc_master_for != self.virtual_chassis:
-            raise ValidationError({
-                'virtual_chassis': _(
-                    'Device cannot be removed from virtual chassis {virtual_chassis} because it is currently '
-                    'designated as its master.'
-                ).format(virtual_chassis=self.vc_master_for)
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def _instantiate_components(self, queryset, bulk_create=True):
         """
@@ -1013,15 +937,8 @@ class VirtualChassis(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Verify that the selected master device has been assigned to this VirtualChassis. (Skip when creating a new
-        # VirtualChassis.)
-        if not self._state.adding and self.master and self.master not in self.members.all():
-            raise ValidationError({
-                'master': _("The selected master ({master}) is not assigned to this virtual chassis.").format(
-                    master=self.master
-                )
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def delete(self, *args, **kwargs):
         # Check for LAG interfaces split across member chassis

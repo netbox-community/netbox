@@ -183,9 +183,8 @@ class RackType(ImageAttachmentsMixin, RackBase):
 
     def clean(self):
         super().clean()
-        from dcim.validators import validate_racktype_outer_dimensions, validate_racktype_max_weight
-        validate_racktype_outer_dimensions(self)
-        validate_racktype_max_weight(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -350,16 +349,8 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
 
     def clean(self):
         super().clean()
-        from dcim.validators import (
-            validate_rack_location_site,
-            validate_rack_outer_dimensions,
-            validate_rack_max_weight,
-            validate_rack_height_vs_devices,
-        )
-        validate_rack_location_site(self)
-        validate_rack_outer_dimensions(self)
-        validate_rack_max_weight(self)
-        validate_rack_height_vs_devices(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
         self.copy_racktype_attrs()
@@ -650,30 +641,8 @@ class RackReservation(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        if hasattr(self, 'rack') and self.units:
-
-            # Validate that all specified units exist in the Rack.
-            invalid_units = [u for u in self.units if u not in self.rack.units]
-            if invalid_units:
-                raise ValidationError({
-                    'units': _("Invalid unit(s) for {height}U rack: {unit_list}").format(
-                        height=self.rack.u_height,
-                        unit_list=', '.join([str(u) for u in invalid_units])
-                    ),
-                })
-
-            # Check that none of the units has already been reserved for this Rack.
-            reserved_units = []
-            for resv in self.rack.reservations.exclude(pk=self.pk):
-                reserved_units += resv.units
-            conflicting_units = [u for u in self.units if u in reserved_units]
-            if conflicting_units:
-                raise ValidationError({
-                    'units': _('The following units have already been reserved: {unit_list}').format(
-                        unit_list=', '.join([str(u) for u in conflicting_units])
-                    )
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def unit_list(self):

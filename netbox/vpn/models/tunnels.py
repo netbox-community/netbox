@@ -159,15 +159,8 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
 
     def clean(self):
         super().clean()
-
-        # Check that the selected termination object is not already attached to a Tunnel
-        if getattr(self.termination, 'tunnel_termination', None) and self.termination.tunnel_termination.pk != self.pk:
-            raise ValidationError({
-                'termination': _("{name} is already attached to a tunnel ({tunnel}).").format(
-                    name=self.termination.name,
-                    tunnel=self.termination.tunnel_termination.tunnel
-                )
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

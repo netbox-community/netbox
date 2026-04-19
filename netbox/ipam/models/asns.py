@@ -57,13 +57,8 @@ class ASNRange(OrganizationalModel):
 
     def clean(self):
         super().clean()
-
-        if self.end <= self.start:
-            raise ValidationError(
-                _("Starting ASN ({start}) must be lower than ending ASN ({end}).").format(
-                    start=self.start, end=self.end
-                )
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def range(self):

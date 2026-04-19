@@ -118,9 +118,8 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-        from ipam.validators import validate_aggregate_mask, validate_aggregate_no_overlap
-        validate_aggregate_mask(self)
-        validate_aggregate_no_overlap(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def family(self):
@@ -267,9 +266,8 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
     def clean(self):
         super().clean()
-        from ipam.validators import validate_prefix_mask, validate_prefix_unique
-        validate_prefix_mask(self)
-        validate_prefix_unique(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def family(self):
@@ -520,22 +518,8 @@ class IPRange(ContactsMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-        if self.start_address and self.end_address:
-            from ipam.validators import (
-                validate_iprange_family,
-                validate_iprange_order,
-                validate_iprange_max_size,
-                validate_iprange_no_overlap,
-            )
-            # Prefix length match (kept inline — not extracted)
-            if self.start_address.prefixlen != self.end_address.prefixlen:
-                raise ValidationError({
-                    'end_address': _("Starting and ending IP address masks must match")
-                })
-            validate_iprange_family(self)
-            validate_iprange_order(self)
-            validate_iprange_no_overlap(self)
-            validate_iprange_max_size(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def family(self):
@@ -778,95 +762,8 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        if self.address:
-
-            # /0 masks are not acceptable
-            if self.address.prefixlen == 0:
-                raise ValidationError({
-                    'address': _("Cannot create IP address with /0 mask.")
-                })
-
-            # Do not allow assigning a network ID or broadcast address to an interface.
-            if self.assigned_object:
-                if self.address.ip == self.address.network:
-                    msg = _("{ip} is a network ID, which may not be assigned to an interface.").format(
-                        ip=self.address.ip
-                    )
-                    if self.address.version == 4 and self.address.prefixlen not in (31, 32):
-                        raise ValidationError(msg)
-                    if self.address.version == 6 and self.address.prefixlen not in (127, 128):
-                        raise ValidationError(msg)
-                if (
-                        self.address.version == 4 and self.address.ip == self.address.broadcast and
-                        self.address.prefixlen not in (31, 32)
-                ):
-                    msg = _("{ip} is a broadcast address, which may not be assigned to an interface.").format(
-                        ip=self.address.ip
-                    )
-                    raise ValidationError(msg)
-
-            # Enforce unique IP space (if applicable)
-            if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
-                duplicate_ips = self.get_duplicates()
-                if duplicate_ips and (
-                        self.role not in IPADDRESS_ROLES_NONUNIQUE or
-                        any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
-                ):
-                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
-                    raise ValidationError({
-                        'address': _("Duplicate IP address found in {table}: {ipaddress}").format(
-                            table=table,
-                            ipaddress=duplicate_ips.first(),
-                        )
-                    })
-
-            # Disallow the creation of IPAddresses within an IPRange with mark_populated=True
-            parent_range_qs = IPRange.objects.filter(
-                start_address__lte=self.address,
-                end_address__gte=self.address,
-                vrf=self.vrf,
-                mark_populated=True
-            )
-            if not self.pk and (parent_range := parent_range_qs.first()):
-                raise ValidationError({
-                    'address': _(
-                        "Cannot create IP address {ip} inside range {range}."
-                    ).format(ip=self.address, range=parent_range)
-                })
-
-        if self._original_assigned_object_id and self._original_assigned_object_type_id:
-            parent = getattr(self.assigned_object, 'parent_object', None)
-            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
-            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
-            original_parent = getattr(original_assigned_object, 'parent_object', None)
-
-            # can't use is_primary_ip as self.assigned_object might be changed
-            is_primary = False
-            if self.family == 4 and hasattr(original_parent, 'primary_ip4'):
-                if original_parent.primary_ip4_id == self.pk:
-                    is_primary = True
-            if self.family == 6 and hasattr(original_parent, 'primary_ip6'):
-                if original_parent.primary_ip6_id == self.pk:
-                    is_primary = True
-
-            if is_primary and (parent != original_parent):
-                raise ValidationError(
-                    _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
-                )
-
-            # can't use is_oob_ip as self.assigned_object might be changed
-            if hasattr(original_parent, 'oob_ip') and original_parent.oob_ip_id == self.pk:
-                if parent != original_parent:
-                    raise ValidationError(
-                        _("Cannot reassign IP address while it is designated as the OOB IP for the parent object")
-                    )
-
-        # Validate IP status selection
-        if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
-            raise ValidationError({
-                'status': _("Only IPv6 addresses can be assigned SLAAC status")
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def clone(self):
         attrs = super().clone()

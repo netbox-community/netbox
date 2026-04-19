@@ -530,47 +530,8 @@ class CableTermination(ChangeLoggedModel):
 
     def clean(self):
         super().clean()
-
-        # Disallow connecting a cable to any termination object that is
-        # explicitly flagged as "mark connected".
-        termination = getattr(self, 'termination', None)
-        if termination is not None and getattr(termination, "mark_connected", False):
-            raise ValidationError(
-                _("Cannot connect a cable to {obj_parent} > {obj} because it is marked as connected.").format(
-                    obj_parent=termination.parent_object,
-                    obj=termination,
-                )
-            )
-
-        # Check for existing termination
-        qs = CableTermination.objects.filter(
-            termination_type=self.termination_type,
-            termination_id=self.termination_id
-        )
-        if self.cable.pk:
-            qs = qs.exclude(cable=self.cable)
-
-        existing_termination = qs.first()
-        if existing_termination is not None:
-            raise ValidationError(
-                _("Duplicate termination found for {app_label}.{model} {termination_id}: cable {cable_pk}").format(
-                    app_label=self.termination_type.app_label,
-                    model=self.termination_type.model,
-                    termination_id=self.termination_id,
-                    cable_pk=existing_termination.cable.pk
-                )
-            )
-        # Validate the interface type (if applicable)
-        if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError(
-                _("Cables cannot be terminated to {type_display} interfaces").format(
-                    type_display=self.termination.get_type_display()
-                )
-            )
-
-        # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
-        if self.termination_type.model == 'circuittermination' and self.termination._provider_network is not None:
-            raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

@@ -122,28 +122,9 @@ class L2VPNTermination(NetBoxModel):
         return super().__str__()
 
     def clean(self):
-        # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.
-        if self.assigned_object:
-            obj_id = self.assigned_object.pk
-            obj_type = ObjectType.objects.get_for_model(self.assigned_object)
-            terminations = L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type)
-            if terminations.exclude(pk=self.pk).exists():
-                raise ValidationError(
-                    _('L2VPN Termination already assigned ({assigned_object})').format(
-                        assigned_object=self.assigned_object
-                    )
-                )
-
-        # Only check if L2VPN is set and is of type P2P
-        if hasattr(self, 'l2vpn') and self.l2vpn.type in L2VPNTypeChoices.P2P:
-            terminations_count = L2VPNTermination.objects.filter(l2vpn=self.l2vpn).exclude(pk=self.pk).count()
-            if terminations_count >= 2:
-                l2vpn_type = self.l2vpn.get_type_display()
-                raise ValidationError(
-                    _(
-                        '{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} '
-                        'already defined.'
-                    ).format(l2vpn_type=l2vpn_type, terminations_count=terminations_count))
+        super().clean()
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def assigned_object_parent(self):

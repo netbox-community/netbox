@@ -95,39 +95,8 @@ class VLANGroup(OrganizationalModel):
 
     def clean(self):
         super().clean()
-
-        # Validate scope assignment
-        if self.scope_type and not self.scope_id:
-            raise ValidationError(_("Cannot set scope_type without scope_id."))
-        if self.scope_id and not self.scope_type:
-            raise ValidationError(_("Cannot set scope_id without scope_type."))
-
-        # Validate VID ranges
-        for vid_range in self.vid_ranges:
-            lower_vid = vid_range.lower if vid_range.lower_inc else vid_range.lower + 1
-            upper_vid = vid_range.upper if vid_range.upper_inc else vid_range.upper - 1
-            if lower_vid < VLAN_VID_MIN:
-                raise ValidationError({
-                    'vid_ranges': _("Starting VLAN ID in range ({value}) cannot be less than {minimum}").format(
-                        value=lower_vid, minimum=VLAN_VID_MIN
-                    )
-                })
-            if upper_vid > VLAN_VID_MAX:
-                raise ValidationError({
-                    'vid_ranges': _("Ending VLAN ID in range ({value}) cannot exceed {maximum}").format(
-                        value=upper_vid, maximum=VLAN_VID_MAX
-                    )
-                })
-            if lower_vid > upper_vid:
-                raise ValidationError({
-                    'vid_ranges': _(
-                        "Ending VLAN ID in range must be greater than or equal to the starting VLAN ID ({range})"
-                    ).format(range=f'{lower_vid}-{upper_vid}')
-                })
-
-        # Check for overlapping VID ranges
-        from ipam.validators import validate_vlangroup_vid_ranges
-        validate_vlangroup_vid_ranges(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_available_vids(self):
         """
@@ -287,43 +256,8 @@ class VLAN(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Validate VLAN group (if assigned)
-        if self.group and self.site and self.group.scope_type == ContentType.objects.get_for_model(Site):
-            if self.site != self.group.scope:
-                raise ValidationError(
-                    _(
-                        "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
-                    ).format(group=self.group, scope=self.group.scope, site=self.site)
-                )
-        if self.group and self.site and self.group.scope_type == ContentType.objects.get_for_model(SiteGroup):
-            if self.site not in self.group.scope.sites.all():
-                raise ValidationError(
-                    _(
-                        "The assigned site {site} is not a member of the assigned group {group} (scope: {scope})."
-                    ).format(group=self.group, scope=self.group.scope, site=self.site)
-                )
-
-        # Check that the VLAN ID is permitted in the assigned group (if any)
-        if self.group:
-            if not any([self.vid in r for r in self.group.vid_ranges]):
-                raise ValidationError({
-                    'vid': _(
-                        "VID must be in ranges {ranges} for VLANs in group {group}"
-                    ).format(ranges=ranges_to_string(self.group.vid_ranges), group=self.group)
-                })
-
-        # Only Q-in-Q customer VLANs may be assigned to a service VLAN
-        if self.qinq_svlan and self.qinq_role != VLANQinQRoleChoices.ROLE_CUSTOMER:
-            raise ValidationError({
-                'qinq_svlan': _("Only Q-in-Q customer VLANs maybe assigned to a service VLAN.")
-            })
-
-        # A Q-in-Q customer VLAN must be assigned to a service VLAN
-        if self.qinq_role == VLANQinQRoleChoices.ROLE_CUSTOMER and not self.qinq_svlan:
-            raise ValidationError({
-                'qinq_role': _("A Q-in-Q customer VLAN must be assigned to a service VLAN.")
-            })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)

@@ -1332,26 +1332,8 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        # Validate that the parent Device can have DeviceBays
-        if hasattr(self, 'device') and not self.device.device_type.is_parent_device:
-            raise ValidationError(_("This type of device ({device_type}) does not support device bays.").format(
-                device_type=self.device.device_type
-            ))
-
-        # Cannot install a device into itself, obviously
-        if self.installed_device and getattr(self, 'device', None) == self.installed_device:
-            raise ValidationError(_("Cannot install a device into itself."))
-
-        # Check that the installed device is not already installed elsewhere
-        if self.installed_device:
-            current_bay = DeviceBay.objects.filter(installed_device=self.installed_device).first()
-            if current_bay and current_bay != self:
-                raise ValidationError({
-                    'installed_device': _(
-                        "Cannot install the specified device; device is already installed in {bay}."
-                    ).format(bay=current_bay)
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 #

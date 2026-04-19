@@ -181,66 +181,8 @@ class VirtualMachine(ContactsMixin, ImageAttachmentsMixin, RenderConfigMixin, Co
 
     def clean(self):
         super().clean()
-
-        # Must be assigned to a site and/or cluster
-        if not self.site and not self.cluster:
-            raise ValidationError({
-                'cluster': _('A virtual machine must be assigned to a site and/or cluster.')
-            })
-
-        # Validate site for cluster & VM
-        if self.cluster and self.site and self.cluster._site and self.cluster._site != self.site:
-            raise ValidationError({
-                'cluster': _(
-                    'The selected cluster ({cluster}) is not assigned to this site ({site}).'
-                ).format(cluster=self.cluster, site=self.site)
-            })
-
-        # Validate assigned cluster device
-        if self.device and not self.cluster:
-            raise ValidationError({
-                'device': _('Must specify a cluster when assigning a host device.')
-            })
-        if self.device and self.device not in self.cluster.devices.all():
-            raise ValidationError({
-                'device': _(
-                    "The selected device ({device}) is not assigned to this cluster ({cluster})."
-                ).format(device=self.device, cluster=self.cluster)
-            })
-
-        # Validate aggregate disk size
-        if not self._state.adding:
-            total_disk = self.virtualdisks.aggregate(Sum('size', default=0))['size__sum']
-            if total_disk and self.disk is None:
-                self.disk = total_disk
-            elif total_disk and self.disk != total_disk:
-                raise ValidationError({
-                    'disk': _(
-                        "The specified disk size ({size}) must match the aggregate size of assigned virtual disks "
-                        "({total_size})."
-                    ).format(size=self.disk, total_size=total_disk)
-                })
-
-        # Validate primary IP addresses
-        interfaces = self.interfaces.all() if self.pk else None
-        for family in (4, 6):
-            field = f'primary_ip{family}'
-            ip = getattr(self, field)
-            if ip is not None:
-                if ip.address.version != family:
-                    raise ValidationError({
-                        field: _(
-                            "Must be an IPv{family} address. ({ip} is an IPv{version} address.)"
-                        ).format(family=family, ip=ip, version=ip.address.version)
-                    })
-                if ip.assigned_object in interfaces:
-                    pass
-                elif ip.nat_inside is not None and ip.nat_inside.assigned_object in interfaces:
-                    pass
-                else:
-                    raise ValidationError({
-                        field: _("The specified IP address ({ip}) is not assigned to this VM.").format(ip=ip),
-                    })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     def get_status_color(self):
         return VirtualMachineStatusChoices.colors.get(self.status)
