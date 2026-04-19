@@ -1,7 +1,6 @@
 import logging
 
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from dcim.choices import CableEndChoices, LinkStatusChoices
@@ -22,10 +21,11 @@ from .utils import create_cablepaths, rebuild_paths
 # moved to dcim/cascades.py as declarative CascadeSpecs.
 # ──────────────────────────────────────────────────────────────────────
 
-#
+# ──────────────────────────────────────────────────────────────────────
 # Cable graph operations
-# These will be moved to GraphRegistry in a future phase.
-#
+# Dispatched by GraphRegistry (netbox/graphs.py) except for the custom
+# trace_paths signal on Cable which remains connected here.
+# ──────────────────────────────────────────────────────────────────────
 
 @receiver(trace_paths, sender=Cable)
 def update_connected_endpoints(instance, created, raw=False, **kwargs):
@@ -60,7 +60,6 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             rebuild_paths([instance])
 
 
-@receiver(post_delete, sender=Cable)
 def retrace_cable_paths(instance, **kwargs):
     """
     When a Cable is deleted, check for and update its connected endpoints.
@@ -69,7 +68,6 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
-@receiver((post_delete, post_save), sender=PortMapping)
 def update_passthrough_port_paths(instance, **kwargs):
     """
     When a PortMapping is created or deleted, retrace any CablePaths which traverse its front
@@ -81,7 +79,6 @@ def update_passthrough_port_paths(instance, **kwargs):
         cablepath.retrace()
 
 
-@receiver(post_delete, sender=CableTermination)
 def retrace_paths_on_termination_delete(instance, **kwargs):
     """
     When a CableTermination is deleted, retrace any affected CablePaths.

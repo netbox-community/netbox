@@ -8,9 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import F, ProtectedError, prefetch_related_objects
 from django.db.models.functions import Lower
-from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -18,8 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField
-from dcim.utils import create_port_mappings, update_interface_bridges
-from extras.models import ConfigContextModel, CustomField
+from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
@@ -27,7 +24,6 @@ from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
 from utilities.fields import ColorField, CounterCacheField
-from utilities.prefetch import get_prefetchable_fields
 from utilities.tracking import TrackingModelMixin
 
 from .device_components import *
@@ -292,24 +288,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         validator_registry.validate(self)
 
     def save(self, *args, **kwargs):
-        ret = super().save(*args, **kwargs)
-
-        # Delete any previously uploaded image files that are no longer in use
-        if self._original_front_image and self.front_image != self._original_front_image:
-            default_storage.delete(self._original_front_image)
-        if self._original_rear_image and self.rear_image != self._original_rear_image:
-            default_storage.delete(self._original_rear_image)
-
-        return ret
+        # Old-image cleanup is now handled by CascadeSpec (dcim/cascades.py)
+        return super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
-
-        # Delete any uploaded image files
-        if self.front_image:
-            self.front_image.delete(save=False)
-        if self.rear_image:
-            self.rear_image.delete(save=False)
 
     @property
     def is_parent_device(self):
@@ -724,88 +707,15 @@ class Device(
         from netbox.validators import validator_registry
         validator_registry.validate(self)
 
-    def _instantiate_components(self, queryset, bulk_create=True):
-        """
-        Instantiate components for the device from the specified component templates.
-
-        Args:
-            bulk_create: If True, bulk_create() will be called to create all components in a single query
-                         (default). Otherwise, save() will be called on each instance individually.
-        """
-        model = queryset.model.component_model
-
-        if bulk_create:
-            components = [obj.instantiate(device=self) for obj in queryset]
-            if not components:
-                return
-            # Set default values for any applicable custom fields
-            if cf_defaults := CustomField.objects.get_defaults_for_model(model):
-                for component in components:
-                    component.custom_field_data = cf_defaults
-            # Set denormalized references
-            for component in components:
-                component._site = self.site
-                component._location = self.location
-                component._rack = self.rack
-            components = model.objects.bulk_create(components)
-            # Prefetch related objects to minimize queries needed during post_save
-            prefetch_fields = get_prefetchable_fields(model)
-            prefetch_related_objects(components, *prefetch_fields)
-            # Manually send the post_save signal for each of the newly created components
-            for component in components:
-                post_save.send(
-                    sender=model,
-                    instance=component,
-                    created=True,
-                    raw=False,
-                    using='default',
-                    update_fields=None
-                )
-        else:
-            for obj in queryset:
-                component = obj.instantiate(device=self)
-                # Set default values for any applicable custom fields
-                if cf_defaults := CustomField.objects.get_defaults_for_model(model):
-                    component.custom_field_data = cf_defaults
-                component.save()
-
     def save(self, *args, **kwargs):
         is_new = not bool(self.pk)
-
-        # Inherit airflow attribute from DeviceType if not set
-        if is_new and not self.airflow:
-            self.airflow = self.device_type.airflow
-
-        # Inherit default_platform from DeviceType if not set
-        if is_new and not self.platform:
-            self.platform = self.device_type.default_platform
-
-        # Inherit location from Rack if not set
-        if self.rack and self.rack.location:
-            self.location = self.rack.location
 
         super().save(*args, **kwargs)
 
         # If this is a new Device, instantiate all the related components per the DeviceType definition
         if is_new:
-            self._instantiate_components(self.device_type.consoleporttemplates.all())
-            self._instantiate_components(self.device_type.consoleserverporttemplates.all())
-            self._instantiate_components(self.device_type.powerporttemplates.all())
-            self._instantiate_components(self.device_type.poweroutlettemplates.all())
-            self._instantiate_components(self.device_type.interfacetemplates.all())
-            self._instantiate_components(self.device_type.rearporttemplates.all())
-            self._instantiate_components(self.device_type.frontporttemplates.all())
-            # Replicate any front/rear port mappings from the DeviceType
-            create_port_mappings(self, self.device_type)
-            # Disable bulk_create to accommodate MPTT
-            self._instantiate_components(self.device_type.modulebaytemplates.all(), bulk_create=False)
-            self._instantiate_components(self.device_type.devicebaytemplates.all())
-            # Disable bulk_create to accommodate MPTT
-            self._instantiate_components(self.device_type.inventoryitemtemplates.all(), bulk_create=False)
-            # Interface bridges have to be set after interface instantiation
-            update_interface_bridges(self, self.device_type.interfacetemplates.all())
-
-        # Child device site/rack/location cascade is now in dcim/cascades.py
+            from netbox.instantiation import instantiation_registry
+            instantiation_registry.execute(self)
 
     @property
     def label(self):
@@ -941,26 +851,6 @@ class VirtualChassis(PrimaryModel):
         validator_registry.validate(self)
 
     def delete(self, *args, **kwargs):
-        # Check for LAG interfaces split across member chassis
-        interfaces = Interface.objects.filter(
-            device__in=self.members.all(),
-            lag__isnull=False
-        ).exclude(
-            lag__device=F('device')
-        )
-        if interfaces:
-            raise ProtectedError(_(
-                "Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG "
-                "interfaces."
-            ).format(self=self, interfaces=InterfaceSpeedChoices))
-
-        # Clear vc_position and vc_priority on member devices BEFORE calling super().delete()
-        # This must be done here because on_delete=SET_NULL executes before pre_delete signal
-        for device in self.members.all():
-            device.vc_position = None
-            device.vc_priority = None
-            device.save()
-
         return super().delete(*args, **kwargs)
 
 
@@ -1049,22 +939,8 @@ class VirtualDeviceContext(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Validate primary IPv4/v6 assignment
-        for primary_ip, family in ((self.primary_ip4, 4), (self.primary_ip6, 6)):
-            if not primary_ip:
-                continue
-            if primary_ip.family != family:
-                raise ValidationError({
-                    f'primary_ip{family}': _(
-                        "{ip} is not an IPv{family} address."
-                    ).format(family=family, ip=primary_ip)
-                })
-            device_interfaces = self.device.vc_interfaces(if_master=False)
-            if primary_ip.assigned_object not in device_interfaces:
-                raise ValidationError({
-                    f'primary_ip{family}': _('Primary IP address must belong to an interface on the assigned device.')
-                })
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
 
 #
@@ -1118,20 +994,5 @@ class MACAddress(PrimaryModel):
 
     def clean(self, *args, **kwargs):
         super().clean()
-        if self._original_assigned_object_id and self._original_assigned_object_type_id:
-            assigned_object = self.assigned_object
-            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
-            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
-
-            if (
-                original_assigned_object.primary_mac_address
-                and original_assigned_object.primary_mac_address.pk == self.pk
-            ):
-                if not assigned_object:
-                    raise ValidationError(
-                        _("Cannot unassign MAC Address while it is designated as the primary MAC for an object")
-                    )
-                if original_assigned_object != assigned_object:
-                    raise ValidationError(
-                        _("Cannot reassign MAC Address while it is designated as the primary MAC for an object")
-                    )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)

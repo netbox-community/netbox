@@ -370,13 +370,16 @@ def _circuit_termination_update_pointers(instance, **kwargs):
     """Update Circuit's cached termination_a/z FK when CircuitTermination changes."""
     from circuits.models import Circuit
 
+    if not instance.term_side:
+        return
+
     is_new = kwargs.get('created', False)
     orig_circuit_id = getattr(instance, '_orig_circuit_id', None)
     orig_term_side = getattr(instance, '_orig_term_side', None)
     circuit_changed = orig_circuit_id is not None and orig_circuit_id != instance.circuit_id
     term_side_changed = orig_term_side is not None and orig_term_side != instance.term_side
 
-    if circuit_changed or term_side_changed:
+    if (circuit_changed or term_side_changed) and orig_term_side:
         old_termination_name = f'termination_{orig_term_side.lower()}'
         Circuit.objects.filter(pk=orig_circuit_id).update(**{old_termination_name: None})
 
@@ -424,5 +427,216 @@ cascade_registry.register(
         handler=_cablepath_update_origins,
         skip_on_create=False,
         description='Set _path FK on origin endpoints when CablePath is saved',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# CableTermination pre-delete → clear cable association on terminated object
+# Replaces: imperative code in CableTermination.delete()
+# ──────────────────────────────────────────────────────────────────────
+
+def _cable_termination_clear_on_delete(instance, **kwargs):
+    """Before deleting a CableTermination, clear the cable link on the terminated object."""
+    termination = instance.termination._meta.model.objects.get(pk=instance.termination_id)
+    termination.snapshot()
+    termination.clear_cable_termination(instance)
+    termination.save()
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.cabletermination',
+        target_model='(dynamic)',
+        timing=CascadeTiming.PRE_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=_cable_termination_clear_on_delete,
+        skip_on_create=False,
+        description='Clear cable association on terminated object before CableTermination is deleted',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# CablePath pre-delete → nullify _path FK on origin endpoints
+# Replaces: imperative code in CablePath.delete()
+# ──────────────────────────────────────────────────────────────────────
+
+def _cablepath_clear_origins_on_delete(instance, **kwargs):
+    """Before deleting a CablePath, clear _path on all origin endpoints to prevent stale references."""
+    from dcim.utils import decompile_path_node
+
+    if instance.path:
+        origin_model = instance.origin_type.model_class()
+        origin_ids = [decompile_path_node(node)[1] for node in instance.path[0]]
+        origin_model.objects.filter(pk__in=origin_ids, _path=instance.pk).update(_path=None)
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.cablepath',
+        target_model='(dynamic:path endpoints)',
+        timing=CascadeTiming.PRE_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=_cablepath_clear_origins_on_delete,
+        skip_on_create=False,
+        description='Nullify _path FK on origin endpoints before CablePath is deleted',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# VirtualChassis pre-delete → validate cross-chassis LAGs + clear vc fields
+# Replaces: imperative code in VirtualChassis.delete()
+# ──────────────────────────────────────────────────────────────────────
+
+def _virtualchassis_pre_delete(instance, **kwargs):
+    """Validate no cross-chassis LAGs exist, then clear vc_position/vc_priority on members."""
+    from django.db.models import F, ProtectedError
+    from django.utils.translation import gettext_lazy as _
+
+    from dcim.models import Interface
+
+    interfaces = Interface.objects.filter(
+        device__in=instance.members.all(),
+        lag__isnull=False
+    ).exclude(
+        lag__device=F('device')
+    )
+    if interfaces:
+        raise ProtectedError(_(
+            "Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG "
+            "interfaces."
+        ).format(self=instance))
+
+    for device in instance.members.all():
+        device.vc_position = None
+        device.vc_priority = None
+        device.save()
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.virtualchassis',
+        target_model='dcim.device',
+        timing=CascadeTiming.PRE_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=_virtualchassis_pre_delete,
+        skip_on_create=False,
+        description='Validate no cross-chassis LAGs and clear vc_position/vc_priority on member devices before VirtualChassis is deleted',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# DeviceType post-delete → remove uploaded image files
+# Replaces: imperative code in DeviceType.delete()
+# ──────────────────────────────────────────────────────────────────────
+
+def _devicetype_delete_images(instance, **kwargs):
+    """After deleting a DeviceType, remove any uploaded front/rear image files."""
+    if instance.front_image:
+        instance.front_image.delete(save=False)
+    if instance.rear_image:
+        instance.rear_image.delete(save=False)
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.devicetype',
+        target_model='(filesystem)',
+        timing=CascadeTiming.POST_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=_devicetype_delete_images,
+        skip_on_create=False,
+        description='Delete uploaded front/rear image files after DeviceType is deleted',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# DeviceType save → delete stale image files when images change
+# Replaces: imperative code in DeviceType.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _devicetype_clean_old_images(instance, **kwargs):
+    """After saving a DeviceType, delete any previously uploaded images that were replaced."""
+    from django.core.files.storage import default_storage
+    original_front = getattr(instance, '_original_front_image', None)
+    original_rear = getattr(instance, '_original_rear_image', None)
+    if original_front and instance.front_image != original_front:
+        default_storage.delete(original_front)
+    if original_rear and instance.rear_image != original_rear:
+        default_storage.delete(original_rear)
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.devicetype',
+        target_model='(filesystem)',
+        trigger_fields=frozenset({'front_image', 'rear_image'}),
+        method=CascadeMethod.CUSTOM,
+        handler=_devicetype_clean_old_images,
+        skip_on_create=True,
+        description='Delete stale front/rear image files after DeviceType save',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# BaseInterface save → clear tagged VLANs when mode is not 'tagged'
+# Replaces: imperative M2M clear in BaseInterface.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _baseinterface_clear_tagged_vlans(instance, **kwargs):
+    from dcim.choices import InterfaceModeChoices
+    if not kwargs.get('created', False) and instance.mode != InterfaceModeChoices.MODE_TAGGED:
+        instance.tagged_vlans.clear()
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.interface',
+        target_model='ipam.vlan',
+        trigger_fields=frozenset({'mode'}),
+        method=CascadeMethod.CUSTOM,
+        handler=_baseinterface_clear_tagged_vlans,
+        skip_on_create=False,
+        description='Clear tagged VLANs when interface mode is not tagged',
+    ),
+    CascadeSpec(
+        source_model='virtualization.vminterface',
+        target_model='ipam.vlan',
+        trigger_fields=frozenset({'mode'}),
+        method=CascadeMethod.CUSTOM,
+        handler=_baseinterface_clear_tagged_vlans,
+        skip_on_create=False,
+        description='Clear tagged VLANs when VMInterface mode is not tagged',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Cable save → update terminations + trace paths (METADATA-ONLY)
+# Cable.save() uses a double-save pattern that can't be decomposed.
+# These specs describe the side effects for introspection only.
+# ──────────────────────────────────────────────────────────────────────
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.cable',
+        target_model='dcim.cabletermination',
+        method=CascadeMethod.CUSTOM,
+        handler=None,
+        skip_on_create=False,
+        description='PARTIAL: Cable.save() calls update_terminations() between two saves — cannot be decomposed',
+    ),
+    CascadeSpec(
+        source_model='dcim.cable',
+        target_model='(graph:cablepath)',
+        method=CascadeMethod.CUSTOM,
+        handler=None,
+        skip_on_create=False,
+        description='PARTIAL: Cable.save() sends trace_paths signal for path recomputation (see also GraphRegistry)',
     ),
 )

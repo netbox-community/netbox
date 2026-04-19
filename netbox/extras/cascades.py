@@ -28,13 +28,14 @@ def _cf_removed_obj_types(sender, instance, action, pk_set, **kwargs):
         instance.remove_stale_data(ContentType.objects.filter(pk__in=pk_set))
 
 
-def _cf_renamed(sender, instance, created, **kwargs):
+def _cf_renamed(instance, **kwargs):
     """When a CustomField is renamed, rename the key in all objects' custom_field_data."""
+    created = kwargs.get('created', False)
     if not created and instance.name != instance._name:
         instance.rename_object_data(old_name=instance._name, new_name=instance.name)
 
 
-def _cf_deleted(sender, instance, **kwargs):
+def _cf_deleted(instance, **kwargs):
     """When a CustomField is deleted, remove stale data from all assigned types."""
     instance.remove_stale_data(instance.object_types.all())
 
@@ -80,3 +81,63 @@ _CF_M2M_SPECS = {
         description='Remove stale custom field data when CustomField loses object types',
     ),
 }
+
+
+# ──────────────────────────────────────────────────────────────────────
+# ImageAttachment post-delete → delete image file from disk
+# PARTIAL: The delete() override is kept because it must restore
+# image.name after file deletion for UI display during the request.
+# ──────────────────────────────────────────────────────────────────────
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='extras.imageattachment',
+        target_model='(filesystem)',
+        timing=CascadeTiming.POST_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=None,
+        skip_on_create=False,
+        description='PARTIAL: Delete image file from disk and restore filename for display. '
+                    'Kept in model delete() because image.name must be restored after deletion.',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Script delete → soft-delete support
+# METADATA-ONLY: The delete() override accepts a custom soft_delete
+# parameter that can't be passed via signals.
+# ──────────────────────────────────────────────────────────────────────
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='extras.script',
+        target_model='extras.script',
+        timing=CascadeTiming.PRE_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=None,
+        skip_on_create=False,
+        description='METADATA-ONLY: Script.delete() supports soft_delete param (sets is_executable=False '
+                    'instead of deleting when jobs exist). Cannot be expressed as a signal cascade.',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# SyncedDataMixin delete → remove AutoSyncRecord
+# PARTIAL: Declared but mixin-driven. The mixin's delete() applies to
+# many concrete models so a single CascadeSpec can't target them all.
+# ──────────────────────────────────────────────────────────────────────
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='netbox.synceddatamixin',
+        target_model='core.autosyncrecord',
+        timing=CascadeTiming.PRE_DELETE,
+        method=CascadeMethod.CUSTOM,
+        handler=None,
+        skip_on_create=False,
+        description='PARTIAL: Delete AutoSyncRecord for the object. Mixin-driven '
+                    '(SyncedDataMixin.delete()), not registry-driven.',
+    ),
+)

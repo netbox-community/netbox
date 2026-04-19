@@ -14,7 +14,6 @@ from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from rq.exceptions import InvalidJobOperation
 
 from core.choices import JobStatusChoices
 from core.dataclasses import JobLogEntry
@@ -22,7 +21,6 @@ from core.events import JOB_COMPLETED, JOB_ERRORED, JOB_FAILED
 from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.models import Notification
-from netbox.models.features import has_feature
 from utilities.json import JobLogDecoder
 from utilities.querysets import RestrictedQuerySet
 from utilities.rqworker import get_queue_for_model
@@ -162,12 +160,8 @@ class Job(models.Model):
 
     def clean(self):
         super().clean()
-
-        # Validate the assigned object type
-        if self.object_type and not has_feature(self.object_type, 'jobs'):
-            raise ValidationError(
-                _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
-            )
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
     @property
     def duration(self):
@@ -185,22 +179,7 @@ class Job(models.Model):
         return f"{int(minutes)} minutes, {seconds:.2f} seconds"
 
     def delete(self, *args, **kwargs):
-        # Use the stored queue name, or fall back to get_queue_for_model for legacy jobs
-        rq_queue_name = self.queue_name or get_queue_for_model(self.object_type.model if self.object_type else None)
-        rq_job_id = str(self.job_id)
-
         super().delete(*args, **kwargs)
-
-        # Cancel the RQ job using the stored queue name
-        queue = django_rq.get_queue(rq_queue_name)
-        job = queue.fetch_job(rq_job_id)
-
-        if job:
-            try:
-                job.cancel()
-            except InvalidJobOperation:
-                # Job may raise this exception from get_status() if missing from Redis
-                pass
 
     def start(self):
         """

@@ -229,45 +229,10 @@ class Cable(PrimaryModel):
 
     def clean(self):
         super().clean()
-
-        # Validate length and length_unit
-        if self.length is not None and not self.length_unit:
-            raise ValidationError(_("Must specify a unit when setting a cable length"))
-
-        if self._state.adding and self.pk is None and (not self.a_terminations or not self.b_terminations):
-            raise ValidationError(_("Must define A and B terminations when creating a new cable."))
-
-        # Validate terminations against the assigned cable profile (if any)
-        if self.profile:
-            self.profile_class().clean(self)
+        from netbox.validators import validator_registry
+        validator_registry.validate(self)
 
         if self._terminations_modified:
-
-            # Check that all termination objects for either end are of the same type
-            for terms in (self.a_terminations, self.b_terminations):
-                if len(terms) > 1 and not all(isinstance(t, type(terms[0])) for t in terms[1:]):
-                    raise ValidationError(_("Cannot connect different termination types to same end of cable."))
-
-            # Check that termination types are compatible
-            if self.a_terminations and self.b_terminations:
-                a_type = self.a_terminations[0]._meta.model_name
-                b_type = self.b_terminations[0]._meta.model_name
-                if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
-                    raise ValidationError(
-                        _("Incompatible termination types: {type_a} and {type_b}").format(type_a=a_type, type_b=b_type)
-                    )
-                if a_type == b_type:
-                    # can't directly use self.a_terminations here as possible they
-                    # don't have pk yet
-                    a_pks = set(obj.pk for obj in self.a_terminations if obj.pk)
-                    b_pks = set(obj.pk for obj in self.b_terminations if obj.pk)
-
-                    if (a_pks & b_pks):
-                        raise ValidationError(
-                            _("A and B terminations cannot connect to the same object.")
-                        )
-
-            # Run clean() on any new CableTerminations
             for termination in self.a_terminations:
                 CableTermination(cable=self, cable_end='A', termination=termination).clean()
             for termination in self.b_terminations:
@@ -538,13 +503,6 @@ class CableTermination(ChangeLoggedModel):
         # Cable-to-termination linkage cascade is now in dcim/cascades.py
 
     def delete(self, *args, **kwargs):
-
-        # Delete the cable association on the terminating object
-        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
-        termination.snapshot()
-        termination.clear_cable_termination(self)
-        termination.save()
-
         super().delete(*args, **kwargs)
 
     def cache_related_objects(self):
@@ -645,13 +603,6 @@ class CablePath(models.Model):
         # _path denorm on origins is now in dcim/cascades.py
 
     def delete(self, *args, **kwargs):
-        # Mirror save() - clear _path on origins to prevent stale references
-        # in table views that render _path.destinations
-        if self.path:
-            origin_model = self.origin_type.model_class()
-            origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
-            origin_model.objects.filter(pk__in=origin_ids, _path=self.pk).update(_path=None)
-
         super().delete(*args, **kwargs)
 
     @property
