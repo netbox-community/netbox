@@ -881,13 +881,7 @@ class Device(
             # Interface bridges have to be set after interface instantiation
             update_interface_bridges(self, self.device_type.interfacetemplates.all())
 
-        # Update Site and Rack assignment for any child Devices
-        devices = Device.objects.filter(parent_bay__device=self)
-        for device in devices:
-            device.site = self.site
-            device.rack = self.rack
-            device.location = self.location
-            device.save()
+        # Child device site/rack/location cascade is now in dcim/cascades.py
 
     @property
     def label(self):

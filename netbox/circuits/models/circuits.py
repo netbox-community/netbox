@@ -367,31 +367,8 @@ class CircuitTermination(
             raise ValidationError(_("A circuit termination must attach to a terminating object."))
 
     def save(self, *args, **kwargs):
-        is_new = self._state.adding
-        update_fields = kwargs.get('update_fields')
-
-        if update_fields is not None:
-            tracking_relevant = 'circuit' in update_fields or 'term_side' in update_fields
-        else:
-            tracking_relevant = True
-
-        circuit_changed = tracking_relevant and self._orig_circuit_id and self._orig_circuit_id != self.circuit_id
-        term_side_changed = tracking_relevant and self._orig_term_side and self._orig_term_side != self.term_side
-
         super().save(*args, **kwargs)
-
-        # Clear the old termination reference if circuit or term_side changed (cascade)
-        if circuit_changed or term_side_changed:
-            old_termination_name = f'termination_{self._orig_term_side.lower()}'
-            Circuit.objects.filter(pk=self._orig_circuit_id).update(**{old_termination_name: None})
-
-        # Update the cache if this is a new termination or circuit/term_side changed (cascade)
-        if is_new or circuit_changed or term_side_changed:
-            termination_name = f'termination_{self.term_side.lower()}'
-            Circuit.objects.filter(pk=self.circuit_id).update(**{termination_name: self.pk})
-
-            self._orig_circuit_id = self.circuit_id
-            self._orig_term_side = self.term_side
+        # Circuit termination_a/z pointer cascade is now in dcim/cascades.py
 
     def cache_related_objects(self):
         self._provider_network = self._region = self._site_group = self._site = self._location = None

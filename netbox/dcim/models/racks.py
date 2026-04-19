@@ -190,12 +190,6 @@ class RackType(ImageAttachmentsMixin, RackBase):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        # Update all Racks associated with this RackType (cascade, not denorm)
-        for rack in self.racks.all():
-            rack.snapshot()
-            rack.copy_racktype_attrs()
-            rack.save()
-
     @property
     def units(self):
         """

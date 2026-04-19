@@ -1,10 +1,36 @@
 """
 Declarative cascade registrations for dcim models.
 
-Replaces imperative signal handlers in dcim/signals.py with structured
-declarations that drive the same behavior from the cascade registry.
+Replaces imperative signal handlers in dcim/signals.py and cascade logic
+in save() methods with structured declarations.
 """
 from netbox.cascades import CascadeMethod, CascadeSpec, CascadeTiming, cascade_registry
+
+
+# ──────────────────────────────────────────────────────────────────────
+# RackType save → push attributes to all Racks of this type
+# Replaces: imperative loop in RackType.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _racktype_push_to_racks(instance, **kwargs):
+    """Copy RackType attributes to all associated Racks and save each."""
+    from dcim.models import Rack
+    for rack in Rack.objects.filter(rack_type=instance):
+        rack.snapshot()
+        rack.copy_racktype_attrs()
+        rack.save()
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.racktype',
+        target_model='dcim.rack',
+        method=CascadeMethod.CUSTOM,
+        handler=_racktype_push_to_racks,
+        skip_on_create=False,
+        description='Push RackType attributes (outer dims, weight, etc.) to all Racks of this type',
+    ),
+)
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -279,5 +305,124 @@ cascade_registry.register(
         method=CascadeMethod.CUSTOM,
         handler=_sync_scope_fields_for_site,
         description='Recompute cached scope fields on Prefix/Cluster/WirelessLAN when Site changes',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# Device save → update site/rack/location on child devices in bays
+# Replaces: imperative loop in Device.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _device_update_children(instance, **kwargs):
+    """Update site/rack/location on child devices installed in this device's bays."""
+    from dcim.models import Device
+    for device in Device.objects.filter(parent_bay__device=instance):
+        device.site = instance.site
+        device.rack = instance.rack
+        device.location = instance.location
+        device.save()
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.device',
+        target_model='dcim.device',
+        trigger_fields=frozenset({'site', 'rack', 'location'}),
+        method=CascadeMethod.CUSTOM,
+        handler=_device_update_children,
+        description='Propagate site/rack/location to child devices in device bays',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# CableTermination save → set cable on termination target
+# Replaces: imperative code in CableTermination.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _cable_termination_set_cable(instance, **kwargs):
+    """After saving a CableTermination, link the cable to the terminated object."""
+    termination = instance.termination._meta.model.objects.get(pk=instance.termination_id)
+    termination.snapshot()
+    termination.set_cable_termination(instance)
+    termination.save()
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.cabletermination',
+        target_model='(dynamic)',
+        method=CascadeMethod.CUSTOM,
+        handler=_cable_termination_set_cable,
+        skip_on_create=False,
+        description='Set cable reference on terminated object when CableTermination is saved',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# CircuitTermination save → update Circuit.termination_a/z pointers
+# Replaces: imperative code in CircuitTermination.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _circuit_termination_update_pointers(instance, **kwargs):
+    """Update Circuit's cached termination_a/z FK when CircuitTermination changes."""
+    from circuits.models import Circuit
+
+    is_new = kwargs.get('created', False)
+    orig_circuit_id = getattr(instance, '_orig_circuit_id', None)
+    orig_term_side = getattr(instance, '_orig_term_side', None)
+    circuit_changed = orig_circuit_id is not None and orig_circuit_id != instance.circuit_id
+    term_side_changed = orig_term_side is not None and orig_term_side != instance.term_side
+
+    if circuit_changed or term_side_changed:
+        old_termination_name = f'termination_{orig_term_side.lower()}'
+        Circuit.objects.filter(pk=orig_circuit_id).update(**{old_termination_name: None})
+
+    if is_new or circuit_changed or term_side_changed:
+        termination_name = f'termination_{instance.term_side.lower()}'
+        Circuit.objects.filter(pk=instance.circuit_id).update(**{termination_name: instance.pk})
+
+        instance._orig_circuit_id = instance.circuit_id
+        instance._orig_term_side = instance.term_side
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='circuits.circuittermination',
+        target_model='circuits.circuit',
+        trigger_fields=frozenset({'circuit', 'term_side'}),
+        method=CascadeMethod.CUSTOM,
+        handler=_circuit_termination_update_pointers,
+        skip_on_create=False,
+        description='Update Circuit termination_a/z FK pointers when CircuitTermination is saved',
+    ),
+)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# CablePath save → update _path FK on origin objects
+# Replaces: imperative code in CablePath.save()
+# ──────────────────────────────────────────────────────────────────────
+
+def _cablepath_update_origins(instance, **kwargs):
+    """After saving a CablePath, set _path FK on all origin endpoints."""
+    from dcim.models.cables import decompile_path_node
+
+    if instance.path:
+        origin_model = instance.origin_type.model_class()
+        origin_ids = [decompile_path_node(node)[1] for node in instance.path[0]]
+        origin_model.objects.filter(pk__in=origin_ids).update(_path=instance.pk)
+
+
+cascade_registry.register(
+    CascadeSpec(
+        source_model='dcim.cablepath',
+        target_model='(dynamic:path endpoints)',
+        method=CascadeMethod.CUSTOM,
+        handler=_cablepath_update_origins,
+        skip_on_create=False,
+        description='Set _path FK on origin endpoints when CablePath is saved',
     ),
 )

@@ -574,12 +574,7 @@ class CableTermination(ChangeLoggedModel):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-        # Set the cable on the terminating object (cascade, not denorm)
-        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
-        termination.snapshot()
-        termination.set_cable_termination(self)
-        termination.save()
+        # Cable-to-termination linkage cascade is now in dcim/cascades.py
 
     def delete(self, *args, **kwargs):
 
@@ -685,13 +680,8 @@ class CablePath(models.Model):
         return f"Path #{self.pk}: {len(self.path)} hops"
 
     def save(self, *args, **kwargs):
-
         super().save(*args, **kwargs)
-
-        # Record a direct reference to this CablePath on its originating object(s)
-        origin_model = self.origin_type.model_class()
-        origin_ids = [decompile_path_node(node)[1] for node in self.path[0]]
-        origin_model.objects.filter(pk__in=origin_ids).update(_path=self.pk)
+        # _path denorm on origins is now in dcim/cascades.py
 
     def delete(self, *args, **kwargs):
         # Mirror save() - clear _path on origins to prevent stale references
