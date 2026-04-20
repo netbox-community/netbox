@@ -509,7 +509,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
 
         child_ranges = list(self.get_child_ranges().filter(mark_utilized=True))
         if not child_ranges:
-            # Avoid compling an IPSet here for speed.
+            # Avoid compiling an IPSet here for speed.
             # Without utilized ranges, counting distinct child IP hosts gives the same result.
             child_ip_count = self.get_child_ips().values('address__host').distinct().count()
             return min(float(child_ip_count) / prefix_size * 100, 100)
