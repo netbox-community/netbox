@@ -284,3 +284,55 @@ class GetViewNameTestCase(TestCase):
 
         name = get_view_name(view)
         self.assertEqual(name, 'Mock List')
+
+
+class APITrailingSlashTestCase(APITestCase):
+    """
+    Verify behavior for REST API requests sent to a URL without a trailing slash.
+
+    GET requests should continue to be redirected to the trailing-slash URL (Django's default
+    APPEND_SLASH behavior). Write methods (POST/PUT/PATCH/DELETE) should instead receive a 404
+    so that the request body is not silently dropped by a redirect.
+    """
+    model = Site
+    user_permissions = ('dcim.view_site', 'dcim.add_site', 'dcim.change_site', 'dcim.delete_site')
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+
+    def _strip_slash(self, url):
+        return url.rstrip('/')
+
+    def test_get_redirects(self):
+        url = self._strip_slash(reverse('dcim-api:site-list'))
+        response = self.client.get(url, **self.header)
+        self.assertIn(response.status_code, (301, 302))
+        self.assertTrue(response['Location'].endswith('/'))
+
+    def test_post_returns_404(self):
+        url = self._strip_slash(reverse('dcim-api:site-list'))
+        data = {'name': 'Site 2', 'slug': 'site-2'}
+        with disable_warnings('django.request'):
+            response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_patch_returns_404(self):
+        url = self._strip_slash(self._get_detail_url(self.site))
+        with disable_warnings('django.request'):
+            response = self.client.patch(url, {'name': 'Renamed'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_put_returns_404(self):
+        url = self._strip_slash(self._get_detail_url(self.site))
+        data = {'name': 'Renamed', 'slug': 'renamed'}
+        with disable_warnings('django.request'):
+            response = self.client.put(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_returns_404(self):
+        url = self._strip_slash(self._get_detail_url(self.site))
+        with disable_warnings('django.request'):
+            response = self.client.delete(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+        self.assertTrue(Site.objects.filter(pk=self.site.pk).exists())

@@ -8,6 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import ProgrammingError, connection
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
+from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
 from django_prometheus import middleware
 
 from netbox.config import clear_config, get_config
@@ -18,12 +19,30 @@ from utilities.error_handlers import handle_rest_api_exception
 from utilities.request import apply_request_processors
 
 __all__ = (
+    'CommonMiddleware',
     'CoreMiddleware',
     'MaintenanceModeMiddleware',
     'PrometheusAfterMiddleware',
     'PrometheusBeforeMiddleware',
     'RemoteUserMiddleware',
 )
+
+
+class CommonMiddleware(DjangoCommonMiddleware):
+    """
+    Subclass of Django's CommonMiddleware that suppresses the APPEND_SLASH
+    redirect for REST API requests using an unsafe HTTP method. Redirecting a
+    POST/PUT/PATCH/DELETE to a trailing-slash URL would either drop the request
+    body (clients downgrade to GET on a 302) or raise a RuntimeError when
+    DEBUG is enabled. Letting the original 404 propagate gives the caller a
+    clear, actionable error instead.
+    """
+    UNSAFE_METHODS = frozenset(('DELETE', 'PATCH', 'POST', 'PUT'))
+
+    def should_redirect_with_slash(self, request):
+        if request.method in self.UNSAFE_METHODS and is_api_request(request):
+            return False
+        return super().should_redirect_with_slash(request)
 
 
 class CoreMiddleware:
