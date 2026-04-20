@@ -507,8 +507,8 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
             prefix_size -= 2
 
-        child_ranges = self.get_child_ranges().filter(mark_utilized=True)
-        if not child_ranges.exists():
+        child_ranges = list(self.get_child_ranges().filter(mark_utilized=True))
+        if not child_ranges:
             # Avoid compling an IPSet here for speed.
             # Without utilized ranges, counting distinct child IP hosts gives the same result.
             child_ip_count = self.get_child_ips().values('address__host').distinct().count()
