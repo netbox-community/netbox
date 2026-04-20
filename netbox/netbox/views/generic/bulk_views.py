@@ -93,11 +93,16 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             delimiter: The character used to separate columns (a comma is used by default)
         """
         exclude_columns = {'pk', 'actions'}
+        all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
         if columns:
-            all_columns = [col_name for col_name, _ in table.selected_columns + table.available_columns]
             exclude_columns.update({
                 col for col in all_columns if col not in columns
             })
+
+        # Ensure related objects are prefetched for every column that will be exported, not just
+        # those currently visible in the configured table view.
+        table._apply_prefetching(columns=[c for c in all_columns if c not in exclude_columns])
+
         exporter = TableExport(
             export_format=TableExport.CSV,
             table=table,

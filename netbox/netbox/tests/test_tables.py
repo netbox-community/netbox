@@ -47,6 +47,38 @@ class BaseTableTest(TestCase):
         prefetch_lookups = table.data.data._prefetch_related_lookups
         self.assertEqual(prefetch_lookups, tuple())
 
+    def test_prefetch_all_columns_for_export(self):
+        """
+        Verify that related fields for *all* table columns are prefetched when preparing a CSV
+        export, including columns which are not currently visible in the user's configured view.
+        """
+        request = RequestFactory().get('/')
+        request.user = self.user
+
+        # Configure the table with only local-field columns visible. Related columns like 'site',
+        # 'rack', and 'region' are hidden in the user's view.
+        self.user.config.set(
+            'tables.DeviceTable.columns',
+            ['name', 'status'],
+            commit=True,
+        )
+        table = DeviceTable(Device.objects.all())
+        table.configure(request)
+
+        # With only local-field columns visible, no relations should be prefetched yet.
+        self.assertEqual(table.data.data._prefetch_related_lookups, tuple())
+
+        # Simulate the CSV "All data" export path: re-apply prefetching for every column that
+        # will be included in the export, regardless of visibility.
+        export_columns = [
+            col_name for col_name, _ in table.selected_columns + table.available_columns
+        ]
+        table._apply_prefetching(columns=export_columns)
+
+        prefetch_lookups = table.data.data._prefetch_related_lookups
+        self.assertIn('rack', prefetch_lookups)
+        self.assertIn('site__region', prefetch_lookups)
+
     def test_configure_anonymous_user_with_ordering(self):
         """
         Verify that table.configure() does not raise an error when an anonymous

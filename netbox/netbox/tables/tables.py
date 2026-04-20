@@ -116,16 +116,23 @@ class BaseTable(tables.Table):
             self.sequence.remove('actions')
             self.sequence.append('actions')
 
-    def _apply_prefetching(self):
+    def _apply_prefetching(self, columns=None):
         """
-        Dynamically update the table's QuerySet to ensure related fields are pre-fetched
+        Dynamically update the table's QuerySet to ensure related fields are pre-fetched.
+
+        Args:
+            columns: An optional iterable of column names for which to apply prefetching,
+                regardless of visibility. If None, only currently visible columns are used.
         """
         if not isinstance(self.data, TableQuerysetData):
             return
 
         prefetch_fields = []
-        for column in self.columns:
-            if not column.visible:
+        for column in self.columns.iterall():
+            if columns is not None:
+                if column.name not in columns:
+                    continue
+            elif not column.visible:
                 # Skip hidden columns
                 continue
             model = getattr(self.Meta, 'model')  # Must be called *after* resolving columns
