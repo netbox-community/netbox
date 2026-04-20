@@ -18,10 +18,6 @@ The [module bay](./modulebay.md) into which the module is installed.
 
 The [module type](./moduletype.md) which represents the physical make & model of hardware. By default, module components will be instantiated automatically from the module type when creating a new module.
 
-### Profile
-
-The [module type profile](./moduletypeprofile.md) associated with the selected module type. Module list views and the REST API can be filtered by this related field.
-
 ### Status
 
 The module's operational status.
