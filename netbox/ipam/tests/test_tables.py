@@ -1,4 +1,4 @@
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 from netaddr import IPNetwork
 
 from ipam.models import FHRPGroupAssignment, IPAddress, IPRange, Prefix
@@ -24,7 +24,8 @@ class AnnotatedIPAddressTableTest(TestCase):
         cls.ip_range = IPRange.objects.create(
             start_address=IPNetwork('10.1.1.2/24'),
             end_address=IPNetwork('10.1.1.10/24'),
-            status='active'
+            status='active',
+            mark_populated=True,
         )
 
     def test_ipaddress_has_checkbox_iprange_does_not(self):
@@ -32,14 +33,18 @@ class AnnotatedIPAddressTableTest(TestCase):
         table = AnnotatedIPAddressTable(data, orderable=False)
         table.columns.show('pk')
 
-        request = RequestFactory().get('/')
-        html = table.as_html(request)
+        ipaddress_row = next(
+            row for row in table.rows
+            if isinstance(row.record, IPAddress) and row.record.pk == self.ip_address.pk
+        )
+        iprange_row = next(
+            row for row in table.rows
+            if isinstance(row.record, IPRange) and row.record.pk == self.ip_range.pk
+        )
 
-        ipaddress_checkbox_count = html.count(f'name="pk" value="{self.ip_address.pk}"')
-        self.assertEqual(ipaddress_checkbox_count, 1)
-
-        iprange_checkbox_count = html.count(f'name="pk" value="{self.ip_range.pk}"')
-        self.assertEqual(iprange_checkbox_count, 0)
+        self.assertIn('name="pk"', ipaddress_row.get_cell('pk'))
+        self.assertIn(f'value="{self.ip_address.pk}"', ipaddress_row.get_cell('pk'))
+        self.assertNotIn('name="pk"', iprange_row.get_cell('pk'))
 
     def test_annotate_ip_space_ipv4_non_pool_excludes_network_and_broadcast(self):
         prefix = Prefix.objects.create(
