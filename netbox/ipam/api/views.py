@@ -488,7 +488,7 @@ class AvailableVLANsView(AvailableObjectsView):
     @extend_schema(
         methods=["post"],
         responses={201: serializers.VLANSerializer(many=True)},
-        request=serializers.VLANSerializer(many=True),
+        request=serializers.CreateAvailableVLANSerializer(many=True),
     )
     def post(self, request, pk):
         return super().post(request, pk)
