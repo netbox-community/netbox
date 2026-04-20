@@ -64,6 +64,11 @@ class ScriptForm(forms.Form):
         if self.cleaned_data.get('_interval') and not scheduled_time:
             self.cleaned_data['_schedule_at'] = local_now()
 
+        # Fall back to the field's initial value if no notification preference was submitted
+        # (e.g. when running a script via the "Run Script" button on the scripts list view)
+        if not self.cleaned_data.get('_notifications'):
+            self.cleaned_data['_notifications'] = self.fields['_notifications'].initial
+
         return self.cleaned_data
 
 
