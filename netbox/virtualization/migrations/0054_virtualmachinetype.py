@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('comments', models.TextField(blank=True)),
                 ('name', models.CharField(max_length=100)),
-                ('slug', models.SlugField(max_length=100)),
+                ('slug', models.SlugField(max_length=100, unique=True)),
                 (
                     'default_vcpus',
                     models.DecimalField(
@@ -93,14 +93,6 @@ class Migration(migrations.Migration):
                 django.db.models.functions.text.Lower('name'),
                 name='virtualization_virtualmachinetype_unique_name',
                 violation_error_message='Virtual machine type name must be unique.',
-            ),
-        ),
-        migrations.AddConstraint(
-            model_name='virtualmachinetype',
-            constraint=models.UniqueConstraint(
-                fields=('slug',),
-                name='virtualization_virtualmachinetype_unique_slug',
-                violation_error_message='Virtual machine type slug must be unique.',
             ),
         ),
     ]

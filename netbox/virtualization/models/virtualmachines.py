@@ -43,6 +43,7 @@ class VirtualMachineType(ImageAttachmentsMixin, PrimaryModel):
     slug = models.SlugField(
         verbose_name=_('slug'),
         max_length=100,
+        unique=True,
     )
     default_platform = models.ForeignKey(
         to='dcim.Platform',
@@ -85,11 +86,6 @@ class VirtualMachineType(ImageAttachmentsMixin, PrimaryModel):
                 Lower('name'),
                 name='%(app_label)s_%(class)s_unique_name',
                 violation_error_message=_('Virtual machine type name must be unique.'),
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_unique_slug',
-                violation_error_message=_('Virtual machine type slug must be unique.'),
             ),
         )
         indexes = (
