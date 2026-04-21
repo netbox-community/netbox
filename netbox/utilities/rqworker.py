@@ -22,7 +22,22 @@ def get_workers_for_queue(queue_name):
     """
     Returns True if a worker process is currently servicing the specified queue.
     """
-    return Worker.count(get_connection(queue_name))
+    worker_count = Worker.count(get_connection(queue_name))
+    
+    if worker_count == 0:
+        return False
+    
+    connection = get_connection(queue_name)
+    for worker in Worker.all(connection):
+        worker_key = worker.key
+        last_heartbeat = connection.hget(worker_key, 'heartbeat_at')
+        if last_heartbeat is not None:
+            import time
+            heartbeat_age = time.time() - float(last_heartbeat)
+            if heartbeat_age > 60:
+                worker_count -= 1
+    
+    return worker_count > 0
 
 
 def get_rq_retry():
