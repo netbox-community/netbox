@@ -128,7 +128,7 @@ class CustomFieldChoiceSetFilterForm(OwnerFilterMixin, SavedFiltersMixin, Filter
     model = CustomFieldChoiceSet
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('base_choices', 'choice', name=_('Choices')),
+        FieldSet('base_choices', 'choice', 'choice_colors', name=_('Choices')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     base_choices = forms.MultipleChoiceField(
@@ -137,6 +137,11 @@ class CustomFieldChoiceSetFilterForm(OwnerFilterMixin, SavedFiltersMixin, Filter
     )
     choice = forms.CharField(
         required=False
+    )
+    choice_colors = forms.MultipleChoiceField(
+        choices=CustomFieldChoiceColorChoices,
+        required=False,
+        label=_('Choice colors'),
     )
 
 

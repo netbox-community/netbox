@@ -115,6 +115,32 @@ class CustomFieldChoiceSetFormTest(TestCase):
         # cleaned extra choices are correct, which does actually mean a list of tuples
         self.assertEqual(updated.extra_choices, [('foo:bar', 'label'), ('value', 'label:with:colons')])
 
+    def test_choice_colors_round_trip_on_edit(self):
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Test Choice Set',
+            extra_choices=[['foo:bar', 'label'], ['choice2', 'Choice 2']],
+            choice_colors={'foo:bar': 'red', 'choice2': 'green'},
+        )
+
+        form = CustomFieldChoiceSetForm(instance=choice_set)
+        initial_choices = form.initial['extra_choices']
+        initial_choice_colors = form.initial['choice_colors']
+
+        self.assertEqual(initial_choice_colors, 'choice2:green\nfoo\\:bar:red')
+
+        form = CustomFieldChoiceSetForm(
+            {
+                'name': choice_set.name,
+                'extra_choices': initial_choices,
+                'choice_colors': initial_choice_colors,
+            },
+            instance=choice_set,
+        )
+        self.assertTrue(form.is_valid())
+        updated = form.save()
+
+        self.assertEqual(updated.choice_colors, {'choice2': 'green', 'foo:bar': 'red'})
+
 
 class SavedFilterFormTest(TestCase):
 

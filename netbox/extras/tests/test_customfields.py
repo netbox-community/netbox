@@ -399,6 +399,73 @@ class CustomFieldTest(TestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
+    def test_choice_set_colors(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors={
+                'a': CustomFieldChoiceColorChoices.RED,
+                'b': CustomFieldChoiceColorChoices.GREEN,
+            },
+        )
+        choice_set.full_clean()
+
+        self.assertEqual(
+            choice_set.colors,
+            {
+                'a': CustomFieldChoiceColorChoices.RED,
+                'b': CustomFieldChoiceColorChoices.GREEN,
+            },
+        )
+
+    def test_choice_set_invalid_color_mapping_value(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors={'c': CustomFieldChoiceColorChoices.RED},
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            choice_set.full_clean()
+
+        self.assertIn('choice_colors', cm.exception.message_dict)
+
+    def test_choice_set_invalid_color_value(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors={'a': 'magenta'},
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            choice_set.full_clean()
+
+        self.assertIn('choice_colors', cm.exception.message_dict)
+
+    def test_choice_set_invalid_color_mapping_structure(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors=['a:red'],
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            choice_set.full_clean()
+
+        self.assertIn('choice_colors', cm.exception.message_dict)
+
     def test_remove_selected_choice(self):
         """
         Removing a ChoiceSet choice that is referenced by an object should raise

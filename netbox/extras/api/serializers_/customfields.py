@@ -27,13 +27,17 @@ class CustomFieldChoiceSetSerializer(OwnerMixin, ChangeLogMessageSerializer, Val
             max_length=2
         )
     )
+    choice_colors = serializers.DictField(
+        child=serializers.ChoiceField(choices=CustomFieldChoiceColorChoices),
+        required=False,
+    )
     choices_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = CustomFieldChoiceSet
         fields = [
             'id', 'url', 'display_url', 'display', 'name', 'description', 'base_choices', 'extra_choices',
-            'order_alphabetically', 'choices_count', 'owner', 'created', 'last_updated',
+            'choice_colors', 'order_alphabetically', 'choices_count', 'owner', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
 

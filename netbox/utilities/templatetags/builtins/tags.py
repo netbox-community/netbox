@@ -46,14 +46,23 @@ def customfield_value(customfield, value):
         customfield: A CustomField instance
         value: The custom field value applied to an object
     """
+    color = None
+    value_has_colors = False
+
     if value:
         if customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
+            color = customfield.get_choice_color(value)
             value = customfield.get_choice_label(value)
         elif customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            value = [customfield.get_choice_label(v) for v in value]
+            value = [(customfield.get_choice_label(v), customfield.get_choice_color(v)) for v in value]
+            value_has_colors = any(choice_color for _, choice_color in value)
+            if not value_has_colors:
+                value = [choice_label for choice_label, _ in value]
     return {
         'customfield': customfield,
         'value': value,
+        'color': color,
+        'value_has_colors': value_has_colors,
     }
 
 

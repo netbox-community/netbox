@@ -215,6 +215,10 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
                 ['4B', 'Choice 2'],
                 ['4C', 'Choice 3'],
             ],
+            'choice_colors': {
+                '4A': 'red',
+                '4B': 'green',
+            },
         },
         {
             'name': 'Choice Set 5',
@@ -223,6 +227,9 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
                 ['5B', 'Choice 2'],
                 ['5C', 'Choice 3'],
             ],
+            'choice_colors': {
+                '5C': 'blue',
+            },
         },
         {
             'name': 'Choice Set 6',
@@ -243,6 +250,10 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
             ['X2', 'Choice 2'],
             ['X3', 'Choice 3'],
         ],
+        'choice_colors': {
+            'X1': 'red',
+            'X3': 'green',
+        },
         'description': 'New description',
     }
 
@@ -276,6 +287,38 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
                 ["choice2"],
                 ["choice3"],
             ]
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_choice_color(self):
+        self.add_permissions('extras.add_customfieldchoiceset')
+        data = {
+            'name': 'test',
+            'extra_choices': [
+                ['choice1', 'Choice 1'],
+                ['choice2', 'Choice 2'],
+            ],
+            'choice_colors': {
+                'choice1': 'magenta',
+            },
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
+
+    def test_invalid_choice_color_reference(self):
+        self.add_permissions('extras.add_customfieldchoiceset')
+        data = {
+            'name': 'test',
+            'extra_choices': [
+                ['choice1', 'Choice 1'],
+                ['choice2', 'Choice 2'],
+            ],
+            'choice_colors': {
+                'choice3': 'red',
+            },
         }
 
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)

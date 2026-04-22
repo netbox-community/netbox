@@ -317,6 +317,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             self._choice_map = dict(self.choices)
         return self._choice_map.get(value, value)
 
+    def get_choice_color(self, value):
+        if self.choice_set:
+            return self.choice_set.get_choice_color(value)
+        return None
+
     def populate_initial_data(self, content_types):
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
@@ -875,12 +880,16 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         blank=True,
         null=True
     )
+    choice_colors = models.JSONField(
+        default=dict,
+        blank=True,
+    )
     order_alphabetically = models.BooleanField(
         default=False,
         help_text=_('Choices are automatically ordered alphabetically')
     )
 
-    clone_fields = ('extra_choices', 'order_alphabetically')
+    clone_fields = ('extra_choices', 'choice_colors', 'order_alphabetically')
 
     class Meta:
         ordering = ('name',)
@@ -915,6 +924,24 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         return self._choices
 
     @property
+    def colors(self):
+        """
+        Return merged color mappings from the selected base choice set (if it defines colors)
+        and any custom color overrides defined on this choice set.
+        """
+        if not hasattr(self, '_colors'):
+            self._colors = {}
+            if self.base_choices:
+                base_choice_set = CHOICE_SETS.get(self.base_choices)
+                self._colors.update(getattr(base_choice_set, 'colors', {}))
+            if self.choice_colors:
+                self._colors.update(self.choice_colors)
+        return self._colors
+
+    def get_choice_color(self, value):
+        return self.colors.get(value)
+
+    @property
     def choices_count(self):
         return len(self.choices)
 
@@ -929,25 +956,56 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
 
-        # Check for duplicate values in extra_choices
-        choice_values = [c[0] for c in self.extra_choices] if self.extra_choices else []
-        if len(set(choice_values)) != len(choice_values):
-            # At least one duplicate value is present. Find the first one and raise an error.
-            _seen = []
-            for value in choice_values:
-                if value in _seen:
+        if self.choice_colors is None:
+            self.choice_colors = {}
+        elif not isinstance(self.choice_colors, dict):
+            raise ValidationError({
+                'choice_colors': _('Color mappings must be defined as a JSON object.')
+            })
+
+        valid_choice_values = set()
+        extra_choice_values = set()
+
+        if self.base_choices:
+            valid_choice_values.update(CHOICE_SETS.get(self.base_choices).values())
+
+        if self.extra_choices:
+            for value, _label in self.extra_choices:
+                if value in extra_choice_values:
                     raise ValidationError(_("Duplicate value '{value}' found in extra choices.").format(value=value))
-                _seen.append(value)
+                extra_choice_values.add(value)
+            valid_choice_values.update(extra_choice_values)
+
+        invalid_choice_values = set()
+        invalid_colors = set()
+        valid_colors = set(CustomFieldChoiceColorChoices.values())
+
+        for value, color in self.choice_colors.items():
+            if value not in valid_choice_values:
+                invalid_choice_values.add(value)
+            if color not in valid_colors:
+                invalid_colors.add(color)
+
+        if invalid_choice_values:
+            raise ValidationError({
+                'choice_colors': _(
+                    'Color mappings must reference an existing choice value. Invalid value(s): {values}.'
+                ).format(values=', '.join(sorted(invalid_choice_values)))
+            })
+
+        if invalid_colors:
+            raise ValidationError({
+                'choice_colors': _(
+                    'Invalid color value(s): {colors}. Use a supported named color.'
+                ).format(colors=', '.join(sorted(invalid_colors)))
+            })
 
         # Check whether any choices have been removed. If so, check whether any of the removed
         # choices are still set in custom field data for any object.
         original_choices = set([
             c[0] for c in self._original_extra_choices
         ]) if self._original_extra_choices else set()
-        current_choices = set([
-            c[0] for c in self.extra_choices
-        ]) if self.extra_choices else set()
-        if removed_choices := original_choices - current_choices:
+        if removed_choices := original_choices - valid_choice_values:
             for custom_field in self.choices_for.all():
                 for object_type in custom_field.object_types.all():
                     model = object_type.model_class()

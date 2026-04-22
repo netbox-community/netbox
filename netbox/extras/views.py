@@ -167,7 +167,15 @@ class CustomFieldChoiceSetView(generic.ObjectView):
             page_number = request.GET.get('page', 1)
         except ValueError:
             page_number = 1
-        paginator = EnhancedPaginator(instance.choices, per_page)
+        choice_rows = [
+            {
+                'value': value,
+                'label': label,
+                'color': instance.get_choice_color(value),
+            }
+            for value, label in instance.choices
+        ]
+        paginator = EnhancedPaginator(choice_rows, per_page)
         try:
             choices = paginator.page(page_number)
         except EmptyPage:

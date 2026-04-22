@@ -160,8 +160,21 @@ class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
         choice_sets = (
-            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['A', 'B', 'C'], description='foobar1'),
-            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['D', 'E', 'F'], description='foobar2'),
+            CustomFieldChoiceSet(
+                name='Choice Set 1',
+                extra_choices=['A', 'B', 'C'],
+                choice_colors={'A': CustomFieldChoiceColorChoices.RED},
+                description='foobar1',
+            ),
+            CustomFieldChoiceSet(
+                name='Choice Set 2',
+                extra_choices=['D', 'E', 'F'],
+                choice_colors={
+                    'D': CustomFieldChoiceColorChoices.GREEN,
+                    'E': CustomFieldChoiceColorChoices.RED,
+                },
+                description='foobar2',
+            ),
             CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['G', 'H', 'I'], description='foobar3'),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
@@ -177,6 +190,16 @@ class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_choice(self):
         params = {'choice': ['A', 'D']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_choice_colors(self):
+        params = {'choice_colors': [CustomFieldChoiceColorChoices.RED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'choice_colors': [CustomFieldChoiceColorChoices.GREEN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'choice_colors': [CustomFieldChoiceColorChoices.YELLOW]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}

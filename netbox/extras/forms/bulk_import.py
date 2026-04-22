@@ -99,11 +99,19 @@ class CustomFieldChoiceSetImportForm(OwnerCSVMixin, CSVModelForm):
             '"choice1:First Choice,choice2:Second Choice"'
         )
     )
+    choice_colors = SimpleArrayField(
+        base_field=forms.CharField(),
+        required=False,
+        help_text=_(
+            'Quoted string of comma-separated color mappings in the format '
+            '"choice1:red,choice2:green". Supported colors: {colors}'
+        ).format(colors=', '.join(CustomFieldChoiceColorChoices.values())),
+    )
 
     class Meta:
         model = CustomFieldChoiceSet
         fields = (
-            'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically', 'owner',
+            'name', 'description', 'base_choices', 'extra_choices', 'choice_colors', 'order_alphabetically', 'owner',
         )
 
     def clean_extra_choices(self):
@@ -119,6 +127,28 @@ class CustomFieldChoiceSetImportForm(OwnerCSVMixin, CSVModelForm):
                 data.append((value, label))
             return data
         return None
+
+    def clean_choice_colors(self):
+        if isinstance(self.cleaned_data['choice_colors'], list):
+            data = {}
+            for line in self.cleaned_data['choice_colors']:
+                try:
+                    value, color = re.split(r'(?<!\\):', line, maxsplit=1)
+                    value = value.replace('\\:', ':')
+                except ValueError as e:
+                    raise forms.ValidationError(
+                        _("Invalid color mapping '{line}'. Use the format value:color.").format(line=line)
+                    ) from e
+
+                value = value.strip()
+                color = color.strip()
+                if value in data:
+                    raise forms.ValidationError(
+                        _("Duplicate color mapping defined for choice '{value}'.").format(value=value)
+                    )
+                data[value] = color
+            return data
+        return {}
 
 
 class CustomLinkImportForm(OwnerCSVMixin, CSVModelForm):

@@ -103,6 +103,8 @@ The default value to populate for the custom field when creating new objects (op
 
 For selection and multi-select custom fields only, this is the [set of choices](./customfieldchoiceset.md) which are valid for the field.
 
+Choice sets may optionally define colors for individual values. Colored choices are rendered as badges on object detail pages for selection and multiple-selection custom fields.
+
 ### Cloneable
 
 If enabled, values from this field will be automatically pre-populated when cloning existing objects.
