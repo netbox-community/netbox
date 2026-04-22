@@ -94,7 +94,7 @@ class InterfaceBulkCreateForm(
 
 
 # class FrontPortBulkCreateForm(
-#     form_from_model(FrontPort, ['label', 'type', 'description', 'tags']),
+#     form_from_model(FrontPort, ['label', 'type', 'color', 'description', 'tags']),
 #     DeviceBulkAddComponentForm
 # ):
 #     pass
