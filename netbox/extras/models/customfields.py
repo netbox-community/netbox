@@ -593,7 +593,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 'required': required,
                 'initial': initial,
             }
-            if not for_csv_import and not for_filterset_form:
+            if not for_csv_import:
                 kwargs['query_params'] = self.related_object_filter
                 kwargs['selector'] = True
 
@@ -608,7 +608,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                 'required': required,
                 'initial': initial,
             }
-            if not for_csv_import and not for_filterset_form:
+            if not for_csv_import:
                 kwargs['query_params'] = self.related_object_filter
                 kwargs['selector'] = True
 
