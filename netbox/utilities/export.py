@@ -14,7 +14,7 @@ __all__ = (
     'stream_table_csv_response',
 )
 
-EXPORT_CHUNK_SIZE = 200
+EXPORT_CHUNK_SIZE = 1000
 
 
 class TableExport(TableExport_):
