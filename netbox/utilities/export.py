@@ -53,13 +53,14 @@ def stream_table_csv_response(table, exclude_columns=None, filename=None, delimi
     Args:
         table: The django-tables2 Table instance to export
         exclude_columns: Iterable of column names to omit from the export
-        filename: The attachment filename sent to the client
+        filename: If set, a Content-Disposition header is included in the HTTP response, indicating its treatment
+            as a file attachment with the specified name.
         delimiter: Name of a delimiter in utilities.constants.CSV_DELIMITERS (defaults to 'comma')
     """
     if delimiter and delimiter not in CSV_DELIMITERS:
         raise ValueError(_("Invalid delimiter name: {name}").format(name=delimiter))
     csv_delimiter = CSV_DELIMITERS[delimiter or 'comma']
-    exclude_columns = set(exclude_columns or ())
+    exclude_columns = exclude_columns or set()
 
     columns = [
         column for column in table.columns.iterall()
