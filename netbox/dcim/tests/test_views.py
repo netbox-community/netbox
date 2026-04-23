@@ -1195,6 +1195,7 @@ console-ports:
                 self.assertHttpStatus(response, 200)
                 self.assertContains(response, "Record 1 console-ports[1]: Must be a dictionary.")
 
+    @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')
         self.add_permissions('dcim.view_devicetype')
@@ -1581,6 +1582,7 @@ module-bays:
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
 
+    @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
         url = reverse('dcim:moduletype_list')
         self.add_permissions('dcim.view_moduletype')

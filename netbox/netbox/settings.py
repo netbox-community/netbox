@@ -121,6 +121,7 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
+STREAMING_EXPORTS = getattr(configuration, 'STREAMING_EXPORTS', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
 ])

@@ -140,6 +140,11 @@ EMAIL = {
     'FROM_EMAIL': '',
 }
 
+# Return CSV bulk exports as a streaming HTTP response, which avoids buffering the entire dataset in memory before
+# sending it to the client. This is recommended for very large exports, but it alters the response behavior so it is
+# disabled by default.
+STREAMING_EXPORTS = False
+
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
 EXEMPT_VIEW_PERMISSIONS = [

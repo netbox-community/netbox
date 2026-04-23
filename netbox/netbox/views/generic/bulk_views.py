@@ -3,6 +3,7 @@ import re
 from collections import Counter
 from copy import deepcopy
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
@@ -25,7 +26,7 @@ from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.export import stream_table_csv_response
+from utilities.export import TableExport, stream_table_csv_response
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
@@ -103,12 +104,23 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         # those currently visible in the configured table view.
         table._apply_prefetching(columns=[c for c in all_columns if c not in exclude_columns])
 
-        return stream_table_csv_response(
+        filename = filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+
+        if settings.STREAMING_EXPORTS:
+            return stream_table_csv_response(
+                table=table,
+                exclude_columns=exclude_columns,
+                filename=filename,
+                delimiter=delimiter,
+            )
+
+        exporter = TableExport(
+            export_format=TableExport.CSV,
             table=table,
             exclude_columns=exclude_columns,
-            filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv',
             delimiter=delimiter,
         )
+        return exporter.response(filename=filename)
 
     def export_template(self, template, request):
         """
