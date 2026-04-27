@@ -65,6 +65,18 @@ class ObjectView(ActionsMixin, BaseObjectView):
         model_opts = self.queryset.model._meta
         return f'{model_opts.app_label}/{model_opts.model_name}.html'
 
+    def get_partial_panel(self, request):
+        if self.layout is None:
+            return None
+
+        for row in self.layout.rows:
+            for column in row.columns:
+                for panel in column.panels:
+                    if panel.matches_partial_request(request):
+                        return panel
+
+        return None
+
     #
     # Request handlers
     #
@@ -78,14 +90,23 @@ class ObjectView(ActionsMixin, BaseObjectView):
         """
         instance = self.get_object(**kwargs)
         actions = self.get_permitted_actions(request.user, model=instance)
-
-        return render(request, self.get_template_name(), {
+        context = {
             'object': instance,
             'actions': actions,
             'tab': self.tab,
             'layout': self.layout,
             **self.get_extra_context(request, instance),
-        })
+        }
+
+        if htmx_partial(request):
+            if panel := self.get_partial_panel(request):
+                return render(request, 'generic/object_panel.html', {
+                    **context,
+                    'render_panel_key': panel.partial_key,
+                    'panel': panel,
+                })
+
+        return render(request, self.get_template_name(), context)
 
 
 class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):

@@ -1,0 +1,12 @@
+{% load helpers i18n %}
+<div id="lazy-load-panel-{{ partial_key }}" class="card"
+  hx-get="{{ request.path }}{% querystring request panel_key=partial_key %}"
+  hx-trigger="load"
+  hx-target="this"
+  hx-swap="outerHTML"
+>
+  <div class="card-body d-flex align-items-center gap-2 text-secondary" aria-busy="true">
+    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+    <span>{% trans "Loading..." %}</span>
+  </div>
+</div>

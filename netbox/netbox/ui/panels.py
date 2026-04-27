@@ -15,6 +15,7 @@ __all__ = (
     'CommentsPanel',
     'ContextTablePanel',
     'JSONPanel',
+    'LazyLoadPanel',
     'NestedGroupObjectPanel',
     'ObjectAttributesPanel',
     'ObjectPanel',
@@ -42,6 +43,7 @@ class Panel:
 
     Attributes:
         template_name (str): The name of the template used to render the panel
+        partial_key (str): The key used to target the panel for HTMX partial rendering (optional)
 
     Parameters:
         title (str): The human-friendly title of the panel
@@ -51,6 +53,7 @@ class Panel:
     template_name = None
     title = None
     actions = None
+    partial_key = None
 
     def __init__(self, title=None, actions=None, template_name=None):
         if title is not None:
@@ -95,6 +98,18 @@ class Panel:
         if not self.should_render(ctx):
             return ''
         return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+
+    def matches_partial_request(self, request):
+        """
+        Return True if this panel has been requested explicitly by its partial key.
+
+        This allows a view handling an HTMX partial request to identify the targeted panel
+        and render only that panel's content.
+
+        Parameters:
+            request: The current request
+        """
+        return self.partial_key is not None and request.GET.get('panel_key') == self.partial_key
 
 
 #
@@ -351,6 +366,43 @@ class TemplatePanel(Panel):
     def render(self, context):
         # Pass the entire context to the template
         return render_to_string(self.template_name, context.flatten())
+
+
+class LazyLoadPanel(Panel):
+    """
+    A panel wrapper which defers rendering its content until requested via HTMX.
+
+    Parameters:
+        panel (Panel): The panel instance to render lazily
+        partial_key (str): A stable identifier for the panel used by HTMX requests
+    """
+    template_name = 'ui/panels/lazy_load_panel.html'
+
+    def __init__(self, panel, partial_key):
+        super().__init__()
+        self.panel = panel
+        self.partial_key = partial_key
+
+    def should_render(self, context):
+        panel_context = self.panel.get_context(context)
+        return self.panel.should_render(panel_context)
+
+    def render(self, context):
+        request = context.get('request')
+
+        if not self.should_render(context):
+            return ''
+
+        if context.get('render_panel_key') == self.partial_key:
+            return self.panel.render(context)
+
+        return render_to_string(
+            self.template_name,
+            {
+                'partial_key': self.partial_key,
+            },
+            request=request,
+        )
 
 
 class TextCodePanel(ObjectPanel):
