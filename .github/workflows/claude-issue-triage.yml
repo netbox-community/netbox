@@ -11,13 +11,11 @@ jobs:
     permissions:
       contents: read
       issues: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
-
       - name: Run Claude Issue Triage
         id: claude-triage
         uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
