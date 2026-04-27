@@ -255,13 +255,37 @@ class CabledObjectModel(models.Model):
 
     @cached_property
     def link_peers(self):
-        if self.cable:
-            return [
-                peer.termination
-                for peer in self.cable.terminations.all()
-                if peer.cable_end != self.cable_end
-            ]
-        return []
+        if not self.cable:
+            return []
+
+        if self.cable.profile:
+            return self._get_profile_link_peers()
+
+        return [peer.termination for peer in self.cable.terminations.all() if peer.cable_end != self.cable_end]
+
+    def _get_profile_link_peers(self):
+        if self.cable_end is None or self.cable_connector is None or not self.cable_positions:
+            return []
+
+        profile = self.cable.profile_class()
+        peer_terminations = {
+            (peer.connector, position): peer.termination
+            for peer in self.cable.terminations.all()
+            if peer.cable_end == self.opposite_cable_end and peer.connector is not None
+            for position in peer.positions or []
+        }
+        link_peers = []
+
+        for position in self.cable_positions:
+            mapped_position = profile.get_mapped_position(self.cable_end, self.cable_connector, position)
+            if mapped_position is None:
+                continue
+
+            peer = peer_terminations.get(mapped_position)
+            if peer is not None and peer not in link_peers:
+                link_peers.append(peer)
+
+        return link_peers
 
     @property
     def _occupied(self):
