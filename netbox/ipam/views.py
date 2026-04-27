@@ -21,7 +21,6 @@ from netbox.ui.panels import (
     TemplatePanel,
 )
 from netbox.views import generic
-from utilities.htmx import htmx_partial
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
@@ -727,14 +726,6 @@ class PrefixView(generic.ObjectView):
             ContextTablePanel('parent_prefix_table', title=_('Parent prefixes')),
         ],
     )
-
-    def get(self, request, **kwargs):
-        if htmx_partial(request) and request.GET.get('addressing'):
-            return render(request, 'ipam/panels/prefix_addressing_content.html', {
-                'object': self.get_object(**kwargs),
-            })
-
-        return super().get(request, **kwargs)
 
     def get_extra_context(self, request, instance):
         # Parent prefixes table
