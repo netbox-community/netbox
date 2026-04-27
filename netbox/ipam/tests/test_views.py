@@ -468,6 +468,27 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_view_lazy_template_panel_placeholder(self):
+        prefix = self._get_queryset().first()
+
+        response = self.client.get(prefix.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'panel_key=prefix-addressing')
+        self.assertNotContains(response, 'Child IPs')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_view_lazy_template_panel_htmx(self):
+        prefix = self._get_queryset().first()
+
+        response = self.client.get(
+            prefix.get_absolute_url(),
+            {'panel_key': 'prefix-addressing'},
+            HTTP_HX_REQUEST='true',
+        )
+        self.assertHttpStatus(response, 200)
+        self.assertTemplateUsed(response, 'ipam/panels/prefix_addressing.html')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_prefixes(self):
         prefixes = (
             Prefix(prefix=IPNetwork('192.168.0.0/16')),

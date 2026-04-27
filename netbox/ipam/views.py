@@ -15,6 +15,7 @@ from netbox.ui import actions, layout
 from netbox.ui.panels import (
     CommentsPanel,
     ContextTablePanel,
+    LazyLoadPanel,
     ObjectsTablePanel,
     PluginContentPanel,
     RelatedObjectsPanel,
@@ -716,7 +717,7 @@ class PrefixView(generic.ObjectView):
             panels.PrefixPanel(),
         ],
         right_panels=[
-            TemplatePanel('ipam/panels/prefix_addressing.html'),
+            LazyLoadPanel(TemplatePanel('ipam/panels/prefix_addressing.html'), partial_key='prefix-addressing'),
             CustomFieldsPanel(),
             TagsPanel(),
             CommentsPanel(),
