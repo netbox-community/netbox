@@ -111,7 +111,7 @@ class Contact(PrimaryModel):
     )
 
     clone_fields = (
-        'groups', 'name', 'title', 'phone', 'email', 'address', 'link',
+        'groups',
     )
 
     class Meta:
