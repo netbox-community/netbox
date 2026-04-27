@@ -290,7 +290,6 @@ class TestPrefix(TestCase):
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.4/24')
 
         IPAddress.objects.create(address=IPNetwork('10.0.0.4/24'))
-        parent_prefix = Prefix.objects.get(pk=parent_prefix.pk)
         self.assertEqual(parent_prefix.get_first_available_ip(), '10.0.0.5/24')
 
     def test_get_first_available_ip_ipv6(self):

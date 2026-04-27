@@ -439,8 +439,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
         return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
 
-    @cached_property
-    def available_ips(self):
+    def get_available_ips(self):
         """
         Return all available IPs within this prefix as an IPSet.
         """
@@ -473,9 +472,6 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             available_ips -= netaddr.IPSet([netaddr.IPAddress(self.prefix.first)])
 
         return available_ips
-
-    def get_available_ips(self):
-        return self.available_ips
 
     def get_first_available_ip(self):
         """
