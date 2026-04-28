@@ -42,4 +42,4 @@ strawberry-graphql-django==0.82.1
 svgwrite==1.4.3
 tablib==3.9.0
 tzdata==2026.2
-zensical==0.0.33
+zensical==0.0.37

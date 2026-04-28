@@ -1,6 +1,6 @@
 # NetBox v4.6
 
-## v4.6.0-beta1 (2026-04-14)
+## v4.6.0-beta2 (2026-04-28)
 
 ### New Features
 
@@ -33,6 +33,7 @@ A new `start` query parameter has been introduced as an efficient alternative to
 * [#19025](https://github.com/netbox-community/netbox/issues/19025) - Support optional schema validation for JSON custom fields
 * [#19034](https://github.com/netbox-community/netbox/issues/19034) - Annotate total reserved unit count on rack reservations
 * [#19138](https://github.com/netbox-community/netbox/issues/19138) - Include NAT addresses for primary & out-of-band IP addresses in REST API
+* [#19648](https://github.com/netbox-community/netbox/issues/19648) - Add a color custom field type
 * [#19796](https://github.com/netbox-community/netbox/issues/19796) - Support `{module}` position inheritance for nested module bays
 * [#19953](https://github.com/netbox-community/netbox/issues/19953) - Enable debugging support for ConfigTemplate rendering
 * [#20123](https://github.com/netbox-community/netbox/issues/20123) - Introduce options to control adoption/replication of device components via REST API (replicates UI behavior)
@@ -47,14 +48,18 @@ A new `start` query parameter has been introduced as an efficient alternative to
 * [#21662](https://github.com/netbox-community/netbox/issues/21662) - Increase `rf_channel_frequency` precision to 3 decimal places
 * [#21702](https://github.com/netbox-community/netbox/issues/21702) - Include a serialized representation of the HTTP request in each webhook
 * [#21720](https://github.com/netbox-community/netbox/issues/21720) - Align HTTP basic auth regex of `EnhancedURLValidator` with Django's `URLValidator`
+* [#21751](https://github.com/netbox-community/netbox/issues/21751) - Disable notifications for scripts running in the background
 * [#21770](https://github.com/netbox-community/netbox/issues/21770) - Enable specifying columns to include/exclude on embedded tables
 * [#21771](https://github.com/netbox-community/netbox/issues/21771) - Add support for partial tag assignment (`add_tags`) and removal (`remove_tags`) via REST API
 * [#21780](https://github.com/netbox-community/netbox/issues/21780) - Add changelog message support to bulk creation of IP addresses
 * [#21865](https://github.com/netbox-community/netbox/issues/21865) - Allow setting empty `INTERNAL_IPS` to enable debug toolbar for all clients
+* [#21924](https://github.com/netbox-community/netbox/issues/21924) - Improve styling and consistency of floating bulk action controls
 
-### Performance
+### Performance Improvements
 
 * [#21455](https://github.com/netbox-community/netbox/issues/21455) - Ensure PostgreSQL indexes exist to support the default ordering of each model
+* [#21688](https://github.com/netbox-community/netbox/issues/21688) - Reduce per-position ORM lookups when tracing cable paths
+* [#21788](https://github.com/netbox-community/netbox/issues/21788) - Optimize bulk object export to avoid timeout errors on large querysets
 
 ### Plugins
 
