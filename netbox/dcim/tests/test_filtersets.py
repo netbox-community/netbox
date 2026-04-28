@@ -4533,6 +4533,11 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Device.objects.bulk_create(devices)
 
+        # Expose base devices for regression tests which need custom cabling
+        # topologies.
+        cls.connection_filter_device = devices[0]
+        cls.connection_filter_peer_device = devices[1]
+
         virtual_chassis.master = devices[0]
         virtual_chassis.save()
 
@@ -4965,6 +4970,117 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
         params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_connected_excludes_incomplete_pass_through_path(self):
+        """
+        Validate that connected=true requires a complete cable path, not merely
+        an active cable path.
+
+        The incomplete path below models:
+
+            interface -- front port -- rear port
+
+        with no onward cable from the rear port.
+        """
+        device = self.connection_filter_device
+        peer_device = self.connection_filter_peer_device
+
+        connected_interface = Interface.objects.create(
+            device=device,
+            name='Connected Filter Interface',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        connected_peer_interface = Interface.objects.create(
+            device=peer_device,
+            name='Connected Filter Peer Interface',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+        incomplete_path_interface = Interface.objects.create(
+            device=device,
+            name='Connected Filter Incomplete Path Interface',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+        )
+
+        patch_panel = Device.objects.create(
+            name='Connected Filter Patch Panel',
+            site=device.site,
+            device_type=device.device_type,
+            role=device.role,
+        )
+        rear_port = RearPort.objects.create(
+            device=patch_panel,
+            name='Patch Rear Port',
+            type=PortTypeChoices.TYPE_8P8C,
+            positions=1,
+        )
+        front_port = FrontPort.objects.create(
+            device=patch_panel,
+            name='Patch Front Port',
+            type=PortTypeChoices.TYPE_8P8C,
+        )
+        PortMapping.objects.create(
+            device=patch_panel,
+            front_port=front_port,
+            front_port_position=1,
+            rear_port=rear_port,
+            rear_port_position=1,
+        )
+
+        Cable(
+            a_terminations=[connected_interface],
+            b_terminations=[connected_peer_interface],
+        ).save()
+        Cable(
+            a_terminations=[incomplete_path_interface],
+            b_terminations=[front_port],
+        ).save()
+
+        connected_interface.refresh_from_db()
+        connected_peer_interface.refresh_from_db()
+        incomplete_path_interface.refresh_from_db()
+
+        self.assertTrue(connected_interface._path.is_active)
+        self.assertTrue(connected_interface._path.is_complete)
+        self.assertTrue(connected_peer_interface._path.is_active)
+        self.assertTrue(connected_peer_interface._path.is_complete)
+
+        self.assertTrue(incomplete_path_interface._path.is_active)
+        self.assertFalse(incomplete_path_interface._path.is_complete)
+
+        queryset = self.queryset.filter(
+            pk__in=(
+                connected_interface.pk,
+                connected_peer_interface.pk,
+                incomplete_path_interface.pk,
+            )
+        )
+
+        params = {'cabled': 'true'}
+        self.assertSetEqual(
+            set(self.filterset(params, queryset).qs.values_list('pk', flat=True)),
+            {
+                connected_interface.pk,
+                connected_peer_interface.pk,
+                incomplete_path_interface.pk,
+            },
+        )
+
+        params = {'connected': 'true'}
+        self.assertSetEqual(
+            set(self.filterset(params, queryset).qs.values_list('pk', flat=True)),
+            {
+                connected_interface.pk,
+                connected_peer_interface.pk,
+            },
+        )
+
+        params = {'connected': 'false'}
+        self.assertSetEqual(
+            set(self.filterset(params, queryset).qs.values_list('pk', flat=True)),
+            {
+                incomplete_path_interface.pk,
+            },
+        )
 
     def test_kind(self):
         params = {'kind': 'physical'}

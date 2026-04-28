@@ -1874,8 +1874,8 @@ class PathEndpointFilterSet(django_filters.FilterSet):
 
     def filter_connected(self, queryset, name, value):
         if value:
-            return queryset.filter(_path__is_active=True)
-        return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False))
+            return queryset.filter(_path__is_active=True, _path__is_complete=True)
+        return queryset.filter(Q(_path__isnull=True) | Q(_path__is_active=False) | Q(_path__is_complete=False))
 
 
 @register_filterset
