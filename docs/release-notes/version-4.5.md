@@ -1,5 +1,39 @@
 # NetBox v4.5
 
+## v4.5.9 (2026-04-28)
+
+### Enhancements
+
+* [#21711](https://github.com/netbox-community/netbox/issues/21711) - Add `profile` filter support for modules
+* [#21782](https://github.com/netbox-community/netbox/issues/21782) - Enable optional config template selection when rendering device configuration
+* [#21854](https://github.com/netbox-community/netbox/issues/21854) - Support filtering by multiple object-type custom fields simultaneously in filter forms
+* [#21866](https://github.com/netbox-community/netbox/issues/21866) - Include the PostgreSQL database schema in system details
+* [#21875](https://github.com/netbox-community/netbox/issues/21875) - Allow `dict` subclasses for the `API_TOKEN_PEPPERS` configuration parameter
+
+### Performance Improvements
+
+* [#21975](https://github.com/netbox-community/netbox/issues/21975) - Optimize queryset prefetching for CSV bulk export
+
+### Bug Fixes
+
+* [#21538](https://github.com/netbox-community/netbox/issues/21538) - Fix incorrect contact count for contact groups with contacts assigned to nested groups
+* [#21658](https://github.com/netbox-community/netbox/issues/21658) - Correct OpenAPI schema for `available-prefixes` endpoint request body
+* [#21683](https://github.com/netbox-community/netbox/issues/21683) - Fix import of modules with front-to-rear port mappings
+* [#21737](https://github.com/netbox-community/netbox/issues/21737) - Avoid saving invalid custom scripts to disk on upload
+* [#21893](https://github.com/netbox-community/netbox/issues/21893) - Fix permission scope filtering for constrained object permissions
+* [#21906](https://github.com/netbox-community/netbox/issues/21906) - Fix exception raised by REST API `POST`/`PATCH` requests missing a trailing slash
+* [#21913](https://github.com/netbox-community/netbox/issues/21913) - Restore plugin template extensions for VRF and other declarative-layout views
+* [#21917](https://github.com/netbox-community/netbox/issues/21917) - Fix incorrect link peers for rear ports connected via trunk cable profiles
+* [#21947](https://github.com/netbox-community/netbox/issues/21947) - Fix saving of comments on MAC address entries
+* [#21949](https://github.com/netbox-community/netbox/issues/21949) - Correct power draw calculations for outlets within a PDU
+* [#21966](https://github.com/netbox-community/netbox/issues/21966) - Correct OpenAPI schema for available-VLANs endpoint request body
+* [#21985](https://github.com/netbox-community/netbox/issues/21985) - Restore color field in front port edit form
+* [#21989](https://github.com/netbox-community/netbox/issues/21989) - Validate `EventRule.action_data` as a JSON object to prevent server errors on object writes
+* [#21995](https://github.com/netbox-community/netbox/issues/21995) - Clear unique fields when using "add another" for contacts
+* [#22002](https://github.com/netbox-community/netbox/issues/22002) - Enable horizontal scrolling for context table panels on the IP address view
+
+---
+
 ## v4.5.8 (2026-04-14)
 
 ### Enhancements
