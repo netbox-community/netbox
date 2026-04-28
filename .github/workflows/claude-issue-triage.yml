@@ -11,7 +11,6 @@ jobs:
     permissions:
       contents: read
       issues: write
-      id-token: write
 
     steps:
       - name: Checkout repository
@@ -24,6 +23,7 @@ jobs:
         uses: anthropics/claude-code-action@e763fe78de2db7389e04818a00b5ff8ba13d1360 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           # Restrict Claude to read-only inspection of the repo plus posting a single comment
           # on THIS issue only. `gh issue comment` is pinned to the current issue number, so an
           # injection cannot redirect a comment to another issue. Close, label, reopen, assign,
