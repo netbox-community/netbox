@@ -20,7 +20,7 @@ jobs:
 
       - name: Run Claude Issue Triage
         id: claude-triage
-        uses: anthropics/claude-code-action@e763fe78de2db7389e04818a00b5ff8ba13d1360 # v1
+        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -34,7 +34,7 @@ jobs:
           # reduce the blast radius of an injection that tries to dump runner env vars or
           # secrets into a comment body.
           claude_args: >-
-            --allowed-tools
+            --allowedTools
             "Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search issues:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh release list:*),Bash(gh release view:*),Read,Grep,Glob"
           prompt: |
             You are triaging a newly opened issue in the netbox-community/netbox repository.
