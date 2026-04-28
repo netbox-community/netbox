@@ -5,7 +5,7 @@
 ### Enhancements
 
 * [#21711](https://github.com/netbox-community/netbox/issues/21711) - Add `profile` filter support for modules
-* [#21782](https://github.com/netbox-community/netbox/issues/21782) - Enable optional config template selection when rendering device configuration
+* [#21782](https://github.com/netbox-community/netbox/issues/21782) - Enable optional config template selection when rendering device configuration via a URL query parameter
 * [#21854](https://github.com/netbox-community/netbox/issues/21854) - Support filtering by multiple object-type custom fields simultaneously in filter forms
 * [#21866](https://github.com/netbox-community/netbox/issues/21866) - Include the PostgreSQL database schema in system details
 * [#21875](https://github.com/netbox-community/netbox/issues/21875) - Allow `dict` subclasses for the `API_TOKEN_PEPPERS` configuration parameter
