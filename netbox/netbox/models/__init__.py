@@ -66,14 +66,11 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
-    def clean(self):
+    def _coerce_nullable_unique_chars(self):
         """
-        Validate the model for GenericForeignKey fields to ensure that the content type and object ID exist.
+        Coerce empty strings to None on unique nullable CharFields to avoid spurious
+        uniqueness violations (PostgreSQL treats two empty strings as duplicates).
         """
-        super().clean()
-
-        # Coerce empty strings to None on unique nullable CharFields to avoid spurious
-        # uniqueness violations (PostgreSQL treats two empty strings as duplicates).
         for field in self._meta.concrete_fields:
             if (
                 isinstance(field, models.CharField)
@@ -82,6 +79,13 @@ class BaseModel(models.Model):
                 and getattr(self, field.attname, None) == ''
             ):
                 setattr(self, field.attname, None)
+
+    def clean(self):
+        """
+        Validate the model for GenericForeignKey fields to ensure that the content type and object ID exist.
+        """
+        super().clean()
+        self._coerce_nullable_unique_chars()
 
         for field in self._meta.get_fields():
             if isinstance(field, GenericForeignKey):
@@ -110,17 +114,7 @@ class BaseModel(models.Model):
                     setattr(self, field.name, obj)
 
     def save(self, *args, **kwargs):
-        # Coerce empty strings to None on unique nullable CharFields. PostgreSQL treats
-        # two empty strings as duplicates under a UNIQUE constraint, but treats NULLs as
-        # distinct -- so empty values must be stored as NULL to behave as intended.
-        for field in self._meta.concrete_fields:
-            if (
-                isinstance(field, models.CharField)
-                and field.null
-                and field.unique
-                and getattr(self, field.attname, None) == ''
-            ):
-                setattr(self, field.attname, None)
+        self._coerce_nullable_unique_chars()
         super().save(*args, **kwargs)
 
 
