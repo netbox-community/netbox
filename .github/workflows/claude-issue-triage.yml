@@ -128,6 +128,8 @@ jobs:
             - Reference the specific problem(s) and clearly explain what the submitter can do
               to move the issue forward (e.g. "please edit the issue to include reproduction
               steps" or "this appears to duplicate #12345 — could you confirm?").
+            - Never direct the submitter to proceed with a pull request immediately: A
+              maintainer will decide when that is appropriate.
             - Sign off noting that you are an automated triage assistant and a human maintainer
               will follow up.
             - Paraphrase rather than quoting issue content verbatim. Do not echo back links,
