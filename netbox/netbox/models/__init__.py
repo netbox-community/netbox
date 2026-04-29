@@ -58,6 +58,7 @@ class BaseModel(models.Model):
     This class provides some important overrides to Django's default functionality, such as
     - Overriding the default manager to use RestrictedQuerySet
     - Extending `clean()` to validate GenericForeignKey fields
+    - Extending `clean()` and `save()` to coerce empty strings to None on unique nullable CharFields
     """
 
     objects = RestrictedQuerySet.as_manager()
@@ -70,6 +71,17 @@ class BaseModel(models.Model):
         Validate the model for GenericForeignKey fields to ensure that the content type and object ID exist.
         """
         super().clean()
+
+        # Coerce empty strings to None on unique nullable CharFields to avoid spurious
+        # uniqueness violations (PostgreSQL treats two empty strings as duplicates).
+        for field in self._meta.concrete_fields:
+            if (
+                isinstance(field, models.CharField)
+                and field.null
+                and field.unique
+                and getattr(self, field.attname, None) == ''
+            ):
+                setattr(self, field.attname, None)
 
         for field in self._meta.get_fields():
             if isinstance(field, GenericForeignKey):
@@ -96,6 +108,20 @@ class BaseModel(models.Model):
 
                     # update the GFK field value
                     setattr(self, field.name, obj)
+
+    def save(self, *args, **kwargs):
+        # Coerce empty strings to None on unique nullable CharFields. PostgreSQL treats
+        # two empty strings as duplicates under a UNIQUE constraint, but treats NULLs as
+        # distinct -- so empty values must be stored as NULL to behave as intended.
+        for field in self._meta.concrete_fields:
+            if (
+                isinstance(field, models.CharField)
+                and field.null
+                and field.unique
+                and getattr(self, field.attname, None) == ''
+            ):
+                setattr(self, field.attname, None)
+        super().save(*args, **kwargs)
 
 
 class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, EventRulesMixin, BaseModel):
