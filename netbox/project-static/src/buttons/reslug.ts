@@ -13,7 +13,7 @@ function slugify(slug: string, chars: number): string {
     .replace(/^[\s.]+|[\s.]+$/g, '') // Trim leading/trailing spaces
     .replace(/[-.\s]+/g, '-') // Convert spaces and decimals to hyphens
     .toLowerCase() // Convert to lowercase
-    .substring(0, chars); // Trim to first chars chars
+    .substring(0, chars); // Trim to first chars
 }
 
 /**
