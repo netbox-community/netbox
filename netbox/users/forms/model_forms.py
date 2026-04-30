@@ -160,8 +160,8 @@ class UserTokenForm(forms.ModelForm):
         # On creation, stash the auto-generated plaintext on the session so that the detail view can render the
         # full HTTP authorization string exactly once. The plaintext is never persisted to the database; the
         # request is delivered to the form via the edit view's alter_object hook.
-        if creating and instance._token:
-            request = getattr(self.instance, '_request', None)
+        if creating and instance._token and instance.pk is not None:
+            request = getattr(instance, '_request', None)
             if request is not None:
                 request.session[f'_token_plaintext_{instance.pk}'] = instance._token
         return instance
