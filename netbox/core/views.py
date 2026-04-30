@@ -39,9 +39,9 @@ from netbox.plugins.utils import get_installed_plugins
 from netbox.ui import layout
 from netbox.ui.panels import (
     CommentsPanel,
-    ContextTablePanel,
     JSONPanel,
     ObjectsTablePanel,
+    PaginatedContextTablePanel,
     PluginContentPanel,
     RelatedObjectsPanel,
     TemplatePanel,
@@ -267,7 +267,7 @@ class JobLogView(generic.ObjectView):
     layout = layout.Layout(
         layout.Row(
             layout.Column(
-                ContextTablePanel('table', title=_('Log Entries')),
+                PaginatedContextTablePanel('table', title=_('Log Entries')),
                 PluginContentPanel('left_page'),
             ),
         ),

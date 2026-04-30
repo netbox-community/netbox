@@ -20,6 +20,7 @@ __all__ = (
     'ObjectPanel',
     'ObjectsTablePanel',
     'OrganizationalObjectPanel',
+    'PaginatedContextTablePanel',
     'Panel',
     'PluginContentPanel',
     'RelatedObjectsPanel',
@@ -425,3 +426,11 @@ class ContextTablePanel(ObjectPanel):
         if table is None:
             return ''
         return super().render(context)
+
+
+class PaginatedContextTablePanel(ContextTablePanel):
+    """
+    A panel which extends ContextTablePanel to also include
+    pagination controls for the rendered table.
+    """
+    template_name = 'ui/panels/paginated_context_table.html'
