@@ -47,6 +47,15 @@ class TokenView(generic.ObjectView):
         ],
     )
 
+    def get_extra_context(self, request, instance):
+        # Pop a one-time plaintext value (set by TokenEditView.post_save when a token is first created) and assemble
+        # the full HTTP authorization string for display. The plaintext is never persisted; popping ensures the
+        # banner only renders once.
+        plaintext = request.session.pop(f'_token_plaintext_{instance.pk}', None)
+        if plaintext:
+            return {'token_auth_string': f'{instance.get_auth_header_prefix()}{plaintext}'}
+        return {}
+
 
 @register_model_view(Token, 'add', detail=False)
 @register_model_view(Token, 'edit')
@@ -54,6 +63,11 @@ class TokenEditView(generic.ObjectEditView):
     queryset = Token.objects.all()
     form = forms.TokenForm
     template_name = 'users/token_edit.html'
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        # Attach the request so that UserTokenForm.save() can stash the newly-generated plaintext on the session.
+        obj._request = request
+        return obj
 
 
 @register_model_view(Token, 'delete')
