@@ -22,12 +22,13 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.forms.bulk_rename import BulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.export import TableExport, stream_table_csv_response
-from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
+from utilities.forms import BulkDeleteForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
 from utilities.jobs import is_background_request, process_request_as_job
@@ -890,6 +891,10 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
         self.form = _Form
 
+        # Remove changelog_message field if model doesn't support change logging
+        if not issubclass(self.queryset.model, ChangeLoggingMixin):
+            self.form.base_fields.pop('changelog_message', None)
+
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
@@ -940,10 +945,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                 with self.queryset.model.objects.delay_mptt_updates():
                                     for obj in selected_objects:
                                         setattr(obj, self.field_name, obj.new_name)
+                                        obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                         obj.save()
                             else:
                                 for obj in selected_objects:
                                     setattr(obj, self.field_name, obj.new_name)
+                                    obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                     obj.save()
 
                             # Enforce constrained permissions

@@ -9,9 +9,10 @@ from dcim.models import Device, DeviceRole, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VRF, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
+from netbox.forms.bulk_rename import BulkRenameForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.models import Tenant
-from utilities.forms import BulkRenameForm, add_blank_choice
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import get_capacity_unit_label
