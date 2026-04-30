@@ -35,7 +35,9 @@ class Migration(migrations.Migration):
                     END LOOP;
 
                     IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'dcim_rackgroup_id_seq' AND relkind = 'S')
-                        AND NOT EXISTS (SELECT 1 FROM pg_class WHERE relname = 'dcim_location_legacy_id_seq' AND relkind = 'S')
+                        AND NOT EXISTS (
+                            SELECT 1 FROM pg_class WHERE relname = 'dcim_location_legacy_id_seq' AND relkind = 'S'
+                        )
                     THEN
                         ALTER SEQUENCE dcim_rackgroup_id_seq RENAME TO dcim_location_legacy_id_seq;
                     END IF;
