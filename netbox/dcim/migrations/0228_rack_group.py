@@ -14,6 +14,40 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Rename any legacy dcim_rackgroup_* database objects that remain on dcim_location
+        # from when the RackGroup model was renamed to Location. Old installations may have
+        # retained these names, causing conflicts when the new dcim_rackgroup table is created.
+        migrations.RunSQL(
+            sql="""
+                DO $$
+                DECLARE
+                    r RECORD;
+                BEGIN
+                    FOR r IN (
+                        SELECT indexname FROM pg_indexes
+                        WHERE tablename = 'dcim_location' AND indexname LIKE 'dcim_rackgroup_%'
+                    ) LOOP
+                        EXECUTE format('ALTER INDEX %I RENAME TO %I',
+                            r.indexname,
+                            regexp_replace(r.indexname, '^dcim_rackgroup_', 'dcim_location_legacy_'));
+                    END LOOP;
+
+                    IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'dcim_rackgroup_id_seq' AND relkind = 'S') THEN
+                        ALTER SEQUENCE dcim_rackgroup_id_seq RENAME TO dcim_location_legacy_id_seq;
+                    END IF;
+
+                    FOR r IN (
+                        SELECT conname FROM pg_constraint
+                        WHERE conrelid = 'dcim_location'::regclass AND conname LIKE 'dcim_rackgroup_%'
+                    ) LOOP
+                        EXECUTE format('ALTER TABLE dcim_location RENAME CONSTRAINT %I TO %I',
+                            r.conname,
+                            regexp_replace(r.conname, '^dcim_rackgroup_', 'dcim_location_legacy_'));
+                    END LOOP;
+                END $$;
+            """,
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.CreateModel(
             name='RackGroup',
             fields=[
