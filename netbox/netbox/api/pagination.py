@@ -1,3 +1,5 @@
+import warnings
+
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
@@ -220,3 +222,16 @@ class LimitOffsetListPagination(LimitOffsetPagination):
             self.display_page_controls = True
 
         return data[self.offset:self.offset + self.limit]
+
+
+# TODO: Remove in NetBox v4.7.0
+def __getattr__(name):
+    if name == 'OptionalLimitOffsetPagination':
+        warnings.warn(
+            "OptionalLimitOffsetPagination has been renamed to NetBoxPagination. "
+            "OptionalLimitOffsetPagination will be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return NetBoxPagination
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
