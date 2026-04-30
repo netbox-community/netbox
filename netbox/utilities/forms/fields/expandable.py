@@ -1,4 +1,5 @@
 import re
+import warnings
 
 import netaddr
 from django import forms
@@ -70,3 +71,16 @@ class ExpandableIPNetworkField(forms.CharField):
         if family == 6 and re.search(IP6_EXPANSION_PATTERN, value):
             return list(expand_ipnetwork_pattern(value.lower(), 6))
         return [value]
+
+
+# TODO: Remove in NetBox v4.7.0
+def __getattr__(name):
+    if name == 'ExpandableIPAddressField':
+        warnings.warn(
+            "ExpandableIPAddressField has been renamed to ExpandableIPNetworkField. "
+            "ExpandableIPAddressField will be removed in a future release.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return ExpandableIPNetworkField
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
