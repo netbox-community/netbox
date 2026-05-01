@@ -38,6 +38,22 @@ JINJA_ENV_PARAMS_WITH_PATH_IMPORT = (
     'finalize',
 )
 
+# Allowlist of dotted paths that may be resolved via import_string() for each
+# Jinja environment parameter listed in JINJA_ENV_PARAMS_WITH_PATH_IMPORT.
+# Only paths in this allowlist will be imported; any other value is rejected
+# with a ValidationError. This prevents arbitrary callable resolution
+# (e.g. subprocess.getoutput) from leading to remote code execution
+# during template rendering.
+JINJA_ENV_PARAM_IMPORT_ALLOWLIST = {
+    'undefined': frozenset({
+        'jinja2.Undefined',
+        'jinja2.ChainableUndefined',
+        'jinja2.DebugUndefined',
+        'jinja2.StrictUndefined',
+    }),
+    'finalize': frozenset(),
+}
+
 # Dashboard
 DEFAULT_DASHBOARD = [
     {

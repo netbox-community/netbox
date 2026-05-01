@@ -900,6 +900,70 @@ class ConfigTemplateTest(TestCase):
             self.assertEqual(autosync_records.count(), 0, "AutoSyncRecord should be deleted after detaching")
 
 
+class JinjaEnvironmentParamsTest(TestCase):
+    """
+    Validate the allowlist on Jinja environment parameters that resolve
+    dotted paths via import_string() (CVE-2026-29514).
+    """
+
+    def test_allowed_undefined_class_resolves(self):
+        template = ConfigTemplate(
+            name="t-undefined-allowed",
+            template_code="ok",
+            environment_params={'undefined': 'jinja2.StrictUndefined'},
+        )
+        template.clean()
+        # Resolve at render time to confirm the allowlisted path is imported successfully.
+        params = template.get_environment_params()
+        from jinja2 import StrictUndefined
+        self.assertIs(params['undefined'], StrictUndefined)
+
+    def test_disallowed_undefined_value_rejected(self):
+        template = ConfigTemplate(
+            name="t-undefined-rejected",
+            template_code="ok",
+            environment_params={'undefined': 'subprocess.getoutput'},
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            template.clean()
+        self.assertIn('environment_params', ctx.exception.message_dict)
+
+    def test_finalize_arbitrary_callable_rejected(self):
+        # Reproduces the original CVE payload: finalize=subprocess.getoutput.
+        template = ConfigTemplate(
+            name="t-finalize-rejected",
+            template_code='{{ "id" }}',
+            environment_params={'finalize': 'subprocess.getoutput'},
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            template.clean()
+        self.assertIn('environment_params', ctx.exception.message_dict)
+
+    def test_render_rejects_disallowed_value(self):
+        # Defense in depth: even if an unsafe value bypassed clean()
+        # (e.g. legacy data, direct DB write), get_environment_params()
+        # must still refuse to import it.
+        template = ConfigTemplate(
+            name="t-render-rejected",
+            template_code='{{ "id" }}',
+        )
+        template.environment_params = {'finalize': 'os.system'}
+        with self.assertRaises(ValidationError):
+            template.get_environment_params()
+
+    def test_non_path_import_params_unaffected(self):
+        template = ConfigTemplate(
+            name="t-trim-blocks",
+            template_code="ok",
+            environment_params={'trim_blocks': True, 'lstrip_blocks': True},
+        )
+        template.clean()
+        self.assertEqual(
+            template.get_environment_params(),
+            {'trim_blocks': True, 'lstrip_blocks': True},
+        )
+
+
 class EventRuleTest(TestCase):
 
     def test_action_data_clean_accepts_dict(self):

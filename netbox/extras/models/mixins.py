@@ -3,13 +3,18 @@ import importlib.util
 import os
 import sys
 
+from django.core.exceptions import ValidationError
 from django.core.files.storage import storages
 from django.db import models
 from django.http import HttpResponse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
-from extras.constants import DEFAULT_MIME_TYPE, JINJA_ENV_PARAMS_WITH_PATH_IMPORT
+from extras.constants import (
+    DEFAULT_MIME_TYPE,
+    JINJA_ENV_PARAM_IMPORT_ALLOWLIST,
+    JINJA_ENV_PARAMS_WITH_PATH_IMPORT,
+)
 from extras.utils import filename_from_model, filename_from_object
 from utilities.jinja2 import render_jinja2
 
@@ -124,11 +129,40 @@ class RenderTemplateMixin(models.Model):
             class_name=self.__class__
         ))
 
+    def clean(self):
+        super().clean()
+        self._validate_environment_params()
+
+    def _validate_environment_params(self):
+        """
+        Reject any string value of a path-import parameter that is not in the allowlist.
+        Called at save time (via ``clean()``) and at render time (via ``get_environment_params()``).
+        """
+        for name, value in (self.environment_params or {}).items():
+            if name not in JINJA_ENV_PARAMS_WITH_PATH_IMPORT or type(value) is not str:
+                continue
+            allowed = JINJA_ENV_PARAM_IMPORT_ALLOWLIST.get(name, frozenset())
+            if value in allowed:
+                continue
+            allowed_repr = ', '.join(sorted(allowed)) if allowed else _('(none)')
+            raise ValidationError({
+                'environment_params': _(
+                    "Unsafe value '{value}' for Jinja environment parameter '{name}'. "
+                    "Allowed values: {allowed}."
+                ).format(value=value, name=name, allowed=allowed_repr)
+            })
+
     def get_environment_params(self):
         """
         Pre-processing of any defined Jinja environment parameters (e.g. to support path resolution).
+
+        For parameters listed in ``JINJA_ENV_PARAMS_WITH_PATH_IMPORT``, only values present in
+        ``JINJA_ENV_PARAM_IMPORT_ALLOWLIST`` may be resolved via ``import_string()``. Any other
+        string value raises a ``ValidationError`` to prevent arbitrary callable resolution
+        (which would otherwise allow remote code execution at render time).
         """
-        params = self.environment_params or {}
+        self._validate_environment_params()
+        params = dict(self.environment_params or {})
         for name, value in params.items():
             if name in JINJA_ENV_PARAMS_WITH_PATH_IMPORT and type(value) is str:
                 params[name] = import_string(value)
