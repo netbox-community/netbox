@@ -373,6 +373,7 @@ class UserTokenView(LoginRequiredMixin, View):
 class UserTokenEditView(generic.ObjectEditView):
     queryset = UserToken.objects.all()
     form = forms.UserTokenForm
+    template_name = 'account/usertoken_edit.html'
     default_return_url = 'account:usertoken_list'
 
     def alter_object(self, obj, request, url_args, url_kwargs):
