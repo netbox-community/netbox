@@ -124,16 +124,6 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
 
 
 class UserTokenForm(forms.ModelForm):
-    token = forms.CharField(
-        label=_('Token'),
-        help_text=_(
-            'Tokens must be at least 40 characters in length. <strong>Be sure to record your token</strong> prior to '
-            'submitting this form, as it will no longer be accessible once the token has been created.'
-        ),
-        widget=forms.TextInput(
-            attrs={'data-clipboard': 'true'}
-        )
-    )
     allowed_ips = SimpleArrayField(
         base_field=IPNetworkFormField(validators=[prefix_validator]),
         required=False,
@@ -147,7 +137,7 @@ class UserTokenForm(forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'version', 'token', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -161,19 +151,20 @@ class UserTokenForm(forms.ModelForm):
             self.fields['version'].disabled = True
             self.fields['user'].disabled = True
 
-            # Omit the key field when editing an existing Token
-            del self.fields['token']
-
-        # Generate an initial random key if none has been specified
-        elif self.instance._state.adding and not self.initial.get('token'):
+        elif self.instance._state.adding:
             self.initial['version'] = TokenVersionChoices.V2
-            self.initial['token'] = Token.generate()
 
     def save(self, commit=True):
-        if self.instance._state.adding and self.cleaned_data.get('token'):
-            self.instance.token = self.cleaned_data['token']
-
-        return super().save(commit=commit)
+        creating = self.instance.pk is None
+        instance = super().save(commit=commit)
+        # On creation, stash the auto-generated plaintext on the session so that the detail view can render the
+        # full HTTP authorization string exactly once. The plaintext is never persisted to the database; the
+        # request is delivered to the form via the edit view's alter_object hook.
+        if creating and instance._token and instance.pk is not None:
+            request = getattr(instance, '_request', None)
+            if request is not None:
+                request.session[f'_token_plaintext_{instance.pk}'] = instance._token
+        return instance
 
 
 class TokenForm(UserTokenForm):
@@ -184,7 +175,7 @@ class TokenForm(UserTokenForm):
 
     class Meta(UserTokenForm.Meta):
         fields = [
-            'version', 'token', 'user', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'user', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
 
     def __init__(self, *args, **kwargs):

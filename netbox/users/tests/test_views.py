@@ -1,6 +1,10 @@
+from django.test import override_settings
+from django.urls import reverse
+
 from core.models import ObjectType
+from users.constants import TOKEN_PREFIX
 from users.models import *
-from utilities.testing import ViewTestCases, create_test_user
+from utilities.testing import TestCase, ViewTestCases, create_test_user
 
 
 class UserTestCase(
@@ -233,7 +237,6 @@ class TokenTestCase(
 
         cls.form_data = {
             'version': 2,
-            'token': '4F9DAouzURLbicyoG55htImgqQ0b4UZHP5LUYgl5',
             'user': users[0].pk,
             'description': 'Test token',
             'enabled': True,
@@ -256,6 +259,80 @@ class TokenTestCase(
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+
+class TokenOneTimeAuthStringTestCase(TestCase):
+    """
+    Verify that the plaintext value of a newly-created Token is surfaced exactly once via the detail view, and
+    that it is never persisted in the database.
+    """
+    user_permissions = ('users.add_token', 'users.view_token', 'users.view_user')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_create_stashes_plaintext_and_detail_view_renders_it_once(self):
+        target_user = create_test_user('token_owner')
+
+        # Create a Token via the admin add view
+        response = self.client.post(reverse('users:token_add'), data={
+            'version': 2,
+            'user': target_user.pk,
+            'description': 'one-time-display test',
+            'enabled': 'on',
+            'write_enabled': 'on',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        token = Token.objects.get(description='one-time-display test')
+        # Plaintext must NEVER be persisted for v2 tokens
+        self.assertIsNone(token.plaintext)
+        self.assertIsNotNone(token.hmac_digest)
+        self.assertIsNotNone(token.key)
+
+        # Plaintext should be stashed on the session, keyed by token PK
+        session_key = f'_token_plaintext_{token.pk}'
+        self.assertIn(session_key, self.client.session)
+        plaintext = self.client.session[session_key]
+        self.assertEqual(len(plaintext), 40)
+        # Plaintext must validate against the stored digest
+        self.assertTrue(token.validate(plaintext))
+
+        # First GET on the detail view: full auth string should appear and be popped from the session
+        response = self.client.get(token.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        expected_auth_string = f'Bearer {TOKEN_PREFIX}{token.key}.{plaintext}'
+        self.assertContains(response, expected_auth_string)
+        self.assertNotIn(session_key, self.client.session)
+
+        # Second GET: the banner must no longer render
+        response = self.client.get(token.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, expected_auth_string)
+        # Specifically, the banner element must be gone
+        self.assertNotContains(response, 'id="new-token-auth-string"')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_form_ignores_user_supplied_token_field(self):
+        """
+        Submitting a 'token' POST parameter should be silently ignored: the model auto-generates plaintext on save.
+        """
+        target_user = create_test_user('token_owner_2')
+
+        response = self.client.post(reverse('users:token_add'), data={
+            'version': 2,
+            'user': target_user.pk,
+            'description': 'ignored-plaintext test',
+            'token': 'attacker_supplied_plaintext_value_xxxxxxx',
+            'enabled': 'on',
+            'write_enabled': 'on',
+        })
+        self.assertEqual(response.status_code, 302)
+
+        token = Token.objects.get(description='ignored-plaintext test')
+        # The supplied plaintext must NOT have been used
+        self.assertFalse(token.validate('attacker_supplied_plaintext_value_xxxxxxx'))
+        # Whatever was auto-generated must validate
+        plaintext = self.client.session[f'_token_plaintext_{token.pk}']
+        self.assertTrue(token.validate(plaintext))
 
 
 class OwnerGroupTestCase(ViewTestCases.AdminModelViewTestCase):
