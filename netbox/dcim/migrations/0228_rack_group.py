@@ -36,6 +36,9 @@ class Migration(migrations.Migration):
             reverse_sql=migrations.RunSQL.noop,
         ),
         # PostgreSQL does not support IF EXISTS on RENAME CONSTRAINT, so use a DO block.
+        # Target names match what a fresh v4.5.9 install produces (Django generates the FK
+        # constraint name as <table>_<col>_<hash>_fk_<ref_table>_<ref_col>, where the hash is
+        # md5(table + col)[:8] computed against the new dcim_location table name).
         migrations.RunSQL(
             sql="""
                 DO $$
@@ -43,19 +46,21 @@ class Migration(migrations.Migration):
                     r RECORD;
                 BEGIN
                     FOR r IN (
-                        SELECT conname, regexp_replace(conname, '^dcim_rackgroup_', 'dcim_location_') AS new_name
-                        FROM pg_constraint
-                        WHERE conrelid = to_regclass('dcim_location')
-                          AND conname IN (
-                              'dcim_rackgroup_level_check',
-                              'dcim_rackgroup_lft_check',
-                              'dcim_rackgroup_rght_check',
-                              'dcim_rackgroup_tree_id_check',
-                              'dcim_rackgroup_site_id_13520e89_fk'
-                          )
+                        SELECT old_name, new_name FROM (VALUES
+                            ('dcim_rackgroup_level_check', 'dcim_location_level_check'),
+                            ('dcim_rackgroup_lft_check', 'dcim_location_lft_check'),
+                            ('dcim_rackgroup_rght_check', 'dcim_location_rght_check'),
+                            ('dcim_rackgroup_tree_id_check', 'dcim_location_tree_id_check'),
+                            ('dcim_rackgroup_site_id_13520e89_fk',
+                                'dcim_location_site_id_b55e975f_fk_dcim_site_id')
+                        ) AS m(old_name, new_name)
+                        WHERE EXISTS (
+                            SELECT 1 FROM pg_constraint
+                            WHERE conrelid = to_regclass('dcim_location') AND conname = m.old_name
+                        )
                     ) LOOP
                         EXECUTE format('ALTER TABLE dcim_location RENAME CONSTRAINT %I TO %I',
-                            r.conname, r.new_name);
+                            r.old_name, r.new_name);
                     END LOOP;
                 END $$;
             """,
