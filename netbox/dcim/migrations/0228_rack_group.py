@@ -14,83 +14,49 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Rename any legacy database objects left over from when the RackGroup model was
-        # renamed to Location (v2.11) and Rack.group was renamed to Rack.location. Older
-        # installations retained the original names, which conflict with the new dcim_rackgroup
-        # table and dcim_rack.group_id column being created by this migration.
+        # Rename legacy database objects left over from when the RackGroup model was renamed
+        # to Location (v2.11) and Rack.group was renamed to Rack.location. Old installations
+        # retained the original names, which conflict with the new dcim_rackgroup table and
+        # dcim_rack.group_id column created by this migration. No-op on fresh installs.
+        migrations.RunSQL(
+            sql=[
+                "ALTER INDEX IF EXISTS dcim_rackgroup_pkey RENAME TO dcim_location_pkey",
+                "ALTER INDEX IF EXISTS dcim_rackgroup_parent_id_cc315105 RENAME TO dcim_location_parent_id_d77f3318",
+                "ALTER INDEX IF EXISTS dcim_rackgroup_site_id_13520e89 RENAME TO dcim_location_site_id_b55e975f",
+                "ALTER INDEX IF EXISTS dcim_rackgroup_slug_3f4582a7 RENAME TO dcim_location_slug_352c5472",
+                "ALTER INDEX IF EXISTS dcim_rackgroup_slug_3f4582a7_like RENAME TO dcim_location_slug_352c5472_like",
+                "ALTER INDEX IF EXISTS dcim_rackgroup_tree_id_9c2ad6f4 RENAME TO dcim_location_tree_id_5089ef14",
+                "ALTER SEQUENCE IF EXISTS dcim_rackgroup_id_seq RENAME TO dcim_location_id_seq",
+                # Rename the legacy index on dcim_rack from when Rack.group was renamed to
+                # Rack.location. The column was renamed but the index was not, so it still
+                # carries the old "group_id" name while indexing location_id. Its name
+                # collides with the new index Django creates for the new Rack.group FK.
+                "ALTER INDEX IF EXISTS dcim_rack_group_id_44e90ea9 RENAME TO dcim_rack_location_id_5f63ec31",
+            ],
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+        # PostgreSQL does not support IF EXISTS on RENAME CONSTRAINT, so use a DO block.
         migrations.RunSQL(
             sql="""
                 DO $$
                 DECLARE
                     r RECORD;
-                    target_name text;
                 BEGIN
-                    -- Legacy dcim_rackgroup_* indexes on dcim_location
-                    IF to_regclass('dcim_location') IS NOT NULL THEN
-                        FOR r IN (
-                            SELECT indexname FROM pg_indexes
-                            WHERE tablename = 'dcim_location' AND indexname LIKE 'dcim_rackgroup_%'
-                        ) LOOP
-                            target_name := regexp_replace(r.indexname, '^dcim_rackgroup_', 'dcim_location_legacy_');
-                            IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = target_name) THEN
-                                EXECUTE format('ALTER INDEX %I RENAME TO %I', r.indexname, target_name);
-                            END IF;
-                        END LOOP;
-                    END IF;
-
-                    -- Legacy dcim_rackgroup_id_seq sequence
-                    IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'dcim_rackgroup_id_seq' AND relkind = 'S')
-                        AND NOT EXISTS (
-                            SELECT 1 FROM pg_class WHERE relname = 'dcim_location_legacy_id_seq' AND relkind = 'S'
-                        )
-                    THEN
-                        ALTER SEQUENCE dcim_rackgroup_id_seq RENAME TO dcim_location_legacy_id_seq;
-                    END IF;
-
-                    -- Legacy dcim_rackgroup_* constraints on dcim_location
-                    IF to_regclass('dcim_location') IS NOT NULL THEN
-                        FOR r IN (
-                            SELECT conname FROM pg_constraint
-                            WHERE conrelid = to_regclass('dcim_location') AND conname LIKE 'dcim_rackgroup_%'
-                        ) LOOP
-                            target_name := regexp_replace(r.conname, '^dcim_rackgroup_', 'dcim_location_legacy_');
-                            IF NOT EXISTS (
-                                SELECT 1 FROM pg_constraint
-                                WHERE conrelid = to_regclass('dcim_location') AND conname = target_name
-                            ) THEN
-                                EXECUTE format('ALTER TABLE dcim_location RENAME CONSTRAINT %I TO %I',
-                                    r.conname, target_name);
-                            END IF;
-                        END LOOP;
-                    END IF;
-
-                    -- Legacy dcim_rack_group_* indexes on dcim_rack (from when Rack.group was
-                    -- renamed to Rack.location; the column was renamed but the index was not)
-                    IF to_regclass('dcim_rack') IS NOT NULL THEN
-                        FOR r IN (
-                            SELECT indexname FROM pg_indexes
-                            WHERE tablename = 'dcim_rack' AND indexname LIKE 'dcim_rack_group_%'
-                        ) LOOP
-                            target_name := regexp_replace(r.indexname, '^dcim_rack_group_', 'dcim_rack_legacy_group_');
-                            IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = target_name) THEN
-                                EXECUTE format('ALTER INDEX %I RENAME TO %I', r.indexname, target_name);
-                            END IF;
-                        END LOOP;
-
-                        FOR r IN (
-                            SELECT conname FROM pg_constraint
-                            WHERE conrelid = to_regclass('dcim_rack') AND conname LIKE 'dcim_rack_group_%'
-                        ) LOOP
-                            target_name := regexp_replace(r.conname, '^dcim_rack_group_', 'dcim_rack_legacy_group_');
-                            IF NOT EXISTS (
-                                SELECT 1 FROM pg_constraint
-                                WHERE conrelid = to_regclass('dcim_rack') AND conname = target_name
-                            ) THEN
-                                EXECUTE format('ALTER TABLE dcim_rack RENAME CONSTRAINT %I TO %I',
-                                    r.conname, target_name);
-                            END IF;
-                        END LOOP;
-                    END IF;
+                    FOR r IN (
+                        SELECT conname, regexp_replace(conname, '^dcim_rackgroup_', 'dcim_location_') AS new_name
+                        FROM pg_constraint
+                        WHERE conrelid = to_regclass('dcim_location')
+                          AND conname IN (
+                              'dcim_rackgroup_level_check',
+                              'dcim_rackgroup_lft_check',
+                              'dcim_rackgroup_rght_check',
+                              'dcim_rackgroup_tree_id_check',
+                              'dcim_rackgroup_site_id_13520e89_fk'
+                          )
+                    ) LOOP
+                        EXECUTE format('ALTER TABLE dcim_location RENAME CONSTRAINT %I TO %I',
+                            r.conname, r.new_name);
+                    END LOOP;
                 END $$;
             """,
             reverse_sql=migrations.RunSQL.noop,
