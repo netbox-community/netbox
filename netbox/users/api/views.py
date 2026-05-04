@@ -52,6 +52,30 @@ class TokenViewSet(NetBoxModelViewSet):
     serializer_class = serializers.TokenSerializer
     filterset_class = filtersets.TokenFilterSet
 
+    def create(self, request, *args, **kwargs):
+        # The plaintext token value is held only in memory after creation; for v2 tokens the database
+        # stores only an HMAC digest, so it cannot be recovered later. Preserve it across the re-fetch
+        # performed in the parent class so the response returned to the client includes a usable token.
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        bulk_create = getattr(serializer, 'many', False)
+        self.perform_create(serializer)
+
+        if bulk_create:
+            plaintext_by_pk = {obj.pk: obj.token for obj in serializer.instance}
+            qs = list(self.get_queryset().filter(pk__in=plaintext_by_pk.keys()).order_by('pk'))
+            for obj in qs:
+                obj._token = plaintext_by_pk.get(obj.pk)
+        else:
+            plaintext = serializer.instance.token
+            qs = self.get_queryset().get(pk=serializer.instance.pk)
+            qs._token = plaintext
+
+        serializer = self.get_serializer(qs, many=bulk_create)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=HTTP_201_CREATED, headers=headers)
+
 
 class TokenProvisionView(APIView):
     """
