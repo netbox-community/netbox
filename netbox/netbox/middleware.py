@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
+from django.core.signals import got_request_exception
 from django.db import ProgrammingError, connection
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
@@ -103,6 +104,11 @@ class CoreMiddleware:
 
         # Cleanly handle exceptions that occur from REST API requests
         if is_api_request(request):
+            # Fire Django's got_request_exception signal so error-tracking
+            # integrations (e.g. Sentry) capture the exception. Returning a
+            # response below tells Django the exception is handled and would
+            # otherwise suppress this signal.
+            got_request_exception.send(sender=self.__class__, request=request)
             return handle_rest_api_exception(request)
 
         # Ignore Http404s (defer to Django's built-in 404 handling)
