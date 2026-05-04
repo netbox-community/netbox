@@ -53,24 +53,34 @@ class TokenViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.TokenFilterSet
 
     def create(self, request, *args, **kwargs):
-        # The plaintext token value is held only in memory after creation; for v2 tokens the database
-        # stores only an HMAC digest, so it cannot be recovered later. Preserve it across the re-fetch
-        # performed in the parent class so the response returned to the client includes a usable token.
+        # This is the same code as NetBoxModelViewSet.create(), but re-copies the plaintext token
+        # value(s) onto the re-fetched instance(s). The parent's create() re-fetches from the
+        # database after perform_create() to attach prefetched related objects, which discards
+        # the in-memory plaintext — for v2 tokens this value cannot be recovered later because
+        # the database stores only an HMAC digest.
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         bulk_create = getattr(serializer, 'many', False)
         self.perform_create(serializer)
 
+        # After creating the instance(s), re-initialize the serializer with a queryset
+        # to ensure related objects are prefetched.
         if bulk_create:
-            plaintext_by_pk = {obj.pk: obj.token for obj in serializer.instance}
-            qs = list(self.get_queryset().filter(pk__in=plaintext_by_pk.keys()).order_by('pk'))
+            instance_pks = [obj.pk for obj in serializer.instance]
+            # Capture the in-memory plaintext token values; v2 tokens cannot be recovered from the database.
+            plaintexts = {obj.pk: obj.token for obj in serializer.instance}
+            # Order by PK to ensure that the ordering of objects in the response
+            # matches the ordering of those in the request.
+            qs = list(self.get_queryset().filter(pk__in=instance_pks).order_by('pk'))
             for obj in qs:
-                obj._token = plaintext_by_pk.get(obj.pk)
+                obj._token = plaintexts[obj.pk]
         else:
+            # Capture the in-memory plaintext token; v2 tokens cannot be recovered from the database.
             plaintext = serializer.instance.token
             qs = self.get_queryset().get(pk=serializer.instance.pk)
             qs._token = plaintext
 
+        # Re-serialize the instance(s) with prefetched data
         serializer = self.get_serializer(qs, many=bulk_create)
 
         headers = self.get_success_headers(serializer.data)
