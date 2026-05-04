@@ -101,6 +101,10 @@ jsonschema
 # https://python-markdown.github.io/changelog/
 Markdown
 
+# Retain MkDocs 1.x for mkdocstrings
+# https://github.com/mkdocs/mkdocs
+mkdocs<2.0
+
 # MkDocs Material theme (for documentation build)
 # https://squidfunk.github.io/mkdocs-material/changelog/
 mkdocs-material

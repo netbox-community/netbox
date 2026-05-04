@@ -1,6 +1,6 @@
 # NetBox v4.6
 
-## v4.6.0-beta2 (2026-04-28)
+## v4.6.0 (2026-05-05)
 
 ### New Features
 
@@ -54,6 +54,7 @@ A new `start` query parameter has been introduced as an efficient alternative to
 * [#21780](https://github.com/netbox-community/netbox/issues/21780) - Add changelog message support to bulk creation of IP addresses
 * [#21865](https://github.com/netbox-community/netbox/issues/21865) - Allow setting empty `INTERNAL_IPS` to enable debug toolbar for all clients
 * [#21924](https://github.com/netbox-community/netbox/issues/21924) - Improve styling and consistency of floating bulk action controls
+* [#22062](https://github.com/netbox-community/netbox/issues/22062) - Display API token ID & plaintext one time immediately upon creation
 
 ### Performance Improvements
 
@@ -76,6 +77,9 @@ A new `start` query parameter has been introduced as an efficient alternative to
 * [#21887](https://github.com/netbox-community/netbox/issues/21887) - Deprecate support for legacy view actions
 * [#21890](https://github.com/netbox-community/netbox/issues/21890) - Deprecate `models` key in application registry
 * [#21936](https://github.com/netbox-community/netbox/issues/21936) - Deprecate the `LOGIN_REQUIRED` configuration parameter
+* [#22046](https://github.com/netbox-community/netbox/issues/22046) - Deprecate OptionalLimitOffsetPagination 
+* [#22047](https://github.com/netbox-community/netbox/issues/22047) - Deprecate ExpandableIPAddressField 
+* [#22048](https://github.com/netbox-community/netbox/issues/22048) - Deprecate the `expand_ipaddress_pattern()` utility function
 
 ### Other Changes
 
