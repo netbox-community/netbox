@@ -95,7 +95,8 @@ class CablePathSerializer(serializers.ModelSerializer):
 
 class CabledObjectSerializer(serializers.ModelSerializer):
     cable = CableSerializer(nested=True, read_only=True, allow_null=True)
-    cable_end = serializers.CharField(read_only=True)
+    # Use DRF's ChoiceField; NetBox's ChoiceField would return a value/label object.
+    cable_end = serializers.ChoiceField(choices=CableEndChoices, read_only=True, allow_null=True)
     link_peers_type = serializers.SerializerMethodField(read_only=True, allow_null=True)
     link_peers = serializers.SerializerMethodField(read_only=True)
     _occupied = serializers.SerializerMethodField(read_only=True)
