@@ -1,5 +1,17 @@
 # NetBox v4.5
 
+## v4.5.10 (2026-05-04)
+
+### Bug Fixes
+
+* [#21990](https://github.com/netbox-community/netbox/issues/21990) - Fix erroneous deletion of device assignment when editing a virtual machine
+* [#22005](https://github.com/netbox-community/netbox/issues/22005) - Fix filtering of interfaces by `connected` status to exclude incomplete cable paths
+* [#22029](https://github.com/netbox-community/netbox/issues/22029) - Recast empty string values as null for unique nullable fields to avoid integrity errors
+* [#22031](https://github.com/netbox-community/netbox/issues/22031) - Fix error when adding a prefix from a VLAN with no tenant/site
+* [#22084](https://github.com/netbox-community/netbox/issues/22084) - Correct OpenAPI schema for `cable_end` field on cabled objects to indicate it may be null
+
+---
+
 ## v4.5.9 (2026-04-28)
 
 ### Enhancements
