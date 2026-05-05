@@ -1051,6 +1051,8 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_rename_objects_with_changelog_message(self):
+            if not issubclass(self.model, ChangeLoggingMixin):
+                self.skipTest("Model does not support change logging")
             objects = self._get_queryset().all()[:3]
             pk_list = [obj.pk for obj in objects]
             data = {

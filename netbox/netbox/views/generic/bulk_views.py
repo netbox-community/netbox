@@ -891,7 +891,8 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
         self.form = _Form
 
-        # Remove changelog_message field if model doesn't support change logging
+        # Remove changelog_message field if model doesn't support change logging.
+        # Mutating base_fields is safe here because _Form is created fresh per request above.
         if not issubclass(self.queryset.model, ChangeLoggingMixin):
             self.form.base_fields.pop('changelog_message', None)
 
