@@ -122,12 +122,12 @@ jobs:
 
     - name: Run tests with coverage
       if: ${{ matrix.coverage }}
-      run: >-
-        coverage run --source="netbox/"
-        netbox/manage.py test netbox/ --parallel
+      run: coverage run netbox/manage.py test netbox/ --parallel
+
+    - name: Combine coverage data
+      if: ${{ matrix.coverage }}
+      run: coverage combine
 
     - name: Show coverage report
       if: ${{ matrix.coverage }}
-      run: >-
-        coverage report --skip-covered
-        --omit '*/migrations/*,*/tests/*'
+      run: coverage report

@@ -26,6 +26,19 @@ Documentation = "https://netboxlabs.com/docs/netbox/"
 Source = "https://github.com/netbox-community/netbox"
 Issues = "https://github.com/netbox-community/netbox/issues"
 
+[tool.coverage.run]
+source = ["netbox/"]
+concurrency = ["multiprocessing"]
+parallel = true
+sigterm = true
+
+[tool.coverage.report]
+skip_covered = true
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+]
+
 [tool.pyright]
 include = ["netbox"]
 exclude = [
