@@ -26,17 +26,6 @@ Documentation = "https://netboxlabs.com/docs/netbox/"
 Source = "https://github.com/netbox-community/netbox"
 Issues = "https://github.com/netbox-community/netbox/issues"
 
-[tool.black]
-line-length = 120
-target_version = ['py312', 'py313', 'py314']
-skip-string-normalization = true
-
-[tool.isort]
-profile = "black"
-
-[tool.pylint]
-max-line-length = 120
-
 [tool.pyright]
 include = ["netbox"]
 exclude = [
@@ -45,3 +34,90 @@ exclude = [
 ]
 reportMissingImports = true
 reportMissingTypeStubs = false
+
+[tool.ruff]
+exclude = [
+    ".eggs",
+    ".git",
+    ".pyenv",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "build",
+    "dist",
+    "netbox/project-static/**",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+# Enforce line length and indent-width
+line-length = 120
+indent-width = 4
+
+# Ignores anything in .gitignore
+respect-gitignore = true
+
+# Always generate Python 3.12-compatible code
+target-version = "py312"
+
+[tool.ruff.lint]
+# Pin the effective default rule set used with `preview = true` to match Ruff 0.15.1.
+# Ruff 0.15.2 changed the preview defaults, see https://github.com/astral-sh/ruff/releases/tag/0.15.2
+# Keeping this explicit makes ruff deterministic.
+select = ["E4", "E7", "E9", "F"]
+extend-select = [
+    "E1", # pycodestyle errors: indentation-related (e.g., unexpected/missing indent)
+    "E2", # pycodestyle errors: whitespace-related (e.g., missing whitespace, extra spaces)
+    "E3", # pycodestyle errors: blank lines / spacing around definitions
+    "E501", # pycodestyle: line too long (enforced with `line-length` above)
+    "W", # pycodestyle warnings (various style warnings, often whitespace/newlines)
+    "I", # import sorting (isort-equivalent)
+    "RET", # return semantics (flake8-return family: consistent/explicit returns; remove redundant else/assign before return)
+    "UP", # pyupgrade: modernize syntax for your target Python (e.g., f-strings, built-in generics, newer stdlib idioms)
+    "RUF022", # ruff: enforce sorted `__all__` lists
+]
+# If you add a rule to `ignore`, please also update the "Linter Exceptions" section in
+# docs/development/style-guide.md.
+ignore = [
+    "F403", # pyflakes: `from ... import *` used; unable to detect undefined names
+    "F405", # pyflakes: name may be undefined or defined from star imports
+    "RET504", # return: unnecessary assignment before `return` (e.g., `x = expr; return x` -> `return expr`)
+    "UP032", # pyupgrade: prefer f-strings over `str.format(...)`
+]
+preview = true
+
+[tool.ruff.lint.isort]
+known-first-party = [
+    "account",
+    "circuits",
+    "core",
+    "dcim",
+    "extras",
+    "ipam",
+    "netbox",
+    "tenancy",
+    "users",
+    "utilities",
+    "virtualization",
+    "vpn",
+    "wireless",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"template_code.py" = ["E501"]
+"netbox/netbox/graphql/filter_lookups.py" = ["UP046"] # Strawberry typing: keep `Generic[T]` for now
+"netbox/netbox/graphql/scalars.py" = ["UP007"] # Strawberry scalar typing: `Union[...]` required
+
+[tool.ruff.format]
+# Use single quotes for strings.
+quote-style = "single"
+
+# Indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Enforce UNIX line ending
+line-ending = "lf"
