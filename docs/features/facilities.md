@@ -13,10 +13,12 @@ flowchart TD
     Rack --> Device
     Site --> Rack
     RackRole --> Rack
+    RackGroup --> Rack
 
 click Device "../../models/dcim/device/"
 click Location "../../models/dcim/location/"
 click Rack "../../models/dcim/rack/"
+click RackGroup "../../models/dcim/rackgroup/"
 click RackRole "../../models/dcim/rackrole/"
 click Region "../../models/dcim/region/"
 click Site "../../models/dcim/site/"
@@ -60,11 +62,15 @@ A location can be any logical subdivision within a building, such as a floor or 
 
 A rack type represents a unique specification of a rack which exists in the real world. Each rack type can be setup with weight, height, and unit ordering. New racks of this type can then be created in NetBox, and any associated specifications will be automatically replicated from the device type.
 
+## Rack Groups
+
+In addition to being assigned to a [location](#locations), racks may optionally be assigned to a [rack group](../models/dcim/rackgroup.md). Rack groups are flat (non-hierarchical) and exist alongside locations as a secondary axis of grouping — particularly handy for organizing racks by row, aisle, or pod within a single location, or for scoping [VLAN groups](../models/ipam/vlangroup.md) to a subset of racks.
+
 ## Racks
 
 Finally, NetBox models each equipment rack as a discrete object within a site and location. These are physical objects into which devices are installed. Each rack can be assigned an operational status, type, facility ID, and other attributes related to inventory tracking. Each rack also must define a height (in rack units) and width, and may optionally specify its physical dimensions.
 
-Each rack must be associated to a site, but the assignment to a location within that site is optional. Users can also create custom roles to which racks can be assigned. NetBox supports tracking rack space in half-unit increments, so it's possible to mount devices at e.g. position 2.5 within a rack.
+Each rack must be associated to a site, but the assignment to a location or rack group within that site is optional. Users can also create custom roles to which racks can be assigned. NetBox supports tracking rack space in half-unit increments, so it's possible to mount devices at e.g. position 2.5 within a rack.
 
 !!! tip "Devices"
     You'll notice in the diagram above that a device can be installed within a site, location, or rack. This approach affords plenty of flexibility as not all sites need to define child locations, and not all devices reside in racks.
