@@ -915,6 +915,214 @@ class ModuleBayTestCase(TestCase):
             module_1.clean()
             module_1.save()
 
+    @tag('regression')  # #22146
+    def test_module_bay_ordering_after_recreate(self):
+        """
+        Module bays must remain in name order after a delete-and-recreate cycle,
+        even though MPTT no longer renumbers tree_ids on root insertion.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Ordering Test Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        for name in ('Bay 1', 'Bay 2', 'Bay 3', 'Bay 4'):
+            ModuleBay.objects.create(device=device, name=name)
+
+        ModuleBay.objects.get(device=device, name='Bay 3').delete()
+        ModuleBay.objects.create(device=device, name='Bay 3')
+
+        names = list(ModuleBay.objects.filter(device=device).values_list('name', flat=True))
+        self.assertEqual(names, ['Bay 1', 'Bay 2', 'Bay 3', 'Bay 4'])
+
+    @tag('regression')  # #22146
+    def test_module_bay_natural_ordering(self):
+        """
+        Module bays must be returned in natural (numeric-aware) order, e.g.
+        "Bay 2" before "Bay 10".
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Natural Sort Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        # Insert in non-natural order to confirm sort is not insertion-driven.
+        for name in ('Bay 10', 'Bay 1', 'Bay 2', 'Bay 11'):
+            ModuleBay.objects.create(device=device, name=name)
+
+        names = list(ModuleBay.objects.filter(device=device).values_list('name', flat=True))
+        self.assertEqual(names, ['Bay 1', 'Bay 2', 'Bay 10', 'Bay 11'])
+
+    @tag('regression')  # #22146
+    def test_child_module_bay_ordering(self):
+        """
+        Child module bays inside a module must be returned in name order even
+        when inserted out of order.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Child Ordering Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        root_bay = ModuleBay.objects.create(device=device, name='Bay 1')
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Child Ordering Type'
+        )
+        module = Module.objects.create(
+            device=device, module_bay=root_bay, module_type=module_type
+        )
+        # Insert children out of name order.
+        for name in ('Bay 1.1', 'Bay 1.3', 'Bay 1.2'):
+            ModuleBay.objects.create(device=device, module=module, name=name)
+
+        names = list(ModuleBay.objects.filter(device=device).values_list('name', flat=True))
+        self.assertEqual(names, ['Bay 1', 'Bay 1.1', 'Bay 1.2', 'Bay 1.3'])
+
+    @tag('regression')  # #22146
+    def test_root_module_bay_rename_preserves_tree_ids(self):
+        """
+        Renaming a root module bay must not renumber any other root tree's
+        tree_id. The renamed bay's own tree_id is also expected to remain
+        stable, but the load-bearing assertion is that the *other* bays are
+        not shifted.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Rename TreeID Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        for name in ('Bay 1', 'Bay 2', 'Bay 3', 'Bay 4'):
+            ModuleBay.objects.create(device=device, name=name)
+
+        tree_ids_before = {
+            bay.name: bay.tree_id
+            for bay in ModuleBay.objects.filter(device=device)
+        }
+
+        bay = ModuleBay.objects.get(device=device, name='Bay 2')
+        bay.name = 'Bay 99'
+        bay.save()
+
+        tree_ids_after = {
+            bay.name: bay.tree_id
+            for bay in ModuleBay.objects.filter(device=device)
+        }
+        for name in ('Bay 1', 'Bay 3', 'Bay 4'):
+            self.assertEqual(tree_ids_after[name], tree_ids_before[name])
+        self.assertEqual(tree_ids_after['Bay 99'], tree_ids_before['Bay 2'])
+
+    @tag('regression')  # #22146
+    def test_root_module_bay_rename_updates_display_order(self):
+        """
+        Even though renaming a root module bay does not renumber tree_ids,
+        the manager's _root_name annotation must reflect the new name so the
+        display ordering is correct.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Rename Order Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        for name in ('Bay 1', 'Bay 2', 'Bay 3'):
+            ModuleBay.objects.create(device=device, name=name)
+
+        bay = ModuleBay.objects.get(device=device, name='Bay 1')
+        bay.name = 'Bay 4'
+        bay.save()
+
+        names = list(ModuleBay.objects.filter(device=device).values_list('name', flat=True))
+        self.assertEqual(names, ['Bay 2', 'Bay 3', 'Bay 4'])
+
+    @tag('regression')  # #22146
+    def test_child_module_bay_rename_preserves_intra_tree_ordering(self):
+        """
+        Renaming a *child* module bay must still trigger MPTT's intra-tree
+        reorder, so siblings appear in name order after the rename. The
+        rename-bypass only covers root bays.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Child Rename Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        root_bay = ModuleBay.objects.create(device=device, name='Bay 1')
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Child Rename Type'
+        )
+        module = Module.objects.create(
+            device=device, module_bay=root_bay, module_type=module_type
+        )
+        for name in ('Bay 1.1', 'Bay 1.2', 'Bay 1.3'):
+            ModuleBay.objects.create(device=device, module=module, name=name)
+
+        child = ModuleBay.objects.get(device=device, name='Bay 1.1')
+        child.name = 'Bay 1.4'
+        child.save()
+
+        names = list(ModuleBay.objects.filter(device=device).values_list('name', flat=True))
+        self.assertEqual(names, ['Bay 1', 'Bay 1.2', 'Bay 1.3', 'Bay 1.4'])
+
+    @tag('regression')  # #22146
+    def test_root_to_child_transition_still_relocates(self):
+        """
+        Promoting an existing root module bay to a child (by assigning a
+        module) must still flow through MPTT's normal move logic. The
+        rename-bypass must not suppress legitimate parent changes.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Root To Child Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        host_bay = ModuleBay.objects.create(device=device, name='Host Bay')
+        movable_bay = ModuleBay.objects.create(device=device, name='Movable Bay')
+
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Root To Child Type'
+        )
+        host_module = Module.objects.create(
+            device=device, module_bay=host_bay, module_type=module_type
+        )
+
+        movable_bay.module = host_module
+        movable_bay.save()
+
+        movable_bay.refresh_from_db()
+        host_bay.refresh_from_db()
+        self.assertEqual(movable_bay.parent_id, host_bay.pk)
+        self.assertEqual(movable_bay.tree_id, host_bay.tree_id)
+
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
