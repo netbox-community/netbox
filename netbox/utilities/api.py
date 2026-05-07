@@ -17,6 +17,7 @@ from rest_framework.views import get_view_name as drf_get_view_name
 from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from netbox.api.fields import RelatedObjectCountField
+from netbox.registry import registry
 
 from .query import count_related, dict_to_filter_params
 from .string import title
@@ -45,7 +46,18 @@ class IsSuperuser(BasePermission):
 def get_serializer_for_model(model, prefix=''):
     """
     Return the appropriate REST API serializer for the given model.
+
+    Plugins may register custom resolvers via
+    netbox.plugins.register_serializer_resolver() to handle dynamically
+    generated models or to override serializer resolution for specific
+    models. Resolvers run in registration order; the first non-None return
+    wins. If no resolver matches, the default import-path lookup runs.
     """
+    for resolver in registry['serializer_resolvers']:
+        serializer = resolver(model, prefix=prefix)
+        if serializer is not None:
+            return serializer
+
     app_label, model_name = model._meta.label.split('.')
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
     try:
