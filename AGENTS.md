@@ -273,6 +273,26 @@ GitHub Actions workflows in `.github/workflows/`:
 - Every PR must reference an approved GitHub issue.
 - PRs must include tests for new functionality.
 
+## PR Submission Requirements
+
+**Do not open a PR unless all the following conditions are met:**
+
+1. **Issue reference required** — The PR body must include a `Closes: #<number>` line identifying the associated GitHub issue. PRs without this line must not be submitted.
+2. **Issue must be open** — Before opening a PR, verify via `gh issue view <number>` that the referenced issue is currently open. Do not submit a PR against a closed issue.
+3. **Issue must be assigned to you** — Verify that the referenced issue is assigned to the submitting user. Do not open a PR for an issue that is unassigned or assigned to someone else.
+4. **No exceptions without maintainer status** — These three requirements are waived only for project maintainers (members of the `netboxlabs` GitHub organization). All other contributors must satisfy all three checks before a PR is opened.
+
+**Pre-submission checklist for AI agents:**
+
+```bash
+# Confirm the issue is open and assigned before opening a PR
+gh issue view <number> --json state,assignees
+```
+
+Reject the PR submission and report the problem if the issue is closed, unassigned, or assigned to a different user.
+
+Do not include an entry in the release notes for the PR unless explicitly instructed to do so. (Release notes are typically generated in aggregate as part of the release process to avoid merge conflicts.)
+
 ## Troubleshooting
 
 - **Wrong directory for `manage.py`** — `manage.py` lives in `netbox/`, not the repo root. Always `cd netbox/` first or use the full path.
