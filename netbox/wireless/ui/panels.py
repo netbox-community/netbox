@@ -11,7 +11,7 @@ class WirelessLANPanel(panels.ObjectAttributesPanel):
     ssid = attrs.TextAttr('ssid', label=_('SSID'))
     group = attrs.RelatedObjectAttr('group', linkify=True)
     status = attrs.ChoiceAttr('status')
-    scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
+    scope = attrs.GenericForeignKeyAttr('scope', linkify=True, nested=True, max_depth=3)
     description = attrs.TextAttr('description')
     vlan = attrs.RelatedObjectAttr('vlan', label=_('VLAN'), linkify=True)
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')

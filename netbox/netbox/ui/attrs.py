@@ -412,19 +412,48 @@ class GenericForeignKeyAttr(ObjectAttribute):
 
     Parameters:
          linkify (bool): If True, the rendered value will be hyperlinked
-             to the related object's detail view
+             to the related object's detail view.
+         nested (bool): If True and the related object exposes a callable
+             `get_ancestors(include_self=True)`, render the object together
+             with its ancestors as a breadcrumb, similar to `NestedObjectAttr`.
+             Non-hierarchical objects continue to render normally.
+         max_depth (int): Maximum number of ancestors to display when
+             `nested` is enabled. Ignored otherwise.
     """
     template_name = 'ui/attrs/generic_object.html'
 
-    def __init__(self, *args, linkify=None, **kwargs):
+    def __init__(self, *args, linkify=None, nested=False, max_depth=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.linkify = linkify
+        self.nested = nested
+        self.max_depth = max_depth
+
+    def _get_nodes(self, value):
+        """
+        Retrieves a list of nodes representing the hierarchical path to a given value.
+        """
+        if value is None:
+            return None
+
+        get_ancestors = getattr(value, 'get_ancestors', None)
+        if not callable(get_ancestors):
+            return None
+
+        nodes = list(get_ancestors(include_self=True))
+
+        if self.max_depth is not None:
+            nodes = nodes[-self.max_depth:]
+
+        return nodes
 
     def get_context(self, obj, attr, value, context):
         content_type = value._meta.verbose_name if value is not None else None
+        nodes = self._get_nodes(value) if (self.nested and value is not None) else None
+
         return {
             'content_type': content_type,
             'linkify': self.linkify,
+            'nodes': nodes,
         }
 
 
