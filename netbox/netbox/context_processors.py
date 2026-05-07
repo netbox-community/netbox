@@ -38,7 +38,7 @@ def preferences(request):
 
 def registry(request):
     """
-    Adds NetBox registry items to the template context. Example: {{ registry.models.core }}
+    Adds NetBox registry items to the template context.
     """
     return {
         'registry': registry_,
