@@ -20,7 +20,7 @@ NetBox requires the following dependencies:
 | Dependency | Supported Versions |
 |------------|--------------------|
 | Python     | 3.12, 3.13, 3.14   |
-| PostgreSQL | 14+                |
+| PostgreSQL | 15+                |
 | Redis      | 4.0+               |
 
 ### Version History

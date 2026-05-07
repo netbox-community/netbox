@@ -28,7 +28,7 @@ The following sections detail how to set up a new instance of NetBox:
 | Dependency | Supported Versions |
 |------------|--------------------|
 | Python     | 3.12, 3.13, 3.14   |
-| PostgreSQL | 14+                |
+| PostgreSQL | 15+                |
 | Redis      | 4.0+               |
 
 Below is a simplified overview of the NetBox application stack for reference:
