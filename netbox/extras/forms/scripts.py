@@ -2,7 +2,7 @@ from django import forms
 from django.core.files.storage import storages
 from django.utils.translation import gettext_lazy as _
 
-from core.choices import JobIntervalChoices
+from core.choices import JobIntervalChoices, JobNotificationChoices
 from core.forms import ManagedFileForm
 from extras.utils import validate_script_content
 from utilities.datetime import local_now
@@ -36,6 +36,13 @@ class ScriptForm(forms.Form):
         ),
         help_text=_("Interval at which this script is re-run (in minutes)")
     )
+    _notifications = forms.ChoiceField(
+        required=False,
+        choices=JobNotificationChoices,
+        initial=JobNotificationChoices.NOTIFICATION_ALWAYS,
+        label=_("Notifications"),
+        help_text=_("When to notify the user of job completion")
+    )
 
     def __init__(self, *args, scheduling_enabled=True, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,6 +64,11 @@ class ScriptForm(forms.Form):
         # When interval is used without schedule at, schedule for the current time
         if self.cleaned_data.get('_interval') and not scheduled_time:
             self.cleaned_data['_schedule_at'] = local_now()
+
+        # Fall back to the field's initial value if no notification preference was submitted
+        # (e.g. when running a script via the "Run Script" button on the scripts list view)
+        if not self.cleaned_data.get('_notifications'):
+            self.cleaned_data['_notifications'] = self.fields['_notifications'].initial
 
         return self.cleaned_data
 

@@ -97,6 +97,9 @@ class Cluster(ContactsMixin, CachedScopeMixin, PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('group', 'name'),

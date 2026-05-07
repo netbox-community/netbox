@@ -97,6 +97,9 @@ class VirtualCircuit(ContactsMixin, PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
         )
+        indexes = (
+            models.Index(fields=('provider_network', 'provider_account', 'cid')),  # Default ordering
+        )
         verbose_name = _('virtual circuit')
         verbose_name_plural = _('virtual circuits')
 
@@ -150,6 +153,9 @@ class VirtualCircuitTermination(
 
     class Meta:
         ordering = ['virtual_circuit', 'role', 'pk']
+        indexes = (
+            models.Index(fields=('virtual_circuit', 'role', 'id')),  # Default ordering
+        )
         verbose_name = _('virtual circuit termination')
         verbose_name_plural = _('virtual circuit terminations')
 

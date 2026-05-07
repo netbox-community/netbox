@@ -95,6 +95,39 @@ class CustomFieldChoiceSetBaseChoices(ChoiceSet):
     )
 
 
+class CustomFieldChoiceColorChoices(ChoiceSet):
+
+    BLUE = 'blue'
+    INDIGO = 'indigo'
+    PURPLE = 'purple'
+    PINK = 'pink'
+    RED = 'red'
+    ORANGE = 'orange'
+    YELLOW = 'yellow'
+    GREEN = 'green'
+    TEAL = 'teal'
+    CYAN = 'cyan'
+    GRAY = 'gray'
+    BLACK = 'black'
+    WHITE = 'white'
+
+    CHOICES = (
+        (BLUE, _('Blue'), BLUE),
+        (INDIGO, _('Indigo'), INDIGO),
+        (PURPLE, _('Purple'), PURPLE),
+        (PINK, _('Pink'), PINK),
+        (RED, _('Red'), RED),
+        (ORANGE, _('Orange'), ORANGE),
+        (YELLOW, _('Yellow'), YELLOW),
+        (GREEN, _('Green'), GREEN),
+        (TEAL, _('Teal'), TEAL),
+        (CYAN, _('Cyan'), CYAN),
+        (GRAY, _('Gray'), GRAY),
+        (BLACK, _('Black'), BLACK),
+        (WHITE, _('White'), WHITE),
+    )
+
+
 #
 # CustomLinks
 #

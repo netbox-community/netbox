@@ -26,10 +26,20 @@ The following data is available as context for Jinja2 templates:
 * `event` - The type of event which triggered the webhook: `created`, `updated`, or `deleted`.
 * `timestamp` - The time at which the event occurred (in [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format).
 * `object_type` - The NetBox model which triggered the change in the form `app_label.model_name`.
-* `username` - The name of the user account associated with the change.
-* `request_id` - The unique request ID. This may be used to correlate multiple changes associated with a single request.
+* `request` - Data about the triggering request (if available).
+    * `request.id` - The UUID associated with the request
+    * `request.method` - The HTTP method (e.g. `GET` or `POST`)
+    * `request.path` - The URL path (ex: `/dcim/sites/123/edit/`)
+    * `request.user` - The name of the authenticated user who made the request (if available)
 * `data` - A detailed representation of the object in its current state. This is typically equivalent to the model's representation in NetBox's REST API.
 * `snapshots` - Minimal "snapshots" of the object state both before and after the change was made; provided as a dictionary with keys named `prechange` and `postchange`. These are not as extensive as the fully serialized representation, but contain enough information to convey what has changed.
+* ⚠️ `request_id` - The unique request ID. This may be used to correlate multiple changes associated with a single request.
+* ⚠️ `username` - The name of the user account associated with the change.
+
+!!! warning "Deprecation of legacy keys"
+    The `request_id` and `username` keys in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in NetBox v4.7.0.
+
+    Use `request.user` and `request.id` from the `request` object included in the callback context instead.
 
 ### Default Request Body
 
@@ -55,6 +65,12 @@ If no body template is specified, the request body will be populated with a JSON
         },
         "region": null,
         ...
+    },
+    "request": {
+        "id": "17af32f0-852a-46ca-a7d4-33ecd0c13de6",
+        "method": "POST",
+        "path": "/dcim/sites/add/",
+        "user": "jstretch"
     },
     "snapshots": {
         "prechange": null,

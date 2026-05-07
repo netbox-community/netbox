@@ -118,6 +118,7 @@ class WirelessLAN(WirelessAuthenticationBase, CachedScopeMixin, PrimaryModel):
     class Meta:
         ordering = ('ssid', 'pk')
         indexes = (
+            models.Index(fields=('ssid', 'id')),  # Default ordering
             models.Index(fields=('scope_type', 'scope_id')),
         )
         verbose_name = _('wireless LAN')

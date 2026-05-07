@@ -52,6 +52,9 @@ class Tag(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedModel, Tag
 
     class Meta:
         ordering = ('weight', 'name')
+        indexes = (
+            models.Index(fields=('weight', 'name')),  # Default ordering
+        )
         verbose_name = _('tag')
         verbose_name_plural = _('tags')
 

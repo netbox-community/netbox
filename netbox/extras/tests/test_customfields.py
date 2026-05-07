@@ -399,6 +399,73 @@ class CustomFieldTest(TestCase):
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
+    def test_choice_set_colors(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors={
+                'a': CustomFieldChoiceColorChoices.RED,
+                'b': CustomFieldChoiceColorChoices.GREEN,
+            },
+        )
+        choice_set.full_clean()
+
+        self.assertEqual(
+            choice_set.colors,
+            {
+                'a': CustomFieldChoiceColorChoices.RED,
+                'b': CustomFieldChoiceColorChoices.GREEN,
+            },
+        )
+
+    def test_choice_set_invalid_color_mapping_value(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors={'c': CustomFieldChoiceColorChoices.RED},
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            choice_set.full_clean()
+
+        self.assertIn('choice_colors', cm.exception.message_dict)
+
+    def test_choice_set_invalid_color_value(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors={'a': 'magenta'},
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            choice_set.full_clean()
+
+        self.assertIn('choice_colors', cm.exception.message_dict)
+
+    def test_choice_set_invalid_color_mapping_structure(self):
+        choice_set = CustomFieldChoiceSet(
+            name='Test Choice Set',
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+            ),
+            choice_colors=['a:red'],
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            choice_set.full_clean()
+
+        self.assertIn('choice_colors', cm.exception.message_dict)
+
     def test_remove_selected_choice(self):
         """
         Removing a ChoiceSet choice that is referenced by an object should raise
@@ -653,6 +720,45 @@ class CustomFieldTest(TestCase):
                 required=True,
                 related_object_type=object_type,
                 default=["xxx"]
+            ).full_clean()
+
+    def test_validation_schema_only_for_json_type(self):
+        schema = {
+            'type': 'object',
+            'properties': {
+                'name': {'type': 'string'},
+            },
+        }
+
+        # Valid: schema on a JSON field
+        CustomField(name='test', type=CustomFieldTypeChoices.TYPE_JSON, validation_schema=schema).full_clean()
+
+        # Invalid: schema on a non-JSON field
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type=CustomFieldTypeChoices.TYPE_TEXT, validation_schema=schema).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type=CustomFieldTypeChoices.TYPE_INTEGER, validation_schema=schema).full_clean()
+
+    def test_json_schema_default_validation(self):
+        schema = {
+            'type': 'object',
+            'properties': {
+                'name': {'type': 'string'},
+            },
+            'required': ['name'],
+        }
+
+        # Valid default
+        CustomField(
+            name='test', type=CustomFieldTypeChoices.TYPE_JSON,
+            validation_schema=schema, default={'name': 'test'}
+        ).full_clean()
+
+        # Invalid default (missing required 'name')
+        with self.assertRaises(ValidationError):
+            CustomField(
+                name='test', type=CustomFieldTypeChoices.TYPE_JSON,
+                validation_schema=schema, default={'age': 25}
             ).full_clean()
 
 
@@ -1395,6 +1501,42 @@ class CustomFieldAPITest(APITestCase):
 
         # Test valid URL (https)
         data = {'custom_fields': {'url_field': 'https://example.com'}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_json_schema_validation(self):
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        cf_json = CustomField.objects.get(name='json_field')
+        cf_json.validation_schema = {
+            'type': 'object',
+            'properties': {
+                'name': {'type': 'string'},
+                'age': {'type': 'integer'},
+            },
+            'required': ['name'],
+        }
+        cf_json.save()
+
+        # Invalid: missing required 'name' property
+        data = {'custom_fields': {'json_field': {'age': 25}}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Invalid: 'age' is not an integer
+        data = {'custom_fields': {'json_field': {'name': 'test', 'age': 'not_an_int'}}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # Valid: conforms to schema
+        data = {'custom_fields': {'json_field': {'name': 'test', 'age': 25}}}
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Valid: null value (schema not enforced on empty)
+        data = {'custom_fields': {'json_field': None}}
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 

@@ -3,9 +3,10 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import *
 from extras.models import Tag
-from netbox.forms.mixins import CustomFieldsMixin
+from netbox.forms.mixins import ChangelogMessageMixin, CustomFieldsMixin
 from utilities.forms import form_from_model
 from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField
+from utilities.forms.mixins import BackgroundJobMixin
 
 from .object_create import ComponentCreateForm
 
@@ -27,7 +28,7 @@ __all__ = (
 # Device components
 #
 
-class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentCreateForm):
+class DeviceBulkAddComponentForm(BackgroundJobMixin, ChangelogMessageMixin, CustomFieldsMixin, ComponentCreateForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
@@ -108,10 +109,13 @@ class RearPortBulkCreateForm(
     field_order = ('name', 'label', 'type', 'positions', 'mark_connected', 'description', 'tags')
 
 
-class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
+class ModuleBayBulkCreateForm(
+    form_from_model(ModuleBay, ['enabled']),
+    DeviceBulkAddComponentForm
+):
     model = ModuleBay
-    field_order = ('name', 'label', 'position', 'description', 'tags')
-    replication_fields = ('name', 'label', 'position')
+    field_order = ('name', 'label', 'position', 'enabled', 'description', 'tags')
+    replication_fields = ('name', 'label', 'position', 'enabled')
     position = ExpandableNameField(
         label=_('Position'),
         required=False,
@@ -119,9 +123,12 @@ class ModuleBayBulkCreateForm(DeviceBulkAddComponentForm):
     )
 
 
-class DeviceBayBulkCreateForm(DeviceBulkAddComponentForm):
+class DeviceBayBulkCreateForm(
+    form_from_model(DeviceBay, ['enabled']),
+    DeviceBulkAddComponentForm
+):
     model = DeviceBay
-    field_order = ('name', 'label', 'description', 'tags')
+    field_order = ('name', 'label', 'enabled', 'description', 'tags')
 
 
 class InventoryItemBulkCreateForm(

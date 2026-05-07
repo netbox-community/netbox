@@ -535,6 +535,37 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
+class RackGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = RackGroup.objects.all()
+    filterset = RackGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1', description='foobar1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2', description='foobar2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Rack Group 1', 'Rack Group 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_slug(self):
+        params = {'slug': ['rack-group-1', 'rack-group-2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class RackRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RackRole.objects.all()
     filterset = RackRoleFilterSet
@@ -739,18 +770,18 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         for region in regions:
             region.save()
 
-        groups = (
+        site_groups = (
             SiteGroup(name='Site Group 1', slug='site-group-1'),
             SiteGroup(name='Site Group 2', slug='site-group-2'),
             SiteGroup(name='Site Group 3', slug='site-group-3'),
         )
-        for group in groups:
-            group.save()
+        for site_group in site_groups:
+            site_group.save()
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -811,6 +842,13 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         RackType.objects.bulk_create(rack_types)
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         rack_roles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
             RackRole(name='Rack Role 2', slug='rack-role-2'),
@@ -839,6 +877,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 facility_id='rack-1',
                 site=sites[0],
                 location=locations[0],
+                group=rack_groups[0],
                 tenant=tenants[0],
                 status=RackStatusChoices.STATUS_ACTIVE,
                 role=rack_roles[0],
@@ -863,6 +902,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 facility_id='rack-2',
                 site=sites[1],
                 location=locations[1],
+                group=rack_groups[1],
                 tenant=tenants[1],
                 status=RackStatusChoices.STATUS_PLANNED,
                 role=rack_roles[1],
@@ -887,6 +927,7 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
                 facility_id='rack-3',
                 site=sites[2],
                 location=locations[2],
+                group=rack_groups[2],
                 tenant=tenants[2],
                 status=RackStatusChoices.STATUS_RESERVED,
                 role=rack_roles[2],
@@ -1018,6 +1059,13 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack_group(self):
+        rack_groups = RackGroup.objects.all()[:2]
+        params = {'group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [rack_groups[0].slug, rack_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_status(self):
         params = {'status': [RackStatusChoices.STATUS_ACTIVE, RackStatusChoices.STATUS_PLANNED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
@@ -1096,18 +1144,18 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         for region in regions:
             region.save()
 
-        groups = (
+        site_groups = (
             SiteGroup(name='Site Group 1', slug='site-group-1'),
             SiteGroup(name='Site Group 2', slug='site-group-2'),
             SiteGroup(name='Site Group 3', slug='site-group-3'),
         )
-        for group in groups:
-            group.save()
+        for site_group in site_groups:
+            site_group.save()
 
         sites = (
-            Site(name='Site 1', slug='site-1', region=regions[0], group=groups[0]),
-            Site(name='Site 2', slug='site-2', region=regions[1], group=groups[1]),
-            Site(name='Site 3', slug='site-3', region=regions[2], group=groups[2]),
+            Site(name='Site 1', slug='site-1', region=regions[0], group=site_groups[0]),
+            Site(name='Site 2', slug='site-2', region=regions[1], group=site_groups[1]),
+            Site(name='Site 3', slug='site-3', region=regions[2], group=site_groups[2]),
         )
         Site.objects.bulk_create(sites)
 
@@ -1119,10 +1167,17 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         for location in locations:
             location.save()
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         racks = (
-            Rack(name='Rack 1', site=sites[0], location=locations[0]),
-            Rack(name='Rack 2', site=sites[1], location=locations[1]),
-            Rack(name='Rack 3', site=sites[2], location=locations[2]),
+            Rack(name='Rack 1', site=sites[0], location=locations[0], group=rack_groups[0]),
+            Rack(name='Rack 2', site=sites[1], location=locations[1], group=rack_groups[1]),
+            Rack(name='Rack 3', site=sites[2], location=locations[2], group=rack_groups[2]),
         )
         Rack.objects.bulk_create(racks)
 
@@ -1151,7 +1206,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         reservations = (
             RackReservation(
                 rack=racks[0],
-                units=[1, 2, 3],
+                units=[1, 2],
                 status=RackReservationStatusChoices.STATUS_ACTIVE,
                 user=users[0],
                 tenant=tenants[0],
@@ -1159,7 +1214,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackReservation(
                 rack=racks[1],
-                units=[4, 5, 6],
+                units=[1, 2, 3],
                 status=RackReservationStatusChoices.STATUS_PENDING,
                 user=users[1],
                 tenant=tenants[1],
@@ -1167,7 +1222,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
             RackReservation(
                 rack=racks[2],
-                units=[7, 8, 9],
+                units=[1, 2, 3, 4],
                 status=RackReservationStatusChoices.STATUS_STALE,
                 user=users[2],
                 tenant=tenants[2],
@@ -1208,6 +1263,13 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_rack_group(self):
+        rack_groups = RackGroup.objects.all()[:2]
+        params = {'group_id': [rack_groups[0].pk, rack_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [rack_groups[0].slug, rack_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_status(self):
         params = {'status': [RackReservationStatusChoices.STATUS_ACTIVE, RackReservationStatusChoices.STATUS_PENDING]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -1229,6 +1291,14 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_unit_count(self):
+        params = {'unit_count_min': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'unit_count_max': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'unit_count_min': 3, 'unit_count_max': 3}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_tenant_group(self):
         tenant_groups = TenantGroup.objects.all()[:2]
@@ -2186,13 +2256,21 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         ModuleBayTemplate.objects.bulk_create(
             (
                 ModuleBayTemplate(
-                    device_type=device_types[0], name='Module Bay 1', description='foobar1'
+                    device_type=device_types[0], name='Module Bay 1', enabled=True, description='foobar1'
                 ),
                 ModuleBayTemplate(
-                    device_type=device_types[1], name='Module Bay 2', description='foobar2', module_type=module_types[0]
+                    device_type=device_types[1],
+                    name='Module Bay 2',
+                    enabled=False,
+                    description='foobar2',
+                    module_type=module_types[0],
                 ),
                 ModuleBayTemplate(
-                    device_type=device_types[2], name='Module Bay 3', description='foobar3', module_type=module_types[1]
+                    device_type=device_types[2],
+                    name='Module Bay 3',
+                    enabled=True,
+                    description='foobar3',
+                    module_type=module_types[1],
                 ),
             )
         )
@@ -2200,6 +2278,12 @@ class ModuleBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
     def test_name(self):
         params = {'name': ['Module Bay 1', 'Module Bay 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_module_type(self):
         module_types = ModuleType.objects.all()[:2]
@@ -2223,15 +2307,29 @@ class DeviceBayTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests,
         )
         DeviceType.objects.bulk_create(device_types)
 
-        DeviceBayTemplate.objects.bulk_create((
-            DeviceBayTemplate(device_type=device_types[0], name='Device Bay 1', description='foobar1'),
-            DeviceBayTemplate(device_type=device_types[1], name='Device Bay 2', description='foobar2'),
-            DeviceBayTemplate(device_type=device_types[2], name='Device Bay 3', description='foobar3'),
-        ))
+        DeviceBayTemplate.objects.bulk_create(
+            (
+                DeviceBayTemplate(
+                    device_type=device_types[0], name='Device Bay 1', enabled=True, description='foobar1'
+                ),
+                DeviceBayTemplate(
+                    device_type=device_types[1], name='Device Bay 2', enabled=False, description='foobar2'
+                ),
+                DeviceBayTemplate(
+                    device_type=device_types[2], name='Device Bay 3', enabled=True, description='foobar3'
+                ),
+            )
+        )
 
     def test_name(self):
         params = {'name': ['Device Bay 1', 'Device Bay 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class InventoryItemTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTests, ChangeLoggedFilterSetTests):
@@ -5851,11 +5949,11 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Device.objects.bulk_create(devices)
 
         module_bays = (
-            ModuleBay(device=devices[0], name='Module Bay 1', label='A', description='First'),
-            ModuleBay(device=devices[1], name='Module Bay 2', label='B', description='Second'),
-            ModuleBay(device=devices[2], name='Module Bay 3', label='C', description='Third'),
-            ModuleBay(device=devices[2], name='Module Bay 4', label='D', description='Fourth'),
-            ModuleBay(device=devices[2], name='Module Bay 5', label='E', description='Fifth'),
+            ModuleBay(device=devices[0], name='Module Bay 1', label='A', enabled=True, description='First'),
+            ModuleBay(device=devices[1], name='Module Bay 2', label='B', enabled=False, description='Second'),
+            ModuleBay(device=devices[2], name='Module Bay 3', label='C', enabled=True, description='Third'),
+            ModuleBay(device=devices[2], name='Module Bay 4', label='D', enabled=False, description='Fourth'),
+            ModuleBay(device=devices[2], name='Module Bay 5', label='E', enabled=True, description='Fifth'),
         )
         for module_bay in module_bays:
             module_bay.save()
@@ -5877,6 +5975,12 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_label(self):
         params = {'label': ['A', 'B']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'enabled': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
@@ -6038,6 +6142,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device=devices[0],
                 name='Device Bay 1',
                 label='A',
+                enabled=True,
                 description='First',
                 _site=devices[0].site,
                 _location=devices[0].location,
@@ -6047,6 +6152,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device=devices[1],
                 name='Device Bay 2',
                 label='B',
+                enabled=False,
                 description='Second',
                 _site=devices[1].site,
                 _location=devices[1].location,
@@ -6056,6 +6162,7 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 device=devices[2],
                 name='Device Bay 3',
                 label='C',
+                enabled=True,
                 description='Third',
                 _site=devices[2].site,
                 _location=devices[2].location,
@@ -6071,6 +6178,12 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
     def test_label(self):
         params = {'label': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
         params = {'description': ['First', 'Second']}
@@ -6541,6 +6654,32 @@ class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'site_id': [sites[0].pk, sites[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'site': [sites[0].slug, sites[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class CableBundleTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = CableBundle.objects.all()
+    filterset = CableBundleFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cable_bundles = (
+            CableBundle(name='Cable Bundle 1', description='foobar1'),
+            CableBundle(name='Cable Bundle 2', description='foobar2'),
+            CableBundle(name='Cable Bundle 3'),
+        )
+        CableBundle.objects.bulk_create(cable_bundles)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_name(self):
+        params = {'name': ['Cable Bundle 1', 'Cable Bundle 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

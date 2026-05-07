@@ -150,14 +150,16 @@ class SplitMultiSelectWidget(forms.MultiWidget):
                   be enabled only if the order of the selected choices is significant.
     """
     template_name = 'widgets/splitmultiselect.html'
+    available_widget_class = AvailableOptions
+    selected_widget_class = SelectedOptions
 
     def __init__(self, choices, attrs=None, ordering=False):
         widgets = [
-            AvailableOptions(
+            self.available_widget_class(
                 attrs={'size': 8},
                 choices=choices
             ),
-            SelectedOptions(
+            self.selected_widget_class(
                 attrs={'size': 8, 'class': 'select-all'},
                 choices=choices
             ),

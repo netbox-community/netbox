@@ -14,6 +14,7 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.config import get_config
 from netbox.preferences import PREFERENCES
+from netbox.registry import registry
 from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
@@ -123,16 +124,6 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
 
 
 class UserTokenForm(forms.ModelForm):
-    token = forms.CharField(
-        label=_('Token'),
-        help_text=_(
-            'Tokens must be at least 40 characters in length. <strong>Be sure to record your token</strong> prior to '
-            'submitting this form, as it will no longer be accessible once the token has been created.'
-        ),
-        widget=forms.TextInput(
-            attrs={'data-clipboard': 'true'}
-        )
-    )
     allowed_ips = SimpleArrayField(
         base_field=IPNetworkFormField(validators=[prefix_validator]),
         required=False,
@@ -146,7 +137,7 @@ class UserTokenForm(forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'version', 'token', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -160,19 +151,20 @@ class UserTokenForm(forms.ModelForm):
             self.fields['version'].disabled = True
             self.fields['user'].disabled = True
 
-            # Omit the key field when editing an existing Token
-            del self.fields['token']
-
-        # Generate an initial random key if none has been specified
-        elif self.instance._state.adding and not self.initial.get('token'):
+        elif self.instance._state.adding:
             self.initial['version'] = TokenVersionChoices.V2
-            self.initial['token'] = Token.generate()
 
     def save(self, commit=True):
-        if self.instance._state.adding and self.cleaned_data.get('token'):
-            self.instance.token = self.cleaned_data['token']
-
-        return super().save(commit=commit)
+        creating = self.instance.pk is None
+        instance = super().save(commit=commit)
+        # On creation, stash the auto-generated plaintext on the session so that the detail view can render the
+        # full HTTP authorization string exactly once. The plaintext is never persisted to the database; the
+        # request is delivered to the form via the edit view's alter_object hook.
+        if creating and instance._token and instance.pk is not None:
+            request = getattr(instance, '_request', None)
+            if request is not None:
+                request.session[f'_token_plaintext_{instance.pk}'] = instance._token
+        return instance
 
 
 class TokenForm(UserTokenForm):
@@ -183,7 +175,7 @@ class TokenForm(UserTokenForm):
 
     class Meta(UserTokenForm.Meta):
         fields = [
-            'version', 'token', 'user', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
+            'version', 'user', 'enabled', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -346,7 +338,7 @@ class ObjectPermissionForm(forms.ModelForm):
         label=_('Additional actions'),
         base_field=forms.CharField(),
         required=False,
-        help_text=_('Actions granted in addition to those listed above')
+        help_text=_('Additional actions for models which have not yet registered their own actions')
     )
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
@@ -370,8 +362,11 @@ class ObjectPermissionForm(forms.ModelForm):
 
     fieldsets = (
         FieldSet('name', 'description', 'enabled'),
-        FieldSet('can_view', 'can_add', 'can_change', 'can_delete', 'actions', name=_('Actions')),
         FieldSet('object_types', name=_('Objects')),
+        FieldSet(
+            'can_view', 'can_add', 'can_change', 'can_delete', 'actions',
+            name=_('Actions')
+        ),
         FieldSet('groups', 'users', name=_('Assignment')),
         FieldSet('constraints', name=_('Constraints')),
     )
@@ -385,6 +380,39 @@ class ObjectPermissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Build dynamic BooleanFields for registered actions (deduplicated, sorted by name)
+        seen = {}
+        for model_actions in registry['model_actions'].values():
+            for action in model_actions:
+                if action.name not in seen:
+                    seen[action.name] = action
+        registered_action_names = sorted(seen)
+
+        action_field_names = []
+        for action_name in registered_action_names:
+            field_name = f'action_{action_name}'
+            self.fields[field_name] = forms.BooleanField(
+                required=False,
+                label=action_name,
+                help_text=seen[action_name].help_text,
+            )
+            action_field_names.append(field_name)
+
+        # Rebuild the Actions fieldset to include dynamic fields
+        if action_field_names:
+            self.fieldsets = (
+                FieldSet('name', 'description', 'enabled'),
+                FieldSet('object_types', name=_('Objects')),
+                FieldSet(
+                    'can_view', 'can_add', 'can_change', 'can_delete',
+                    *action_field_names,
+                    'actions',
+                    name=_('Actions')
+                ),
+                FieldSet('groups', 'users', name=_('Assignment')),
+                FieldSet('constraints', name=_('Constraints')),
+            )
+
         # Make the actions field optional since the form uses it only for non-CRUD actions
         self.fields['actions'].required = False
 
@@ -394,11 +422,23 @@ class ObjectPermissionForm(forms.ModelForm):
             self.fields['groups'].initial = self.instance.groups.values_list('id', flat=True)
             self.fields['users'].initial = self.instance.users.values_list('id', flat=True)
 
-            # Check the appropriate checkboxes when editing an existing ObjectPermission
-            for action in ['view', 'add', 'change', 'delete']:
-                if action in self.instance.actions:
+            # Work with a copy to avoid mutating the instance
+            remaining_actions = list(self.instance.actions)
+
+            # Check the appropriate CRUD checkboxes
+            for action in RESERVED_ACTIONS:
+                if action in remaining_actions:
                     self.fields[f'can_{action}'].initial = True
-                    self.instance.actions.remove(action)
+                    remaining_actions.remove(action)
+
+            # Pre-select registered action checkboxes
+            for action_name in registered_action_names:
+                if action_name in remaining_actions:
+                    self.fields[f'action_{action_name}'].initial = True
+                    remaining_actions.remove(action_name)
+
+            # Remaining actions go to the additional actions field
+            self.initial['actions'] = remaining_actions
 
         # Populate initial data for a new ObjectPermission
         elif self.initial:
@@ -408,10 +448,15 @@ class ObjectPermissionForm(forms.ModelForm):
                 if isinstance(self.initial['actions'], str):
                     self.initial['actions'] = [self.initial['actions']]
                 if cloned_actions := self.initial['actions']:
-                    for action in ['view', 'add', 'change', 'delete']:
+                    for action in RESERVED_ACTIONS:
                         if action in cloned_actions:
                             self.fields[f'can_{action}'].initial = True
                             self.initial['actions'].remove(action)
+                    # Pre-select registered action checkboxes from cloned data
+                    for action_name in registered_action_names:
+                        if action_name in cloned_actions:
+                            self.fields[f'action_{action_name}'].initial = True
+                            self.initial['actions'].remove(action_name)
             # Convert data delivered via initial data to JSON data
             if 'constraints' in self.initial:
                 if type(self.initial['constraints']) is str:
@@ -420,15 +465,27 @@ class ObjectPermissionForm(forms.ModelForm):
     def clean(self):
         super().clean()
 
-        object_types = self.cleaned_data.get('object_types')
+        object_types = self.cleaned_data.get('object_types', [])
         constraints = self.cleaned_data.get('constraints')
 
-        # Append any of the selected CRUD checkboxes to the actions list
-        if not self.cleaned_data.get('actions'):
-            self.cleaned_data['actions'] = list()
-        for action in ['view', 'add', 'change', 'delete']:
-            if self.cleaned_data[f'can_{action}'] and action not in self.cleaned_data['actions']:
-                self.cleaned_data['actions'].append(action)
+        # Merge all actions: registered action checkboxes, CRUD checkboxes, and additional
+        final_actions = []
+        for key, value in self.cleaned_data.items():
+            if key.startswith('action_') and value:
+                action_name = key[7:]
+                if action_name not in final_actions:
+                    final_actions.append(action_name)
+
+        for action in RESERVED_ACTIONS:
+            if self.cleaned_data.get(f'can_{action}') and action not in final_actions:
+                final_actions.append(action)
+
+        if additional_actions := self.cleaned_data.get('actions'):
+            for action in additional_actions:
+                if action not in final_actions:
+                    final_actions.append(action)
+
+        self.cleaned_data['actions'] = final_actions
 
         # At least one action must be specified
         if not self.cleaned_data['actions']:

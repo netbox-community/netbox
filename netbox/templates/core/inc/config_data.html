@@ -122,6 +122,19 @@
     {% endif %}
   </tr>
 
+  {# Changelog #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Change log" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Changelog retention" %}</th>
+    <td>{{ config.CHANGELOG_RETENTION }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Changelog retain create & last update records" %}</th>
+    <td>{% checkmark config.CHANGELOG_RETAIN_CREATE_LAST_UPDATE %}</td>
+  </tr>
+
   {# Miscellaneous #}
   <tr>
     <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Miscellaneous" %}</td>
@@ -136,10 +149,6 @@
   <tr>
     <th scope="row" class="ps-3">{% trans "GraphQL enabled" %}</th>
     <td>{% checkmark config.GRAPHQL_ENABLED %}</td>
-  </tr>
-  <tr>
-    <th scope="row" class="ps-3">{% trans "Changelog retention" %}</th>
-    <td>{{ config.CHANGELOG_RETENTION }}</td>
   </tr>
   <tr>
     <th scope="row" class="ps-3">{% trans "Job retention" %}</th>

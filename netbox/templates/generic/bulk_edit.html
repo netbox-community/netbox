@@ -41,7 +41,7 @@ Context:
 
   {# Edit form #}
   <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="edit-form-tab">
-    <form action="" method="post" class="form form-horizontal mt-5">
+    <form action="" method="post" class="form form-horizontal object-edit--with-sticky-actions mt-5">
       <div id="form_fields" hx-disinherit="hx-select hx-swap">
         {% csrf_token %}
         {% if request.POST.return_url %}
@@ -123,9 +123,11 @@ Context:
           {% endif %}
           {% render_field form.background_job %}
         </div>
+      </div>{# /form_fields #}
 
-        <div class="btn-float-group-right">
-          <a href="{{ return_url }}" class="btn btn-outline-secondary btn-float">{% trans "Cancel" %}</a>
+      <div class="sticky-actions sticky-actions-footer d-print-none" data-sticky-position="full" data-sticky-when="always">
+        <div class="btn-list">
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           <button type="submit" name="_apply" class="btn btn-primary">{% trans "Apply" %}</button>
         </div>
       </div>

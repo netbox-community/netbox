@@ -1,0 +1,24 @@
+{% load i18n %}
+<div class="alert alert-success bg-success-subtle mb-3" role="alert">
+  <div class="d-flex">
+    <div>
+      <i class="mdi mdi-check-bold pe-2"></i>
+    </div>
+    <div class="flex-grow-1">
+      <h4 class="alert-title">{% trans "Save this token now. It cannot be retrieved later." %}</h4>
+      <div class="text-secondary mb-2">
+        {% blocktrans %}
+          The full HTTP Authorization header value is shown below. NetBox does not store the token plaintext,
+          so this is your only chance to copy it. It will be lost when navigating away from this page.
+        {% endblocktrans %}
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <code id="new-token-auth-string" class="flex-grow-1 p-2 bg-body border rounded font-monospace text-break">{{ token_auth_string }}</code>
+        <a class="btn btn-primary copy-content" data-clipboard-target="#new-token-auth-string" title="{% trans "Copy to clipboard" %}">
+          <i class="mdi mdi-content-copy"></i>
+          {% trans "Copy" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

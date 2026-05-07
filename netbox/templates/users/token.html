@@ -2,3 +2,10 @@
 {% load i18n %}
 
 {% block title %}{% trans "Token" %} {{ object }}{% endblock %}
+
+{% block alerts %}
+  {{ block.super }}
+  {% if token_auth_string %}
+    {% include 'users/inc/new_token_banner.html' %}
+  {% endif %}
+{% endblock alerts %}

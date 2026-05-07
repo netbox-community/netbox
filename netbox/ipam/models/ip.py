@@ -110,6 +110,9 @@ class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
 
     class Meta:
         ordering = ('prefix', 'pk')  # prefix may be non-unique
+        indexes = (
+            models.Index(fields=('prefix', 'id')),  # Default ordering
+        )
         verbose_name = _('aggregate')
         verbose_name_plural = _('aggregates')
 
@@ -200,6 +203,9 @@ class Role(OrganizationalModel):
 
     class Meta:
         ordering = ('weight', 'name')
+        indexes = (
+            models.Index(fields=('weight', 'name')),  # Default ordering
+        )
         verbose_name = _('role')
         verbose_name_plural = _('roles')
 
@@ -833,6 +839,7 @@ class IPAddress(ContactsMixin, PrimaryModel):
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
         indexes = (
+            models.Index(fields=('address', 'id')),  # Default ordering
             models.Index(Cast(Host('address'), output_field=IPAddressField()), name='ipam_ipaddress_host'),
             models.Index(fields=('assigned_object_type', 'assigned_object_id')),
         )

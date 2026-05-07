@@ -1,5 +1,6 @@
 import itertools
 import logging
+from collections import Counter
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -8,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.dispatch import Signal
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
@@ -29,6 +31,7 @@ from .device_components import FrontPort, PathEndpoint, PortMapping, RearPort
 
 __all__ = (
     'Cable',
+    'CableBundle',
     'CablePath',
     'CableTermination',
 )
@@ -36,6 +39,32 @@ __all__ = (
 logger = logging.getLogger(f'netbox.{__name__}')
 
 trace_paths = Signal()
+
+
+#
+# Cable bundles
+#
+
+class CableBundle(PrimaryModel):
+    """
+    A logical grouping of individual cables.
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=100,
+        unique=True,
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('cable bundle')
+        verbose_name_plural = _('cable bundles')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('dcim:cablebundle', args=[self.pk])
 
 
 #
@@ -102,8 +131,16 @@ class Cable(PrimaryModel):
         blank=True,
         null=True
     )
+    bundle = models.ForeignKey(
+        to='dcim.CableBundle',
+        on_delete=models.SET_NULL,
+        related_name='cables',
+        blank=True,
+        null=True,
+        verbose_name=_('bundle'),
+    )
 
-    clone_fields = ('tenant', 'type', 'profile')
+    clone_fields = ('tenant', 'type', 'profile', 'bundle')
 
     class Meta:
         ordering = ('pk',)
@@ -871,25 +908,37 @@ class CablePath(models.Model):
                     # Build (termination, position) pairs by matching stacked positions
                     # to each termination's cable_positions. This correctly handles
                     # multiple terminations on different connectors of the same cable.
-                    remaining = list(positions)
+                    remaining = Counter(positions)
                     term_position_pairs = []
                     for term in terminations:
                         if term.cable_positions:
                             for cp in term.cable_positions:
-                                if cp in remaining:
+                                if remaining[cp]:
                                     term_position_pairs.append((term, cp))
-                                    remaining.remove(cp)
+                                    remaining[cp] -= 1
 
                     # Fallback for when positions don't match cable_positions
                     # (e.g., empty position stack yielding [None])
                     if not term_position_pairs:
                         term_position_pairs = [(terminations[0], pos) for pos in positions]
 
-                    for term, pos in term_position_pairs:
-                        peer, new_pos = cable_profile.get_peer_termination(term, pos)
-                        if peer not in remote_terminations:
+                    peer_results = cable_profile.get_peer_terminations(term_position_pairs)
+                    seen = set()
+                    for peer, new_pos in peer_results:
+                        # Deduplicate peer terminations by model type & PK.
+                        key = None if peer is None else (peer._meta.concrete_model, peer.pk)
+                        if key not in seen:
+                            seen.add(key)
                             remote_terminations.append(peer)
                         new_positions.append(new_pos)
+
+                    # If all peers resolved to None (no far-end terminations exist),
+                    # treat as an empty result so the path is recorded as incomplete
+                    # rather than falling through to the endpoint check with a stale
+                    # None entry.
+                    if remote_terminations and all(peer is None for peer in remote_terminations):
+                        remote_terminations = []
+
                     position_stack.append(new_positions)
 
                 # Legacy (positionless) behavior
@@ -909,7 +958,9 @@ class CablePath(models.Model):
                     if not q_filter:
                         break
 
-                    remote_cable_terminations = CableTermination.objects.filter(q_filter)
+                    remote_cable_terminations = CableTermination.objects.filter(q_filter).prefetch_related(
+                        'termination'
+                    )
                     remote_terminations = [ct.termination for ct in remote_cable_terminations]
             else:
                 # WirelessLink

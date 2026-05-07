@@ -29,14 +29,30 @@ from .power import PowerFeed
 
 __all__ = (
     'Rack',
+    'RackGroup',
     'RackReservation',
     'RackRole',
     'RackType',
 )
 
+#
+# Rack Organization
+#
+
+
+class RackGroup(OrganizationalModel):
+    """
+    Racks can be grouped by physical placement within a Location.
+    """
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('rack group')
+        verbose_name_plural = _('rack groups')
+
 
 #
-# Rack Types
+# Rack Base
 #
 
 class RackBase(WeightMixin, PrimaryModel):
@@ -122,6 +138,10 @@ class RackBase(WeightMixin, PrimaryModel):
     class Meta:
         abstract = True
 
+
+#
+# Rack Types
+#
 
 class RackType(ImageAttachmentsMixin, RackBase):
     """
@@ -290,6 +310,14 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         blank=True,
         null=True
     )
+    group = models.ForeignKey(
+        to='dcim.RackGroup',
+        on_delete=models.PROTECT,
+        related_name='racks',
+        blank=True,
+        null=True,
+        help_text=_('physical grouping')
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -361,6 +389,9 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
                 fields=('location', 'facility_id'),
                 name='%(app_label)s_%(class)s_unique_location_facility_id'
             ),
+        )
+        indexes = (
+            models.Index(fields=('site', 'location', 'name', 'id')),  # Default ordering
         )
         verbose_name = _('rack')
         verbose_name_plural = _('racks')
@@ -710,6 +741,9 @@ class RackReservation(PrimaryModel):
 
     class Meta:
         ordering = ['created', 'pk']
+        indexes = (
+            models.Index(fields=('created', 'id')),  # Default ordering
+        )
         verbose_name = _('rack reservation')
         verbose_name_plural = _('rack reservations')
 

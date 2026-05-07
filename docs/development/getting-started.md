@@ -97,7 +97,7 @@ NetBox uses [`pre-commit`](https://pre-commit.com/) to automatically validate co
 * Run the `ruff` Python linter
 * Run Django's internal system check
 * Check for missing database migrations
-* Validate any changes to the documentation with `mkdocs`
+* Validate any changes to the documentation with `zensical`
 * Validate Typescript & Sass styling with `yarn`
 * Ensure that any modified static front end assets have been recompiled
 

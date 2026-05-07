@@ -19,6 +19,7 @@ from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import MPTTLockedMixin, NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from utilities.api import get_serializer_for_model
+from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from virtualization.models import VirtualMachine
 
@@ -152,6 +153,17 @@ class LocationViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.LocationSerializer
     filterset_class = filtersets.LocationFilterSet
+
+
+#
+# Rack groups
+#
+
+
+class RackGroupViewSet(NetBoxModelViewSet):
+    queryset = RackGroup.objects.all()
+    serializer_class = serializers.RackGroupSerializer
+    filterset_class = filtersets.RackGroupFilterSet
 
 
 #
@@ -572,6 +584,14 @@ class CableTerminationViewSet(NetBoxReadOnlyModelViewSet):
     queryset = CableTermination.objects.all()
     serializer_class = serializers.CableTerminationSerializer
     filterset_class = filtersets.CableTerminationFilterSet
+
+
+class CableBundleViewSet(NetBoxModelViewSet):
+    queryset = CableBundle.objects.annotate(
+        cable_count=count_related(Cable, 'bundle')
+    )
+    serializer_class = serializers.CableBundleSerializer
+    filterset_class = filtersets.CableBundleFilterSet
 
 
 #

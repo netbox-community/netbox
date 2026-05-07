@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from strawberry.scalars import JSON
 
 from core.graphql.mixins import SyncedDataMixin
 from extras import models
@@ -106,7 +107,7 @@ class CustomFieldType(OwnerMixin, ObjectType):
 
 @strawberry_django.type(
     models.CustomFieldChoiceSet,
-    exclude=['extra_choices'],
+    exclude=['extra_choices', 'choice_colors'],
     filters=CustomFieldChoiceSetFilter,
     pagination=True
 )
@@ -114,6 +115,7 @@ class CustomFieldChoiceSetType(OwnerMixin, ObjectType):
 
     choices_for: list[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]
     extra_choices: list[list[str]] | None
+    choice_colors: JSON
 
 
 @strawberry_django.type(

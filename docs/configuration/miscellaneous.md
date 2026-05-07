@@ -73,6 +73,23 @@ This data enables the project maintainers to estimate how many NetBox deployment
 
 ---
 
+## CHANGELOG_RETAIN_CREATE_LAST_UPDATE
+
+!!! tip "Dynamic Configuration Parameter"
+
+Default: `False`
+
+When pruning expired changelog entries (per `CHANGELOG_RETENTION`), retain each non-deleted object's original `create`
+change record and its most recent `update` change record. If an object has a `delete` change record, its changelog
+entries are pruned normally according to `CHANGELOG_RETENTION`.
+
+!!! note
+    For objects without a `delete` change record, the original `create` record and most recent `update` record are
+    exempt from pruning. All other changelog records (including intermediate `update` records and all `delete` records)
+    remain subject to pruning per `CHANGELOG_RETENTION`.
+
+---
+
 ## CHANGELOG_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"
@@ -103,6 +120,18 @@ If enabled, a change log record will not be created when an object is updated wi
 Default: `2621440` (2.5 MB)
 
 The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` data). Requests which exceed this size will raise a `RequestDataTooBig` exception.
+
+---
+
+## STREAMING_EXPORTS
+
+!!! note "This parameter was introduced in NetBox v4.6."
+
+Default: `False`
+
+When set to `True`, CSV bulk exports are returned as a streaming HTTP response, emitting rows to the client as they are rendered rather than buffering the entire dataset in memory first. This can significantly reduce memory usage and time-to-first-byte for very large exports.
+
+Because streaming responses do not have a `Content-Length` header and defer errors until after the response has begun, this behavior is opt-in.
 
 ---
 

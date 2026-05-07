@@ -6,7 +6,7 @@
 {% block title %}{% trans "User Preferences" %}{% endblock %}
 
 {% block content %}
-  <form method="post" action="" class="object-edit" hx-disable="true" id="preferences-update">
+  <form method="post" action="" class="object-edit object-edit--with-sticky-actions" hx-disable="true" id="preferences-update">
     {% csrf_token %}
 
     {# Built-in preferences #}
@@ -73,9 +73,12 @@
         {% endif %}
       </div>
     </div>
-    <div class="text-end my-3">
-      <a href="{% url 'account:preferences' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-      <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
+
+    <div class="sticky-actions sticky-actions-footer d-print-none" data-sticky-position="full" data-sticky-when="always">
+      <div class="btn-list">
+        <a href="{% url 'account:preferences' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+        <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
+      </div>
     </div>
   </form>
 {% endblock %}

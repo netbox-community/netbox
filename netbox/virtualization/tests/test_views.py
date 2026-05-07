@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -202,6 +204,81 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.get(url), 200)
 
 
+class VirtualMachineTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = VirtualMachineType
+
+    @classmethod
+    def setUpTestData(cls):
+
+        cls.platforms = (
+            Platform(name='Platform 1', slug='platform-1'),
+            Platform(name='Platform 2', slug='platform-2'),
+            Platform(name='Platform 3', slug='platform-3'),
+        )
+        for platform in cls.platforms:
+            platform.save()
+
+        cls.virtual_machine_types = (
+            VirtualMachineType(
+                name='Virtual Machine Type 1',
+                slug='virtual-machine-type-1',
+                default_platform=cls.platforms[0],
+                default_vcpus=Decimal('1.00'),
+                default_memory=1024,
+            ),
+            VirtualMachineType(
+                name='Virtual Machine Type 2',
+                slug='virtual-machine-type-2',
+                default_platform=cls.platforms[1],
+                default_vcpus=Decimal('2.00'),
+                default_memory=2048,
+            ),
+            VirtualMachineType(
+                name='Virtual Machine Type 3',
+                slug='virtual-machine-type-3',
+                default_platform=cls.platforms[2],
+                default_vcpus=Decimal('4.00'),
+                default_memory=4096,
+            ),
+        )
+        for virtual_machine_type in cls.virtual_machine_types:
+            virtual_machine_type.save()
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Virtual Machine Type X',
+            'slug': 'virtual-machine-type-x',
+            'default_platform': cls.platforms[1].pk,
+            'default_vcpus': 8,
+            'default_memory': 8192,
+            'description': 'A new virtual machine type',
+            'comments': 'Some comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            'name,slug,default_platform,default_vcpus,default_memory,description',
+            'Virtual Machine Type 4,virtual-machine-type-4,Platform 1,1.00,1024,Fourth virtual machine type',
+            'Virtual Machine Type 5,virtual-machine-type-5,Platform 2,2.00,2048,Fifth virtual machine type',
+            'Virtual Machine Type 6,virtual-machine-type-6,Platform 3,4.00,4096,Sixth virtual machine type',
+        )
+
+        cls.csv_update_data = (
+            'id,name,description',
+            f'{cls.virtual_machine_types[0].pk},Virtual Machine Type 7,New description 7',
+            f'{cls.virtual_machine_types[1].pk},Virtual Machine Type 8,New description 8',
+            f'{cls.virtual_machine_types[2].pk},Virtual Machine Type 9,New description 9',
+        )
+
+        cls.bulk_edit_data = {
+            'default_platform': cls.platforms[2].pk,
+            'default_vcpus': 16,
+            'default_memory': 16384,
+            'description': 'New description',
+        }
+
+
 class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualMachine
 
@@ -215,57 +292,79 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for role in roles:
             role.save()
 
-        platforms = (
+        cls.platforms = (
             Platform(name='Platform 1', slug='platform-1'),
             Platform(name='Platform 2', slug='platform-2'),
         )
-        for platform in platforms:
+        for platform in cls.platforms:
             platform.save()
 
-        sites = (
+        cls.sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
         )
-        Site.objects.bulk_create(sites)
+        Site.objects.bulk_create(cls.sites)
 
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
 
-        clusters = (
-            Cluster(name='Cluster 1', type=clustertype, scope=sites[0]),
-            Cluster(name='Cluster 2', type=clustertype, scope=sites[1]),
+        cls.clusters = (
+            Cluster(name='Cluster 1', type=clustertype, scope=cls.sites[0]),
+            Cluster(name='Cluster 2', type=clustertype, scope=cls.sites[1]),
         )
-        for cluster in clusters:
+        for cluster in cls.clusters:
             cluster.save()
 
-        devices = (
-            create_test_device('device1', site=sites[0], cluster=clusters[0]),
-            create_test_device('device2', site=sites[1], cluster=clusters[1]),
+        cls.devices = (
+            create_test_device('device1', site=cls.sites[0], cluster=cls.clusters[0]),
+            create_test_device('device2', site=cls.sites[1], cluster=cls.clusters[1]),
         )
+
+        cls.vm_types = (
+            VirtualMachineType(
+                name='Virtual Machine Type 1',
+                slug='virtual-machine-type-1',
+                default_platform=cls.platforms[0],
+                default_vcpus=Decimal('2.00'),
+                default_memory=4096,
+            ),
+            VirtualMachineType(
+                name='Virtual Machine Type 2',
+                slug='virtual-machine-type-2',
+                default_platform=cls.platforms[1],
+                default_vcpus=Decimal('4.00'),
+                default_memory=8192,
+            ),
+        )
+        for vm_type in cls.vm_types:
+            vm_type.save()
 
         virtual_machines = (
             VirtualMachine(
                 name='Virtual Machine 1',
-                site=sites[0],
-                cluster=clusters[0],
-                device=devices[0],
+                virtual_machine_type=cls.vm_types[0],
+                site=cls.sites[0],
+                cluster=cls.clusters[0],
+                device=cls.devices[0],
                 role=roles[0],
-                platform=platforms[0],
+                platform=cls.platforms[0],
             ),
             VirtualMachine(
                 name='Virtual Machine 2',
-                site=sites[0],
-                cluster=clusters[0],
-                device=devices[0],
+                virtual_machine_type=cls.vm_types[0],
+                site=cls.sites[0],
+                cluster=cls.clusters[0],
+                device=cls.devices[0],
                 role=roles[0],
-                platform=platforms[0],
+                platform=cls.platforms[0],
             ),
             VirtualMachine(
                 name='Virtual Machine 3',
-                site=sites[0],
-                cluster=clusters[0],
-                device=devices[0],
+                virtual_machine_type=cls.vm_types[1],
+                site=cls.sites[0],
+                cluster=cls.clusters[0],
+                device=cls.devices[0],
                 role=roles[0],
-                platform=platforms[0],
+                platform=cls.platforms[0],
             ),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
@@ -273,11 +372,12 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'cluster': clusters[1].pk,
-            'device': devices[1].pk,
-            'site': sites[1].pk,
+            'virtual_machine_type': cls.vm_types[1].pk,
+            'cluster': cls.clusters[1].pk,
+            'device': cls.devices[1].pk,
+            'site': cls.sites[1].pk,
             'tenant': None,
-            'platform': platforms[1].pk,
+            'platform': cls.platforms[1].pk,
             'name': 'Virtual Machine X',
             'status': VirtualMachineStatusChoices.STATUS_STAGED,
             'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_ON,
@@ -294,33 +394,60 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,status,site,cluster,device",
-            "Virtual Machine 4,active,Site 1,Cluster 1,device1",
-            "Virtual Machine 5,active,Site 1,Cluster 1,device1",
-            "Virtual Machine 6,active,Site 1,Cluster 1,",
+            'name,status,site,cluster,device,virtual_machine_type',
+            'Virtual Machine 4,active,Site 1,Cluster 1,device1,Virtual Machine Type 1',
+            'Virtual Machine 5,active,Site 1,Cluster 1,device1,Virtual Machine Type 2',
+            'Virtual Machine 6,active,Site 1,Cluster 1,,Virtual Machine Type 1',
         )
 
         cls.csv_update_data = (
-            "id,name,comments",
-            f"{virtual_machines[0].pk},Virtual Machine 7,New comments 7",
-            f"{virtual_machines[1].pk},Virtual Machine 8,New comments 8",
-            f"{virtual_machines[2].pk},Virtual Machine 9,New comments 9",
+            'id,name,comments',
+            f'{virtual_machines[0].pk},Virtual Machine 7,New comments 7',
+            f'{virtual_machines[1].pk},Virtual Machine 8,New comments 8',
+            f'{virtual_machines[2].pk},Virtual Machine 9,New comments 9',
         )
 
         cls.bulk_edit_data = {
-            'site': sites[1].pk,
-            'cluster': clusters[1].pk,
-            'device': devices[1].pk,
+            'virtual_machine_type': cls.vm_types[1].pk,
+            'site': cls.sites[1].pk,
+            'cluster': cls.clusters[1].pk,
+            'device': cls.devices[1].pk,
             'tenant': None,
-            'platform': platforms[1].pk,
+            'platform': cls.platforms[1].pk,
             'status': VirtualMachineStatusChoices.STATUS_STAGED,
             'role': roles[1].pk,
-            'vcpus': 8,
+            'vcpus': Decimal('8.00'),
             'memory': 65535,
             'disk': 8000,
             'comments': 'New comments',
             'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_OFF,
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_create_virtualmachine_with_type_defaults(self):
+        self.add_permissions('virtualization.add_virtualmachine')
+
+        response = self.client.post(
+            self._get_url('add'),
+            data={
+                'name': 'Virtual Machine Defaults',
+                'virtual_machine_type': self.vm_types[0].pk,
+                'status': VirtualMachineStatusChoices.STATUS_ACTIVE,
+                'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_OFF,
+                'site': self.sites[0].pk,
+                'cluster': self.clusters[0].pk,
+                'platform': '',
+                'vcpus': '',
+                'memory': '',
+            },
+        )
+        self.assertHttpStatus(response, 302)
+
+        vm = VirtualMachine.objects.get(name='Virtual Machine Defaults')
+        self.assertEqual(vm.virtual_machine_type, self.vm_types[0])
+        self.assertEqual(vm.platform, self.platforms[0])
+        self.assertEqual(vm.vcpus, self.vm_types[0].default_vcpus)
+        self.assertEqual(vm.memory, self.vm_types[0].default_memory)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_virtualmachine_interfaces(self):

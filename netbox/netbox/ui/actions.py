@@ -59,7 +59,7 @@ class PanelAction:
         """
         # Enforce permissions
         user = context['request'].user
-        if not user.has_perms(self.permissions):
+        if self.permissions and not user.has_perms(self.permissions):
             return ''
 
         return render_to_string(self.template_name, self.get_context(context))
@@ -122,19 +122,19 @@ class AddObject(LinkAction):
         url_params (dict): A dictionary of arbitrary URL parameters to append to the resolved URL
     """
     def __init__(self, model, url_params=None, **kwargs):
-        # Resolve the model class from its app.name label
-        try:
-            app_label, model_name = model.split('.')
-            model = apps.get_model(app_label, model_name)
-        except (ValueError, LookupError):
+        # Resolve the model from its label
+        if '.' not in model:
             raise ValueError(f"Invalid model label: {model}")
-        view_name = get_viewname(model, 'add')
+        try:
+            self.model = apps.get_model(model)
+        except LookupError:
+            raise ValueError(f"Invalid model label: {model}")
 
         kwargs.setdefault('label', _('Add'))
         kwargs.setdefault('button_icon', 'plus-thick')
-        kwargs.setdefault('permissions', [get_permission_for_model(model, 'add')])
+        kwargs.setdefault('permissions', [get_permission_for_model(self.model, 'add')])
 
-        super().__init__(view_name=view_name, url_params=url_params, **kwargs)
+        super().__init__(view_name=get_viewname(self.model, 'add'), url_params=url_params, **kwargs)
 
 
 class CopyContent(PanelAction):
@@ -152,10 +152,8 @@ class CopyContent(PanelAction):
         super().__init__(**kwargs)
         self.target_id = target_id
 
-    def render(self, context):
-        return render_to_string(self.template_name, {
+    def get_context(self, context):
+        return {
+            **super().get_context(context),
             'target_id': self.target_id,
-            'label': self.label,
-            'button_class': self.button_class,
-            'button_icon': self.button_icon,
-        })
+        }

@@ -1,4 +1,5 @@
 import re
+import warnings
 
 from django import forms
 from django.forms.models import fields_for_model
@@ -12,7 +13,7 @@ from .constants import *
 __all__ = (
     'add_blank_choice',
     'expand_alphanumeric_pattern',
-    'expand_ipaddress_pattern',
+    'expand_ipnetwork_pattern',
     'form_from_model',
     'get_capacity_unit_label',
     'get_field_value',
@@ -107,9 +108,9 @@ def expand_alphanumeric_pattern(string):
             yield "{}{}{}".format(lead, i, remnant)
 
 
-def expand_ipaddress_pattern(string, family):
+def expand_ipnetwork_pattern(string, family):
     """
-    Expand an IP address pattern into a list of strings. Examples:
+    Expand an IP network pattern into a list of strings. Examples:
       '192.0.2.[1,2,100-250]/24' => ['192.0.2.1/24', '192.0.2.2/24', '192.0.2.100/24' ... '192.0.2.250/24']
       '2001:db8:0:[0,fd-ff]::/64' => ['2001:db8:0:0::/64', '2001:db8:0:fd::/64', ... '2001:db8:0:ff::/64']
     """
@@ -125,7 +126,7 @@ def expand_ipaddress_pattern(string, family):
     parsed_range = parse_numeric_range(pattern, base)
     for i in parsed_range:
         if re.search(regex, remnant):
-            for string in expand_ipaddress_pattern(remnant, family):
+            for string in expand_ipnetwork_pattern(remnant, family):
                 yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), string])
         else:
             yield ''.join([lead, format(i, 'x' if family == 6 else 'd'), remnant])
@@ -294,3 +295,15 @@ def validate_csv(headers, fields, required_fields):
         for f in required_fields:
             if f not in headers:
                 raise forms.ValidationError(_('Required column header "{header}" not found.').format(header=f))
+
+
+# TODO: Remove in NetBox v4.7.0
+def __getattr__(name):
+    if name == 'expand_ipaddress_pattern':
+        warnings.warn(
+            "expand_ipaddress_pattern() has been renamed to expand_ipnetwork_pattern(). "
+            "expand_ipaddress_pattern() will be removed in NetBox v4.7.0.",
+            DeprecationWarning,
+        )
+        return expand_ipnetwork_pattern
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

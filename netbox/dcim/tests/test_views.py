@@ -1,13 +1,18 @@
+import csv
 import json
 from decimal import Decimal
+from io import StringIO
 from zoneinfo import ZoneInfo
 
 import yaml
+from django.contrib.contenttypes.models import ContentType
+from django.http import StreamingHttpResponse
 from django.test import override_settings, tag
 from django.urls import reverse
 from netaddr import EUI
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
@@ -289,6 +294,47 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         }
 
 
+class RackGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = RackGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+            RackGroup(name='Rack Group 3', slug='rack-group-3'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Rack Group X',
+            'slug': 'rack-group-x',
+            'description': 'New group',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug,description",
+            "Rack Group 4,rack-group-4,Fourth group",
+            "Rack Group 5,rack-group-5,Fifth group",
+            "Rack Group 6,rack-group-6,",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{rack_groups[0].pk},Rack Group 7,New description7",
+            f"{rack_groups[1].pk},Rack Group 8,New description8",
+            f"{rack_groups[2].pk},Rack Group 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
+
+
 class RackRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = RackRole
 
@@ -494,6 +540,12 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for location in locations:
             location.save()
 
+        rack_groups = (
+            RackGroup(name='Rack Group 1', slug='rack-group-1'),
+            RackGroup(name='Rack Group 2', slug='rack-group-2'),
+        )
+        RackGroup.objects.bulk_create(rack_groups)
+
         rackroles = (
             RackRole(name='Rack Role 1', slug='rack-role-1'),
             RackRole(name='Rack Role 2', slug='rack-role-2'),
@@ -501,8 +553,8 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         RackRole.objects.bulk_create(rackroles)
 
         racks = (
-            Rack(name='Rack 1', site=sites[0]),
-            Rack(name='Rack 2', site=sites[0]),
+            Rack(name='Rack 1', site=sites[0], group=rack_groups[0], role=rackroles[0]),
+            Rack(name='Rack 2', site=sites[0], group=rack_groups[1]),
             Rack(name='Rack 3', site=sites[0]),
         )
         Rack.objects.bulk_create(racks)
@@ -514,6 +566,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'facility_id': 'Facility X',
             'site': sites[1].pk,
             'location': locations[1].pk,
+            'group': rack_groups[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_PLANNED,
             'role': rackroles[1].pk,
@@ -535,10 +588,10 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,location,name,status,width,u_height,weight,max_weight,weight_unit",
-            "Site 1,,Rack 4,active,19,42,100,2000,kg",
-            "Site 1,Location 1,Rack 5,active,19,42,100,2000,kg",
-            "Site 2,Location 2,Rack 6,active,19,42,100,2000,kg",
+            "site,location,group,name,status,width,u_height,weight,max_weight,weight_unit",
+            "Site 1,,,Rack 4,active,19,42,100,2000,kg",
+            "Site 1,Location 1,Rack Group 1,Rack 5,active,19,42,100,2000,kg",
+            "Site 2,Location 2,Rack Group 2,Rack 6,active,19,42,100,2000,kg",
         )
 
         cls.csv_update_data = (
@@ -551,6 +604,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'site': sites[1].pk,
             'location': locations[1].pk,
+            'group': rack_groups[1].pk,
             'tenant': None,
             'status': RackStatusChoices.STATUS_DEPRECATED,
             'role': rackroles[1].pk,
@@ -1141,6 +1195,7 @@ console-ports:
                 self.assertHttpStatus(response, 200)
                 self.assertContains(response, "Record 1 console-ports[1]: Must be a dictionary.")
 
+    @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')
         self.add_permissions('dcim.view_devicetype')
@@ -1153,10 +1208,15 @@ console-ports:
         self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
         self.assertEqual(data[0]['model'], 'Device Type 1')
 
-        # Test table-based export
+        # Test table-based export (streams row-by-row)
         response = self.client.get(f'{url}?export=table')
         self.assertHttpStatus(response, 200)
         self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+        self.assertIsInstance(response, StreamingHttpResponse)
+        content = b''.join(response.streaming_content).decode('utf-8')
+        rows = list(csv.reader(StringIO(content)))
+        self.assertGreater(len(rows), 1)
+        self.assertEqual(len(rows) - 1, DeviceType.objects.count())
 
 
 class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -1522,6 +1582,7 @@ module-bays:
         self.assertEqual(mb1.name, 'Module Bay 1')
         self.assertEqual(mb1.position, '1')
 
+    @override_settings(STREAMING_EXPORTS=True)
     def test_export_objects(self):
         url = reverse('dcim:moduletype_list')
         self.add_permissions('dcim.view_moduletype')
@@ -1534,10 +1595,15 @@ module-bays:
         self.assertEqual(data[0]['manufacturer'], 'Manufacturer 1')
         self.assertEqual(data[0]['model'], 'Module Type 1')
 
-        # Test table-based export
+        # Test table-based export (streams row-by-row)
         response = self.client.get(f'{url}?export=table')
         self.assertHttpStatus(response, 200)
         self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+        self.assertIsInstance(response, StreamingHttpResponse)
+        content = b''.join(response.streaming_content).decode('utf-8')
+        rows = list(csv.reader(StringIO(content)))
+        self.assertGreater(len(rows), 1)
+        self.assertEqual(len(rows) - 1, ModuleType.objects.count())
 
 
 class ModuleTypeProfileTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -2775,6 +2841,50 @@ class ConsolePortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{console_ports[2].pk},Console Port 9,New description9",
         )
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_add_components_with_changelog_message(self):
+        device1 = Device.objects.get(name='Device 1')
+        device2 = create_test_device('Device 2')
+        changelog_message = 'Bulk-created console ports'
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        request = {
+            'path': reverse('dcim:device_bulk_add_consoleport'),
+            'data': post_data({
+                'pk': [device1.pk, device2.pk],
+                'name': 'Console Port Bulk',
+                'type': ConsolePortTypeChoices.TYPE_RJ45,
+                'description': 'Bulk-created console port',
+                'changelog_message': changelog_message,
+                '_create': True,
+            }),
+        }
+
+        initial_count = self._get_queryset().count()
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(initial_count + 2, self._get_queryset().count())
+
+        created_ports = list(ConsolePort.objects.filter(name='Console Port Bulk').order_by('device_id'))
+        self.assertEqual(len(created_ports), 2)
+        self.assertEqual([port.device_id for port in created_ports], [device1.pk, device2.pk])
+
+        objectchanges = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+            changed_object_type=ContentType.objects.get_for_model(ConsolePort),
+            changed_object_id__in=[port.pk for port in created_ports],
+        )
+        self.assertEqual(objectchanges.count(), 2)
+        for objectchange in objectchanges:
+            self.assertEqual(objectchange.message, changelog_message)
+
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
         consoleport = ConsolePort.objects.first()
@@ -3577,6 +3687,45 @@ class InventoryItemRoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'color': '00ff00',
+            'description': 'New description',
+        }
+
+
+class CableBundleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CableBundle
+
+    @classmethod
+    def setUpTestData(cls):
+        cable_bundles = (
+            CableBundle(name='Cable Bundle 1'),
+            CableBundle(name='Cable Bundle 2'),
+            CableBundle(name='Cable Bundle 3'),
+        )
+        CableBundle.objects.bulk_create(cable_bundles)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Cable Bundle X',
+            'description': 'A test bundle',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,description",
+            "Cable Bundle 4,Fourth bundle",
+            "Cable Bundle 5,Fifth bundle",
+            "Cable Bundle 6,",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cable_bundles[0].pk},Cable Bundle 7,New description7",
+            f"{cable_bundles[1].pk},Cable Bundle 8,New description8",
+            f"{cable_bundles[2].pk},Cable Bundle 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
             'description': 'New description',
         }
 

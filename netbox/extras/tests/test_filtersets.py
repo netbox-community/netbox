@@ -22,7 +22,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
-    ignore_fields = ('default', 'related_object_filter')
+    ignore_fields = ('default', 'related_object_filter', 'validation_schema')
 
     @classmethod
     def setUpTestData(cls):
@@ -160,8 +160,21 @@ class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
         choice_sets = (
-            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['A', 'B', 'C'], description='foobar1'),
-            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['D', 'E', 'F'], description='foobar2'),
+            CustomFieldChoiceSet(
+                name='Choice Set 1',
+                extra_choices=['A', 'B', 'C'],
+                choice_colors={'A': CustomFieldChoiceColorChoices.RED},
+                description='foobar1',
+            ),
+            CustomFieldChoiceSet(
+                name='Choice Set 2',
+                extra_choices=['D', 'E', 'F'],
+                choice_colors={
+                    'D': CustomFieldChoiceColorChoices.GREEN,
+                    'E': CustomFieldChoiceColorChoices.RED,
+                },
+                description='foobar2',
+            ),
             CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['G', 'H', 'I'], description='foobar3'),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
@@ -177,6 +190,16 @@ class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_choice(self):
         params = {'choice': ['A', 'D']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_choice_colors(self):
+        params = {'choice_colors': [CustomFieldChoiceColorChoices.RED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        params = {'choice_colors': [CustomFieldChoiceColorChoices.GREEN]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {'choice_colors': [CustomFieldChoiceColorChoices.YELLOW]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
@@ -1223,6 +1246,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'asn',
         'asnrange',
         'cable',
+        'cablebundle',
         'circuit',
         'circuitgroup',
         'circuitgroupassignment',
@@ -1279,6 +1303,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'provideraccount',
         'providernetwork',
         'rack',
+        'rackgroup',
         'rackreservation',
         'rackrole',
         'racktype',
@@ -1303,6 +1328,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         'virtualdevicecontext',
         'virtualdisk',
         'virtualmachine',
+        'virtualmachinetype',
         'vlan',
         'vlangroup',
         'vlantranslationpolicy',

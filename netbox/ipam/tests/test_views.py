@@ -5,7 +5,8 @@ from django.test import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
-from core.models import ObjectType
+from core.choices import ObjectChangeActionChoices
+from core.models import ObjectChange, ObjectType
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
@@ -84,6 +85,12 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ]
         RIR.objects.bulk_create(rirs)
 
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+        )
+        Role.objects.bulk_create(roles)
+
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2')
@@ -97,10 +104,10 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=65001, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=65002, rir=rirs[1], tenant=tenants[1]),
-            ASN(asn=4200000001, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=4200000002, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=65001, rir=rirs[0], role=roles[0], tenant=tenants[0]),
+            ASN(asn=65002, rir=rirs[1], role=roles[1], tenant=tenants[1]),
+            ASN(asn=4200000001, rir=rirs[0], role=roles[0], tenant=tenants[0]),
+            ASN(asn=4200000002, rir=rirs[1], role=roles[1], tenant=tenants[1]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -114,6 +121,7 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'asn': 65000,
             'rir': rirs[0].pk,
+            'role': roles[0].pk,
             'tenant': tenants[0].pk,
             'site': sites[0].pk,
             'description': 'A new ASN',
@@ -121,11 +129,11 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "asn,rir",
-            "65003,RIR 1",
-            "65004,RIR 2",
-            "4200000003,RIR 1",
-            "4200000004,RIR 2",
+            "asn,rir,role",
+            f"65003,RIR 1,{roles[0].name}",
+            f"65004,RIR 2,{roles[1].name}",
+            f"4200000003,RIR 1,{roles[0].name}",
+            f"4200000004,RIR 2,{roles[1].name}",
         )
 
         cls.csv_update_data = (
@@ -137,6 +145,7 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'rir': rirs[1].pk,
+            'role': roles[1].pk,
             'description': 'Next description',
         }
 
@@ -466,6 +475,105 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'is_pool': False,
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv4_prefixes(self):
+        """Test bulk creating IPv4 prefixes using a pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': '10.0.[0-2].0/24',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 3)
+
+        for i in range(3):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'10.0.{i}.0/24')).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv6_prefixes(self):
+        """Test bulk creating IPv6 prefixes using a pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': 'fd00:db8:[0-3]::/48',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 4)
+
+        for i in range(4):
+            self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'fd00:db8:{i}::/48')).exists())
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipv6_prefixes_uppercase_hex(self):
+        """Test bulk creating IPv6 prefixes using uppercase hex in the pattern."""
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        initial_count = Prefix.objects.count()
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': 'fd00:0:0:[48-4F]00::/56',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(Prefix.objects.count(), initial_count + 8)
+
+        expected_hex = ['48', '49', '4a', '4b', '4c', '4d', '4e', '4f']
+        for h in expected_hex:
+            prefix_str = f'fd00:0:0:{h}00::/56'
+            self.assertTrue(
+                Prefix.objects.filter(prefix=IPNetwork(prefix_str)).exists(),
+                f'Expected prefix {prefix_str} was not created'
+            )
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_prefixes_with_changelog_message(self):
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        changelog_message = 'Bulk-created prefixes'
+        prefixes = [IPNetwork(f'198.18.{i}.0/24') for i in range(3)]
+        url = reverse('ipam:prefix_bulk_add')
+        data = {
+            'pattern': '198.18.[0-2].0/24',
+            'status': PrefixStatusChoices.STATUS_ACTIVE,
+            'changelog_message': changelog_message,
+        }
+
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+
+        created_prefixes = list(Prefix.objects.filter(prefix__in=prefixes))
+        self.assertEqual(len(created_prefixes), len(prefixes))
+
+        objectchanges = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+            changed_object_type=ContentType.objects.get_for_model(Prefix),
+            changed_object_id__in=[obj.pk for obj in created_prefixes],
+        )
+        self.assertEqual(objectchanges.count(), len(prefixes))
+        for objectchange in objectchanges:
+            self.assertEqual(objectchange.message, changelog_message)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_prefixes(self):
@@ -831,6 +939,39 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'dns_name': 'example',
             'description': 'New description',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_bulk_add_ipaddresses_with_changelog_message(self):
+        obj_perm = ObjectPermission(name='Test permission', actions=['add'])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(IPAddress))
+
+        vrf = VRF.objects.get(name='VRF 1')
+        changelog_message = 'Bulk-created IP addresses'
+        addresses = [IPNetwork(f'198.51.100.{i}/24') for i in range(10, 13)]
+        url = reverse('ipam:ipaddress_bulk_add')
+        data = {
+            'pattern': '198.51.100.[10-12]/24',
+            'vrf': vrf.pk,
+            'status': IPAddressStatusChoices.STATUS_ACTIVE,
+            'changelog_message': changelog_message,
+        }
+
+        response = self.client.post(url, data)
+        self.assertHttpStatus(response, 302)
+
+        created_addresses = list(IPAddress.objects.filter(address__in=addresses, vrf=vrf))
+        self.assertEqual(len(created_addresses), len(addresses))
+
+        objectchanges = ObjectChange.objects.filter(
+            action=ObjectChangeActionChoices.ACTION_CREATE,
+            changed_object_type=ContentType.objects.get_for_model(IPAddress),
+            changed_object_id__in=[obj.pk for obj in created_addresses],
+        )
+        self.assertEqual(objectchanges.count(), len(addresses))
+        for objectchange in objectchanges:
+            self.assertEqual(objectchange.message, changelog_message)
 
 
 class FHRPGroupTestCase(ViewTestCases.PrimaryObjectViewTestCase):

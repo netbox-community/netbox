@@ -23,8 +23,10 @@
     </div>
 
     {# Form buttons #}
-    <div class="btn-list d-print-none mt-2">
-      {% bulk_delete_button model query_params=request.GET %}
+    <div class="card btn-list sticky-actions d-print-none" data-sticky-position="right" data-sticky-when="selection">
+      <div class="btn-list bulk-action-buttons">
+        {% bulk_delete_button model query_params=request.GET %}
+      </div>
     </div>
   </form>
 {% endblock %}

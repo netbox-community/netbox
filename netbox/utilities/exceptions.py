@@ -6,6 +6,7 @@ __all__ = (
     'AbortScript',
     'AbortTransaction',
     'PermissionsViolation',
+    'PreconditionFailed',
     'RQWorkerNotRunningException',
 )
 
@@ -38,6 +39,20 @@ class PermissionsViolation(Exception):
     allowed permissions.
     """
     message = "Operation failed due to object-level permissions violation"
+
+
+class PreconditionFailed(APIException):
+    """
+    Raised when an If-Match precondition is not satisfied (HTTP 412).
+    Optionally carries the current ETag so it can be included in the response.
+    """
+    status_code = status.HTTP_412_PRECONDITION_FAILED
+    default_detail = 'Precondition failed.'
+    default_code = 'precondition_failed'
+
+    def __init__(self, detail=None, code=None, etag=None):
+        super().__init__(detail=detail, code=code)
+        self.etag = etag
 
 
 class RQWorkerNotRunningException(APIException):

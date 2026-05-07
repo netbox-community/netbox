@@ -26,6 +26,7 @@ __all__ = (
     'VMInterfaceFilterSet',
     'VirtualDiskFilterSet',
     'VirtualMachineFilterSet',
+    'VirtualMachineTypeFilterSet',
 )
 
 
@@ -92,6 +93,45 @@ class ClusterFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ScopedFilterSet,
 
 
 @register_filterset
+class VirtualMachineTypeFilterSet(PrimaryModelFilterSet):
+    default_platform_id = TreeNodeMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        field_name='default_platform',
+        lookup_expr='in',
+        label=_('Default platform (ID)'),
+    )
+    default_platform = TreeNodeMultipleChoiceFilter(
+        queryset=Platform.objects.all(),
+        field_name='default_platform',
+        to_field_name='slug',
+        lookup_expr='in',
+        label=_('Default platform (slug)'),
+    )
+
+    class Meta:
+        model = VirtualMachineType
+        fields = (
+            'id',
+            'name',
+            'slug',
+            'default_vcpus',
+            'default_memory',
+            'description',
+            'virtual_machine_count',
+        )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
+@register_filterset
 class VirtualMachineFilterSet(
     PrimaryModelFilterSet,
     TenancyFilterSet,
@@ -99,6 +139,18 @@ class VirtualMachineFilterSet(
     LocalConfigContextFilterSet,
     PrimaryIPFilterSet,
 ):
+    virtual_machine_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VirtualMachineType.objects.all(),
+        distinct=False,
+        label=_('Virtual machine type (ID)'),
+    )
+    virtual_machine_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine_type__slug',
+        queryset=VirtualMachineType.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Virtual machine type (slug)'),
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
         distinct=False,

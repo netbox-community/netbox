@@ -121,6 +121,11 @@ class ASNBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label=_('RIR')
     )
+    role = DynamicModelChoiceField(
+        queryset=Role.objects.all(),
+        required=False,
+        label=_('Role')
+    )
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -129,9 +134,9 @@ class ASNBulkEditForm(PrimaryModelBulkEditForm):
 
     model = ASN
     fieldsets = (
-        FieldSet('sites', 'rir', 'tenant', 'description'),
+        FieldSet('sites', 'rir', 'role', 'tenant', 'description'),
     )
-    nullable_fields = ('tenant', 'description', 'comments')
+    nullable_fields = ('role', 'tenant', 'description', 'comments')
 
 
 class AggregateBulkEditForm(PrimaryModelBulkEditForm):

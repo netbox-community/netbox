@@ -116,6 +116,9 @@ class Contact(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         verbose_name = _('contact')
         verbose_name_plural = _('contacts')
 
@@ -156,6 +159,7 @@ class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, Chan
     class Meta:
         ordering = ('contact', 'priority', 'role', 'pk')
         indexes = (
+            models.Index(fields=('contact', 'priority', 'role', 'id')),  # Default ordering
             models.Index(fields=('object_type', 'object_id')),
         )
         constraints = (

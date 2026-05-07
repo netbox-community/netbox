@@ -52,7 +52,13 @@
       {% if error_message %}
         <div class="alert alert-warning">
           <h4 class="alert-title mb-1">{% trans "Error rendering template" %}</h4>
-          {{ error_message }}
+          {% if config_template.debug %}
+            <div class="overflow-auto" style="max-height: 30rem;">
+              <pre class="mb-0">{{ error_message }}</pre>
+            </div>
+          {% else %}
+            <pre class="mb-0 text-warning-emphasis bg-transparent border-0 p-0">{{ error_message }}</pre>
+          {% endif %}
         </div>
       {% elif config_template %}
         {% if rendered_config %}

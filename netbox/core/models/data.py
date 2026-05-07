@@ -87,6 +87,9 @@ class DataSource(JobsMixin, PrimaryModel):
         ordering = ('name',)
         verbose_name = _('data source')
         verbose_name_plural = _('data sources')
+        permissions = [
+            ('sync', 'Synchronize data from remote source'),
+        ]
 
     def __str__(self):
         return f'{self.name}'

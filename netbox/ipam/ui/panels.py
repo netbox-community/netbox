@@ -66,6 +66,7 @@ class ASNRangePanel(panels.ObjectAttributesPanel):
 class ASNPanel(panels.ObjectAttributesPanel):
     asn = attrs.TextAttr('asn_with_asdot', label=_('AS Number'))
     rir = attrs.RelatedObjectAttr('rir', linkify=True, label=_('RIR'))
+    role = attrs.RelatedObjectAttr('role', linkify=True)
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
 
@@ -228,11 +229,9 @@ class VLANCustomerVLANsPanel(panels.ObjectsTablePanel):
             ],
         )
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if not obj or obj.qinq_role != 'svlan':
-            return ''
-        return super().render(context)
+        return False if (obj is None or obj.qinq_role != 'svlan') else True
 
 
 class ServiceTemplatePanel(panels.ObjectAttributesPanel):

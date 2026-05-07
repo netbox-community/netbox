@@ -8,16 +8,16 @@ from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import (
     expand_alphanumeric_pattern,
-    expand_ipaddress_pattern,
+    expand_ipnetwork_pattern,
     get_capacity_unit_label,
     get_field_value,
 )
 from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
 
 
-class ExpandIPAddress(TestCase):
+class ExpandIPNetwork(TestCase):
     """
-    Validate the operation of expand_ipaddress_pattern().
+    Validate the operation of expand_ipnetwork_pattern().
     """
     def test_ipv4_range(self):
         input = '1.2.3.[9-10]/32'
@@ -26,7 +26,7 @@ class ExpandIPAddress(TestCase):
             '1.2.3.10/32',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 4)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 4)), output)
 
     def test_ipv4_set(self):
         input = '1.2.3.[4,44]/32'
@@ -35,7 +35,7 @@ class ExpandIPAddress(TestCase):
             '1.2.3.44/32',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 4)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 4)), output)
 
     def test_ipv4_multiple_ranges(self):
         input = '1.[9-10].3.[9-11]/32'
@@ -48,7 +48,7 @@ class ExpandIPAddress(TestCase):
             '1.10.3.11/32',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 4)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 4)), output)
 
     def test_ipv4_multiple_sets(self):
         input = '1.[2,22].3.[4,44]/32'
@@ -59,7 +59,7 @@ class ExpandIPAddress(TestCase):
             '1.22.3.44/32',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 4)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 4)), output)
 
     def test_ipv4_set_and_range(self):
         input = '1.[2,22].3.[9-11]/32'
@@ -72,7 +72,7 @@ class ExpandIPAddress(TestCase):
             '1.22.3.11/32',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 4)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 4)), output)
 
     def test_ipv6_range(self):
         input = 'fec::abcd:[9-b]/64'
@@ -82,7 +82,7 @@ class ExpandIPAddress(TestCase):
             'fec::abcd:b/64',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 6)), output)
 
     def test_ipv6_range_multichar_field(self):
         input = 'fec::abcd:[f-11]/64'
@@ -92,7 +92,7 @@ class ExpandIPAddress(TestCase):
             'fec::abcd:11/64',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 6)), output)
 
     def test_ipv6_set(self):
         input = 'fec::abcd:[9,ab]/64'
@@ -101,7 +101,7 @@ class ExpandIPAddress(TestCase):
             'fec::abcd:ab/64',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 6)), output)
 
     def test_ipv6_multiple_ranges(self):
         input = 'fec::[1-2]bcd:[9-b]/64'
@@ -114,7 +114,7 @@ class ExpandIPAddress(TestCase):
             'fec::2bcd:b/64',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 6)), output)
 
     def test_ipv6_multiple_sets(self):
         input = 'fec::[a,f]bcd:[9,ab]/64'
@@ -125,7 +125,7 @@ class ExpandIPAddress(TestCase):
             'fec::fbcd:ab/64',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 6)), output)
 
     def test_ipv6_set_and_range(self):
         input = 'fec::[dead,beaf]:[9-b]/64'
@@ -138,41 +138,41 @@ class ExpandIPAddress(TestCase):
             'fec::beaf:b/64',
         ])
 
-        self.assertEqual(sorted(expand_ipaddress_pattern(input, 6)), output)
+        self.assertEqual(sorted(expand_ipnetwork_pattern(input, 6)), output)
 
     def test_invalid_address_family(self):
         with self.assertRaisesRegex(Exception, 'Invalid IP address family: 5'):
-            sorted(expand_ipaddress_pattern(None, 5))
+            sorted(expand_ipnetwork_pattern(None, 5))
 
     def test_invalid_non_pattern(self):
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.4/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.4/32', 4))
 
     def test_invalid_range(self):
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[4-]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[4-]/32', 4))
 
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[-4]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[-4]/32', 4))
 
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[4--5]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[4--5]/32', 4))
 
     def test_invalid_range_bounds(self):
-        self.assertEqual(sorted(expand_ipaddress_pattern('1.2.3.[4-3]/32', 6)), [])
+        self.assertEqual(sorted(expand_ipnetwork_pattern('1.2.3.[4-3]/32', 6)), [])
 
     def test_invalid_set(self):
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[4]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[4]/32', 4))
 
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[4,]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[4,]/32', 4))
 
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[,4]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[,4]/32', 4))
 
         with self.assertRaises(ValueError):
-            sorted(expand_ipaddress_pattern('1.2.3.[4,,5]/32', 4))
+            sorted(expand_ipnetwork_pattern('1.2.3.[4,,5]/32', 4))
 
 
 class ExpandAlphanumeric(TestCase):

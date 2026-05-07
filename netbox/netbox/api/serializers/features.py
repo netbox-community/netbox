@@ -53,17 +53,78 @@ class TaggableModelSerializer(serializers.Serializer):
     on create() and update().
     """
     tags = NestedTagSerializer(many=True, required=False)
+    add_tags = NestedTagSerializer(many=True, required=False, write_only=True)
+    remove_tags = NestedTagSerializer(many=True, required=False, write_only=True)
+
+    def to_internal_value(self, data):
+        ret = super().to_internal_value(data)
+
+        # Workaround to bypass requirement to include add_tags/remove_tags in Meta.fields on every serializer
+        if type(data) is dict:
+            tag_serializer = NestedTagSerializer(many=True)
+            for field_name in ('add_tags', 'remove_tags'):
+                if field_name in data:
+                    ret[field_name] = tag_serializer.to_internal_value(data[field_name])
+
+        return ret
+
+    def validate(self, data):
+        # Skip validation for nested serializer representations (e.g. when used as a related field)
+        if type(data) is not dict:
+            return super().validate(data)
+
+        if data.get('tags') and (data.get('add_tags') or data.get('remove_tags')):
+            raise serializers.ValidationError({
+                'tags': 'Cannot specify "tags" together with "add_tags" or "remove_tags".'
+            })
+
+        if self.instance is None and data.get('remove_tags'):
+            raise serializers.ValidationError({
+                'remove_tags': 'Cannot use "remove_tags" when creating a new object.'
+            })
+
+        if data.get('add_tags') and data.get('remove_tags'):
+            add_pks = {t.pk for t in data['add_tags']}
+            remove_pks = {t.pk for t in data['remove_tags']}
+            overlap = [t for t in data['add_tags'] if t.pk in (add_pks & remove_pks)]
+            if overlap:
+                raise serializers.ValidationError({
+                    'remove_tags':
+                        f'Tags may not be present in both "add_tags" and "remove_tags": '
+                        f'{", ".join(t.name for t in overlap)}'
+                })
+
+        # Pop add_tags/remove_tags before calling super() to prevent them from being passed
+        # to the model constructor during ValidatedModelSerializer validation
+        add_tags = data.pop('add_tags', None)
+        remove_tags = data.pop('remove_tags', None)
+
+        data = super().validate(data)
+
+        # Restore for use in create()/update()
+        if add_tags is not None:
+            data['add_tags'] = add_tags
+        if remove_tags is not None:
+            data['remove_tags'] = remove_tags
+
+        return data
 
     def create(self, validated_data):
         tags = validated_data.pop('tags', None)
+        add_tags = validated_data.pop('add_tags', None)
+        validated_data.pop('remove_tags', None)
         instance = super().create(validated_data)
 
         if tags is not None:
             return self._save_tags(instance, tags)
+        if add_tags is not None:
+            instance.tags.add(*[t.name for t in add_tags])
         return instance
 
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags', None)
+        add_tags = validated_data.pop('add_tags', None)
+        remove_tags = validated_data.pop('remove_tags', None)
 
         # Cache tags on instance for change logging
         instance._tags = tags or []
@@ -72,6 +133,13 @@ class TaggableModelSerializer(serializers.Serializer):
 
         if tags is not None:
             return self._save_tags(instance, tags)
+        if add_tags is not None:
+            instance.tags.add(*[t.name for t in add_tags])
+        if remove_tags is not None:
+            instance.tags.remove(*[t.name for t in remove_tags])
+        if add_tags is not None or remove_tags is not None:
+            instance._tags = instance.tags.all()
+
         return instance
 
     def _save_tags(self, instance, tags):

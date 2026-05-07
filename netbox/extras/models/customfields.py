@@ -4,6 +4,7 @@ import re
 from datetime import date, datetime
 
 import django_filters
+import jsonschema
 from django import forms
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
@@ -15,6 +16,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from core.models import ObjectType
 from extras.choices import *
@@ -40,6 +42,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
+from utilities.jsonschema import validate_schema
 from utilities.querysets import RestrictedQuerySet
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import validate_regex
@@ -222,6 +225,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
+    validation_schema = models.JSONField(
+        blank=True,
+        null=True,
+        validators=[validate_schema],
+        verbose_name=_('validation schema'),
+        help_text=_('A JSON schema definition for validating the custom field value')
+    )
     choice_set = models.ForeignKey(
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
@@ -259,11 +269,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
     clone_fields = (
         'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'unique',
         'search_weight', 'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum',
-        'validation_regex', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'validation_regex', 'validation_schema', 'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
+        indexes = (
+            models.Index(fields=('group_name', 'weight', 'name')),  # Default ordering
+        )
         verbose_name = _('custom field')
         verbose_name_plural = _('custom fields')
 
@@ -303,6 +316,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         if not hasattr(self, '_choice_map'):
             self._choice_map = dict(self.choices)
         return self._choice_map.get(value, value)
+
+    def get_choice_color(self, value):
+        if self.choice_set:
+            return self.choice_set.get_choice_color(value)
+        return None
 
     def populate_initial_data(self, content_types):
         """
@@ -387,6 +405,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
                 'validation_regex': _("Regular expression validation is supported only for text and URL fields")
+            })
+
+        # Schema validation can be set only for JSON fields
+        if self.validation_schema and self.type != CustomFieldTypeChoices.TYPE_JSON:
+            raise ValidationError({
+                'validation_schema': _("JSON schema validation is supported only for JSON fields")
             })
 
         # Uniqueness can not be enforced for boolean fields
@@ -820,6 +844,16 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
                     if type(id) is not int:
                         raise ValidationError(_("Found invalid object ID: {id}").format(id=id))
 
+            # Validate JSON against schema (if defined)
+            elif self.type == CustomFieldTypeChoices.TYPE_JSON:
+                if self.validation_schema:
+                    try:
+                        jsonschema.validate(value, schema=self.validation_schema)
+                    except JSONValidationError as e:
+                        raise ValidationError(
+                            _("Value does not conform to the assigned schema: {error}").format(error=e.message)
+                        )
+
         elif self.required:
             raise ValidationError(_("Required field cannot be empty."))
 
@@ -851,12 +885,16 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         blank=True,
         null=True
     )
+    choice_colors = models.JSONField(
+        default=dict,
+        blank=True,
+    )
     order_alphabetically = models.BooleanField(
         default=False,
         help_text=_('Choices are automatically ordered alphabetically')
     )
 
-    clone_fields = ('extra_choices', 'order_alphabetically')
+    clone_fields = ('extra_choices', 'choice_colors', 'order_alphabetically')
 
     class Meta:
         ordering = ('name',)
@@ -891,6 +929,24 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         return self._choices
 
     @property
+    def colors(self):
+        """
+        Return merged color mappings from the selected base choice set (if it defines colors)
+        and any custom color overrides defined on this choice set.
+        """
+        if not hasattr(self, '_colors'):
+            self._colors = {}
+            if self.base_choices:
+                base_choice_set = CHOICE_SETS.get(self.base_choices)
+                self._colors.update(getattr(base_choice_set, 'colors', {}))
+            if self.choice_colors:
+                self._colors.update(self.choice_colors)
+        return self._colors
+
+    def get_choice_color(self, value):
+        return self.colors.get(value)
+
+    @property
     def choices_count(self):
         return len(self.choices)
 
@@ -905,25 +961,56 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         if not self.base_choices and not self.extra_choices:
             raise ValidationError(_("Must define base or extra choices."))
 
-        # Check for duplicate values in extra_choices
-        choice_values = [c[0] for c in self.extra_choices] if self.extra_choices else []
-        if len(set(choice_values)) != len(choice_values):
-            # At least one duplicate value is present. Find the first one and raise an error.
-            _seen = []
-            for value in choice_values:
-                if value in _seen:
+        if self.choice_colors is None:
+            self.choice_colors = {}
+        elif not isinstance(self.choice_colors, dict):
+            raise ValidationError({
+                'choice_colors': _('Color mappings must be defined as a JSON object.')
+            })
+
+        valid_choice_values = set()
+        extra_choice_values = set()
+
+        if self.base_choices:
+            valid_choice_values.update(CHOICE_SETS.get(self.base_choices).values())
+
+        if self.extra_choices:
+            for value, _label in self.extra_choices:
+                if value in extra_choice_values:
                     raise ValidationError(_("Duplicate value '{value}' found in extra choices.").format(value=value))
-                _seen.append(value)
+                extra_choice_values.add(value)
+            valid_choice_values.update(extra_choice_values)
+
+        invalid_choice_values = set()
+        invalid_colors = set()
+        valid_colors = set(CustomFieldChoiceColorChoices.values())
+
+        for value, color in self.choice_colors.items():
+            if value not in valid_choice_values:
+                invalid_choice_values.add(value)
+            if color not in valid_colors:
+                invalid_colors.add(color)
+
+        if invalid_choice_values:
+            raise ValidationError({
+                'choice_colors': _(
+                    'Color mappings must reference an existing choice value. Invalid value(s): {values}.'
+                ).format(values=', '.join(sorted(invalid_choice_values)))
+            })
+
+        if invalid_colors:
+            raise ValidationError({
+                'choice_colors': _(
+                    'Invalid color value(s): {colors}. Use a supported named color.'
+                ).format(colors=', '.join(sorted(invalid_colors)))
+            })
 
         # Check whether any choices have been removed. If so, check whether any of the removed
         # choices are still set in custom field data for any object.
         original_choices = set([
             c[0] for c in self._original_extra_choices
         ]) if self._original_extra_choices else set()
-        current_choices = set([
-            c[0] for c in self.extra_choices
-        ]) if self.extra_choices else set()
-        if removed_choices := original_choices - current_choices:
+        if removed_choices := original_choices - valid_choice_values:
             for custom_field in self.choices_for.all():
                 for object_type in custom_field.object_types.all():
                     model = object_type.model_class()

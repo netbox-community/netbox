@@ -128,7 +128,7 @@ class CustomFieldChoiceSetFilterForm(OwnerFilterMixin, SavedFiltersMixin, Filter
     model = CustomFieldChoiceSet
     fieldsets = (
         FieldSet('q', 'filter_id'),
-        FieldSet('base_choices', 'choice', name=_('Choices')),
+        FieldSet('base_choices', 'choice', 'choice_colors', name=_('Choices')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     base_choices = forms.MultipleChoiceField(
@@ -137,6 +137,11 @@ class CustomFieldChoiceSetFilterForm(OwnerFilterMixin, SavedFiltersMixin, Filter
     )
     choice = forms.CharField(
         required=False
+    )
+    choice_colors = forms.MultipleChoiceField(
+        choices=CustomFieldChoiceColorChoices,
+        required=False,
+        label=_('Choice colors'),
     )
 
 
@@ -497,7 +502,7 @@ class ConfigTemplateFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('data_source_id', 'data_file_id', 'auto_sync_enabled', name=_('Data')),
-        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', name=_('Rendering')),
+        FieldSet('mime_type', 'file_name', 'file_extension', 'as_attachment', 'debug', name=_('Rendering')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
@@ -535,6 +540,13 @@ class ConfigTemplateFilterForm(OwnerFilterMixin, SavedFiltersMixin, FilterForm):
     )
     as_attachment = forms.NullBooleanField(
         label=_('As attachment'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    debug = forms.NullBooleanField(
+        label=_('Debug'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES

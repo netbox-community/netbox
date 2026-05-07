@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from django.test import RequestFactory, TestCase
 
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
@@ -79,7 +81,7 @@ class ChoiceAttrTest(TestCase):
             self.termination.get_role_display(),
         )
         self.assertEqual(
-            attr.get_context(self.termination, {}),
+            attr.get_context(self.termination, 'role', attr.get_value(self.termination), {}),
             {'bg_color': self.termination.get_role_color()},
         )
 
@@ -91,7 +93,7 @@ class ChoiceAttrTest(TestCase):
             self.termination.interface.get_type_display(),
         )
         self.assertEqual(
-            attr.get_context(self.termination, {}),
+            attr.get_context(self.termination, 'interface.type', attr.get_value(self.termination), {}),
             {'bg_color': None},
         )
 
@@ -103,7 +105,9 @@ class ChoiceAttrTest(TestCase):
             self.termination.virtual_circuit.get_status_display(),
         )
         self.assertEqual(
-            attr.get_context(self.termination, {}),
+            attr.get_context(
+                self.termination, 'virtual_circuit.status', attr.get_value(self.termination), {}
+            ),
             {'bg_color': self.termination.virtual_circuit.get_status_color()},
         )
 
@@ -216,6 +220,179 @@ class RelatedObjectListAttrTest(TestCase):
         self.assertInHTML('<li>IKE Proposal 2</li>', rendered)
         self.assertNotIn('IKE Proposal 3', rendered)
         self.assertIn('…', rendered)
+
+
+class TextAttrTest(TestCase):
+
+    def test_get_value_with_format_string(self):
+        attr = attrs.TextAttr('asn', format_string='AS{}')
+        obj = SimpleNamespace(asn=65000)
+        self.assertEqual(attr.get_value(obj), 'AS65000')
+
+    def test_get_value_without_format_string(self):
+        attr = attrs.TextAttr('name')
+        obj = SimpleNamespace(name='foo')
+        self.assertEqual(attr.get_value(obj), 'foo')
+
+    def test_get_value_none_skips_format_string(self):
+        attr = attrs.TextAttr('name', format_string='prefix-{}')
+        obj = SimpleNamespace(name=None)
+        self.assertIsNone(attr.get_value(obj))
+
+    def test_get_context(self):
+        attr = attrs.TextAttr('name', style='text-monospace', copy_button=True)
+        obj = SimpleNamespace(name='bar')
+        context = attr.get_context(obj, 'name', 'bar', {})
+        self.assertEqual(context['style'], 'text-monospace')
+        self.assertTrue(context['copy_button'])
+
+
+class NumericAttrTest(TestCase):
+
+    def test_get_context_with_unit_accessor(self):
+        attr = attrs.NumericAttr('speed', unit_accessor='speed_unit')
+        obj = SimpleNamespace(speed=1000, speed_unit='Mbps')
+        context = attr.get_context(obj, 'speed', 1000, {})
+        self.assertEqual(context['unit'], 'Mbps')
+
+    def test_get_context_without_unit_accessor(self):
+        attr = attrs.NumericAttr('speed')
+        obj = SimpleNamespace(speed=1000)
+        context = attr.get_context(obj, 'speed', 1000, {})
+        self.assertIsNone(context['unit'])
+
+    def test_get_context_copy_button(self):
+        attr = attrs.NumericAttr('speed', copy_button=True)
+        obj = SimpleNamespace(speed=1000)
+        context = attr.get_context(obj, 'speed', 1000, {})
+        self.assertTrue(context['copy_button'])
+
+
+class BooleanAttrTest(TestCase):
+
+    def test_false_value_shown_by_default(self):
+        attr = attrs.BooleanAttr('enabled')
+        obj = SimpleNamespace(enabled=False)
+        self.assertIs(attr.get_value(obj), False)
+
+    def test_false_value_hidden_when_display_false_disabled(self):
+        attr = attrs.BooleanAttr('enabled', display_false=False)
+        obj = SimpleNamespace(enabled=False)
+        self.assertIsNone(attr.get_value(obj))
+
+    def test_true_value_always_shown(self):
+        attr = attrs.BooleanAttr('enabled', display_false=False)
+        obj = SimpleNamespace(enabled=True)
+        self.assertIs(attr.get_value(obj), True)
+
+
+class ImageAttrTest(TestCase):
+
+    def test_invalid_decoding_raises_value_error(self):
+        with self.assertRaises(ValueError):
+            attrs.ImageAttr('image', decoding='invalid')
+
+    def test_default_decoding_for_lazy_image(self):
+        attr = attrs.ImageAttr('image')
+        self.assertTrue(attr.load_lazy)
+        self.assertEqual(attr.decoding, 'async')
+
+    def test_default_decoding_for_non_lazy_image(self):
+        attr = attrs.ImageAttr('image', load_lazy=False)
+        self.assertFalse(attr.load_lazy)
+        self.assertIsNone(attr.decoding)
+
+    def test_explicit_decoding_value(self):
+        attr = attrs.ImageAttr('image', load_lazy=False, decoding='sync')
+        self.assertEqual(attr.decoding, 'sync')
+
+    def test_get_context(self):
+        attr = attrs.ImageAttr('image', load_lazy=False, decoding='async')
+        obj = SimpleNamespace(image='test.png')
+        context = attr.get_context(obj, 'image', 'test.png', {})
+        self.assertEqual(context['decoding'], 'async')
+        self.assertFalse(context['load_lazy'])
+
+
+class RelatedObjectAttrTest(TestCase):
+
+    def test_get_context_with_grouped_by(self):
+        region = SimpleNamespace(name='Region 1')
+        site = SimpleNamespace(name='Site 1', region=region)
+        obj = SimpleNamespace(site=site)
+        attr = attrs.RelatedObjectAttr('site', grouped_by='region')
+        context = attr.get_context(obj, 'site', site, {})
+        self.assertEqual(context['group'], region)
+
+    def test_get_context_without_grouped_by(self):
+        site = SimpleNamespace(name='Site 1')
+        obj = SimpleNamespace(site=site)
+        attr = attrs.RelatedObjectAttr('site')
+        context = attr.get_context(obj, 'site', site, {})
+        self.assertIsNone(context['group'])
+
+    def test_get_context_linkify(self):
+        site = SimpleNamespace(name='Site 1')
+        obj = SimpleNamespace(site=site)
+        attr = attrs.RelatedObjectAttr('site', linkify=True)
+        context = attr.get_context(obj, 'site', site, {})
+        self.assertTrue(context['linkify'])
+
+
+class GenericForeignKeyAttrTest(TestCase):
+
+    def test_get_context_content_type(self):
+        value = SimpleNamespace(_meta=SimpleNamespace(verbose_name='provider'))
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object')
+        context = attr.get_context(obj, 'assigned_object', value, {})
+        self.assertEqual(context['content_type'], 'provider')
+
+    def test_get_context_linkify(self):
+        value = SimpleNamespace(_meta=SimpleNamespace(verbose_name='provider'))
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object', linkify=True)
+        context = attr.get_context(obj, 'assigned_object', value, {})
+        self.assertTrue(context['linkify'])
+
+
+class GPSCoordinatesAttrTest(TestCase):
+
+    def test_missing_latitude_returns_placeholder(self):
+        attr = attrs.GPSCoordinatesAttr()
+        obj = SimpleNamespace(latitude=None, longitude=-74.006)
+        self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
+
+    def test_missing_longitude_returns_placeholder(self):
+        attr = attrs.GPSCoordinatesAttr()
+        obj = SimpleNamespace(latitude=40.712, longitude=None)
+        self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
+
+    def test_both_missing_returns_placeholder(self):
+        attr = attrs.GPSCoordinatesAttr()
+        obj = SimpleNamespace(latitude=None, longitude=None)
+        self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
+
+
+class DateTimeAttrTest(TestCase):
+
+    def test_default_spec(self):
+        attr = attrs.DateTimeAttr('created')
+        obj = SimpleNamespace(created='2024-01-01')
+        context = attr.get_context(obj, 'created', '2024-01-01', {})
+        self.assertEqual(context['spec'], 'seconds')
+
+    def test_date_spec(self):
+        attr = attrs.DateTimeAttr('created', spec='date')
+        obj = SimpleNamespace(created='2024-01-01')
+        context = attr.get_context(obj, 'created', '2024-01-01', {})
+        self.assertEqual(context['spec'], 'date')
+
+    def test_minutes_spec(self):
+        attr = attrs.DateTimeAttr('created', spec='minutes')
+        obj = SimpleNamespace(created='2024-01-01')
+        context = attr.get_context(obj, 'created', '2024-01-01', {})
+        self.assertEqual(context['spec'], 'minutes')
 
 
 class ObjectsTablePanelTest(TestCase):

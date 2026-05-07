@@ -63,6 +63,7 @@ NetBox supports limited custom validation for custom field values. Following are
 * Text: Regular expression (optional)
 * Integer: Minimum and/or maximum value (optional)
 * Selection: Must exactly match one of the prescribed choices
+* JSON: Must adhere to the defined validation schema (if any)
 
 ### Custom Selection Fields
 

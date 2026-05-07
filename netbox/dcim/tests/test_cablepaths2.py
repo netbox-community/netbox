@@ -14,6 +14,7 @@ class CablePathTests(CablePathTestCase):
     Tests are numbered as follows:
         1XX: Test direct connections using each profile
         2XX: Topology tests replicated from the legacy test case and adapted to use profiles
+        3XX: Dynamic port mapping and termination changes
     """
 
     def test_101_cable_profile_single_1c1p(self):
@@ -1222,6 +1223,98 @@ class CablePathTests(CablePathTestCase):
 
         # Test SVG generation
         CableTraceSVG(interfaces[0]).render()
+
+    def test_110_partial_termination_profiled_trunk(self):
+        """
+        Tests that tracing through a partially terminated profiled cable
+        produces a complete path for the connected pair and an incomplete
+        path for the unconnected pair, without errors. Also verifies that
+        attaching the missing termination completes the previously incomplete path.
+
+        [IF1] --C1-- [IF3]
+        [IF2]        (empty)
+
+        Cable profile: Trunk 2C1P with only one B-side termination.
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+            Interface.objects.create(device=self.device, name='Interface 3'),
+        ]
+
+        # Create a 2-connector trunk cable with both A-side connectors
+        # populated but only one B-side connector terminated.
+        cable1 = Cable(
+            profile=CableProfileChoices.TRUNK_2C1P,
+            a_terminations=[interfaces[0], interfaces[1]],
+            b_terminations=[interfaces[2]],
+        )
+        cable1.clean()
+        cable1.save()
+
+        # IF1 (connector 1) → IF3 (connector 1): complete path
+        path1 = self.assertPathExists(
+            (interfaces[0], cable1, interfaces[2]),
+            is_complete=True,
+            is_active=True,
+        )
+
+        # IF3 (connector 1) → IF1 (connector 1): complete path (reverse)
+        path2 = self.assertPathExists(
+            (interfaces[2], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True,
+        )
+
+        # IF2 (connector 2) has no B-side peer.
+        # Tracing should stop at this segment, and the resulting path
+        # should remain incomplete.
+        # Verify via the origin's _path reference rather than matching
+        # the exact path shape directly.
+        interfaces[1].refresh_from_db()
+        self.assertIsNotNone(interfaces[1]._path_id)
+        path3 = CablePath.objects.get(pk=interfaces[1]._path_id)
+        self.assertFalse(path3.is_complete)
+        self.assertTrue(path3.is_active)
+
+        for iface in interfaces:
+            iface.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[2], path2)
+        self.assertPathIsSet(interfaces[1], path3)
+
+        # Verify connector/position assignments
+        self.assertEqual(interfaces[0].cable_connector, 1)
+        self.assertEqual(interfaces[0].cable_positions, [1])
+        self.assertEqual(interfaces[1].cable_connector, 2)
+        self.assertEqual(interfaces[1].cable_positions, [1])
+        self.assertEqual(interfaces[2].cable_connector, 1)
+        self.assertEqual(interfaces[2].cable_positions, [1])
+
+        # Now attach the missing B-side termination and verify the
+        # previously incomplete path becomes complete.
+        interface4 = Interface.objects.create(device=self.device, name='Interface 4')
+        cable1.b_terminations = [interfaces[2], interface4]
+        cable1.clean()
+        cable1.save()
+
+        path4 = self.assertPathExists(
+            (interfaces[1], cable1, interface4),
+            is_complete=True,
+            is_active=True,
+        )
+        path5 = self.assertPathExists(
+            (interface4, cable1, interfaces[1]),
+            is_complete=True,
+            is_active=True,
+        )
+
+        interfaces[1].refresh_from_db()
+        interface4.refresh_from_db()
+        self.assertPathIsSet(interfaces[1], path4)
+        self.assertPathIsSet(interface4, path5)
+        self.assertEqual(interface4.cable_connector, 2)
+        self.assertEqual(interface4.cable_positions, [1])
 
     def test_202_single_path_via_pass_through_with_breakouts(self):
         """

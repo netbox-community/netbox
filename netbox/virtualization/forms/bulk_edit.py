@@ -16,8 +16,9 @@ from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultiple
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import get_capacity_unit_label
 from utilities.forms.widgets import BulkEditNullBooleanSelect
-from virtualization.choices import *
-from virtualization.models import *
+
+from ..choices import *
+from ..models import *
 
 __all__ = (
     'ClusterBulkEditForm',
@@ -28,6 +29,7 @@ __all__ = (
     'VirtualDiskBulkEditForm',
     'VirtualDiskBulkRenameForm',
     'VirtualMachineBulkEditForm',
+    'VirtualMachineTypeBulkEditForm',
 )
 
 
@@ -80,7 +82,37 @@ class ClusterBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     )
 
 
+class VirtualMachineTypeBulkEditForm(PrimaryModelBulkEditForm):
+    default_platform = DynamicModelChoiceField(
+        label=_('Default platform'),
+        queryset=Platform.objects.all(),
+        required=False
+    )
+    default_vcpus = forms.IntegerField(
+        label=_('Default vCPUs'),
+        required=False,
+    )
+    default_memory = forms.IntegerField(
+        label=_('Default Memory (MB)'),
+        required=False,
+    )
+
+    model = VirtualMachineType
+    fieldsets = (
+        FieldSet('description', name=_('Virtual Machine Type')),
+        FieldSet('default_platform', 'default_vcpus', 'default_memory', name=_('Defaults')),
+    )
+    nullable_fields = (
+        'default_platform', 'default_vcpus', 'default_memory', 'description', 'comments',
+    )
+
+
 class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
+    virtual_machine_type = DynamicModelChoiceField(
+        label=_('Virtual machine type'),
+        queryset=VirtualMachineType.objects.all(),
+        required=False
+    )
     status = forms.ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VirtualMachineStatusChoices),
@@ -111,7 +143,8 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
         queryset=Device.objects.all(),
         required=False,
         query_params={
-            'cluster_id': '$cluster'
+            'cluster_id': '$cluster',
+            'site_id': '$site'
         }
     )
     role = DynamicModelChoiceField(
@@ -153,12 +186,14 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        FieldSet('site', 'cluster', 'device', 'status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('virtual_machine_type', 'status', 'start_on_boot', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('site', 'cluster', 'device', name=_('Placement')),
         FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
         FieldSet('config_template', name=_('Configuration')),
     )
     nullable_fields = (
-        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'description', 'comments',
+        'virtual_machine_type', 'role', 'site', 'cluster', 'device', 'platform', 'vcpus', 'memory', 'disk', 'tenant',
+        'description', 'comments',
     )
 
     def __init__(self, *args, **kwargs):
@@ -277,13 +312,21 @@ class VMInterfaceBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
                 interfaces = VMInterface.objects.filter(
                     pk__in=self.initial['pk']
                 ).prefetch_related(
-                    'virtual_machine__site'
+                    'virtual_machine__site',
+                    'virtual_machine__cluster',
+                    'virtual_machine__device',
                 )
 
-                # Check interface sites.  First interface should set site, further interfaces will either continue the
-                # loop or reset back to no site and break the loop.
+                # Determine the effective site for each interface's VM (from its site,
+                # cluster, or device). If all selected interfaces share the same site,
+                # use it to filter VLAN choices; otherwise leave unfiltered.
                 for interface in interfaces:
-                    vm_site = interface.virtual_machine.site or interface.virtual_machine.cluster._site
+                    vm = interface.virtual_machine
+                    vm_site = (
+                        vm.site
+                        or (vm.cluster and vm.cluster._site)
+                        or (vm.device and vm.device.site)
+                    )
                     if site is None:
                         site = vm_site
                     elif vm_site is not site:

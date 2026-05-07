@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
-from jinja2.exceptions import TemplateError
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import Job
@@ -66,6 +65,7 @@ class CustomFieldListView(generic.ObjectListView):
 @register_model_view(CustomField)
 class CustomFieldView(generic.ObjectView):
     queryset = CustomField.objects.select_related('choice_set')
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.CustomFieldPanel(),
@@ -149,6 +149,7 @@ class CustomFieldChoiceSetListView(generic.ObjectListView):
 @register_model_view(CustomFieldChoiceSet)
 class CustomFieldChoiceSetView(generic.ObjectView):
     queryset = CustomFieldChoiceSet.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.CustomFieldChoiceSetPanel(),
@@ -166,7 +167,15 @@ class CustomFieldChoiceSetView(generic.ObjectView):
             page_number = request.GET.get('page', 1)
         except ValueError:
             page_number = 1
-        paginator = EnhancedPaginator(instance.choices, per_page)
+        choice_rows = [
+            {
+                'value': value,
+                'label': label,
+                'color': instance.get_choice_color(value),
+            }
+            for value, label in instance.choices
+        ]
+        paginator = EnhancedPaginator(choice_rows, per_page)
         try:
             choices = paginator.page(page_number)
         except EmptyPage:
@@ -232,6 +241,7 @@ class CustomLinkListView(generic.ObjectListView):
 @register_model_view(CustomLink)
 class CustomLinkView(generic.ObjectView):
     queryset = CustomLink.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.CustomLinkPanel(),
@@ -299,6 +309,7 @@ class ExportTemplateListView(generic.ObjectListView):
 @register_model_view(ExportTemplate)
 class ExportTemplateView(generic.ObjectView):
     queryset = ExportTemplate.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ExportTemplatePanel(),
@@ -373,6 +384,7 @@ class SavedFilterListView(SharedObjectViewMixin, generic.ObjectListView):
 @register_model_view(SavedFilter)
 class SavedFilterView(SharedObjectViewMixin, generic.ObjectView):
     queryset = SavedFilter.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.SavedFilterPanel(),
@@ -444,6 +456,7 @@ class TableConfigListView(SharedObjectViewMixin, generic.ObjectListView):
 @register_model_view(TableConfig)
 class TableConfigView(SharedObjectViewMixin, generic.ObjectView):
     queryset = TableConfig.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.TableConfigPanel(),
@@ -546,6 +559,7 @@ class NotificationGroupListView(generic.ObjectListView):
 @register_model_view(NotificationGroup)
 class NotificationGroupView(generic.ObjectView):
     queryset = NotificationGroup.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.NotificationGroupPanel(),
@@ -739,6 +753,7 @@ class WebhookListView(generic.ObjectListView):
 @register_model_view(Webhook)
 class WebhookView(generic.ObjectView):
     queryset = Webhook.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.WebhookPanel(),
@@ -808,6 +823,7 @@ class EventRuleListView(generic.ObjectListView):
 @register_model_view(EventRule)
 class EventRuleView(generic.ObjectView):
     queryset = EventRule.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.EventRulePanel(),
@@ -879,6 +895,7 @@ class TagListView(generic.ObjectListView):
 @register_model_view(Tag)
 class TagView(generic.ObjectView):
     queryset = Tag.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.TagPanel(),
@@ -970,6 +987,7 @@ class ConfigContextProfileListView(generic.ObjectListView):
 @register_model_view(ConfigContextProfile)
 class ConfigContextProfileView(generic.ObjectView):
     queryset = ConfigContextProfile.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ConfigContextProfilePanel(),
@@ -1044,6 +1062,7 @@ class ConfigContextListView(generic.ObjectListView):
 @register_model_view(ConfigContext)
 class ConfigContextView(generic.ObjectView):
     queryset = ConfigContext.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ConfigContextPanel(),
@@ -1173,6 +1192,7 @@ class ConfigTemplateListView(generic.ObjectListView):
 @register_model_view(ConfigTemplate)
 class ConfigTemplateView(generic.ObjectView):
     queryset = ConfigTemplate.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ConfigTemplatePanel(),
@@ -1284,8 +1304,8 @@ class ObjectRenderConfigView(generic.ObjectView):
         if config_template:
             try:
                 rendered_config = config_template.render(context=context_data)
-            except TemplateError as e:
-                error_message = _("An error occurred while rendering the template: {error}").format(error=e)
+            except Exception as e:
+                error_message = config_template.format_render_error(e)
 
         return {
             'base_template': self.base_template,
@@ -1312,6 +1332,7 @@ class ImageAttachmentListView(generic.ObjectListView):
 @register_model_view(ImageAttachment)
 class ImageAttachmentView(generic.ObjectView):
     queryset = ImageAttachment.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.ImageAttachmentPanel(),
@@ -1717,6 +1738,7 @@ class ScriptView(BaseScriptView):
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
+                notifications=form.cleaned_data.pop('_notifications'),
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
                 job_timeout=script.python_class.job_timeout,
