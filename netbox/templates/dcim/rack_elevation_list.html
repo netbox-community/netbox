@@ -8,7 +8,7 @@
 {% block controls %}
   <div class="col-auto d-print-none">
     <div class="btn-list">
-      <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-primary">
+      <a href="{% url 'dcim:rack_list' %}{% querystring %}" class="btn btn-primary">
         <i class="mdi mdi-format-list-checkbox"></i> {% trans "View List" %}
       </a>
       <select class="btn btn-outline-secondary no-ts rack-view" aria-label="{% trans "Select rack view" %}">
@@ -17,8 +17,8 @@
         <option value="labels-only">{% trans "Labels only" %}</option>
       </select>
       <div class="btn-group" role="group">
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">{% trans "Front" %}</a>
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>
+        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">{% trans "Front" %}</a>
+        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>
       </div>
       <div class="dropdown">
         <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -26,7 +26,7 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           {% for sort_key, sort_display_name in sort_choices.items %}
-            <li><a class="dropdown-item{% if sort == sort_key %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring request sort=sort_key %}">{{ sort_display_name }}</a></li>
+            <li><a class="dropdown-item{% if sort == sort_key %} active{% endif %}" href="{% url 'dcim:rack_elevation_list' %}{% querystring sort=sort_key %}">{{ sort_display_name }}</a></li>
           {% endfor %}
         </ul>
       </div>

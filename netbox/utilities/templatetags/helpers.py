@@ -1,5 +1,4 @@
 import json
-import warnings
 from typing import Any
 from urllib.parse import quote
 
@@ -28,7 +27,6 @@ __all__ = (
     'kg_to_pounds',
     'meters_to_feet',
     'percentage',
-    'querystring',
     'startswith',
     'status_from_tag',
     'table_config_form',
@@ -394,28 +392,6 @@ def icon_from_status(status: str = "info") -> str:
 #
 # Tags
 #
-
-@register.simple_tag()
-def querystring(request, **kwargs):
-    """
-    Append or update the page number in a querystring.
-    """
-    warnings.warn(
-        'The querystring template tag is deprecated and will be removed in a future release. Use '
-        'the built-in Django querystring tag instead.',
-        category=FutureWarning,
-    )
-    querydict = request.GET.copy()
-    for k, v in kwargs.items():
-        if v is not None:
-            querydict[k] = str(v)
-        elif k in querydict:
-            querydict.pop(k)
-    querystring = querydict.urlencode(safe='/')
-    if querystring:
-        return '?' + querystring
-    return ''
-
 
 @register.inclusion_tag('helpers/utilization_graph.html')
 def utilization_graph(utilization, warning_threshold=75, danger_threshold=90):
