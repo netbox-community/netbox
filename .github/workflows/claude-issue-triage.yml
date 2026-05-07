@@ -11,18 +11,18 @@ jobs:
     permissions:
       contents: read
       issues: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 1
-
       - name: Run Claude Issue Triage
         id: claude-triage
-        uses: anthropics/claude-code-action@e763fe78de2db7389e04818a00b5ff8ba13d1360 # v1
+        uses: anthropics/claude-code-action@11a9dadd198803a0cea6bd53da3e0e8a762fc6ea # v1.0.108
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_non_write_users: "*"
           # Restrict Claude to read-only inspection of the repo plus posting a single comment
           # on THIS issue only. `gh issue comment` is pinned to the current issue number, so an
           # injection cannot redirect a comment to another issue. Close, label, reopen, assign,
@@ -32,7 +32,7 @@ jobs:
           # reduce the blast radius of an injection that tries to dump runner env vars or
           # secrets into a comment body.
           claude_args: >-
-            --allowed-tools
+            --allowedTools
             "Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search issues:*),Bash(gh issue comment ${{ github.event.issue.number }}:*),Bash(gh release list:*),Bash(gh release view:*),Read,Grep,Glob"
           prompt: |
             You are triaging a newly opened issue in the netbox-community/netbox repository.
@@ -128,6 +128,8 @@ jobs:
             - Reference the specific problem(s) and clearly explain what the submitter can do
               to move the issue forward (e.g. "please edit the issue to include reproduction
               steps" or "this appears to duplicate #12345 — could you confirm?").
+            - Never direct the submitter to proceed with a pull request immediately: A
+              maintainer will decide when that is appropriate.
             - Sign off noting that you are an automated triage assistant and a human maintainer
               will follow up.
             - Paraphrase rather than quoting issue content verbatim. Do not echo back links,

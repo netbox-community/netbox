@@ -7,7 +7,7 @@ from rest_framework import status
 
 from core.models import ObjectType
 from dcim.choices import InterfaceModeChoices
-from dcim.models import Site
+from dcim.models import Platform, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import ConfigTemplate, CustomField
 from ipam.choices import VLANQinQRoleChoices
@@ -18,6 +18,7 @@ from utilities.testing import (
     APITestCase,
     APIViewTestCases,
     create_test_device,
+    create_test_nat_ip_pair,
     create_test_virtualmachine,
     disable_logging,
 )
@@ -167,54 +168,153 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class VirtualMachineTypeTest(APIViewTestCases.APIViewTestCase):
+    model = VirtualMachineType
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    user_permissions = ('dcim.view_platform', 'virtualization.view_virtualmachine')
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.platforms = (
+            Platform.objects.create(name='Platform 1', slug='platform-1'),
+            Platform.objects.create(name='Platform 2', slug='platform-2'),
+            Platform.objects.create(name='Platform 3', slug='platform-3'),
+        )
+
+        cls.virtual_machine_types = (
+            VirtualMachineType.objects.create(
+                name='Virtual Machine Type 1',
+                slug='virtual-machine-type-1',
+                default_platform=cls.platforms[0],
+                default_vcpus=1,
+                default_memory=1024,
+            ),
+            VirtualMachineType.objects.create(
+                name='Virtual Machine Type 2',
+                slug='virtual-machine-type-2',
+                default_platform=cls.platforms[1],
+                default_vcpus=2,
+                default_memory=2048,
+            ),
+            VirtualMachineType.objects.create(
+                name='Virtual Machine Type 3',
+                slug='virtual-machine-type-3',
+                default_platform=cls.platforms[2],
+                default_vcpus=4,
+                default_memory=4096,
+            ),
+        )
+
+        cls.create_data = [
+            {
+                'name': 'Virtual Machine Type 4',
+                'slug': 'virtual-machine-type-4',
+                'default_platform': cls.platforms[0].pk,
+                'default_vcpus': 1,
+                'default_memory': 1024,
+            },
+            {
+                'name': 'Virtual Machine Type 5',
+                'slug': 'virtual-machine-type-5',
+                'default_platform': cls.platforms[1].pk,
+                'default_vcpus': 2,
+                'default_memory': 2048,
+            },
+            {
+                'name': 'Virtual Machine Type 6',
+                'slug': 'virtual-machine-type-6',
+                'default_platform': cls.platforms[2].pk,
+                'default_vcpus': 4,
+                'default_memory': 4096,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'default_platform': cls.platforms[2].pk,
+            'default_vcpus': 8,
+            'default_memory': 8192,
+            'description': 'New description',
+        }
+
+
 class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
     model = VirtualMachine
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'staged',
     }
+    user_permissions = ('dcim.view_platform', 'virtualization.view_virtualmachinetype')
 
     @classmethod
     def setUpTestData(cls):
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         clustergroup = ClusterGroup.objects.create(name='Cluster Group 1', slug='cluster-group-1')
 
-        sites = (
+        cls.sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
             Site(name='Site 3', slug='site-3'),
         )
-        Site.objects.bulk_create(sites)
+        Site.objects.bulk_create(cls.sites)
 
-        clusters = (
-            Cluster(name='Cluster 1', type=clustertype, scope=sites[0], group=clustergroup),
-            Cluster(name='Cluster 2', type=clustertype, scope=sites[1], group=clustergroup),
+        cls.clusters = (
+            Cluster(name='Cluster 1', type=clustertype, scope=cls.sites[0], group=clustergroup),
+            Cluster(name='Cluster 2', type=clustertype, scope=cls.sites[1], group=clustergroup),
             Cluster(name='Cluster 3', type=clustertype),
         )
-        for cluster in clusters:
+        for cluster in cls.clusters:
             cluster.save()
 
-        device1 = create_test_device('device1', site=sites[0], cluster=clusters[0])
-        device2 = create_test_device('device2', site=sites[1], cluster=clusters[1])
+        cls.devices = (
+            create_test_device('device1', site=cls.sites[0], cluster=cls.clusters[0]),
+            create_test_device('device2', site=cls.sites[1], cluster=cls.clusters[1]),
+        )
+
+        cls.platforms = (
+            Platform.objects.create(name='Platform 1', slug='platform-1'),
+            Platform.objects.create(name='Platform 2', slug='platform-2'),
+            Platform.objects.create(name='Platform 3', slug='platform-3'),
+        )
+
+        cls.vm_types = (
+            VirtualMachineType.objects.create(
+                name='Virtual Machine Type 1',
+                slug='virtual-machine-type-1',
+                default_platform=cls.platforms[0],
+                default_vcpus=2,
+                default_memory=4096,
+            ),
+            VirtualMachineType.objects.create(
+                name='Virtual Machine Type 2',
+                slug='virtual-machine-type-2',
+                default_platform=cls.platforms[1],
+                default_vcpus=4,
+                default_memory=8192,
+            ),
+        )
 
         virtual_machines = (
             VirtualMachine(
                 name='Virtual Machine 1',
-                site=sites[0],
-                cluster=clusters[0],
-                device=device1,
+                virtual_machine_type=cls.vm_types[0],
+                site=cls.sites[0],
+                cluster=cls.clusters[0],
+                device=cls.devices[0],
+                platform=cls.platforms[0],
+                vcpus=2,
+                memory=4096,
                 local_context_data={'A': 1},
             ),
             VirtualMachine(
                 name='Virtual Machine 2',
-                site=sites[0],
-                cluster=clusters[0],
-                local_context_data={'B': 2
-                                    }),
+                site=cls.sites[0],
+                cluster=cls.clusters[0],
+                local_context_data={'B': 2},
+            ),
             VirtualMachine(
                 name='Virtual Machine 3',
-                site=sites[0],
-                cluster=clusters[0],
+                site=cls.sites[0],
+                cluster=cls.clusters[0],
                 local_context_data={'C': 3},
                 start_on_boot=VirtualMachineStartOnBootChoices.STATUS_ON,
             ),
@@ -224,25 +324,88 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'name': 'Virtual Machine 4',
-                'site': sites[1].pk,
-                'cluster': clusters[1].pk,
-                'device': device2.pk,
+                'site': cls.sites[1].pk,
+                'cluster': cls.clusters[1].pk,
+                'device': cls.devices[1].pk,
+                'virtual_machine_type': cls.vm_types[0].pk,
             },
             {
                 'name': 'Virtual Machine 5',
-                'site': sites[1].pk,
-                'cluster': clusters[1].pk,
+                'site': cls.sites[1].pk,
+                'cluster': cls.clusters[1].pk,
+                'virtual_machine_type': cls.vm_types[1].pk,
             },
             {
                 'name': 'Virtual Machine 6',
-                'site': sites[1].pk,
+                'site': cls.sites[1].pk,
             },
             {
                 'name': 'Virtual Machine 7',
-                'cluster': clusters[2].pk,
+                'cluster': cls.clusters[2].pk,
+                'virtual_machine_type': cls.vm_types[0].pk,
                 'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_ON,
             },
         ]
+
+    def test_virtual_machine_type_defaults_applied_on_create(self):
+        data = {
+            'name': 'Virtual Machine With Defaults',
+            'site': self.sites[1].pk,
+            'cluster': self.clusters[1].pk,
+            'virtual_machine_type': self.vm_types[0].pk,
+            'platform': None,
+            'vcpus': None,
+            'memory': None,
+        }
+        self.add_permissions('virtualization.add_virtualmachine')
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        vm = VirtualMachine.objects.get(pk=response.data['id'])
+        self.assertEqual(vm.virtual_machine_type, self.vm_types[0])
+        self.assertEqual(vm.platform, self.vm_types[0].default_platform)
+        self.assertEqual(vm.vcpus, self.vm_types[0].default_vcpus)
+        self.assertEqual(vm.memory, self.vm_types[0].default_memory)
+
+    def test_virtual_machine_type_defaults_do_not_override_explicit_values(self):
+        data = {
+            'name': 'Virtual Machine With Explicit Values',
+            'site': self.sites[1].pk,
+            'cluster': self.clusters[1].pk,
+            'virtual_machine_type': self.vm_types[0].pk,
+            'platform': self.platforms[2].pk,
+            'vcpus': 6,
+            'memory': 12288,
+        }
+        self.add_permissions('virtualization.add_virtualmachine')
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        vm = VirtualMachine.objects.get(pk=response.data['id'])
+        self.assertEqual(vm.virtual_machine_type, self.vm_types[0])
+        self.assertEqual(vm.platform, self.platforms[2])
+        self.assertEqual(vm.vcpus, 6)
+        self.assertEqual(vm.memory, 12288)
+
+    def test_setting_virtual_machine_type_on_existing_vm_does_not_backfill_defaults(self):
+        vm = VirtualMachine.objects.get(name='Virtual Machine 2')
+        self.add_permissions('virtualization.change_virtualmachine')
+
+        response = self.client.patch(
+            self._get_detail_url(vm),
+            {'virtual_machine_type': self.vm_types[1].pk},
+            format='json',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        vm.refresh_from_db()
+        self.assertEqual(vm.virtual_machine_type, self.vm_types[1])
+        self.assertIsNone(vm.platform)
+        self.assertIsNone(vm.vcpus)
+        self.assertIsNone(vm.memory)
 
     def test_config_context_included_by_default_in_list_view(self):
         """
@@ -342,6 +505,57 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         token.save()
         response = self.client.post(url, {}, format='json', HTTP_AUTHORIZATION=token_header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
+
+    def test_list_object_includes_nat_inside_on_primary_ip(self):
+        virtualmachine = create_test_virtualmachine('natted-vm')
+        interface = VMInterface.objects.create(virtual_machine=virtualmachine, name='eth0')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.1.10/32',
+            nat_address='198.51.100.20/32',
+            inside_interface=interface,
+        )
+
+        virtualmachine.primary_ip4 = nat_ip
+        virtualmachine.save()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
+        response = self.client.get(f'{self._get_list_url()}?id={virtualmachine.pk}', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        result = response.data['results'][0]
+        for field in ('primary_ip', 'primary_ip4'):
+            self.assertEqual(result[field]['address'], str(nat_ip.address))
+            self.assertEqual(result[field]['nat_inside']['address'], str(real_ip.address))
+            self.assertEqual(result[field]['nat_outside'], [])
+
+    def test_get_object_includes_nat_outside_on_primary_ip(self):
+        virtualmachine = create_test_virtualmachine('real-ip-vm')
+        interface = VMInterface.objects.create(virtual_machine=virtualmachine, name='eth0')
+
+        real_ip, nat_ip = create_test_nat_ip_pair(
+            real_address='10.0.1.11/32',
+            nat_address='198.51.100.21/32',
+            inside_interface=interface,
+        )
+
+        virtualmachine.primary_ip4 = real_ip
+        virtualmachine.save()
+
+        self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(virtualmachine)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        for field in ('primary_ip', 'primary_ip4'):
+            self.assertEqual(response.data[field]['address'], str(real_ip.address))
+            self.assertIsNone(response.data[field]['nat_inside'])
+            self.assertCountEqual(
+                [ip['address'] for ip in response.data[field]['nat_outside']],
+                [str(nat_ip.address)],
+            )
 
     def test_render_config_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(

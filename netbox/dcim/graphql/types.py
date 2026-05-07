@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.db.models import Func, IntegerField
 
 from core.graphql.mixins import ChangelogMixin
 from dcim import models
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
     from wireless.graphql.types import WirelessLANType, WirelessLinkType
 
 __all__ = (
+    'CableBundleType',
     'CableType',
     'ComponentType',
     'ConsolePortTemplateType',
@@ -73,6 +75,7 @@ __all__ = (
     'PowerPanelType',
     'PowerPortTemplateType',
     'PowerPortType',
+    'RackGroupType',
     'RackReservationType',
     'RackRoleType',
     'RackType',
@@ -127,6 +130,16 @@ class ModularComponentTemplateType(ComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.CableBundle,
+    fields='__all__',
+    filters=CableBundleFilter,
+    pagination=True
+)
+class CableBundleType(PrimaryObjectType):
+    cables: list[Annotated['CableType', strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
     models.CableTermination,
     exclude=['termination_type', 'termination_id', '_device', '_rack', '_location', '_site'],
     filters=CableTerminationFilter,
@@ -157,6 +170,7 @@ class CableTerminationType(NetBoxObjectType):
 class CableType(PrimaryObjectType):
     color: str
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
+    bundle: Annotated['CableBundleType', strawberry.lazy('dcim.graphql.types')] | None
 
     terminations: list[CableTerminationType]
 
@@ -738,6 +752,17 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 
 
 @strawberry_django.type(
+    models.RackGroup,
+    fields='__all__',
+    filters=RackGroupFilter,
+    pagination=True
+)
+class RackGroupType(OrganizationalObjectType):
+
+    racks: list[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]
+
+
+@strawberry_django.type(
     models.RackType,
     fields='__all__',
     filters=RackTypeFilter,
@@ -757,6 +782,7 @@ class RackTypeType(ImageAttachmentsMixin, PrimaryObjectType):
 class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObjectType):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
     location: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
+    group: Annotated["RackGroupType", strawberry.lazy('dcim.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["RackRoleType", strawberry.lazy('dcim.graphql.types')] | None
 
@@ -778,6 +804,17 @@ class RackReservationType(PrimaryObjectType):
     rack: Annotated["RackType", strawberry.lazy('dcim.graphql.types')]
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')]
+
+    @classmethod
+    def get_queryset(cls, queryset, info, **kwargs):
+        queryset = super().get_queryset(queryset, info, **kwargs)
+        return queryset.annotate(
+            unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+        )
+
+    @strawberry.field
+    def unit_count(self) -> int:
+        return len(self.units)
 
 
 @strawberry_django.type(

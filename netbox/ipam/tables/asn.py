@@ -71,6 +71,10 @@ class ASNTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         url_params={'asn_id': 'pk'},
         verbose_name=_('Provider Count')
     )
+    role = tables.Column(
+        verbose_name=_('Role'),
+        linkify=True
+    )
     sites = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name=_('Sites')
@@ -82,9 +86,9 @@ class ASNTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     class Meta(PrimaryModelTable.Meta):
         model = ASN
         fields = (
-            'pk', 'asn', 'asn_asdot', 'rir', 'site_count', 'provider_count', 'tenant', 'tenant_group', 'description',
-            'contacts', 'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
+            'pk', 'asn', 'asn_asdot', 'rir', 'role', 'site_count', 'provider_count', 'tenant', 'tenant_group',
+            'description', 'contacts', 'comments', 'sites', 'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = (
-            'pk', 'asn', 'rir', 'site_count', 'provider_count', 'sites', 'description', 'tenant',
+            'pk', 'asn', 'rir', 'role', 'site_count', 'provider_count', 'sites', 'description', 'tenant',
         )

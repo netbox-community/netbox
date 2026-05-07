@@ -2,5 +2,7 @@
 {% load render_table from django_tables2 %}
 
 {% block panel_content %}
-  {% render_table table 'inc/table.html' %}
+  <div class="table-responsive">
+    {% render_table table 'inc/table.html' %}
+  </div>
 {% endblock panel_content %}

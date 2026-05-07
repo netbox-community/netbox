@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, Location, Rack, Region, Site, SiteGroup
+from dcim.models import Device, Location, Rack, RackGroup, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -151,7 +151,7 @@ class ASNFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = ASN
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('rir_id', 'site_group_id', 'site_id', name=_('Assignment')),
+        FieldSet('rir_id', 'role_id', 'site_group_id', 'site_id', name=_('Assignment')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -159,6 +159,11 @@ class ASNFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         queryset=RIR.objects.all(),
         required=False,
         label=_('RIR')
+    )
+    role_id = DynamicModelMultipleChoiceField(
+        queryset=Role.objects.all(),
+        required=False,
+        label=_('Role')
     )
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
@@ -453,9 +458,9 @@ class FHRPGroupFilterForm(PrimaryModelFilterSetForm):
 class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
-        FieldSet('region', 'site_group', 'site', 'location', 'rack', name=_('Location')),
+        FieldSet('region', 'site_group', 'site', 'location', 'rack_group', 'rack', name=_('Location')),
         FieldSet('cluster_group', 'cluster', name=_('Cluster')),
-        FieldSet('contains_vid', name=_('VLANs')),
+        FieldSet('contains_vid', 'total_vlan_ids', name=_('VLANs')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -480,6 +485,11 @@ class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
         required=False,
         label=_('Location')
     )
+    rack_group = DynamicModelMultipleChoiceField(
+        queryset=RackGroup.objects.all(),
+        required=False,
+        label=_('Rack group')
+    )
     rack = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         required=False,
@@ -499,6 +509,11 @@ class VLANGroupFilterForm(TenancyFilterForm, OrganizationalModelFilterSetForm):
         min_value=0,
         required=False,
         label=_('Contains VLAN ID')
+    )
+    total_vlan_ids = forms.IntegerField(
+        min_value=0,
+        required=False,
+        label=_('Total VLAN IDs')
     )
 
     tag = TagFilterField(model)

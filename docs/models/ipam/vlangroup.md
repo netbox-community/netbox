@@ -18,6 +18,10 @@ A unique URL-friendly identifier. (This value can be used for filtering.)
 
 The set of VLAN IDs which are encompassed by the group. By default, this will be the entire range of valid IEEE 802.1Q VLAN IDs (1 to 4094, inclusive). VLANs created within a group must have a VID that falls within one of these ranges. Ranges may not overlap.
 
+### Total VLAN IDs
+
+A read-only integer indicating the total count of VLAN IDs available within the group, calculated from the configured VLAN ID Ranges. For example, a group with ranges `100-199` and `300-399` would have a total of 200 VLAN IDs. This value is automatically computed and updated whenever the VLAN ID ranges are modified.
+
 ### Scope
 
 The domain covered by a VLAN group, defined as one of the supported object types. This conveys the context in which a VLAN group applies.

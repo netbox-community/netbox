@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
+from core.choices import JobNotificationChoices
 from extras.choices import LogLevelChoices
 from extras.models import ScriptModule
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
@@ -389,6 +390,10 @@ class BaseScript:
     def scheduling_enabled(self):
         return getattr(self.Meta, 'scheduling_enabled', True)
 
+    @classproperty
+    def notifications_default(self):
+        return getattr(self.Meta, 'notifications_default', JobNotificationChoices.NOTIFICATION_ALWAYS)
+
     @property
     def filename(self):
         return inspect.getfile(self.__class__)
@@ -491,7 +496,10 @@ class BaseScript:
             fieldsets.append((_('Script Data'), fields))
 
         # Append the default fieldset if defined in the Meta class
-        exec_parameters = ('_schedule_at', '_interval', '_commit') if self.scheduling_enabled else ('_commit',)
+        if self.scheduling_enabled:
+            exec_parameters = ('_schedule_at', '_interval', '_commit', '_notifications')
+        else:
+            exec_parameters = ('_commit', '_notifications')
         fieldsets.append((_('Script Execution Parameters'), exec_parameters))
 
         return fieldsets
@@ -510,6 +518,9 @@ class BaseScript:
 
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields['_commit'].initial = self.commit_default
+
+        # Set initial "notifications" selection based on the script's Meta parameter
+        form.fields['_notifications'].initial = self.notifications_default
 
         # Hide fields if scheduling has been disabled
         if not self.scheduling_enabled:

@@ -34,10 +34,10 @@ class WirelessLinkInterfacePanel(panels.ObjectPanel):
         self.title = title
 
     def get_context(self, context):
-        obj = context['object']
+        ctx = super().get_context(context)
         return {
-            **super().get_context(context),
-            'interface': getattr(obj, self.interface_attr),
+            **ctx,
+            'interface': getattr(ctx['object'], self.interface_attr),
         }
 
 

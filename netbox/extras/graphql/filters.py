@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
+from django.db.models import Q, QuerySet
 from strawberry.scalars import ID
 from strawberry_django import BaseFilterLookup, FilterLookup, StrFilterLookup
 
@@ -198,6 +199,33 @@ class CustomFieldChoiceSetFilter(ChangeLoggedModelFilter):
         strawberry_django.filter_field()
     )
     order_alphabetically: FilterLookup[bool] | None = strawberry_django.filter_field()
+
+    @strawberry_django.filter_field(resolve_value=True)
+    def choice_colors(
+        self,
+        queryset: QuerySet,
+        value: list[Annotated['CustomFieldChoiceColorEnum', strawberry.lazy('extras.graphql.enums')]],
+        prefix: str,
+    ) -> tuple[QuerySet, Q]:
+        if not value:
+            return queryset, Q()
+
+        field_name = f'{prefix}choice_colors'
+        choice_values = set()
+
+        for mapping in queryset.exclude(**{f'{field_name}__isnull': True}).values_list(field_name, flat=True):
+            if isinstance(mapping, dict):
+                choice_values.update(mapping.keys())
+
+        if not choice_values:
+            return queryset, Q(pk__in=[])
+
+        params = Q()
+        for color in value:
+            for choice_value in choice_values:
+                params |= Q(**{f'{field_name}__contains': {choice_value: color}})
+
+        return queryset, params
 
 
 @strawberry_django.filter_type(models.CustomLink, lookups=True)

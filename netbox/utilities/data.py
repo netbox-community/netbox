@@ -7,6 +7,7 @@ __all__ = (
     'array_to_ranges',
     'array_to_string',
     'check_ranges_overlap',
+    'deep_compare_dict',
     'deepmerge',
     'drange',
     'flatten_dict',
@@ -81,6 +82,35 @@ def shallow_compare_dict(source_dict, destination_dict, exclude=tuple()):
             difference[key] = value
 
     return difference
+
+
+def deep_compare_dict(source_dict, destination_dict, exclude=tuple()):
+    """
+    Return a two-tuple of dictionaries (added, removed) representing the differences between source_dict and
+    destination_dict. For values which are themselves dicts, the comparison is performed recursively such that only
+    the changed keys within the nested dict are included. `exclude` is a list or tuple of keys to be ignored.
+    """
+    added = {}
+    removed = {}
+
+    all_keys = set(source_dict) | set(destination_dict)
+    for key in all_keys:
+        if key in exclude:
+            continue
+        src_val = source_dict.get(key)
+        dst_val = destination_dict.get(key)
+        if src_val == dst_val:
+            continue
+        if isinstance(src_val, dict) and isinstance(dst_val, dict):
+            sub_added, sub_removed = deep_compare_dict(src_val, dst_val)
+            if sub_added or sub_removed:
+                added[key] = sub_added
+                removed[key] = sub_removed
+        else:
+            added[key] = dst_val
+            removed[key] = src_val
+
+    return added, removed
 
 
 #

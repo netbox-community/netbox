@@ -12,6 +12,7 @@ from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, Tag
+from ipam.models import IPAddress
 from users.models import User
 from virtualization.models import Cluster, ClusterType, VirtualMachine
 
@@ -63,6 +64,28 @@ def create_test_virtualmachine(name):
     virtual_machine = VirtualMachine.objects.create(name=name, cluster=cluster)
 
     return virtual_machine
+
+
+def create_test_nat_ip_pair(
+    real_address='10.0.0.10/32', nat_address='198.51.100.10/32', inside_interface=None, outside_interface=None
+):
+    """
+    Convenience method for creating an inside IP and its NAT outside IP.
+
+    Optionally, assign either address to an Interface or VMInterface.
+    Returns (real_ip, nat_ip).
+    """
+    real_ip = IPAddress(address=real_address)
+    if inside_interface is not None:
+        real_ip.assigned_object = inside_interface
+    real_ip.save()
+
+    nat_ip = IPAddress(address=nat_address, nat_inside=real_ip)
+    if outside_interface is not None:
+        nat_ip.assigned_object = outside_interface
+    nat_ip.save()
+
+    return real_ip, nat_ip
 
 
 def create_test_user(username='testuser', permissions=None):

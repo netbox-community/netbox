@@ -1,4 +1,5 @@
 import json
+import warnings
 from typing import Any
 from urllib.parse import quote
 
@@ -399,6 +400,11 @@ def querystring(request, **kwargs):
     """
     Append or update the page number in a querystring.
     """
+    warnings.warn(
+        'The querystring template tag is deprecated and will be removed in a future release. Use '
+        'the built-in Django querystring tag instead.',
+        category=FutureWarning,
+    )
     querydict = request.GET.copy()
     for k, v in kwargs.items():
         if v is not None:

@@ -23,3 +23,8 @@ The device bay's name. Must be unique to the parent device.
 ### Label
 
 An alternative physical label identifying the device bay.
+
+### Enabled
+
+Whether this device bay is enabled. Disabled device bays are not available for installation.
+

@@ -145,6 +145,9 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
                 violation_error_message=_("An object may be terminated to only one tunnel at a time.")
             ),
         )
+        indexes = (
+            models.Index(fields=('tunnel', 'role', 'id')),  # Default ordering
+        )
         verbose_name = _('tunnel termination')
         verbose_name_plural = _('tunnel terminations')
 

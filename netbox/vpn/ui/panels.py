@@ -71,6 +71,23 @@ class IPSecProfilePanel(panels.ObjectAttributesPanel):
     mode = attrs.ChoiceAttr('mode')
 
 
+class IPSecProfileIKEPolicyPanel(panels.ObjectAttributesPanel):
+    title = _('IKE Policy')
+    name = attrs.RelatedObjectAttr('ike_policy', linkify=True)
+    description = attrs.TextAttr('ike_policy.description')
+    version = attrs.ChoiceAttr('ike_policy.version', label=_('IKE version'))
+    mode = attrs.ChoiceAttr('ike_policy.mode')
+    proposals = attrs.RelatedObjectListAttr('ike_policy.proposals', linkify=True)
+
+
+class IPSecProfileIPSecPolicyPanel(panels.ObjectAttributesPanel):
+    title = _('IPSec Policy')
+    name = attrs.RelatedObjectAttr('ipsec_policy', linkify=True)
+    description = attrs.TextAttr('ipsec_policy.description')
+    proposals = attrs.RelatedObjectListAttr('ipsec_policy.proposals', linkify=True)
+    pfs_group = attrs.ChoiceAttr('ipsec_policy.pfs_group', label=_('PFS group'))
+
+
 class L2VPNPanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     identifier = attrs.TextAttr('identifier')

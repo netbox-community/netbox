@@ -76,6 +76,11 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     choice_set = DynamicModelChoiceField(
         queryset=CustomFieldChoiceSet.objects.all()
     )
+    validation_schema = JSONField(
+        label=_('Validation schema'),
+        required=False,
+        help_text=_('A JSON schema definition for validating the custom field value')
+    )
     comments = CommentField()
 
     fieldsets = (
@@ -144,6 +149,16 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
             del self.fields['validation_minimum']
             del self.fields['validation_maximum']
 
+        # Adjust for JSON fields
+        if field_type == CustomFieldTypeChoices.TYPE_JSON:
+            self.fieldsets = (
+                self.fieldsets[0],
+                FieldSet('validation_schema', name=_('Validation')),
+                *self.fieldsets[1:]
+            )
+        else:
+            del self.fields['validation_schema']
+
         # Adjust for object & multi-object fields
         if field_type in (
                 CustomFieldTypeChoices.TYPE_OBJECT,
@@ -182,17 +197,33 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
             'colon. Example:'
         ) + ' <code>choice1:First Choice</code>')
     )
+    choice_colors = forms.CharField(
+        widget=ChoicesWidget(),
+        required=False,
+        help_text=mark_safe(
+            _(
+                'Bind an optional color to a choice by its value. Enter one mapping per line as '
+                '<code>value:color</code>. Example:'
+            )
+            + ' <code>choice1:red</code><br />'
+            + _('Supported colors: {colors}').format(
+                colors=', '.join(f'<code>{color}</code>' for color in CustomFieldChoiceColorChoices.values())
+            )
+        ),
+    )
 
     fieldsets = (
         FieldSet(
-            'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
+            'name', 'description', 'base_choices', 'extra_choices', 'choice_colors', 'order_alphabetically',
             name=_('Custom Field Choice Set')
         ),
     )
 
     class Meta:
         model = CustomFieldChoiceSet
-        fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically', 'owner')
+        fields = (
+            'name', 'description', 'base_choices', 'extra_choices', 'choice_colors', 'order_alphabetically', 'owner'
+        )
 
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
@@ -219,9 +250,25 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
 
             self.initial['extra_choices'] = '\n'.join(choices)
 
+        # Convert choice_colors JSONField from model to CharField for form
+        if 'choice_colors' in self.initial:
+            choice_colors = self.initial.get('choice_colors') or {}
+
+            if isinstance(choice_colors, str):
+                choice_colors = json.loads(choice_colors)
+
+            mappings = []
+            for value, color in sorted(choice_colors.items()):
+                value = value.replace(':', '\\:')
+                mappings.append(f'{value}:{color}')
+
+            self.initial['choice_colors'] = '\n'.join(mappings)
+
     def clean_extra_choices(self):
         data = []
         for line in self.cleaned_data['extra_choices'].splitlines():
+            if not line.strip():
+                continue
             try:
                 value, label = re.split(r'(?<!\\):', line, maxsplit=1)
                 value = value.replace('\\:', ':')
@@ -229,6 +276,28 @@ class CustomFieldChoiceSetForm(ChangelogMessageMixin, OwnerMixin, forms.ModelFor
             except ValueError:
                 value, label = line, line
             data.append((value.strip(), label.strip()))
+        return data
+
+    def clean_choice_colors(self):
+        data = {}
+        for line in self.cleaned_data['choice_colors'].splitlines():
+            if not line.strip():
+                continue
+            try:
+                value, color = re.split(r'(?<!\\):', line, maxsplit=1)
+                value = value.replace('\\:', ':')
+            except ValueError as e:
+                raise forms.ValidationError(
+                    _("Invalid color mapping '{line}'. Use the format value:color.").format(line=line)
+                ) from e
+
+            value = value.strip()
+            color = color.strip()
+            if value in data:
+                raise forms.ValidationError(
+                    _("Duplicate color mapping defined for choice '{value}'.").format(value=value)
+                )
+            data[value] = color
         return data
 
 
@@ -754,7 +823,8 @@ class ConfigTemplateForm(ChangelogMessageMixin, SyncedDataMixin, OwnerMixin, for
         FieldSet('name', 'description', 'tags', 'template_code', name=_('Config Template')),
         FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
         FieldSet(
-            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', name=_('Rendering')
+            'mime_type', 'file_name', 'file_extension', 'environment_params', 'as_attachment', 'debug',
+            name=_('Rendering')
         ),
     )
 

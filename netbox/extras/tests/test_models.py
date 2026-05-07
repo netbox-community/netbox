@@ -19,6 +19,7 @@ from extras.models import (
     ConfigContextProfile,
     ConfigTemplate,
     EventRule,
+    ExportTemplate,
     ImageAttachment,
     Tag,
     TaggedItem,
@@ -771,15 +772,19 @@ class ConfigContextTest(TestCase):
                 if hasattr(node, 'children'):
                     for child in node.children:
                         try:
-                            if child.rhs.query.model is TaggedItem:
-                                subqueries.append(child.rhs.query)
+                            # In Django 6.0+, rhs is a Query directly; older Django wraps it in Subquery
+                            rhs_query = getattr(child.rhs, 'query', child.rhs)
+                            if rhs_query.model is TaggedItem:
+                                subqueries.append(rhs_query)
                         except AttributeError:
                             traverse(child)
             traverse(where_node)
             return subqueries
 
+        # In Django 6.0+, the annotation is a Query directly; older Django wraps it in Subquery
+        annotation_query = getattr(config_annotation, 'query', config_annotation)
         # Find subqueries in the WHERE clause that should have DISTINCT
-        tag_subqueries = find_tag_subqueries(config_annotation.query.where)
+        tag_subqueries = find_tag_subqueries(annotation_query.where)
         distinct_subqueries = [sq for sq in tag_subqueries if sq.distinct]
 
         # Verify we found at least one DISTINCT subquery for tags
@@ -898,6 +903,87 @@ class ConfigTemplateTest(TestCase):
                 object_id=config_template.pk
             )
             self.assertEqual(autosync_records.count(), 0, "AutoSyncRecord should be deleted after detaching")
+
+
+class ConfigTemplateDebugTest(TestCase):
+    """
+    Tests for the ConfigTemplate debug field and its effect on template rendering error output.
+    """
+
+    def _make_template(self, template_code, debug=False):
+        t = ConfigTemplate(
+            name=f"DebugTestTemplate-{debug}",
+            template_code=template_code,
+            debug=debug,
+        )
+        t.save()
+        return t
+
+    def test_debug_default_is_false(self):
+        t = ConfigTemplate(name="t", template_code="hello")
+        self.assertFalse(t.debug)
+
+    def test_template_error_non_debug_no_traceback(self):
+        """In non-debug mode, a TemplateError raises with no traceback exposure."""
+        from jinja2 import TemplateError
+        t = self._make_template("{{ unclosed", debug=False)
+        with self.assertRaises(TemplateError):
+            t.render({})
+
+    def test_template_error_debug_mode_raises(self):
+        """In debug mode, a TemplateError still raises (callers handle display)."""
+        from jinja2 import TemplateError
+        t = self._make_template("{{ unclosed", debug=True)
+        with self.assertRaises(TemplateError):
+            t.render({})
+
+    def test_render_jinja2_debug_extension_enabled(self):
+        """When debug=True, the Jinja2 debug extension is loaded in the environment."""
+        from utilities.jinja2 import render_jinja2
+        # The {% debug %} tag is only available when the debug extension is loaded.
+        output = render_jinja2("{% debug %}", {}, debug=True)
+        self.assertIsInstance(output, str)
+
+    def test_render_jinja2_debug_extension_not_loaded_by_default(self):
+        """When debug=False, the {% debug %} tag is not available."""
+        from jinja2 import TemplateSyntaxError
+
+        from utilities.jinja2 import render_jinja2
+        with self.assertRaises(TemplateSyntaxError):
+            render_jinja2("{% debug %}", {}, debug=False)
+
+
+class ExportTemplateContextTest(TestCase):
+    """
+    Tests for ExportTemplate.get_context() including public model population.
+    """
+
+    def test_get_context_includes_public_models(self):
+        et = ExportTemplate(name='test', template_code='test')
+        ctx = et.get_context()
+
+        self.assertIs(ctx['dcim']['Site'], Site)
+        self.assertIs(ctx['dcim']['Device'], Device)
+
+    def test_get_context_includes_queryset(self):
+        et = ExportTemplate(name='test', template_code='test')
+        qs = Site.objects.all()
+        ctx = et.get_context(queryset=qs)
+
+        self.assertIs(ctx['queryset'], qs)
+
+    def test_get_context_applies_extra_context(self):
+        et = ExportTemplate(name='test', template_code='test')
+        ctx = et.get_context(context={'custom_key': 'custom_value'})
+
+        self.assertEqual(ctx['custom_key'], 'custom_value')
+        self.assertIs(ctx['dcim']['Site'], Site)
+
+    def test_config_template_get_context_includes_public_models(self):
+        ct = ConfigTemplate(name='test', template_code='test')
+        ctx = ct.get_context()
+
+        self.assertIs(ctx['dcim']['Site'], Site)
 
 
 class EventRuleTest(TestCase):

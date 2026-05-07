@@ -34,28 +34,6 @@ span.color-label {
   letter-spacing: .15rem;
 }
 
-// A floating div for form buttons
-.btn-float-group {
-  position: sticky;
-  bottom: 10px;
-  z-index: 4;
-}
-
-.btn-float-group-left {
-  @extend .btn-float-group;
-  float: left;  
-}
-
-.btn-float-group-right {
-  @extend .btn-float-group;
-  float: right;
-}
-
-// Override a transparent background
-.btn-float {
-  --tblr-btn-bg: var(--#{$prefix}bg-surface-tertiary) !important;
-}
-
 .logo {
   height: 80px;
 }
@@ -118,3 +96,87 @@ html[data-bs-theme=dark] {
     filter: grayscale(100%) invert(100%) brightness(80%);
   }
 }
+
+// ── Sticky action bars ──────────────────────────────────────
+// Base: shared by all sticky-action containers
+.sticky-actions {
+  z-index: 4;
+
+  &[data-sticky-when='always'],
+  &.is-sticky-active {
+    position: sticky;
+    bottom: map.get($spacers, 1);
+  }
+}
+
+// Inline (list / children) variants – selection-driven
+.sticky-actions[data-sticky-position='left'],
+.sticky-actions[data-sticky-position='right'] {
+  display: flex;
+  align-items: center;
+  gap: map.get($spacers, 2);
+  padding: map.get($spacers, 2);
+  max-width: 100%;
+  width: fit-content;
+}
+
+.sticky-actions[data-sticky-position='right'] {
+  margin-left: auto;
+}
+
+.sticky-actions[data-sticky-position='full'] {
+  max-width: 100%;
+}
+
+// Footer variant – edit forms (always visible, sticks to bottom: 0)
+// NOTE: requires `.sticky-actions` on the same element for `position: sticky`.
+.sticky-actions-footer {
+  max-width: 100%;
+  margin-top: map.get($spacers, 4);
+  padding: map.get($spacers, 3);
+  padding-bottom: calc(#{map.get($spacers, 3)} + env(safe-area-inset-bottom, 0));
+  background: var(--#{$prefix}bg-surface-secondary);
+  border-top: 1px solid var(--#{$prefix}border-color);
+
+  &[data-sticky-when='always'],
+  &.is-sticky-active {
+    bottom: 0;
+  }
+
+  > .btn-list {
+    justify-content: flex-end;
+    margin-bottom: 0;
+  }
+}
+
+.object-edit--with-sticky-actions {
+  padding-bottom: calc(#{map.get($spacers, 4)} + env(safe-area-inset-bottom, 0));
+}
+
+// Disabled-button styling inside selection-driven bars
+[data-sticky-when='selection'] .bulk-action-buttons .btn:disabled,
+[data-sticky-when='selection'] .bulk-action-buttons .btn.disabled {
+  border-color: transparent;
+  box-shadow: none;
+}
+
+[data-sticky-when='selection'] .bulk-action-buttons .btn.disabled {
+  pointer-events: none;
+}
+
+// Legacy aliases — remove in v4.7.0
+.btn-float-group-right {
+  position: sticky;
+  bottom: 10px;
+  z-index: 4;
+  margin-left: auto;
+  width: fit-content;
+}
+
+.btn-float-group-left {
+  position: sticky;
+  bottom: 10px;
+  z-index: 4;
+  width: fit-content;
+}
+// ── /Sticky action bars ─────────────────────────────────────

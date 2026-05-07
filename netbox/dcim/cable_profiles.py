@@ -1,8 +1,13 @@
+from collections import defaultdict, namedtuple
+
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import CableEndChoices
 from dcim.models import CableTermination
+
+PeerLookupKey = namedtuple('PeerLookupKey', ['cable_id', 'cable_end', 'connector', 'position'])
 
 
 class BaseCableProfile:
@@ -55,9 +60,14 @@ class BaseCableProfile:
             return self._mapping.get((connector, position))
         return connector, position
 
-    def get_peer_termination(self, termination, position):
+    #
+    # Peer termination resolution
+    #
+
+    def _get_peer_lookup_key(self, termination, position):
         """
-        Given a terminating object, return the peer terminating object (if any) on the opposite end of the cable.
+        Given a cabled object and a local position, return the (cable_id, cable_end, connector, position)
+        tuple identifying the corresponding peer CableTermination on the opposite end of the cable.
         """
         try:
             connector, position = self.get_mapped_position(
@@ -70,16 +80,98 @@ class BaseCableProfile:
                 f"Could not map connector {termination.cable_connector} position {position} on side "
                 f"{termination.cable_end}"
             )
+        return PeerLookupKey(termination.cable_id, termination.opposite_cable_end, connector, position)
+
+    def get_peer_termination(self, termination, position):
+        """
+        Given a terminating object, return the peer terminating object (if any) on the opposite end of the cable.
+        """
+        cable_id, cable_end, connector, position = self._get_peer_lookup_key(termination, position)
         try:
             ct = CableTermination.objects.get(
-                cable=termination.cable,
-                cable_end=termination.opposite_cable_end,
+                cable_id=cable_id,
+                cable_end=cable_end,
                 connector=connector,
                 positions__contains=[position],
             )
             return ct.termination, position
         except CableTermination.DoesNotExist:
             return None, None
+
+    def get_peer_terminations(self, term_position_pairs):
+        """
+        Resolve a batch of (termination, position) pairs to peer terminations.
+        """
+        if not term_position_pairs:
+            return []
+
+        # Fast path: a single pair doesn't benefit from batching
+        if len(term_position_pairs) == 1:
+            return [self.get_peer_termination(*term_position_pairs[0])]
+
+        lookup_keys = [
+            self._get_peer_lookup_key(termination, position) for termination, position in term_position_pairs
+        ]
+
+        # Group requested positions by (cable_id, cable_end, connector) so we can
+        # build one overlap clause per group instead of one clause per position.
+        positions_by_group = defaultdict(set)
+        for key in lookup_keys:
+            positions_by_group[(key.cable_id, key.cable_end, key.connector)].add(key.position)
+
+        q_filter = Q()
+        for (cable_id, cable_end, connector), positions in positions_by_group.items():
+            q_filter |= Q(
+                cable_id=cable_id,
+                cable_end=cable_end,
+                connector=connector,
+                positions__overlap=list(positions),
+            )
+
+        peer_ct_by_key = {}
+        term_ids_by_type = defaultdict(set)
+        model_by_type = {}
+
+        for ct in CableTermination.objects.filter(q_filter).select_related('termination_type'):
+            model_by_type[ct.termination_type_id] = ct.termination_type.model_class()
+            term_ids_by_type[ct.termination_type_id].add(ct.termination_id)
+
+            group_key = (ct.cable_id, ct.cable_end, ct.connector)
+            requested_positions = positions_by_group.get(group_key, ())
+
+            # The overlap query may return a termination carrying additional
+            # positions, so only index the positions we actually requested.
+            for pos in ct.positions or []:
+                if pos not in requested_positions:
+                    continue
+
+                key = PeerLookupKey(ct.cable_id, ct.cable_end, ct.connector, pos)
+                if key in peer_ct_by_key and peer_ct_by_key[key].pk != ct.pk:
+                    raise CableTermination.MultipleObjectsReturned(
+                        f"Multiple peer terminations found for cable {ct.cable_id} end {ct.cable_end} "
+                        f"connector {ct.connector} position {pos}"
+                    )
+                peer_ct_by_key[key] = ct
+
+        # Use _base_manager to ensure all termination objects are loaded
+        # regardless of any custom default manager filters (e.g. soft-delete).
+        # Note: Django's GenericForeignKey / ContentType.get_object_for_this_type()
+        # uses _default_manager, but _base_manager is safer for bulk resolution
+        # during path tracing.
+        term_by_type = {
+            type_id: model_by_type[type_id]._base_manager.in_bulk(ids) for type_id, ids in term_ids_by_type.items()
+        }
+
+        results = []
+        for key in lookup_keys:
+            ct = peer_ct_by_key.get(key)
+            if ct is None:
+                results.append((None, None))
+            else:
+                termination = term_by_type[ct.termination_type_id].get(ct.termination_id)
+                results.append((termination, key.position if termination is not None else None))
+
+        return results
 
     @staticmethod
     def get_position_list(n):

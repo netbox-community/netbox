@@ -1,0 +1,13 @@
+{% extends 'generic/object_edit.html' %}
+{% load i18n %}
+
+{% block buttons %}
+  {# Omit the "Create & Add Another" button: that flow would redirect away from the detail page before the #}
+  {# one-time plaintext can be displayed, leaving the new token unrecoverable. #}
+  <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+  {% if object.pk %}
+    <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
+  {% else %}
+    <button type="submit" name="_create" class="btn btn-primary">{% trans "Create" %}</button>
+  {% endif %}
+{% endblock buttons %}

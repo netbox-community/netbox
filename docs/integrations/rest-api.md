@@ -341,7 +341,7 @@ When retrieving devices and virtual machines via the REST API, each will include
 
 ## Pagination
 
-API responses which contain a list of many objects will be paginated for efficiency. The root JSON object returned by a list endpoint contains the following attributes:
+API responses which contain a list of many objects will be paginated for efficiency. NetBox employs offset-based pagination by default, which forms a page by skipping the number of objects indicated by the `offset` URL parameter. The root JSON object returned by a list endpoint contains the following attributes:
 
 * `count`: The total number of all objects matching the query
 * `next`: A hyperlink to the next page of results (if applicable)
@@ -397,6 +397,49 @@ The maximum number of objects that can be returned is limited by the [`MAX_PAGE_
 
 !!! warning
     Disabling the page size limit introduces a potential for very resource-intensive requests, since one API request can effectively retrieve an entire table from the database.
+
+### Cursor-Based Pagination
+
+For large datasets, offset-based pagination can become inefficient because the database must scan all rows up to the offset. As an alternative, cursor-based pagination uses the `start` query parameter to filter results by primary key (PK), enabling efficient keyset pagination.
+
+To use cursor-based pagination, pass `start` (the minimum PK value) and `limit` (the page size):
+
+```
+http://netbox/api/dcim/devices/?start=0&limit=100
+```
+
+This returns objects with an `id` greater than or equal to zero, ordered by PK, limited to 100 results. Below is an example showing an arbitrary `start` value.
+
+```json
+{
+    "count": null,
+    "next": "http://netbox/api/dcim/devices/?start=356&limit=100",
+    "previous": null,
+    "results": [
+        {
+            "id": 109,
+            "name": "dist-router07",
+            ...
+        },
+        ...
+        {
+            "id": 356,
+            "name": "acc-switch492",
+            ...
+        }
+    ]
+}
+```
+
+To iterate through all results, use the `id` of the last object in each response plus one as the `start` value for the next request. Continue until `next` is null.
+
+!!! info
+    Some important differences from offset-based pagination:
+
+    * `start` and `offset` are **mutually exclusive**; specifying both will result in a 400 error.
+    * Results are always ordered by primary key when using `start`. This is required to ensure deterministic behavior.
+    * `count` is always `null` in cursor mode, as counting all matching rows would partially negate its performance benefit.
+    * `previous` is always `null`: cursor-based pagination supports only forward navigation.
 
 ## Interacting with Objects
 
@@ -620,6 +663,51 @@ Note that there is no requirement for the attributes to be identical among objec
 !!! note
     The bulk update of objects is an all-or-none operation, meaning that if NetBox fails to successfully update any of the specified objects (e.g. due a validation error), the entire operation will be aborted and none of the objects will be updated.
 
+### Concurrent Update Protection
+
+!!! info "This feature was introduced in NetBox v4.6."
+
+To guard against the lost-update problem when multiple clients modify the same object, NetBox returns a weak `ETag` response header on detail-view responses (`GET`, `POST`, `PATCH`, `PUT`) for individual objects. Clients may supply this value back on a subsequent `PATCH` or `PUT` request via the `If-Match` request header. If the object's current ETag does not match any of the values supplied, the server rejects the request with a `412 Precondition Failed` response and includes the current ETag in the response so the client can retry.
+
+```no-highlight
+# Capture the ETag returned with the object
+$ curl -s -i -H "Authorization: Bearer $TOKEN" http://netbox/api/dcim/sites/1/ | grep -i ^etag
+ETag: W/"2026-05-01T17:42:11.123456+00:00"
+
+# Submit an update with If-Match referencing that ETag
+$ curl -s -X PATCH \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -H 'If-Match: W/"2026-05-01T17:42:11.123456+00:00"' \
+    http://netbox/api/dcim/sites/1/ \
+    --data '{"status": "decommissioning"}'
+```
+
+A literal `If-Match: *` value matches any current ETag and may be used to assert simply that the object exists. Submitting `If-Match` is optional; requests without the header retain prior (last-write-wins) behavior.
+
+### Adding and Removing Tags
+
+!!! info "This feature was introduced in NetBox v4.6."
+
+In addition to replacing an object's tag set wholesale via the `tags` field, taggable models accept two write-only fields, `add_tags` and `remove_tags`, which apply only the specified additions or removals without disturbing existing tags. This is convenient when concurrent clients each manage a distinct subset of an object's tags.
+
+```no-highlight
+curl -s -X PATCH \
+-H "Authorization: Bearer $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/1/ \
+--data '{
+    "add_tags": [{"name": "production"}],
+    "remove_tags": [{"name": "staging"}]
+}'
+```
+
+Constraints:
+
+* `tags` may not be combined with `add_tags` or `remove_tags` in the same request.
+* `remove_tags` is only valid on updates; it cannot be used when creating a new object.
+* The same tag may not appear in both `add_tags` and `remove_tags`.
+
 ### Deleting an Object
 
 To delete an object from NetBox, make a `DELETE` request to the model's _detail_ endpoint specifying its unique numeric ID. The `Authorization` header must be included to specify an authorization token, however this type of request does not support passing any data in the body.
@@ -828,3 +916,11 @@ GET /api/dcim/sites/?created_by_request=e39c84bc-f169-4d5f-bc1c-94487a1b18b5
 
 !!! note
     This header is included with _all_ NetBox responses, although it is most practical when working with an API.
+
+### `ETag`
+
+A weak entity tag (e.g. `W/"2026-05-01T17:42:11.123456+00:00"`) returned on detail-view responses for individual objects. The value is derived from the object's `last_updated` timestamp (or `created`, if the object has no `last_updated`). Clients may supply this value on a subsequent write request via the `If-Match` header to perform a conditional update. See [Concurrent Update Protection](#concurrent-update-protection) for details.
+
+### `If-Match`
+
+A request header which may be supplied on `PATCH` or `PUT` requests targeting a single object. If the object's current ETag does not match any value supplied, the request is rejected with a `412 Precondition Failed` response. A literal value of `*` matches any existing object. See [Concurrent Update Protection](#concurrent-update-protection) for details.

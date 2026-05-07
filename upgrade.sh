@@ -105,7 +105,7 @@ echo "Checking for missing cable paths ($COMMAND)..."
 eval $COMMAND || exit 1
 
 # Build the local documentation
-COMMAND="mkdocs build"
+COMMAND="zensical build"
 echo "Building documentation ($COMMAND)..."
 eval $COMMAND || exit 1
 

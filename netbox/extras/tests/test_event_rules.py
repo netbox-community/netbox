@@ -348,6 +348,7 @@ class EventRuleTest(APITestCase):
     @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, 'dummy_plugin not in settings.PLUGINS')
     def test_send_webhook(self):
         request_id = uuid.uuid4()
+        url_path = reverse('dcim:site_add')
 
         def dummy_send(_, request, **kwargs):
             """
@@ -373,11 +374,15 @@ class EventRuleTest(APITestCase):
             self.assertEqual(body['data']['name'], 'Site 1')
             self.assertEqual(body['data']['foo'], 1)
             self.assertEqual(body['context']['foo'], 123)  # From netbox.tests.dummy_plugin
+            self.assertEqual(body['request']['id'], str(request_id))
+            self.assertEqual(body['request']['method'], 'GET')
+            self.assertEqual(body['request']['path'], url_path)
+            self.assertEqual(body['request']['user'], 'testuser')
 
             return HttpResponse()
 
         # Create a dummy request
-        request = RequestFactory().get(reverse('dcim:site_add'))
+        request = RequestFactory().get(url_path)
         request.id = request_id
         request.user = self.user
 

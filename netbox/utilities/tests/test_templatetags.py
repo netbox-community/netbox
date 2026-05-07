@@ -3,8 +3,61 @@ from unittest.mock import patch
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 
-from utilities.templatetags.builtins.tags import badge, static_with_params
+from core.models import ObjectType
+from dcim.models import Site
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField, CustomFieldChoiceSet
+from utilities.templatetags.builtins.tags import badge, customfield_value, static_with_params
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
+
+
+class CustomFieldValueTagTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        object_type = ObjectType.objects.get_for_model(Site)
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Choice Set 1',
+            extra_choices=(('a', 'Option A'), ('b', 'Option B')),
+            choice_colors={'a': 'red'},
+        )
+
+        cls.select_field = CustomField.objects.create(
+            name='select_field',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choice_set=choice_set,
+        )
+        cls.select_field.object_types.set([object_type])
+
+        cls.multiselect_field = CustomField.objects.create(
+            name='multiselect_field',
+            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+            choice_set=choice_set,
+        )
+        cls.multiselect_field.object_types.set([object_type])
+
+    def test_select_choice_context_includes_color(self):
+        context = customfield_value(self.select_field, 'a')
+
+        self.assertEqual(context['value'], 'Option A')
+        self.assertEqual(context['color'], 'red')
+
+    def test_multiselect_choice_context_includes_colors(self):
+        context = customfield_value(self.multiselect_field, ['a', 'b'])
+
+        self.assertTrue(context['value_has_colors'])
+        self.assertEqual(
+            context['value'],
+            [
+                ('Option A', 'red'),
+                ('Option B', None),
+            ],
+        )
+
+    def test_multiselect_choice_context_without_colors_preserves_plain_labels(self):
+        context = customfield_value(self.multiselect_field, ['b'])
+
+        self.assertFalse(context['value_has_colors'])
+        self.assertEqual(context['value'], ['Option B'])
 
 
 class StaticWithParamsTest(TestCase):

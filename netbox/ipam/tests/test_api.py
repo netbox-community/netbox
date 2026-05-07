@@ -151,6 +151,12 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
         )
         RIR.objects.bulk_create(rirs)
 
+        roles = (
+            Role(name='Role 1', slug='role-1'),
+            Role(name='Role 2', slug='role-2'),
+        )
+        Role.objects.bulk_create(roles)
+
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2')
@@ -164,10 +170,10 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
         Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=65000, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=65001, rir=rirs[0], tenant=tenants[1]),
-            ASN(asn=4200000000, rir=rirs[1], tenant=tenants[0]),
-            ASN(asn=4200000001, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=65000, rir=rirs[0], role=roles[0], tenant=tenants[0]),
+            ASN(asn=65001, rir=rirs[0], role=roles[0], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[1], role=roles[1], tenant=tenants[0]),
+            ASN(asn=4200000001, rir=rirs[1], role=roles[1], tenant=tenants[1]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -180,10 +186,12 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
             {
                 'asn': 64512,
                 'rir': rirs[0].pk,
+                'role': roles[0].pk,
             },
             {
                 'asn': 65002,
                 'rir': rirs[0].pk,
+                'role': roles[1].pk,
             },
             {
                 'asn': 4200000002,
@@ -375,7 +383,7 @@ class AggregateTest(APIViewTestCases.APIViewTestCase):
 
 class RoleTest(APIViewTestCases.APIViewTestCase):
     model = Role
-    brief_fields = ['description', 'display', 'id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
+    brief_fields = ['asn_count', 'description', 'display', 'id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
     create_data = [
         {
             'name': 'Role 4',
@@ -403,6 +411,17 @@ class RoleTest(APIViewTestCases.APIViewTestCase):
             Role(name='Role 3', slug='role-3'),
         )
         Role.objects.bulk_create(roles)
+
+        rirs = (
+            RIR(name='RIR 1', slug='rir-1', is_private=True),
+        )
+        RIR.objects.bulk_create(rirs)
+
+        asns = (
+            ASN(asn=65000, rir=rirs[0], role=roles[0]),
+            ASN(asn=65001, rir=rirs[0], role=roles[0]),
+        )
+        ASN.objects.bulk_create(asns)
 
 
 class PrefixTest(APIViewTestCases.APIViewTestCase):

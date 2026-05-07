@@ -2,6 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs, panels
 
+#
+# Cluster
+#
+
 
 class ClusterPanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
@@ -13,8 +17,27 @@ class ClusterPanel(panels.ObjectAttributesPanel):
     scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
 
 
+#
+# Virtual machine types
+#
+
+
+class VirtualMachineTypePanel(panels.ObjectAttributesPanel):
+    name = attrs.TextAttr('name')
+    default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
+    default_vcpus = attrs.TextAttr('default_vcpus', label=_('Default vCPUs'))
+    default_memory = attrs.TextAttr('default_memory', format_string=_('{} MB'), label=_('Default memory'))
+    description = attrs.TextAttr('description')
+
+
+#
+# Virtual machines
+#
+
+
 class VirtualMachinePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
+    virtual_machine_type = attrs.RelatedObjectAttr('virtual_machine_type', linkify=True, label=_('Type'))
     status = attrs.ChoiceAttr('status')
     start_on_boot = attrs.ChoiceAttr('start_on_boot')
     role = attrs.RelatedObjectAttr('role', linkify=True, colored=True)
@@ -35,8 +58,8 @@ class VirtualMachinePanel(panels.ObjectAttributesPanel):
     )
 
 
-class VirtualMachineClusterPanel(panels.ObjectAttributesPanel):
-    title = _('Cluster')
+class VirtualMachinePlacementPanel(panels.ObjectAttributesPanel):
+    title = _('Placement')
 
     site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     cluster = attrs.RelatedObjectAttr('cluster', linkify=True)
@@ -44,11 +67,21 @@ class VirtualMachineClusterPanel(panels.ObjectAttributesPanel):
     device = attrs.RelatedObjectAttr('device', linkify=True)
 
 
+#
+# Virtual disks
+#
+
+
 class VirtualDiskPanel(panels.ObjectAttributesPanel):
     virtual_machine = attrs.RelatedObjectAttr('virtual_machine', linkify=True, label=_('Virtual Machine'))
     name = attrs.TextAttr('name')
     size = attrs.TemplatedAttr('size', template_name='virtualization/virtualdisk/attrs/size.html')
     description = attrs.TextAttr('description')
+
+
+#
+# VM interfaces
+#
 
 
 class VMInterfacePanel(panels.ObjectAttributesPanel):

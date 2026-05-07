@@ -6,6 +6,8 @@ from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import OrganizationalModelSerializer, PrimaryModelSerializer
 from tenancy.api.serializers_.tenants import TenantSerializer
 
+from .roles import RoleSerializer
+
 __all__ = (
     'ASNRangeSerializer',
     'ASNSerializer',
@@ -56,6 +58,7 @@ class ASNSiteSerializer(PrimaryModelSerializer):
 
 class ASNSerializer(PrimaryModelSerializer):
     rir = RIRSerializer(nested=True, required=False, allow_null=True)
+    role = RoleSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     sites = SerializedPKRelatedField(
         queryset=Site.objects.all(),
@@ -72,8 +75,8 @@ class ASNSerializer(PrimaryModelSerializer):
     class Meta:
         model = ASN
         fields = [
-            'id', 'url', 'display_url', 'display', 'asn', 'rir', 'tenant', 'description', 'owner', 'comments', 'tags',
-            'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count', 'sites',
+            'id', 'url', 'display_url', 'display', 'asn', 'rir', 'role', 'tenant', 'description', 'owner', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated', 'site_count', 'provider_count', 'sites',
         ]
         brief_fields = ('id', 'url', 'display', 'asn', 'description')
 

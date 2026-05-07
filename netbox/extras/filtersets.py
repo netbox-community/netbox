@@ -200,6 +200,12 @@ class CustomFieldChoiceSetFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet
     choice = MultiValueCharFilter(
         method='filter_by_choice'
     )
+    choice_colors = django_filters.MultipleChoiceFilter(
+        choices=CustomFieldChoiceColorChoices,
+        method='filter_by_choice_colors',
+        label=_('Choice colors'),
+        distinct=False,
+    )
 
     class Meta:
         model = CustomFieldChoiceSet
@@ -218,6 +224,25 @@ class CustomFieldChoiceSetFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet
     def filter_by_choice(self, queryset, name, value):
         # TODO: Support case-insensitive matching
         return queryset.filter(extra_choices__overlap=value)
+
+    def filter_by_choice_colors(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        choice_color_keys = set()
+        for choice_colors in queryset.values_list('choice_colors', flat=True):
+            if isinstance(choice_colors, dict):
+                choice_color_keys.update(choice_colors.keys())
+
+        if not choice_color_keys:
+            return queryset.none()
+
+        params = Q()
+        for key in choice_color_keys:
+            for color in value:
+                params |= Q(choice_colors__contains={key: color})
+
+        return queryset.filter(params)
 
 
 @register_filterset
@@ -857,7 +882,7 @@ class ConfigTemplateFilterSet(OwnerFilterMixin, ChangeLoggedModelFilterSet):
     class Meta:
         model = ConfigTemplate
         fields = (
-            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment',
+            'id', 'name', 'description', 'mime_type', 'file_name', 'file_extension', 'as_attachment', 'debug',
             'auto_sync_enabled', 'data_synced'
         )
 

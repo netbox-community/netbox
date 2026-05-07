@@ -3,6 +3,7 @@ import re
 from collections import Counter
 from copy import deepcopy
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
@@ -25,7 +26,7 @@ from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.export import TableExport
+from utilities.export import TableExport, stream_table_csv_response
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
@@ -103,15 +104,23 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         # those currently visible in the configured table view.
         table._apply_prefetching(columns=[c for c in all_columns if c not in exclude_columns])
 
+        filename = filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
+
+        if settings.STREAMING_EXPORTS:
+            return stream_table_csv_response(
+                table=table,
+                exclude_columns=exclude_columns,
+                filename=filename,
+                delimiter=delimiter,
+            )
+
         exporter = TableExport(
             export_format=TableExport.CSV,
             table=table,
             exclude_columns=exclude_columns,
             delimiter=delimiter,
         )
-        return exporter.response(
-            filename=filename or f'netbox_{self.queryset.model._meta.verbose_name_plural}.csv'
-        )
+        return exporter.response(filename=filename)
 
     def export_template(self, template, request):
         """
@@ -230,6 +239,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     form = None
     model_form = None
     pattern_target = ''
+    htmx_template_name = 'htmx/bulk_add_form.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
@@ -247,6 +257,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
             # Validate each new object independently.
             if model_form.is_valid():
+                model_form.instance._changelog_message = model_form.cleaned_data.get('changelog_message', '')
                 obj = model_form.save()
                 new_objects.append(obj)
             else:
@@ -258,6 +269,19 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 raise IntegrityError()
 
         return new_objects
+
+    def _get_context(self, request, form, model_form):
+        model = self.queryset.model
+        return {
+            'object': None,
+            'obj_type': model._meta.verbose_name,
+            'obj_type_plural': model._meta.verbose_name_plural,
+            'form': form,
+            'model_form': model_form,
+            'return_url': self.get_return_url(request),
+            'add_url': get_action_url(model, 'add'),
+            **self.get_extra_context(request),
+        }
 
     #
     # Request handlers
@@ -273,19 +297,25 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         form = self.form()
         model_form = self.model_form(initial=initial)
 
-        return render(request, self.template_name, {
-            'obj_type': self.model_form._meta.model._meta.verbose_name,
-            'form': form,
-            'model_form': model_form,
-            'return_url': self.get_return_url(request),
-            **self.get_extra_context(request),
-        })
+        # HTMX partial: only re-render the model form fields
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
+                'model_form': model_form,
+            })
+
+        return render(request, self.template_name, self._get_context(request, form, model_form))
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkCreateView')
         model = self.queryset.model
         form = self.form(request.POST)
         model_form = self.model_form(request.POST)
+
+        # HTMX partial: only re-render the model form fields
+        if htmx_partial(request):
+            return render(request, self.htmx_template_name, {
+                'model_form': model_form,
+            })
 
         if form.is_valid():
             logger.debug("Form validation was successful")
@@ -318,13 +348,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
         else:
             logger.debug("Form validation failed")
 
-        return render(request, self.template_name, {
-            'form': form,
-            'model_form': model_form,
-            'obj_type': model._meta.verbose_name,
-            'return_url': self.get_return_url(request),
-            **self.get_extra_context(request),
-        })
+        return render(request, self.template_name, self._get_context(request, form, model_form))
 
 
 class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
@@ -1128,8 +1152,19 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
             if form.is_valid():
                 logger.debug("Form validation was successful")
 
+                # If indicated, defer this request to a background job & redirect the user
+                if form.cleaned_data['background_job']:
+                    job_name = _('Bulk add {count} {object_type}').format(
+                        count=len(form.cleaned_data['pk']),
+                        object_type=self.queryset.model._meta.verbose_name_plural,
+                    )
+                    if process_request_as_job(self.__class__, request, name=job_name):
+                        return redirect(self.get_return_url(request))
+
                 new_components = []
                 data = deepcopy(form.cleaned_data)
+                changelog_message = data.pop('changelog_message', '')
+                data.pop('background_job', None)
                 replication_data = {
                     field: data.pop(field) for field in form.replication_fields
                 }
@@ -1151,13 +1186,18 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                                 component_form = self.model_form(component_data)
                                 if component_form.is_valid():
+                                    if changelog_message:
+                                        component_form.instance._changelog_message = changelog_message
                                     instance = component_form.save()
                                     logger.debug(f"Created {instance} on {instance.parent_object}")
                                     new_components.append(instance)
                                 else:
                                     for field, errors in component_form.errors.as_data().items():
                                         for e in errors:
-                                            form.add_error(field, '{}: {}'.format(obj, ', '.join(e)))
+                                            err_msg = '{}: {}'.format(obj, ', '.join(e))
+                                            form.add_error(field, err_msg)
+                                            if is_background_request(request):
+                                                request.job.logger.error(err_msg)
 
                         # Enforce object-level permissions
                         component_ids = [obj.pk for obj in new_components]
@@ -1166,20 +1206,32 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
                 except IntegrityError:
                     clear_events.send(sender=self)
+                    if is_background_request(request):
+                        request.job.logger.error(_("An integrity error occurred while creating components"))
+                        raise JobFailed
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
                     clear_events.send(sender=self)
+                    if is_background_request(request):
+                        request.job.logger.error(e.message)
+                        raise JobFailed
 
                 if not form.errors:
-                    msg = "Added {} {} to {} {}.".format(
-                        len(new_components),
-                        model_name,
-                        len(form.cleaned_data['pk']),
-                        parent_model_name
+                    msg = _("Added {count} {component} to {parent_count} {parent}.").format(
+                        count=len(new_components),
+                        component=model_name,
+                        parent_count=len(form.cleaned_data['pk']),
+                        parent=parent_model_name,
                     )
                     logger.info(msg)
+
+                    # Handle background job
+                    if is_background_request(request):
+                        request.job.logger.info(msg)
+                        return None
+
                     messages.success(request, msg)
 
                     return redirect(self.get_return_url(request))

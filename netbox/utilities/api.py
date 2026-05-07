@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from rest_framework.permissions import BasePermission
-from rest_framework.serializers import Serializer
+from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.views import get_view_name as drf_get_view_name
 
 from extras.constants import HTTP_CONTENT_TYPE_JSON
@@ -98,6 +98,30 @@ def get_view_name(view):
     return drf_get_view_name(view)
 
 
+def _get_nested_serializer(serializer_field):
+    """
+    Return the nested serializer instance for a declared serializer field.
+    """
+    if isinstance(serializer_field, ListSerializer):
+        serializer_field = serializer_field.child
+
+    if isinstance(serializer_field, Serializer) and hasattr(serializer_field, 'nested'):
+        return serializer_field
+
+    return None
+
+
+def _get_serializer_fields(serializer: Serializer):
+    """
+    Return the effective field names for a serializer instance, honoring any
+    field-level fields=/omit= overrides.
+    """
+    fields = getattr(serializer, '_include_fields', None) or serializer.Meta.fields
+    omit = getattr(serializer, '_omit_fields', []) or []
+
+    return [field_name for field_name in fields if field_name not in omit]
+
+
 def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
     """
     Compile and return a list of fields which should be prefetched on the queryset for a serializer.
@@ -119,7 +143,7 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
 
         # Determine the name of the model field referenced by the serializer field
         model_field_name = field_name
-        if serializer_field and serializer_field.source:
+        if serializer_field and getattr(serializer_field, 'source', None):
             model_field_name = serializer_field.source
 
         # If the serializer field does not map to a discrete model field, skip it.
@@ -130,14 +154,13 @@ def get_prefetches_for_serializer(serializer_class, fields=None, omit=None):
         except FieldDoesNotExist:
             continue
 
-        # If this field is represented by a nested serializer, recurse to resolve prefetches
-        # for the related object.
-        if serializer_field:
-            if issubclass(type(serializer_field), Serializer):
-                # Determine which fields to prefetch for the nested object
-                subfields = serializer_field.Meta.brief_fields if serializer_field.nested else None
-                for subfield in get_prefetches_for_serializer(type(serializer_field), subfields):
-                    prefetch_fields.append(f'{field_name}__{subfield}')
+        # If this field is represented by a nested serializer, recurse to resolve
+        # prefetches for the related object, honoring any field-level fields=/omit=
+        # constraints set on that serializer field instance.
+        if nested_serializer := _get_nested_serializer(serializer_field):
+            subfields = _get_serializer_fields(nested_serializer)
+            for subfield in get_prefetches_for_serializer(type(nested_serializer), fields=subfields):
+                prefetch_fields.append(f'{field.name}__{subfield}')
 
     return prefetch_fields
 

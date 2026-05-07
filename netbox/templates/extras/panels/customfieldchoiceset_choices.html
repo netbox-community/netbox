@@ -1,4 +1,5 @@
 {% extends "ui/panels/_base.html" %}
+{% load helpers %}
 {% load i18n %}
 
 {% block panel_content %}
@@ -7,13 +8,21 @@
       <tr>
         <th>{% trans "Value" %}</th>
         <th>{% trans "Label" %}</th>
+        <th>{% trans "Color" %}</th>
       </tr>
     </thead>
     <tbody>
-      {% for value, label in choices %}
+      {% for choice in choices %}
         <tr>
-          <td>{{ value }}</td>
-          <td>{{ label }}</td>
+          <td>{{ choice.value }}</td>
+          <td>{{ choice.label }}</td>
+          <td>
+            {% if choice.color %}
+              {% badge choice.color bg_color=choice.color %}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
         </tr>
       {% endfor %}
     </tbody>

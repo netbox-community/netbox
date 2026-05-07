@@ -33,9 +33,11 @@ Context:
                 {% include 'htmx/table.html' %}
             </div>
         </div>
-        <div class="d-print-none mt-2">
+        <div class="card btn-list sticky-actions d-print-none" data-sticky-position="right" data-sticky-when="selection">
             {% block bulk_controls %}
-              {% action_buttons actions model multi=True return_url=request.path %}
+              <div class="btn-list bulk-action-buttons">
+                {% action_buttons actions model multi=True return_url=request.path %}
+              </div>
               {% block bulk_extra_controls %}{% endblock %}
             {% endblock bulk_controls %}
         </div>

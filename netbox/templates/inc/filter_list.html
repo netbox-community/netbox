@@ -34,12 +34,14 @@
       {% endif %}
     </div>
   </div>
-  <div class="btn-float-group-right me-1">
-    <button type="button" class="btn btn-outline-danger btn-float" data-reset-select>
-      <i class="mdi mdi-backspace"></i> {% trans "Reset" %}
-    </button>
-    <button type="submit" class="btn btn-primary">
-      <i class="mdi mdi-magnify"></i> {% trans "Search" %}
-    </button>
+  <div class="sticky-actions sticky-actions-footer d-print-none" data-sticky-position="full" data-sticky-when="always">
+    <div class="btn-list">
+      <button type="button" class="btn btn-outline-danger" data-reset-select>
+        <i class="mdi mdi-backspace"></i> {% trans "Reset" %}
+      </button>
+      <button type="submit" class="btn btn-primary">
+        <i class="mdi mdi-magnify"></i> {% trans "Search" %}
+      </button>
+    </div>
   </div>
 </form>

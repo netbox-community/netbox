@@ -22,16 +22,20 @@ def load_initial_data(apps, schema_editor):
         'power_supply',
         'expansion_card'
     )
+    profile_objects = []
 
     for name in initial_profiles:
         file_path = DATA_FILES_PATH / f'{name}.json'
         with file_path.open('r') as f:
             data = json.load(f)
             try:
-                ModuleTypeProfile.objects.using(db_alias).create(**data)
+                profile = ModuleTypeProfile(**data)
+                profile_objects.append(profile)
             except Exception as e:
                 print(f"Error loading data from {file_path}")
                 raise e
+
+    ModuleTypeProfile.objects.using(db_alias).bulk_create(profile_objects)
 
 
 class Migration(migrations.Migration):

@@ -73,6 +73,7 @@ class Notification(models.Model):
     class Meta:
         ordering = ('-created', 'pk')
         indexes = (
+            models.Index(fields=('-created', 'id')),  # Default ordering
             models.Index(fields=('object_type', 'object_id')),
         )
         constraints = (
@@ -215,6 +216,7 @@ class Subscription(models.Model):
     class Meta:
         ordering = ('-created', 'user')
         indexes = (
+            models.Index(fields=('-created', 'user')),  # Default ordering
             models.Index(fields=('object_type', 'object_id')),
         )
         constraints = (

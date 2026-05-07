@@ -124,11 +124,11 @@ Context:
 
 {% block content %}
   {# Render panel layout declared on view class #}
-  {% for row in layout.rows %}
+  {% for row in layout %}
     <div class="row">
-      {% for column in row.columns %}
-        <div class="col">
-          {% for panel in column.panels %}
+      {% for column in row %}
+        <div class="col-12 col-md{% if column.width %}-{{ column.width }}{% endif %}">
+          {% for panel in column %}
             {% render panel %}
           {% endfor %}
         </div>

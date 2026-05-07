@@ -6,6 +6,8 @@ from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import QuerySet
 from django.http import HttpResponseForbidden
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
@@ -29,6 +31,7 @@ __all__ = (
     'TokenConditionalLoginRequiredMixin',
     'ViewTab',
     'get_action_url',
+    'get_default_template',
     'get_viewname',
     'register_model_view',
 )
@@ -333,6 +336,19 @@ def get_action_url(model, action=None, rest_api=False, kwargs=None):
         return model._get_action_url(action, rest_api, kwargs)
 
     return reverse(get_viewname(model, action, rest_api), kwargs=kwargs)
+
+
+def get_default_template(model):
+    """
+    Return the base template for the given model. If the presumed "{app}/{model}.html" template
+    does not exist, fall back to "generic/object.html".
+    """
+    template_name = f'{model._meta.app_label}/{model._meta.model_name}.html'
+    try:
+        get_template(template_name)
+        return template_name
+    except TemplateDoesNotExist:
+        return 'generic/object.html'
 
 
 def register_model_view(model, name='', path=None, detail=True, kwargs=None):

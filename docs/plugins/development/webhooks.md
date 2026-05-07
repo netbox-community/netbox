@@ -36,12 +36,18 @@ The resulting webhook payload will look like the following:
         "url": "/api/dcim/sites/2/",
         ...
     },
+    "request": {...},
     "snapshots": {...},
     "context": {
         "foo": 123
     }
 }
 ```
+
+!!! warning "Deprecation of legacy keys"
+    The `request_id` and `username` keys in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in NetBox v4.7.0.
+
+    Use `request.user` and `request.id` from the `request` object included in the callback context instead.
 
 !!! note "Consider namespacing webhook data"
     The data returned from all webhook callbacks will be compiled into a single `context` dictionary. Any existing keys within this dictionary will be overwritten by subsequent callbacks which include those keys. To avoid collisions with webhook data provided by other plugins, consider namespacing your plugin's data within a nested dictionary as such:

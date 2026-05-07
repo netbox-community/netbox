@@ -28,8 +28,10 @@ The following sections detail how to set up a new instance of NetBox:
 | Dependency | Supported Versions |
 |------------|--------------------|
 | Python     | 3.12, 3.13, 3.14   |
-| PostgreSQL | 14+                |
+| PostgreSQL | 14+ [^1]           |
 | Redis      | 4.0+               |
+
+[^1]: Support for PostgreSQL 14 is deprecated and will be removed in NetBox v4.7. PostgreSQL 15 or later will be required.
 
 Below is a simplified overview of the NetBox application stack for reference:
 

@@ -25,6 +25,7 @@ from netbox.registry import registry
 from netbox.signals import post_clean
 from netbox.utils import register_model_feature
 from utilities.json import CustomFieldJSONEncoder
+from utilities.permissions import ModelAction, register_model_actions
 from utilities.serialization import serialize_object
 
 __all__ = (
@@ -722,10 +723,10 @@ def register_models(*models):
     for model in models:
         app_label, model_name = model._meta.label_lower.split('.')
 
-        # TODO: Remove in NetBox v4.5
-        # Register public models
+        # TODO: Remove in NetBox v4.7
+        # Register public models (access the underlying dict directly to avoid triggering the deprecation warning)
         if not getattr(model, '_netbox_private', False):
-            registry['models'][app_label].add(model_name)
+            dict.__getitem__(registry, 'models')[app_label].add(model_name)
 
         # Register applicable feature views for the model
         if issubclass(model, ContactsMixin):
@@ -752,3 +753,12 @@ def register_models(*models):
             register_model_view(model, 'sync', kwargs={'model': model})(
                 'netbox.views.generic.ObjectSyncDataView'
             )
+
+        # Auto-register custom permission actions declared in Meta.permissions
+        if meta_permissions := getattr(model._meta, 'permissions', None):
+            actions = [
+                ModelAction(codename, help_text=_(name))
+                for codename, name in meta_permissions
+            ]
+            if actions:
+                register_model_actions(model, actions)

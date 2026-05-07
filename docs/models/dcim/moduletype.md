@@ -20,7 +20,37 @@ When adding component templates to a module type, the string `{module}` can be u
 
 For example, you can create a module type with interface templates named `Gi{module}/0/[1-48]`. When a new module of this type is "installed" to a module bay with a position of "3", NetBox will automatically name these interfaces `Gi3/0/[1-48]`.
 
+Similarly, the string `{vc_position}` can be used in component template names to reference the
+`vc_position` field of the device being provisioned, when that device is a member of a Virtual Chassis.
+
+For example, an interface template named `Gi{vc_position}/{module}/0` installed on a Virtual Chassis
+member with position `2` and module bay position `3` will be rendered as `Gi2/3/0`.
+
+If the device is not a member of a Virtual Chassis, `{vc_position}` defaults to `0`. A custom
+fallback value can be specified using the syntax `{vc_position:X}`, where `X` is the desired default.
+For example, `{vc_position:1}` will render as `1` when no Virtual Chassis position is set.
+
 Automatic renaming is supported for all modular component types (those listed above).
+
+### Position Inheritance for Nested Modules
+
+When using nested module bays (modules installed inside other modules), the `{module}` placeholder
+can also be used in the **position** field of module bay templates to inherit the parent bay's
+position. This allows a single module type to produce correctly named components at any nesting
+depth, with a user-controlled separator.
+
+For example, a line card module type might define sub-bay positions as `{module}/1`, `{module}/2`,
+etc. When the line card is installed in a device bay with position `3`, these sub-bay positions
+resolve to `3/1`, `3/2`, etc. An SFP module type with interface template `SFP {module}` installed
+in sub-bay `3/2` then produces interface `SFP 3/2`.
+
+The separator between levels is defined by the user in the position field template itself. Using
+`{module}-1` produces positions like `3-1`, while `{module}.1` produces `3.1`. This provides
+full flexibility without requiring a global separator configuration.
+
+!!! note
+    If the position field does not contain `{module}`, no inheritance occurs and behavior is
+    unchanged from previous versions.
 
 ## Fields
 

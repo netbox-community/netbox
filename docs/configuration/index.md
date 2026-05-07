@@ -21,6 +21,7 @@ Some configuration parameters are primarily controlled via NetBox's admin interf
 * [`BANNER_BOTTOM`](./miscellaneous.md#banner_bottom)
 * [`BANNER_LOGIN`](./miscellaneous.md#banner_login)
 * [`BANNER_TOP`](./miscellaneous.md#banner_top)
+* [`CHANGELOG_RETAIN_CREATE_LAST_UPDATE`](./miscellaneous.md#changelog_retain_create_last_update)
 * [`CHANGELOG_RETENTION`](./miscellaneous.md#changelog_retention)
 * [`CUSTOM_VALIDATORS`](./data-validation.md#custom_validators)
 * [`DEFAULT_USER_PREFERENCES`](./default-values.md#default_user_preferences)

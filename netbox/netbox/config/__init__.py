@@ -10,6 +10,7 @@ from .parameters import PARAMS
 
 __all__ = (
     'PARAMS',
+    'Config',
     'ConfigItem',
     'clear_config',
     'get_config',
