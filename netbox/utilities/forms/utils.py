@@ -1,5 +1,4 @@
 import re
-import warnings
 
 from django import forms
 from django.forms.models import fields_for_model
@@ -295,15 +294,3 @@ def validate_csv(headers, fields, required_fields):
         for f in required_fields:
             if f not in headers:
                 raise forms.ValidationError(_('Required column header "{header}" not found.').format(header=f))
-
-
-# TODO: Remove in NetBox v4.7.0
-def __getattr__(name):
-    if name == 'expand_ipaddress_pattern':
-        warnings.warn(
-            "expand_ipaddress_pattern() has been renamed to expand_ipnetwork_pattern(). "
-            "expand_ipaddress_pattern() will be removed in NetBox v4.7.0.",
-            DeprecationWarning,
-        )
-        return expand_ipnetwork_pattern
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
