@@ -36,8 +36,11 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       docs: ${{ steps.filter.outputs.docs }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3.0.2
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Detect changed files
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d  # v4.0.1
         id: filter
         with:
           filters: |
@@ -46,12 +49,7 @@ jobs:
               - 'requirements*.txt'
               - 'pyproject.toml'
             frontend:
-              - 'netbox/project-static/src/**'
-              - 'netbox/project-static/styles/**'
-              - 'netbox/project-static/*.js'
-              - 'netbox/project-static/package.json'
-              - 'netbox/project-static/yarn.lock'
-              - 'netbox/project-static/tsconfig.json'
+              - 'netbox/project-static/**'
             docs:
               - 'docs/**'
               - 'mkdocs.yml'
@@ -62,7 +60,8 @@ jobs:
     if: needs.changes.result == 'success' && needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Check Python linting & PEP8 compliance
         uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b  # v4.0.0
@@ -166,8 +165,11 @@ jobs:
       - name: Install Frontend Dependencies
         run: yarn --cwd netbox/project-static
 
-      - name: Check UI ESLint, TypeScript, and Prettier Compliance
+      - name: Validate TypeScript and run ESLint
         run: yarn --cwd netbox/project-static validate
+
+      - name: Validate formatting
+        run: yarn --cwd netbox/project-static validate:formatting
 
       - name: Validate Static Asset Integrity
         run: scripts/verify-bundles.sh
