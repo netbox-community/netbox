@@ -11,6 +11,7 @@ __all__ = (
     'register_graphql_schema',
     'register_menu',
     'register_menu_items',
+    'register_serializer_resolver',
     'register_template_extensions',
     'register_user_preferences',
 )
@@ -82,3 +83,22 @@ def register_user_preferences(plugin_name, preferences):
     Register a list of user preferences defined by a plugin.
     """
     registry['plugins']['preferences'][plugin_name] = preferences
+
+
+def register_serializer_resolver(resolver):
+    """
+    Register a callable that returns a DRF serializer class for a model, or
+    None if the resolver does not handle the model. Resolvers are tried in
+    registration order before the default import-path lookup performed by
+    utilities.api.get_serializer_for_model().
+
+    This is the supported extension point for plugins whose models are
+    generated dynamically (and therefore have no importable serializer at
+    the {app_label}.api.serializers.{Model}Serializer path) or that need
+    to override serializer resolution for specific models.
+
+    Resolver signature: resolver(model, prefix='') -> serializer class or None
+    """
+    if not callable(resolver):
+        raise TypeError(_("Serializer resolver must be callable"))
+    registry['serializer_resolvers'].append(resolver)
