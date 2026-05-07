@@ -792,7 +792,10 @@ Additionally, a token can be set to expire at a specific time. This can be usefu
 
 #### v1 and v2 Tokens
 
-Beginning with NetBox v4.5, two versions of API token are supported, denoted as v1 and v2. Users are strongly encouraged to create only v2 tokens and to discontinue the use of v1 tokens. Support for v1 tokens will be removed in a future NetBox release.
+!!! warning "v1 Tokens Are Deprecated"
+    v1 API tokens are deprecated as of NetBox v4.6 and will be removed in NetBox v5.0. All users should migrate to v2 tokens.
+
+Beginning with NetBox v4.5, two versions of API token are supported, denoted as v1 and v2. Users are strongly encouraged to create only v2 tokens and to discontinue the use of v1 tokens.
 
 v2 API tokens offer much stronger security. The token plaintext given at creation time is hashed together with a configured [cryptographic pepper](../configuration/required-parameters.md#api_token_peppers) to generate a unique checksum. This checksum is irreversible; the token plaintext is never stored on the server and thus cannot be retrieved even with database-level access.
 

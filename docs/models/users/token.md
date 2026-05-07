@@ -2,13 +2,13 @@
 
 A token is a secret credential associated with a [user](./user.md) which authenticates requests to NetBox's REST and GraphQL APIs. A user may hold multiple tokens; each can be independently expired, restricted, or revoked.
 
-Beginning with NetBox v4.5, two token versions are supported. v2 tokens (the default for newly-created tokens) are stored only as a salted HMAC digest, and the plaintext is shown to the user only once at creation time. Legacy v1 tokens store the plaintext directly and are retained for backward compatibility; their use is discouraged. See the [REST API authentication](../../integrations/rest-api.md#authentication) documentation for the request header formats used by each version.
+Beginning with NetBox v4.5, two token versions are supported. v2 tokens (the default for newly-created tokens) are stored only as a salted HMAC digest, and the plaintext is shown to the user only once at creation time. Legacy v1 tokens store the plaintext directly; **their use is deprecated and support will be removed in NetBox v5.0.** See the [REST API authentication](../../integrations/rest-api.md#authentication) documentation for the request header formats used by each version.
 
 ## Fields
 
 ### Version
 
-Indicates whether this is a v1 (legacy) or v2 token. v2 is the default and is strongly preferred.
+Indicates whether this is a v1 (legacy) or v2 token. v2 is the default and is strongly preferred. **v1 tokens are deprecated and will be removed in NetBox v5.0.**
 
 ### User
 
