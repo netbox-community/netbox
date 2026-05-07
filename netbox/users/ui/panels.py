@@ -45,13 +45,26 @@ class ObjectPermissionPanel(panels.ObjectAttributesPanel):
     enabled = attrs.BooleanAttr('enabled')
 
 
-class ObjectPermissionActionsPanel(panels.ObjectAttributesPanel):
+class ObjectPermissionActionsPanel(panels.ObjectPanel):
+    template_name = 'users/panels/actions.html'
     title = _('Actions')
 
-    can_view = attrs.BooleanAttr('can_view', label=_('View'))
-    can_add = attrs.BooleanAttr('can_add', label=_('Add'))
-    can_change = attrs.BooleanAttr('can_change', label=_('Change'))
-    can_delete = attrs.BooleanAttr('can_delete', label=_('Delete'))
+    def get_context(self, context):
+        obj = context['object']
+
+        crud_actions = [
+            (_('View'), 'view' in obj.actions),
+            (_('Add'), 'add' in obj.actions),
+            (_('Change'), 'change' in obj.actions),
+            (_('Delete'), 'delete' in obj.actions),
+        ]
+
+        return {
+            **super().get_context(context),
+            'crud_actions': crud_actions,
+            'registered_actions': obj.get_registered_actions(),
+            'additional_actions': obj.get_additional_actions(),
+        }
 
 
 class OwnerPanel(panels.ObjectAttributesPanel):

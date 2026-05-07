@@ -50,13 +50,19 @@ RACKS_MENU = Menu(
             label=_('Racks'),
             items=(
                 get_model_item('dcim', 'rack', _('Racks')),
-                get_model_item('dcim', 'rackrole', _('Rack Roles')),
                 get_model_item('dcim', 'rackreservation', _('Reservations')),
                 MenuItem(
                     link='dcim:rack_elevation_list',
                     link_text=_('Elevations'),
                     permissions=['dcim.view_rack']
                 ),
+            ),
+        ),
+        MenuGroup(
+            label=_('Rack Organization'),
+            items=(
+                get_model_item('dcim', 'rackgroup', _('Rack Groups')),
+                get_model_item('dcim', 'rackrole', _('Rack Roles')),
             ),
         ),
         MenuGroup(
@@ -125,6 +131,7 @@ CONNECTIONS_MENU = Menu(
             label=_('Connections'),
             items=(
                 get_model_item('dcim', 'cable', _('Cables')),
+                get_model_item('dcim', 'cablebundle', _('Cable Bundles')),
                 get_model_item('wireless', 'wirelesslink', _('Wireless Links')),
                 MenuItem(
                     link='dcim:interface_connections_list',
@@ -261,6 +268,7 @@ VIRTUALIZATION_MENU = Menu(
                 get_model_item('virtualization', 'virtualmachine', _('Virtual Machines')),
                 get_model_item('virtualization', 'vminterface', _('Interfaces')),
                 get_model_item('virtualization', 'virtualdisk', _('Virtual Disks')),
+                get_model_item('virtualization', 'virtualmachinetype', _('Virtual Machine Types')),
             ),
         ),
         MenuGroup(

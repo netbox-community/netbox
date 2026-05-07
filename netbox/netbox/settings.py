@@ -121,6 +121,7 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
+STREAMING_EXPORTS = getattr(configuration, 'STREAMING_EXPORTS', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', [
     'extras.events.process_event_queue',
 ])
@@ -180,15 +181,15 @@ SECURE_HSTS_PRELOAD = getattr(configuration, 'SECURE_HSTS_PRELOAD', False)
 SECURE_HSTS_SECONDS = getattr(configuration, 'SECURE_HSTS_SECONDS', 0)
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_CONFIG = getattr(configuration, 'SENTRY_CONFIG', {})
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_SEND_DEFAULT_PII = getattr(configuration, 'SENTRY_SEND_DEFAULT_PII', False)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
 SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -243,6 +244,20 @@ for path in PROXY_ROUTERS:
         except ImportError:
             raise ImproperlyConfigured(f"Invalid path in PROXY_ROUTERS: {path}")
 
+# Warn on the presence of deprecated configuration parameters
+if not LOGIN_REQUIRED:
+    warnings.warn(
+        "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. Unauthenticated access to the application "
+        "will no longer be supported. Please plan to require authentication for all users before upgrading.",
+        DeprecationWarning,
+    )
+elif hasattr(configuration, 'LOGIN_REQUIRED'):
+    warnings.warn(
+        "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. This parameter can be removed from your "
+        "configuration file.",
+        DeprecationWarning,
+    )
+
 
 #
 # Database
@@ -270,12 +285,14 @@ if STORAGE_BACKEND is not None:
         )
     else:
         warnings.warn(
-            "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead."
+            "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead.",
+            DeprecationWarning,
         )
 
 if STORAGE_CONFIG is not None:
     warnings.warn(
-        "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead."
+        "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead.",
+        DeprecationWarning,
     )
 
 # Default STORAGES for Django
@@ -436,6 +453,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
     'django.forms',
     'corsheaders',
     'debug_toolbar',
@@ -587,6 +605,10 @@ SERIALIZATION_MODULES = {
     'json': 'utilities.serializers.json',
 }
 
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'utilities.debug.show_toolbar',
+}
+
 
 #
 # Permissions & authentication
@@ -614,6 +636,14 @@ MAINTENANCE_EXEMPT_PATHS = (
 #
 # Sentry
 #
+
+# Warn on the presence of deprecated Sentry config parameters
+for config_param in ('SENTRY_DSN', 'SENTRY_SAMPLE_RATE', 'SENTRY_SEND_DEFAULT_PII', 'SENTRY_TRACES_SAMPLE_RATE'):
+    if hasattr(configuration, config_param):
+        warnings.warn(
+            f"{config_param} is deprecated and will be removed in NetBox v4.7. Use SENTRY_CONFIG instead.",
+            DeprecationWarning,
+        )
 
 if SENTRY_ENABLED:
     try:
@@ -724,7 +754,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ),
     'DEFAULT_METADATA_CLASS': 'netbox.api.metadata.BulkOperationMetadata',
-    'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.OptionalLimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'netbox.api.pagination.NetBoxPagination',
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',

@@ -8,7 +8,6 @@ from netbox.ui import actions, layout
 from netbox.ui.panels import (
     CommentsPanel,
     ObjectsTablePanel,
-    Panel,
     RelatedObjectsPanel,
 )
 from netbox.views import generic
@@ -53,6 +52,7 @@ class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='circuits.ProviderAccount',
                 filters={'provider_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['provider'],
                 actions=[
                     actions.AddObject(
                         'circuits.ProviderAccount', url_params={'provider': lambda ctx: ctx['object'].pk}
@@ -62,6 +62,7 @@ class ProviderView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='circuits.Circuit',
                 filters={'provider_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['provider'],
                 actions=[
                     actions.AddObject('circuits.Circuit', url_params={'provider': lambda ctx: ctx['object'].pk}),
                 ],
@@ -161,6 +162,7 @@ class ProviderAccountView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='circuits.Circuit',
                 filters={'provider_account_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['provider_account'],
                 actions=[
                     actions.AddObject(
                         'circuits.Circuit',
@@ -257,6 +259,7 @@ class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='circuits.VirtualCircuit',
                 filters={'provider_network_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['provider_network'],
                 actions=[
                     actions.AddObject(
                         'circuits.VirtualCircuit', url_params={'provider_network': lambda ctx: ctx['object'].pk}
@@ -508,10 +511,7 @@ class CircuitTerminationView(generic.ObjectView):
     queryset = CircuitTermination.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
-            Panel(
-                template_name='circuits/panels/circuit_termination.html',
-                title=_('Circuit Termination'),
-            )
+            panels.CircuitTerminationPanel(),
         ],
         right_panels=[
             CustomFieldsPanel(),
@@ -801,6 +801,7 @@ class VirtualCircuitView(generic.ObjectView):
                 model='circuits.VirtualCircuitTermination',
                 title=_('Terminations'),
                 filters={'virtual_circuit_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['virtual_circuit'],
                 actions=[
                     actions.AddObject(
                         'circuits.VirtualCircuitTermination',

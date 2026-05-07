@@ -57,6 +57,13 @@ def send_webhook(event_rule, object_type, event_type, data, timestamp, username,
         'request_id': request.id if request else None,
         'data': data,
     }
+    if request:
+        context['request'] = {
+            'id': str(request.id) if request.id else None,
+            'method': request.method,
+            'path': request.path,
+            'user': str(request.user),
+        }
     if snapshots:
         context.update({
             'snapshots': snapshots

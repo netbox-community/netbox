@@ -4,13 +4,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
-from dcim.models import Cable
+from dcim.models import Cable, CableBundle
 from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import TenancyColumnsMixin
 
 from .template_code import CABLE_LENGTH
 
 __all__ = (
+    'CableBundleTable',
     'CableTable',
 )
 
@@ -119,6 +120,10 @@ class CableTable(TenancyColumnsMixin, PrimaryModelTable):
         verbose_name=_('Color Name'),
         orderable=False
     )
+    bundle = tables.Column(
+        verbose_name=_('Bundle'),
+        linkify=True,
+    )
     tags = columns.TagColumn(
         url_name='dcim:cable_list'
     )
@@ -128,8 +133,30 @@ class CableTable(TenancyColumnsMixin, PrimaryModelTable):
         fields = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'device_a', 'device_b', 'rack_a', 'rack_b',
             'location_a', 'location_b', 'site_a', 'site_b', 'status', 'profile', 'type', 'tenant', 'tenant_group',
-            'color', 'color_name', 'length', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'color', 'color_name', 'bundle', 'length', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'id', 'label', 'a_terminations', 'b_terminations', 'status', 'type',
+        )
+
+
+class CableBundleTable(PrimaryModelTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True,
+    )
+    cable_count = tables.Column(
+        verbose_name=_('Cables'),
+    )
+    tags = columns.TagColumn(
+        url_name='dcim:cablebundle_list'
+    )
+
+    class Meta(PrimaryModelTable.Meta):
+        model = CableBundle
+        fields = (
+            'pk', 'id', 'name', 'cable_count', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'id', 'name', 'cable_count', 'description',
         )

@@ -10,6 +10,14 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 4.6](./version-4.6.md) (May 2026)
+
+* Virtual Machine Types ([#5795](https://github.com/netbox-community/netbox/issues/5795))
+* Cable Bundles ([#20151](https://github.com/netbox-community/netbox/issues/20151))
+* Rack Groups ([#20961](https://github.com/netbox-community/netbox/issues/20961))
+* ETag Support for REST API ([#21356](https://github.com/netbox-community/netbox/issues/21356))
+* Cursor-based Pagination for REST API ([#21363](https://github.com/netbox-community/netbox/issues/21363))
+
 #### [Version 4.5](./version-4.5.md) (January 2026)
 
 * Lookup Modifiers in Filter Forms ([#7604](https://github.com/netbox-community/netbox/issues/7604))

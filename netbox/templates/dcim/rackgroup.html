@@ -1,0 +1,10 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+
+{% block extra_controls %}
+  {% if perms.dcim.add_rack %}
+    <a href="{% url 'dcim:rack_add' %}?group={{ object.pk }}" class="btn btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Rack" %}
+    </a>
+  {% endif %}
+{% endblock extra_controls %}

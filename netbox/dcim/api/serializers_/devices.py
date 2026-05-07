@@ -58,10 +58,30 @@ class DeviceSerializer(PrimaryModelSerializer):
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
-    primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
-    primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
-    primary_ip6 = IPAddressSerializer(nested=True, required=False, allow_null=True)
-    oob_ip = IPAddressSerializer(nested=True, required=False, allow_null=True)
+    primary_ip = IPAddressSerializer(
+        nested=True,
+        read_only=True,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    primary_ip4 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    primary_ip6 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
+    oob_ip = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+    )
     parent_device = serializers.SerializerMethodField()
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True)
     virtual_chassis = VirtualChassisSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -151,48 +171,80 @@ class ModuleSerializer(PrimaryModelSerializer):
     module_bay = NestedModuleBaySerializer()
     module_type = ModuleTypeSerializer(nested=True)
     status = ChoiceField(choices=ModuleStatusChoices, required=False)
+    replicate_components = serializers.BooleanField(
+        required=False,
+        default=True,
+        write_only=True,
+        label=_('Replicate components'),
+        help_text=_('Automatically populate components associated with this module type (default: true)')
+    )
+    adopt_components = serializers.BooleanField(
+        required=False,
+        default=False,
+        write_only=True,
+        label=_('Adopt components'),
+        help_text=_('Adopt already existing components')
+    )
 
     class Meta:
         model = Module
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial',
             'asset_tag', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'replicate_components', 'adopt_components',
         ]
         brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
 
     def validate(self, data):
+        # When used as a nested serializer (e.g. as the `module` field on device component
+        # serializers), `data` is already a resolved Module instance — skip our custom logic.
+        if self.nested:
+            return super().validate(data)
+
+        # Pop write-only transient fields before ValidatedModelSerializer tries to
+        # construct a Module instance for full_clean(); restore them afterwards.
+        replicate_components = data.pop('replicate_components', True)
+        adopt_components = data.pop('adopt_components', False)
         data = super().validate(data)
 
-        if self.nested:
+        # For updates these fields are not meaningful; omit them from validated_data so that
+        # ModelSerializer.update() does not set unexpected attributes on the instance.
+        if self.instance:
             return data
 
-        # Skip validation for existing modules (updates)
-        if self.instance is not None:
+        # Always pass the flags to create() so it can set the correct private attributes.
+        data['replicate_components'] = replicate_components
+        data['adopt_components'] = adopt_components
+
+        # Skip conflict checks when no component operations are requested.
+        if not replicate_components and not adopt_components:
             return data
 
-        module_bay = data.get('module_bay')
-        module_type = data.get('module_type')
         device = data.get('device')
+        module_type = data.get('module_type')
+        module_bay = data.get('module_bay')
 
-        if not all((module_bay, module_type, device)):
+        # Required-field validation fires separately; skip here if any are missing.
+        if not all([device, module_type, module_bay]):
             return data
 
         positions = get_module_bay_positions(module_bay)
 
-        for templates, component_attribute in [
-            ("consoleporttemplates", "consoleports"),
-            ("consoleserverporttemplates", "consoleserverports"),
-            ("interfacetemplates", "interfaces"),
-            ("powerporttemplates", "powerports"),
-            ("poweroutlettemplates", "poweroutlets"),
-            ("rearporttemplates", "rearports"),
-            ("frontporttemplates", "frontports"),
+        for templates_attr, component_attr in [
+            ('consoleporttemplates', 'consoleports'),
+            ('consoleserverporttemplates', 'consoleserverports'),
+            ('interfacetemplates', 'interfaces'),
+            ('powerporttemplates', 'powerports'),
+            ('poweroutlettemplates', 'poweroutlets'),
+            ('rearporttemplates', 'rearports'),
+            ('frontporttemplates', 'frontports'),
         ]:
             installed_components = {
-                component.name: component for component in getattr(device, component_attribute).all()
+                component.name: component
+                for component in getattr(device, component_attr).all()
             }
 
-            for template in getattr(module_type, templates).all():
+            for template in getattr(module_type, templates_attr).all():
                 resolved_name = template.name
                 if MODULE_TOKEN in template.name:
                     if not module_bay.position:
@@ -204,7 +256,17 @@ class ModuleSerializer(PrimaryModelSerializer):
                     except ValueError as e:
                         raise serializers.ValidationError(str(e))
 
-                if resolved_name in installed_components:
+                existing_item = installed_components.get(resolved_name)
+
+                if adopt_components and existing_item and existing_item.module:
+                    raise serializers.ValidationError(
+                        _("Cannot adopt {model} {name} as it already belongs to a module").format(
+                            model=template.component_model.__name__,
+                            name=resolved_name
+                        )
+                    )
+
+                if not adopt_components and resolved_name in installed_components:
                     raise serializers.ValidationError(
                         _("A {model} named {name} already exists").format(
                             model=template.component_model.__name__,
@@ -213,6 +275,27 @@ class ModuleSerializer(PrimaryModelSerializer):
                     )
 
         return data
+
+    def create(self, validated_data):
+        replicate_components = validated_data.pop('replicate_components', True)
+        adopt_components = validated_data.pop('adopt_components', False)
+
+        # Tags are handled after save; pop them here to pass to _save_tags()
+        tags = validated_data.pop('tags', None)
+
+        # _adopt_components and _disable_replication must be set on the instance before
+        # save() is called, so we cannot delegate to super().create() here.
+        instance = self.Meta.model(**validated_data)
+        if adopt_components:
+            instance._adopt_components = True
+        if not replicate_components:
+            instance._disable_replication = True
+        instance.save()
+
+        if tags is not None:
+            self._save_tags(instance, tags)
+
+        return instance
 
 
 class MACAddressSerializer(PrimaryModelSerializer):

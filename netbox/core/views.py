@@ -50,7 +50,7 @@ from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
 from utilities.apps import get_installed_apps
-from utilities.data import shallow_compare_dict
+from utilities.data import deep_compare_dict
 from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.json import ConfigJSONEncoder
@@ -103,6 +103,7 @@ class DataSourceView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='core.DataFile',
                 filters={'source_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['source'],
             ),
         ],
     )
@@ -370,17 +371,14 @@ class ObjectChangeView(generic.ObjectView):
             prechange_data = instance.prechange_data_clean
 
         if prechange_data and instance.postchange_data:
-            diff_added = shallow_compare_dict(
-                prechange_data or dict(),
-                instance.postchange_data_clean or dict(),
+            diff_added, diff_removed = deep_compare_dict(
+                prechange_data,
+                instance.postchange_data_clean,
                 exclude=['last_updated'],
             )
-            diff_removed = {
-                x: prechange_data.get(x) for x in diff_added
-            } if prechange_data else {}
         else:
-            diff_added = None
-            diff_removed = None
+            diff_added = {}
+            diff_removed = {}
 
         return {
             'diff_added': diff_added,

@@ -47,7 +47,7 @@ If a new Django release is adopted or other major dependencies (Python, PostgreS
 Start the documentation server and navigate to the current version of the installation docs:
 
 ```no-highlight
-mkdocs serve
+zensical serve
 ```
 
 Follow these instructions to perform a new installation of NetBox in a temporary environment. This process must not be automated: The goal of this step is to catch any errors or omissions in the documentation and ensure that it is kept up to date for each release. Make any necessary changes to the documentation before proceeding with the release.

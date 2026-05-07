@@ -44,15 +44,29 @@ ADVISORY_LOCK_KEYS = {
     'job-schedules': 110100,
 }
 
-# TODO: Remove in NetBox v4.5
+# TODO: Remove in NetBox v4.7
 # Legacy default view action permission mapping
-DEFAULT_ACTION_PERMISSIONS = {
+_DEFAULT_ACTION_PERMISSIONS = {
     'add': {'add'},
     'export': {'view'},
     'bulk_import': {'add'},
     'bulk_edit': {'change'},
     'bulk_delete': {'delete'},
 }
+
+
+def __getattr__(name):
+    if name == 'DEFAULT_ACTION_PERMISSIONS':
+        import warnings
+        warnings.warn(
+            f"{name} is deprecated and will be removed in NetBox v4.7. "
+            "Define action permissions via ObjectAction subclasses instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _DEFAULT_ACTION_PERMISSIONS
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 # General-purpose tokens
 CENSOR_TOKEN = '********'

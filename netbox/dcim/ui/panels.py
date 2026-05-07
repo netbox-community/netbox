@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import actions, attrs, panels
@@ -45,6 +44,7 @@ class RackPanel(panels.ObjectAttributesPanel):
     region = attrs.NestedObjectAttr('site.region', linkify=True)
     site = attrs.RelatedObjectAttr('site', linkify=True, grouped_by='group')
     location = attrs.NestedObjectAttr('location', linkify=True)
+    group = attrs.RelatedObjectAttr('group', linkify=True, label=_('Rack group'))
     name = attrs.TextAttr('name')
     facility_id = attrs.TextAttr('facility_id', label=_('Facility ID'))
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
@@ -71,9 +71,10 @@ class RackRolePanel(panels.OrganizationalObjectPanel):
 
 class RackReservationPanel(panels.ObjectAttributesPanel):
     units = attrs.TextAttr('unit_list')
+    unit_count = attrs.TextAttr('unit_count', label=_("Total U's"))
     status = attrs.ChoiceAttr('status')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    user = attrs.RelatedObjectAttr('user')
+    user = attrs.RelatedObjectAttr('user', linkify=True)
     description = attrs.TextAttr('description')
 
 
@@ -218,8 +219,8 @@ class PowerPortPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
     description = attrs.TextAttr('description')
-    maximum_draw = attrs.TextAttr('maximum_draw')
-    allocated_draw = attrs.TextAttr('allocated_draw')
+    maximum_draw = attrs.TextAttr('maximum_draw', format_string='{}W')
+    allocated_draw = attrs.TextAttr('allocated_draw', format_string='{}W')
 
 
 class PowerOutletPanel(panels.ObjectAttributesPanel):
@@ -242,7 +243,7 @@ class FrontPortPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
     color = attrs.ColorAttr('color')
-    positions = attrs.TextAttr('positions')
+    positions = attrs.NumericAttr('positions')
     description = attrs.TextAttr('description')
 
 
@@ -253,7 +254,7 @@ class RearPortPanel(panels.ObjectAttributesPanel):
     label = attrs.TextAttr('label')
     type = attrs.ChoiceAttr('type')
     color = attrs.ColorAttr('color')
-    positions = attrs.TextAttr('positions')
+    positions = attrs.NumericAttr('positions')
     description = attrs.TextAttr('description')
 
 
@@ -266,11 +267,26 @@ class ModuleBayPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
 
 
+class InstalledModulePanel(panels.ObjectAttributesPanel):
+    title = _('Installed Module')
+    module = attrs.RelatedObjectAttr('installed_module', linkify=True)
+    manufacturer = attrs.RelatedObjectAttr('installed_module.module_type.manufacturer', linkify=True)
+    module_type = attrs.RelatedObjectAttr('installed_module.module_type', linkify=True)
+    serial = attrs.TextAttr('installed_module.serial', label=_('Serial number'), style='font-monospace')
+    asset_tag = attrs.TextAttr('installed_module.asset_tag', style='font-monospace')
+
+
 class DeviceBayPanel(panels.ObjectAttributesPanel):
     device = attrs.RelatedObjectAttr('device', linkify=True)
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
     description = attrs.TextAttr('description')
+
+
+class InstalledDevicePanel(panels.ObjectAttributesPanel):
+    title = _('Installed Device')
+    device = attrs.RelatedObjectAttr('installed_device', linkify=True)
+    device_type = attrs.RelatedObjectAttr('installed_device.device_type')
 
 
 class InventoryItemPanel(panels.ObjectAttributesPanel):
@@ -297,6 +313,7 @@ class CablePanel(panels.ObjectAttributesPanel):
     status = attrs.ChoiceAttr('status')
     profile = attrs.ChoiceAttr('profile')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    bundle = attrs.RelatedObjectAttr('bundle', linkify=True)
     label = attrs.TextAttr('label')
     description = attrs.TextAttr('description')
     color = attrs.ColorAttr('color')
@@ -390,10 +407,6 @@ class ConnectionPanel(panels.ObjectPanel):
             'show_endpoints': self.show_endpoints,
         }
 
-    def render(self, context):
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
-
 
 class InventoryItemsPanel(panels.ObjectPanel):
     """
@@ -410,10 +423,6 @@ class InventoryItemsPanel(panels.ObjectPanel):
             },
         ),
     ]
-
-    def render(self, context):
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
 
 
 class VirtualChassisMembersPanel(panels.ObjectPanel):
@@ -448,10 +457,8 @@ class VirtualChassisMembersPanel(panels.ObjectPanel):
             'vc_members': context.get('vc_members'),
         }
 
-    def render(self, context):
-        if not context.get('vc_members'):
-            return ''
-        return super().render(context)
+    def should_render(self, context):
+        return bool(context.get('vc_members'))
 
 
 class PowerUtilizationPanel(panels.ObjectPanel):
@@ -467,11 +474,9 @@ class PowerUtilizationPanel(panels.ObjectPanel):
             'vc_members': context.get('vc_members'),
         }
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context['object']
-        if not obj.powerports.exists() or not obj.poweroutlets.exists():
-            return ''
-        return super().render(context)
+        return obj.powerports.exists() and obj.poweroutlets.exists()
 
 
 class InterfacePanel(panels.ObjectAttributesPanel):
@@ -482,7 +487,7 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     type = attrs.ChoiceAttr('type')
     speed = attrs.TemplatedAttr('speed', template_name='dcim/interface/attrs/speed.html', label=_('Speed'))
     duplex = attrs.ChoiceAttr('duplex')
-    mtu = attrs.TextAttr('mtu', label=_('MTU'))
+    mtu = attrs.NumericAttr('mtu', label=_('MTU'))
     enabled = attrs.BooleanAttr('enabled')
     mgmt_only = attrs.BooleanAttr('mgmt_only', label=_('Management only'))
     description = attrs.TextAttr('description')
@@ -491,7 +496,7 @@ class InterfacePanel(panels.ObjectAttributesPanel):
     mode = attrs.ChoiceAttr('mode', label=_('802.1Q mode'))
     qinq_svlan = attrs.RelatedObjectAttr('qinq_svlan', linkify=True, label=_('Q-in-Q SVLAN'))
     untagged_vlan = attrs.RelatedObjectAttr('untagged_vlan', linkify=True, label=_('Untagged VLAN'))
-    tx_power = attrs.TextAttr('tx_power', label=_('Transmit power (dBm)'))
+    tx_power = attrs.TextAttr('tx_power', label=_('Transmit power'), format_string='{} dBm')
     tunnel = attrs.RelatedObjectAttr('tunnel_termination.tunnel', linkify=True, label=_('Tunnel'))
     l2vpn = attrs.RelatedObjectAttr('l2vpn_termination.l2vpn', linkify=True, label=_('L2VPN'))
 
@@ -524,12 +529,9 @@ class InterfaceConnectionPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_connection.html'
     title = _('Connection')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if obj and obj.is_virtual:
-            return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return False if (obj is None or obj.is_virtual) else True
 
 
 class VirtualCircuitPanel(panels.ObjectPanel):
@@ -539,12 +541,11 @@ class VirtualCircuitPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_virtual_circuit.html'
     title = _('Virtual Circuit')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
         if not obj or not obj.is_virtual or not hasattr(obj, 'virtual_circuit_termination'):
-            return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+            return False
+        return True
 
 
 class InterfaceWirelessPanel(panels.ObjectPanel):
@@ -554,12 +555,9 @@ class InterfaceWirelessPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_wireless.html'
     title = _('Wireless')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if not obj or not obj.is_wireless:
-            return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return False if (obj is None or not obj.is_wireless) else True
 
 
 class WirelessLANsPanel(panels.ObjectPanel):
@@ -569,9 +567,6 @@ class WirelessLANsPanel(panels.ObjectPanel):
     template_name = 'dcim/panels/interface_wireless_lans.html'
     title = _('Wireless LANs')
 
-    def render(self, context):
+    def should_render(self, context):
         obj = context.get('object')
-        if not obj or not obj.is_wireless:
-            return ''
-        ctx = self.get_context(context)
-        return render_to_string(self.template_name, ctx, request=ctx.get('request'))
+        return False if (obj is None or not obj.is_wireless) else True

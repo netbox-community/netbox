@@ -1,6 +1,7 @@
 import django_filters
 import netaddr
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Func, IntegerField
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -46,6 +47,7 @@ from .constants import *
 from .models import *
 
 __all__ = (
+    'CableBundleFilterSet',
     'CableFilterSet',
     'CableTerminationFilterSet',
     'CabledObjectFilterSet',
@@ -86,6 +88,7 @@ __all__ = (
     'PowerPortFilterSet',
     'PowerPortTemplateFilterSet',
     'RackFilterSet',
+    'RackGroupFilterSet',
     'RackReservationFilterSet',
     'RackRoleFilterSet',
     'RackTypeFilterSet',
@@ -314,6 +317,14 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, NestedGroupMode
 
 
 @register_filterset
+class RackGroupFilterSet(OrganizationalModelFilterSet):
+
+    class Meta:
+        model = RackGroup
+        fields = ('id', 'name', 'slug', 'description')
+
+
+@register_filterset
 class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
@@ -416,6 +427,18 @@ class RackFilterSet(PrimaryModelFilterSet, TenancyFilterSet, ContactModelFilterS
         lookup_expr='in',
         to_field_name='slug',
         label=_('Location (slug)'),
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackGroup.objects.all(),
+        distinct=False,
+        label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='group__slug',
+        queryset=RackGroup.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Group (slug)'),
     )
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack_type__manufacturer',
@@ -551,6 +574,19 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Location (slug)'),
     )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RackGroup.objects.all(),
+        field_name='rack__group',
+        distinct=False,
+        label=_('Group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='rack__group__slug',
+        queryset=RackGroup.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Group (slug)'),
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=RackReservationStatusChoices,
         distinct=False,
@@ -572,10 +608,29 @@ class RackReservationFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         field_name='units',
         lookup_expr='contains'
     )
+    unit_count_min = django_filters.NumberFilter(
+        field_name='unit_count',
+        lookup_expr='gte',
+        label=_('Minimum unit count'),
+    )
+    unit_count_max = django_filters.NumberFilter(
+        field_name='unit_count',
+        lookup_expr='lte',
+        label=_('Maximum unit count'),
+    )
 
     class Meta:
         model = RackReservation
         fields = ('id', 'created', 'description')
+
+    def filter_queryset(self, queryset):
+        # Annotate unit_count here so unit_count_min/unit_count_max filters can reference it.
+        # When called from the list view the queryset is already annotated; Django silently
+        # overwrites a duplicate annotation with the same expression, so this is safe.
+        queryset = queryset.annotate(
+            unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+        )
+        return super().filter_queryset(queryset)
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -995,7 +1050,7 @@ class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = ModuleBayTemplate
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'enabled', 'description')
 
 
 @register_filterset
@@ -1003,7 +1058,7 @@ class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponent
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'enabled', 'description')
 
 
 @register_filterset
@@ -2373,7 +2428,7 @@ class ModuleBayFilterSet(ModularDeviceComponentFilterSet):
 
     class Meta:
         model = ModuleBay
-        fields = ('id', 'name', 'label', 'position', 'description')
+        fields = ('id', 'name', 'label', 'position', 'enabled', 'description')
 
 
 @register_filterset
@@ -2393,7 +2448,7 @@ class DeviceBayFilterSet(DeviceComponentFilterSet):
 
     class Meta:
         model = DeviceBay
-        fields = ('id', 'name', 'label', 'description')
+        fields = ('id', 'name', 'label', 'enabled', 'description')
 
 
 @register_filterset
@@ -2547,6 +2602,23 @@ class VirtualChassisFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
+class CableBundleFilterSet(PrimaryModelFilterSet):
+
+    class Meta:
+        model = CableBundle
+        fields = ('id', 'name', 'description')
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
+        )
+
+
+@register_filterset
 class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     termination_a_type = MultiValueContentTypeFilter(
         field_name='terminations__termination_type'
@@ -2565,6 +2637,16 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     unterminated = django_filters.BooleanFilter(
         method='_unterminated',
         label=_('Unterminated'),
+    )
+    bundle_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CableBundle.objects.all(),
+        label=_('Cable bundle (ID)'),
+    )
+    bundle = django_filters.ModelMultipleChoiceFilter(
+        field_name='bundle__name',
+        queryset=CableBundle.objects.all(),
+        to_field_name='name',
+        label=_('Cable bundle (name)'),
     )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices,

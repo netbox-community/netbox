@@ -22,7 +22,7 @@ from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict, prepare_cloned_fields
 from utilities.request import safe_for_redirect
 from utilities.tables import get_table_configs
-from utilities.views import GetReturnURLMixin, get_action_url
+from utilities.views import GetReturnURLMixin, get_action_url, get_default_template
 
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -163,7 +163,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'object': instance,
             'model': self.child_model,
             'child_model': self.child_model,
-            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
+            'base_template': get_default_template(instance),
             'table': table,
             'table_config': f'{table.name}_config',
             'table_configs': get_table_configs(table, request.user),

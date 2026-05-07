@@ -81,10 +81,13 @@ The following context variables are available to the text and link templates.
 
 | Variable      | Description                                          |
 |---------------|------------------------------------------------------|
-| `event`       | The event type (`created`, `updated`, or `deleted`)  |
+| `event`       | The event type (`create`, `update`, or `delete`)     |
 | `timestamp`   | The time at which the event occurred                 |
 | `object_type` | The type of object impacted (`app_label.model_name`) |
 | `username`    | The name of the user associated with the change      |
 | `request_id`  | The unique request ID                                |
 | `data`        | A complete serialized representation of the object   |
 | `snapshots`   | Pre- and post-change snapshots of the object         |
+
+!!! warning "Deprecation of legacy fields"
+    The `request_id` and `username` fields in the webhook payload above are deprecated and should no longer be used. Support for them will be removed in NetBox v4.7.0. Use `request.user` and `request.id` from the `request` object included in the callback context instead. (Note that `request` is populated in the context only when the webhook is associated with a triggering request.)

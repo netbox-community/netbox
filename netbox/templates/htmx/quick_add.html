@@ -17,7 +17,7 @@
     {% csrf_token %}
     {% include 'htmx/form.html' %}
     <div class="text-end">
-      <button type="button" class="btn btn-outline-secondary btn-float" data-bs-dismiss="modal" aria-label="Cancel">
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" aria-label="Cancel">
         {% trans "Cancel" %}
       </button>
       <button type="submit" name="_quickadd" class="btn btn-primary">

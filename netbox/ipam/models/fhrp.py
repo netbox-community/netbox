@@ -59,6 +59,9 @@ class FHRPGroup(PrimaryModel):
 
     class Meta:
         ordering = ['protocol', 'group_id', 'pk']
+        indexes = (
+            models.Index(fields=('protocol', 'group_id', 'id')),  # Default ordering
+        )
         verbose_name = _('FHRP group')
         verbose_name_plural = _('FHRP groups')
 
@@ -105,6 +108,7 @@ class FHRPGroupAssignment(ChangeLoggedModel):
     class Meta:
         ordering = ('-priority', 'pk')
         indexes = (
+            models.Index(fields=('-priority', 'id')),  # Default ordering
             models.Index(fields=('interface_type', 'interface_id')),
         )
         constraints = (

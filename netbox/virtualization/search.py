@@ -39,6 +39,18 @@ class ClusterTypeIndex(SearchIndex):
 
 
 @register_search
+class VirtualMachineTypeIndex(SearchIndex):
+    model = models.VirtualMachineType
+    fields = (
+        ('name', 100),
+        ('slug', 110),
+        ('description', 500),
+        ('comments', 5000),
+    )
+    display_attrs = ('default_platform', 'default_vcpus', 'default_memory', 'description')
+
+
+@register_search
 class VirtualMachineIndex(SearchIndex):
     model = models.VirtualMachine
     fields = (

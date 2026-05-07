@@ -144,6 +144,9 @@ class Circuit(ContactsMixin, ImageAttachmentsMixin, DistanceMixin, PrimaryModel)
                 name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
         )
+        indexes = (
+            models.Index(fields=('provider', 'provider_account', 'cid')),  # Default ordering
+        )
         verbose_name = _('circuit')
         verbose_name_plural = _('circuits')
 
@@ -220,6 +223,9 @@ class CircuitGroupAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin,
                 fields=('member_type', 'member_id', 'group'),
                 name='%(app_label)s_%(class)s_unique_member_group'
             ),
+        )
+        indexes = (
+            models.Index(fields=('group', 'member_type', 'member_id', 'priority', 'id')),  # Default ordering
         )
         verbose_name = _('Circuit group assignment')
         verbose_name_plural = _('Circuit group assignments')

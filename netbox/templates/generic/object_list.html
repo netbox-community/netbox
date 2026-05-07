@@ -82,7 +82,7 @@ Context:
                     {% endblocktrans %}
                   </label>
                 </div>
-                <div class="bulk-action-buttons">
+                <div class="btn-list bulk-action-buttons">
                   {% action_buttons actions model multi=True %}
                 </div>
               </div>
@@ -91,7 +91,6 @@ Context:
         {% endif %}
 
         <div class="form form-horizontal">
-          {% csrf_token %}
           <input type="hidden" id="object-list-return-url" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
           {# Warn of any missing prerequisite objects #}
@@ -108,9 +107,9 @@ Context:
           {# /Objects table #}
 
           {# Form buttons #}
-          <div class="btn-list d-print-none">
+          <div class="card btn-list sticky-actions d-print-none" data-sticky-position="right" data-sticky-when="selection">
             {% block bulk_buttons %}
-              <div class="bulk-action-buttons">
+              <div class="btn-list bulk-action-buttons">
                 {% action_buttons actions model multi=True %}
               </div>
             {% endblock %}

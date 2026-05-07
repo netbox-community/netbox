@@ -60,6 +60,9 @@ class Script(EventRulesMixin, JobsMixin):
                 name='extras_script_unique_name_module'
             ),
         )
+        indexes = (
+            models.Index(fields=('module', 'name')),  # Default ordering
+        )
         verbose_name = _('script')
         verbose_name_plural = _('scripts')
 

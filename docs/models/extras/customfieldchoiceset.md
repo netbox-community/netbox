@@ -22,6 +22,28 @@ The set of pre-defined choices to include. Available sets are listed below. This
 
 A set of custom choices that will be appended to the base choice set (if any).
 
+### Choice Colors
+
+Optional color bindings for individual choice values. Each color is bound to a choice by its value rather than its label.
+
+When editing a choice set in the UI, enter one mapping per line using the format `value:color`. Supported colors are:
+
+* `blue`
+* `indigo`
+* `purple`
+* `pink`
+* `red`
+* `orange`
+* `yellow`
+* `green`
+* `teal`
+* `cyan`
+* `gray`
+* `black`
+* `white`
+
+Colored choices are rendered as badges on object detail pages for selection and multiple-selection custom fields.
+
 ### Order Alphabetically
 
 If enabled, the choices list will be automatically ordered alphabetically. If disabled, choices will appear in the order in which they were defined.

@@ -103,6 +103,8 @@ The default value to populate for the custom field when creating new objects (op
 
 For selection and multi-select custom fields only, this is the [set of choices](./customfieldchoiceset.md) which are valid for the field.
 
+Choice sets may optionally define colors for individual values. Colored choices are rendered as badges on object detail pages for selection and multiple-selection custom fields.
+
 ### Cloneable
 
 If enabled, values from this field will be automatically pre-populated when cloning existing objects.
@@ -118,3 +120,7 @@ For numeric custom fields only. The maximum valid value (optional).
 ### Validation Regex
 
 For string-based custom fields only. A regular expression used to validate the field's value (optional).
+
+### Validation Schema
+
+For JSON custom fields, users have the option of defining a [validation schema](https://json-schema.org). Any value applied to this custom field on a model will be validated against the provided schema, if any.

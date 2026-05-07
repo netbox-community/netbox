@@ -8,8 +8,9 @@ from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
+from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
-from utilities.api import get_view_name
+from utilities.api import get_prefetches_for_serializer, get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -187,6 +188,116 @@ class APIPaginationTestCase(APITestCase):
         self.assertIsNone(response.data['previous'])
         self.assertEqual(len(response.data['results']), 100)
 
+    def test_cursor_pagination(self):
+        """Basic cursor pagination returns results ordered by PK with correct next link."""
+        first_pk = Site.objects.order_by('pk').values_list('pk', flat=True).first()
+        response = self.client.get(f'{self.url}?start={first_pk}&limit=10', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['count'])
+        self.assertIsNone(response.data['previous'])
+        self.assertEqual(len(response.data['results']), 10)
+
+        # Results should be ordered by PK
+        pks = [r['id'] for r in response.data['results']]
+        self.assertEqual(pks, sorted(pks))
+
+        # Next link should use start parameter
+        last_pk = pks[-1]
+        self.assertIn(f'start={last_pk + 1}', response.data['next'])
+        self.assertIn('limit=10', response.data['next'])
+
+    def test_cursor_pagination_last_page(self):
+        """Cursor pagination returns null next link when fewer results than limit."""
+        last_pk = Site.objects.order_by('pk').values_list('pk', flat=True).last()
+        response = self.client.get(f'{self.url}?start={last_pk}&limit=10', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertIsNone(response.data['next'])
+        self.assertIsNone(response.data['previous'])
+
+    def test_cursor_pagination_no_results(self):
+        """Cursor pagination beyond all PKs returns empty results."""
+        max_pk = Site.objects.order_by('pk').values_list('pk', flat=True).last()
+        response = self.client.get(f'{self.url}?start={max_pk + 1000}&limit=10', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 0)
+        self.assertIsNone(response.data['next'])
+
+    def test_cursor_and_offset_conflict(self):
+        """Specifying both start and offset returns a 400 error."""
+        with disable_warnings('django.request'):
+            response = self.client.get(f'{self.url}?start=1&offset=10', format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_cursor_and_ordering_conflict(self):
+        """Specifying both start and ordering returns a 400 error."""
+        with disable_warnings('django.request'):
+            response = self.client.get(f'{self.url}?start=1&ordering=name', format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_cursor_negative_start(self):
+        """Negative start value returns a 400 error."""
+        with disable_warnings('django.request'):
+            response = self.client.get(f'{self.url}?start=-1', format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_cursor_with_filters(self):
+        """Cursor pagination works alongside other query filters."""
+        response = self.client.get(f'{self.url}?start=0&limit=10&name=Site 1', format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertIsNone(response.data['count'])
+        results = response.data['results']
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['name'], 'Site 1')
+
+    def test_offset_multi_page_traversal(self):
+        """Traverse all 100 objects using offset pagination and verify complete, non-overlapping coverage."""
+        collected_pks = []
+        url = f'{self.url}?limit=10'
+
+        while url:
+            response = self.client.get(url, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertEqual(response.data['count'], 100)
+            collected_pks.extend(r['id'] for r in response.data['results'])
+            url = response.data['next']
+
+        # Should have collected exactly 100 unique objects
+        self.assertEqual(len(set(collected_pks)), 100)
+
+    def test_cursor_multi_page_traversal(self):
+        """Traverse all 100 objects using cursor pagination and verify complete, non-overlapping coverage."""
+        collected_pks = []
+        first_pk = Site.objects.order_by('pk').values_list('pk', flat=True).first()
+        url = f'{self.url}?start={first_pk}&limit=10'
+
+        while url:
+            response = self.client.get(url, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertIsNone(response.data['count'])
+            self.assertIsNone(response.data['previous'])
+
+            page_pks = [r['id'] for r in response.data['results']]
+
+            # Each page should be ordered by PK
+            self.assertEqual(page_pks, sorted(page_pks))
+
+            # No overlap with previously collected PKs
+            self.assertFalse(set(page_pks) & set(collected_pks))
+
+            collected_pks.extend(page_pks)
+            url = response.data['next']
+
+        # Should have collected exactly 100 unique objects
+        self.assertEqual(len(set(collected_pks)), 100)
+
+        # Full result set should be in PK order
+        self.assertEqual(collected_pks, sorted(collected_pks))
+
 
 class APIOrderingTestCase(APITestCase):
     user_permissions = ('dcim.view_site',)
@@ -284,6 +395,85 @@ class GetViewNameTestCase(TestCase):
 
         name = get_view_name(view)
         self.assertEqual(name, 'Mock List')
+
+
+class GetPrefetchesForSerializerTestCase(TestCase):
+
+    def test_nested_serializer_honors_explicit_fields(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent')
+                brief_fields = ('id', 'name')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = RegionSerializer(nested=True, fields=('id', 'parent'))
+
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
+
+    def test_nested_serializer_honors_explicit_omit(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent')
+                brief_fields = ('id', 'name')
+
+        class SiteSerializer(BaseModelSerializer):
+            region = RegionSerializer(nested=True, omit=('name',))
+
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
+
+    def test_many_nested_serializer_honors_explicit_fields(self):
+        class SiteSerializer(BaseModelSerializer):
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region')
+                brief_fields = ('id', 'name')
+
+        class RegionSerializer(BaseModelSerializer):
+            sites = SiteSerializer(nested=True, many=True, fields=('id', 'region'))
+
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'sites')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(RegionSerializer),
+            ['sites', 'sites__region'],
+        )
+
+    def test_nested_serializer_uses_source_for_prefetch_path(self):
+        class RegionSerializer(BaseModelSerializer):
+            class Meta:
+                model = Region
+                fields = ('id', 'name', 'parent')
+                brief_fields = ('id', 'name')
+
+        class SiteSerializer(BaseModelSerializer):
+            region_detail = RegionSerializer(source='region', nested=True, fields=('id', 'parent'))
+
+            class Meta:
+                model = Site
+                fields = ('id', 'name', 'region_detail')
+
+        self.assertListEqual(
+            get_prefetches_for_serializer(SiteSerializer),
+            ['region', 'region__parent'],
+        )
 
 
 class APITrailingSlashTestCase(APITestCase):

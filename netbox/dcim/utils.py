@@ -8,42 +8,19 @@ from django.utils.translation import gettext as _
 from dcim.constants import MODULE_TOKEN
 
 
-def compile_path_node(ct_id, object_id):
-    return f'{ct_id}:{object_id}'
-
-
-def decompile_path_node(repr):
-    ct_id, object_id = repr.split(':')
-    return int(ct_id), int(object_id)
-
-
-def object_to_path_node(obj):
-    """
-    Return a representation of an object suitable for inclusion in a CablePath path. Node representation is in the
-    form <ContentType ID>:<Object ID>.
-    """
-    ct = ContentType.objects.get_for_model(obj)
-    return compile_path_node(ct.pk, obj.pk)
-
-
-def path_node_to_object(repr):
-    """
-    Given the string representation of a path node, return the corresponding instance. If the object no longer
-    exists, return None.
-    """
-    ct_id, object_id = decompile_path_node(repr)
-    ct = ContentType.objects.get_for_id(ct_id)
-    return ct.model_class().objects.filter(pk=object_id).first()
-
-
 def get_module_bay_positions(module_bay):
     """
     Given a module bay, traverse up the module hierarchy and return
-    a list of bay position strings from root to leaf.
+    a list of bay position strings from root to leaf, resolving any
+    {module} tokens in each position using the parent position
+    (position inheritance).
     """
     positions = []
     while module_bay:
-        positions.append(module_bay.position)
+        pos = module_bay.position or ''
+        if positions and MODULE_TOKEN in pos:
+            pos = pos.replace(MODULE_TOKEN, positions[-1])
+        positions.append(pos)
         if module_bay.module:
             module_bay = module_bay.module.module_bay
         else:
@@ -79,6 +56,34 @@ def resolve_module_placeholder(value, positions):
             level=len(positions), tokens=token_count
         )
     )
+
+
+def compile_path_node(ct_id, object_id):
+    return f'{ct_id}:{object_id}'
+
+
+def decompile_path_node(repr):
+    ct_id, object_id = repr.split(':')
+    return int(ct_id), int(object_id)
+
+
+def object_to_path_node(obj):
+    """
+    Return a representation of an object suitable for inclusion in a CablePath path. Node representation is in the
+    form <ContentType ID>:<Object ID>.
+    """
+    ct = ContentType.objects.get_for_model(obj)
+    return compile_path_node(ct.pk, obj.pk)
+
+
+def path_node_to_object(repr):
+    """
+    Given the string representation of a path node, return the corresponding instance. If the object no longer
+    exists, return None.
+    """
+    ct_id, object_id = decompile_path_node(repr)
+    ct = ContentType.objects.get_for_id(ct_id)
+    return ct.model_class().objects.filter(pk=object_id).first()
 
 
 def create_cablepaths(objects):

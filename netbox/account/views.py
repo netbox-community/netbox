@@ -356,9 +356,16 @@ class UserTokenView(LoginRequiredMixin, View):
     def get(self, request, pk):
         token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
 
+        # Pop a one-time plaintext value (set by UserTokenEditView.post_save when a token is first created) and
+        # assemble the full HTTP authorization string for display. The plaintext is never persisted; popping
+        # ensures the banner only renders once.
+        plaintext = request.session.pop(f'_token_plaintext_{token.pk}', None)
+        token_auth_string = f'{token.get_auth_header_prefix()}{plaintext}' if plaintext else None
+
         return render(request, 'account/token.html', {
             'object': token,
             'layout': self.layout,
+            'token_auth_string': token_auth_string,
         })
 
 
@@ -366,11 +373,14 @@ class UserTokenView(LoginRequiredMixin, View):
 class UserTokenEditView(generic.ObjectEditView):
     queryset = UserToken.objects.all()
     form = forms.UserTokenForm
+    template_name = 'account/usertoken_edit.html'
     default_return_url = 'account:usertoken_list'
 
     def alter_object(self, obj, request, url_args, url_kwargs):
         if not obj.pk:
             obj.user = request.user
+        # Attach the request so that UserTokenForm.save() can stash the newly-generated plaintext on the session.
+        obj._request = request
         return obj
 
 

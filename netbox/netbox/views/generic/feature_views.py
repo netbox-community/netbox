@@ -17,7 +17,7 @@ from tenancy.forms import ContactAssignmentFilterForm
 from tenancy.models import ContactAssignment
 from tenancy.tables import ContactAssignmentTable
 from utilities.permissions import get_permission_for_model
-from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab
+from utilities.views import ConditionalLoginRequiredMixin, GetReturnURLMixin, ViewTab, get_default_template
 
 from .base import BaseMultiObjectView
 from .object_views import ObjectChildrenView
@@ -72,15 +72,10 @@ class ObjectChangeLogView(ConditionalLoginRequiredMixin, View):
         )
         objectchanges_table.configure(request)
 
-        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
-        # fall back to using base.html.
-        if self.base_template is None:
-            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-
         return render(request, 'extras/object_changelog.html', {
             'object': obj,
             'table': objectchanges_table,
-            'base_template': self.base_template,
+            'base_template': self.base_template or get_default_template(model),
             'tab': self.tab,
         })
 
@@ -107,15 +102,10 @@ class ObjectImageAttachmentsView(ConditionalLoginRequiredMixin, View):
             object_id=obj.pk,
         )
 
-        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
-        # fall back to using base.html.
-        if self.base_template is None:
-            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-
         return render(request, 'extras/object_imageattachments.html', {
             'object': obj,
             'image_attachments': image_attachments,
-            'base_template': self.base_template,
+            'base_template': self.base_template or get_default_template(model),
             'tab': self.tab,
         })
 
@@ -167,16 +157,11 @@ class ObjectJournalView(ConditionalLoginRequiredMixin, View):
         else:
             form = None
 
-        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
-        # fall back to using base.html.
-        if self.base_template is None:
-            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-
         return render(request, 'extras/object_journal.html', {
             'object': obj,
             'form': form,
             'table': journalentry_table,
-            'base_template': self.base_template,
+            'base_template': self.base_template or get_default_template(model),
             'tab': self.tab,
         })
 
@@ -222,15 +207,10 @@ class ObjectJobsView(ConditionalLoginRequiredMixin, View):
         jobs_table = JobTable(data=jobs, orderable=False)
         jobs_table.configure(request)
 
-        # Default to using "<app>/<model>.html" as the template, if it exists. Otherwise,
-        # fall back to using base.html.
-        if self.base_template is None:
-            self.base_template = f"{model._meta.app_label}/{model._meta.model_name}.html"
-
         return render(request, 'core/object_jobs.html', {
             'object': obj,
             'table': jobs_table,
-            'base_template': self.base_template,
+            'base_template': self.base_template or get_default_template(model),
             'tab': self.tab,
         })
 

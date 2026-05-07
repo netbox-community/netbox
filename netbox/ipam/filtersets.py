@@ -289,6 +289,18 @@ class ASNFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
         to_field_name='slug',
         label=_('Provider (slug)'),
     )
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Role.objects.all(),
+        distinct=False,
+        label=_('Role (ID)'),
+    )
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='role__slug',
+        queryset=Role.objects.all(),
+        distinct=False,
+        to_field_name='slug',
+        label=_('Role (slug)'),
+    )
 
     class Meta:
         model = ASN
@@ -946,6 +958,9 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
     location = django_filters.NumberFilter(
         method='filter_scope'
     )
+    rack_group = django_filters.NumberFilter(
+        method='filter_scope'
+    )
     rack = django_filters.NumberFilter(
         method='filter_scope'
     )
@@ -962,7 +977,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ('id', 'name', 'slug', 'description', 'scope_id')
+        fields = ('id', 'name', 'slug', 'description', 'scope_id', 'total_vlan_ids')
 
     def search(self, queryset, name, value):
         if not value.strip():

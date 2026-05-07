@@ -113,6 +113,9 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 name='%(app_label)s_%(class)s_unique_manufacturer_model'
             ),
         )
+        indexes = (
+            models.Index(fields=('profile', 'manufacturer', 'model')),  # Default ordering
+        )
         verbose_name = _('module type')
         verbose_name_plural = _('module types')
 
@@ -265,6 +268,14 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                     device=self.device
                 )
             )
+
+        # Prevent module from being installed in a disabled bay
+        if hasattr(self, 'module_bay') and self.module_bay and not self.module_bay.enabled:
+            current_module_bay_id = Module.objects.filter(pk=self.pk).values_list('module_bay_id', flat=True).first()
+            if self.pk is None or current_module_bay_id != self.module_bay_id:
+                raise ValidationError({
+                    'module_bay': _("Cannot install a module in a disabled module bay.")
+                })
 
         # Check for recursion
         module = self

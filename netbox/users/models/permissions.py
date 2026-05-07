@@ -1,9 +1,12 @@
+from django.apps import apps
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models.features import CloningMixin
+from netbox.registry import registry
+from users.constants import RESERVED_ACTIONS
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -52,6 +55,9 @@ class ObjectPermission(CloningMixin, models.Model):
 
     class Meta:
         ordering = ['name']
+        indexes = (
+            models.Index(fields=('name',)),  # Default ordering
+        )
         verbose_name = _('permission')
         verbose_name_plural = _('permissions')
 
@@ -81,6 +87,55 @@ class ObjectPermission(CloningMixin, models.Model):
         if type(self.constraints) is not list:
             return [self.constraints]
         return self.constraints
+
+    def get_registered_actions(self):
+        """
+        Return a list of dicts for all registered actions:
+            name: The action identifier
+            help_text: Human-friendly description (first registration wins)
+            enabled: Whether this action is enabled on this permission
+            models: Sorted list of human-friendly model verbose names
+        """
+        enabled_actions = set(self.actions) - set(RESERVED_ACTIONS)
+
+        action_info = {}
+        action_models = {}
+        for model_key, model_actions in registry['model_actions'].items():
+            app_label, model_name = model_key.split('.')
+            try:
+                verbose_name = str(apps.get_model(app_label, model_name)._meta.verbose_name)
+            except LookupError:
+                verbose_name = model_key
+            for action in model_actions:
+                # First registration's help_text wins for shared action names
+                if action.name not in action_info:
+                    action_info[action.name] = action
+                action_models.setdefault(action.name, []).append(verbose_name)
+
+        return [
+            {
+                'name': name,
+                'help_text': action_info[name].help_text,
+                'enabled': name in enabled_actions,
+                'models': sorted(action_models[name]),
+            }
+            for name in sorted(action_models)
+        ]
+
+    def get_additional_actions(self):
+        """
+        Return a sorted list of actions that are neither CRUD nor registered.
+        These are manually-entered actions from the "Additional actions" field.
+        """
+        registered_names = set()
+        for model_actions in registry['model_actions'].values():
+            for action in model_actions:
+                registered_names.add(action.name)
+
+        return sorted(
+            a for a in self.actions
+            if a not in RESERVED_ACTIONS and a not in registered_names
+        )
 
     def get_absolute_url(self):
         return reverse('users:objectpermission', args=[self.pk])

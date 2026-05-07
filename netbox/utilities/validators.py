@@ -31,11 +31,11 @@ class EnhancedURLValidator(URLValidator):
     fqdn_re = URLValidator.hostname_re + URLValidator.domain_re + URLValidator.tld_re
     host_res = [URLValidator.ipv4_re, URLValidator.ipv6_re, fqdn_re, URLValidator.hostname_re]
     regex = _lazy_re_compile(
-        r'^(?:[a-z0-9\.\-\+]*)://'          # Scheme (enforced separately)
-        r'(?:\S+(?::\S*)?@)?'               # HTTP basic authentication
-        r'(?:' + '|'.join(host_res) + ')'   # IPv4, IPv6, FQDN, or hostname
-        r'(?::\d{1,5})?'                    # Port number
-        r'(?:[/?#][^\s]*)?'                 # Path
+        r'^(?:[a-z0-9\.\-\+]*)://'           # Scheme (enforced separately)
+        r'(?:[^\s:@/]+(?::[^\s:@/]*)?@)?'    # HTTP basic authentication
+        r'(?:' + '|'.join(host_res) + ')'    # IPv4, IPv6, FQDN, or hostname
+        r'(?::\d{1,5})?'                     # Port number
+        r'(?:[/?#][^\s]*)?'                  # Path
         r'\Z', re.IGNORECASE)
     schemes = None
 

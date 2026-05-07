@@ -21,11 +21,11 @@ repos:
       language: system
       pass_filenames: false
       types: [python]
-    - id: mkdocs-build
+    - id: zensical-build
       name: "Build documentation"
-      description: "Build the documentation with mkdocs"
+      description: "Build the documentation with Zensical"
       files: 'docs/'
-      entry: mkdocs build
+      entry: zensical build
       language: system
       pass_filenames: false
     - id: yarn-validate

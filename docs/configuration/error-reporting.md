@@ -18,7 +18,7 @@ Additionally, `http_proxy` and `https_proxy` are set to the HTTP and HTTPS proxi
 
 ## SENTRY_DSN
 
-!!! warning "This parameter will be removed in NetBox v4.5."
+!!! warning "This parameter will be removed in NetBox v4.7."
     Set this using `SENTRY_CONFIG` instead:
 
     ```
@@ -50,7 +50,7 @@ Set to `True` to enable automatic error reporting via [Sentry](https://sentry.io
 
 ## SENTRY_SAMPLE_RATE
 
-!!! warning "This parameter will be removed in NetBox v4.5."
+!!! warning "This parameter will be removed in NetBox v4.7."
     Set this using `SENTRY_CONFIG` instead:
 
     ```
@@ -67,7 +67,7 @@ The sampling rate for errors. Must be a value between 0 (disabled) and 1.0 (repo
 
 ## SENTRY_SEND_DEFAULT_PII
 
-!!! warning "This parameter will be removed in NetBox v4.5."
+!!! warning "This parameter will be removed in NetBox v4.7."
     Set this using `SENTRY_CONFIG` instead:
 
     ```
@@ -103,7 +103,7 @@ SENTRY_TAGS = {
 
 ## SENTRY_TRACES_SAMPLE_RATE
 
-!!! warning "This parameter will be removed in NetBox v4.5."
+!!! warning "This parameter will be removed in NetBox v4.7."
     Set this using `SENTRY_CONFIG` instead:
 
     ```

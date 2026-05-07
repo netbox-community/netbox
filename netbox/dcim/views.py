@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import router, transaction
-from django.db.models import Prefetch
+from django.db.models import Func, IntegerField, Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -27,7 +27,6 @@ from netbox.ui.panels import (
     NestedGroupObjectPanel,
     ObjectsTablePanel,
     OrganizationalObjectPanel,
-    Panel,
     RelatedObjectsPanel,
     TemplatePanel,
 )
@@ -258,6 +257,7 @@ class RegionView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.Region',
                 title=_('Child Regions'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.Region', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -390,6 +390,7 @@ class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.SiteGroup',
                 title=_('Child Groups'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.SiteGroup', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -540,6 +541,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
             ObjectsTablePanel(
                 model='dcim.Location',
                 filters={'site_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['site'],
                 actions=[
                     actions.AddObject('dcim.Location', url_params={'site': lambda ctx: ctx['object'].pk}),
                 ],
@@ -552,6 +554,7 @@ class SiteView(GetRelatedModelsMixin, generic.ObjectView):
                     'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
                     'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
                 },
+                exclude_columns=['site'],
                 actions=[
                     actions.AddObject('dcim.Device', url_params={'site': lambda ctx: ctx['object'].pk}),
                 ],
@@ -674,6 +677,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.Location',
                 title=_('Child Locations'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject(
                         'dcim.Location',
@@ -692,6 +696,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
                     'rack_id': settings.FILTERS_NULL_CHOICE_VALUE,
                     'parent_bay_id': settings.FILTERS_NULL_CHOICE_VALUE,
                 },
+                exclude_columns=['location'],
                 actions=[
                     actions.AddObject(
                         'dcim.Device',
@@ -785,6 +790,85 @@ class LocationBulkDeleteView(generic.BulkDeleteView):
     ).prefetch_related('site')
     filterset = filtersets.LocationFilterSet
     table = tables.LocationTable
+
+
+#
+# Rack groups
+#
+
+
+@register_model_view(RackGroup, 'list', path='', detail=False)
+class RackGroupListView(generic.ObjectListView):
+    queryset = RackGroup.objects.annotate(
+        rack_count=count_related(Rack, 'group')
+    )
+    filterset = filtersets.RackGroupFilterSet
+    filterset_form = forms.RackGroupFilterForm
+    table = tables.RackGroupTable
+
+
+@register_model_view(RackGroup)
+class RackGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    queryset = RackGroup.objects.all()
+    layout = layout.SimpleLayout(
+        left_panels=[
+            OrganizationalObjectPanel(),
+            TagsPanel(),
+        ],
+        right_panels=[
+            RelatedObjectsPanel(),
+            CustomFieldsPanel(),
+            CommentsPanel(),
+        ],
+    )
+
+    def get_extra_context(self, request, instance):
+        return {
+            'related_models': self.get_related_models(request, instance),
+        }
+
+
+@register_model_view(RackGroup, 'add', detail=False)
+@register_model_view(RackGroup, 'edit')
+class RackGroupEditView(generic.ObjectEditView):
+    queryset = RackGroup.objects.all()
+    form = forms.RackGroupForm
+
+
+@register_model_view(RackGroup, 'delete')
+class RackGroupDeleteView(generic.ObjectDeleteView):
+    queryset = RackGroup.objects.all()
+
+
+@register_model_view(RackGroup, 'bulk_import', path='import', detail=False)
+class RackGroupBulkImportView(generic.BulkImportView):
+    queryset = RackGroup.objects.all()
+    model_form = forms.RackGroupImportForm
+
+
+@register_model_view(RackGroup, 'bulk_edit', path='edit', detail=False)
+class RackGroupBulkEditView(generic.BulkEditView):
+    queryset = RackGroup.objects.annotate(
+        rack_count=count_related(Rack, 'group')
+    )
+    filterset = filtersets.RackGroupFilterSet
+    table = tables.RackGroupTable
+    form = forms.RackGroupBulkEditForm
+
+
+@register_model_view(RackGroup, 'bulk_rename', path='rename', detail=False)
+class RackGroupBulkRenameView(generic.BulkRenameView):
+    queryset = RackGroup.objects.all()
+    filterset = filtersets.RackGroupFilterSet
+
+
+@register_model_view(RackGroup, 'bulk_delete', path='delete', detail=False)
+class RackGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = RackGroup.objects.annotate(
+        rack_count=count_related(Rack, 'group')
+    )
+    filterset = filtersets.RackGroupFilterSet
+    table = tables.RackGroupTable
 
 
 #
@@ -1150,7 +1234,9 @@ class RackBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(RackReservation, 'list', path='', detail=False)
 class RackReservationListView(generic.ObjectListView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.annotate(
+        unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+    )
     filterset = filtersets.RackReservationFilterSet
     filterset_form = forms.RackReservationFilterForm
     table = tables.RackReservationTable
@@ -1159,10 +1245,12 @@ class RackReservationListView(generic.ObjectListView):
 
 @register_model_view(RackReservation)
 class RackReservationView(generic.ObjectView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.annotate(
+        unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+    )
     layout = layout.SimpleLayout(
         left_panels=[
-            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location', 'name']),
+            panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location', 'group', 'name']),
             panels.RackReservationPanel(title=_('Reservation')),
             CustomFieldsPanel(),
             TagsPanel(),
@@ -1212,7 +1300,9 @@ class RackReservationImportView(generic.BulkImportView):
 
 @register_model_view(RackReservation, 'bulk_edit', path='edit', detail=False)
 class RackReservationBulkEditView(generic.BulkEditView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.annotate(
+        unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+    )
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
     form = forms.RackReservationBulkEditForm
@@ -1220,7 +1310,9 @@ class RackReservationBulkEditView(generic.BulkEditView):
 
 @register_model_view(RackReservation, 'bulk_delete', path='delete', detail=False)
 class RackReservationBulkDeleteView(generic.BulkDeleteView):
-    queryset = RackReservation.objects.all()
+    queryset = RackReservation.objects.annotate(
+        unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
+    )
     filterset = filtersets.RackReservationFilterSet
     table = tables.RackReservationTable
 
@@ -1599,6 +1691,7 @@ class ModuleTypeProfileView(generic.ObjectView):
                 filters={
                     'profile_id': lambda ctx: ctx['object'].pk,
                 },
+                exclude_columns=['profile'],
                 actions=[
                     actions.AddObject(
                         'dcim.ModuleType',
@@ -1677,7 +1770,7 @@ class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            Panel(
+            TemplatePanel(
                 title=_('Attributes'),
                 template_name='dcim/panels/module_type_attributes.html',
             ),
@@ -2340,6 +2433,7 @@ class DeviceRoleView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.DeviceRole',
                 title=_('Child Device Roles'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.DeviceRole', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -2440,6 +2534,7 @@ class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
                 model='dcim.Platform',
                 title=_('Child Platforms'),
                 filters={'parent_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject('dcim.Platform', url_params={'parent': lambda ctx: ctx['object'].pk}),
                 ],
@@ -2518,6 +2613,7 @@ class DeviceView(generic.ObjectView):
             ObjectsTablePanel(
                 model='dcim.VirtualDeviceContext',
                 filters={'device_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['device'],
                 actions=[
                     actions.AddObject('dcim.VirtualDeviceContext', url_params={'device': lambda ctx: ctx['object'].pk}),
                 ],
@@ -2530,6 +2626,7 @@ class DeviceView(generic.ObjectView):
                 model='ipam.Service',
                 title=_('Application Services'),
                 filters={'device_id': lambda ctx: ctx['object'].pk},
+                exclude_columns=['parent'],
                 actions=[
                     actions.AddObject(
                         'ipam.Service',
@@ -2847,7 +2944,7 @@ class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            Panel(
+            TemplatePanel(
                 title=_('Module Type'),
                 template_name='dcim/panels/module_type.html',
             ),
@@ -3289,11 +3386,13 @@ class InterfaceView(generic.ObjectView):
                 model='ipam.IPAddress',
                 filters={'interface_id': lambda ctx: ctx['object'].pk},
                 title=_('IP Addresses'),
+                exclude_columns=['assigned', 'assigned_object', 'assigned_object_parent'],
             ),
             ObjectsTablePanel(
                 model='dcim.MACAddress',
                 filters={'interface_id': lambda ctx: ctx['object'].pk},
                 title=_('MAC Addresses'),
+                exclude_columns=['assigned_object', 'assigned_object_parent'],
             ),
             ObjectsTablePanel(
                 model='ipam.VLAN',
@@ -3653,10 +3752,7 @@ class ModuleBayView(generic.ObjectView):
         ],
         right_panels=[
             CustomFieldsPanel(),
-            Panel(
-                title=_('Installed Module'),
-                template_name='dcim/panels/installed_module.html',
-            ),
+            panels.InstalledModulePanel(),
         ],
     )
 
@@ -3728,10 +3824,7 @@ class DeviceBayView(generic.ObjectView):
             TagsPanel(),
         ],
         right_panels=[
-            Panel(
-                title=_('Installed Device'),
-                template_name='dcim/panels/installed_device.html',
-            ),
+            panels.InstalledDevicePanel(),
         ],
     )
 
@@ -3967,6 +4060,7 @@ class InventoryItemRoleListView(generic.ObjectListView):
 @register_model_view(InventoryItemRole)
 class InventoryItemRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = InventoryItemRole.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.InventoryItemRolePanel(),
@@ -4132,6 +4226,72 @@ class DeviceBulkAddInventoryItemView(generic.BulkComponentCreateView):
 
 
 #
+# Cable bundles
+#
+
+@register_model_view(CableBundle, 'list', path='', detail=False)
+class CableBundleListView(generic.ObjectListView):
+    queryset = CableBundle.objects.annotate(
+        cable_count=count_related(Cable, 'bundle')
+    )
+    filterset = filtersets.CableBundleFilterSet
+    filterset_form = forms.CableBundleFilterForm
+    table = tables.CableBundleTable
+
+
+@register_model_view(CableBundle)
+class CableBundleView(generic.ObjectView):
+    queryset = CableBundle.objects.all()
+
+    def get_extra_context(self, request, instance):
+        cables_table = tables.CableTable(
+            instance.cables.all().prefetch_related(
+                'terminations__termination', 'terminations___device', 'terminations___rack', 'terminations___location',
+                'terminations___site',
+            ),
+            orderable=False,
+        )
+        cables_table.configure(request)
+
+        return {
+            'cables_table': cables_table,
+        }
+
+
+@register_model_view(CableBundle, 'add', detail=False)
+@register_model_view(CableBundle, 'edit')
+class CableBundleEditView(generic.ObjectEditView):
+    queryset = CableBundle.objects.all()
+    form = forms.CableBundleForm
+
+
+@register_model_view(CableBundle, 'delete')
+class CableBundleDeleteView(generic.ObjectDeleteView):
+    queryset = CableBundle.objects.all()
+
+
+@register_model_view(CableBundle, 'bulk_import', path='import', detail=False)
+class CableBundleBulkImportView(generic.BulkImportView):
+    queryset = CableBundle.objects.all()
+    model_form = forms.CableBundleImportForm
+
+
+@register_model_view(CableBundle, 'bulk_edit', path='edit', detail=False)
+class CableBundleBulkEditView(generic.BulkEditView):
+    queryset = CableBundle.objects.all()
+    filterset = filtersets.CableBundleFilterSet
+    table = tables.CableBundleTable
+    form = forms.CableBundleBulkEditForm
+
+
+@register_model_view(CableBundle, 'bulk_delete', path='delete', detail=False)
+class CableBundleBulkDeleteView(generic.BulkDeleteView):
+    queryset = CableBundle.objects.all()
+    filterset = filtersets.CableBundleFilterSet
+    table = tables.CableBundleTable
+
+
+#
 # Cables
 #
 
@@ -4149,6 +4309,7 @@ class CableListView(generic.ObjectListView):
 @register_model_view(Cable)
 class CableView(generic.ObjectView):
     queryset = Cable.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.CablePanel(),
@@ -4157,11 +4318,11 @@ class CableView(generic.ObjectView):
             CommentsPanel(),
         ],
         right_panels=[
-            Panel(
+            TemplatePanel(
                 title=_('Termination A'),
                 template_name='dcim/panels/cable_termination_a.html',
             ),
-            Panel(
+            TemplatePanel(
                 title=_('Termination B'),
                 template_name='dcim/panels/cable_termination_b.html',
             ),
@@ -4299,6 +4460,7 @@ class VirtualChassisListView(generic.ObjectListView):
 @register_model_view(VirtualChassis)
 class VirtualChassisView(generic.ObjectView):
     queryset = VirtualChassis.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.VirtualChassisPanel(),
@@ -4724,6 +4886,7 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 @register_model_view(VirtualDeviceContext)
 class VirtualDeviceContextView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.VirtualDeviceContextPanel(),
@@ -4809,6 +4972,7 @@ class MACAddressListView(generic.ObjectListView):
 @register_model_view(MACAddress)
 class MACAddressView(generic.ObjectView):
     queryset = MACAddress.objects.all()
+    template_name = 'generic/object.html'
     layout = layout.SimpleLayout(
         left_panels=[
             panels.MACAddressPanel(),

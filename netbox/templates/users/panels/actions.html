@@ -1,0 +1,32 @@
+{% extends "ui/panels/_base.html" %}
+{% load helpers i18n %}
+
+{% block panel_content %}
+  <table class="table table-hover attr-table">
+    {% for label, enabled in crud_actions %}
+      <tr>
+        <th scope="row">{{ label }}</th>
+        <td>{% checkmark enabled %}</td>
+      </tr>
+    {% endfor %}
+    {% for action in registered_actions %}
+      <tr>
+        <th scope="row">{{ action.help_text|default:action.name }}</th>
+        <td>
+          <div class="d-flex justify-content-between align-items-start">
+            {% checkmark action.enabled %}
+            {% if action.models %}
+              <small class="text-muted">{{ action.models|join:", "|title }}</small>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    {% if additional_actions %}
+      <tr>
+        <th scope="row">{% trans "Additional actions" %}</th>
+        <td>{{ additional_actions|join:", " }}</td>
+      </tr>
+    {% endif %}
+  </table>
+{% endblock panel_content %}

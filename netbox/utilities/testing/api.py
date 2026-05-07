@@ -114,7 +114,12 @@ class APIViewTestCases:
 
             # Try GET to permitted object
             url = self._get_detail_url(instance1)
-            self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
+            response = self.client.get(url, **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+            # Verify ETag header is present for objects with timestamps
+            if issubclass(self.model, ChangeLoggingMixin):
+                self.assertIn('ETag', response, "ETag header missing from detail response")
 
             # Try GET to non-permitted object
             url = self._get_detail_url(instance2)
@@ -282,7 +287,7 @@ class APIViewTestCases:
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.create_data))
             for i, obj in enumerate(response.data):
                 for field in self.create_data[i]:
-                    if field == 'changelog_message':
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
                         # Write-only field
                         continue
                     if field not in self.validation_excluded_fields:
@@ -369,6 +374,46 @@ class APIViewTestCases:
                 self.assertObjectChange(objectchange, action=ObjectChangeActionChoices.ACTION_UPDATE,
                     message=data['changelog_message'])
 
+        def test_update_object_with_etag(self):
+            """
+            PATCH an object using a valid If-Match ETag → expect 200.
+            PATCH again with the now-stale ETag → expect 412.
+            """
+            if not issubclass(self.model, ChangeLoggingMixin):
+                self.skipTest("Model does not support ETags")
+
+            self.add_permissions(
+                f'{self.model._meta.app_label}.view_{self.model._meta.model_name}',
+                f'{self.model._meta.app_label}.change_{self.model._meta.model_name}',
+            )
+            instance = self._get_queryset().first()
+            url = self._get_detail_url(instance)
+            update_data = self.update_data or getattr(self, 'create_data')[0]
+
+            # Fetch current ETag
+            get_response = self.client.get(url, **self.header)
+            self.assertHttpStatus(get_response, status.HTTP_200_OK)
+            etag = get_response.get('ETag')
+            self.assertIsNotNone(etag, "No ETag returned by GET")
+
+            # PATCH with correct ETag → 200
+            response = self.client.patch(
+                url, update_data, format='json',
+                **{**self.header, 'HTTP_IF_MATCH': etag}
+            )
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            new_etag = response.get('ETag')
+            self.assertIsNotNone(new_etag)
+            self.assertNotEqual(etag, new_etag)  # ETag must change after update
+
+            # PATCH with the old (stale) ETag → 412
+            with disable_warnings('django.request'):
+                response = self.client.patch(
+                    url, update_data, format='json',
+                    **{**self.header, 'HTTP_IF_MATCH': etag}
+                )
+            self.assertHttpStatus(response, status.HTTP_412_PRECONDITION_FAILED)
+
         def test_bulk_update_objects(self):
             """
             PATCH a set of objects in a single request.
@@ -401,7 +446,7 @@ class APIViewTestCases:
             self.assertHttpStatus(response, status.HTTP_200_OK)
             for i, obj in enumerate(response.data):
                 for field in self.bulk_update_data:
-                    if field == 'changelog_data':
+                    if field in ('changelog_message', 'add_tags', 'remove_tags'):
                         # Write-only field
                         continue
                     self.assertIn(field, obj, f"Bulk update field '{field}' missing from object {i} in response")

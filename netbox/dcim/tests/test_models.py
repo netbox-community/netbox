@@ -749,6 +749,112 @@ class DeviceTestCase(TestCase):
             ).full_clean()
 
 
+class DeviceBayTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+
+        # Parent device type must support device bays (is_parent_device=True)
+        parent_device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Parent Device Type',
+            slug='parent-device-type',
+            subdevice_role=SubdeviceRoleChoices.ROLE_PARENT
+        )
+        # Child device type for installation
+        child_device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Child Device Type',
+            slug='child-device-type',
+            u_height=0,
+            subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
+        )
+        device_role = DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+
+        cls.parent_device = Device.objects.create(
+            name='Parent Device',
+            device_type=parent_device_type,
+            role=device_role,
+            site=site
+        )
+        cls.child_device = Device.objects.create(
+            name='Child Device',
+            device_type=child_device_type,
+            role=device_role,
+            site=site
+        )
+        cls.child_device_2 = Device.objects.create(
+            name='Child Device 2',
+            device_type=child_device_type,
+            role=device_role,
+            site=site
+        )
+
+    def test_cannot_install_device_in_disabled_bay(self):
+        """
+        Test that a device cannot be installed into a disabled DeviceBay.
+        """
+        # Create a disabled device bay with a device being installed
+        device_bay = DeviceBay(
+            device=self.parent_device,
+            name='Disabled Bay',
+            enabled=False,
+            installed_device=self.child_device
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            device_bay.clean()
+
+        self.assertIn('installed_device', cm.exception.message_dict)
+        self.assertIn('disabled device bay', str(cm.exception.message_dict['installed_device']))
+
+    def test_can_disable_bay_with_existing_device(self):
+        """
+        Test that disabling a bay that already has a device installed does NOT raise an error
+        (same installed_device_id).
+        """
+        # First, create an enabled device bay with a device installed
+        device_bay = DeviceBay.objects.create(
+            device=self.parent_device,
+            name='Bay To Disable',
+            enabled=True,
+            installed_device=self.child_device
+        )
+
+        # Now disable the bay while keeping the same installed device
+        device_bay.enabled = False
+        # This should NOT raise a ValidationError
+        device_bay.clean()
+        device_bay.save()
+
+        device_bay.refresh_from_db()
+        self.assertFalse(device_bay.enabled)
+        self.assertEqual(device_bay.installed_device, self.child_device)
+
+    def test_cannot_change_installed_device_in_disabled_bay(self):
+        """
+        Test that changing the installed device in a disabled bay raises a ValidationError.
+        """
+        # Create an enabled device bay with a device installed
+        device_bay = DeviceBay.objects.create(
+            device=self.parent_device,
+            name='Bay With Device',
+            enabled=True,
+            installed_device=self.child_device
+        )
+
+        # Disable the bay and try to change the installed device
+        device_bay.enabled = False
+        device_bay.installed_device = self.child_device_2
+
+        with self.assertRaises(ValidationError) as cm:
+            device_bay.clean()
+
+        self.assertIn('installed_device', cm.exception.message_dict)
+
+
 class ModuleBayTestCase(TestCase):
 
     @classmethod
@@ -930,12 +1036,15 @@ class ModuleBayTestCase(TestCase):
         nested_bay = module.modulebays.get(name='Sub-bay 1-1')
         self.assertEqual(nested_bay.position, '1-1')
 
-    @tag('regression')  # #20474
-    def test_single_module_token_at_nested_depth(self):
+    #
+    # Position inheritance tests (#19796)
+    #
+
+    def test_position_inheritance_depth_2(self):
         """
-        A module type with a single {module} token should install at depth > 1
-        without raising a token count mismatch error, resolving to the immediate
-        parent bay's position.
+        A module bay with position '{module}/2' under a parent bay with position '1'
+        should resolve to position '1/2'. A single {module} in the interface template
+        should then resolve to '1/2'.
         """
         manufacturer = Manufacturer.objects.first()
         site = Site.objects.first()
@@ -943,33 +1052,33 @@ class ModuleBayTestCase(TestCase):
 
         device_type = DeviceType.objects.create(
             manufacturer=manufacturer,
-            model='Chassis with Rear Card',
-            slug='chassis-with-rear-card'
+            model='Chassis for Inheritance',
+            slug='chassis-for-inheritance'
         )
         ModuleBayTemplate.objects.create(
             device_type=device_type,
-            name='Rear card slot',
+            name='Line card slot 1',
             position='1'
         )
 
-        rear_card_type = ModuleType.objects.create(
+        line_card_type = ModuleType.objects.create(
             manufacturer=manufacturer,
-            model='Rear Card'
+            model='Line Card with Inherited Bays'
         )
         ModuleBayTemplate.objects.create(
-            module_type=rear_card_type,
-            name='SFP slot 1',
-            position='1'
+            module_type=line_card_type,
+            name='SFP bay {module}/1',
+            position='{module}/1'
         )
         ModuleBayTemplate.objects.create(
-            module_type=rear_card_type,
-            name='SFP slot 2',
-            position='2'
+            module_type=line_card_type,
+            name='SFP bay {module}/2',
+            position='{module}/2'
         )
 
         sfp_type = ModuleType.objects.create(
             manufacturer=manufacturer,
-            model='SFP Module'
+            model='SFP with Inherited Path'
         )
         InterfaceTemplate.objects.create(
             module_type=sfp_type,
@@ -978,20 +1087,20 @@ class ModuleBayTestCase(TestCase):
         )
 
         device = Device.objects.create(
-            name='Test Chassis',
+            name='Inheritance Chassis',
             device_type=device_type,
             role=device_role,
             site=site
         )
 
-        rear_card_bay = device.modulebays.get(name='Rear card slot')
-        rear_card = Module.objects.create(
+        lc_bay = device.modulebays.get(name='Line card slot 1')
+        line_card = Module.objects.create(
             device=device,
-            module_bay=rear_card_bay,
-            module_type=rear_card_type
+            module_bay=lc_bay,
+            module_type=line_card_type
         )
 
-        sfp_bay = rear_card.modulebays.get(name='SFP slot 2')
+        sfp_bay = line_card.modulebays.get(name='SFP bay 1/2')
         sfp_module = Module.objects.create(
             device=device,
             module_bay=sfp_bay,
@@ -999,7 +1108,200 @@ class ModuleBayTestCase(TestCase):
         )
 
         interface = sfp_module.interfaces.first()
-        self.assertEqual(interface.name, 'SFP 2')
+        self.assertEqual(interface.name, 'SFP 1/2')
+
+    def test_position_inheritance_depth_3(self):
+        """
+        Position inheritance at depth 3: positions should chain through the tree.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Deep Chassis',
+            slug='deep-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Slot A',
+            position='A'
+        )
+
+        mid_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Mid Module'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=mid_type,
+            name='Sub {module}-1',
+            position='{module}-1'
+        )
+
+        leaf_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Leaf Module'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=leaf_type,
+            name='Port {module}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        device = Device.objects.create(
+            name='Deep Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        slot_a = device.modulebays.get(name='Slot A')
+        mid_module = Module.objects.create(
+            device=device,
+            module_bay=slot_a,
+            module_type=mid_type
+        )
+
+        sub_bay = mid_module.modulebays.get(name='Sub A-1')
+        self.assertEqual(sub_bay.position, 'A-1')
+
+        leaf_module = Module.objects.create(
+            device=device,
+            module_bay=sub_bay,
+            module_type=leaf_type
+        )
+
+        interface = leaf_module.interfaces.first()
+        self.assertEqual(interface.name, 'Port A-1')
+
+    def test_position_inheritance_custom_separator(self):
+        """
+        Users control the separator through the position field template.
+        Using '.' instead of '/' should work correctly.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Dot Separator Chassis',
+            slug='dot-separator-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Bay 1',
+            position='1'
+        )
+
+        card_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Card with Dot Separator'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=card_type,
+            name='Port {module}.1',
+            position='{module}.1'
+        )
+
+        sfp_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='SFP Dot'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=sfp_type,
+            name='eth{module}',
+            type=InterfaceTypeChoices.TYPE_10GE_SFP_PLUS
+        )
+
+        device = Device.objects.create(
+            name='Dot Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        bay = device.modulebays.get(name='Bay 1')
+        card = Module.objects.create(
+            device=device,
+            module_bay=bay,
+            module_type=card_type
+        )
+
+        port_bay = card.modulebays.get(name='Port 1.1')
+        sfp = Module.objects.create(
+            device=device,
+            module_bay=port_bay,
+            module_type=sfp_type
+        )
+
+        interface = sfp.interfaces.first()
+        self.assertEqual(interface.name, 'eth1.1')
+
+    def test_multi_token_backwards_compat(self):
+        """
+        Multi-token {module}/{module} at matching depth should still resolve
+        level-by-level (backwards compatibility).
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Multi Token Chassis',
+            slug='multi-token-chassis'
+        )
+        ModuleBayTemplate.objects.create(
+            device_type=device_type,
+            name='Slot 1',
+            position='1'
+        )
+
+        card_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Card for Multi Token'
+        )
+        ModuleBayTemplate.objects.create(
+            module_type=card_type,
+            name='Port 1',
+            position='2'
+        )
+
+        iface_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Interface Module Multi Token'
+        )
+        InterfaceTemplate.objects.create(
+            module_type=iface_type,
+            name='Gi{module}/{module}',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED
+        )
+
+        device = Device.objects.create(
+            name='Multi Token Device',
+            device_type=device_type,
+            role=device_role,
+            site=site
+        )
+
+        slot = device.modulebays.get(name='Slot 1')
+        card = Module.objects.create(
+            device=device,
+            module_bay=slot,
+            module_type=card_type
+        )
+
+        port = card.modulebays.get(name='Port 1')
+        iface_module = Module.objects.create(
+            device=device,
+            module_bay=port,
+            module_type=iface_type
+        )
+
+        interface = iface_module.interfaces.first()
+        self.assertEqual(interface.name, 'Gi1/2')
 
     @tag('regression')  # #20912
     def test_module_bay_parent_cleared_when_module_removed(self):
@@ -1162,6 +1464,25 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(FrontPort.objects.filter(module=module).count(), 12)
         self.assertEqual(RearPort.objects.filter(module=module).count(), 1)
         self.assertEqual(PortMapping.objects.filter(front_port__module=module).count(), 0)
+
+    def test_cannot_install_module_in_disabled_bay(self):
+        """
+        Test that a Module cannot be installed into a disabled ModuleBay.
+        """
+        device = Device.objects.first()
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module Type Disabled')
+
+        # Create a disabled module bay
+        disabled_bay = ModuleBay.objects.create(device=device, name='Disabled Bay', enabled=False)
+
+        # Attempt to install a module into the disabled bay
+        module = Module(device=device, module_bay=disabled_bay, module_type=module_type)
+        with self.assertRaises(ValidationError) as cm:
+            module.clean()
+
+        self.assertIn('module_bay', cm.exception.message_dict)
+        self.assertIn('disabled module bay', str(cm.exception.message_dict['module_bay']))
 
 
 class CableTestCase(TestCase):
@@ -1582,6 +1903,167 @@ class VirtualChassisTestCase(TestCase):
         device2.vc_position = 1
         with self.assertRaises(ValidationError):
             device2.full_clean()
+
+
+class VCPositionTokenTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.create(name='Test Site 1', slug='test-site-1')
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        DeviceType.objects.create(
+            manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
+        )
+        ModuleType.objects.create(
+            manufacturer=manufacturer, model='Test Module Type 1'
+        )
+        DeviceRole.objects.create(name='Test Role 1', slug='test-role-1')
+
+    def test_vc_position_token_in_vc(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position}/{module}/0',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 1')
+        device = Device.objects.create(
+            name='Device VC 1', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=8,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-8/1/0')
+        self.assertEqual(interface.name, 'ge-8/1/0')
+
+    def test_vc_position_token_not_in_vc_default_fallback(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position}/{module}/0',
+            type='1000base-t',
+        )
+        device = Device.objects.create(
+            name='Device NoVC 1', device_type=device_type, role=device_role,
+            site=site,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-0/1/0')
+        self.assertEqual(interface.name, 'ge-0/1/0')
+
+    def test_vc_position_token_explicit_fallback(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position:18}/{module}/0',
+            type='1000base-t',
+        )
+        device = Device.objects.create(
+            name='Device NoVC 2', device_type=device_type, role=device_role,
+            site=site,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-18/1/0')
+        self.assertEqual(interface.name, 'ge-18/1/0')
+
+    def test_vc_position_token_explicit_fallback_ignored_when_in_vc(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position:99}/{module}/0',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 2')
+        device = Device.objects.create(
+            name='Device VC 2', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=2,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-2/1/0')
+        self.assertEqual(interface.name, 'ge-2/1/0')
+
+    def test_vc_position_token_device_type_template(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-{vc_position:0}/0/0',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 3')
+        device = Device.objects.create(
+            name='Device VC 3', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=3,
+        )
+
+        interface = device.interfaces.get(name='ge-3/0/0')
+        self.assertEqual(interface.name, 'ge-3/0/0')
+
+    def test_vc_position_token_device_type_template_not_in_vc(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            device_type=device_type,
+            name='ge-{vc_position:0}/0/0',
+            type='1000base-t',
+        )
+        device = Device.objects.create(
+            name='Device NoVC 3', device_type=device_type, role=device_role,
+            site=site,
+        )
+
+        interface = device.interfaces.get(name='ge-0/0/0')
+        self.assertEqual(interface.name, 'ge-0/0/0')
+
+    def test_vc_position_token_label_resolution(self):
+        site = Site.objects.first()
+        device_type = DeviceType.objects.first()
+        module_type = ModuleType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        InterfaceTemplate.objects.create(
+            module_type=module_type,
+            name='ge-{vc_position}/{module}/0',
+            label='Member {vc_position:0} / Slot {module}',
+            type='1000base-t',
+        )
+        vc = VirtualChassis.objects.create(name='Test VC 4')
+        device = Device.objects.create(
+            name='Device VC 4', device_type=device_type, role=device_role,
+            site=site, virtual_chassis=vc, vc_position=2,
+        )
+        module_bay = ModuleBay.objects.create(device=device, name='Bay 1', position='1')
+        Module.objects.create(device=device, module_bay=module_bay, module_type=module_type)
+
+        interface = device.interfaces.get(name='ge-2/1/0')
+        self.assertEqual(interface.label, 'Member 2 / Slot 1')
 
 
 class SiteSignalTestCase(TestCase):

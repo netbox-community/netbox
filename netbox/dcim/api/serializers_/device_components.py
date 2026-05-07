@@ -423,27 +423,29 @@ class ModuleBaySerializer(OwnerMixin, NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
+    _occupied = serializers.BooleanField(required=False, read_only=True)
 
     class Meta:
         model = ModuleBay
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'installed_module', 'label', 'position',
-            'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'position', 'enabled',
+            'description', 'installed_module', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'installed_module', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'installed_module', 'name', 'enabled', 'description', '_occupied')
 
 
 class DeviceBaySerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     installed_device = DeviceSerializer(nested=True, required=False, allow_null=True)
+    _occupied = serializers.BooleanField(required=False, read_only=True)
 
     class Meta:
         model = DeviceBay
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'name', 'label', 'description', 'installed_device',
-            'owner', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'device', 'name', 'label', 'enabled', 'description',
+            'installed_device', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'enabled', 'description', '_occupied',)
 
 
 class InventoryItemSerializer(OwnerMixin, NetBoxModelSerializer):

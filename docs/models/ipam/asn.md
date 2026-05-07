@@ -14,6 +14,10 @@ The 16- or 32-bit AS number.
 
 The [Regional Internet Registry](./rir.md) or similar authority responsible for the allocation of this particular ASN.
 
+### Role
+
+The user-defined functional [role](./role.md) assigned to this ASN.
+
 ### Sites
 
 The [site(s)](../dcim/site.md) to which this ASN is assigned.

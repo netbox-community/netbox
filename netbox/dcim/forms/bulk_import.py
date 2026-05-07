@@ -34,6 +34,7 @@ from wireless.choices import WirelessRoleChoices
 from .common import ModuleCommonForm
 
 __all__ = (
+    'CableBundleImportForm',
     'CableImportForm',
     'ConsolePortImportForm',
     'ConsoleServerPortImportForm',
@@ -57,6 +58,7 @@ __all__ = (
     'PowerOutletImportForm',
     'PowerPanelImportForm',
     'PowerPortImportForm',
+    'RackGroupImportForm',
     'RackImportForm',
     'RackReservationImportForm',
     'RackRoleImportForm',
@@ -187,6 +189,13 @@ class LocationImportForm(NestedGroupModelImportForm):
             self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
 
 
+class RackGroupImportForm(OrganizationalModelImportForm):
+
+    class Meta:
+        model = RackGroup
+        fields = ('name', 'slug', 'description', 'owner', 'comments', 'tags')
+
+
 class RackRoleImportForm(OrganizationalModelImportForm):
 
     class Meta:
@@ -261,6 +270,13 @@ class RackImportForm(PrimaryModelImportForm):
         to_field_name='name',
         help_text=_('Name of assigned tenant')
     )
+    group = CSVModelChoiceField(
+        label=_('Rack group'),
+        queryset=RackGroup.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Name of assigned group')
+    )
     status = CSVChoiceField(
         label=_('Status'),
         choices=RackStatusChoices,
@@ -318,10 +334,10 @@ class RackImportForm(PrimaryModelImportForm):
     class Meta:
         model = Rack
         fields = (
-            'site', 'location', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor', 'serial',
-            'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth', 'outer_unit',
-            'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'owner', 'comments',
-            'tags',
+            'site', 'location', 'group', 'name', 'facility_id', 'tenant', 'status', 'role', 'rack_type', 'form_factor',
+            'serial', 'asset_tag', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_height', 'outer_depth',
+            'outer_unit', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'weight_unit', 'description', 'owner',
+            'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):
@@ -1138,7 +1154,13 @@ class ModuleBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
     class Meta:
         model = ModuleBay
-        fields = ('device', 'name', 'label', 'position', 'description', 'owner', 'tags')
+        fields = ('device', 'name', 'label', 'position', 'enabled', 'description', 'owner', 'tags')
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' not in self.data:
+            return True
+        return self.cleaned_data['enabled']
 
 
 class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -1160,7 +1182,7 @@ class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
 
     class Meta:
         model = DeviceBay
-        fields = ('device', 'name', 'label', 'installed_device', 'description', 'owner', 'tags')
+        fields = ('device', 'name', 'label', 'enabled', 'installed_device', 'description', 'owner', 'tags')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1187,6 +1209,12 @@ class DeviceBayImportForm(OwnerCSVMixin, NetBoxModelImportForm):
             ).exclude(pk=device.pk)
         else:
             self.fields['installed_device'].queryset = Device.objects.none()
+
+    def clean_enabled(self):
+        # Make sure enabled is True when it's not included in the uploaded data
+        if 'enabled' not in self.data:
+            return True
+        return self.cleaned_data['enabled']
 
 
 class InventoryItemImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -1397,6 +1425,12 @@ class MACAddressImportForm(PrimaryModelImportForm):
 # Cables
 #
 
+class CableBundleImportForm(PrimaryModelImportForm):
+    class Meta:
+        model = CableBundle
+        fields = ('name', 'description', 'owner', 'comments', 'tags')
+
+
 class CableImportForm(PrimaryModelImportForm):
     # Termination A
     side_a_site = CSVModelChoiceField(
@@ -1490,6 +1524,13 @@ class CableImportForm(PrimaryModelImportForm):
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
+    bundle = CSVModelChoiceField(
+        label=_('Bundle'),
+        queryset=CableBundle.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Cable bundle name'),
+    )
     length_unit = CSVChoiceField(
         label=_('Length unit'),
         choices=CableLengthUnitChoices,
@@ -1508,7 +1549,7 @@ class CableImportForm(PrimaryModelImportForm):
         fields = [
             'side_a_site', 'side_a_device', 'side_a_power_panel', 'side_a_type', 'side_a_name',
             'side_b_site', 'side_b_device', 'side_b_power_panel', 'side_b_type', 'side_b_name',
-            'type', 'status', 'profile', 'tenant', 'label', 'color', 'length', 'length_unit',
+            'type', 'status', 'profile', 'tenant', 'bundle', 'label', 'color', 'length', 'length_unit',
             'description', 'owner', 'comments', 'tags',
         ]
 
