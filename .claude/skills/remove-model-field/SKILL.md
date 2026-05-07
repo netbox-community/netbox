@@ -155,7 +155,11 @@ If the field was indexed for global search, remove it from the `fields` tuple:
 2. If the field was in `clone_fields`, remove it from that tuple.
 3. If `clean()` had validation logic specific to this field, remove those clauses. If `clean()` becomes empty, remove the override entirely.
 4. For FK fields: remove the `related_name` on the target model is automatic (Django handles it). If the FK was the only reason a related model was imported, remove that import too.
-5. For GenericForeignKey fields: if this was the only GFK, also remove the `object_type` ContentType FK and `object_id` integer field, and remove the `models.Index(fields=('object_type', 'object_id'))` from `Meta`.
+5. Check `Meta` for references to the field:
+   - `ordering` — if the field appears in the ordering tuple, remove it (or replace with a remaining field if ordering would otherwise become empty).
+   - `constraints` — remove any `UniqueConstraint` or `CheckConstraint` whose `fields` list includes this field; if only this field remains, remove the constraint entirely; if other fields remain, remove just this field from the list.
+   - `indexes` — remove any `models.Index` that includes this field.
+6. For GenericForeignKey fields: if this was the only GFK, also remove the `object_type` ContentType FK and `object_id` integer field, and remove the `models.Index(fields=('object_type', 'object_id'))` from `Meta`.
 
 ## 11. Generate the Migration
 
@@ -190,7 +194,7 @@ python manage.py migrate
 | 7 | `tables/<module>.py` | Remove column declaration and from `Meta.fields`, `default_columns` |
 | 8 | `<app>/ui/panels.py` | Remove attr declaration from panel class |
 | 9 | `search.py` | Remove from SearchIndex `fields` tuple |
-| 10 | `models/<module>.py` | Remove field; clean up `clone_fields`, `clean()`, imports |
+| 10 | `models/<module>.py` | Remove field; clean up `clone_fields`, `clean()`, `Meta` ordering/constraints/indexes, imports |
 | 11 | (user runs) | `makemigrations <app> -n remove_<field>_from_<model> --no-header` then `migrate` |
 
 ## Common Gotchas

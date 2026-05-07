@@ -132,7 +132,7 @@ Follow the full removal steps above.
 ## Common Gotchas
 
 - **Remove all call sites first** — if code still calls `get_config().MY_PARAM` or `settings.MY_PARAM` after the definition is gone, startup or runtime will raise `AttributeError`.
-- **Old ConfigRevision rows keep the key** — this is safe; the `Config.__getattr__` lookup simply won't find a registered default and will raise `AttributeError` if code tries to access it. Remove all code references before removing the `ConfigParam`.
+- **Old `ConfigRevision` rows retain the key in their JSON blob** — this is harmless and requires no migration. The risk is code: any remaining call to `get_config().MY_PARAM` or `settings.MY_PARAM` after the definition is gone will raise `AttributeError`. Remove all code references *before* removing the `ConfigParam` definition.
 - **`configuration.py` in user deployments** — removing a static parameter may cause a `TypeError` or silent failure if users have `MY_PARAM = ...` in their local `configuration.py`. Document the removal in the release notes.
 - **No `ruff format`** on existing files — use `ruff check` only.
 
