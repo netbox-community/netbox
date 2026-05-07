@@ -105,9 +105,7 @@ class CoreMiddleware:
         # Cleanly handle exceptions that occur from REST API requests
         if is_api_request(request):
             # Fire Django's got_request_exception signal so error-tracking
-            # integrations (e.g. Sentry) capture the exception. Returning a
-            # response below tells Django the exception is handled and would
-            # otherwise suppress this signal.
+            # integrations (e.g. Sentry) capture the exception.
             got_request_exception.send(sender=self.__class__, request=request)
             return handle_rest_api_exception(request)
 
@@ -126,6 +124,9 @@ class CoreMiddleware:
 
         # Return a custom error message, or fall back to Django's default 500 error handling
         if custom_template:
+            # Fire Django's got_request_exception signal so error-tracking
+            # integrations (e.g. Sentry) capture the exception.
+            got_request_exception.send(sender=self.__class__, request=request)
             return handler_500(request, template_name=custom_template)
         return None
 
