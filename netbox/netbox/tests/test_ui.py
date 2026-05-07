@@ -341,6 +341,23 @@ class RelatedObjectAttrTest(TestCase):
 
 class GenericForeignKeyAttrTest(TestCase):
 
+    class TreeNode:
+        def __init__(self, name, ancestors=()):
+            self.name = name
+            self.ancestors = list(ancestors)
+            self.include_self = None
+            self._meta = SimpleNamespace(verbose_name='location')
+
+        def __str__(self):
+            return self.name
+
+        def get_ancestors(self, include_self=False):
+            self.include_self = include_self
+
+            if include_self:
+                return [*self.ancestors, self]
+            return self.ancestors
+
     def test_get_context_content_type(self):
         value = SimpleNamespace(_meta=SimpleNamespace(verbose_name='provider'))
         obj = SimpleNamespace()
@@ -354,6 +371,55 @@ class GenericForeignKeyAttrTest(TestCase):
         attr = attrs.GenericForeignKeyAttr('assigned_object', linkify=True)
         context = attr.get_context(obj, 'assigned_object', value, {})
         self.assertTrue(context['linkify'])
+
+    def test_get_context_nested_disabled(self):
+        root = self.TreeNode('Root')
+        child = self.TreeNode('Child', ancestors=[root])
+
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object')
+        context = attr.get_context(obj, 'assigned_object', child, {})
+
+        self.assertIsNone(context['nodes'])
+
+    def test_get_context_nested_non_hierarchical_object(self):
+        value = SimpleNamespace(_meta=SimpleNamespace(verbose_name='site'))
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object', nested=True)
+        context = attr.get_context(obj, 'assigned_object', value, {})
+
+        self.assertIsNone(context['nodes'])
+
+    def test_get_context_nested_hierarchical_object(self):
+        root = self.TreeNode('Root')
+        parent = self.TreeNode('Parent', ancestors=[root])
+        child = self.TreeNode('Child', ancestors=[root, parent])
+
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object', nested=True)
+        context = attr.get_context(obj, 'assigned_object', child, {})
+
+        self.assertEqual(context['nodes'], [root, parent, child])
+        self.assertTrue(child.include_self)
+
+    def test_get_context_nested_max_depth(self):
+        root = self.TreeNode('Root')
+        parent = self.TreeNode('Parent', ancestors=[root])
+        child = self.TreeNode('Child', ancestors=[root, parent])
+
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object', nested=True, max_depth=2)
+        context = attr.get_context(obj, 'assigned_object', child, {})
+
+        self.assertEqual(context['nodes'], [parent, child])
+
+    def test_get_context_nested_null_value(self):
+        obj = SimpleNamespace()
+        attr = attrs.GenericForeignKeyAttr('assigned_object', nested=True)
+        context = attr.get_context(obj, 'assigned_object', None, {})
+
+        self.assertIsNone(context['content_type'])
+        self.assertIsNone(context['nodes'])
 
 
 class GPSCoordinatesAttrTest(TestCase):

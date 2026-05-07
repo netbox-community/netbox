@@ -1,5 +1,11 @@
 {% load helpers %}
 <div{% if name %} id="attr_{{ name }}"{% endif %}>
-  {% if linkify %}{{ value|linkify }}{% else %}{{ value }}{% endif %}
+  {% if nodes %}
+    {% include 'ui/attrs/nested_object.html' with nodes=nodes linkify=linkify colored=False only %}
+  {% elif linkify %}
+    {{ value|linkify }}
+  {% else %}
+    {{ value }}
+  {% endif %}
   {% if content_type %}<div class="fs-5 text-muted">{{ content_type|bettertitle }}</div>{% endif %}
 </div>
