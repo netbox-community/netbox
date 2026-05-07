@@ -46,7 +46,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.data['id'], self.user.pk)
 
 
-class OptionalLimitOffsetPaginationTest(TestCase):
+class NetBoxPaginationTest(TestCase):
 
     def setUp(self):
         self.paginator = NetBoxPagination()
