@@ -5,6 +5,7 @@ from collections import Counter
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -730,6 +731,11 @@ class CablePath(models.Model):
     _netbox_private = True
 
     class Meta:
+        indexes = (
+            # GIN index supports @> operator used by `_nodes__contains` lookups,
+            # which fire on every cable/termination delete and path retrace.
+            GinIndex(fields=('_nodes',)),
+        )
         verbose_name = _('cable path')
         verbose_name_plural = _('cable paths')
 
