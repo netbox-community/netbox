@@ -79,5 +79,7 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 | HTTP service       | nginx or Apache   |
 | WSGI service       | gunicorn or uWSGI |
 | Application        | Django/Python     |
-| Database           | PostgreSQL 14+    |
+| Database           | PostgreSQL 14+ [^1] |
 | Task queuing       | Redis/django-rq   |
+
+[^1]: Support for PostgreSQL 14 is deprecated and will be removed in NetBox v4.7. PostgreSQL 15 or later will be required.
