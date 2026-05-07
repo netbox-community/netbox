@@ -20,13 +20,16 @@ NetBox requires the following dependencies:
 | Dependency | Supported Versions |
 |------------|--------------------|
 | Python     | 3.12, 3.13, 3.14   |
-| PostgreSQL | 14+                |
+| PostgreSQL | 14+ [^1]           |
 | Redis      | 4.0+               |
+
+[^1]: Support for PostgreSQL 14 is deprecated and will be removed in NetBox v4.7. PostgreSQL 15 or later will be required.
 
 ### Version History
 
 | NetBox Version | Python min | Python max | PostgreSQL min | Redis min |                                       Documentation                                       |
 |:--------------:|:----------:|:----------:|:--------------:|:---------:|:-----------------------------------------------------------------------------------------:|
+|      4.6       |    3.12    |    3.14    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.6.0/docs/installation/index.md) |
 |      4.5       |    3.12    |    3.14    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.5.0/docs/installation/index.md) |
 |      4.4       |    3.10    |    3.12    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.4.0/docs/installation/index.md) |
 |      4.3       |    3.10    |    3.12    |       14       |    4.0    | [Link](https://github.com/netbox-community/netbox/blob/v4.3.0/docs/installation/index.md) |
