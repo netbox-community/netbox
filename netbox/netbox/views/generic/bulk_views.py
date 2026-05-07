@@ -22,6 +22,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
@@ -881,8 +882,14 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Create a new Form class from BulkRenameForm
-        class _Form(BulkRenameForm):
+        # Use the changelog-aware form for models that support change logging
+        base_form = (
+            NetBoxModelBulkRenameForm
+            if issubclass(self.queryset.model, ChangeLoggingMixin)
+            else BulkRenameForm
+        )
+
+        class _Form(base_form):
             pk = ModelMultipleChoiceField(
                 queryset=self.queryset,
                 widget=MultipleHiddenInput()
@@ -940,10 +947,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                                 with self.queryset.model.objects.delay_mptt_updates():
                                     for obj in selected_objects:
                                         setattr(obj, self.field_name, obj.new_name)
+                                        obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                         obj.save()
                             else:
                                 for obj in selected_objects:
                                     setattr(obj, self.field_name, obj.new_name)
+                                    obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                     obj.save()
 
                             # Enforce constrained permissions
