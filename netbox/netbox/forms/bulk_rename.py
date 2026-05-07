@@ -1,40 +1,14 @@
-import re
-
-from django import forms
-from django.utils.translation import gettext as _
+from utilities.forms import BulkRenameForm
 
 from .mixins import ChangelogMessageMixin
 
 __all__ = (
-    'BulkRenameForm',
+    'NetBoxModelBulkRenameForm',
 )
 
 
-class BulkRenameForm(ChangelogMessageMixin, forms.Form):
+class NetBoxModelBulkRenameForm(ChangelogMessageMixin, BulkRenameForm):
     """
-    An extendable form to be used for renaming objects in bulk.
+    Extends BulkRenameForm with a changelog message field for NetBox models that support change logging.
     """
-    find = forms.CharField(
-        strip=False
-    )
-    replace = forms.CharField(
-        strip=False,
-        required=False
-    )
-    use_regex = forms.BooleanField(
-        required=False,
-        initial=True,
-        label=_('Use regular expressions')
-    )
-
-    def clean(self):
-        super().clean()
-
-        # Validate regular expression in "find" field
-        if self.cleaned_data['use_regex']:
-            try:
-                re.compile(self.cleaned_data['find'])
-            except re.error:
-                raise forms.ValidationError({
-                    'find': "Invalid regular expression"
-                })
+    pass

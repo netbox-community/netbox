@@ -22,13 +22,13 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
-from netbox.forms.bulk_rename import BulkRenameForm
+from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.export import TableExport, stream_table_csv_response
-from utilities.forms import BulkDeleteForm, restrict_form_fields
+from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.htmx import htmx_partial
 from utilities.jobs import is_background_request, process_request_as_job
@@ -882,19 +882,20 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Create a new Form class from BulkRenameForm
-        class _Form(BulkRenameForm):
+        # Use the changelog-aware form for models that support change logging
+        base_form = (
+            NetBoxModelBulkRenameForm
+            if issubclass(self.queryset.model, ChangeLoggingMixin)
+            else BulkRenameForm
+        )
+
+        class _Form(base_form):
             pk = ModelMultipleChoiceField(
                 queryset=self.queryset,
                 widget=MultipleHiddenInput()
             )
 
         self.form = _Form
-
-        # Remove changelog_message field if model doesn't support change logging.
-        # Mutating base_fields is safe here because _Form is created fresh per request above.
-        if not issubclass(self.queryset.model, ChangeLoggingMixin):
-            self.form.base_fields.pop('changelog_message', None)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')

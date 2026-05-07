@@ -3,9 +3,9 @@ from django.test import TestCase
 
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
-from netbox.forms.bulk_rename import BulkRenameForm
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
+from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import (
     expand_alphanumeric_pattern,
     expand_ipnetwork_pattern,
