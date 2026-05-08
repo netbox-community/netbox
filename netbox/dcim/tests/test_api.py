@@ -106,6 +106,8 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         Region.objects.create(name='Region 2', slug='region-2', comments='what in the world is happening?')
         Region.objects.create(name='Region 3', slug='region-3')
 
+        super().setUpTestData()
+
 
 class SiteGroupTest(APIViewTestCases.APIViewTestCase):
     model = SiteGroup
@@ -138,6 +140,8 @@ class SiteGroupTest(APIViewTestCases.APIViewTestCase):
         SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
         SiteGroup.objects.create(name='Site Group 2', slug='site-group-2', comments='')
         SiteGroup.objects.create(name='Site Group 3', slug='site-group-3', comments='Hi!')
+
+        super().setUpTestData()
 
 
 class SiteTest(APIViewTestCases.APIViewTestCase):
@@ -202,6 +206,8 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'asns': [asns[4].pk, asns[5].pk],
             },
         ]
+
+        super().setUpTestData()
 
     def test_add_tags(self):
         """
@@ -503,6 +509,8 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class RackGroupTest(APIViewTestCases.APIViewTestCase):
     model = RackGroup
@@ -534,6 +542,8 @@ class RackGroupTest(APIViewTestCases.APIViewTestCase):
             RackGroup(name='Rack Group 3', slug='rack-group-3'),
         )
         RackGroup.objects.bulk_create(rack_groups)
+
+        super().setUpTestData()
 
 
 class RackRoleTest(APIViewTestCases.APIViewTestCase):
@@ -569,6 +579,8 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
             RackRole(name='Rack Role 3', slug='rack-role-3', color='0000ff'),
         )
         RackRole.objects.bulk_create(rack_roles)
+
+        super().setUpTestData()
 
 
 class RackTypeTest(APIViewTestCases.APIViewTestCase):
@@ -629,6 +641,8 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
                 'form_factor': RackFormFactorChoices.TYPE_CABINET,
             },
         ]
+
+        super().setUpTestData()
 
 
 class RackTest(APIViewTestCases.APIViewTestCase):
@@ -695,6 +709,8 @@ class RackTest(APIViewTestCases.APIViewTestCase):
                 'role': rack_roles[1].pk,
             },
         ]
+
+        super().setUpTestData()
 
     def test_get_rack_elevation(self):
         """
@@ -794,6 +810,8 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     def test_unit_count(self):
         """unit_count should reflect the number of units in the reservation."""
         url = reverse('dcim-api:rackreservation-list')
@@ -834,6 +852,8 @@ class ManufacturerTest(APIViewTestCases.APIViewTestCase):
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
+
+        super().setUpTestData()
 
 
 class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
@@ -881,6 +901,8 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
     model = ModuleType
@@ -920,6 +942,8 @@ class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
                 'model': 'Module Type 6',
             },
         ]
+
+        super().setUpTestData()
 
 
 class ModuleTypeProfileTest(APIViewTestCases.APIViewTestCase):
@@ -985,6 +1009,8 @@ class ModuleTypeProfileTest(APIViewTestCases.APIViewTestCase):
         )
         ModuleTypeProfile.objects.bulk_create(module_type_profiles)
 
+        super().setUpTestData()
+
 
 class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
@@ -1028,6 +1054,8 @@ class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Console Port Template 7',
             },
         ]
+
+        super().setUpTestData()
 
 
 class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1073,6 +1101,8 @@ class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
     model = PowerPortTemplate
@@ -1116,6 +1146,8 @@ class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Power Port Template 7',
             },
         ]
+
+        super().setUpTestData()
 
 
 class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1175,6 +1207,8 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
     model = InterfaceTemplate
@@ -1222,6 +1256,8 @@ class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
                 'type': '1000base-t',
             },
         ]
+
+        super().setUpTestData()
 
 
 class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1324,6 +1360,8 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
                 },
             ],
         }
+
+        super().setUpTestData()
 
     def test_update_object(self):
         super().test_update_object()
@@ -1441,6 +1479,8 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
             ],
         }
 
+        super().setUpTestData()
+
     def test_update_object(self):
         super().test_update_object()
 
@@ -1498,6 +1538,8 @@ class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBayTemplate
@@ -1539,6 +1581,8 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Device Bay Template 6',
             },
         ]
+
+        super().setUpTestData()
 
 
 class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -1600,6 +1644,8 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
@@ -1633,6 +1679,8 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
         DeviceRole.objects.create(name='Device Role 1', slug='device-role-1', color='ff0000')
         DeviceRole.objects.create(name='Device Role 2', slug='device-role-2', color='00ff00')
         DeviceRole.objects.create(name='Device Role 3', slug='device-role-3', color='0000ff')
+
+        super().setUpTestData()
 
 
 class PlatformTest(APIViewTestCases.APIViewTestCase):
@@ -1668,6 +1716,8 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
         )
         for platform in platforms:
             platform.save()
+
+        super().setUpTestData()
 
 
 class DeviceTest(APIViewTestCases.APIViewTestCase):
@@ -1775,6 +1825,8 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
                 'cluster': clusters[1].pk,
             },
         ]
+
+        super().setUpTestData()
 
     def test_config_context_included_by_default_in_list_view(self):
         """
@@ -2092,6 +2144,8 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     def test_replicate_components(self):
         """
         Installing a module with replicate_components=True (the default) should create
@@ -2397,6 +2451,8 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
             },
         ]
 
+        super().setUpTestData()
+
 
 class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
@@ -2440,6 +2496,8 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
             },
         ]
 
+        super().setUpTestData()
+
 
 class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
@@ -2479,6 +2537,8 @@ class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'name': 'Power Port 6',
             },
         ]
+
+        super().setUpTestData()
 
 
 class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
@@ -2528,6 +2588,8 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
                 'power_port': None,
             },
         ]
+
+        super().setUpTestData()
 
 
 class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
@@ -2641,6 +2703,8 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
                 'qinq_svlan': vlans[3].pk,
             },
         ]
+
+        super().setUpTestData()
 
     def _perform_interface_test_with_invalid_data(self, mode: str = None, invalid_data: dict = {}):
         device = Device.objects.first()
@@ -2827,6 +2891,8 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
             ],
         }
 
+        super().setUpTestData()
+
     def test_update_object(self):
         super().test_update_object()
 
@@ -2941,6 +3007,8 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
             ],
         }
 
+        super().setUpTestData()
+
     def test_update_object(self):
         super().test_update_object()
 
@@ -3015,6 +3083,8 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class DeviceBayTest(APIViewTestCases.APIViewTestCase):
     model = DeviceBay
@@ -3078,6 +3148,8 @@ class DeviceBayTest(APIViewTestCases.APIViewTestCase):
                 'installed_device': devices[3].pk,
             },
         ]
+
+        super().setUpTestData()
 
 
 class InventoryItemTest(APIViewTestCases.APIViewTestCase):
@@ -3146,6 +3218,8 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
     model = InventoryItemRole
@@ -3181,6 +3255,8 @@ class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
         )
         InventoryItemRole.objects.bulk_create(roles)
 
+        super().setUpTestData()
+
 
 class CableBundleTest(APIViewTestCases.APIViewTestCase):
     model = CableBundle
@@ -3202,6 +3278,8 @@ class CableBundleTest(APIViewTestCases.APIViewTestCase):
             CableBundle(name='Cable Bundle 3'),
         )
         CableBundle.objects.bulk_create(cable_bundles)
+
+        super().setUpTestData()
 
     def test_cable_count(self):
         """cable_count annotation is returned correctly in the API response."""
@@ -3323,6 +3401,8 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                 # No profile (legacy behavior)
             },
         ]
+
+        super().setUpTestData()
 
     def test_graphql_cable_termination_cached_filters(self):
         """
@@ -3473,6 +3553,8 @@ class CableTerminationTest(
         for cable in cables:
             cable.save()
 
+        super().setUpTestData()
+
 
 class ConnectedDeviceTest(APITestCase):
 
@@ -3496,6 +3578,8 @@ class ConnectedDeviceTest(APITestCase):
 
         cable = Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[1]])
         cable.save()
+
+        super().setUpTestData()
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_connected_device(self):
@@ -3591,6 +3675,8 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             'master': None
         }
 
+        super().setUpTestData()
+
 
 class PowerPanelTest(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
@@ -3640,6 +3726,8 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
             'site': sites[1].pk,
             'location': locations[3].pk
         }
+
+        super().setUpTestData()
 
 
 class PowerFeedTest(APIViewTestCases.APIViewTestCase):
@@ -3697,6 +3785,8 @@ class PowerFeedTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class VirtualDeviceContextTest(APIViewTestCases.APIViewTestCase):
     model = VirtualDeviceContext
@@ -3751,6 +3841,8 @@ class VirtualDeviceContextTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class MACAddressTest(APIViewTestCases.APIViewTestCase):
     model = MACAddress
@@ -3793,3 +3885,5 @@ class MACAddressTest(APIViewTestCases.APIViewTestCase):
                 'mac_address': '00:00:00:00:00:06',
             },
         ]
+
+        super().setUpTestData()

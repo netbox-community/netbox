@@ -32,6 +32,8 @@ class CustomFieldTest(TestCase):
 
         cls.object_type = ObjectType.objects.get_for_model(Site)
 
+        super().setUpTestData()
+
     def test_invalid_name(self):
         """
         Try creating a CustomField with an invalid name.
@@ -898,6 +900,8 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[12].name: [vlans[2].pk, vlans[3].pk],
         }
         sites[1].save()
+
+        super().setUpTestData()
 
     def test_get_custom_fields(self):
         TYPES = {

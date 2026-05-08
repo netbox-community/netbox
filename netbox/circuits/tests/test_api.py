@@ -58,6 +58,8 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
     model = CircuitType
@@ -89,6 +91,8 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
             CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
         )
         CircuitType.objects.bulk_create(circuit_types)
+
+        super().setUpTestData()
 
 
 class CircuitTest(APIViewTestCases.APIViewTestCase):
@@ -154,6 +158,8 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
     model = CircuitTermination
@@ -216,6 +222,8 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
             'port_speed': 123456
         }
 
+        super().setUpTestData()
+
 
 class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
     model = CircuitGroup
@@ -247,6 +255,8 @@ class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
                 'slug': 'circuit-group-6',
             },
         ]
+
+        super().setUpTestData()
 
 
 class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
@@ -291,6 +301,8 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
             'provider': providers[1].pk,
             'description': 'New description',
         }
+
+        super().setUpTestData()
 
 
 class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
@@ -367,6 +379,8 @@ class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
     model = ProviderNetwork
@@ -408,6 +422,8 @@ class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
             'description': 'New description',
         }
 
+        super().setUpTestData()
+
 
 class VirtualCircuitTypeTest(APIViewTestCases.APIViewTestCase):
     model = VirtualCircuitType
@@ -439,6 +455,8 @@ class VirtualCircuitTypeTest(APIViewTestCases.APIViewTestCase):
             VirtualCircuitType(name='Virtual Circuit Type 3', slug='virtual-circuit-type-3'),
         )
         VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
+
+        super().setUpTestData()
 
 
 class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
@@ -503,6 +521,8 @@ class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
                 'status': CircuitStatusChoices.STATUS_PLANNED,
             },
         ]
+
+        super().setUpTestData()
 
 
 class VirtualCircuitTerminationTest(APIViewTestCases.APIViewTestCase):
@@ -694,3 +714,5 @@ class VirtualCircuitTerminationTest(APIViewTestCases.APIViewTestCase):
                 'interface': virtual_interfaces[9].pk
             },
         ]
+
+        super().setUpTestData()

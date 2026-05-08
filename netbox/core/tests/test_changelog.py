@@ -63,6 +63,8 @@ class ChangeLogViewTest(ModelViewTestCase):
         cf_select.save()
         cf_select.object_types.set([site_type])
 
+        super().setUpTestData()
+
     def test_create_object(self):
         tags = create_tags('Tag 1', 'Tag 2')
         form_data = {
@@ -433,6 +435,8 @@ class ChangeLogAPITest(APITestCase):
             Tag(name='Tag 3', slug='tag-3'),
         )
         Tag.objects.bulk_create(tags)
+
+        super().setUpTestData()
 
     def test_create_object(self):
         data = {

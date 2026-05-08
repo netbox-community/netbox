@@ -63,6 +63,8 @@ class UserTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     def test_that_password_is_changed(self):
         """
         Test that password is changed
@@ -176,6 +178,8 @@ class GroupTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     def model_to_dict(self, instance, *args, **kwargs):
         # Overwrite permissions attr to work around the serializer field having a different name
         data = super().model_to_dict(instance, *args, **kwargs)
@@ -245,6 +249,8 @@ class TokenTest(
         cls.update_data = {
             'description': 'Token 1',
         }
+
+        super().setUpTestData()
 
     def test_provision_token_valid(self):
         """
@@ -402,6 +408,8 @@ class ObjectPermissionTest(
             'description': 'New description',
         }
 
+        super().setUpTestData()
+
 
 class UserConfigTest(APITestCase):
 
@@ -487,6 +495,8 @@ class OwnerGroupTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class OwnerTest(APIViewTestCases.APIViewTestCase):
     model = Owner
@@ -563,3 +573,5 @@ class OwnerTest(APIViewTestCases.APIViewTestCase):
             'users': [users[3].pk],
             'description': 'New description',
         }
+
+        super().setUpTestData()

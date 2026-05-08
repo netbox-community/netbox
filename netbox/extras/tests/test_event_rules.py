@@ -82,6 +82,8 @@ class EventRuleTest(APITestCase):
             Tag(name='Baz', slug='baz'),
         ))
 
+        super().setUpTestData()
+
     def test_eventrule_conditions(self):
         """
         Test evaluation of EventRule conditions.

@@ -73,6 +73,8 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
         )
         Webhook.objects.bulk_create(webhooks)
 
+        super().setUpTestData()
+
 
 class EventRuleTest(APIViewTestCases.APIViewTestCase):
     model = EventRule
@@ -151,6 +153,8 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     model = CustomField
@@ -202,6 +206,8 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         CustomField.objects.bulk_create(custom_fields)
         for cf in custom_fields:
             cf.object_types.add(site_ct)
+
+        super().setUpTestData()
 
 
 class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
@@ -274,6 +280,8 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
+
+        super().setUpTestData()
 
     def test_invalid_choice_items(self):
         """
@@ -384,6 +392,8 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
         for i, custom_link in enumerate(custom_links):
             custom_link.object_types.set([site_type])
 
+        super().setUpTestData()
+
 
 class SavedFilterTest(APIViewTestCases.APIViewTestCase):
     model = SavedFilter
@@ -457,6 +467,8 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         for i, savedfilter in enumerate(saved_filters):
             savedfilter.object_types.set([site_type])
 
+        super().setUpTestData()
+
 
 class BookmarkTest(
     APIViewTestCases.GetObjectViewTestCase,
@@ -478,6 +490,8 @@ class BookmarkTest(
             Site(name='Site 6', slug='site-6'),
         )
         Site.objects.bulk_create(sites)
+
+        super().setUpTestData()
 
     def setUp(self):
         super().setUp()
@@ -559,6 +573,8 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
         for et in export_templates:
             et.object_types.set([device_object_type])
 
+        super().setUpTestData()
+
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
@@ -592,6 +608,8 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         )
         Tag.objects.bulk_create(tags)
 
+        super().setUpTestData()
+
 
 class TaggedItemTest(
     APIViewTestCases.GetObjectViewTestCase,
@@ -619,6 +637,8 @@ class TaggedItemTest(
         sites[0].tags.set([tags[0], tags[1]])
         sites[1].tags.set([tags[1], tags[2]])
         sites[2].tags.set([tags[2], tags[0]])
+
+        super().setUpTestData()
 
 
 # TODO: Standardize to APIViewTestCase (needs create & update tests)
@@ -664,6 +684,8 @@ class ImageAttachmentTest(
             )
         )
         ImageAttachment.objects.bulk_create(image_attachments)
+
+        super().setUpTestData()
 
 
 class JournalEntryTest(APIViewTestCases.APIViewTestCase):
@@ -714,6 +736,8 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
                 'comments': 'Third entry',
             },
         ]
+
+        super().setUpTestData()
 
 
 class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
@@ -778,6 +802,8 @@ class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         ConfigContextProfile.objects.bulk_create(profiles)
+
+        super().setUpTestData()
 
     def test_update_data_source_and_data_file(self):
         """
@@ -855,6 +881,8 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
             ConfigContext(name='Config Context 3', weight=300, data={'baz': 789}),
         )
         ConfigContext.objects.bulk_create(config_contexts)
+
+        super().setUpTestData()
 
     def test_render_configcontext_for_object(self):
         """
@@ -994,6 +1022,8 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
         )
         ConfigTemplate.objects.bulk_create(config_templates)
 
+        super().setUpTestData()
+
     def test_render(self):
         configtemplate = ConfigTemplate.objects.first()
 
@@ -1071,6 +1101,8 @@ class ScriptTest(APITestCase):
             is_executable=True,
         )
         cls.url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
+
+        super().setUpTestData()
 
     @property
     def python_class(self):
@@ -1180,6 +1212,8 @@ class CreatedUpdatedFilterTest(APITestCase):
             last_updated=make_aware(datetime.datetime(2001, 2, 3, 1, 2, 3, 4)),
             created=make_aware(datetime.datetime(2001, 2, 3))
         )
+
+        super().setUpTestData()
 
     def test_get_rack_created(self):
         rack2 = Rack.objects.get(name='Rack 2')
@@ -1294,6 +1328,8 @@ class SubscriptionTest(APIViewTestCases.APIViewTestCase):
             'user': users[3].pk,
         }
 
+        super().setUpTestData()
+
 
 class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
     model = NotificationGroup
@@ -1371,6 +1407,8 @@ class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class NotificationTest(APIViewTestCases.APIViewTestCase):
     model = Notification
@@ -1434,6 +1472,8 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
                 'event_type': OBJECT_DELETED,
             },
         ]
+
+        super().setUpTestData()
 
 
 class ScriptModuleTest(APITestCase):

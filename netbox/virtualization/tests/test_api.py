@@ -67,6 +67,8 @@ class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
         )
         ClusterType.objects.bulk_create(cluster_types)
 
+        super().setUpTestData()
+
 
 class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
     model = ClusterGroup
@@ -98,6 +100,8 @@ class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
             ClusterGroup(name='Cluster Group 3', slug='cluster-type-3'),
         )
         ClusterGroup.objects.bulk_create(cluster_Groups)
+
+        super().setUpTestData()
 
 
 class ClusterTest(APIViewTestCases.APIViewTestCase):
@@ -167,6 +171,8 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class VirtualMachineTypeTest(APIViewTestCases.APIViewTestCase):
     model = VirtualMachineType
@@ -235,6 +241,8 @@ class VirtualMachineTypeTest(APIViewTestCases.APIViewTestCase):
             'default_memory': 8192,
             'description': 'New description',
         }
+
+        super().setUpTestData()
 
 
 class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
@@ -346,6 +354,8 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
                 'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_ON,
             },
         ]
+
+        super().setUpTestData()
 
     def test_virtual_machine_type_defaults_applied_on_create(self):
         data = {
@@ -666,6 +676,8 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     @tag('regression')
     def test_set_vminterface_as_object_in_custom_field(self):
         cf = CustomField.objects.create(
@@ -764,3 +776,5 @@ class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
                 'size': 30,
             },
         ]
+
+        super().setUpTestData()

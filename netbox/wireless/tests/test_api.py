@@ -48,6 +48,8 @@ class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
         WirelessLANGroup.objects.create(name='Wireless LAN Group 2', slug='wireless-lan-group-2')
         WirelessLANGroup.objects.create(name='Wireless LAN Group 3', slug='wireless-lan-group-3')
 
+        super().setUpTestData()
+
 
 class WirelessLANTest(APIViewTestCases.APIViewTestCase):
     model = WirelessLAN
@@ -118,6 +120,8 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
             'auth_psk': 'abc123def456',
         }
 
+        super().setUpTestData()
+
 
 class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
     model = WirelessLink
@@ -177,3 +181,5 @@ class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
                 'tenant': tenants[1].pk,
             },
         ]
+
+        super().setUpTestData()

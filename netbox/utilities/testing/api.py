@@ -44,15 +44,23 @@ class APITestCase(ModelTestCase):
     client_class = APIClient
     view_namespace = None
 
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+
+        # Create the test user
+        cls.user = User.objects.create_user(username='testuser')
+        cls.token = Token.objects.create(user=cls.user)
+        cls.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{cls.token.key}.{cls.token.token}'}
+
     def setUp(self):
         """
         Create a user and token for API calls.
+
+        Note: intentionally does not call super().setUp()
         """
-        # Create the test user and assign permissions
-        self.user = User.objects.create_user(username='testuser')
+        # Add permissions for the test user
         self.add_permissions(*self.user_permissions)
-        self.token = Token.objects.create(user=self.user)
-        self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
 
     def _get_view_namespace(self):
         return f'{self.view_namespace or self.model._meta.app_label}-api'

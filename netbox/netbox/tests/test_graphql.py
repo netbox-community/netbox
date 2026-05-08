@@ -56,6 +56,8 @@ class GraphQLAPITestCase(APITestCase):
         )
         Site.objects.bulk_create(sites)
 
+        super().setUpTestData()
+
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphql_filter_objects(self):
         """

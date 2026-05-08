@@ -49,6 +49,8 @@ class TunnelGroupTest(APIViewTestCases.APIViewTestCase):
         )
         TunnelGroup.objects.bulk_create(tunnel_groups)
 
+        super().setUpTestData()
+
 
 class TunnelTest(APIViewTestCases.APIViewTestCase):
     model = Tunnel
@@ -109,6 +111,8 @@ class TunnelTest(APIViewTestCases.APIViewTestCase):
                 'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             },
         ]
+
+        super().setUpTestData()
 
 
 class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
@@ -178,6 +182,8 @@ class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class IKEProposalTest(APIViewTestCases.APIViewTestCase):
     model = IKEProposal
@@ -241,6 +247,8 @@ class IKEProposalTest(APIViewTestCases.APIViewTestCase):
                 'group': DHGroupChoices.GROUP_19,
             },
         ]
+
+        super().setUpTestData()
 
 
 class IKEPolicyTest(APIViewTestCases.APIViewTestCase):
@@ -316,6 +324,8 @@ class IKEPolicyTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class IPSecProposalTest(APIViewTestCases.APIViewTestCase):
     model = IPSecProposal
@@ -365,6 +375,8 @@ class IPSecProposalTest(APIViewTestCases.APIViewTestCase):
                 'authentication_algorithm': AuthenticationAlgorithmChoices.AUTH_HMAC_SHA256,
             },
         ]
+
+        super().setUpTestData()
 
 
 class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
@@ -427,6 +439,8 @@ class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
                 'proposals': [ipsec_proposals[0].pk, ipsec_proposals[1].pk],
             },
         ]
+
+        super().setUpTestData()
 
 
 class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
@@ -519,6 +533,8 @@ class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
             'description': 'New description',
         }
 
+        super().setUpTestData()
+
 
 class L2VPNTest(APIViewTestCases.APIViewTestCase):
     model = L2VPN
@@ -568,6 +584,8 @@ class L2VPNTest(APIViewTestCases.APIViewTestCase):
             ),  # No RD
         )
         L2VPN.objects.bulk_create(l2vpns)
+
+        super().setUpTestData()
 
     def test_status_filter(self):
         url = reverse('vpn-api:l2vpn-list')
@@ -656,3 +674,5 @@ class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
         cls.bulk_update_data = {
             'l2vpn': l2vpns[2].pk
         }
+
+        super().setUpTestData()

@@ -60,6 +60,8 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class TenantTest(APIViewTestCases.APIViewTestCase):
     model = Tenant
@@ -101,6 +103,8 @@ class TenantTest(APIViewTestCases.APIViewTestCase):
                 'group': tenant_groups[1].pk,
             },
         ]
+
+        super().setUpTestData()
 
 
 class ContactGroupTest(APIViewTestCases.APIViewTestCase):
@@ -147,6 +151,8 @@ class ContactGroupTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class ContactRoleTest(APIViewTestCases.APIViewTestCase):
     model = ContactRole
@@ -178,6 +184,8 @@ class ContactRoleTest(APIViewTestCases.APIViewTestCase):
             ContactRole(name='Contact Role 3', slug='contact-role-3'),
         )
         ContactRole.objects.bulk_create(contact_roles)
+
+        super().setUpTestData()
 
 
 class ContactTest(APIViewTestCases.APIViewTestCase):
@@ -218,6 +226,8 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Contact 6',
             },
         ]
+
+        super().setUpTestData()
 
 
 class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
@@ -299,3 +309,5 @@ class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
                 'priority': ContactPriorityChoices.PRIORITY_TERTIARY,
             },
         ]
+
+        super().setUpTestData()

@@ -79,6 +79,8 @@ class ASNRangeTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     def test_list_available_asns(self):
         """
         Test retrieval of all available ASNs within a parent range.
@@ -199,6 +201,8 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class VRFTest(APIViewTestCases.APIViewTestCase):
     model = VRF
@@ -231,6 +235,8 @@ class VRFTest(APIViewTestCases.APIViewTestCase):
         )
         VRF.objects.bulk_create(vrfs)
 
+        super().setUpTestData()
+
 
 class RouteTargetTest(APIViewTestCases.APIViewTestCase):
     model = RouteTarget
@@ -259,6 +265,8 @@ class RouteTargetTest(APIViewTestCases.APIViewTestCase):
             RouteTarget(name='65000:1003'),
         )
         RouteTarget.objects.bulk_create(route_targets)
+
+        super().setUpTestData()
 
 
 class RIRTest(APIViewTestCases.APIViewTestCase):
@@ -291,6 +299,8 @@ class RIRTest(APIViewTestCases.APIViewTestCase):
             RIR(name='RIR 3', slug='rir-3'),
         )
         RIR.objects.bulk_create(rirs)
+
+        super().setUpTestData()
 
 
 class AggregateTest(APIViewTestCases.APIViewTestCase):
@@ -330,6 +340,8 @@ class AggregateTest(APIViewTestCases.APIViewTestCase):
                 'rir': rirs[1].pk,
             },
         ]
+
+        super().setUpTestData()
 
     @tag('regression')
     def test_graphql_aggregate_prefix_exact(self):
@@ -423,6 +435,8 @@ class RoleTest(APIViewTestCases.APIViewTestCase):
         )
         ASN.objects.bulk_create(asns)
 
+        super().setUpTestData()
+
 
 class PrefixTest(APIViewTestCases.APIViewTestCase):
     model = Prefix
@@ -451,6 +465,8 @@ class PrefixTest(APIViewTestCases.APIViewTestCase):
             Prefix(prefix=IPNetwork('192.168.3.0/24')),
         )
         Prefix.objects.bulk_create(prefixes)
+
+        super().setUpTestData()
 
     @tag('regression')
     def test_clean_validates_scope(self):
@@ -695,6 +711,8 @@ class IPRangeTest(APIViewTestCases.APIViewTestCase):
         )
         IPRange.objects.bulk_create(ip_ranges)
 
+        super().setUpTestData()
+
     def test_list_available_ips(self):
         """
         Test retrieval of all available IP addresses within a parent IP range.
@@ -852,6 +870,8 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
             IPAddress(address=IPNetwork('192.168.0.3/24')),
         )
         IPAddress.objects.bulk_create(ip_addresses)
+
+        super().setUpTestData()
 
     def test_assign_object(self):
         """
@@ -1027,6 +1047,8 @@ class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
     model = FHRPGroupAssignment
@@ -1107,6 +1129,8 @@ class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class VLANGroupTest(APIViewTestCases.APIViewTestCase):
     model = VLANGroup
@@ -1141,6 +1165,8 @@ class VLANGroupTest(APIViewTestCases.APIViewTestCase):
             VLANGroup(name='VLAN Group 3', slug='vlan-group-3'),
         )
         VLANGroup.objects.bulk_create(vlan_groups)
+
+        super().setUpTestData()
 
     def test_list_available_vlans(self):
         """
@@ -1279,6 +1305,8 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
     def test_delete_vlan_with_prefix(self):
         """
         Attempt and fail to delete a VLAN with a Prefix assigned to it.
@@ -1338,6 +1366,8 @@ class VLANTranslationPolicyTest(APIViewTestCases.APIViewTestCase):
                 'description': 'foobar6',
             },
         ]
+
+        super().setUpTestData()
 
 
 class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
@@ -1408,6 +1438,8 @@ class VLANTranslationRuleTest(APIViewTestCases.APIViewTestCase):
             'description': 'New description',
         }
 
+        super().setUpTestData()
+
 
 class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
@@ -1443,6 +1475,8 @@ class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):
                 'ports': [11, 12],
             },
         ]
+
+        super().setUpTestData()
 
 
 class ServiceTest(APIViewTestCases.APIViewTestCase):
@@ -1496,3 +1530,5 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
                 'ports': [6],
             },
         ]
+
+        super().setUpTestData()

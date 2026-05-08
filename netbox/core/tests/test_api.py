@@ -61,6 +61,8 @@ class DataSourceTest(APIViewTestCases.APIViewTestCase):
             },
         ]
 
+        super().setUpTestData()
+
 
 class DataFileTest(
     APIViewTestCases.GetObjectViewTestCase,
@@ -103,6 +105,8 @@ class DataFileTest(
             ),
         )
         DataFile.objects.bulk_create(data_files)
+
+        super().setUpTestData()
 
 
 class ObjectTypeTest(APITestCase):

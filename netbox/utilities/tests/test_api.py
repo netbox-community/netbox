@@ -136,6 +136,8 @@ class APIPaginationTestCase(APITestCase):
             Site(name=f'Site {i}', slug=f'site-{i}') for i in range(1, 101)
         ])
 
+        super().setUpTestData()
+
     def test_default_page_size(self):
         response = self.client.get(self.url, format='json', **self.header)
         page_size = get_config().PAGINATE_COUNT
@@ -316,6 +318,8 @@ class APIOrderingTestCase(APITestCase):
         )
         Site.objects.bulk_create(sites)
 
+        super().setUpTestData()
+
     def test_default_order(self):
         response = self.client.get(self.url, format='json', **self.header)
 
@@ -490,6 +494,8 @@ class APITrailingSlashTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         cls.site = Site.objects.create(name='Site 1', slug='site-1')
+
+        super().setUpTestData()
 
     def _strip_slash(self, url):
         return url.rstrip('/')
