@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
 from django.core.signals import got_request_exception
-from django.db import ProgrammingError, connection
+from django.db import OperationalError, ProgrammingError, connection
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 from django.middleware.common import CommonMiddleware as DjangoCommonMiddleware
@@ -18,6 +18,14 @@ from netbox.views import handler_500
 from utilities.api import is_api_request, is_graphql_request
 from utilities.error_handlers import handle_rest_api_exception
 from utilities.request import apply_request_processors
+
+logger = logging.getLogger('netbox.middleware')
+
+# PostgreSQL error codes that indicate a retriable transient failure
+RETRIABLE_SQLSTATES = frozenset({
+    '40P01',  # deadlock_detected
+    '55P03',  # lock_not_available
+})
 
 __all__ = (
     'CommonMiddleware',
@@ -56,9 +64,22 @@ class CoreMiddleware:
         # Assign a random unique ID to the request. This will be used for change logging.
         request.id = uuid.uuid4()
 
-        # Apply all registered request processors
-        with apply_request_processors(request):
-            response = self.get_response(request)
+        # Apply all registered request processors, with retry on deadlock/lock timeout
+        try:
+            with apply_request_processors(request):
+                response = self.get_response(request)
+        except OperationalError as exc:
+            if not self._is_retriable(exc) or getattr(request, '_deadlock_retried', False):
+                raise
+            logger.warning(
+                "Retrying request %s %s after deadlock (sqlstate=%s)",
+                request.method, request.path, exc.__cause__.sqlstate,
+            )
+            request._deadlock_retried = True
+            request.id = uuid.uuid4()
+            connection.close()
+            with apply_request_processors(request):
+                response = self.get_response(request)
 
         # Set or renew the language cookie based on the user's preference. This handles two cases:
         # 1. The user just logged in (via any auth backend): the user_logged_in signal stores the preferred language on
@@ -93,6 +114,11 @@ class CoreMiddleware:
         clear_config()
 
         return response
+
+    @staticmethod
+    def _is_retriable(exc):
+        cause = exc.__cause__
+        return cause is not None and getattr(cause, 'sqlstate', None) in RETRIABLE_SQLSTATES
 
     def process_exception(self, request, exception):
         """
