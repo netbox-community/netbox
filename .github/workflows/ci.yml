@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 # Add concurrency group to control job running
 concurrency:
@@ -124,6 +125,11 @@ jobs:
 
       - name: Check for missing migrations
         run: python netbox/manage.py makemigrations --check
+
+      # Copy frontend-generated files into STATIC_ROOT before SVG rendering
+      # tests read their CSS directly.
+      - name: Collect static files
+        run: python netbox/manage.py collectstatic --no-input
 
       - name: Run tests
         if: ${{ ! matrix.coverage }}
