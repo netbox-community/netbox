@@ -1,11 +1,16 @@
 import json
 
+import strawberry
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
+from strawberry.extensions import QueryDepthLimiter
+from strawberry.schema.config import StrawberryConfig
 
 from dcim.choices import LocationStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
+from netbox.graphql.scalars import BigInt, BigIntScalar
+from netbox.graphql.schema import Query, get_schema_extensions
 from utilities.testing import APITestCase, TestCase, disable_warnings
 
 
@@ -19,6 +24,45 @@ class GraphQLTestCase(TestCase):
         url = reverse('graphql')
         response = self.client.get(url)
         self.assertHttpStatus(response, 404)
+
+    def test_graphql_max_query_depth_disabled_by_default(self):
+        """
+        QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is unset.
+        """
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+
+    @override_settings(GRAPHQL_MAX_QUERY_DEPTH=0)
+    def test_graphql_max_query_depth_disabled_when_zero(self):
+        """
+        QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is zero.
+        """
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+
+    @override_settings(GRAPHQL_MAX_QUERY_DEPTH=-1)
+    def test_graphql_max_query_depth_disabled_when_negative(self):
+        """
+        QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is negative.
+        """
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+
+    @override_settings(GRAPHQL_MAX_QUERY_DEPTH=3)
+    def test_graphql_max_query_depth_enforced(self):
+        """
+        Queries exceeding GRAPHQL_MAX_QUERY_DEPTH should be rejected.
+        """
+        extensions = get_schema_extensions()
+        self.assertTrue(any(isinstance(ext, QueryDepthLimiter) for ext in extensions))
+
+        # Build a temporary schema with the configured extensions and execute a deep query
+        test_schema = strawberry.Schema(
+            query=Query,
+            config=StrawberryConfig(auto_camel_case=False, scalar_map={BigInt: BigIntScalar}),
+            extensions=extensions,
+        )
+        deep_query = '{ site_list { tenant { group { parent { parent { parent { name } } } } } } }'
+        result = test_schema.execute_sync(deep_query)
+        self.assertIsNotNone(result.errors)
+        self.assertIn('exceeds maximum operation depth', str(result.errors[0]))
 
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphiql_interface(self):
