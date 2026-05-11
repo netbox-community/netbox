@@ -1,6 +1,7 @@
 import io
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
@@ -9,11 +10,13 @@ from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.test import TestCase, tag
+from jinja2 import StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
 
 from core.events import OBJECT_CREATED
 from core.models import AutoSyncRecord, DataSource, ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
+from extras.constants import DEFAULT_MIME_TYPE
 from extras.models import (
     ConfigContext,
     ConfigContextProfile,
@@ -26,6 +29,7 @@ from extras.models import (
 )
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
+from utilities.jinja2 import render_jinja2
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -925,30 +929,24 @@ class ConfigTemplateDebugTestCase(TestCase):
 
     def test_template_error_non_debug_no_traceback(self):
         """In non-debug mode, a TemplateError raises with no traceback exposure."""
-        from jinja2 import TemplateError
         t = self._make_template("{{ unclosed", debug=False)
         with self.assertRaises(TemplateError):
             t.render({})
 
     def test_template_error_debug_mode_raises(self):
         """In debug mode, a TemplateError still raises (callers handle display)."""
-        from jinja2 import TemplateError
         t = self._make_template("{{ unclosed", debug=True)
         with self.assertRaises(TemplateError):
             t.render({})
 
     def test_render_jinja2_debug_extension_enabled(self):
         """When debug=True, the Jinja2 debug extension is loaded in the environment."""
-        from utilities.jinja2 import render_jinja2
         # The {% debug %} tag is only available when the debug extension is loaded.
         output = render_jinja2("{% debug %}", {}, debug=True)
         self.assertIsInstance(output, str)
 
     def test_render_jinja2_debug_extension_not_loaded_by_default(self):
         """When debug=False, the {% debug %} tag is not available."""
-        from jinja2 import TemplateSyntaxError
-
-        from utilities.jinja2 import render_jinja2
         with self.assertRaises(TemplateSyntaxError):
             render_jinja2("{% debug %}", {}, debug=False)
 
@@ -984,6 +982,183 @@ class ExportTemplateContextTestCase(TestCase):
         ctx = ct.get_context()
 
         self.assertIs(ctx['dcim']['Site'], Site)
+
+
+def finalize_none_to_dash(value):
+    """
+    Module-level helper used by RenderTemplateMixinRenderTest.test_environment_params_finalize_path_import.
+    Exported so it can be referenced by dotted path from a Jinja environment_params value.
+    """
+    return '-' if value is None else value
+
+
+class RenderTemplateMixinRenderTest(TestCase):
+    """
+    Tests for RenderTemplateMixin.render() and get_environment_params(), exercised via ConfigTemplate.
+    """
+
+    def test_render_basic_context(self):
+        t = ConfigTemplate(name='basic', template_code='Hello {{ name }}')
+        self.assertEqual(t.render({'name': 'world'}), 'Hello world')
+
+    def test_render_normalizes_crlf(self):
+        t = ConfigTemplate(name='crlf', template_code='line1\r\nline2\r\nline3')
+        self.assertEqual(t.render({}), 'line1\nline2\nline3')
+
+    def test_render_passes_environment_params(self):
+        # With trim_blocks + lstrip_blocks, block tags don't emit their surrounding whitespace.
+        template_code = '{% if x %}\n    {% if y %}\n        VALUE\n    {% endif %}\n{% endif %}'
+        plain = ConfigTemplate(name='plain', template_code=template_code)
+        trimmed = ConfigTemplate(
+            name='trimmed',
+            template_code=template_code,
+            environment_params={'trim_blocks': True, 'lstrip_blocks': True},
+        )
+        ctx = {'x': True, 'y': True}
+        self.assertNotEqual(plain.render(ctx), trimmed.render(ctx))
+        self.assertEqual(trimmed.render(ctx).strip(), 'VALUE')
+
+    def test_environment_params_undefined_path_import(self):
+        # Default Undefined renders nothing for a missing variable.
+        default = ConfigTemplate(name='default', template_code='{{ missing }}')
+        self.assertEqual(default.render({}), '')
+
+        # StrictUndefined (resolved from its dotted path) raises on access.
+        strict = ConfigTemplate(
+            name='strict',
+            template_code='{{ missing }}',
+            environment_params={'undefined': 'jinja2.StrictUndefined'},
+        )
+        with self.assertRaises(UndefinedError):
+            strict.render({})
+
+    def test_environment_params_finalize_path_import(self):
+        t = ConfigTemplate(
+            name='finalize',
+            template_code='{{ v }}',
+            environment_params={'finalize': 'extras.tests.test_models.finalize_none_to_dash'},
+        )
+        self.assertEqual(t.render({'v': None}), '-')
+        self.assertEqual(t.render({'v': 'abc'}), 'abc')
+
+    def test_get_environment_params_handles_none(self):
+        # The environment_params field may be cleared; ensure the mixin returns a dict (not None).
+        t = ConfigTemplate(name='empty', template_code='ok', environment_params=None)
+        self.assertEqual(t.get_environment_params(), {})
+
+    def test_get_environment_params_resolves_path_imports(self):
+        t = ConfigTemplate(
+            name='resolve',
+            template_code='ok',
+            environment_params={'undefined': 'jinja2.StrictUndefined', 'trim_blocks': True},
+        )
+        params = t.get_environment_params()
+        self.assertIs(params['undefined'], StrictUndefined)
+        self.assertIs(params['trim_blocks'], True)
+
+    def test_get_environment_params_does_not_mutate_field(self):
+        # Resolving path imports must not replace the string values stored on the model field.
+        t = ConfigTemplate(
+            name='no-mutate',
+            template_code='ok',
+            environment_params={'undefined': 'jinja2.StrictUndefined'},
+        )
+        t.get_environment_params()
+        t.get_environment_params()
+        self.assertEqual(t.environment_params, {'undefined': 'jinja2.StrictUndefined'})
+
+
+class RenderTemplateMixinResponseTest(TestCase):
+    """
+    Tests for RenderTemplateMixin.render_to_response() HTTP behavior.
+    """
+
+    def test_response_default_mime_type(self):
+        t = ConfigTemplate(name='t', template_code='ok')
+        response = t.render_to_response({})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], DEFAULT_MIME_TYPE)
+
+    def test_response_custom_mime_type(self):
+        t = ConfigTemplate(name='t', template_code='{}', mime_type='application/json')
+        response = t.render_to_response({})
+        self.assertEqual(response['Content-Type'], 'application/json')
+
+    def test_response_attachment_with_file_name(self):
+        t = ConfigTemplate(
+            name='t', template_code='ok', file_name='router1', file_extension='cfg', as_attachment=True,
+        )
+        response = t.render_to_response({})
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="router1.cfg"')
+
+    def test_response_attachment_filename_from_queryset(self):
+        Site.objects.create(name='Site 1', slug='site-1')
+        t = ExportTemplate(
+            name='t',
+            template_code='{% for obj in queryset %}{{ obj.name }}{% endfor %}',
+            file_extension='txt',
+            as_attachment=True,
+        )
+        response = t.render_to_response(queryset=Site.objects.all())
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+
+    def test_response_attachment_filename_from_device_context(self):
+        t = ConfigTemplate(name='t', template_code='ok', as_attachment=True)
+        device = SimpleNamespace(name='router1')
+        response = t.render_to_response(context={'device': device})
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="router1"')
+
+    def test_response_attachment_fallback_filename(self):
+        # No file_name, no queryset, no device/vm key in context: filename falls back to "output".
+        t = ConfigTemplate(name='t', template_code='ok', as_attachment=True)
+        response = t.render_to_response({})
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="output"')
+
+    def test_response_as_attachment_false_omits_disposition(self):
+        t = ConfigTemplate(name='t', template_code='ok', file_name='router1', as_attachment=False)
+        response = t.render_to_response({})
+        self.assertNotIn('Content-Disposition', response)
+
+    def test_response_body_matches_render(self):
+        t = ConfigTemplate(name='t', template_code='Hello {{ name }}')
+        rendered = t.render({'name': 'world'})
+        response = t.render_to_response({'name': 'world'})
+        self.assertEqual(response.content.decode(), rendered)
+
+
+class ExportTemplateRenderTest(TestCase):
+    """
+    Tests for ExportTemplate.render() with a queryset bound into the template context.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create([
+            Site(name='Site A', slug='site-a'),
+            Site(name='Site B', slug='site-b'),
+            Site(name='Site C', slug='site-c'),
+        ])
+
+    def test_render_iterates_queryset(self):
+        t = ExportTemplate(
+            name='sites',
+            template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+        )
+        queryset = Site.objects.order_by('name')
+        output = t.render(queryset=queryset)
+        self.assertEqual(output, 'Site A\nSite B\nSite C\n')
+
+    def test_render_to_response_for_queryset(self):
+        t = ExportTemplate(
+            name='sites',
+            template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            file_extension='txt',
+        )
+        response = t.render_to_response(queryset=Site.objects.order_by('name'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], DEFAULT_MIME_TYPE)
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+        self.assertEqual(response.content.decode(), 'Site A\nSite B\nSite C\n')
 
 
 class EventRuleTestCase(TestCase):
