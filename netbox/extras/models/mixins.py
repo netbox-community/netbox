@@ -138,7 +138,8 @@ class RenderTemplateMixin(models.Model):
         """
         Pre-processing of any defined Jinja environment parameters (e.g. to support path resolution).
         """
-        params = self.environment_params or {}
+        # Shallow-copy so resolved imports don't replace the string values on the model field itself.
+        params = dict(self.environment_params or {})
         for name, value in params.items():
             if name in JINJA_ENV_PARAMS_WITH_PATH_IMPORT and type(value) is str:
                 params[name] = import_string(value)

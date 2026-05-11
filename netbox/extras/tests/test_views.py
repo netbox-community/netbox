@@ -370,6 +370,59 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class ExportTemplateExportFlowTest(TestCase):
+    """
+    End-to-end test for ExportTemplate invocation via a list view's ?export=<name> query param.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create([
+            Site(name='Site A', slug='site-a'),
+            Site(name='Site B', slug='site-b'),
+        ])
+
+        site_type = ObjectType.objects.get_for_model(Site)
+
+        ok_template = ExportTemplate.objects.create(
+            name='Sites Export',
+            template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            mime_type='text/plain',
+            file_extension='txt',
+        )
+        ok_template.object_types.set([site_type])
+
+        broken_template = ExportTemplate.objects.create(
+            name='Broken Export',
+            template_code='{% for obj in queryset %}{{ obj.name ',  # unterminated expression
+        )
+        broken_template.object_types.set([site_type])
+
+    def test_export_template_invocation(self):
+        self.add_permissions('dcim.view_site')
+        url = reverse('dcim:site_list')
+
+        response = self.client.get(f'{url}?export=Sites Export')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+        # The rendered queryset reflects whatever ordering the list view applies. Assert on set
+        # membership rather than line order so the test isn't coupled to Site's natural ordering.
+        rendered_names = set(filter(None, response.content.decode().split('\n')))
+        self.assertEqual(rendered_names, {'Site A', 'Site B'})
+
+    def test_export_template_render_error_redirects(self):
+        self.add_permissions('dcim.view_site')
+        url = reverse('dcim:site_list')
+
+        # A broken template surfaces an exception during render; the view catches it and redirects
+        # back to the (filtered) list view rather than returning a 500.
+        response = self.client.get(f'{url}?export=Broken Export')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].startswith(url))
+        self.assertNotIn('export=', response['Location'])
+
+
 class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Webhook
 
