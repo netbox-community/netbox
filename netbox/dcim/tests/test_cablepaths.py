@@ -55,6 +55,18 @@ class LegacyCablePathTests(CablePathTestCase):
         # Check that all CablePaths have been deleted
         self.assertEqual(CablePath.objects.count(), 0)
 
+        # Check that connected interfaces are fully cleaned up
+        interface1.refresh_from_db()
+        interface2.refresh_from_db()
+
+        self.assertIsNone(interface1.cable_id)
+        self.assertEqual(interface1.cable_end, '')
+        self.assertPathIsNotSet(interface1)
+
+        self.assertIsNone(interface2.cable_id)
+        self.assertEqual(interface2.cable_end, '')
+        self.assertPathIsNotSet(interface2)
+
     def test_102_consoleport_to_consoleserverport(self):
         """
         [CP1] --C1-- [CSP1]
