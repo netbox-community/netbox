@@ -7,7 +7,7 @@ from utilities.testing.base import TestCase
 from utilities.testing.utils import create_test_device
 
 
-class CountersTest(TestCase):
+class CountersTestCase(TestCase):
     """
     Validate the operation of the CounterCacheField (tracking counters).
     """

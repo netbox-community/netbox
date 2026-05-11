@@ -150,7 +150,7 @@ class DataSourceChangeLoggingTestCase(TestCase):
         self.assertEqual(objectchange.postchange_data['parameters']['password'], CENSOR_TOKEN)
 
 
-class ObjectTypeTest(TestCase):
+class ObjectTypeTestCase(TestCase):
 
     def test_create(self):
         """
@@ -227,7 +227,7 @@ class ObjectTypeTest(TestCase):
         self.assertNotIn(ObjectType.objects.get_by_natural_key('dcim', 'cabletermination'), bookmarks_ots)
 
 
-class JobTest(TestCase):
+class JobTestCase(TestCase):
 
     def _make_job(self, user, notifications):
         """

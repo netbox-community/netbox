@@ -2,25 +2,25 @@ from utilities.testing import TableTestCases
 from virtualization.tables import *
 
 
-class ClusterTypeTableTest(TableTestCases.StandardTableTestCase):
+class ClusterTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = ClusterTypeTable
 
 
-class ClusterGroupTableTest(TableTestCases.StandardTableTestCase):
+class ClusterGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = ClusterGroupTable
 
 
-class ClusterTableTest(TableTestCases.StandardTableTestCase):
+class ClusterTableTestCase(TableTestCases.StandardTableTestCase):
     table = ClusterTable
 
 
-class VirtualMachineTableTest(TableTestCases.StandardTableTestCase):
+class VirtualMachineTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualMachineTable
 
 
-class VMInterfaceTableTest(TableTestCases.StandardTableTestCase):
+class VMInterfaceTableTestCase(TableTestCases.StandardTableTestCase):
     table = VMInterfaceTable
 
 
-class VirtualDiskTableTest(TableTestCases.StandardTableTestCase):
+class VirtualDiskTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualDiskTable

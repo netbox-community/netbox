@@ -11,7 +11,7 @@ from users.models import Token
 from utilities.testing import APITestCase
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_http_headers(self):
         response = self.client.get(reverse('api-root'), **self.header)
@@ -46,7 +46,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.data['id'], self.user.pk)
 
 
-class OptionalLimitOffsetPaginationTest(TestCase):
+class OptionalLimitOffsetPaginationTestCase(TestCase):
 
     def setUp(self):
         self.paginator = NetBoxPagination()

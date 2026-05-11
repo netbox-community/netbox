@@ -3,24 +3,24 @@ from core.tables import *
 from utilities.testing import TableTestCases
 
 
-class DataSourceTableTest(TableTestCases.StandardTableTestCase):
+class DataSourceTableTestCase(TableTestCases.StandardTableTestCase):
     table = DataSourceTable
 
 
-class DataFileTableTest(TableTestCases.StandardTableTestCase):
+class DataFileTableTestCase(TableTestCases.StandardTableTestCase):
     table = DataFileTable
 
 
-class JobTableTest(TableTestCases.StandardTableTestCase):
+class JobTableTestCase(TableTestCases.StandardTableTestCase):
     table = JobTable
 
 
-class ObjectChangeTableTest(TableTestCases.StandardTableTestCase):
+class ObjectChangeTableTestCase(TableTestCases.StandardTableTestCase):
     table = ObjectChangeTable
     queryset_sources = [
         ('ObjectChangeListView', ObjectChange.objects.all()),
     ]
 
 
-class ConfigRevisionTableTest(TableTestCases.StandardTableTestCase):
+class ConfigRevisionTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConfigRevisionTable

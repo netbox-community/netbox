@@ -43,7 +43,7 @@ class TestFilterSet(BaseFilterSet):
         fields = ['char_field', 'integer_field', 'decimal_field', 'date_field', 'boolean_field']
 
 
-class FilterModifierWidgetTest(TestCase):
+class FilterModifierWidgetTestCase(TestCase):
     """Tests for FilterModifierWidget value extraction and rendering."""
 
     def test_value_from_datadict_finds_value_in_lookup_variant(self):
@@ -170,7 +170,7 @@ class FilterModifierWidgetTest(TestCase):
         self.assertIn('value="test"', html)
 
 
-class FilterModifierMixinTest(TestCase):
+class FilterModifierMixinTestCase(TestCase):
     """Tests for FilterModifierMixin form field enhancement."""
 
     def test_mixin_enhances_char_field_with_modifiers(self):
@@ -250,7 +250,7 @@ class FilterModifierMixinTest(TestCase):
         self.assertEqual(lookup_codes, expected_lookups)
 
 
-class ExtendedLookupFilterPillsTest(TestCase):
+class ExtendedLookupFilterPillsTestCase(TestCase):
     """Tests for filter pill rendering of extended lookups."""
 
     @classmethod
@@ -307,7 +307,7 @@ class ExtendedLookupFilterPillsTest(TestCase):
         self.assertIn('ABC123', filter_pill['link_text'])
 
 
-class EmptyLookupTest(TestCase):
+class EmptyLookupTestCase(TestCase):
     """Tests for empty (is empty/not empty) lookup support."""
 
     @classmethod
@@ -343,7 +343,7 @@ class EmptyLookupTest(TestCase):
         self.assertIn('not empty', filter_pill['link_text'].lower())
 
 
-class ObjectCustomFieldEmptyLookupTest(TestCase):
+class ObjectCustomFieldEmptyLookupTestCase(TestCase):
     """
     Regression test for https://github.com/netbox-community/netbox/issues/21535.
 

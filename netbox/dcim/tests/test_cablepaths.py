@@ -6,7 +6,7 @@ from dcim.tests.utils import CablePathTestCase
 from utilities.exceptions import AbortRequest
 
 
-class LegacyCablePathTests(CablePathTestCase):
+class LegacyCablePathTestCase(CablePathTestCase):
     """
     Test NetBox's ability to trace and retrace CablePaths in response to data model changes, without cable profiles.
 

@@ -67,7 +67,7 @@ class OverwriteStyleMemoryStorage(Storage):
         return f'https://example.invalid/{name}'
 
 
-class ImageAttachmentTests(TestCase):
+class ImageAttachmentTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.ct_rack = ContentType.objects.get_by_natural_key('dcim', 'rack')
@@ -185,7 +185,7 @@ class ImageAttachmentTests(TestCase):
         self.assertCountEqual(storage.files.keys(), {base_name, suffixed_name})
 
 
-class TagTest(TestCase):
+class TagTestCase(TestCase):
 
     def test_default_ordering_weight_then_name_is_set(self):
         Tag.objects.create(name='Tag 1', slug='tag-1', weight=3000)
@@ -244,7 +244,7 @@ class TagTest(TestCase):
             sitegroup.tags.add(tag)
 
 
-class ConfigContextTest(TestCase):
+class ConfigContextTestCase(TestCase):
     """
     These test cases deal with the weighting, ordering, and deep merge logic of config context data.
 
@@ -792,7 +792,7 @@ class ConfigContextTest(TestCase):
         self.assertTrue(distinct_subqueries[0].distinct)
 
 
-class ConfigTemplateTest(TestCase):
+class ConfigTemplateTestCase(TestCase):
     """
     TODO: These test cases deal with the weighting, ordering, and deep merge logic of config context data.
     """
@@ -905,7 +905,7 @@ class ConfigTemplateTest(TestCase):
             self.assertEqual(autosync_records.count(), 0, "AutoSyncRecord should be deleted after detaching")
 
 
-class ConfigTemplateDebugTest(TestCase):
+class ConfigTemplateDebugTestCase(TestCase):
     """
     Tests for the ConfigTemplate debug field and its effect on template rendering error output.
     """
@@ -953,7 +953,7 @@ class ConfigTemplateDebugTest(TestCase):
             render_jinja2("{% debug %}", {}, debug=False)
 
 
-class ExportTemplateContextTest(TestCase):
+class ExportTemplateContextTestCase(TestCase):
     """
     Tests for ExportTemplate.get_context() including public model population.
     """
@@ -986,7 +986,7 @@ class ExportTemplateContextTest(TestCase):
         self.assertIs(ctx['dcim']['Site'], Site)
 
 
-class EventRuleTest(TestCase):
+class EventRuleTestCase(TestCase):
 
     def test_action_data_clean_accepts_dict(self):
         """

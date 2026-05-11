@@ -12,7 +12,7 @@ from dcim.models import Cable, Interface, RearPort
 from dcim.tests.utils import CablePathTestCase
 
 
-class CableProfileLinkPeerTests(CablePathTestCase):
+class CableProfileLinkPeerTestCase(CablePathTestCase):
     """
     Tests for link peer resolution with cable profiles.
     """
@@ -75,7 +75,7 @@ class CableProfileLinkPeerTests(CablePathTestCase):
             self.assertEqual(interface.link_peers, [rear_ports[1]])
 
 
-class CableProfilePeerTerminationTests(CablePathTestCase):
+class CableProfilePeerTerminationTestCase(CablePathTestCase):
     """
     Tests for BaseCableProfile.get_peer_termination() and get_peer_terminations().
     Verifies that the batch method produces identical results to calling

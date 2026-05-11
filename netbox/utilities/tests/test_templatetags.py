@@ -11,7 +11,7 @@ from utilities.templatetags.builtins.tags import badge, customfield_value, stati
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
 
 
-class CustomFieldValueTagTest(TestCase):
+class CustomFieldValueTagTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         object_type = ObjectType.objects.get_for_model(Site)
@@ -60,7 +60,7 @@ class CustomFieldValueTagTest(TestCase):
         self.assertEqual(context['value'], ['Option B'])
 
 
-class StaticWithParamsTest(TestCase):
+class StaticWithParamsTestCase(TestCase):
     """
     Test the static_with_params template tag functionality.
     """
@@ -103,7 +103,7 @@ class StaticWithParamsTest(TestCase):
                 self.assertNotIn('v=old_version', result)
 
 
-class BadgeTest(TestCase):
+class BadgeTestCase(TestCase):
     """
     Test the badge template tag functionality.
     """
@@ -117,7 +117,7 @@ class BadgeTest(TestCase):
         self.assertIn('>Role<', html)
 
 
-class HumanizeCapacityTest(TestCase):
+class HumanizeCapacityTestCase(TestCase):
     """
     Test the _humanize_capacity function for correct SI/IEC unit label selection.
     """
@@ -160,7 +160,7 @@ class HumanizeCapacityTest(TestCase):
         self.assertEqual(_humanize_capacity(2000), '2.00 GB')
 
 
-class HumanizeSpeedTest(TestCase):
+class HumanizeSpeedTestCase(TestCase):
     """
     Test the humanize_speed filter for correct unit selection and decimal formatting.
     """

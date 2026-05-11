@@ -29,7 +29,7 @@ from vpn.choices import (
 from vpn.models import IKEPolicy, IKEProposal, IPSecPolicy, IPSecProfile
 
 
-class ChoiceAttrTest(TestCase):
+class ChoiceAttrTestCase(TestCase):
     """
     Test class for validating the behavior of ChoiceAttr attribute accessor.
 
@@ -112,7 +112,7 @@ class ChoiceAttrTest(TestCase):
         )
 
 
-class RelatedObjectListAttrTest(TestCase):
+class RelatedObjectListAttrTestCase(TestCase):
     """
     Test suite for RelatedObjectListAttr functionality.
 
@@ -222,7 +222,7 @@ class RelatedObjectListAttrTest(TestCase):
         self.assertIn('…', rendered)
 
 
-class TextAttrTest(TestCase):
+class TextAttrTestCase(TestCase):
 
     def test_get_value_with_format_string(self):
         attr = attrs.TextAttr('asn', format_string='AS{}')
@@ -247,7 +247,7 @@ class TextAttrTest(TestCase):
         self.assertTrue(context['copy_button'])
 
 
-class NumericAttrTest(TestCase):
+class NumericAttrTestCase(TestCase):
 
     def test_get_context_with_unit_accessor(self):
         attr = attrs.NumericAttr('speed', unit_accessor='speed_unit')
@@ -268,7 +268,7 @@ class NumericAttrTest(TestCase):
         self.assertTrue(context['copy_button'])
 
 
-class BooleanAttrTest(TestCase):
+class BooleanAttrTestCase(TestCase):
 
     def test_false_value_shown_by_default(self):
         attr = attrs.BooleanAttr('enabled')
@@ -286,7 +286,7 @@ class BooleanAttrTest(TestCase):
         self.assertIs(attr.get_value(obj), True)
 
 
-class ImageAttrTest(TestCase):
+class ImageAttrTestCase(TestCase):
 
     def test_invalid_decoding_raises_value_error(self):
         with self.assertRaises(ValueError):
@@ -314,7 +314,7 @@ class ImageAttrTest(TestCase):
         self.assertFalse(context['load_lazy'])
 
 
-class RelatedObjectAttrTest(TestCase):
+class RelatedObjectAttrTestCase(TestCase):
 
     def test_get_context_with_grouped_by(self):
         region = SimpleNamespace(name='Region 1')
@@ -339,7 +339,7 @@ class RelatedObjectAttrTest(TestCase):
         self.assertTrue(context['linkify'])
 
 
-class GenericForeignKeyAttrTest(TestCase):
+class GenericForeignKeyAttrTestCase(TestCase):
 
     class TreeNode:
         def __init__(self, name, ancestors=()):
@@ -422,7 +422,7 @@ class GenericForeignKeyAttrTest(TestCase):
         self.assertIsNone(context['nodes'])
 
 
-class GPSCoordinatesAttrTest(TestCase):
+class GPSCoordinatesAttrTestCase(TestCase):
 
     def test_missing_latitude_returns_placeholder(self):
         attr = attrs.GPSCoordinatesAttr()
@@ -440,7 +440,7 @@ class GPSCoordinatesAttrTest(TestCase):
         self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
 
 
-class DateTimeAttrTest(TestCase):
+class DateTimeAttrTestCase(TestCase):
 
     def test_default_spec(self):
         attr = attrs.DateTimeAttr('created')
@@ -461,7 +461,7 @@ class DateTimeAttrTest(TestCase):
         self.assertEqual(context['spec'], 'minutes')
 
 
-class ObjectsTablePanelTest(TestCase):
+class ObjectsTablePanelTestCase(TestCase):
     """
     Verify that ObjectsTablePanel.should_render() hides the panel when
     the requesting user lacks view permission for the panel's model.

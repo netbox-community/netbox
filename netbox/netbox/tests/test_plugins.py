@@ -18,7 +18,7 @@ from netbox.tests.dummy_plugin.webhook_callbacks import set_context
 
 
 @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
-class PluginTest(TestCase):
+class PluginTestCase(TestCase):
 
     def test_config(self):
 
@@ -229,7 +229,7 @@ class PluginTest(TestCase):
         self.assertIn(set_context, registry['webhook_callbacks'])
 
 
-class PluginNavigationTest(TestCase):
+class PluginNavigationTestCase(TestCase):
 
     def test_plugin_menu_item_independent_permissions(self):
         item1 = PluginMenuItem(link='test1', link_text='Test 1')
