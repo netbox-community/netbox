@@ -12,7 +12,7 @@ except ImportError:
     DULWICH_AVAILABLE = False
 
 
-class URLEmbeddedCredentialsTests(TestCase):
+class URLEmbeddedCredentialsTestCase(TestCase):
     def test_url_with_embedded_username(self):
         self.assertTrue(url_has_embedded_credentials('https://myuser@bitbucket.org/workspace/repo.git'))
 
@@ -54,7 +54,7 @@ class URLEmbeddedCredentialsTests(TestCase):
 
 
 @skipIf(not DULWICH_AVAILABLE, "dulwich is not installed")
-class GitBackendCredentialIntegrationTests(TestCase):
+class GitBackendCredentialIntegrationTestCase(TestCase):
     """
     Integration tests that verify GitBackend correctly applies credential logic.
 

@@ -39,7 +39,7 @@ class JobRunnerTestCase(TestCase):
         return timezone.now() + timedelta(weeks=offset)
 
 
-class JobRunnerTest(JobRunnerTestCase):
+class JobRunnerTestCase(JobRunnerTestCase):
     """
     Test internal logic of `JobRunner`.
     """
@@ -92,7 +92,7 @@ class JobRunnerTest(JobRunnerTestCase):
         self.assertNotIn(_INSTALL_ROOT, tb_message)
 
 
-class EnqueueTest(JobRunnerTestCase):
+class EnqueueTestCase(JobRunnerTestCase):
     """
     Test enqueuing of `JobRunner`.
     """
@@ -168,7 +168,7 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
 
-class SystemJobTest(JobRunnerTestCase):
+class SystemJobTestCase(JobRunnerTestCase):
     """
     Test that system jobs can be scheduled.
 

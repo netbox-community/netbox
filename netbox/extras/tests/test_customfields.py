@@ -19,7 +19,7 @@ from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
 
-class CustomFieldTest(TestCase):
+class CustomFieldTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -762,7 +762,7 @@ class CustomFieldTest(TestCase):
             ).full_clean()
 
 
-class CustomFieldManagerTest(TestCase):
+class CustomFieldManagerTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -776,7 +776,7 @@ class CustomFieldManagerTest(TestCase):
         self.assertEqual(CustomField.objects.get_for_model(VirtualMachine).count(), 0)
 
 
-class CustomFieldAPITest(APITestCase):
+class CustomFieldAPITestCase(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -1564,7 +1564,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class CustomFieldImportTest(TestCase):
+class CustomFieldImportTestCase(TestCase):
     user_permissions = (
         'dcim.view_site',
         'dcim.add_site',
@@ -1694,7 +1694,7 @@ class CustomFieldImportTest(TestCase):
         self.assertIn('cf_select', form.errors)
 
 
-class CustomFieldModelTest(TestCase):
+class CustomFieldModelTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -1755,7 +1755,7 @@ class CustomFieldModelTest(TestCase):
         site.clean()
 
 
-class CustomFieldModelFilterTest(TestCase):
+class CustomFieldModelFilterTestCase(TestCase):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
 

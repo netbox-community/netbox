@@ -181,6 +181,27 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class CustomLinkRenderingTestCase(TestCase):
+    user_permissions = ['dcim.view_site']
+
+    def test_view_object_with_custom_link(self):
+        customlink = CustomLink(
+            name='Test',
+            link_text='FOO {{ object.name }} BAR',
+            link_url='http://example.com/?site={{ object.slug }}',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(site.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'FOO {site.name} BAR', str(response.content))
+
+
 class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = SavedFilter
 
@@ -703,27 +724,6 @@ class JournalEntryTestCase(
         }
 
 
-class CustomLinkTest(TestCase):
-    user_permissions = ['dcim.view_site']
-
-    def test_view_object_with_custom_link(self):
-        customlink = CustomLink(
-            name='Test',
-            link_text='FOO {{ object.name }} BAR',
-            link_url='http://example.com/?site={{ object.slug }}',
-            new_window=False
-        )
-        customlink.save()
-        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
-
-        site = Site(name='Test Site', slug='test-site')
-        site.save()
-
-        response = self.client.get(site.get_absolute_url(), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(f'FOO {site.name} BAR', str(response.content))
-
-
 class SubscriptionTestCase(
     ViewTestCases.CreateObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
@@ -887,7 +887,7 @@ class NotificationTestCase(
         return
 
 
-class ScriptListViewTest(TestCase):
+class ScriptListViewTestCase(TestCase):
     user_permissions = ['extras.view_script']
 
     def test_script_list_embedded_parameter(self):
@@ -905,7 +905,7 @@ class ScriptListViewTest(TestCase):
         self.assertTemplateUsed(response, 'extras/inc/script_list_content.html')
 
 
-class ScriptValidationErrorTest(TestCase):
+class ScriptValidationErrorTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptMixin:
@@ -936,7 +936,7 @@ class ScriptValidationErrorTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptValidationErrorTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptValidationErrorTestCase.TestScriptClass)
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
@@ -975,7 +975,7 @@ class ScriptValidationErrorTest(TestCase):
         self.assertEqual(len(messages), 0)
 
 
-class ScriptDefaultValuesTest(TestCase):
+class ScriptDefaultValuesTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptClass(PythonClass):
@@ -1005,7 +1005,7 @@ class ScriptDefaultValuesTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptDefaultValuesTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptDefaultValuesTestCase.TestScriptClass)
 
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})

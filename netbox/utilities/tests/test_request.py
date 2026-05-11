@@ -5,7 +5,7 @@ from netaddr import IPAddress
 from utilities.request import copy_safe_request, get_client_ip
 
 
-class CopySafeRequestTests(TestCase):
+class CopySafeRequestTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -39,7 +39,7 @@ class CopySafeRequestTests(TestCase):
         self.assertNotIn('HTTP_X_CUSTOM_INT', fake.META)
 
 
-class GetClientIPTests(TestCase):
+class GetClientIPTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 

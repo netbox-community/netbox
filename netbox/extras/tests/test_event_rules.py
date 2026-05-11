@@ -24,7 +24,7 @@ from netbox.context_managers import event_tracking
 from utilities.testing import APITestCase
 
 
-class EventRuleTest(APITestCase):
+class EventRuleTestCase(APITestCase):
 
     def setUp(self):
         super().setUp()

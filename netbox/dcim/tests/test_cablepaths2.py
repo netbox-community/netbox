@@ -7,7 +7,7 @@ from dcim.svg import CableTraceSVG
 from dcim.tests.utils import CablePathTestCase
 
 
-class CablePathTests(CablePathTestCase):
+class CablePathTestCase(CablePathTestCase):
     """
     Test the creation of CablePaths for Cables with different profiles applied.
 

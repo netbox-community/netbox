@@ -9,7 +9,7 @@ from extras.forms.model_forms import CustomFieldChoiceSetForm
 from extras.models import CustomField, CustomFieldChoiceSet
 
 
-class CustomFieldModelFormTest(TestCase):
+class CustomFieldModelFormTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -91,7 +91,7 @@ class CustomFieldModelFormTest(TestCase):
             self.assertIsNone(instance.custom_field_data[field_type])
 
 
-class CustomFieldChoiceSetFormTest(TestCase):
+class CustomFieldChoiceSetFormTestCase(TestCase):
 
     def test_escaped_colons_preserved_on_edit(self):
         choice_set = CustomFieldChoiceSet.objects.create(
@@ -142,7 +142,7 @@ class CustomFieldChoiceSetFormTest(TestCase):
         self.assertEqual(updated.choice_colors, {'choice2': 'green', 'foo:bar': 'red'})
 
 
-class SavedFilterFormTest(TestCase):
+class SavedFilterFormTestCase(TestCase):
 
     def test_basic_submit(self):
         """

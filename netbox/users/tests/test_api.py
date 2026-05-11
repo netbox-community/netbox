@@ -8,7 +8,7 @@ from utilities.data import deepmerge
 from utilities.testing import APITestCase, APIViewTestCases, create_test_user
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
 
@@ -17,7 +17,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class UserTest(APIViewTestCases.APIViewTestCase):
+class UserTestCase(APIViewTestCases.APIViewTestCase):
     model = User
     brief_fields = ['display', 'id', 'url', 'username']
     validation_excluded_fields = ['password']
@@ -137,7 +137,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class GroupTest(APIViewTestCases.APIViewTestCase):
+class GroupTestCase(APIViewTestCases.APIViewTestCase):
     model = Group
     brief_fields = ['description', 'display', 'id', 'name', 'url']
 
@@ -189,7 +189,7 @@ class GroupTest(APIViewTestCases.APIViewTestCase):
         return
 
 
-class TokenTest(
+class TokenTestCase(
     # No GraphQL support for Token
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
@@ -330,7 +330,7 @@ class TokenTest(
         self.assertEqual(token1.user, user1, "Token's user should not have changed")
 
 
-class ObjectPermissionTest(
+class ObjectPermissionTestCase(
     # No GraphQL support for ObjectPermission
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
@@ -403,7 +403,7 @@ class ObjectPermissionTest(
         }
 
 
-class UserConfigTest(APITestCase):
+class UserConfigTestCase(APITestCase):
 
     def test_get(self):
         """
@@ -456,7 +456,7 @@ class UserConfigTest(APITestCase):
         self.assertDictEqual(userconfig.data, new_data)
 
 
-class OwnerGroupTest(APIViewTestCases.APIViewTestCase):
+class OwnerGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = OwnerGroup
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -488,7 +488,7 @@ class OwnerGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class OwnerTest(APIViewTestCases.APIViewTestCase):
+class OwnerTestCase(APIViewTestCases.APIViewTestCase):
     model = Owner
     brief_fields = ['description', 'display', 'id', 'name', 'url']
 

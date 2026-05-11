@@ -8,7 +8,7 @@ from wireless.choices import *
 from wireless.models import *
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
         url = reverse('wireless-api:api-root')
@@ -17,7 +17,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
+class WirelessLANGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = WirelessLANGroup
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'url', 'wirelesslan_count']
     create_data = [
@@ -49,7 +49,7 @@ class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
         WirelessLANGroup.objects.create(name='Wireless LAN Group 3', slug='wireless-lan-group-3')
 
 
-class WirelessLANTest(APIViewTestCases.APIViewTestCase):
+class WirelessLANTestCase(APIViewTestCases.APIViewTestCase):
     model = WirelessLAN
     brief_fields = ['description', 'display', 'id', 'ssid', 'url']
 
@@ -119,7 +119,7 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
+class WirelessLinkTestCase(APIViewTestCases.APIViewTestCase):
     model = WirelessLink
     brief_fields = ['description', 'display', 'id', 'ssid', 'url']
     bulk_update_data = {

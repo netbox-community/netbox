@@ -37,7 +37,7 @@ from utilities.filters import (
 from wireless.choices import WirelessRoleChoices
 
 
-class TreeNodeMultipleChoiceFilterTest(TestCase):
+class TreeNodeMultipleChoiceFilterTestCase(TestCase):
 
     class SiteFilterSet(django_filters.FilterSet):
         region = TreeNodeMultipleChoiceFilter(
@@ -121,7 +121,7 @@ class DummyModel(models.Model):
     tags = TaggableManager(through=TaggedItem)
 
 
-class BaseFilterSetTest(TestCase):
+class BaseFilterSetTestCase(TestCase):
     """
     Ensure that a BaseFilterSet automatically creates the expected set of filters for each filter type.
     """
@@ -387,7 +387,7 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['treeforeignkeyfield__n'].exclude, True)
 
 
-class DynamicFilterLookupExpressionTest(TestCase):
+class DynamicFilterLookupExpressionTestCase(TestCase):
     """
     Validate function of automatically generated filters using the Device model as an example.
     """
