@@ -10,7 +10,7 @@ from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.columns import library
@@ -195,9 +195,9 @@ class ToggleColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         title_text = _('Toggle all')
-        return mark_safe(
-            f'<input type="checkbox" class="toggle form-check-input" '
-            f'title="{title_text}" aria-label="{title_text}" />'
+        return format_html(
+            '<input type="checkbox" class="toggle form-check-input" title="{}" aria-label="{}" />',
+            title_text, title_text,
         )
 
 
