@@ -44,16 +44,23 @@ def widget_type(field):
 
 
 @register.simple_tag
-def render_field_with_aria(field):
+def render_field_with_aria(field, has_helptext=None):
     """
     Render a bound form field with ``aria-describedby`` pointing at the help text and/or
     error containers (when present) and ``aria-invalid`` when the field has errors. The
     referenced IDs must match those used in the surrounding template.
+
+    By default the helptext container is referenced only when ``field.help_text`` is set.
+    Pass ``has_helptext=True`` when the surrounding template renders a helptext container
+    unconditionally (e.g. the inline fieldset layout, which shows the field label as
+    helptext-styled text).
     """
+    if has_helptext is None:
+        has_helptext = bool(field.help_text)
     described_by = []
     if field.errors:
         described_by.append(f'{field.auto_id}_errors')
-    if field.help_text:
+    if has_helptext:
         described_by.append(f'{field.auto_id}_helptext')
     extra_attrs = {}
     if described_by:

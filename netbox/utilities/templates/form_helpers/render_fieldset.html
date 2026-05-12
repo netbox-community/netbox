@@ -29,7 +29,7 @@
         <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1">
-            {% render_field_with_aria field %}
+            {% render_field_with_aria field has_helptext=True %}
             <div class="form-text" id="{{ field.auto_id }}_helptext">{% trans field.label %}</div>
             {% if field.errors %}
               <div class="form-text text-danger" id="{{ field.auto_id }}_errors" role="alert">
