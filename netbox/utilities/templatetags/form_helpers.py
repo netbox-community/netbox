@@ -1,4 +1,7 @@
+import warnings
+
 from django import forms, template
+from django.conf import settings
 
 from utilities.forms.rendering import InlineFields, M2MAddRemoveFields, ObjectAttribute, TabbedGroups
 
@@ -64,16 +67,11 @@ def render_field_with_aria(field, has_helptext=None):
         )
     if field.errors:
         extra_attrs['aria-invalid'] = 'true'
-    # Provide a fallback accessible name when the visible <label> won't reach
-    # the element. Two cases:
-    #   1. <select> widgets are hidden by Tom Select (ts-hidden-accessible,
-    #      tabindex=-1), so scanners drop the <label for=> association. Mirror
-    #      field.label onto the element via aria-label. Skip selects opted out
-    #      of Tom Select (``.no-ts`` class or a ``size`` attribute) since they
-    #      stay visible and keep their <label for=> association.
-    #   2. Fields rendered without a visible label (label='') — typically
-    #      because a surrounding fieldset heading carries the name. Synthesize
-    #      one from the field name so the control still has an accessible name.
+    # Provide a fallback accessible name for <select> widgets hidden by Tom Select
+    # (ts-hidden-accessible, tabindex=-1), where scanners drop the <label for=>
+    # association. Mirror field.label onto the element via aria-label. Skip selects
+    # opted out of Tom Select (``.no-ts`` class or a ``size`` attribute) since they
+    # stay visible and keep their <label for=> association.
     if 'aria-label' not in widget_attrs:
         if isinstance(field.field.widget, forms.Select) and field.label:
             tom_select_excluded = (
@@ -82,8 +80,18 @@ def render_field_with_aria(field, has_helptext=None):
             )
             if not tom_select_excluded:
                 extra_attrs['aria-label'] = str(field.label)
-        elif not field.label:
-            extra_attrs['aria-label'] = field.name.replace('_', ' ').capitalize()
+        elif not field.label and settings.DEBUG:
+            # Surface fields rendered without a visible label so developers can
+            # supply a proper translated label. We deliberately do *not* synthesize
+            # one from the field name: it would be English-only and read poorly
+            # under non-English locales.
+            form_name = getattr(getattr(field, 'form', None), '__class__', type(None)).__name__
+            warnings.warn(
+                f"Form field {form_name}.{field.name} has no label; screen readers "
+                "will not have an accessible name for this control. Set a translated "
+                "label on the field.",
+                stacklevel=2,
+            )
     return field.as_widget(attrs=extra_attrs)
 
 

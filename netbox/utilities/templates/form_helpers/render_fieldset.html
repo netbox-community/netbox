@@ -1,9 +1,9 @@
 {% load i18n %}
 {% load form_helpers %}
-<div class="field-group mb-5"{% if heading %} role="group" aria-label="{{ heading }}"{% endif %}>
+<div class="field-group mb-5"{% if heading %} role="group" aria-labelledby="fieldset-{{ heading|slugify }}-heading"{% endif %}>
   {% if heading %}
     <div class="row">
-      <h2 class="col-9 offset-3">{{ heading }}</h2>
+      <h2 id="fieldset-{{ heading|slugify }}-heading" class="col-9 offset-3">{{ heading }}</h2>
     </div>
   {% endif %}
   {% for layout, title, items in rows %}
@@ -25,8 +25,8 @@
 
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
-      <div class="row mb-3"{% if title %} role="group" aria-label="{{ title }}"{% endif %}>
-        <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
+      <div class="row mb-3"{% if title %} role="group" aria-labelledby="inline-{{ title|slugify }}-label"{% endif %}>
+        <label{% if title %} id="inline-{{ title|slugify }}-label"{% endif %} class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1">
             {% render_field_with_aria field has_helptext=True %}

@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
@@ -187,7 +188,7 @@ class ToggleColumn(tables.CheckBoxColumn):
                 },
                 'input': {
                     'class': 'form-check-input',
-                    'aria-label': lambda record, value: _('Select {object}').format(object=record),
+                    'aria-label': lambda record, value: format_lazy(_('Select {object}'), object=record),
                 }
             }
         super().__init__(*args, default=default, visible=visible, **kwargs)
