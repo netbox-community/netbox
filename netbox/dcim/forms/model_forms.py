@@ -590,8 +590,6 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
                 'ts-disabled-field': 'device',
-                'ts-label-field': 'device_display',
-                'ts-description-field': 'device_type',
                 'data-dynamic-params': '[{"fieldName":"face","queryParam":"face"}]'
             },
         )

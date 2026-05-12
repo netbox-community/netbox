@@ -1,4 +1,3 @@
-from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -26,20 +25,12 @@ class RackUnitSerializer(serializers.Serializer):
     device = DeviceSerializer(nested=True, read_only=True)
     occupied = serializers.BooleanField(read_only=True)
     display = serializers.SerializerMethodField(read_only=True)
-    device_display = serializers.SerializerMethodField(read_only=True)
-    device_type = serializers.SerializerMethodField(read_only=True)
+    description = serializers.SerializerMethodField(read_only=True)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
         return obj['name']
 
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_device_display(self, obj):
-        if obj['occupied'] and (device := obj['device']):
-            return _('{rack_unit} - {device}').format(rack_unit=obj['name'], device=device)
-        return obj['name']
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_device_type(self, obj):
-        if obj['occupied'] and (device := obj['device']):
-            return str(device.device_type)
+    @extend_schema_field(OpenApiTypes.STR)  
+    def get_description(self, obj):  
+        return f'{obj["device"]}' if obj['device'] else None  
