@@ -77,6 +77,23 @@ def update_object_types(sender, **kwargs):
 
 
 #
+# Configuration
+#
+
+@receiver(post_migrate)
+def create_default_config_revision(sender, **kwargs):
+    """
+    Ensure at least one ConfigRevision exists after migrations so that runtime config
+    lookups always find a row to cache. Without this, an empty installation re-runs
+    the ConfigRevision lookup on every request.
+    """
+    if sender.name != 'core':
+        return
+    if not ConfigRevision.objects.exists():
+        ConfigRevision.objects.create(data={}, active=True)
+
+
+#
 # Change logging & event handling
 #
 

@@ -13,14 +13,10 @@ CACHES['default'].update({'KEY_PREFIX': 'TEST-'})
 class ConfigTestCase(TestCase):
 
     @override_settings(CACHES=CACHES)
-    def test_config_init_empty(self):
-        cache.clear()
-
-        config = get_config()
-        self.assertEqual(config.config, {})
-        self.assertEqual(config.version, None)
-
-        clear_config()
+    def test_default_revision_bootstrapped(self):
+        # The post_migrate handler should have created a default ConfigRevision
+        # so runtime config lookups always find a row to cache.
+        self.assertTrue(ConfigRevision.objects.exists())
 
     @override_settings(CACHES=CACHES)
     def test_config_init_from_db(self):
