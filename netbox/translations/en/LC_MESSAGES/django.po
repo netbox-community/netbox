@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-08 05:41+0000\n"
+"POT-Creation-Date: 2026-05-12 06:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13037,67 +13037,67 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:859
+#: netbox/netbox/settings.py:860
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:860
+#: netbox/netbox/settings.py:861
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:861
+#: netbox/netbox/settings.py:862
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:862
+#: netbox/netbox/settings.py:863
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:863
+#: netbox/netbox/settings.py:864
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:864
+#: netbox/netbox/settings.py:865
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:865
+#: netbox/netbox/settings.py:866
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:866
+#: netbox/netbox/settings.py:867
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:867
+#: netbox/netbox/settings.py:868
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:868
+#: netbox/netbox/settings.py:869
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:869
+#: netbox/netbox/settings.py:870
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:870
+#: netbox/netbox/settings.py:871
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:871
+#: netbox/netbox/settings.py:872
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:872
+#: netbox/netbox/settings.py:873
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:873
+#: netbox/netbox/settings.py:874
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:874
+#: netbox/netbox/settings.py:875
 msgid "Chinese"
 msgstr ""
 
