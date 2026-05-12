@@ -18,10 +18,9 @@
   {% if filter_form %}
     <div class="col-auto d-print-none">
       <div class="input-group">
-        <div class="input-group-text">
+        <label for="{{ filter_form.filter_id.id_for_label }}" class="input-group-text" aria-label="{% trans "Saved filter" %}">
           <i class="mdi mdi-filter" title="{% trans "Saved filter" %}" aria-hidden="true"></i>
-          <span class="visually-hidden">{% trans "Saved filter" %}</span>
-        </div>
+        </label>
         {{ filter_form.filter_id }}
       </div>
     </div>
