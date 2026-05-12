@@ -29,7 +29,7 @@
   <div class="col-auto ms-auto d-print-none">
     {% if request.user.is_authenticated and table_modal %}
       <div class="table-configure btn-group">
-        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}" class="btn" aria-label="{% trans "Configure Table" %}">
+        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}" class="btn">
           <i class="mdi mdi-cog" aria-hidden="true"></i> {% trans "Configure Table" %}
         </button>
         {% if table.config_params or table_configs %}
