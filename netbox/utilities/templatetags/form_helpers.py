@@ -1,4 +1,4 @@
-from django import template
+from django import forms, template
 
 from utilities.forms.rendering import InlineFields, M2MAddRemoveFields, ObjectAttribute, TabbedGroups
 
@@ -67,6 +67,19 @@ def render_field_with_aria(field, has_helptext=None):
         extra_attrs['aria-describedby'] = ' '.join(described_by)
     if field.errors:
         extra_attrs['aria-invalid'] = 'true'
+    # Provide a fallback accessible name when the visible <label> won't reach
+    # the element. Two cases:
+    #   1. <select> widgets are hidden by Tom Select (ts-hidden-accessible,
+    #      tabindex=-1), so scanners drop the <label for=> association. Mirror
+    #      field.label onto the element via aria-label.
+    #   2. Fields rendered without a visible label (label='') — typically
+    #      because a surrounding fieldset heading carries the name. Synthesize
+    #      one from the field name so the control still has an accessible name.
+    if 'aria-label' not in field.field.widget.attrs:
+        if isinstance(field.field.widget, forms.Select) and field.label:
+            extra_attrs['aria-label'] = str(field.label)
+        elif not field.label:
+            extra_attrs['aria-label'] = field.name.replace('_', ' ').capitalize()
     return field.as_widget(attrs=extra_attrs)
 
 

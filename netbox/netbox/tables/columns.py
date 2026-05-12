@@ -186,7 +186,8 @@ class ToggleColumn(tables.CheckBoxColumn):
                     'class': 'w-1',
                 },
                 'input': {
-                    'class': 'form-check-input'
+                    'class': 'form-check-input',
+                    'aria-label': lambda record, value: _('Select {object}').format(object=record),
                 }
             }
         super().__init__(*args, default=default, visible=visible, **kwargs)
@@ -194,7 +195,10 @@ class ToggleColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         title_text = _('Toggle all')
-        return mark_safe(f'<input type="checkbox" class="toggle form-check-input" title="{title_text}" />')
+        return mark_safe(
+            f'<input type="checkbox" class="toggle form-check-input" '
+            f'title="{title_text}" aria-label="{title_text}" />'
+        )
 
 
 class BooleanColumn(tables.Column):
