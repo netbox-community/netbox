@@ -274,10 +274,13 @@ class RenderFieldWithAriaTestCase(TestCase):
 
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter('always')
-            render_field_with_aria(form['dns_name'])
+            html = render_field_with_aria(form['dns_name'])
 
         messages = [str(w.message) for w in caught]
         self.assertTrue(
             any('TestForm.dns_name' in m for m in messages),
             f'Expected a warning naming TestForm.dns_name; got: {messages}',
         )
+        # No aria-label should be synthesized — an untranslated English fallback
+        # would degrade accessibility under non-English locales.
+        self.assertNotIn('aria-label', html)
