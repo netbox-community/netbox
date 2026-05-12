@@ -25,7 +25,7 @@
 
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
-      <div class="row mb-3" role="group"{% if title %} aria-label="{{ title }}"{% endif %}>
+      <div class="row mb-3"{% if title %} role="group" aria-label="{{ title }}"{% endif %}>
         <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1">

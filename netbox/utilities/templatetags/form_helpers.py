@@ -57,6 +57,7 @@ def render_field_with_aria(field, has_helptext=None):
     """
     if has_helptext is None:
         has_helptext = bool(field.help_text)
+    widget_attrs = field.field.widget.attrs
     described_by = []
     if field.errors:
         described_by.append(f'{field.auto_id}_errors')
@@ -64,20 +65,32 @@ def render_field_with_aria(field, has_helptext=None):
         described_by.append(f'{field.auto_id}_helptext')
     extra_attrs = {}
     if described_by:
-        extra_attrs['aria-describedby'] = ' '.join(described_by)
+        # Merge with any aria-describedby already set on the widget so we
+        # append to (rather than clobber) descriptions defined elsewhere.
+        existing = widget_attrs.get('aria-describedby', '').strip()
+        extra_attrs['aria-describedby'] = ' '.join(
+            filter(None, [existing, *described_by])
+        )
     if field.errors:
         extra_attrs['aria-invalid'] = 'true'
     # Provide a fallback accessible name when the visible <label> won't reach
     # the element. Two cases:
     #   1. <select> widgets are hidden by Tom Select (ts-hidden-accessible,
     #      tabindex=-1), so scanners drop the <label for=> association. Mirror
-    #      field.label onto the element via aria-label.
+    #      field.label onto the element via aria-label. Skip selects opted out
+    #      of Tom Select (``.no-ts`` class or a ``size`` attribute) since they
+    #      stay visible and keep their <label for=> association.
     #   2. Fields rendered without a visible label (label='') — typically
     #      because a surrounding fieldset heading carries the name. Synthesize
     #      one from the field name so the control still has an accessible name.
-    if 'aria-label' not in field.field.widget.attrs:
+    if 'aria-label' not in widget_attrs:
         if isinstance(field.field.widget, forms.Select) and field.label:
-            extra_attrs['aria-label'] = str(field.label)
+            tom_select_excluded = (
+                'no-ts' in widget_attrs.get('class', '').split()
+                or 'size' in widget_attrs
+            )
+            if not tom_select_excluded:
+                extra_attrs['aria-label'] = str(field.label)
         elif not field.label:
             extra_attrs['aria-label'] = field.name.replace('_', ' ').capitalize()
     return field.as_widget(attrs=extra_attrs)
