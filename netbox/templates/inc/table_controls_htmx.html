@@ -4,10 +4,12 @@
 <div class="row mb-3" id="results">
   <div class="col-auto d-print-none">
     <div class="input-group input-group-flat me-2 quicksearch" hx-disinherit="hx-select hx-swap">
+      <label for="quicksearch" class="visually-hidden">{% trans "Quick search" %}</label>
       <input type="search" results="5" name="q" id="quicksearch" class="form-control" placeholder="{% trans "Quick search" %}"
+          aria-label="{% trans "Quick search" %}"
           hx-get="{{ request.full_path }}" hx-target="#object_list" hx-trigger="keyup changed delay:500ms, search"/>
       <span class="input-group-text py-1">
-        <a href="#" id="quicksearch_clear" class="invisible text-secondary"><i class="mdi mdi-close-circle"></i></a>
+        <a href="#" id="quicksearch_clear" class="invisible text-secondary" aria-label="{% trans "Clear quick search" %}"><i class="mdi mdi-close-circle" aria-hidden="true"></i></a>
       </span>
       {% block extra_table_controls %}{% endblock %}
     </div>
@@ -17,7 +19,8 @@
     <div class="col-auto d-print-none">
       <div class="input-group">
         <div class="input-group-text">
-          <i class="mdi mdi-filter" title="{% trans "Saved filter" %}"></i>
+          <i class="mdi mdi-filter" title="{% trans "Saved filter" %}" aria-hidden="true"></i>
+          <span class="visually-hidden">{% trans "Saved filter" %}</span>
         </div>
         {{ filter_form.filter_id }}
       </div>
@@ -27,8 +30,8 @@
   <div class="col-auto ms-auto d-print-none">
     {% if request.user.is_authenticated and table_modal %}
       <div class="table-configure btn-group">
-        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}" class="btn">
-          <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
+        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}" class="btn" aria-label="{% trans "Configure Table" %}">
+          <i class="mdi mdi-cog" aria-hidden="true"></i> {% trans "Configure Table" %}
         </button>
         {% if table.config_params or table_configs %}
           <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">

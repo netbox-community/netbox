@@ -7,6 +7,7 @@ __all__ = (
     'render_custom_fields',
     'render_errors',
     'render_field',
+    'render_field_with_aria',
     'render_form',
     'widget_type',
 )
@@ -40,6 +41,26 @@ def widget_type(field):
     if hasattr(field, 'field'):
         return field.field.widget.__class__.__name__.lower()
     return None
+
+
+@register.simple_tag
+def render_field_with_aria(field):
+    """
+    Render a bound form field with ``aria-describedby`` pointing at the help text and/or
+    error containers (when present) and ``aria-invalid`` when the field has errors. The
+    referenced IDs must match those used in the surrounding template.
+    """
+    described_by = []
+    if field.errors:
+        described_by.append(f'{field.auto_id}_errors')
+    if field.help_text:
+        described_by.append(f'{field.auto_id}_helptext')
+    extra_attrs = {}
+    if described_by:
+        extra_attrs['aria-describedby'] = ' '.join(described_by)
+    if field.errors:
+        extra_attrs['aria-invalid'] = 'true'
+    return field.as_widget(attrs=extra_attrs)
 
 
 #
