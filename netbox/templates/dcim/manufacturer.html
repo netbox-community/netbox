@@ -7,7 +7,7 @@
       <button id="add-components" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add" %}
       </button>
-      <ul class="dropdown-menu" aria-labeled-by="add-components">
+      <ul class="dropdown-menu" aria-labelledby="add-components">
         {% if perms.dcim.add_devicetype %}
           <li><a class="dropdown-item" href="{% url 'dcim:devicetype_add' %}?manufacturer={{ object.pk }}">
             {% trans "Add Device Type" %}

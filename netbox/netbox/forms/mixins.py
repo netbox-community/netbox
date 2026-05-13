@@ -109,6 +109,10 @@ class SavedFiltersMixin(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Ensure the underlying <select> has an accessible name even when Tom Select
+        # hides the original element (the visible UI is a JS-built combobox).
+        self.fields['filter_id'].widget.attrs['aria-label'] = _('Saved filter')
+
         # Limit saved filters to those applicable to the form's model
         if hasattr(self, 'model'):
             object_type = ObjectType.objects.get_for_model(self.model)

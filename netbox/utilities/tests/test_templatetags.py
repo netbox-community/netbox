@@ -1,5 +1,7 @@
+import warnings
 from unittest.mock import patch
 
+from django import forms
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 
@@ -8,6 +10,7 @@ from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
 from utilities.templatetags.builtins.tags import badge, customfield_value, static_with_params
+from utilities.templatetags.form_helpers import render_field_with_aria
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
 
 
@@ -242,3 +245,42 @@ class HumanizeSpeedTestCase(TestCase):
     def test_trailing_zeros_stripped(self):
         """Ensure trailing fractional zeros are stripped (5.500 → 5.5)."""
         self.assertEqual(humanize_speed(5_500_000), '5.5 Gbps')
+
+
+class RenderFieldWithAriaTestCase(TestCase):
+    """
+    Test the render_field_with_aria template tag.
+    """
+
+    def test_aria_describedby_includes_errors_and_helptext(self):
+        class TestForm(forms.Form):
+            name = forms.CharField(help_text='Hello', required=True)
+
+        form = TestForm({'name': ''})
+        self.assertFalse(form.is_valid())
+
+        html = render_field_with_aria(form['name'])
+
+        self.assertIn('aria-invalid="true"', html)
+        self.assertIn('id_name_errors', html)
+        self.assertIn('id_name_helptext', html)
+
+    @override_settings(DEBUG=True)
+    def test_missing_label_emits_debug_warning(self):
+        class TestForm(forms.Form):
+            dns_name = forms.CharField(label='')
+
+        form = TestForm()
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            html = render_field_with_aria(form['dns_name'])
+
+        messages = [str(w.message) for w in caught]
+        self.assertTrue(
+            any('TestForm.dns_name' in m for m in messages),
+            f'Expected a warning naming TestForm.dns_name; got: {messages}',
+        )
+        # No aria-label should be synthesized — an untranslated English fallback
+        # would degrade accessibility under non-English locales.
+        self.assertNotIn('aria-label', html)
