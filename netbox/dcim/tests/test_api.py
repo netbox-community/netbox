@@ -453,7 +453,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
 
     def test_get_rack_elevation_description_is_occupying_device_name(self):
         """
-        Verify occupied rack units include the occupying device in their display label.
+        Verify occupied rack units include the occupying device in their description.
         """
         rack = Rack.objects.first()
         self.add_permissions('dcim.view_rack', 'dcim.view_device')
