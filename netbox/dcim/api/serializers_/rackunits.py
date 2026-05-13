@@ -31,6 +31,6 @@ class RackUnitSerializer(serializers.Serializer):
     def get_display(self, obj):
         return obj['name']
 
-    @extend_schema_field(OpenApiTypes.STR)  
-    def get_description(self, obj):  
-        return f'{obj["device"]}' if obj['device'] else None  
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_description(self, obj):
+        return f'{obj["device"]}' if obj['device'] else None
