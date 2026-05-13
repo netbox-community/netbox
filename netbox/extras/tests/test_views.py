@@ -399,7 +399,7 @@ class ExportTemplateExportFlowTest(TestCase):
         broken_template.object_types.set([site_type])
 
     def test_export_template_invocation(self):
-        self.add_permissions('dcim.view_site')
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
         url = reverse('dcim:site_list')
 
         response = self.client.get(f'{url}?export=Sites Export')
@@ -412,7 +412,7 @@ class ExportTemplateExportFlowTest(TestCase):
         self.assertEqual(rendered_names, {'Site A', 'Site B'})
 
     def test_export_template_render_error_redirects(self):
-        self.add_permissions('dcim.view_site')
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
         url = reverse('dcim:site_list')
 
         # A broken template surfaces an exception during render; the view catches it and redirects
