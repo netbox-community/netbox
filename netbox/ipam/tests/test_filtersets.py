@@ -1110,6 +1110,25 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mark_populated': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
+    def test_single_address_range(self):
+        # A range with start_address == end_address must be discoverable by the
+        # start, end, and contains filters.
+        iprange = IPRange(
+            start_address=IPNetwork('10.0.5.1/24'),
+            end_address=IPNetwork('10.0.5.1/24'),
+        )
+        iprange.clean()
+        iprange.save()
+
+        params = {'start_address': ['10.0.5.1']}
+        self.assertIn(iprange, self.filterset(params, self.queryset).qs)
+
+        params = {'end_address': ['10.0.5.1']}
+        self.assertIn(iprange, self.filterset(params, self.queryset).qs)
+
+        params = {'contains': '10.0.5.1/24'}
+        self.assertIn(iprange, self.filterset(params, self.queryset).qs)
+
 
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()

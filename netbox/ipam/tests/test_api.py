@@ -680,6 +680,11 @@ class IPRangeTestCase(APIViewTestCases.APIViewTestCase):
             'start_address': '192.168.6.10/24',
             'end_address': '192.168.6.50/24',
         },
+        {
+            # Single-address range (start == end)
+            'start_address': '192.168.7.10/24',
+            'end_address': '192.168.7.10/24',
+        },
     ]
     bulk_update_data = {
         'description': 'New description',

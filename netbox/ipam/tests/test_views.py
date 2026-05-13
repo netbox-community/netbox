@@ -618,6 +618,28 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.get(url), 200)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_ipaddresses_with_single_address_range(self):
+        # The IP Addresses tab annotates child IP addresses alongside any
+        # mark-populated child IP ranges. Make sure a single-address range
+        # (start_address == end_address) renders without errors and is shown
+        # in its range-like display form rather than as a plain IP address.
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
+        IPAddress.objects.create(address=IPNetwork('192.168.0.1/16'))
+        IPRange.objects.create(
+            start_address=IPNetwork('192.168.0.50/16'),
+            end_address=IPNetwork('192.168.0.50/16'),
+            mark_populated=True,
+        )
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+        # The single-address range is rendered with both endpoints, not as
+        # 192.168.0.50/16 (which would make it indistinguishable from an
+        # IPAddress row in this mixed-record view).
+        self.assertContains(response, '192.168.0.50-192.168.0.50/16')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_import(self):
         """
         Custom import test for YAML-based imports (versus CSV)
@@ -830,6 +852,8 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,10.1.0.1/16,10.1.9.254/16,active",
             "VRF 1,10.2.0.1/16,10.2.9.254/16,active",
             "VRF 1,10.3.0.1/16,10.3.9.254/16,active",
+            # Single-address range (start == end)
+            "VRF 1,10.4.0.1/16,10.4.0.1/16,active",
         )
 
         cls.csv_update_data = (
@@ -864,6 +888,28 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('ipam:iprange_ipaddresses', kwargs={'pk': iprange.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_create_single_address_range(self):
+        # Exercise the UI form path with start_address == end_address. The
+        # generic test_create_object_with_permission covers the multi-address
+        # case via cls.form_data; this test mirrors that flow for the single-
+        # address case so both paths stay covered.
+        self.add_permissions('ipam.add_iprange')
+        form_data = {
+            'start_address': '192.0.6.10/24',
+            'end_address': '192.0.6.10/24',
+            'status': IPRangeStatusChoices.STATUS_ACTIVE,
+        }
+        initial_count = IPRange.objects.count()
+
+        response = self.client.post(reverse('ipam:iprange_add'), data=form_data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(IPRange.objects.count(), initial_count + 1)
+
+        iprange = IPRange.objects.order_by('pk').last()
+        self.assertEqual(str(iprange.start_address), '192.0.6.10/24')
+        self.assertEqual(str(iprange.end_address), '192.0.6.10/24')
+        self.assertEqual(iprange.size, 1)
 
 
 class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
