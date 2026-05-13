@@ -1239,6 +1239,9 @@ class CreatedUpdatedFilterTestCase(APITestCase):
 class SubscriptionTestCase(APIViewTestCases.APIViewTestCase):
     model = Subscription
     brief_fields = ['display', 'id', 'object_id', 'object_type', 'url', 'user']
+    graphql_filter = {
+        'id': {'lookup': 'gt', 'value': '0'},
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1377,6 +1380,9 @@ class NotificationTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'event_type', 'id', 'object_id', 'object_type', 'read', 'url', 'user']
     bulk_update_data = {
         'read': now(),
+    }
+    graphql_filter = {
+        'event_type': {'lookup': 'exact', 'value': OBJECT_CREATED},
     }
 
     @classmethod
