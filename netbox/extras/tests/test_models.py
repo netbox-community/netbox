@@ -10,7 +10,7 @@ from django.core.files.storage import Storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.test import TestCase, tag
-from jinja2 import StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
+from jinja2 import DebugUndefined, StrictUndefined, TemplateError, TemplateSyntaxError, UndefinedError
 from PIL import Image
 
 from core.events import OBJECT_CREATED
@@ -27,6 +27,7 @@ from extras.models import (
     Tag,
     TaggedItem,
 )
+from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from utilities.jinja2 import render_jinja2
@@ -1032,7 +1033,11 @@ class RenderTemplateMixinRenderTest(TestCase):
         with self.assertRaises(UndefinedError):
             strict.render({})
 
-    def test_environment_params_finalize_path_import(self):
+    def test_environment_params_finalize_legacy_resolution(self):
+        """
+        Existing finalize values continue to resolve via import_string() as a
+        legacy carve-out (CVE-2026-29514). New use is blocked by clean().
+        """
         t = ConfigTemplate(
             name='finalize',
             template_code='{{ v }}',
@@ -1180,3 +1185,199 @@ class EventRuleTestCase(TestCase):
             with self.assertRaises(ValidationError) as cm:
                 rule.clean()
             self.assertIn('action_data', cm.exception.message_dict)
+
+
+class JinjaEnvironmentParamsCleanTest(TestCase):
+    """Tests for RenderTemplateMixin.clean() validation of environment_params."""
+
+    def _make_template(self, environment_params):
+        return ConfigTemplate(
+            name='test',
+            template_code='{{ "test" }}',
+            environment_params=environment_params,
+        )
+
+    def test_allowed_scalar_params_pass(self):
+        template = self._make_template({'trim_blocks': True, 'lstrip_blocks': True})
+        template.clean()
+
+    def test_autoescape_boolean_passes(self):
+        template = self._make_template({'autoescape': True})
+        template.clean()
+
+    def test_valid_undefined_passes(self):
+        for value in (
+            'jinja2.Undefined',
+            'jinja2.ChainableUndefined',
+            'jinja2.DebugUndefined',
+            'jinja2.StrictUndefined',
+        ):
+            template = self._make_template({'undefined': value})
+            template.clean()
+
+    def test_invalid_undefined_rejected(self):
+        template = self._make_template({'undefined': 'subprocess.getoutput'})
+        with self.assertRaises(ValidationError) as cm:
+            template.clean()
+        self.assertIn('environment_params', cm.exception.message_dict)
+
+    def test_unknown_key_rejected(self):
+        template = self._make_template({'extensions': ['os']})
+        with self.assertRaises(ValidationError) as cm:
+            template.clean()
+        self.assertIn('environment_params', cm.exception.message_dict)
+
+    def test_finalize_blocked_from_new_use(self):
+        template = self._make_template({'finalize': 'subprocess.getoutput'})
+        with self.assertRaises(ValidationError) as cm:
+            template.clean()
+        self.assertIn('environment_params', cm.exception.message_dict)
+
+    def test_empty_params_pass(self):
+        template = self._make_template({})
+        template.clean()
+
+    def test_none_params_pass(self):
+        template = self._make_template(None)
+        template.clean()
+
+    def test_exporttemplate_clean_rejects_unknown_key(self):
+        """MRO smoke test: ExportTemplate.clean() reaches RenderTemplateMixin.clean()."""
+        obj = ExportTemplate(
+            name='test',
+            template_code='{{ "test" }}',
+            environment_params={'loader': 'some.loader'},
+        )
+        with self.assertRaises(ValidationError) as cm:
+            obj.clean()
+        self.assertIn('environment_params', cm.exception.message_dict)
+
+    def test_configtemplate_clean_rejects_finalize(self):
+        """MRO smoke test: ConfigTemplate.clean() reaches RenderTemplateMixin.clean()."""
+        obj = ConfigTemplate(
+            name='test',
+            template_code='{{ "test" }}',
+            environment_params={'finalize': 'subprocess.getoutput'},
+        )
+        with self.assertRaises(ValidationError) as cm:
+            obj.clean()
+        self.assertIn('environment_params', cm.exception.message_dict)
+
+
+class JinjaEnvironmentParamsFilterTest(TestCase):
+    """Tests for RenderTemplateMixin._filter_environment_params()."""
+
+    def test_allowed_keys_pass_through(self):
+        params = {'trim_blocks': True, 'autoescape': False}
+        result = RenderTemplateMixin._filter_environment_params(params)
+        self.assertEqual(result, params)
+
+    def test_unknown_keys_stripped(self):
+        params = {'extensions': ['os'], 'loader': 'x', 'trim_blocks': True}
+        result = RenderTemplateMixin._filter_environment_params(params)
+        self.assertEqual(result, {'trim_blocks': True})
+
+    def test_finalize_preserved_as_legacy(self):
+        params = {'finalize': 'some.module.func', 'trim_blocks': True}
+        result = RenderTemplateMixin._filter_environment_params(params)
+        self.assertEqual(result, params)
+
+    def test_empty_params(self):
+        self.assertEqual(RenderTemplateMixin._filter_environment_params({}), {})
+
+
+class JinjaEnvironmentParamsResolveTest(TestCase):
+    """Tests for RenderTemplateMixin._resolve_mapped_params()."""
+
+    def test_undefined_resolved_to_class(self):
+        params = {'undefined': 'jinja2.StrictUndefined'}
+        result = RenderTemplateMixin._resolve_mapped_params(params)
+        self.assertIs(result['undefined'], StrictUndefined)
+
+    def test_unrecognized_undefined_value_passed_through(self):
+        params = {'undefined': 'not.a.real.class'}
+        result = RenderTemplateMixin._resolve_mapped_params(params)
+        self.assertEqual(result['undefined'], 'not.a.real.class')
+
+    def test_scalar_params_passed_through(self):
+        params = {'trim_blocks': True, 'autoescape': False}
+        result = RenderTemplateMixin._resolve_mapped_params(params)
+        self.assertEqual(result, params)
+
+    def test_empty_params(self):
+        self.assertEqual(RenderTemplateMixin._resolve_mapped_params({}), {})
+
+
+class JinjaEnvironmentParamsFinalizeTest(TestCase):
+    """Tests for RenderTemplateMixin._resolve_finalize() legacy carve-out."""
+
+    def test_finalize_string_resolved_via_import_string(self):
+        params = {'finalize': 'extras.tests.test_models.finalize_none_to_dash'}
+        result = RenderTemplateMixin._resolve_finalize(params)
+        self.assertIs(result['finalize'], finalize_none_to_dash)
+
+    def test_finalize_non_string_passed_through(self):
+        params = {'finalize': 42}
+        result = RenderTemplateMixin._resolve_finalize(params)
+        self.assertEqual(result['finalize'], 42)
+
+    def test_no_finalize_key_unchanged(self):
+        params = {'trim_blocks': True}
+        result = RenderTemplateMixin._resolve_finalize(params)
+        self.assertEqual(result, {'trim_blocks': True})
+
+    def test_invalid_import_path_raises_import_error(self):
+        params = {'finalize': 'nonexistent.module.func'}
+        with self.assertRaises(ImportError):
+            RenderTemplateMixin._resolve_finalize(params)
+
+    def test_empty_params(self):
+        self.assertEqual(RenderTemplateMixin._resolve_finalize({}), {})
+
+
+class JinjaEnvironmentParamsIntegrationTest(TestCase):
+    """Integration tests for get_environment_params() end-to-end."""
+
+    def _make_template(self, environment_params):
+        return ConfigTemplate(
+            name='test',
+            template_code='{{ "test" }}',
+            environment_params=environment_params,
+        )
+
+    def test_full_pipeline_with_undefined(self):
+        template = self._make_template({'undefined': 'jinja2.StrictUndefined', 'trim_blocks': True})
+        params = template.get_environment_params()
+        self.assertIs(params['undefined'], StrictUndefined)
+        self.assertIs(params['trim_blocks'], True)
+
+    def test_full_pipeline_strips_unknown_and_resolves(self):
+        template = self._make_template({
+            'extensions': ['os'],
+            'undefined': 'jinja2.DebugUndefined',
+            'trim_blocks': True,
+        })
+        params = template.get_environment_params()
+        self.assertNotIn('extensions', params)
+        self.assertIs(params['undefined'], DebugUndefined)
+        self.assertIs(params['trim_blocks'], True)
+
+    def test_full_pipeline_finalize_resolves(self):
+        template = self._make_template({
+            'finalize': 'extras.tests.test_models.finalize_none_to_dash',
+        })
+        params = template.get_environment_params()
+        self.assertIs(params['finalize'], finalize_none_to_dash)
+
+    def test_does_not_mutate_stored_value(self):
+        template = self._make_template({'undefined': 'jinja2.StrictUndefined'})
+        template.get_environment_params()
+        self.assertEqual(template.environment_params['undefined'], 'jinja2.StrictUndefined')
+
+    def test_none_environment_params(self):
+        template = self._make_template(None)
+        self.assertEqual(template.get_environment_params(), {})
+
+    def test_empty_environment_params(self):
+        template = self._make_template({})
+        self.assertEqual(template.get_environment_params(), {})
