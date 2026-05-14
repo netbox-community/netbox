@@ -920,8 +920,6 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObj
     devices: list[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
     locations: list[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]
     asns: list[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]
-    circuit_terminations: list[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]
-    clusters: list[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
     vlans: list[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
 
     @strawberry_django.field(
