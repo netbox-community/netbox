@@ -10,7 +10,7 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, Valida
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ChoiceField, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
@@ -883,6 +883,22 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     # so "Select all N matching query" can expand across the full queryset.
     filterset = None
 
+    def _get_rename_fields(self):
+        """
+        Return a list of (value, label) choices for the rename field selector.
+
+        The selector is shown only when the view targets the default 'name' field and
+        the model also has a 'label' field (device/module components and their templates).
+        Views that hardcode a non-default field_name (e.g. Cable → 'label') return an
+        empty list so no selector is rendered.
+        """
+        if self.field_name != 'name':
+            return []
+        model_field_names = {f.name for f in self.queryset.model._meta.get_fields()}
+        if 'label' not in model_field_names:
+            return []
+        return [('name', _('Name')), ('label', _('Label'))]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -893,19 +909,32 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             else BulkRenameForm
         )
 
-        class _Form(base_form):
-            pk = ModelMultipleChoiceField(
+        rename_fields = self._get_rename_fields()
+        form_attrs = {
+            'pk': ModelMultipleChoiceField(
                 queryset=self.queryset,
-                widget=MultipleHiddenInput()
+                widget=MultipleHiddenInput(),
+            ),
+        }
+        if rename_fields:
+            form_attrs['field_name'] = ChoiceField(
+                choices=rename_fields,
+                label=_('Field'),
+                initial='name',
+                # Django's ChoiceField.validate() skips the valid_value() check when the
+                # value is empty, so required=False lets existing callers (tests, scripts)
+                # omit the field entirely; the view falls back to self.field_name.
+                required=False,
             )
 
-        self.form = _Form
+        self.form = type('_Form', (base_form,), form_attrs)
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
     def _rename_objects(self, form, selected_objects):
         renamed_pks = []
+        field_name = form.cleaned_data.get('field_name') or self.field_name
 
         for obj in selected_objects:
             # Take a snapshot of change-logged models
@@ -916,18 +945,19 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             replace = form.cleaned_data['replace']
             if form.cleaned_data['use_regex']:
                 try:
-                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, '') or '')
+                    obj.new_name = re.sub(find, replace, getattr(obj, field_name, '') or '')
                 # Catch regex group reference errors
                 except re.error:
-                    obj.new_name = getattr(obj, self.field_name)
+                    obj.new_name = getattr(obj, field_name)
             else:
-                obj.new_name = (getattr(obj, self.field_name, '') or '').replace(find, replace)
+                obj.new_name = (getattr(obj, field_name, '') or '').replace(find, replace)
             renamed_pks.append(obj.pk)
 
         return renamed_pks
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkRenameView')
+        field_name = self.field_name
 
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
         if request.POST.get('_all') and self.filterset is not None:
@@ -941,6 +971,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             form = self.form(request.POST, initial={'pk': pk_list})
 
             if form.is_valid():
+                field_name = form.cleaned_data.get('field_name') or self.field_name
                 try:
                     with transaction.atomic(using=router.db_for_write(self.queryset.model)):
                         renamed_pks = self._rename_objects(form, selected_objects)
@@ -950,12 +981,12 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             if issubclass(self.queryset.model, MPTTModel):
                                 with self.queryset.model.objects.delay_mptt_updates():
                                     for obj in selected_objects:
-                                        setattr(obj, self.field_name, obj.new_name)
+                                        setattr(obj, field_name, obj.new_name)
                                         obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                         obj.save()
                             else:
                                 for obj in selected_objects:
-                                    setattr(obj, self.field_name, obj.new_name)
+                                    setattr(obj, field_name, obj.new_name)
                                     obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                     obj.save()
 
@@ -985,7 +1016,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             form = self.form(initial={'pk': pk_list})
 
         return render(request, self.template_name, {
-            'field_name': self.field_name,
+            'field_name': field_name,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,

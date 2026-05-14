@@ -36,8 +36,8 @@ Context:
         <table class="table">
             <thead>
                 <tr>
-                    <th>{% trans "Current Name" %}</th>
-                    <th>{% trans "New Name" %}</th>
+                    <th>{% if field_name == 'label' %}{% trans "Current Label" %}{% else %}{% trans "Current Name" %}{% endif %}</th>
+                    <th>{% if field_name == 'label' %}{% trans "New Label" %}{% else %}{% trans "New Name" %}{% endif %}</th>
                 </tr>
             </thead>
             <tbody>
