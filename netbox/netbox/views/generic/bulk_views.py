@@ -910,6 +910,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         )
 
         rename_fields = self._get_rename_fields()
+        self.has_label_field = bool(rename_fields)
         form_attrs = {
             'pk': ModelMultipleChoiceField(
                 queryset=self.queryset,
@@ -1017,6 +1018,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
 
         return render(request, self.template_name, {
             'field_name': field_name,
+            'has_label_field': self.has_label_field,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
