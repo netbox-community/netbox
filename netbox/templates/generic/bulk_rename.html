@@ -35,10 +35,12 @@ Context:
     <div class="col col-md-7">
         <table class="table">
             <thead>
+                {% with field_label=field_name|title %}
                 <tr>
-                    <th>{% if field_name == 'label' %}{% trans "Current Label" %}{% else %}{% trans "Current Name" %}{% endif %}</th>
-                    <th>{% if field_name == 'label' %}{% trans "New Label" %}{% else %}{% trans "New Name" %}{% endif %}</th>
+                    <th>{% blocktrans %}Current {{ field_label }}{% endblocktrans %}</th>
+                    <th>{% blocktrans %}New {{ field_label }}{% endblocktrans %}</th>
                 </tr>
+                {% endwith %}
             </thead>
             <tbody>
                 {% for obj in selected_objects %}
