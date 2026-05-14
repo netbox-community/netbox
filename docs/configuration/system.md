@@ -57,7 +57,7 @@ In order to send email, NetBox needs an email server configured. The following i
 Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) function accessible within the NetBox shell:
 
 ```no-highlight
-# python ./manage.py nbshell
+(venv) $ python3 ./manage.py nbshell
 >>> from django.core.mail import send_mail
 >>> send_mail(
   'Test Email Subject',
