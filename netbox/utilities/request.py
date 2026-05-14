@@ -2,6 +2,7 @@ import warnings
 from contextlib import ExitStack, contextmanager
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
@@ -71,15 +72,14 @@ def copy_safe_request(request, include_files=True):
 
 def get_client_ip(request, additional_headers=()):
     """
-    Return the client (source) IP address of the given request.
+    Return the client (source) IP address of the given request. Accepts an optional list of headers to inspect in
+    addition to those configured under HTTP_CLIENT_IP_HEADERS.
     """
-    HTTP_HEADERS = (
-        'HTTP_X_REAL_IP',
-        'HTTP_X_FORWARDED_FOR',
-        'REMOTE_ADDR',
-        *additional_headers
+    headers = (
+        *settings.HTTP_CLIENT_IP_HEADERS,
+        *additional_headers,
     )
-    for header in HTTP_HEADERS:
+    for header in headers:
         if header in request.META:
             ip = request.META[header].split(',')[0].strip()
             try:

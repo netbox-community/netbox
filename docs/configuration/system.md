@@ -80,6 +80,26 @@ The hostname displayed in the user interface identifying the system on which Net
 
 ---
 
+## HTTP_CLIENT_IP_HEADERS
+
+!!! info "This parameter was introduced in NetBox v4.6.1."
+
+Default:
+
+```python
+(
+    'HTTP_X_REAL_IP',
+    'HTTP_X_FORWARDED_FOR',
+    'REMOTE_ADDR',
+)
+```
+
+An ordered list of HTTP request headers inspected to determine the source IP address of a client request. The first header in the list which is present on the request is used; if none are found, the client IP cannot be determined. This is most commonly required when NetBox is deployed behind a reverse proxy which injects a proprietary client IP header (e.g. `HTTP_CF_CONNECTING_IP` for Cloudflare).
+
+The client IP is used for source-address restrictions on API tokens and for logging failed login attempts.
+
+---
+
 ## HTTP_PROXIES
 
 Default: `None`

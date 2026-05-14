@@ -132,6 +132,11 @@ GRAPHQL_DEFAULT_VERSION = getattr(configuration, 'GRAPHQL_DEFAULT_VERSION', 1)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
 GRAPHQL_MAX_QUERY_DEPTH = getattr(configuration, 'GRAPHQL_MAX_QUERY_DEPTH', None)
 HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
+HTTP_CLIENT_IP_HEADERS = getattr(configuration, 'HTTP_CLIENT_IP_HEADERS', (
+    'HTTP_X_REAL_IP',
+    'HTTP_X_FORWARDED_FOR',
+    'REMOTE_ADDR',
+))
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
