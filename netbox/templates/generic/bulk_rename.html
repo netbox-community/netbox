@@ -34,6 +34,28 @@ Context:
 <div class="row mb-3">
     <div class="col col-md-7">
         <table class="table">
+            {% if has_label_field %}
+            <thead>
+                <tr>
+                    <th>{% trans "Current Name" %}</th>
+                    <th>{% trans "New Name" %}</th>
+                    <th>{% trans "Current Label" %}</th>
+                    <th>{% trans "New Label" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in selected_objects %}
+                    {% with current_target=obj|getattr:field_name %}
+                        <tr{% if obj.new_name and current_target != obj.new_name %} class="success"{% endif %}>
+                            <td>{{ obj.name }}</td>
+                            <td>{% if field_name == 'name' %}{{ obj.new_name }}{% endif %}</td>
+                            <td>{{ obj.label }}</td>
+                            <td>{% if field_name == 'label' %}{{ obj.new_name }}{% endif %}</td>
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+            {% else %}
             <thead>
                 {% with field_label=field_name|title %}
                 <tr>
@@ -52,6 +74,7 @@ Context:
                     {% endwith %}
                 {% endfor %}
             </tbody>
+            {% endif %}
         </table>
     </div>
     <div class="col col-md-5">
