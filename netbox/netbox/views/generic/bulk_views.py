@@ -890,7 +890,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
         """
         if self.field_name != 'name':
             return []
-        model_field_names = {f.name for f in self.queryset.model._meta.get_fields()}
+        model_field_names = {f.name for f in self.queryset.model._meta.fields}
         if 'label' not in model_field_names:
             return []
         return [('name', _('Name')), ('label', _('Label'))]
