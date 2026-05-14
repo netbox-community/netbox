@@ -884,14 +884,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     filterset = None
 
     def _get_rename_fields(self):
-        """
-        Return a list of (value, label) choices for the rename field selector.
-
-        The selector is shown only when the view targets the default 'name' field and
-        the model also has a 'label' field (device/module components and their templates).
-        Views that hardcode a non-default field_name (e.g. Cable → 'label') return an
-        empty list so no selector is rendered.
-        """
+        """Return (value, label) choices for the field selector, or [] if only one field applies."""
         if self.field_name != 'name':
             return []
         model_field_names = {f.name for f in self.queryset.model._meta.fields}
@@ -922,10 +915,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                 choices=rename_fields,
                 label=_('Field'),
                 initial='name',
-                # Django's ChoiceField.validate() skips the valid_value() check when the
-                # value is empty, so required=False lets existing callers (tests, scripts)
-                # omit the field entirely; the view falls back to self.field_name.
-                required=False,
+                required=False,  # empty value falls back to self.field_name in post()
             )
 
         self.form = type('_Form', (base_form,), form_attrs)
@@ -933,9 +923,10 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
-    def _rename_objects(self, form, selected_objects):
+    def _rename_objects(self, form, selected_objects, field_name=None):
         renamed_pks = []
-        field_name = form.cleaned_data.get('field_name') or self.field_name
+        if field_name is None:
+            field_name = self.field_name
 
         for obj in selected_objects:
             # Take a snapshot of change-logged models
@@ -975,7 +966,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                 field_name = form.cleaned_data.get('field_name') or self.field_name
                 try:
                     with transaction.atomic(using=router.db_for_write(self.queryset.model)):
-                        renamed_pks = self._rename_objects(form, selected_objects)
+                        renamed_pks = self._rename_objects(form, selected_objects, field_name)
 
                         if '_apply' in request.POST:
                             # For MPTT models, delay tree updates until all saves are complete
