@@ -299,6 +299,26 @@ class CheckForNewReleasesTestCase(HousekeepingRunnerMixin, TestCase):
         cache.set.assert_not_called()
 
     @override_settings(ISOLATED_DEPLOYMENT=False, RELEASE_CHECK_URL='https://api.example/')
+    def test_check_for_new_releases_handles_no_stable_releases(self):
+        # All entries are filtered out (prereleases, devreleases, or missing tag_name);
+        # check_for_new_releases() must not crash on the resulting empty list.
+        response = MagicMock()
+        response.json.return_value = [
+            {'tag_name': 'v4.7.0-rc1', 'html_url': 'https://example/rc', 'prerelease': True},
+            {'tag_name': 'v4.7.0-dev', 'html_url': 'https://example/dev', 'devrelease': True},
+            {'html_url': 'https://example/no-tag'},
+        ]
+
+        with (
+            patch('core.jobs.requests.get', return_value=response),
+            patch('core.jobs.cache.set') as cache_set,
+            patch('core.jobs.resolve_proxies', return_value={}),
+        ):
+            self._runner().check_for_new_releases()
+
+        cache_set.assert_not_called()
+
+    @override_settings(ISOLATED_DEPLOYMENT=False, RELEASE_CHECK_URL='https://api.example/')
     def test_check_for_new_releases_caches_latest_stable_release(self):
         response = MagicMock()
         response.json.return_value = [
