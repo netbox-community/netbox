@@ -24,6 +24,7 @@ from extras.models import (
     EventRule,
     ExportTemplate,
     ImageAttachment,
+    TableConfig,
     Tag,
     TaggedItem,
 )
@@ -31,6 +32,7 @@ from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
 from utilities.jinja2 import render_jinja2
+from utilities.tables import get_table_for_model
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -188,6 +190,25 @@ class ImageAttachmentTestCase(TestCase):
         self.assertEqual(second.filename, 'action-buttons_sdmmer4.png')
 
         self.assertCountEqual(storage.files.keys(), {base_name, suffixed_name})
+
+
+class TableConfigTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.site_ct = ContentType.objects.get_for_model(Site)
+        cls.table_name = get_table_for_model(Site).__name__
+
+    def test_clean_accepts_ordering_none(self):
+        """clean() must accept ordering=None (field is null=True)."""
+        tc = TableConfig(
+            object_type=self.site_ct,
+            table=self.table_name,
+            name='No ordering',
+            columns=['name'],
+            # ordering left unset (defaults to None)
+        )
+        # Must not raise TypeError: 'NoneType' object is not iterable
+        tc.full_clean()
 
 
 class TagTestCase(TestCase):
