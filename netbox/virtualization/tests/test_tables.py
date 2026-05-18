@@ -14,6 +14,10 @@ class ClusterTableTestCase(TableTestCases.StandardTableTestCase):
     table = ClusterTable
 
 
+class VirtualMachineTypeTableTestCase(TableTestCases.StandardTableTestCase):
+    table = VirtualMachineTypeTable
+
+
 class VirtualMachineTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualMachineTable
 

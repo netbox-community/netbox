@@ -31,6 +31,10 @@ class RackRoleTableTestCase(TableTestCases.StandardTableTestCase):
     table = RackRoleTable
 
 
+class RackGroupTableTestCase(TableTestCases.StandardTableTestCase):
+    table = RackGroupTable
+
+
 class RackTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = RackTypeTable
 
@@ -169,6 +173,10 @@ class InterfaceConnectionTableTestCase(TableTestCases.StandardTableTestCase):
 
 class CableTableTestCase(TableTestCases.StandardTableTestCase):
     table = CableTable
+
+
+class CableBundleTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CableBundleTable
 
 
 #
