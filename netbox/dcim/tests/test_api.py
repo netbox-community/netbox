@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.test import override_settings, tag
+from django.test import tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
@@ -3525,8 +3525,8 @@ class ConnectedDeviceTestCase(APITestCase):
         cable = Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[1]])
         cable.save()
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_connected_device(self):
+        self.add_permissions('dcim.view_device', 'dcim.view_interface')
         url = reverse('dcim-api:connected-device-list')
 
         url_params = '?peer_device=TestDevice1&peer_interface=eth0'

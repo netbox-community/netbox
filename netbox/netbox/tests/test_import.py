@@ -1,5 +1,3 @@
-from django.test import override_settings
-
 from core.models import ObjectType
 from dcim.models import *
 from extras.models import CustomField
@@ -48,8 +46,8 @@ class CSVImportTestCase(ModelViewTestCase):
         self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 302)
         self.assertEqual(Region.objects.count(), 3)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_valid_tags(self):
+        self.add_permissions('dcim.view_region', 'extras.view_tag')
         csv_data = (
             'name,slug,tags',
             'Region 1,region-1,"alpha,bravo"',
@@ -91,8 +89,8 @@ class CSVImportTestCase(ModelViewTestCase):
         )
         self.assertEqual(regions[3].tags.count(), 0)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_invalid_tags(self):
+        self.add_permissions('dcim.view_region', 'extras.view_tag')
         csv_data = (
             'name,slug,tags',
             'Region 1,region-1,"Alpha,Bravo"',  # Valid
@@ -117,9 +115,8 @@ class CSVImportTestCase(ModelViewTestCase):
         self.assertHttpStatus(self.client.post(self._get_url('bulk_import'), data), 200)
         self.assertEqual(Region.objects.count(), 0)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_custom_field_defaults(self):
-        self.add_permissions('dcim.add_region')
+        self.add_permissions('dcim.view_region', 'dcim.add_region')
         csv_data = [
             'name,slug,description',
             'Region 1,region-1,abc',
