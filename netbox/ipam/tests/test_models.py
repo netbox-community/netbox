@@ -9,7 +9,7 @@ from ipam.models import *
 from utilities.data import string_to_ranges
 
 
-class TestAggregate(TestCase):
+class AggregateTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when prefix is a string
@@ -45,7 +45,7 @@ class TestAggregate(TestCase):
         self.assertEqual(aggregate.get_utilization(), 100)
 
 
-class TestIPRange(TestCase):
+class IPRangeTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when start_address is a string
@@ -165,7 +165,7 @@ class TestIPRange(TestCase):
             iprange.clean()
 
 
-class TestPrefix(TestCase):
+class PrefixTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when prefix is a string
@@ -424,7 +424,7 @@ class TestPrefix(TestCase):
         self.assertRaises(ValidationError, duplicate_prefix.clean)
 
 
-class TestPrefixHierarchy(TestCase):
+class PrefixHierarchyTestCase(TestCase):
     """
     Test the automatic updating of depth and child count in response to changes made within
     the prefix hierarchy.
@@ -622,7 +622,7 @@ class TestPrefixHierarchy(TestCase):
         self.assertEqual(prefixes[3]._children, 0)
 
 
-class TestIPAddress(TestCase):
+class IPAddressTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when address is a string
@@ -717,7 +717,7 @@ class TestIPAddress(TestCase):
             ipaddress.clean()
 
 
-class TestVLANGroup(TestCase):
+class VLANGroupTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -777,7 +777,7 @@ class TestVLANGroup(TestCase):
         self.assertEqual(vlangroup.total_vlan_ids, 100)
 
 
-class TestVLAN(TestCase):
+class VLANTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):

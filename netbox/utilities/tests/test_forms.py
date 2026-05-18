@@ -15,7 +15,7 @@ from utilities.forms.utils import (
 from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
 
 
-class ExpandIPNetwork(TestCase):
+class ExpandIPNetworkTestCase(TestCase):
     """
     Validate the operation of expand_ipnetwork_pattern().
     """
@@ -175,7 +175,7 @@ class ExpandIPNetwork(TestCase):
             sorted(expand_ipnetwork_pattern('1.2.3.[4,,5]/32', 4))
 
 
-class ExpandAlphanumeric(TestCase):
+class ExpandAlphanumericTestCase(TestCase):
     """
     Validate the operation of expand_alphanumeric_pattern().
     """
