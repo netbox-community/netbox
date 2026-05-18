@@ -1,29 +1,22 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
+from model_bakery import baker
 
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, ProviderNetwork
-from dcim.models import Site
+from circuits.models import CircuitTermination
 
 
 class CircuitTerminationTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        provider = baker.make('circuits.Provider')
 
-        cls.sites = (
-            Site.objects.create(name='Site 1', slug='site-1'),
-            Site.objects.create(name='Site 2', slug='site-2'),
-        )
+        cls.sites = baker.make('dcim.Site', _quantity=2)
 
-        cls.circuits = (
-            Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type),
-            Circuit.objects.create(cid='Circuit 2', provider=provider, type=circuit_type),
-        )
+        cls.circuits = baker.make('circuits.Circuit', provider=provider, _quantity=2)
 
-        cls.provider_network = ProviderNetwork.objects.create(name='Provider Network 1', provider=provider)
+        cls.provider_network = baker.make('circuits.ProviderNetwork', provider=provider)
 
     def test_circuit_termination_creation_populates_circuit_cache(self):
         """

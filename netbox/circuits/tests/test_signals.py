@@ -2,18 +2,14 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.test import SimpleTestCase, TestCase
+from model_bakery import baker
 
 from circuits import signals
-from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
+from circuits.models import CircuitTermination
 from dcim.models import (
     Cable,
     CablePath,
-    Device,
-    DeviceRole,
-    DeviceType,
     Interface,
-    Manufacturer,
-    Site,
 )
 
 
@@ -25,18 +21,13 @@ class RebuildCablepathsSignalTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.site = Site.objects.create(name='Site', slug='site')
-        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
-        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        cls.device = Device.objects.create(site=cls.site, device_type=device_type, role=device_role, name='Device 1')
-        provider = Provider.objects.create(name='Provider', slug='provider')
-        circuit_type = CircuitType.objects.create(name='Circuit Type', slug='circuit-type')
-        cls.circuit = Circuit.objects.create(provider=provider, type=circuit_type, cid='Circuit 1')
+        cls.site = baker.make('dcim.Site')
+        cls.device = baker.make('dcim.Device', site=cls.site)
+        cls.circuit = baker.make('circuits.Circuit')
 
     def test_saving_termination_rebuilds_peer_path(self):
         interface = Interface.objects.create(device=self.device, name='Interface 1')
-        site_z = Site.objects.create(name='Site Z', slug='site-z')
+        site_z = baker.make('dcim.Site')
         termination_a = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
         termination_z = CircuitTermination.objects.create(circuit=self.circuit, termination=site_z, term_side='Z')
         Cable(a_terminations=[interface], b_terminations=[termination_a]).save()
@@ -56,7 +47,7 @@ class RebuildCablepathsSignalTestCase(TestCase):
         self.assertNotEqual(CablePath.objects.get().pk, original_path.pk)
 
     def test_deleting_termination_rebuilds_peer_path(self):
-        site_z = Site.objects.create(name='Site Z', slug='site-z')
+        site_z = baker.make('dcim.Site')
         termination_a = CircuitTermination.objects.create(circuit=self.circuit, termination=self.site, term_side='A')
         termination_z = CircuitTermination.objects.create(circuit=self.circuit, termination=site_z, term_side='Z')
 

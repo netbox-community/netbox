@@ -2,13 +2,13 @@ import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from model_bakery import baker
 
 from circuits.choices import *
 from circuits.models import *
 from core.models import ObjectType
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Cable, Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
-from ipam.models import ASN, RIR
+from dcim.models import Cable, Interface, Site
 from netbox.choices import ImportFormatChoices
 from users.models import ObjectPermission
 from utilities.testing import ViewTestCases, create_tags, create_test_device
@@ -20,18 +20,10 @@ class ProviderTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        rir = RIR.objects.create(name='RFC 6996', is_private=True)
-        asns = [
-            ASN(asn=65000 + i, rir=rir) for i in range(8)
-        ]
-        ASN.objects.bulk_create(asns)
+        rir = baker.make('ipam.RIR', is_private=True)
+        asns = [baker.make('ipam.ASN', asn=65000 + i, rir=rir) for i in range(8)]
 
-        providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
-            Provider(name='Provider 3', slug='provider-3'),
-        )
-        Provider.objects.bulk_create(providers)
+        providers = baker.make('circuits.Provider', _quantity=3)
         providers[0].asns.set([asns[0], asns[1]])
         providers[1].asns.set([asns[2], asns[3]])
         providers[2].asns.set([asns[4], asns[5]])
@@ -71,13 +63,7 @@ class CircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        circuit_types = (
-            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
-            CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
-            CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
-        )
-
-        CircuitType.objects.bulk_create(circuit_types)
+        circuit_types = baker.make('circuits.CircuitType', _quantity=3)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -119,39 +105,24 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        Site.objects.create(name='Site 1', slug='site-1')
+        baker.make('dcim.Site', name='Site 1', slug='site-1')
 
-        providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
+        providers = baker.make('circuits.Provider', _quantity=2)
+
+        provider_accounts = [
+            baker.make('circuits.ProviderAccount', provider=providers[0]),
+            baker.make('circuits.ProviderAccount', provider=providers[1]),
+        ]
+
+        circuittypes = baker.make('circuits.CircuitType', _quantity=2)
+
+        circuits = baker.make(
+            'circuits.Circuit',
+            provider=providers[0],
+            provider_account=provider_accounts[0],
+            type=circuittypes[0],
+            _quantity=3,
         )
-        Provider.objects.bulk_create(providers)
-
-        provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
-            ProviderAccount(name='Provider Account 2', provider=providers[1], account='2345'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-
-        circuittypes = (
-            CircuitType(name='Circuit Type 1', slug='circuit-type-1'),
-            CircuitType(name='Circuit Type 2', slug='circuit-type-2'),
-        )
-        CircuitType.objects.bulk_create(circuittypes)
-
-        circuits = (
-            Circuit(
-                cid='Circuit 1', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]
-            ),
-            Circuit(
-                cid='Circuit 2', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]
-            ),
-            Circuit(
-                cid='Circuit 3', provider=providers[0], provider_account=provider_accounts[0], type=circuittypes[0]
-            ),
-        )
-
-        Circuit.objects.bulk_create(circuits)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -172,9 +143,9 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "cid,provider,provider_account,type,status",
-            "Circuit 4,Provider 1,Provider Account 1,Circuit Type 1,active",
-            "Circuit 5,Provider 1,Provider Account 1,Circuit Type 1,active",
-            "Circuit 6,Provider 1,Provider Account 1,Circuit Type 1,active",
+            f"Circuit 4,{providers[0].name},{provider_accounts[0].name},{circuittypes[0].name},active",
+            f"Circuit 5,{providers[0].name},{provider_accounts[0].name},{circuittypes[0].name},active",
+            f"Circuit 6,{providers[0].name},{provider_accounts[0].name},{circuittypes[0].name},active",
         )
 
         cls.csv_update_data = (
@@ -196,11 +167,10 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
     def test_circuit_type_display_colored(self):
-        circuit_type = CircuitType.objects.first()
+        circuit = Circuit.objects.first()
+        circuit_type = circuit.type
         circuit_type.color = '12ab34'
         circuit_type.save()
-
-        circuit = Circuit.objects.first()
 
         self.add_permissions('circuits.view_circuit')
         response = self.client.get(circuit.get_absolute_url())
@@ -221,8 +191,8 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             [
               {{
                 "cid": "Circuit 7",
-                "provider": "Provider 1",
-                "type": "Circuit Type 1",
+                "provider": "{Provider.objects.first().name}",
+                "type": "{CircuitType.objects.first().name}",
                 "status": "active",
                 "description": "Testing Import",
                 "terminations": [
@@ -270,18 +240,9 @@ class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
-        )
-        Provider.objects.bulk_create(providers)
+        providers = baker.make('circuits.Provider', _quantity=2)
 
-        provider_accounts = (
-            ProviderAccount(name='Provider Account 1', provider=providers[0], account='1234'),
-            ProviderAccount(name='Provider Account 2', provider=providers[0], account='2345'),
-            ProviderAccount(name='Provider Account 3', provider=providers[0], account='3456'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
+        provider_accounts = baker.make('circuits.ProviderAccount', provider=providers[0], _quantity=3)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -296,9 +257,9 @@ class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,provider,account,description",
-            "Provider Account 4,Provider 1,4567,Foo",
-            "Provider Account 5,Provider 1,5678,Bar",
-            "Provider Account 6,Provider 1,6789,Baz",
+            f"Provider Account 4,{providers[0].name},4567,Foo",
+            f"Provider Account 5,{providers[0].name},5678,Bar",
+            f"Provider Account 6,{providers[0].name},6789,Baz",
         )
 
         cls.csv_update_data = (
@@ -321,19 +282,9 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
-        )
-        Provider.objects.bulk_create(providers)
+        providers = baker.make('circuits.Provider', _quantity=2)
 
-        provider_networks = (
-            ProviderNetwork(name='Provider Network 1', provider=providers[0]),
-            ProviderNetwork(name='Provider Network 2', provider=providers[0]),
-            ProviderNetwork(name='Provider Network 3', provider=providers[0]),
-        )
-
-        ProviderNetwork.objects.bulk_create(provider_networks)
+        provider_networks = baker.make('circuits.ProviderNetwork', provider=providers[0], _quantity=3)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -347,9 +298,9 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.csv_data = (
             "name,provider,description",
-            "Provider Network 4,Provider 1,Foo",
-            "Provider Network 5,Provider 1,Bar",
-            "Provider Network 6,Provider 1,Baz",
+            f"Provider Network 4,{providers[0].name},Foo",
+            f"Provider Network 5,{providers[0].name},Bar",
+            f"Provider Network 6,{providers[0].name},Baz",
         )
 
         cls.csv_update_data = (
@@ -372,21 +323,11 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        sites = (
-            Site(name='Site 1', slug='site-1'),
-            Site(name='Site 2', slug='site-2'),
-            Site(name='Site 3', slug='site-3'),
-        )
-        Site.objects.bulk_create(sites)
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        sites = baker.make('dcim.Site', _quantity=3)
+        provider = baker.make('circuits.Provider')
+        circuittype = baker.make('circuits.CircuitType')
 
-        circuits = (
-            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
-        )
-        Circuit.objects.bulk_create(circuits)
+        circuits = baker.make('circuits.Circuit', provider=provider, type=circuittype, _quantity=3)
 
         circuit_terminations = (
             CircuitTermination(circuit=circuits[0], term_side='A', termination=sites[0]),
@@ -408,8 +349,8 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         site = sites[0].pk
         cls.csv_data = (
             "circuit,term_side,termination_type,termination_id,description",
-            f"Circuit 3,A,dcim.site,{site},Foo",
-            f"Circuit 3,Z,dcim.site,{site},Bar",
+            f"{circuits[2].cid},A,dcim.site,{site},Foo",
+            f"{circuits[2].cid},Z,dcim.site,{site},Bar",
         )
 
         cls.csv_update_data = (
@@ -450,12 +391,7 @@ class CircuitGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        circuit_groups = (
-            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
-            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
-            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3'),
-        )
-        CircuitGroup.objects.bulk_create(circuit_groups)
+        circuit_groups = baker.make('circuits.CircuitGroup', _quantity=3)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -499,24 +435,12 @@ class CircuitGroupAssignmentTestCase(
     @classmethod
     def setUpTestData(cls):
 
-        circuit_groups = (
-            CircuitGroup(name='Circuit Group 1', slug='circuit-group-1'),
-            CircuitGroup(name='Circuit Group 2', slug='circuit-group-2'),
-            CircuitGroup(name='Circuit Group 3', slug='circuit-group-3'),
-            CircuitGroup(name='Circuit Group 4', slug='circuit-group-4'),
-        )
-        CircuitGroup.objects.bulk_create(circuit_groups)
+        circuit_groups = baker.make('circuits.CircuitGroup', _quantity=4)
 
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        circuittype = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        provider = baker.make('circuits.Provider')
+        circuittype = baker.make('circuits.CircuitType')
 
-        circuits = (
-            Circuit(cid='Circuit 1', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 2', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 3', provider=provider, type=circuittype),
-            Circuit(cid='Circuit 4', provider=provider, type=circuittype),
-        )
-        Circuit.objects.bulk_create(circuits)
+        circuits = baker.make('circuits.Circuit', provider=provider, type=circuittype, _quantity=4)
 
         assignments = (
             CircuitGroupAssignment(
@@ -572,12 +496,7 @@ class VirtualCircuitTypeTestCase(ViewTestCases.OrganizationalObjectViewTestCase)
     @classmethod
     def setUpTestData(cls):
 
-        virtual_circuit_types = (
-            VirtualCircuitType(name='Virtual Circuit Type 1', slug='circuit-type-1'),
-            VirtualCircuitType(name='Virtual Circuit Type 2', slug='circuit-type-2'),
-            VirtualCircuitType(name='Virtual Circuit Type 3', slug='circuit-type-3'),
-        )
-        VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
+        virtual_circuit_types = baker.make('circuits.VirtualCircuitType', _quantity=3)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -619,52 +538,27 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        provider_networks = (
-            ProviderNetwork(provider=provider, name='Provider Network 1'),
-            ProviderNetwork(provider=provider, name='Provider Network 2'),
-        )
-        ProviderNetwork.objects.bulk_create(provider_networks)
-        provider_accounts = (
-            ProviderAccount(provider=provider, account='Provider Account 1'),
-            ProviderAccount(provider=provider, account='Provider Account 2'),
-        )
-        ProviderAccount.objects.bulk_create(provider_accounts)
-        virtual_circuit_types = (
-            VirtualCircuitType(name='Virtual Circuit Type 1', slug='virtual-circuit-type-1'),
-            VirtualCircuitType(name='Virtual Circuit Type 2', slug='virtual-circuit-type-2'),
-        )
-        VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
+        provider = baker.make('circuits.Provider')
+        provider_networks = baker.make('circuits.ProviderNetwork', provider=provider, _quantity=2)
+        provider_accounts = baker.make('circuits.ProviderAccount', provider=provider, _quantity=2)
+        virtual_circuit_types = baker.make('circuits.VirtualCircuitType', _quantity=2)
 
-        virtual_circuits = (
-            VirtualCircuit(
-                provider_network=provider_networks[0],
-                provider_account=provider_accounts[0],
-                cid='Virtual Circuit 1',
-                type=virtual_circuit_types[0]
-            ),
-            VirtualCircuit(
-                provider_network=provider_networks[0],
-                provider_account=provider_accounts[0],
-                cid='Virtual Circuit 2',
-                type=virtual_circuit_types[0]
-            ),
-            VirtualCircuit(
-                provider_network=provider_networks[0],
-                provider_account=provider_accounts[0],
-                cid='Virtual Circuit 3',
-                type=virtual_circuit_types[0]
-            ),
+        virtual_circuits = baker.make(
+            'circuits.VirtualCircuit',
+            provider_network=provider_networks[0],
+            provider_account=provider_accounts[0],
+            type=virtual_circuit_types[0],
+            _quantity=3,
         )
-        VirtualCircuit.objects.bulk_create(virtual_circuits)
 
         device = create_test_device('Device 1')
-        interfaces = (
-            Interface(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(device=device, name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-            Interface(device=device, name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
-        )
-        Interface.objects.bulk_create(interfaces)
+        interfaces = []
+        for i in range(3):
+            interfaces.append(
+                Interface.objects.create(
+                    device=device, name=f'Interface {i + 1}', type=InterfaceTypeChoices.TYPE_VIRTUAL
+                )
+            )
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -682,16 +576,16 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.csv_data = (
             "cid,provider_network,provider_account,type,status",
             (
-                f"Virtual Circuit 4,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
-                f"{CircuitStatusChoices.STATUS_PLANNED}"
+                f"Virtual Circuit 4,{provider_networks[0].name},{provider_accounts[0].account},"
+                f"{virtual_circuit_types[0].name},{CircuitStatusChoices.STATUS_PLANNED}"
             ),
             (
-                f"Virtual Circuit 5,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
-                f"{CircuitStatusChoices.STATUS_PLANNED}"
+                f"Virtual Circuit 5,{provider_networks[0].name},{provider_accounts[0].account},"
+                f"{virtual_circuit_types[0].name},{CircuitStatusChoices.STATUS_PLANNED}"
             ),
             (
-                f"Virtual Circuit 6,Provider Network 1,Provider Account 1,{virtual_circuit_types[0].name},"
-                f"{CircuitStatusChoices.STATUS_PLANNED}"
+                f"Virtual Circuit 6,{provider_networks[0].name},{provider_accounts[0].account},"
+                f"{virtual_circuit_types[0].name},{CircuitStatusChoices.STATUS_PLANNED}"
             ),
         )
 
@@ -732,8 +626,8 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             [
               {{
                 "cid": "Virtual Circuit 7",
-                "provider_network": "Provider Network 1",
-                "type": "Virtual Circuit Type 1",
+                "provider_network": "{ProviderNetwork.objects.first().name}",
+                "type": "{VirtualCircuitType.objects.first().name}",
                 "status": "active",
                 "terminations": [
                   {{
@@ -781,129 +675,58 @@ class VirtualCircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase)
 
     @classmethod
     def setUpTestData(cls):
-        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
-        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        site = baker.make('dcim.Site')
+        device_type = baker.make('dcim.DeviceType')
+        device_role = baker.make('dcim.DeviceRole')
 
-        devices = (
-            Device(site=site, name='hub', device_type=device_type, role=device_role),
-            Device(site=site, name='spoke1', device_type=device_type, role=device_role),
-            Device(site=site, name='spoke2', device_type=device_type, role=device_role),
-            Device(site=site, name='spoke3', device_type=device_type, role=device_role),
+        devices = [
+            baker.make('dcim.Device', site=site, device_type=device_type, role=device_role, name=name)
+            for name in ('hub', 'spoke1', 'spoke2', 'spoke3')
+        ]
+
+        physical_interfaces = []
+        for device in devices:
+            physical_interfaces.append(
+                Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+            )
+
+        virtual_interfaces = []
+        # Point-to-point VCs
+        for i, (device, parent) in enumerate(zip(devices, physical_interfaces)):
+            count = 3 if i == 0 else 1
+            for j in range(count):
+                virtual_interfaces.append(
+                    Interface.objects.create(
+                        device=device,
+                        name=f'eth0.{j + 1}',
+                        parent=parent,
+                        type=InterfaceTypeChoices.TYPE_VIRTUAL,
+                    )
+                )
+
+        # Hub and spoke VCs
+        for device in devices:
+            virtual_interfaces.append(
+                Interface.objects.create(
+                    device=device,
+                    name='eth0.9',
+                    parent=physical_interfaces[0],
+                    type=InterfaceTypeChoices.TYPE_VIRTUAL,
+                )
+            )
+
+        provider = baker.make('circuits.Provider')
+        provider_network = baker.make('circuits.ProviderNetwork', provider=provider)
+        provider_account = baker.make('circuits.ProviderAccount', provider=provider)
+        virtual_circuit_type = baker.make('circuits.VirtualCircuitType')
+
+        virtual_circuits = baker.make(
+            'circuits.VirtualCircuit',
+            provider_network=provider_network,
+            provider_account=provider_account,
+            type=virtual_circuit_type,
+            _quantity=4,
         )
-        Device.objects.bulk_create(devices)
-
-        physical_interfaces = (
-            Interface(device=devices[0], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=devices[1], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=devices[2], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-            Interface(device=devices[3], name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
-        )
-        Interface.objects.bulk_create(physical_interfaces)
-
-        virtual_interfaces = (
-            # Point-to-point VCs
-            Interface(
-                device=devices[0],
-                name='eth0.1',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[0],
-                name='eth0.2',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[0],
-                name='eth0.3',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[1],
-                name='eth0.1',
-                parent=physical_interfaces[1],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[2],
-                name='eth0.1',
-                parent=physical_interfaces[2],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[3],
-                name='eth0.1',
-                parent=physical_interfaces[3],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-
-            # Hub and spoke VCs
-            Interface(
-                device=devices[0],
-                name='eth0.9',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[1],
-                name='eth0.9',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[2],
-                name='eth0.9',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-            Interface(
-                device=devices[3],
-                name='eth0.9',
-                parent=physical_interfaces[0],
-                type=InterfaceTypeChoices.TYPE_VIRTUAL
-            ),
-        )
-        Interface.objects.bulk_create(virtual_interfaces)
-
-        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
-        provider_network = ProviderNetwork.objects.create(provider=provider, name='Provider Network 1')
-        provider_account = ProviderAccount.objects.create(provider=provider, account='Provider Account 1')
-        virtual_circuit_type = VirtualCircuitType.objects.create(
-            name='Virtual Circuit Type 1',
-            slug='virtual-circuit-type-1'
-        )
-
-        virtual_circuits = (
-            VirtualCircuit(
-                provider_network=provider_network,
-                provider_account=provider_account,
-                cid='Virtual Circuit 1',
-                type=virtual_circuit_type
-            ),
-            VirtualCircuit(
-                provider_network=provider_network,
-                provider_account=provider_account,
-                cid='Virtual Circuit 2',
-                type=virtual_circuit_type
-            ),
-            VirtualCircuit(
-                provider_network=provider_network,
-                provider_account=provider_account,
-                cid='Virtual Circuit 3',
-                type=virtual_circuit_type
-            ),
-            VirtualCircuit(
-                provider_network=provider_network,
-                provider_account=provider_account,
-                cid='Virtual Circuit 4',
-                type=virtual_circuit_type
-            ),
-        )
-        VirtualCircuit.objects.bulk_create(virtual_circuits)
 
         virtual_circuit_terminations = (
             VirtualCircuitTermination(
@@ -945,12 +768,15 @@ class VirtualCircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase)
             'interface': virtual_interfaces[6].pk
         }
 
+        vc_cid = virtual_circuits[3].cid
+        hub = VirtualCircuitTerminationRoleChoices.ROLE_HUB
+        spoke = VirtualCircuitTerminationRoleChoices.ROLE_SPOKE
         cls.csv_data = (
             "virtual_circuit,role,interface,description",
-            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_HUB},{virtual_interfaces[6].pk},Hub",
-            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},{virtual_interfaces[7].pk},Spoke 1",
-            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},{virtual_interfaces[8].pk},Spoke 2",
-            f"Virtual Circuit 4,{VirtualCircuitTerminationRoleChoices.ROLE_SPOKE},{virtual_interfaces[9].pk},Spoke 3",
+            f"{vc_cid},{hub},{virtual_interfaces[6].pk},Hub",
+            f"{vc_cid},{spoke},{virtual_interfaces[7].pk},Spoke 1",
+            f"{vc_cid},{spoke},{virtual_interfaces[8].pk},Spoke 2",
+            f"{vc_cid},{spoke},{virtual_interfaces[9].pk},Spoke 3",
         )
 
         cls.csv_update_data = (
