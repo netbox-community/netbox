@@ -220,82 +220,52 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
 
         circuits = (
-            Circuit(
-                provider=providers[0],
-                provider_account=provider_accounts[0],
-                tenant=tenants[0],
-                type=circuit_types[0],
-                cid='Test Circuit 1',
-                install_date='2020-01-01',
-                termination_date='2021-01-01',
-                commit_rate=1000,
-                status=CircuitStatusChoices.STATUS_ACTIVE,
-                description='foobar1',
-                distance=10,
-                distance_unit=DistanceUnitChoices.UNIT_FOOT,
+            baker.make(
+                'circuits.Circuit',
+                provider=providers[0], provider_account=provider_accounts[0],
+                tenant=tenants[0], type=circuit_types[0],
+                cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01',
+                commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE,
+                description='foobar1', distance=10, distance_unit=DistanceUnitChoices.UNIT_FOOT,
             ),
-            Circuit(
-                provider=providers[0],
-                provider_account=provider_accounts[0],
-                tenant=tenants[0],
-                type=circuit_types[0],
-                cid='Test Circuit 2',
-                install_date='2020-01-02',
-                termination_date='2021-01-02',
-                commit_rate=2000,
-                status=CircuitStatusChoices.STATUS_ACTIVE,
-                description='foobar2',
-                distance=20,
-                distance_unit=DistanceUnitChoices.UNIT_METER,
+            baker.make(
+                'circuits.Circuit',
+                provider=providers[0], provider_account=provider_accounts[0],
+                tenant=tenants[0], type=circuit_types[0],
+                cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02',
+                commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE,
+                description='foobar2', distance=20, distance_unit=DistanceUnitChoices.UNIT_METER,
             ),
-            Circuit(
-                provider=providers[0],
-                provider_account=provider_accounts[1],
-                tenant=tenants[1],
-                type=circuit_types[0],
-                cid='Test Circuit 3',
-                install_date='2020-01-03',
-                termination_date='2021-01-03',
-                commit_rate=3000,
-                status=CircuitStatusChoices.STATUS_PLANNED,
-                distance=30,
-                distance_unit=DistanceUnitChoices.UNIT_METER,
+            baker.make(
+                'circuits.Circuit',
+                provider=providers[0], provider_account=provider_accounts[1],
+                tenant=tenants[1], type=circuit_types[0],
+                cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03',
+                commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED,
+                distance=30, distance_unit=DistanceUnitChoices.UNIT_METER,
             ),
-            Circuit(
-                provider=providers[1],
-                provider_account=provider_accounts[1],
-                tenant=tenants[1],
-                type=circuit_types[1],
-                cid='Test Circuit 4',
-                install_date='2020-01-04',
-                termination_date='2021-01-04',
-                commit_rate=4000,
-                status=CircuitStatusChoices.STATUS_PLANNED,
+            baker.make(
+                'circuits.Circuit',
+                provider=providers[1], provider_account=provider_accounts[1],
+                tenant=tenants[1], type=circuit_types[1],
+                cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04',
+                commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED,
             ),
-            Circuit(
-                provider=providers[1],
-                provider_account=provider_accounts[2],
-                tenant=tenants[2],
-                type=circuit_types[1],
-                cid='Test Circuit 5',
-                install_date='2020-01-05',
-                termination_date='2021-01-05',
-                commit_rate=5000,
-                status=CircuitStatusChoices.STATUS_OFFLINE,
+            baker.make(
+                'circuits.Circuit',
+                provider=providers[1], provider_account=provider_accounts[2],
+                tenant=tenants[2], type=circuit_types[1],
+                cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05',
+                commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE,
             ),
-            Circuit(
-                provider=providers[1],
-                provider_account=provider_accounts[2],
-                tenant=tenants[2],
-                type=circuit_types[1],
-                cid='Test Circuit 6',
-                install_date='2020-01-06',
-                termination_date='2021-01-06',
-                commit_rate=6000,
-                status=CircuitStatusChoices.STATUS_OFFLINE,
+            baker.make(
+                'circuits.Circuit',
+                provider=providers[1], provider_account=provider_accounts[2],
+                tenant=tenants[2], type=circuit_types[1],
+                cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06',
+                commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE,
             ),
         )
-        Circuit.objects.bulk_create(circuits)
 
         circuit_terminations = ((
             CircuitTermination(circuit=circuits[0], termination=sites[0], term_side='A'),
@@ -667,39 +637,19 @@ class CircuitGroupAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
             for i in range(3)
         ]
 
-        assignments = (
-            CircuitGroupAssignment(
-                group=circuit_groups[0],
-                member=circuits[0],
-                priority=CircuitPriorityChoices.PRIORITY_PRIMARY
-            ),
-            CircuitGroupAssignment(
-                group=circuit_groups[1],
-                member=circuits[1],
-                priority=CircuitPriorityChoices.PRIORITY_SECONDARY
-            ),
-            CircuitGroupAssignment(
-                group=circuit_groups[2],
-                member=circuits[2],
-                priority=CircuitPriorityChoices.PRIORITY_TERTIARY
-            ),
-            CircuitGroupAssignment(
-                group=circuit_groups[0],
-                member=virtual_circuits[0],
-                priority=CircuitPriorityChoices.PRIORITY_PRIMARY
-            ),
-            CircuitGroupAssignment(
-                group=circuit_groups[1],
-                member=virtual_circuits[1],
-                priority=CircuitPriorityChoices.PRIORITY_SECONDARY
-            ),
-            CircuitGroupAssignment(
-                group=circuit_groups[2],
-                member=virtual_circuits[2],
-                priority=CircuitPriorityChoices.PRIORITY_TERTIARY
-            ),
-        )
-        CircuitGroupAssignment.objects.bulk_create(assignments)
+        for i, priority in enumerate([
+            CircuitPriorityChoices.PRIORITY_PRIMARY,
+            CircuitPriorityChoices.PRIORITY_SECONDARY,
+            CircuitPriorityChoices.PRIORITY_TERTIARY,
+        ]):
+            baker.make(
+                'circuits.CircuitGroupAssignment',
+                group=circuit_groups[i], member=circuits[i], priority=priority,
+            )
+            baker.make(
+                'circuits.CircuitGroupAssignment',
+                group=circuit_groups[i], member=virtual_circuits[i], priority=priority,
+            )
 
     def test_group(self):
         groups = CircuitGroup.objects.all()[:2]
@@ -882,35 +832,17 @@ class VirtualCircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         virtual_circuit_types = baker.make('circuits.VirtualCircuitType', _quantity=3)
 
-        VirtualCircuit.objects.bulk_create((
-            VirtualCircuit(
-                provider_network=provider_networks[0],
-                provider_account=provider_accounts[0],
-                tenant=tenants[0],
-                cid='Virtual Circuit 1',
-                type=virtual_circuit_types[0],
-                status=CircuitStatusChoices.STATUS_PLANNED,
-                description='virtualcircuit1',
-            ),
-            VirtualCircuit(
-                provider_network=provider_networks[1],
-                provider_account=provider_accounts[1],
-                tenant=tenants[1],
-                cid='Virtual Circuit 2',
-                type=virtual_circuit_types[1],
-                status=CircuitStatusChoices.STATUS_ACTIVE,
-                description='virtualcircuit2',
-            ),
-            VirtualCircuit(
-                provider_network=provider_networks[2],
-                provider_account=provider_accounts[2],
-                tenant=tenants[2],
-                cid='Virtual Circuit 3',
-                type=virtual_circuit_types[2],
-                status=CircuitStatusChoices.STATUS_DEPROVISIONING,
-                description='virtualcircuit3',
-            ),
-        ))
+        for i, (status, desc) in enumerate([
+            (CircuitStatusChoices.STATUS_PLANNED, 'virtualcircuit1'),
+            (CircuitStatusChoices.STATUS_ACTIVE, 'virtualcircuit2'),
+            (CircuitStatusChoices.STATUS_DEPROVISIONING, 'virtualcircuit3'),
+        ]):
+            baker.make(
+                'circuits.VirtualCircuit',
+                provider_network=provider_networks[i], provider_account=provider_accounts[i],
+                tenant=tenants[i], cid=f'Virtual Circuit {i + 1}',
+                type=virtual_circuit_types[i], status=status, description=desc,
+            )
 
     def test_q(self):
         params = {'q': 'virtualcircuit1'}
@@ -1014,45 +946,20 @@ class VirtualCircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             for i in range(3)
         ]
 
-        virtual_circuit_terminations = (
-            VirtualCircuitTermination(
-                virtual_circuit=virtual_circuits[0],
-                role=VirtualCircuitTerminationRoleChoices.ROLE_HUB,
-                interface=virtual_interfaces[0],
-                description='termination1'
-            ),
-            VirtualCircuitTermination(
-                virtual_circuit=virtual_circuits[0],
-                role=VirtualCircuitTerminationRoleChoices.ROLE_SPOKE,
-                interface=virtual_interfaces[3],
-                description='termination2'
-            ),
-            VirtualCircuitTermination(
-                virtual_circuit=virtual_circuits[1],
-                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
-                interface=virtual_interfaces[1],
-                description='termination3'
-            ),
-            VirtualCircuitTermination(
-                virtual_circuit=virtual_circuits[1],
-                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
-                interface=virtual_interfaces[4],
-                description='termination4'
-            ),
-            VirtualCircuitTermination(
-                virtual_circuit=virtual_circuits[2],
-                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
-                interface=virtual_interfaces[2],
-                description='termination5'
-            ),
-            VirtualCircuitTermination(
-                virtual_circuit=virtual_circuits[2],
-                role=VirtualCircuitTerminationRoleChoices.ROLE_PEER,
-                interface=virtual_interfaces[5],
-                description='termination6'
-            ),
+        termination_data = (
+            (virtual_circuits[0], VirtualCircuitTerminationRoleChoices.ROLE_HUB, virtual_interfaces[0]),
+            (virtual_circuits[0], VirtualCircuitTerminationRoleChoices.ROLE_SPOKE, virtual_interfaces[3]),
+            (virtual_circuits[1], VirtualCircuitTerminationRoleChoices.ROLE_PEER, virtual_interfaces[1]),
+            (virtual_circuits[1], VirtualCircuitTerminationRoleChoices.ROLE_PEER, virtual_interfaces[4]),
+            (virtual_circuits[2], VirtualCircuitTerminationRoleChoices.ROLE_PEER, virtual_interfaces[2]),
+            (virtual_circuits[2], VirtualCircuitTerminationRoleChoices.ROLE_PEER, virtual_interfaces[5]),
         )
-        VirtualCircuitTermination.objects.bulk_create(virtual_circuit_terminations)
+        for i, (vc, role, iface) in enumerate(termination_data, start=1):
+            baker.make(
+                'circuits.VirtualCircuitTermination',
+                virtual_circuit=vc, role=role, interface=iface,
+                description=f'termination{i}',
+            )
 
     def test_q(self):
         params = {'q': 'termination1'}

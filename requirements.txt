@@ -23,6 +23,7 @@ gunicorn==26.0.0
 Jinja2==3.1.6
 jsonschema==4.26.0
 Markdown==3.10.2
+model-bakery==1.23.4
 mkdocs==1.6.1
 mkdocs-material==9.7.6
 mkdocstrings==1.0.4

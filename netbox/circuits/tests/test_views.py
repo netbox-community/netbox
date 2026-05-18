@@ -105,16 +105,16 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        baker.make('dcim.Site', name='Site 1', slug='site-1')
+        cls.site = baker.make('dcim.Site', name='Site 1', slug='site-1')
 
-        providers = baker.make('circuits.Provider', _quantity=2)
+        cls.providers = providers = baker.make('circuits.Provider', _quantity=2)
 
         provider_accounts = [
             baker.make('circuits.ProviderAccount', provider=providers[0]),
             baker.make('circuits.ProviderAccount', provider=providers[1]),
         ]
 
-        circuittypes = baker.make('circuits.CircuitType', _quantity=2)
+        cls.circuittypes = circuittypes = baker.make('circuits.CircuitType', _quantity=2)
 
         circuits = baker.make(
             'circuits.Circuit',
@@ -186,25 +186,24 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'circuits.view_circuittype',
             'dcim.view_site',
         )
-        site = Site.objects.first()
         json_data = f"""
             [
               {{
                 "cid": "Circuit 7",
-                "provider": "{Provider.objects.first().name}",
-                "type": "{CircuitType.objects.first().name}",
+                "provider": "{self.providers[0].name}",
+                "type": "{self.circuittypes[0].name}",
                 "status": "active",
                 "description": "Testing Import",
                 "terminations": [
                   {{
                     "term_side": "A",
                     "termination_type": "dcim.site",
-                    "termination_id": "{site.pk}"
+                    "termination_id": "{self.site.pk}"
                   }},
                   {{
                     "term_side": "Z",
                     "termination_type": "dcim.site",
-                    "termination_id": "{site.pk}"
+                    "termination_id": "{self.site.pk}"
                   }}
                 ]
               }}
@@ -539,9 +538,13 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
         provider = baker.make('circuits.Provider')
-        provider_networks = baker.make('circuits.ProviderNetwork', provider=provider, _quantity=2)
+        cls.provider_networks = provider_networks = baker.make(
+            'circuits.ProviderNetwork', provider=provider, _quantity=2
+        )
         provider_accounts = baker.make('circuits.ProviderAccount', provider=provider, _quantity=2)
-        virtual_circuit_types = baker.make('circuits.VirtualCircuitType', _quantity=2)
+        cls.virtual_circuit_types = virtual_circuit_types = baker.make(
+            'circuits.VirtualCircuitType', _quantity=2
+        )
 
         virtual_circuits = baker.make(
             'circuits.VirtualCircuit',
@@ -626,8 +629,8 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             [
               {{
                 "cid": "Virtual Circuit 7",
-                "provider_network": "{ProviderNetwork.objects.first().name}",
-                "type": "{VirtualCircuitType.objects.first().name}",
+                "provider_network": "{self.provider_networks[0].name}",
+                "type": "{self.virtual_circuit_types[0].name}",
                 "status": "active",
                 "terminations": [
                   {{

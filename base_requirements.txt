@@ -101,6 +101,10 @@ jsonschema
 # https://python-markdown.github.io/changelog/
 Markdown
 
+# Test object generation via field introspection
+# https://github.com/model-bakers/model_bakery
+model-bakery
+
 # Retain MkDocs 1.x for mkdocstrings
 # https://github.com/mkdocs/mkdocs
 mkdocs<2.0

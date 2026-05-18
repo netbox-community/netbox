@@ -144,6 +144,7 @@ JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
 LOGGING = getattr(configuration, 'LOGGING', {})
+# Allow model_bakery to generate MPTT model instances in tests (django-mptt blocks this by default)
 MPTT_ALLOW_TESTING_GENERATORS = getattr(configuration, 'MPTT_ALLOW_TESTING_GENERATORS', False)
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
