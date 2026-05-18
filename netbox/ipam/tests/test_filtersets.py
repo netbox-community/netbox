@@ -1307,6 +1307,10 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
+        IPAddress.objects.filter(pk__in=[ipaddresses[1].pk, ipaddresses[2].pk]).update(
+            nat_inside=ipaddresses[0]
+        )
+
         services = (
             Service(
                 parent=devices[0],
@@ -1474,6 +1478,11 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_service(self):
         services = Service.objects.all()[:2]
         params = {'service_id': [services[0].pk, services[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_nat_inside(self):
+        inside = IPAddress.objects.filter(nat_outside__isnull=False).distinct().first()
+        params = {'nat_inside_id': [inside.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
