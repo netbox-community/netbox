@@ -176,6 +176,13 @@ REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME'
 # Required by extras/migrations/0109_script_models.py
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ = getattr(configuration, 'RQ', {})
+if 'WORKER_CLASS' in RQ and RQ['WORKER_CLASS'] != 'utilities.rqworker.NetBoxRQWorker':
+    warnings.warn(
+        f"RQ['WORKER_CLASS'] is set to {RQ['WORKER_CLASS']!r}; NetBoxRQWorker's self-healing heartbeat "
+        f"logic will not be applied. Workers may not automatically recover from a Redis outage."
+    )
+else:
+    RQ.setdefault('WORKER_CLASS', 'utilities.rqworker.NetBoxRQWorker')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
 RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)

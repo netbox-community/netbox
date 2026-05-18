@@ -995,7 +995,7 @@ class ScriptValidationErrorTestCase(TestCase):
     def test_script_validation_error_displays_message(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
 
-        with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+        with patch('extras.views.any_workers_for_queue', return_value=True):
             response = self.client.post(url, {'debug_mode': 'true', '_commit': 'true'})
 
         self.assertEqual(response.status_code, 200)
@@ -1020,7 +1020,7 @@ class ScriptValidationErrorTestCase(TestCase):
 
         with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock_python_class:
             mock_python_class.return_value = FieldsetScript
-            with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+            with patch('extras.views.any_workers_for_queue', return_value=True):
                 response = self.client.post(url, {'required_field': '5', '_commit': 'true'})
 
         self.assertEqual(response.status_code, 200)
@@ -1063,7 +1063,7 @@ class ScriptDefaultValuesTestCase(TestCase):
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
 
-        with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+        with patch('extras.views.any_workers_for_queue', return_value=True):
             with patch('extras.jobs.ScriptJob.enqueue') as mock_enqueue:
                 mock_enqueue.return_value.pk = 1
                 self.client.post(url, {})
