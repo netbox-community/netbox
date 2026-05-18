@@ -204,6 +204,7 @@ class SubscriptionType(ObjectType):
     pagination=True
 )
 class TableConfigType(ObjectType):
+    object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
 
