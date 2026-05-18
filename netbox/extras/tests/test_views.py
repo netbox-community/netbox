@@ -370,7 +370,7 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class ExportTemplateExportFlowTest(TestCase):
+class ExportTemplateExportFlowTestCase(TestCase):
     """
     End-to-end test for ExportTemplate invocation via a list view's ?export=<name> query param.
     """

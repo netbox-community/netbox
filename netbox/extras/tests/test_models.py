@@ -1008,13 +1008,13 @@ class ExportTemplateContextTestCase(TestCase):
 
 def finalize_none_to_dash(value):
     """
-    Module-level helper used by RenderTemplateMixinRenderTest.test_environment_params_finalize_path_import.
+    Module-level helper used by RenderTemplateMixinRenderTestCase.test_environment_params_finalize_path_import.
     Exported so it can be referenced by dotted path from a Jinja environment_params value.
     """
     return '-' if value is None else value
 
 
-class RenderTemplateMixinRenderTest(TestCase):
+class RenderTemplateMixinRenderTestCase(TestCase):
     """
     Tests for RenderTemplateMixin.render() and get_environment_params(), exercised via ConfigTemplate.
     """
@@ -1094,7 +1094,7 @@ class RenderTemplateMixinRenderTest(TestCase):
         self.assertEqual(t.environment_params, {'undefined': 'jinja2.StrictUndefined'})
 
 
-class RenderTemplateMixinResponseTest(TestCase):
+class RenderTemplateMixinResponseTestCase(TestCase):
     """
     Tests for RenderTemplateMixin.render_to_response() HTTP behavior.
     """
@@ -1152,7 +1152,7 @@ class RenderTemplateMixinResponseTest(TestCase):
         self.assertEqual(response.content.decode(), rendered)
 
 
-class ExportTemplateRenderTest(TestCase):
+class ExportTemplateRenderTestCase(TestCase):
     """
     Tests for ExportTemplate.render() with a queryset bound into the template context.
     """
@@ -1208,7 +1208,7 @@ class EventRuleTestCase(TestCase):
             self.assertIn('action_data', cm.exception.message_dict)
 
 
-class JinjaEnvironmentParamsCleanTest(TestCase):
+class JinjaEnvironmentParamsCleanTestCase(TestCase):
     """Tests for RenderTemplateMixin.clean() validation of environment_params."""
 
     def _make_template(self, environment_params):
@@ -1285,7 +1285,7 @@ class JinjaEnvironmentParamsCleanTest(TestCase):
         self.assertIn('environment_params', cm.exception.message_dict)
 
 
-class JinjaEnvironmentParamsFilterTest(TestCase):
+class JinjaEnvironmentParamsFilterTestCase(TestCase):
     """Tests for RenderTemplateMixin._filter_environment_params()."""
 
     def test_allowed_keys_pass_through(self):
@@ -1307,7 +1307,7 @@ class JinjaEnvironmentParamsFilterTest(TestCase):
         self.assertEqual(RenderTemplateMixin._filter_environment_params({}), {})
 
 
-class JinjaEnvironmentParamsResolveTest(TestCase):
+class JinjaEnvironmentParamsResolveTestCase(TestCase):
     """Tests for RenderTemplateMixin._resolve_mapped_params()."""
 
     def test_undefined_resolved_to_class(self):
@@ -1329,7 +1329,7 @@ class JinjaEnvironmentParamsResolveTest(TestCase):
         self.assertEqual(RenderTemplateMixin._resolve_mapped_params({}), {})
 
 
-class JinjaEnvironmentParamsFinalizeTest(TestCase):
+class JinjaEnvironmentParamsFinalizeTestCase(TestCase):
     """Tests for RenderTemplateMixin._resolve_finalize() legacy carve-out."""
 
     def test_finalize_string_resolved_via_import_string(self):
@@ -1356,7 +1356,7 @@ class JinjaEnvironmentParamsFinalizeTest(TestCase):
         self.assertEqual(RenderTemplateMixin._resolve_finalize({}), {})
 
 
-class JinjaEnvironmentParamsIntegrationTest(TestCase):
+class JinjaEnvironmentParamsIntegrationTestCase(TestCase):
     """Integration tests for get_environment_params() end-to-end."""
 
     def _make_template(self, environment_params):
