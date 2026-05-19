@@ -1119,7 +1119,7 @@ class ViewTestCases:
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_rename_label_field(self):
-            """When field_name='label' is submitted, labels (not names) are updated."""
+            """When field_names=['label'] is submitted, labels (not names) are updated."""
             if 'label' not in {f.name for f in self.model._meta.fields}:
                 self.skipTest("Model does not have a label field")
 
@@ -1128,7 +1128,7 @@ class ViewTestCases:
             original_labels = [obj.label for obj in objects]
             data = {
                 'pk': pk_list,
-                'field_name': 'label',
+                'field_names': ['label'],
                 '_apply': True,
             }
             data.update(self.rename_data)
