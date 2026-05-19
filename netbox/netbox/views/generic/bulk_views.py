@@ -2,6 +2,7 @@ import logging
 import re
 from collections import Counter
 from copy import deepcopy
+from types import SimpleNamespace
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,7 +11,7 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, Valida
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import ChoiceField, ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
@@ -875,22 +876,18 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     An extendable view for renaming objects in bulk.
 
     Attributes:
-        field_name: The name of the object attribute for which the value is being updated (defaults to "name")
+        field_name: The name of the object attribute to rename (defaults to "name"). Used when
+            rename_fields is not set; kept for backward compatibility with plugins.
+        rename_fields: Tuple of field names that can be selected for renaming. When two or more
+            fields are listed, the form renders a checkbox per field so the user can apply the
+            find/replace pattern to any combination of them simultaneously.
     """
     field_name = 'name'
+    rename_fields = ()
     template_name = 'generic/bulk_rename.html'
     # Match BulkEditView/BulkDeleteView behavior: allow passing a FilterSet
     # so "Select all N matching query" can expand across the full queryset.
     filterset = None
-
-    def _get_rename_fields(self):
-        """Return (value, label) choices for the field selector, or [] if only one field applies."""
-        if self.field_name != 'name':
-            return []
-        model_field_names = {f.name for f in self.queryset.model._meta.fields}
-        if 'label' not in model_field_names:
-            return []
-        return [('name', _('Name')), ('label', _('Label'))]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -902,54 +899,56 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             else BulkRenameForm
         )
 
-        rename_fields = self._get_rename_fields()
-        self.has_label_field = bool(rename_fields)
-        form_attrs = {
+        self.form = type('_Form', (base_form,), {
             'pk': ModelMultipleChoiceField(
                 queryset=self.queryset,
                 widget=MultipleHiddenInput(),
             ),
-        }
-        if rename_fields:
-            form_attrs['field_name'] = ChoiceField(
-                choices=rename_fields,
-                label=_('Field'),
-                initial='name',
-                required=False,  # empty value falls back to self.field_name in post()
-            )
-
-        self.form = type('_Form', (base_form,), form_attrs)
+        })
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
-    def _rename_objects(self, form, selected_objects, field_name=None):
+    def _rename_objects(self, form, selected_objects, field_names=None):
+        if field_names is None:
+            field_names = [self.field_name]
+
+        find = form.cleaned_data['find']
+        replace = form.cleaned_data['replace']
+        use_regex = form.cleaned_data['use_regex']
         renamed_pks = []
-        if field_name is None:
-            field_name = self.field_name
 
         for obj in selected_objects:
             # Take a snapshot of change-logged models
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
 
-            find = form.cleaned_data['find']
-            replace = form.cleaned_data['replace']
-            if form.cleaned_data['use_regex']:
-                try:
-                    obj.new_name = re.sub(find, replace, getattr(obj, field_name, '') or '')
-                # Catch regex group reference errors
-                except re.error:
-                    obj.new_name = getattr(obj, field_name)
-            else:
-                obj.new_name = (getattr(obj, field_name, '') or '').replace(find, replace)
+            new_values = {}
+            for field in field_names:
+                current = getattr(obj, field, '') or ''
+                if use_regex:
+                    try:
+                        new_values[field] = re.sub(find, replace, current)
+                    # Catch regex group reference errors
+                    except re.error:
+                        new_values[field] = current
+                else:
+                    new_values[field] = current.replace(find, replace)
+
+            obj.new_names = SimpleNamespace(**new_values)
+            # Backward compat: single-field callers still reference obj.new_name
+            obj.new_name = new_values.get(field_names[0], '')
+            obj.has_changes = any(
+                new_values[f] != (getattr(obj, f, '') or '') for f in field_names
+            )
             renamed_pks.append(obj.pk)
 
         return renamed_pks
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkRenameView')
-        field_name = self.field_name
+        # Default field list: either all rename_fields or the single legacy field_name
+        field_names = list(self.rename_fields) if self.rename_fields else [self.field_name]
 
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
         if request.POST.get('_all') and self.filterset is not None:
@@ -963,22 +962,31 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             form = self.form(request.POST, initial={'pk': pk_list})
 
             if form.is_valid():
-                field_name = form.cleaned_data.get('field_name') or self.field_name
+                # field_names checkboxes are rendered manually in the template and
+                # submitted directly, not via a form field, to avoid widget styling issues.
+                submitted = [
+                    f for f in request.POST.getlist('field_names')
+                    if f in self.rename_fields
+                ]
+                if submitted:
+                    field_names = submitted
                 try:
                     with transaction.atomic(using=router.db_for_write(self.queryset.model)):
-                        renamed_pks = self._rename_objects(form, selected_objects, field_name)
+                        renamed_pks = self._rename_objects(form, selected_objects, field_names)
 
                         if '_apply' in request.POST:
                             # For MPTT models, delay tree updates until all saves are complete
                             if issubclass(self.queryset.model, MPTTModel):
                                 with self.queryset.model.objects.delay_mptt_updates():
                                     for obj in selected_objects:
-                                        setattr(obj, field_name, obj.new_name)
+                                        for field in field_names:
+                                            setattr(obj, field, getattr(obj.new_names, field))
                                         obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                         obj.save()
                             else:
                                 for obj in selected_objects:
-                                    setattr(obj, field_name, obj.new_name)
+                                    for field in field_names:
+                                        setattr(obj, field, getattr(obj.new_names, field))
                                     obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                     obj.save()
 
@@ -1008,8 +1016,8 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             form = self.form(initial={'pk': pk_list})
 
         return render(request, self.template_name, {
-            'field_name': field_name,
-            'has_label_field': self.has_label_field,
+            'rename_fields': self.rename_fields,
+            'selected_field_names': field_names,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,
