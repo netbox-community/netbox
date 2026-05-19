@@ -1,3 +1,4 @@
+from decimal import Decimal
 from types import SimpleNamespace
 
 from django.test import RequestFactory, TestCase
@@ -458,6 +459,29 @@ class GPSCoordinatesAttrTestCase(TestCase):
     def test_build_coords_url_lon_placeholder_only(self):
         url = attrs.GPSCoordinatesAttr._build_coords_url('https://example.com/?lon={lon}', 48.858, 2.294)
         self.assertEqual(url, 'https://example.com/?lon=2.294')
+
+    def test_build_coords_url_unknown_placeholder_falls_back_to_legacy(self):
+        # Unknown placeholder: should not raise, fall back to appending lat,lon
+        url = attrs.GPSCoordinatesAttr._build_coords_url('https://example.com/?q={unknown}', 48.858, 2.294)
+        self.assertEqual(url, 'https://example.com/?q={unknown}48.858,2.294')
+
+    def test_build_coords_url_decimal_values_no_locale_separator(self):
+        # Decimal field values must format with '.' as the decimal separator regardless of locale;
+        # a locale-style comma separator would produce e.g. '48,858258' and break the URL
+        url = attrs.GPSCoordinatesAttr._build_coords_url(
+            'https://maps.google.com/?q=',
+            Decimal('48.858258'),
+            Decimal('2.294498'),
+        )
+        self.assertEqual(url, 'https://maps.google.com/?q=48.858258,2.294498')
+
+    def test_build_coords_url_decimal_with_placeholders_no_locale_separator(self):
+        url = attrs.GPSCoordinatesAttr._build_coords_url(
+            'https://www.openstreetmap.org/?mlat={lat}&mlon={lon}',
+            Decimal('48.858258'),
+            Decimal('2.294498'),
+        )
+        self.assertEqual(url, 'https://www.openstreetmap.org/?mlat=48.858258&mlon=2.294498')
 
 
 class DateTimeAttrTestCase(TestCase):

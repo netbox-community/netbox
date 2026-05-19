@@ -513,7 +513,10 @@ class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
     @staticmethod
     def _build_coords_url(map_url, latitude, longitude):
         if '{lat}' in map_url or '{lon}' in map_url:
-            return map_url.format(lat=latitude, lon=longitude)
+            try:
+                return map_url.format(lat=latitude, lon=longitude)
+            except (KeyError, IndexError, ValueError):
+                pass
         return f'{map_url}{latitude},{longitude}'
 
 
