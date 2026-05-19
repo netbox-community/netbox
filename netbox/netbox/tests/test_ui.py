@@ -461,9 +461,16 @@ class GPSCoordinatesAttrTestCase(TestCase):
         self.assertEqual(url, 'https://example.com/?lon=2.294')
 
     def test_build_coords_url_unknown_placeholder_falls_back_to_legacy(self):
-        # Unknown placeholder: should not raise, fall back to appending lat,lon
+        # URL with only an unknown placeholder (no {lat}/{lon}) → legacy append
         url = attrs.GPSCoordinatesAttr._build_coords_url('https://example.com/?q={unknown}', 48.858, 2.294)
         self.assertEqual(url, 'https://example.com/?q={unknown}48.858,2.294')
+
+    def test_build_coords_url_known_and_unknown_placeholder(self):
+        # {lat} is substituted; unknown key is left as a literal placeholder
+        url = attrs.GPSCoordinatesAttr._build_coords_url(
+            'https://example.com/?lat={lat}&layer={layer}', 48.858, 2.294
+        )
+        self.assertEqual(url, 'https://example.com/?lat=48.858&layer={layer}')
 
     def test_build_coords_url_decimal_values_no_locale_separator(self):
         # Decimal field values must format with '.' as the decimal separator regardless of locale;

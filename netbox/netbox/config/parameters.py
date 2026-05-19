@@ -230,7 +230,7 @@ PARAMS = (
         label=_('Maps URL'),
         default='https://maps.google.com/?q=',
         description=_(
-            "URL for mapping geographic locations. For GPS coordinates, include {lat} and {lon} placeholders, "
+            "URL for mapping geographic locations. For GPS coordinates, include {lat} and/or {lon} placeholders, "
             "or omit them to append coordinates as a comma-separated pair."
         )
     ),

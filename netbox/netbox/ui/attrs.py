@@ -513,10 +513,12 @@ class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
     @staticmethod
     def _build_coords_url(map_url, latitude, longitude):
         if '{lat}' in map_url or '{lon}' in map_url:
-            try:
-                return map_url.format(lat=latitude, lon=longitude)
-            except (KeyError, IndexError, ValueError):
-                pass
+            # Substitute only {lat}/{lon}; leave any other placeholders intact
+            # so a misconfigured URL still resolves the known tokens correctly.
+            class _SubstituteKnown(dict):
+                def __missing__(self, key):
+                    return '{' + key + '}'
+            return map_url.format_map(_SubstituteKnown(lat=latitude, lon=longitude))
         return f'{map_url}{latitude},{longitude}'
 
 
