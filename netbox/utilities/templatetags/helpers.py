@@ -332,6 +332,50 @@ def kg_to_pounds(n):
     return float(n) * 2.204623
 
 
+@register.simple_tag(takes_context=True)
+def display_weight(context, weight, weight_unit, abs_weight):
+    """
+    Render a weight value respecting the user's ui.measurement_system preference.
+    When the stored unit conflicts with the preferred system, converts via abs_weight (grams).
+    Falls back to the stored value/unit when no conversion is needed.
+    """
+    if not weight:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    _IMPERIAL = {'lb', 'oz'}
+    _METRIC = {'kg', 'g'}
+    if system == 'metric' and weight_unit in _IMPERIAL and abs_weight:
+        return f'{round(abs_weight / 1000, 2):g} kg'
+    if system == 'imperial' and weight_unit in _METRIC and abs_weight:
+        return f'{round(abs_weight / 453.592, 2):g} lbs'
+    return f'{weight:g} {weight_unit}'
+
+
+@register.simple_tag(takes_context=True)
+def display_distance(context, distance, distance_unit, abs_distance):
+    """
+    Render a distance value respecting the user's ui.measurement_system preference.
+    When the stored unit conflicts with the preferred system, converts via abs_distance (meters).
+    Falls back to the stored value/unit when no conversion is needed.
+    """
+    if distance is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    _IMPERIAL = {'mi', 'ft'}
+    _METRIC = {'km', 'm'}
+    if system == 'metric' and distance_unit in _IMPERIAL and abs_distance is not None:
+        abs_m = float(abs_distance)
+        if abs_m >= 1000:
+            return f'{round(abs_m / 1000, 2):g} km'
+        return f'{round(abs_m, 2):g} m'
+    if system == 'imperial' and distance_unit in _METRIC and abs_distance is not None:
+        abs_m = float(abs_distance)
+        if abs_m >= 1609.344:
+            return f'{round(abs_m / 1609.344, 2):g} mi'
+        return f'{round(abs_m / 0.3048, 2):g} ft'
+    return f'{distance:g} {distance_unit}'
+
+
 @register.filter("startswith")
 def startswith(text: str, starts: str) -> bool:
     """

@@ -11,6 +11,7 @@ __all__ = (
     'ChoiceAttr',
     'ColorAttr',
     'DateTimeAttr',
+    'DistanceAttr',
     'GPSCoordinatesAttr',
     'GenericForeignKeyAttr',
     'ImageAttr',
@@ -23,6 +24,7 @@ __all__ = (
     'TextAttr',
     'TimezoneAttr',
     'UtilizationAttr',
+    'WeightAttr',
 )
 
 PLACEHOLDER_HTML = '<span class="text-muted">&mdash;</span>'
@@ -561,3 +563,101 @@ class UtilizationAttr(ObjectAttribute):
     Renders the value of an attribute as a utilization graph.
     """
     template_name = 'ui/attrs/utilization.html'
+
+
+_IMPERIAL_WEIGHT = {'lb', 'oz'}
+_METRIC_WEIGHT = {'kg', 'g'}
+_IMPERIAL_DISTANCE = {'mi', 'ft'}
+_METRIC_DISTANCE = {'km', 'm'}
+
+
+class WeightAttr(ObjectAttribute):
+    """
+    A weight attribute that converts to the user's preferred measurement system.
+
+    Parameters:
+        unit_attr (str): Name of the field holding the weight unit (default: 'weight_unit')
+        abs_attr (str): Name of the field holding the absolute weight in grams (default: '_abs_weight')
+    """
+    template_name = 'ui/attrs/numeric.html'
+
+    def __init__(self, *args, unit_attr='weight_unit', abs_attr='_abs_weight', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unit_attr = unit_attr
+        self.abs_attr = abs_attr
+
+    def render(self, obj, context):
+        weight = resolve_attr_path(obj, self.accessor)
+        if weight is None:
+            return self.placeholder
+
+        system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+        unit = resolve_attr_path(obj, self.unit_attr)
+        abs_weight = resolve_attr_path(obj, self.abs_attr)
+
+        if system == 'metric' and unit in _IMPERIAL_WEIGHT and abs_weight:
+            display_value = round(abs_weight / 1000, 2)
+            display_unit = 'kg'
+        elif system == 'imperial' and unit in _METRIC_WEIGHT and abs_weight:
+            display_value = round(abs_weight / 453.592, 2)
+            display_unit = 'lbs'
+        else:
+            display_value = weight
+            display_unit = resolve_attr_path(obj, 'get_weight_unit_display')().lower()
+
+        return render_to_string(self.template_name, {
+            'name': context['name'],
+            'value': display_value,
+            'unit': display_unit,
+        })
+
+
+class DistanceAttr(ObjectAttribute):
+    """
+    A distance attribute that converts to the user's preferred measurement system.
+
+    Parameters:
+        unit_attr (str): Name of the field holding the distance unit (default: 'distance_unit')
+        abs_attr (str): Name of the field holding the absolute distance in meters (default: '_abs_distance')
+    """
+    template_name = 'ui/attrs/numeric.html'
+
+    def __init__(self, *args, unit_attr='distance_unit', abs_attr='_abs_distance', **kwargs):
+        super().__init__(*args, **kwargs)
+        self.unit_attr = unit_attr
+        self.abs_attr = abs_attr
+
+    def render(self, obj, context):
+        distance = resolve_attr_path(obj, self.accessor)
+        if distance is None:
+            return self.placeholder
+
+        system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+        unit = resolve_attr_path(obj, self.unit_attr)
+        abs_distance = resolve_attr_path(obj, self.abs_attr)
+
+        if system == 'metric' and unit in _IMPERIAL_DISTANCE and abs_distance is not None:
+            abs_m = float(abs_distance)
+            if abs_m >= 1000:
+                display_value = round(abs_m / 1000, 2)
+                display_unit = 'km'
+            else:
+                display_value = round(abs_m, 2)
+                display_unit = 'm'
+        elif system == 'imperial' and unit in _METRIC_DISTANCE and abs_distance is not None:
+            abs_m = float(abs_distance)
+            if abs_m >= 1609.344:
+                display_value = round(abs_m / 1609.344, 2)
+                display_unit = 'mi'
+            else:
+                display_value = round(abs_m / 0.3048, 2)
+                display_unit = 'ft'
+        else:
+            display_value = distance
+            display_unit = resolve_attr_path(obj, 'get_distance_unit_display')().lower()
+
+        return render_to_string(self.template_name, {
+            'name': context['name'],
+            'value': display_value,
+            'unit': display_unit,
+        })

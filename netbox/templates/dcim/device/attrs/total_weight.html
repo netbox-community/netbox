@@ -1,3 +1,11 @@
 {% load helpers i18n %}
+{% with system=preferences|get_key:"ui.measurement_system" %}
+{% if system == "imperial" %}
+{{ value|kg_to_pounds|floatformat }} {% trans "Pounds" %}
+{% elif system == "metric" %}
+{{ value|floatformat }} {% trans "Kilograms" %}
+{% else %}
 {{ value|floatformat }} {% trans "Kilograms" %}
 ({{ value|kg_to_pounds|floatformat }} {% trans "Pounds" %})
+{% endif %}
+{% endwith %}

@@ -48,4 +48,4 @@ class WirelessLinkPropertiesPanel(panels.ObjectAttributesPanel):
     ssid = attrs.TextAttr('ssid', label=_('SSID'))
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
-    distance = attrs.NumericAttr('distance', unit_accessor='get_distance_unit_display')
+    distance = attrs.DistanceAttr('distance')
