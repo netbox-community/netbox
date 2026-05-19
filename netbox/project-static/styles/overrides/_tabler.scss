@@ -1,7 +1,7 @@
 // Disable font-ligatures for Chromium based browsers
 // Chromium requires `font-variant-ligatures: none` in addition to `font-feature-settings "liga" 0`
 * {
-  font-feature-settings: "liga" 0;
+  font-feature-settings: 'liga' 0;
   font-variant-ligatures: none;
 }
 
@@ -67,7 +67,8 @@ pre {
 }
 
 // Altering background colors
-.page, .page-tabs .nav-tabs .nav-link.active {
+.page,
+.page-tabs .nav-tabs .nav-link.active {
   background-color: var(--#{$prefix}bg-surface-tertiary) !important;
 }
 
@@ -80,23 +81,23 @@ pre {
 // Dark mode colors
 @if $enable-dark-mode {
   @include color-mode(dark, true) {
-    --#{$prefix}alert-color: darken(var(--#{$prefix}warning),10%);
+    --#{$prefix}alert-color: darken(var(--#{$prefix}warning), 10%);
     --#{$prefix}link-color: #{$bright-teal};
-    --#{$prefix}link-color-rgb: 0,242,212;
-    --#{$prefix}link-hover-color-rgb: 0,242,212;
+    --#{$prefix}link-color-rgb: 0, 242, 212;
+    --#{$prefix}link-hover-color-rgb: 0, 242, 212;
     --#{$prefix}secondary: #{$gray-400};
     --#{$prefix}primary: #{$bright-teal};
     --#{$prefix}primary-fg: #{$rich-black};
-    --#{$prefix}primary-rgb: 0,242,212;
+    --#{$prefix}primary-rgb: 0, 242, 212;
     --#{$prefix}btn-active-color: #{$rich-black};
   }
 }
 
 // Dark mode overrides
-html[data-bs-theme=dark] {
+html[data-bs-theme='dark'] {
   // Override background color alpha value
   ::selection {
-    background-color: rgba(var(--tblr-primary-rgb),.48);
+    background-color: rgba(var(--tblr-primary-rgb), 0.48);
   }
 
   .btn-primary {
@@ -105,7 +106,9 @@ html[data-bs-theme=dark] {
 
   // Change content color when primary teal changes with theme
   .bg-primary {
-    .card-title,a,i {
+    .card-title,
+    a,
+    i {
       color: $rich-black !important;
     }
   }
@@ -120,14 +123,17 @@ html[data-bs-theme=dark] {
 
   // Background colors to match brand colors
   background-color: $rich-black;
-  .navbar, .page-header {
+  .navbar,
+  .page-header {
     background-color: $rich-black;
   }
-  .page, .page-tabs .nav-tabs .nav-link.active {
+  .page,
+  .page-tabs .nav-tabs .nav-link.active {
     background-color: $rich-black-light !important;
   }
 
-  .page-link.active, .active>.page-link {
+  .page-link.active,
+  .active > .page-link {
     color: $rich-black;
   }
 
@@ -162,14 +168,14 @@ pre code {
 }
 
 // Use an icon instead of Tabler's native "caret" for dropdowns (avoids a Safari bug)
-.dropdown-toggle:after{
-  font-family: "Material Design Icons";
+.dropdown-toggle:after {
+  font-family: 'Material Design Icons';
   content: '\F0140';
   padding-right: 9px;
   border-bottom: none;
   border-left: none;
   transform: none;
-  vertical-align: .05em;
+  vertical-align: 0.05em;
   height: auto;
 }
 

@@ -1,5 +1,49 @@
 # NetBox v4.6
 
+## v4.6.1 (2026-05-19)
+
+### Enhancements
+
+* [#16851](https://github.com/netbox-community/netbox/issues/16851) - Correct errant and missing ARIA labels throughout the UI
+* [#20776](https://github.com/netbox-community/netbox/issues/20776) - Add changelog message support for bulk rename operations
+* [#20808](https://github.com/netbox-community/netbox/issues/20808) - Display the names of installed devices when selecting a rack position
+* [#21938](https://github.com/netbox-community/netbox/issues/21938) - Display geographic hierarchy for circuit terminations assigned to sites, locations, or regions
+* [#21993](https://github.com/netbox-community/netbox/issues/21993) - Allow IP ranges comprising a single IP address
+* [#22057](https://github.com/netbox-community/netbox/issues/22057) - Add filter support for notifications and subscriptions to GraphQL API
+* [#22192](https://github.com/netbox-community/netbox/issues/22192) - Introduce `HTTP_CLIENT_IP_HEADERS` configuration parameter to customize HTTP headers used to determine client IP address
+
+### Performance Improvements
+
+* [#22060](https://github.com/netbox-community/netbox/issues/22060) - Implement GraphQL query depth limiting (via `GRAPHQL_MAX_QUERY_DEPTH`) to guard against excessively complex queries
+* [#22061](https://github.com/netbox-community/netbox/issues/22061) - Add prefetch hints to various GraphQL type mixins to improve query efficiency
+* [#22102](https://github.com/netbox-community/netbox/issues/22102) - Add GIN index on CablePath to optimize filtering of cable paths by node
+* [#22104](https://github.com/netbox-community/netbox/issues/22104) - Avoid retracing cable paths during cable deletion
+* [#22146](https://github.com/netbox-community/netbox/issues/22146) - Avoid renumbering MPTT trees when creating module bays
+
+### Bug Fixes
+
+* [#21934](https://github.com/netbox-community/netbox/issues/21934) - Fix striped table rows overriding conditional row color highlighting for virtual/LAG interfaces
+* [#22055](https://github.com/netbox-community/netbox/issues/22055) - Fix API exceptions being silently consumed by middleware without reporting to Sentry
+* [#22079](https://github.com/netbox-community/netbox/issues/22079) - Fix security vulnerability allowing arbitrary code execution via ExportTemplate `environment_params` (CVE-2026-29514)
+* [#22081](https://github.com/netbox-community/netbox/issues/22081) - REST API should return plaintext for new v2 tokens upon creation
+* [#22183](https://github.com/netbox-community/netbox/issues/22183) - Fix spurious changelog entries for `interface_b` generated when saving an unchanged wireless link
+* [#22190](https://github.com/netbox-community/netbox/issues/22190) - Restore tenant and tenant group column options for circuits group table configuration
+* [#22198](https://github.com/netbox-community/netbox/issues/22198) - Restrict export template queryset to authorized objects in REST API and list views
+* [#22202](https://github.com/netbox-community/netbox/issues/22202) - Fix crash in system housekeeping job when no stable releases are available
+* [#22206](https://github.com/netbox-community/netbox/issues/22206) - Fix `TypeError` exception raised by table config validation when `ordering` attribute is null
+* [#22207](https://github.com/netbox-community/netbox/issues/22207) - Fix missing explicit `object_type` field annotation on TableConfigType GraphQL type
+* [#22208](https://github.com/netbox-community/netbox/issues/22208) - Add missing `user_id` FK filter on job filterset
+* [#22209](https://github.com/netbox-community/netbox/issues/22209) - Add missing `cable_id` FK filter on cable termination filterset
+* [#22227](https://github.com/netbox-community/netbox/issues/22227) - Fix display of IP address detail view when multiple NAT assignments exist
+* [#22236](https://github.com/netbox-community/netbox/issues/22236) - Fix support for user changelog message when saving table configurations via the REST API
+
+### Deprecations
+
+* [#22128](https://github.com/netbox-community/netbox/issues/22128) - Deprecate support for v1 API tokens (to be removed in v5.0)
+* [#22141](https://github.com/netbox-community/netbox/issues/22141) - Deprecate support for PostgreSQL 14 (to be removed in v4.7)
+
+---
+
 ## v4.6.0 (2026-05-05)
 
 ### New Features
