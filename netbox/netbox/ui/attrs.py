@@ -500,12 +500,21 @@ class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
         longitude = resolve_attr_path(obj, self.longitude_attr)
         if latitude is None or longitude is None:
             return self.placeholder
+        map_url = self.map_url
+        if map_url:
+            map_url = self._build_coords_url(map_url, latitude, longitude)
         return render_to_string(self.template_name, {
             'name': context['name'],
             'latitude': latitude,
             'longitude': longitude,
-            'map_url': self.map_url,
+            'map_url': map_url,
         })
+
+    @staticmethod
+    def _build_coords_url(map_url, latitude, longitude):
+        if '{lat}' in map_url or '{lon}' in map_url:
+            return map_url.format(lat=latitude, lon=longitude)
+        return f'{map_url}{latitude},{longitude}'
 
 
 class DateTimeAttr(ObjectAttribute):

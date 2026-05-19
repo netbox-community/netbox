@@ -190,7 +190,18 @@ Setting this to `True` will display a "maintenance mode" banner at the top of ev
 
 Default: `https://maps.google.com/?q=` (Google Maps)
 
-This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. The URL must accept either a free-form street address or a comma-separated pair of numeric coordinates appended to it. Set this to `None` to disable the "map it" button within the UI.
+This specifies the URL to use when presenting a map of a physical location by street address or GPS coordinates. Set this to `None` to disable the "map it" button within the UI.
+
+**For street addresses**, the URL must accept a free-form address string appended directly to it.
+
+**For GPS coordinates**, two formats are supported:
+
+* **Simple prefix** (default behavior): The latitude and longitude are appended as a comma-separated pair. For example, `https://maps.google.com/?q=` produces `https://maps.google.com/?q=48.858,2.294`.
+* **Format string**: Include `{lat}` and/or `{lon}` placeholders anywhere in the URL for full control over placement. For example:
+
+```
+MAPS_URL = "https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}"
+```
 
 ---
 
