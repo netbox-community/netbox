@@ -439,6 +439,26 @@ class GPSCoordinatesAttrTestCase(TestCase):
         obj = SimpleNamespace(latitude=None, longitude=None)
         self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
 
+    def test_build_coords_url_legacy_prefix(self):
+        url = attrs.GPSCoordinatesAttr._build_coords_url('https://maps.google.com/?q=', 48.858, 2.294)
+        self.assertEqual(url, 'https://maps.google.com/?q=48.858,2.294')
+
+    def test_build_coords_url_lat_lon_placeholders(self):
+        url = attrs.GPSCoordinatesAttr._build_coords_url(
+            'https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}',
+            48.858,
+            2.294,
+        )
+        self.assertEqual(url, 'https://www.openstreetmap.org/?mlat=48.858&mlon=2.294#map=16/48.858/2.294')
+
+    def test_build_coords_url_lat_placeholder_only(self):
+        url = attrs.GPSCoordinatesAttr._build_coords_url('https://example.com/?lat={lat}', 48.858, 2.294)
+        self.assertEqual(url, 'https://example.com/?lat=48.858')
+
+    def test_build_coords_url_lon_placeholder_only(self):
+        url = attrs.GPSCoordinatesAttr._build_coords_url('https://example.com/?lon={lon}', 48.858, 2.294)
+        self.assertEqual(url, 'https://example.com/?lon=2.294')
+
 
 class DateTimeAttrTestCase(TestCase):
 
