@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import (
     FieldDoesNotExist,
@@ -21,6 +23,8 @@ from netbox.registry import registry
 
 from .query import count_related, dict_to_filter_params
 from .string import title
+
+logger = logging.getLogger('netbox.utilities.api')
 
 __all__ = (
     'IsSuperuser',
@@ -54,9 +58,21 @@ def get_serializer_for_model(model, prefix=''):
     wins. If no resolver matches, the default import-path lookup runs.
     """
     for resolver in registry['serializer_resolvers']:
-        serializer = resolver(model, prefix=prefix)
-        if serializer is not None:
-            return serializer
+        try:
+            serializer = resolver(model, prefix=prefix)
+        except Exception:
+            # A buggy resolver must not break serializer lookup for the rest of NetBox.
+            logger.exception("Serializer resolver %r raised an exception; skipping.", resolver)
+            continue
+        if serializer is None:
+            continue
+        if not (isinstance(serializer, type) and issubclass(serializer, Serializer)):
+            logger.warning(
+                "Serializer resolver %r returned %r, which is not a Serializer subclass; skipping.",
+                resolver, serializer,
+            )
+            continue
+        return serializer
 
     app_label, model_name = model._meta.label.split('.')
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
