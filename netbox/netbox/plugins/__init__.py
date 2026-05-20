@@ -136,8 +136,7 @@ class PluginConfig(AppConfig):
         if user_preferences := self._load_resource('user_preferences'):
             register_user_preferences(plugin_name, user_preferences)
 
-        # Register a serializer resolver (if defined) so utilities.api.get_serializer_for_model
-        # can resolve serializers for dynamically generated or otherwise non-conventional models.
+        # Register serializer resolver (if defined)
         if serializer_resolver := self._load_resource('serializer_resolver'):
             register_serializer_resolver(serializer_resolver)
 
