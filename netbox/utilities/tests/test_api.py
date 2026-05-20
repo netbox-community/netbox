@@ -2,15 +2,19 @@ from django.test import Client, TestCase, override_settings, tag
 from django.urls import reverse
 from drf_spectacular.drainage import GENERATOR_STATS
 from rest_framework import status
+from rest_framework.serializers import Serializer
 
 from core.models import ObjectType
+from dcim.api.serializers import SiteSerializer
 from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from ipam.models import VLAN
 from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
-from utilities.api import get_prefetches_for_serializer, get_view_name
+from netbox.plugins import register_serializer_resolver
+from netbox.registry import registry
+from utilities.api import get_prefetches_for_serializer, get_serializer_for_model, get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
 
@@ -476,6 +480,14 @@ class GetPrefetchesForSerializerTestCase(TestCase):
         )
 
 
+class _ResolvedSerializerA(Serializer):
+    pass
+
+
+class _ResolvedSerializerB(Serializer):
+    pass
+
+
 class SerializerResolverRegistryTestCase(TestCase):
     """
     Verify that registered serializer resolvers are consulted before the
@@ -483,67 +495,44 @@ class SerializerResolverRegistryTestCase(TestCase):
     """
 
     def setUp(self):
-        from netbox.registry import registry
-
         # Snapshot and clear the resolver list so each test starts from a
         # known state and can't leak resolvers into the rest of the suite.
         self._saved_resolvers = list(registry['serializer_resolvers'])
         registry['serializer_resolvers'].clear()
 
     def tearDown(self):
-        from netbox.registry import registry
-
         registry['serializer_resolvers'].clear()
         registry['serializer_resolvers'].extend(self._saved_resolvers)
 
     def test_default_lookup_when_no_resolvers_registered(self):
-        from dcim.api.serializers import SiteSerializer
-        from utilities.api import get_serializer_for_model
-
         self.assertIs(get_serializer_for_model(Site), SiteSerializer)
 
     def test_registered_resolver_overrides_default(self):
-        from netbox.plugins import register_serializer_resolver
-        from utilities.api import get_serializer_for_model
+        register_serializer_resolver(lambda model, prefix='': _ResolvedSerializerA)
 
-        sentinel = object()
-        register_serializer_resolver(lambda model, prefix='': sentinel)
-
-        self.assertIs(get_serializer_for_model(Site), sentinel)
+        self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerA)
 
     def test_resolver_returning_none_falls_through_to_default(self):
-        from dcim.api.serializers import SiteSerializer
-        from netbox.plugins import register_serializer_resolver
-        from utilities.api import get_serializer_for_model
-
         register_serializer_resolver(lambda model, prefix='': None)
 
         self.assertIs(get_serializer_for_model(Site), SiteSerializer)
 
     def test_resolvers_tried_in_registration_order(self):
-        from netbox.plugins import register_serializer_resolver
-        from utilities.api import get_serializer_for_model
-
-        first = object()
-        second = object()
         # First resolver only handles VLAN; second handles everything else.
         register_serializer_resolver(
-            lambda model, prefix='': first if model is VLAN else None
+            lambda model, prefix='': _ResolvedSerializerA if model is VLAN else None
         )
-        register_serializer_resolver(lambda model, prefix='': second)
+        register_serializer_resolver(lambda model, prefix='': _ResolvedSerializerB)
 
-        self.assertIs(get_serializer_for_model(VLAN), first)
-        self.assertIs(get_serializer_for_model(Site), second)
+        self.assertIs(get_serializer_for_model(VLAN), _ResolvedSerializerA)
+        self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerB)
 
     def test_resolver_receives_prefix(self):
-        from netbox.plugins import register_serializer_resolver
-        from utilities.api import get_serializer_for_model
-
         seen = {}
 
         def resolver(model, prefix=''):
             seen['prefix'] = prefix
-            return object()
+            return _ResolvedSerializerA
 
         register_serializer_resolver(resolver)
         get_serializer_for_model(Site, prefix='Nested')
@@ -551,10 +540,24 @@ class SerializerResolverRegistryTestCase(TestCase):
         self.assertEqual(seen['prefix'], 'Nested')
 
     def test_register_rejects_non_callable(self):
-        from netbox.plugins import register_serializer_resolver
-
         with self.assertRaises(TypeError):
             register_serializer_resolver('not a callable')
+
+    def test_raising_resolver_is_skipped(self):
+        def broken_resolver(model, prefix=''):
+            raise RuntimeError("intentional failure")
+
+        register_serializer_resolver(broken_resolver)
+        register_serializer_resolver(lambda model, prefix='': _ResolvedSerializerA)
+
+        with self.assertLogs('netbox.utilities.api', level='ERROR'):
+            self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerA)
+
+    def test_resolver_returning_non_serializer_is_skipped(self):
+        register_serializer_resolver(lambda model, prefix='': object())
+
+        with self.assertLogs('netbox.utilities.api', level='WARNING'):
+            self.assertIs(get_serializer_for_model(Site), SiteSerializer)
 
 
 class APITrailingSlashTestCase(APITestCase):
