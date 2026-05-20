@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
@@ -106,6 +107,7 @@ class DataFileTestCase(
 
 
 class ObjectTypeTestCase(APITestCase):
+    model = ObjectType
 
     def test_list_objects(self):
         object_type_count = ObjectType.objects.count()
@@ -119,6 +121,51 @@ class ObjectTypeTestCase(APITestCase):
 
         url = reverse('core-api:objecttype-detail', kwargs={'pk': object_type.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
+
+
+class JobTestCase(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+):
+    model = Job
+    brief_fields = ['completed', 'created', 'status', 'url', 'user']
+
+    @classmethod
+    def setUpTestData(cls):
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///var/tmp/source1/',
+        )
+        ct = ContentType.objects.get_for_model(DataSource)
+        Job.objects.bulk_create(
+            [
+                Job(
+                    name='Job 1',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='pending',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+                Job(
+                    name='Job 2',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='running',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+                Job(
+                    name='Job 3',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='completed',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+            ]
+        )
 
 
 class BackgroundTaskTestCase(TestCase):
