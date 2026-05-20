@@ -19,6 +19,7 @@ from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
 from users.models import Group, Token, User
+from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases
 
 
@@ -456,6 +457,77 @@ class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
             savedfilter.object_types.set([site_type])
+
+
+class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
+    model = TableConfig
+    brief_fields = ['description', 'display', 'id', 'name', 'object_type', 'table', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+        'weight': 999,
+        'enabled': False,
+        'shared': False,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_type = ObjectType.objects.get_for_model(Site)
+        site_table_name = get_table_for_model(Site).__name__
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        table_configs = (
+            TableConfig(
+                name='Table Config 1',
+                object_type=site_type,
+                table=site_table_name,
+                user=users[0],
+                columns=['name', 'status'],
+            ),
+            TableConfig(
+                name='Table Config 2',
+                object_type=site_type,
+                table=site_table_name,
+                user=users[1],
+                columns=['name', 'region'],
+            ),
+            TableConfig(
+                name='Table Config 3',
+                object_type=site_type,
+                table=site_table_name,
+                user=users[2],
+                columns=['name', 'tenant'],
+            ),
+        )
+        TableConfig.objects.bulk_create(table_configs)
+
+        cls.create_data = [
+            {
+                'object_type': 'dcim.site',
+                'table': site_table_name,
+                'name': 'Table Config 4',
+                'columns': ['name', 'status'],
+                'ordering': ['name'],
+            },
+            {
+                'object_type': 'dcim.site',
+                'table': site_table_name,
+                'name': 'Table Config 5',
+                'columns': ['name', 'region'],
+                'ordering': ['-name'],
+            },
+            {
+                'object_type': 'dcim.site',
+                'table': site_table_name,
+                'name': 'Table Config 6',
+                'columns': ['name', 'tenant'],
+            },
+        ]
 
 
 class BookmarkTestCase(

@@ -3,6 +3,7 @@ import urllib.parse
 import uuid
 from datetime import datetime
 
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
@@ -102,6 +103,52 @@ class DataFileTestCase(
             ),
         )
         DataFile.objects.bulk_create(data_files)
+
+
+class JobTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    model = Job
+
+    @classmethod
+    def setUpTestData(cls):
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///var/tmp/source1/',
+        )
+        ct = ContentType.objects.get_for_model(DataSource)
+        Job.objects.bulk_create(
+            [
+                Job(
+                    name='Job 1',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='pending',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+                Job(
+                    name='Job 2',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='running',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+                Job(
+                    name='Job 3',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='completed',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+            ]
+        )
 
 
 # TODO: Convert to StandardTestCases.Views
