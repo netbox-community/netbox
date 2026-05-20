@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import TestCase, override_settings
 from netaddr import IPNetwork, IPSet
 
@@ -741,6 +742,18 @@ class VLANGroupTestCase(TestCase):
         available_vids = vlangroup.get_available_vids()
         self.assertListEqual(available_vids, list(range(104, 200)))
 
+    def test_get_available_vids_with_inclusive_ranges(self):
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group 2',
+            slug='vlan-group-2',
+            vid_ranges=[NumericRange(200, 204, bounds='[]')],
+        )
+        VLAN.objects.create(name='VLAN 200', vid=200, group=vlangroup)
+
+        # Re-assign with non-canonical bounds to exercise the unsaved in-memory path.
+        vlangroup.vid_ranges = [NumericRange(200, 204, bounds='[]')]
+        self.assertListEqual(vlangroup.get_available_vids(), [201, 202, 203, 204])
+
     def test_get_next_available_vid(self):
         vlangroup = VLANGroup.objects.first()
         self.assertEqual(vlangroup.get_next_available_vid(), 104)
@@ -775,6 +788,72 @@ class VLANGroupTestCase(TestCase):
     def test_total_vlan_ids(self):
         vlangroup = VLANGroup.objects.first()
         self.assertEqual(vlangroup.total_vlan_ids, 100)
+
+    def test_total_vlan_ids_with_inclusive_ranges(self):
+        test_cases = (
+            (
+                NumericRange(100, 199, bounds='[]'),
+                100,
+                NumericRange(100, 200, bounds='[)'),
+            ),
+            (
+                NumericRange(100, 100, bounds='[]'),
+                1,
+                NumericRange(100, 101, bounds='[)'),
+            ),
+            (
+                NumericRange(99, 199, bounds='(]'),
+                100,
+                NumericRange(100, 200, bounds='[)'),
+            ),
+        )
+
+        for i, (vid_range, total_vlan_ids, normalized_range) in enumerate(test_cases, start=1):
+            vlangroup = VLANGroup(
+                name=f'VLAN Group Inclusive {i}',
+                slug=f'vlan-group-inclusive-{i}',
+                vid_ranges=[vid_range],
+            )
+
+            vlangroup.full_clean()
+            vlangroup.save()
+            self.assertEqual(vlangroup.vid_ranges, [normalized_range])
+            self.assertEqual(vlangroup.total_vlan_ids, total_vlan_ids)
+
+    def test_total_vlan_ids_with_inclusive_ranges_without_full_clean(self):
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group Inclusive Save',
+            slug='vlan-group-inclusive-save',
+            vid_ranges=[NumericRange(100, 100, bounds='[]')],
+        )
+
+        self.assertEqual(vlangroup.vid_ranges, [NumericRange(100, 101, bounds='[)')])
+        self.assertEqual(vlangroup.total_vlan_ids, 1)
+
+    def test_total_vlan_ids_with_update_fields(self):
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group Update Fields',
+            slug='vlan-group-update-fields',
+            vid_ranges=[NumericRange(100, 200, bounds='[)')],
+        )
+
+        vlangroup.vid_ranges = [NumericRange(100, 100, bounds='[]')]
+        vlangroup.save(update_fields=['vid_ranges'])
+        vlangroup.refresh_from_db()
+
+        self.assertEqual(vlangroup.vid_ranges, [NumericRange(100, 101, bounds='[)')])
+        self.assertEqual(vlangroup.total_vlan_ids, 1)
+
+    def test_annotate_utilization_with_zero_total_vlan_ids(self):
+        vlangroup = VLANGroup.objects.create(
+            name='VLAN Group Zero Total',
+            slug='vlan-group-zero-total',
+            vid_ranges=[NumericRange(100, 101)],
+        )
+        VLANGroup.objects.filter(pk=vlangroup.pk).update(total_vlan_ids=0)
+
+        vlangroup = VLANGroup.objects.annotate_utilization().get(pk=vlangroup.pk)
+        self.assertIsNone(vlangroup.utilization)
 
 
 class VLANTestCase(TestCase):

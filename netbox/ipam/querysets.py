@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, F, OuterRef, Q, Subquery, Value
 from django.db.models.expressions import RawSQL
-from django.db.models.functions import Round
+from django.db.models.functions import NullIf, Round
 
 from utilities.query import count_related
 from utilities.querysets import RestrictedQuerySet
@@ -62,9 +62,11 @@ class VLANGroupQuerySet(RestrictedQuerySet):
     def annotate_utilization(self):
         from .models import VLAN
 
+        # NullIf guards against legacy rows where total_vlan_ids was miscounted to
+        # 0 by the pre-fix VLANGroup.save(); without it, the annotation 500s.
         return self.annotate(
             vlan_count=count_related(VLAN, 'group'),
-            utilization=Round(F('vlan_count') * 100.0 / F('total_vlan_ids'), 2),
+            utilization=Round(F('vlan_count') * 100.0 / NullIf(F('total_vlan_ids'), Value(0)), 2),
         )
 
 

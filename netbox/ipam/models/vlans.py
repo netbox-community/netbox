@@ -12,7 +12,13 @@ from ipam.choices import *
 from ipam.constants import *
 from ipam.querysets import VLANGroupQuerySet, VLANQuerySet
 from netbox.models import NetBoxModel, OrganizationalModel, PrimaryModel
-from utilities.data import check_ranges_overlap, ranges_to_string, ranges_to_string_list
+from utilities.data import (
+    check_ranges_overlap,
+    get_inclusive_integer_range_bounds,
+    normalize_integer_range,
+    ranges_to_string,
+    ranges_to_string_list,
+)
 from virtualization.models import VMInterface
 
 __all__ = (
@@ -55,6 +61,7 @@ class VLANGroup(OrganizationalModel):
         ct_field='scope_type',
         fk_field='scope_id'
     )
+    # Normalized to canonical '[)' bounds on save() to match PostgreSQL storage.
     vid_ranges = ArrayField(
         IntegerRangeField(),
         verbose_name=_('VLAN ID ranges'),
@@ -103,8 +110,7 @@ class VLANGroup(OrganizationalModel):
 
         # Validate VID ranges
         for vid_range in self.vid_ranges:
-            lower_vid = vid_range.lower if vid_range.lower_inc else vid_range.lower + 1
-            upper_vid = vid_range.upper if vid_range.upper_inc else vid_range.upper - 1
+            lower_vid, upper_vid = get_inclusive_integer_range_bounds(vid_range)
             if lower_vid < VLAN_VID_MIN:
                 raise ValidationError({
                     'vid_ranges': _("Starting VLAN ID in range ({value}) cannot be less than {minimum}").format(
@@ -129,10 +135,20 @@ class VLANGroup(OrganizationalModel):
             raise ValidationError({'vid_ranges': _("Ranges cannot overlap.")})
 
     def save(self, *args, **kwargs):
+        # Canonicalize vid_ranges on the instance so callers (e.g. Custom Scripts)
+        # see the same value in memory that PostgreSQL stores.
         self.total_vlan_ids = 0
+        vid_ranges = []
         for vid_range in self.vid_ranges:
-            # VID range is inclusive on lower-bound, exclusive on upper-bound
+            vid_range = normalize_integer_range(vid_range)
+            vid_ranges.append(vid_range)
             self.total_vlan_ids += vid_range.upper - vid_range.lower
+        self.vid_ranges = vid_ranges
+
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and 'vid_ranges' in update_fields:
+            # total_vlan_ids is a denormalized cache of vid_ranges; persist them together.
+            kwargs['update_fields'] = list(set(update_fields) | {'total_vlan_ids'})
 
         super().save(*args, **kwargs)
 
@@ -142,9 +158,8 @@ class VLANGroup(OrganizationalModel):
         """
         available_vlans = set()
         for vlan_range in self.vid_ranges:
-            available_vlans = available_vlans.union({
-                vid for vid in range(vlan_range.lower, vlan_range.upper)
-            })
+            lower_vid, upper_vid = get_inclusive_integer_range_bounds(vlan_range)
+            available_vlans.update(range(lower_vid, upper_vid + 1))
         available_vlans -= set(VLAN.objects.filter(group=self).values_list('vid', flat=True))
 
         return sorted(available_vlans)
