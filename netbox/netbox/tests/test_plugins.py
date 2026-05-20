@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from core.choices import JobIntervalChoices
 from core.models import ObjectType
+from extras.dashboard.widgets import DashboardWidget
 from netbox.graphql.schema import Query
 from netbox.plugins.navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 from netbox.plugins.utils import get_plugin_config
@@ -18,7 +19,7 @@ from netbox.tests.dummy_plugin.webhook_callbacks import set_context
 
 
 @skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
-class PluginTest(TestCase):
+class PluginTestCase(TestCase):
 
     def test_config(self):
 
@@ -102,6 +103,15 @@ class PluginTest(TestCase):
 
         self.assertIn(GlobalContent, registry['plugins']['template_extensions'][None])
         self.assertIn(SiteContent, registry['plugins']['template_extensions']['dcim.site'])
+
+    def test_dashboard_widget(self):
+        """
+        Check that plugin dashboard widgets are registered.
+        """
+        self.assertIn('netbox.DummyDashboardWidget', registry['widgets'])
+
+        widget_class = registry['widgets']['netbox.DummyDashboardWidget']
+        self.assertTrue(issubclass(widget_class, DashboardWidget))
 
     def test_registered_columns(self):
         """
@@ -229,7 +239,7 @@ class PluginTest(TestCase):
         self.assertIn(set_context, registry['webhook_callbacks'])
 
 
-class PluginNavigationTest(TestCase):
+class PluginNavigationTestCase(TestCase):
 
     def test_plugin_menu_item_independent_permissions(self):
         item1 = PluginMenuItem(link='test1', link_text='Test 1')

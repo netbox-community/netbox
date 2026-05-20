@@ -102,9 +102,6 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
   * All tests pass when run with `NETBOX_CONFIGURATION=netbox.configuration_testing ./manage.py test`
   * `ruff check` successfully validates style compliance
 
-> [!CAUTION]
-> Any contributions which include solely AI-generated content will be rejected. All PRs must be submitted by a human.
-
 * Some other tips to keep in mind:
   * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (GitHub allows only people who have commented on an issue to be assigned as its owner.)
   * Check out our [developer docs](https://docs.netbox.dev/en/stable/development/getting-started/) for tips on setting up your development environment.

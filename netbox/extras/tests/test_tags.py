@@ -5,7 +5,7 @@ from dcim.models import Site
 from utilities.testing import APITestCase, create_tags
 
 
-class TaggedItemTest(APITestCase):
+class TaggedItemTestCase(APITestCase):
     """
     Test the application of Tags to and item (a Site, for example) upon creation (POST) and modification (PATCH).
     """

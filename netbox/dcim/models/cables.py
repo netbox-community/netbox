@@ -1,10 +1,12 @@
 import itertools
 import logging
+import threading
 from collections import Counter
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -75,6 +77,11 @@ class Cable(PrimaryModel):
     """
     A physical connection between two endpoints.
     """
+    # Per-thread tracking of Cable PKs currently in delete(); referenced by
+    # dcim.signals.nullify_connected_endpoints to skip per-CableTermination
+    # cable path retracing during cascade (retrace_cable_paths handles it once).
+    _deletion_tracking = threading.local()
+
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
@@ -341,6 +348,26 @@ class Cable(PrimaryModel):
             trace_paths.send(Cable, instance=self, created=_created)
         except UnsupportedCablePath as e:
             raise AbortRequest(e)
+
+    def delete(self, *args, **kwargs):
+        # Track this Cable as being deleted so the post_delete signal handler
+        # for cascaded CableTerminations can skip redundant path retracing;
+        # retrace_cable_paths() will retrace each affected path once after the
+        # Cable itself is deleted. Cache the PK locally because super().delete()
+        # clears self.pk before the finally block runs. The tracking set lives
+        # on a threading.local() to isolate concurrent deletions across threads.
+        if not hasattr(Cable._deletion_tracking, 'pks'):
+            Cable._deletion_tracking.pks = set()
+        pk = self.pk
+        Cable._deletion_tracking.pks.add(pk)
+        try:
+            return super().delete(*args, **kwargs)
+        finally:
+            Cable._deletion_tracking.pks.discard(pk)
+
+    @classmethod
+    def _is_being_deleted(cls, pk):
+        return pk in getattr(cls._deletion_tracking, 'pks', ())
 
     def clone(self):
         """
@@ -730,6 +757,11 @@ class CablePath(models.Model):
     _netbox_private = True
 
     class Meta:
+        indexes = (
+            # GIN index supports @> operator used by `_nodes__contains` lookups,
+            # which fire on every cable/termination delete and path retrace.
+            GinIndex(fields=('_nodes',)),
+        )
         verbose_name = _('cable path')
         verbose_name_plural = _('cable paths')
 

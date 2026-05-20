@@ -9,7 +9,7 @@ from utilities.permissions import ModelAction, register_model_actions
 from virtualization.models import VirtualMachine
 
 
-class ModelActionTest(TestCase):
+class ModelActionTestCase(TestCase):
 
     def test_hash(self):
         action1 = ModelAction(name='sync')
@@ -36,7 +36,7 @@ class ModelActionTest(TestCase):
         self.assertEqual(len(actions), 2)
 
 
-class RegisterModelActionsTest(TestCase):
+class RegisterModelActionsTestCase(TestCase):
 
     def setUp(self):
         self._original_actions = dict(registry['model_actions'])
@@ -107,7 +107,7 @@ class RegisterModelActionsTest(TestCase):
         self.assertEqual(action_fields.count('action_render_config'), 1)
 
 
-class ObjectPermissionFormTest(TestCase):
+class ObjectPermissionFormTestCase(TestCase):
 
     def setUp(self):
         self._original_actions = dict(registry['model_actions'])

@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider
@@ -7048,6 +7049,96 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_circuittermination(self):
         params = {'circuittermination_id': [CircuitTermination.objects.first().pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class CableTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = CableTermination.objects.all()
+    filterset = CableTerminationFilterSet
+    ignore_fields = ('connector', 'positions')
+    filter_name_map = {
+        'consoleport': 'consoleport_id',
+        'consoleserverport': 'consoleserverport_id',
+        'powerport': 'powerport_id',
+        'poweroutlet': 'poweroutlet_id',
+        'interface': 'interface_id',
+        'frontport': 'frontport_id',
+        'rearport': 'rearport_id',
+        'powerfeed': 'powerfeed_id',
+        'circuittermination': 'circuittermination_id',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        device = create_test_device('Device 1', site=site)
+
+        cls.interfaces = [
+            Interface(device=device, name=f'eth{i}', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+            for i in range(4)
+        ]
+        Interface.objects.bulk_create(cls.interfaces)
+
+        cls.consoleport = ConsolePort.objects.create(device=device, name='Console Port 1')
+        cls.consoleserverport = ConsoleServerPort.objects.create(device=device, name='Console Server Port 1')
+        cls.powerport = PowerPort.objects.create(device=device, name='Power Port 1')
+        cls.poweroutlet = PowerOutlet.objects.create(device=device, name='Power Outlet 1')
+        cls.rearport = RearPort.objects.create(device=device, name='Rear Port 1', type=PortTypeChoices.TYPE_8P8C)
+        cls.frontport = FrontPort.objects.create(device=device, name='Front Port 1', type=PortTypeChoices.TYPE_8P8C)
+        PortMapping.objects.create(device=device, front_port=cls.frontport, rear_port=cls.rearport)
+
+        power_panel = PowerPanel.objects.create(name='Power Panel 1', site=site)
+        cls.powerfeed = PowerFeed.objects.create(name='Power Feed 1', power_panel=power_panel)
+
+        provider = Provider.objects.create(name='Provider 1', slug='provider-1')
+        circuit_type = CircuitType.objects.create(name='Circuit Type 1', slug='circuit-type-1')
+        circuit = Circuit.objects.create(cid='Circuit 1', provider=provider, type=circuit_type)
+        cls.circuittermination = CircuitTermination.objects.create(
+            circuit=circuit, term_side='A', termination=site,
+        )
+
+        # Two bipartite interface cables (4 CableTerminations) plus one single-end cable per
+        # non-Interface component (8 CableTerminations).
+        cables = [
+            Cable(a_terminations=[cls.interfaces[0]], b_terminations=[cls.interfaces[1]], label='Cable 1'),
+            Cable(a_terminations=[cls.interfaces[2]], b_terminations=[cls.interfaces[3]], label='Cable 2'),
+        ]
+        for component in (
+            cls.consoleport, cls.consoleserverport, cls.powerport, cls.poweroutlet,
+            cls.rearport, cls.frontport, cls.powerfeed, cls.circuittermination,
+        ):
+            cables.append(Cable(a_terminations=[component], label=f'Cable for {component._meta.model_name}'))
+        for cable in cables:
+            cable.save()
+
+    def test_cable(self):
+        """Filter CableTerminations by cable ID."""
+        cables = Cable.objects.all()[:2]
+        params = {'cable_id': [cables[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'cable_id': [cables[0].pk, cables[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_termination_object_filters(self):
+        """Each <component>_id filter resolves to only matching terminations."""
+        cases = (
+            ('consoleport_id', ConsolePort, self.consoleport),
+            ('consoleserverport_id', ConsoleServerPort, self.consoleserverport),
+            ('powerport_id', PowerPort, self.powerport),
+            ('poweroutlet_id', PowerOutlet, self.poweroutlet),
+            ('interface_id', Interface, self.interfaces[0]),
+            ('frontport_id', FrontPort, self.frontport),
+            ('rearport_id', RearPort, self.rearport),
+            ('powerfeed_id', PowerFeed, self.powerfeed),
+            ('circuittermination_id', CircuitTermination, self.circuittermination),
+        )
+        for filter_name, model, obj in cases:
+            with self.subTest(filter_name=filter_name):
+                ct = ContentType.objects.get_for_model(model)
+                params = {filter_name: [obj.pk]}
+                results = self.filterset(params, self.queryset).qs
+                self.assertEqual(results.count(), 1)
+                self.assertEqual(results.first().termination_type, ct)
+                self.assertEqual(results.first().termination_id, obj.pk)
 
 
 class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):

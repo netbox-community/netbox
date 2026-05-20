@@ -8,7 +8,7 @@
       <div class="input-group mb-1 mt-2">
         <div class="input-group-prepend">
           <span class="input-group-text">
-            <i class="mdi mdi-magnify"></i>
+            <i class="mdi mdi-magnify" aria-hidden="true"></i>
           </span>
         </div>
         <input type="text" name="q" value="" class="form-control" placeholder="{% trans "Search…" %}" aria-label="{% trans "Search NetBox" %}">
@@ -22,9 +22,9 @@
     <li class="nav-item dropdown">
 
       {# Menu heading #}
-      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" aria-label="{{ menu.label }}">
         <span class="nav-link-icon d-md-none d-lg-inline-block">
-          <i class="{{ menu.icon_class }}"></i>
+          <i class="{{ menu.icon_class }}" aria-hidden="true"></i>
         </span>
         <span class="nav-link-title">
           {{ menu.label }}
@@ -45,8 +45,8 @@
                   {% if buttons %}
                     <div class="btn-group ms-1">
                       {% for button in buttons %}
-                        <a href="{{ button.url }}" class="btn btn-sm btn-{{ button.color|default:"outline" }} lh-2 px-2" title="{{ button.title }}">
-                          <i class="{{ button.icon_class }}"></i>
+                        <a href="{{ button.url }}" class="btn btn-sm btn-{{ button.color|default:"outline" }} lh-2 px-2" title="{{ button.title }}" aria-label="{{ button.title }}">
+                          <i class="{{ button.icon_class }}" aria-hidden="true"></i>
                         </a>
                       {% endfor %}
                     </div>

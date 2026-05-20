@@ -1050,6 +1050,41 @@ class ViewTestCases:
                 self.assertEqual(instance.name, f'{objects[i].name}X')
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_objects_with_changelog_message(self):
+            if not issubclass(self.model, ChangeLoggingMixin):
+                self.skipTest("Model does not support change logging")
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            data = {
+                'pk': pk_list,
+                '_apply': True,
+                'changelog_message': 'Bulk rename test message',
+            }
+            data.update(self.rename_data)
+
+            # Assign model-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['change']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+
+            # Verify changelog message was recorded on each renamed object
+            object_type = ObjectType.objects.get_for_model(self.model)
+            for pk in pk_list:
+                oc = ObjectChange.objects.filter(
+                    changed_object_type=object_type,
+                    changed_object_id=pk,
+                    action=ObjectChangeActionChoices.ACTION_UPDATE,
+                ).order_by('-time').first()
+                self.assertIsNotNone(oc)
+                self.assertEqual(oc.message, 'Bulk rename test message')
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_rename_objects_with_constrained_permission(self):
             objects = self._get_queryset().all()[:3]
             pk_list = [obj.pk for obj in objects]

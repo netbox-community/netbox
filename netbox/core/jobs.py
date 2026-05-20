@@ -222,8 +222,11 @@ class SystemHousekeepingJob(JobRunner):
             if 'tag_name' not in release or release.get('devrelease') or release.get('prerelease'):
                 continue
             releases.append((version.parse(release['tag_name']), release.get('html_url')))
-        latest_release = max(releases)
         self.logger.debug(f"Found {len(response.json())} releases; {len(releases)} usable")
+        if not releases:
+            self.logger.info("No usable releases found; skipping")
+            return
+        latest_release = max(releases)
         self.logger.info(f"Latest release: {latest_release[0]}")
 
         # Cache the most recent release

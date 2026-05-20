@@ -159,7 +159,7 @@ class CircuitTerminationTable(NetBoxTable):
         )
 
 
-class CircuitGroupTable(OrganizationalModelTable):
+class CircuitGroupTable(TenancyColumnsMixin, OrganizationalModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -176,8 +176,8 @@ class CircuitGroupTable(OrganizationalModelTable):
     class Meta(OrganizationalModelTable.Meta):
         model = CircuitGroup
         fields = (
-            'pk', 'name', 'description', 'circuit_group_assignment_count', 'comments', 'tags',
-            'created', 'last_updated', 'actions',
+            'pk', 'name', 'description', 'circuit_group_assignment_count', 'tenant', 'tenant_group', 'comments',
+            'tags', 'created', 'last_updated', 'actions',
         )
         default_columns = ('pk', 'name', 'description', 'circuit_group_assignment_count')
 

@@ -14,7 +14,7 @@ class ClusterPanel(panels.ObjectAttributesPanel):
     description = attrs.TextAttr('description')
     group = attrs.RelatedObjectAttr('group', linkify=True)
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
+    scope = attrs.GenericForeignKeyAttr('scope', linkify=True, nested=True, max_depth=3)
 
 
 #

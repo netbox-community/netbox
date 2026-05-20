@@ -220,6 +220,38 @@ class DeviceConnectionsReport(Script):
                 self.log_success("Passed", device)
 ```
 
+## Model Validation
+
+!!! warning "Validate objects before saving"
+    Direct ORM writes bypass validation normally performed by NetBox's UI and REST API.
+
+Custom scripts can create and update NetBox objects directly through Django's ORM. When doing so, instantiate the model, call `full_clean()`, and then call `save()`:
+
+```python
+obj = SomeModel(
+    field_a=value_a,
+    field_b=value_b,
+)
+
+obj.full_clean()
+obj.save()
+```
+
+Avoid using `Model.objects.create()` unless you intentionally want to skip model validation:
+
+```python
+SomeModel.objects.create(
+    field_a=value_a,
+    field_b=value_b,
+)
+```
+
+Django does not call `full_clean()` automatically when saving a model instance. Skipping validation can allow invalid or inconsistent data to be written to the database, which may later result in UI, API, or script errors.
+
+Bulk and direct queryset operations such as `bulk_create()`, `bulk_update()`, and `QuerySet.update()` should be used with the same care. These operations can bypass model validation and other model-specific save behavior.
+
+When editing an existing object, also see the change logging guidance below.
+
 ## Change Logging
 
 To generate the correct change log data when editing an existing object, a snapshot of the object must be taken before making any changes to the object.

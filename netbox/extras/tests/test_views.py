@@ -181,6 +181,27 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class CustomLinkRenderingTestCase(TestCase):
+    user_permissions = ['dcim.view_site']
+
+    def test_view_object_with_custom_link(self):
+        customlink = CustomLink(
+            name='Test',
+            link_text='FOO {{ object.name }} BAR',
+            link_url='http://example.com/?site={{ object.slug }}',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(site.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'FOO {site.name} BAR', str(response.content))
+
+
 class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = SavedFilter
 
@@ -347,6 +368,59 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'file_extension': 'html',
             'as_attachment': True,
         }
+
+
+class ExportTemplateExportFlowTestCase(TestCase):
+    """
+    End-to-end test for ExportTemplate invocation via a list view's ?export=<name> query param.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create([
+            Site(name='Site A', slug='site-a'),
+            Site(name='Site B', slug='site-b'),
+        ])
+
+        site_type = ObjectType.objects.get_for_model(Site)
+
+        ok_template = ExportTemplate.objects.create(
+            name='Sites Export',
+            template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            mime_type='text/plain',
+            file_extension='txt',
+        )
+        ok_template.object_types.set([site_type])
+
+        broken_template = ExportTemplate.objects.create(
+            name='Broken Export',
+            template_code='{% for obj in queryset %}{{ obj.name ',  # unterminated expression
+        )
+        broken_template.object_types.set([site_type])
+
+    def test_export_template_invocation(self):
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
+        url = reverse('dcim:site_list')
+
+        response = self.client.get(f'{url}?export=Sites Export')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+        # The rendered queryset reflects whatever ordering the list view applies. Assert on set
+        # membership rather than line order so the test isn't coupled to Site's natural ordering.
+        rendered_names = set(filter(None, response.content.decode().split('\n')))
+        self.assertEqual(rendered_names, {'Site A', 'Site B'})
+
+    def test_export_template_render_error_redirects(self):
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
+        url = reverse('dcim:site_list')
+
+        # A broken template surfaces an exception during render; the view catches it and redirects
+        # back to the (filtered) list view rather than returning a 500.
+        response = self.client.get(f'{url}?export=Broken Export')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].startswith(url))
+        self.assertNotIn('export=', response['Location'])
 
 
 class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -703,27 +777,6 @@ class JournalEntryTestCase(
         }
 
 
-class CustomLinkTest(TestCase):
-    user_permissions = ['dcim.view_site']
-
-    def test_view_object_with_custom_link(self):
-        customlink = CustomLink(
-            name='Test',
-            link_text='FOO {{ object.name }} BAR',
-            link_url='http://example.com/?site={{ object.slug }}',
-            new_window=False
-        )
-        customlink.save()
-        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
-
-        site = Site(name='Test Site', slug='test-site')
-        site.save()
-
-        response = self.client.get(site.get_absolute_url(), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(f'FOO {site.name} BAR', str(response.content))
-
-
 class SubscriptionTestCase(
     ViewTestCases.CreateObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
@@ -887,7 +940,7 @@ class NotificationTestCase(
         return
 
 
-class ScriptListViewTest(TestCase):
+class ScriptListViewTestCase(TestCase):
     user_permissions = ['extras.view_script']
 
     def test_script_list_embedded_parameter(self):
@@ -905,7 +958,7 @@ class ScriptListViewTest(TestCase):
         self.assertTemplateUsed(response, 'extras/inc/script_list_content.html')
 
 
-class ScriptValidationErrorTest(TestCase):
+class ScriptValidationErrorTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptMixin:
@@ -936,7 +989,7 @@ class ScriptValidationErrorTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptValidationErrorTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptValidationErrorTestCase.TestScriptClass)
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
@@ -975,7 +1028,7 @@ class ScriptValidationErrorTest(TestCase):
         self.assertEqual(len(messages), 0)
 
 
-class ScriptDefaultValuesTest(TestCase):
+class ScriptDefaultValuesTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptClass(PythonClass):
@@ -1005,7 +1058,7 @@ class ScriptDefaultValuesTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptDefaultValuesTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptDefaultValuesTestCase.TestScriptClass)
 
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})

@@ -17,7 +17,7 @@ from utilities.testing.utils import disable_logging
 from ..models import *
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
         url = reverse('core-api:api-root')
@@ -26,7 +26,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class DataSourceTest(APIViewTestCases.APIViewTestCase):
+class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
     model = DataSource
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -62,7 +62,7 @@ class DataSourceTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class DataFileTest(
+class DataFileTestCase(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
     APIViewTestCases.GraphQLTestCase
@@ -105,7 +105,7 @@ class DataFileTest(
         DataFile.objects.bulk_create(data_files)
 
 
-class ObjectTypeTest(APITestCase):
+class ObjectTypeTestCase(APITestCase):
 
     def test_list_objects(self):
         object_type_count = ObjectType.objects.count()

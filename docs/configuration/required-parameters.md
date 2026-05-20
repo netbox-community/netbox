@@ -59,7 +59,7 @@ See the [`DATABASES`](#databases) configuration below for usage.
 
 ## DATABASES
 
-NetBox requires access to a PostgreSQL 14 or later database service to store data. This service can run locally on the NetBox server or on a remote system. Databases are defined as named dictionaries:
+NetBox requires access to a PostgreSQL 14 or later database service to store data. Note that support for PostgreSQL 14 is deprecated and will be removed in NetBox v4.7; PostgreSQL 15 or later will be required. This service can run locally on the NetBox server or on a remote system. Databases are defined as named dictionaries:
 
 ```python
 DATABASES = {

@@ -8,7 +8,7 @@ from utilities.data import deepmerge
 from utilities.testing import APITestCase, APIViewTestCases, create_test_user
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
 
@@ -17,7 +17,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class UserTest(APIViewTestCases.APIViewTestCase):
+class UserTestCase(APIViewTestCases.APIViewTestCase):
     model = User
     brief_fields = ['display', 'id', 'url', 'username']
     validation_excluded_fields = ['password']
@@ -137,7 +137,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class GroupTest(APIViewTestCases.APIViewTestCase):
+class GroupTestCase(APIViewTestCases.APIViewTestCase):
     model = Group
     brief_fields = ['description', 'display', 'id', 'name', 'url']
 
@@ -189,7 +189,7 @@ class GroupTest(APIViewTestCases.APIViewTestCase):
         return
 
 
-class TokenTest(
+class TokenTestCase(
     # No GraphQL support for Token
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
@@ -310,6 +310,53 @@ class TokenTest(
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
 
+    def test_create_token_returns_plaintext(self):
+        """
+        Creating a Token via the REST API must return the usable plaintext value in the response.
+        For v2 tokens this value cannot be recovered later because the database stores only an
+        HMAC digest.
+        """
+        self.add_permissions('users.add_token')
+        user = User.objects.create_user(username='token_plaintext_user')
+        url = reverse('users-api:token-list')
+
+        response = self.client.post(url, {'user': user.pk}, format='json', **self.header)
+        self.assertEqual(response.status_code, 201)
+        self.assertIsNotNone(response.data['token'])
+        self.assertEqual(len(response.data['token']), TOKEN_DEFAULT_LENGTH)
+
+        # The returned plaintext must authenticate against the stored token
+        token = Token.objects.get(pk=response.data['id'])
+        self.assertTrue(token.validate(response.data['token']))
+
+    def test_bulk_create_tokens_returns_plaintexts(self):
+        """
+        Bulk-creating Tokens via the REST API must return the plaintext value for each created
+        Token in the response.
+        """
+        self.add_permissions('users.add_token')
+        users = [
+            User.objects.create_user(username='token_bulk_user1'),
+            User.objects.create_user(username='token_bulk_user2'),
+        ]
+        data = [{'user': u.pk} for u in users]
+        url = reverse('users-api:token-list')
+
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(response.data), len(data))
+
+        plaintexts = set()
+        for obj in response.data:
+            self.assertIsNotNone(obj['token'])
+            self.assertEqual(len(obj['token']), TOKEN_DEFAULT_LENGTH)
+            plaintexts.add(obj['token'])
+            token = Token.objects.get(pk=obj['id'])
+            self.assertTrue(token.validate(obj['token']))
+
+        # Each token should be unique
+        self.assertEqual(len(plaintexts), len(data))
+
     def test_reassign_token(self):
         """
         Check that a Token cannot be reassigned to another User.
@@ -330,7 +377,7 @@ class TokenTest(
         self.assertEqual(token1.user, user1, "Token's user should not have changed")
 
 
-class ObjectPermissionTest(
+class ObjectPermissionTestCase(
     # No GraphQL support for ObjectPermission
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
@@ -403,7 +450,7 @@ class ObjectPermissionTest(
         }
 
 
-class UserConfigTest(APITestCase):
+class UserConfigTestCase(APITestCase):
 
     def test_get(self):
         """
@@ -456,7 +503,7 @@ class UserConfigTest(APITestCase):
         self.assertDictEqual(userconfig.data, new_data)
 
 
-class OwnerGroupTest(APIViewTestCases.APIViewTestCase):
+class OwnerGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = OwnerGroup
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -488,7 +535,7 @@ class OwnerGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class OwnerTest(APIViewTestCases.APIViewTestCase):
+class OwnerTestCase(APIViewTestCases.APIViewTestCase):
     model = Owner
     brief_fields = ['description', 'display', 'id', 'name', 'url']
 

@@ -185,6 +185,12 @@ def nullify_connected_endpoints(instance, **kwargs):
     model = instance.termination_type.model_class()
     model.objects.filter(pk=instance.termination_id).update(cable=None, cable_end='')
 
+    # If the parent Cable is being deleted in this same operation, skip the
+    # per-termination retrace; retrace_cable_paths() will retrace each affected
+    # path once after the Cable is deleted.
+    if Cable._is_being_deleted(instance.cable_id):
+        return
+
     for cablepath in CablePath.objects.filter(_nodes__contains=instance.cable):
         # Remove the deleted CableTermination if it's one of the path's originating nodes
         if instance.termination in cablepath.origins:

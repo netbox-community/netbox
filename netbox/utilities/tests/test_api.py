@@ -14,7 +14,7 @@ from utilities.api import get_prefetches_for_serializer, get_view_name
 from utilities.testing import APITestCase, disable_warnings
 
 
-class WritableNestedSerializerTest(APITestCase):
+class WritableNestedSerializerTestCase(APITestCase):
     """
     Test the operation of WritableNestedSerializer using VLANSerializer as our test subject.
     """

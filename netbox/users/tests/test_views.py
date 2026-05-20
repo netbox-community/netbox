@@ -1,4 +1,3 @@
-from django.test import override_settings
 from django.urls import reverse
 
 from core.models import ObjectType
@@ -268,7 +267,6 @@ class TokenOneTimeAuthStringTestCase(TestCase):
     """
     user_permissions = ('users.add_token', 'users.view_token', 'users.view_user')
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_create_stashes_plaintext_and_detail_view_renders_it_once(self):
         target_user = create_test_user('token_owner')
 
@@ -310,7 +308,6 @@ class TokenOneTimeAuthStringTestCase(TestCase):
         # Specifically, the banner element must be gone
         self.assertNotContains(response, 'id="new-token-auth-string"')
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_form_ignores_user_supplied_token_field(self):
         """
         Submitting a 'token' POST parameter should be silently ignored: the model auto-generates plaintext on save.

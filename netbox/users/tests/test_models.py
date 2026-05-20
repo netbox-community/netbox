@@ -9,7 +9,7 @@ from users.models import Token, User
 from utilities.testing import create_test_user
 
 
-class TokenTest(TestCase):
+class TokenTestCase(TestCase):
     """
     Test class for testing the functionality of the Token model.
     """
@@ -105,7 +105,7 @@ class TokenTest(TestCase):
             token.clean()
 
 
-class UserConfigTest(TestCase):
+class UserConfigTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):

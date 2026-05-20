@@ -3,7 +3,7 @@ from django.test import TestCase, tag
 from extras.dashboard.widgets import ObjectListWidget
 
 
-class ObjectListWidgetTests(TestCase):
+class ObjectListWidgetTestCase(TestCase):
     def test_widget_config_form_validates_model(self):
         model_info = 'extras.notification'
         form = ObjectListWidget.ConfigForm({'model': model_info})

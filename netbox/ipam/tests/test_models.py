@@ -9,7 +9,7 @@ from ipam.models import *
 from utilities.data import string_to_ranges
 
 
-class TestAggregate(TestCase):
+class AggregateTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when prefix is a string
@@ -45,7 +45,7 @@ class TestAggregate(TestCase):
         self.assertEqual(aggregate.get_utilization(), 100)
 
 
-class TestIPRange(TestCase):
+class IPRangeTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when start_address is a string
@@ -101,8 +101,71 @@ class TestIPRange(TestCase):
             )
             iprange_4_198_201.clean()
 
+    def test_single_address_range(self):
+        iprange = IPRange(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.10/24'),
+        )
 
-class TestPrefix(TestCase):
+        iprange.clean()
+        iprange.save()
+
+        self.assertEqual(iprange.size, 1)
+        self.assertEqual(str(iprange), '192.0.2.10-192.0.2.10/24')
+        self.assertEqual(iprange.first_available_ip, '192.0.2.10/24')
+
+    def test_first_available_ip_consumed_single_address_range(self):
+        iprange = IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.10/24'),
+        )
+        IPAddress.objects.create(address=IPNetwork('192.0.2.10/24'))
+
+        # The sole address in the range is now assigned, so no IPs remain available.
+        self.assertIsNone(iprange.first_available_ip)
+
+    def test_single_address_range_ipv6(self):
+        # IPRange.name has IPv4/IPv6-specific formatting; exercise the IPv6 branch
+        # for a single-address range too.
+        iprange = IPRange(
+            start_address=IPNetwork('2001:db8::10/64'),
+            end_address=IPNetwork('2001:db8::10/64'),
+        )
+
+        iprange.clean()
+        iprange.save()
+
+        self.assertEqual(iprange.size, 1)
+        self.assertEqual(str(iprange), '2001:db8::10-2001:db8::10/64')
+        self.assertEqual(iprange.first_available_ip, '2001:db8::10/64')
+
+    def test_reversed_range(self):
+        iprange = IPRange(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.9/24'),
+        )
+
+        with self.assertRaises(ValidationError):
+            iprange.clean()
+
+    def test_overlapping_single_address_range(self):
+        IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.10/24'),
+        )
+
+        iprange = IPRange(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.10/24'),
+        )
+
+        # Assert the overlap-specific error message so this test cannot pass on a
+        # regression where start_address == end_address is rejected earlier.
+        with self.assertRaisesMessage(ValidationError, 'Defined addresses overlap'):
+            iprange.clean()
+
+
+class PrefixTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when prefix is a string
@@ -361,7 +424,7 @@ class TestPrefix(TestCase):
         self.assertRaises(ValidationError, duplicate_prefix.clean)
 
 
-class TestPrefixHierarchy(TestCase):
+class PrefixHierarchyTestCase(TestCase):
     """
     Test the automatic updating of depth and child count in response to changes made within
     the prefix hierarchy.
@@ -559,7 +622,7 @@ class TestPrefixHierarchy(TestCase):
         self.assertEqual(prefixes[3]._children, 0)
 
 
-class TestIPAddress(TestCase):
+class IPAddressTestCase(TestCase):
 
     def test_family_string(self):
         # Test property when address is a string
@@ -640,8 +703,21 @@ class TestIPAddress(TestCase):
         ip = IPAddress(address=IPNetwork('192.0.2.10/24'))
         self.assertRaises(ValidationError, ip.full_clean)
 
+    def test_mark_populated_single_address_range_blocks_ip(self):
+        # A single-address range with mark_populated=True must still block creation
+        # of an IPAddress at the same host with the same mask.
+        IPRange.objects.create(
+            start_address=IPNetwork('192.0.2.10/24'),
+            end_address=IPNetwork('192.0.2.10/24'),
+            mark_populated=True,
+        )
+        ipaddress = IPAddress(address=IPNetwork('192.0.2.10/24'))
 
-class TestVLANGroup(TestCase):
+        with self.assertRaisesMessage(ValidationError, 'Cannot create IP address'):
+            ipaddress.clean()
+
+
+class VLANGroupTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -701,7 +777,7 @@ class TestVLANGroup(TestCase):
         self.assertEqual(vlangroup.total_vlan_ids, 100)
 
 
-class TestVLAN(TestCase):
+class VLANTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
