@@ -122,7 +122,6 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `menu`                | The dotted path to a top-level navigation menu provided by the plugin (default: `navigation.menu`)                                 |
 | `menu_items`          | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)                                |
 | `graphql_schema`      | The dotted path to the plugin's GraphQL schema class, if any (default: `graphql.schema`)                                           |
-| `serializer_resolver` | The dotted path to a callable that resolves REST API serializers for the plugin's models (default: `api.serializers.serializer_resolver`) |
 | `user_preferences`    | The dotted path to the dictionary mapping of user preferences defined by the plugin (default: `preferences.preferences`)           |
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.

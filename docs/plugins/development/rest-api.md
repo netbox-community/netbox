@@ -95,13 +95,5 @@ urlpatterns = router.urls
 
 This will make the plugin's view accessible at `/api/plugins/my-plugin/my-model/`.
 
-## Serializer Resolvers
-
-NetBox resolves the REST API serializer for a model by importing `{app_label}.api.serializers.{ModelName}Serializer`. Plugins whose models are generated dynamically (and therefore have no importable serializer at that path), or that need to override resolution for specific models, may register a **serializer resolver**.
-
-A resolver is a callable with the signature `resolver(model, prefix='') -> Serializer subclass or None`. Resolvers are consulted in registration order before the default import-path lookup; the first non-`None` return wins. If no resolver matches, the default lookup runs unchanged.
-
-Register a resolver either by setting the `serializer_resolver` attribute on the plugin's `PluginConfig` (loaded from `api.serializers.serializer_resolver` by default) or by calling `netbox.plugins.register_serializer_resolver()` directly. A resolver that raises an exception, or returns a value that is not a `Serializer` subclass, is skipped and logged.
-
 !!! warning
     The examples provided here are intended to serve as a minimal reference implementation only. This documentation does not address authentication, performance, or myriad other concerns that plugin authors may need to address.
