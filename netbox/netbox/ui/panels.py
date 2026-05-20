@@ -208,7 +208,7 @@ class ObjectAttributesPanel(ObjectPanel, metaclass=ObjectAttributesPanelMeta):
                     'value': attr.render(ctx['object'], {
                         'name': name,
                         'perms': ctx['perms'],
-                        'preferences': ctx.get('preferences', {}),
+                        'preferences': context.get('preferences', {}),
                     }),
                 } for name, attr in self._attrs.items() if name in attr_names
             ],

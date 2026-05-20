@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, SimpleTestCase, TestCase
 
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.models import (
@@ -461,7 +461,7 @@ class DateTimeAttrTestCase(TestCase):
         self.assertEqual(context['spec'], 'minutes')
 
 
-class WeightAttrTestCase(TestCase):
+class WeightAttrTestCase(SimpleTestCase):
 
     def _ctx(self, system=''):
         return {'name': 'weight', 'preferences': {'ui.measurement_system': system}}
@@ -485,7 +485,7 @@ class WeightAttrTestCase(TestCase):
         obj = self._obj(5, 'kg', 5000, 'Kilograms')
         result = attr.render(obj, self._ctx(system=''))
         self.assertIn('5', result)
-        self.assertIn('kilograms', result)
+        self.assertIn('kg', result)
 
     def test_metric_converts_lbs_to_kg(self):
         # 10 lb = 4535.92 g → 4535.92 / 1000 = 4.54 kg
@@ -500,7 +500,7 @@ class WeightAttrTestCase(TestCase):
         obj = self._obj(5, 'kg', 5000, 'Kilograms')
         result = attr.render(obj, self._ctx(system='metric'))
         self.assertIn('5', result)
-        self.assertIn('kilograms', result)
+        self.assertIn('kg', result)
 
     def test_imperial_converts_kg_to_lbs(self):
         # 1 kg = 1000 g → 1000 / 453.592 = 2.2 lbs
@@ -510,26 +510,32 @@ class WeightAttrTestCase(TestCase):
         self.assertIn('2.2', result)
         self.assertIn('lbs', result)
 
+    def test_imperial_converts_kg_to_singular_lb(self):
+        # 453.592 g = exactly 1.0 lb → singular 'lb'
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(1, 'kg', 453.592, 'Kilograms')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('1.0', result)
+        self.assertIn('lb', result)
+        self.assertNotIn('lbs', result)
+
     def test_imperial_no_conversion_for_imperial_unit(self):
         attr = attrs.WeightAttr('weight')
         obj = self._obj(10, 'lb', 4535.92, 'Pounds')
         result = attr.render(obj, self._ctx(system='imperial'))
         self.assertIn('10', result)
-        self.assertIn('pounds', result)
+        self.assertIn('lbs', result)
 
     def test_metric_no_conversion_when_abs_weight_is_none(self):
         # abs_weight=None → falsy → falls through to stored value
         attr = attrs.WeightAttr('weight')
-        obj = SimpleNamespace(
-            weight=10, weight_unit='lb', _abs_weight=None,
-            get_weight_unit_display=lambda: 'Pounds',
-        )
+        obj = SimpleNamespace(weight=10, weight_unit='lb', _abs_weight=None)
         result = attr.render(obj, self._ctx(system='metric'))
         self.assertIn('10', result)
-        self.assertIn('pounds', result)
+        self.assertIn('lbs', result)
 
 
-class DistanceAttrTestCase(TestCase):
+class DistanceAttrTestCase(SimpleTestCase):
 
     def _ctx(self, system=''):
         return {'name': 'distance', 'preferences': {'ui.measurement_system': system}}
@@ -553,7 +559,7 @@ class DistanceAttrTestCase(TestCase):
         obj = self._obj(10, 'km', 10000, 'Kilometers')
         result = attr.render(obj, self._ctx(system=''))
         self.assertIn('10', result)
-        self.assertIn('kilometers', result)
+        self.assertIn('km', result)
 
     def test_metric_converts_ft_to_m_under_threshold(self):
         # 500 ft = 152.4 m (< 1000) → display in m
@@ -593,25 +599,22 @@ class DistanceAttrTestCase(TestCase):
         obj = self._obj(10, 'km', 10000, 'Kilometers')
         result = attr.render(obj, self._ctx(system='metric'))
         self.assertIn('10', result)
-        self.assertIn('kilometers', result)
+        self.assertIn('km', result)
 
     def test_imperial_no_conversion_for_imperial_unit(self):
         attr = attrs.DistanceAttr('distance')
         obj = self._obj(10, 'mi', 16093.44, 'Miles')
         result = attr.render(obj, self._ctx(system='imperial'))
         self.assertIn('10', result)
-        self.assertIn('miles', result)
+        self.assertIn('mi', result)
 
     def test_metric_no_conversion_when_abs_distance_is_none(self):
         # abs_distance=None → falls through to stored value
         attr = attrs.DistanceAttr('distance')
-        obj = SimpleNamespace(
-            distance=10, distance_unit='ft', _abs_distance=None,
-            get_distance_unit_display=lambda: 'Feet',
-        )
+        obj = SimpleNamespace(distance=10, distance_unit='ft', _abs_distance=None)
         result = attr.render(obj, self._ctx(system='metric'))
         self.assertIn('10', result)
-        self.assertIn('feet', result)
+        self.assertIn('ft', result)
 
 
 class ObjectsTablePanelTestCase(TestCase):

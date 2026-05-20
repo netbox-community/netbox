@@ -600,10 +600,10 @@ class WeightAttr(ObjectAttribute):
             display_unit = 'kg'
         elif system == 'imperial' and unit in _METRIC_WEIGHT and abs_weight:
             display_value = round(abs_weight / 453.592, 2)
-            display_unit = 'lbs'
+            display_unit = 'lb' if display_value == 1 else 'lbs'
         else:
             display_value = weight
-            display_unit = resolve_attr_path(obj, 'get_weight_unit_display')().lower()
+            display_unit = 'lb' if (unit == 'lb' and display_value == 1) else ('lbs' if unit == 'lb' else unit)
 
         return render_to_string(self.template_name, {
             'name': context['name'],
@@ -654,7 +654,7 @@ class DistanceAttr(ObjectAttribute):
                 display_unit = 'ft'
         else:
             display_value = distance
-            display_unit = resolve_attr_path(obj, 'get_distance_unit_display')().lower()
+            display_unit = unit  # 'km', 'm', 'mi', 'ft' are standard abbreviations
 
         return render_to_string(self.template_name, {
             'name': context['name'],
