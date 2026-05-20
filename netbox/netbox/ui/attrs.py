@@ -603,7 +603,10 @@ class WeightAttr(ObjectAttribute):
             display_unit = 'lb' if display_value == 1 else 'lbs'
         else:
             display_value = weight
-            display_unit = 'lb' if (unit == 'lb' and display_value == 1) else ('lbs' if unit == 'lb' else unit)
+            if unit == 'lb':
+                display_unit = 'lb' if display_value == 1 else 'lbs'
+            else:
+                display_unit = unit
 
         return render_to_string(self.template_name, {
             'name': context['name'],

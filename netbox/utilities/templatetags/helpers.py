@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
+from netbox.ui.attrs import _IMPERIAL_DISTANCE, _IMPERIAL_WEIGHT, _METRIC_DISTANCE, _METRIC_WEIGHT
 from utilities.forms import TableConfigForm, get_selected_values
 from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_action_url, get_viewname
@@ -339,16 +340,16 @@ def display_weight(context, weight, weight_unit, abs_weight):
     When the stored unit conflicts with the preferred system, converts via abs_weight (grams).
     Falls back to the stored value/unit when no conversion is needed.
     """
-    if not weight:
+    if weight is None:
         return ''
     system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
-    _IMPERIAL = {'lb', 'oz'}
-    _METRIC = {'kg', 'g'}
-    if system == 'metric' and weight_unit in _IMPERIAL and abs_weight:
+    if system == 'metric' and weight_unit in _IMPERIAL_WEIGHT and abs_weight:
         return f'{round(abs_weight / 1000, 2):g} kg'
-    if system == 'imperial' and weight_unit in _METRIC and abs_weight:
-        return f'{round(abs_weight / 453.592, 2):g} lbs'
-    return f'{weight:g} {weight_unit}'
+    if system == 'imperial' and weight_unit in _METRIC_WEIGHT and abs_weight:
+        lbs = round(abs_weight / 453.592, 2)
+        return f'{lbs:g} {"lb" if lbs == 1 else "lbs"}'
+    unit = 'lb' if (weight_unit == 'lb' and weight == 1) else ('lbs' if weight_unit == 'lb' else weight_unit)
+    return f'{weight:g} {unit}'
 
 
 @register.simple_tag(takes_context=True)
@@ -361,14 +362,12 @@ def display_distance(context, distance, distance_unit, abs_distance):
     if distance is None:
         return ''
     system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
-    _IMPERIAL = {'mi', 'ft'}
-    _METRIC = {'km', 'm'}
-    if system == 'metric' and distance_unit in _IMPERIAL and abs_distance is not None:
+    if system == 'metric' and distance_unit in _IMPERIAL_DISTANCE and abs_distance is not None:
         abs_m = float(abs_distance)
         if abs_m >= 1000:
             return f'{round(abs_m / 1000, 2):g} km'
         return f'{round(abs_m, 2):g} m'
-    if system == 'imperial' and distance_unit in _METRIC and abs_distance is not None:
+    if system == 'imperial' and distance_unit in _METRIC_DISTANCE and abs_distance is not None:
         abs_m = float(abs_distance)
         if abs_m >= 1609.344:
             return f'{round(abs_m / 1609.344, 2):g} mi'
