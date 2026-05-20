@@ -76,4 +76,8 @@ def load_release_data():
     if 'published' in data:
         data['published'] = datetime_from_timestamp(data['published'])
 
+    # Expand a nested features mapping into a FeatureSet instance
+    if isinstance(data.get('features'), dict):
+        data['features'] = FeatureSet(**data['features'])
+
     return ReleaseInfo(**data)

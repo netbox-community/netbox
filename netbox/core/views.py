@@ -23,6 +23,7 @@ from rq.job import JobStatus as RQJobStatus
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
+from core.core_plugins import get_core_plugin_names, get_core_plugins
 from core.utils import (
     delete_rq_job,
     enqueue_rq_job,
@@ -848,11 +849,18 @@ class PluginListView(BasePluginView):
     def get(self, request):
         q = request.GET.get('q', None)
 
-        plugins = self.get_cached_plugins(request).values()
+        all_plugins = self.get_cached_plugins(request)
+        plugins = all_plugins.values()
         if q:
             plugins = [obj for obj in plugins if q.casefold() in obj.title_short.casefold()]
 
-        plugins = [plugin for plugin in plugins if not plugin.hidden]
+        # Exclude hidden plugins and any NetBox Labs core plugins (which are
+        # presented separately in the Core Plugins section).
+        core_names = get_core_plugin_names()
+        plugins = [
+            plugin for plugin in plugins
+            if not plugin.hidden and plugin.config_name not in core_names
+        ]
 
         table = CatalogPluginTable(plugins)
         table.configure(request)
@@ -865,6 +873,7 @@ class PluginListView(BasePluginView):
 
         return render(request, 'core/plugin_list.html', {
             'table': table,
+            'core_plugins': get_core_plugins(all_plugins),
         })
 
 

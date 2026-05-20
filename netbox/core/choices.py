@@ -115,3 +115,20 @@ class ObjectChangeActionChoices(ChoiceSet):
         (ACTION_UPDATE, _('Updated'), 'blue'),
         (ACTION_DELETE, _('Deleted'), 'red'),
     )
+
+
+#
+# Plugins
+#
+
+class CorePluginStatusChoices(ChoiceSet):
+
+    STATUS_INSTALLED = 'installed'
+    STATUS_AVAILABLE = 'available'
+    STATUS_LOCKED = 'locked'
+
+    CHOICES = (
+        (STATUS_INSTALLED, _('Installed'), 'green'),
+        (STATUS_AVAILABLE, _('Available'), 'blue'),
+        (STATUS_LOCKED, _('Locked'), 'gray'),
+    )

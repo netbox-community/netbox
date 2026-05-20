@@ -7,10 +7,73 @@
 {% block title %}{% trans "Plugins" %}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs px-3" role="tablist">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" role="tab">{% trans "Plugins" %}</a>
+      <button class="nav-link {% if not request.GET.q %}active{% endif %}" id="core-plugins-tab" data-bs-toggle="tab" data-bs-target="#core-plugins" type="button" role="tab" aria-controls="core-plugins" aria-selected="{% if not request.GET.q %}true{% else %}false{% endif %}">
+        {% trans "Core Plugins" %}
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if request.GET.q %}active{% endif %}" id="community-plugins-tab" data-bs-toggle="tab" data-bs-target="#community-plugins" type="button" role="tab" aria-controls="community-plugins" aria-selected="{% if request.GET.q %}true{% else %}false{% endif %}">
+        {% trans "Community Plugins" %}
+      </button>
     </li>
   </ul>
 {% endblock tabs %}
 
+{% block content %}
+  {# Core Plugins tab #}
+  <div class="tab-pane {% if not request.GET.q %}show active{% endif %}" id="core-plugins" role="tabpanel" aria-labelledby="core-plugins-tab">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+      {% for plugin in core_plugins %}
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-start mb-2">
+                <i class="mdi {{ plugin.mdi_icon }} fs-1 me-3 text-secondary" aria-hidden="true"></i>
+                <div class="flex-grow-1">
+                  <h3 class="h5 mb-1">
+                    {% if plugin.status == 'installed' %}
+                      <a href="{% url 'core:plugin' plugin.config_name %}">{{ plugin.title }}</a>
+                    {% else %}
+                      {{ plugin.title }}
+                    {% endif %}
+                    {% if plugin.status == 'locked' %}
+                      <i class="mdi mdi-lock text-secondary ms-1" aria-label="{% trans 'Locked' %}" title="{% trans 'Locked' %}"></i>
+                    {% endif %}
+                  </h3>
+                  {% if plugin.status != 'locked' %}
+                    <span class="badge text-bg-{{ plugin.status_color }}">{{ plugin.status_label }}</span>
+                    {% if plugin.status == 'installed' and plugin.installed_version %}
+                      <span class="text-secondary small ms-1">v{{ plugin.installed_version }}</span>
+                    {% elif plugin.status == 'available' and plugin.latest_version %}
+                      <span class="text-secondary small ms-1">v{{ plugin.latest_version }}</span>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+              <p class="text-secondary small mb-2">{{ plugin.description }}</p>
+              {% if plugin.status == 'locked' %}
+                <div class="mt-auto text-end">
+                  <a href="{{ plugin.product_url }}" target="_blank" rel="noopener" class="small">
+                    {% trans "Learn more" %} <i class="mdi mdi-open-in-new"></i>
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Community Plugins tab #}
+  <div class="tab-pane {% if request.GET.q %}show active{% endif %}" id="community-plugins" role="tabpanel" aria-labelledby="community-plugins-tab">
+    {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
+    <div class="card">
+      <div class="htmx-container table-responsive" id="object_list">
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

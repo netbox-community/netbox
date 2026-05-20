@@ -2,8 +2,10 @@ import json
 import urllib.parse
 import uuid
 from datetime import datetime
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
@@ -13,8 +15,10 @@ from rq.job import Job as RQ_Job
 from rq.job import JobStatus
 from rq.registry import DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, StartedJobRegistry
 
-from core.choices import ObjectChangeActionChoices
+from core.choices import CorePluginStatusChoices, ObjectChangeActionChoices
+from core.core_plugins import CORE_PLUGINS, get_core_plugins
 from core.models import *
+from core.plugins import Plugin
 from dcim.models import Site
 from users.models import User
 from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
@@ -440,3 +444,111 @@ class SystemTestCase(TestCase):
         # Test export
         response = self.client.get(f"{reverse('core:system')}?export=true")
         self.assertEqual(response.status_code, 200)
+
+
+class PluginListViewTestCase(TestCase):
+    """
+    Tests for the Core Plugins section rendered on the plugins list page.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        self.user.is_superuser = True
+        self.user.save()
+        # The plugin catalog feed is cached process-wide; clear it so the patched
+        # catalog fetch is honored on every request.
+        cache.delete('plugins-catalog-feed')
+        cache.delete('plugins-catalog-error')
+
+    def _set_commercial_features(self, enabled):
+        # settings.RELEASE is a dataclass loaded at startup; mutate the field in
+        # place and restore on teardown.
+        from django.conf import settings
+        original = settings.RELEASE.features.commercial
+        settings.RELEASE.features.commercial = enabled
+        self.addCleanup(setattr, settings.RELEASE.features, 'commercial', original)
+
+    @patch('core.views.get_catalog_plugins', return_value={})
+    def test_plugin_list_shows_core_section_locked_for_oss(self, _mock_catalog):
+        self._set_commercial_features(False)
+
+        response = self.client.get(reverse('core:plugin_list'))
+
+        self.assertEqual(response.status_code, 200)
+        core_plugins = response.context['core_plugins']
+        self.assertEqual(len(core_plugins), len(CORE_PLUGINS))
+
+        # Commercial plugins should be Locked in OSS; non-commercial plugins should
+        # appear as Available.
+        status_by_name = {entry['config_name']: entry['status'] for entry in core_plugins}
+        for plugin in CORE_PLUGINS:
+            expected = (
+                CorePluginStatusChoices.STATUS_LOCKED if plugin.commercial
+                else CorePluginStatusChoices.STATUS_AVAILABLE
+            )
+            self.assertEqual(status_by_name[plugin.config_name], expected)
+
+        # The Core Plugins heading and at least one product link should render.
+        self.assertContains(response, 'Core Plugins')
+        first_commercial = next(p for p in CORE_PLUGINS if p.commercial)
+        self.assertContains(response, first_commercial.product_url)
+
+    @patch('core.views.get_catalog_plugins', return_value={})
+    def test_plugin_list_shows_core_section_available_for_commercial(self, _mock_catalog):
+        self._set_commercial_features(True)
+
+        response = self.client.get(reverse('core:plugin_list'))
+
+        self.assertEqual(response.status_code, 200)
+        for entry in response.context['core_plugins']:
+            self.assertEqual(entry['status'], CorePluginStatusChoices.STATUS_AVAILABLE)
+
+    def test_get_core_plugins_marks_installed(self):
+        # Unit-level test: simulate a locally-installed core plugin and confirm
+        # the helper reports it as installed with the recorded version.
+        target = CORE_PLUGINS[0]
+        local_plugins = {
+            target.config_name: Plugin(
+                config_name=target.config_name,
+                title_short=str(target.title),
+                title_long=str(target.title),
+                is_local=True,
+                is_loaded=True,
+                installed_version='1.2.3',
+            ),
+        }
+
+        self._set_commercial_features(False)
+        entries = get_core_plugins(local_plugins)
+        installed = next(e for e in entries if e['config_name'] == target.config_name)
+
+        self.assertEqual(installed['status'], CorePluginStatusChoices.STATUS_INSTALLED)
+        self.assertEqual(installed['installed_version'], '1.2.3')
+
+    @patch('core.views.get_catalog_plugins')
+    def test_plugin_list_excludes_core_from_community_list(self, mock_catalog):
+        # Seed the "catalog" with one of the core plugins plus a community plugin,
+        # and verify only the community plugin reaches the catalog table.
+        target = CORE_PLUGINS[0]
+        mock_catalog.return_value = {
+            target.config_name: Plugin(
+                config_name=target.config_name,
+                title_short=str(target.title),
+                title_long=str(target.title),
+            ),
+            'some_community_plugin': Plugin(
+                config_name='some_community_plugin',
+                title_short='Community Plugin',
+                title_long='Community Plugin',
+            ),
+        }
+        self._set_commercial_features(False)
+
+        response = self.client.get(reverse('core:plugin_list'))
+
+        self.assertEqual(response.status_code, 200)
+        table_rows = list(response.context['table'].rows)
+        row_names = {row.record.config_name for row in table_rows}
+        self.assertIn('some_community_plugin', row_names)
+        self.assertNotIn(target.config_name, row_names)
