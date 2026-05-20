@@ -9,8 +9,9 @@ from core.models import ObjectType
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
+from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.templatetags.builtins.tags import badge, customfield_value, static_with_params
-from utilities.templatetags.form_helpers import render_field_with_aria
+from utilities.templatetags.form_helpers import any_required, render_field_with_aria, render_fieldset
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
 
 
@@ -284,3 +285,54 @@ class RenderFieldWithAriaTestCase(TestCase):
         # No aria-label should be synthesized — an untranslated English fallback
         # would degrade accessibility under non-English locales.
         self.assertNotIn('aria-label', html)
+
+
+class AnyRequiredTestCase(TestCase):
+    """
+    Test the any_required template filter.
+    """
+
+    class TestForm(forms.Form):
+        required_field = forms.CharField(required=True)
+        optional_field = forms.CharField(required=False)
+
+    def test_returns_true_when_any_field_required(self):
+        form = self.TestForm()
+        self.assertTrue(any_required([form['optional_field'], form['required_field']]))
+
+    def test_returns_false_when_no_field_required(self):
+        form = self.TestForm()
+        self.assertFalse(any_required([form['optional_field']]))
+
+    def test_returns_false_for_empty_list(self):
+        self.assertFalse(any_required([]))
+
+
+class RenderFieldsetInlineRequiredTestCase(TestCase):
+    """
+    Verify the shared label for an InlineFields row receives the `required`
+    CSS class when at least one inline field is required.
+    """
+
+    class TestForm(forms.Form):
+        required_field = forms.CharField(required=True)
+        optional_field = forms.CharField(required=False)
+        another_optional = forms.CharField(required=False)
+
+    def _render(self, fieldset):
+        context = render_fieldset(self.TestForm(), fieldset)
+        return render_to_string('form_helpers/render_fieldset.html', context)
+
+    def test_inline_label_marked_required_when_any_field_required(self):
+        fieldset = FieldSet(
+            InlineFields('optional_field', 'required_field', label='Combined'),
+        )
+        html = self._render(fieldset)
+        self.assertIn('col-form-label text-lg-end required', html)
+
+    def test_inline_label_not_marked_required_when_no_field_required(self):
+        fieldset = FieldSet(
+            InlineFields('optional_field', 'another_optional', label='Combined'),
+        )
+        html = self._render(fieldset)
+        self.assertNotIn('col-form-label text-lg-end required', html)
