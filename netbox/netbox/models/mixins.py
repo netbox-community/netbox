@@ -53,6 +53,7 @@ class WeightMixin(models.Model):
 
     @property
     def abs_weight(self):
+        # Public alias for _abs_weight; Django templates cannot access underscore-prefixed attributes.
         return self._abs_weight
 
     def save(self, *args, **kwargs):
@@ -101,6 +102,7 @@ class DistanceMixin(models.Model):
 
     @property
     def abs_distance(self):
+        # Public alias for _abs_distance; Django templates cannot access underscore-prefixed attributes.
         return self._abs_distance
 
     def save(self, *args, **kwargs):

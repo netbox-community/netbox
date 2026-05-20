@@ -565,10 +565,45 @@ class UtilizationAttr(ObjectAttribute):
     template_name = 'ui/attrs/utilization.html'
 
 
-_IMPERIAL_WEIGHT = {'lb', 'oz'}
-_METRIC_WEIGHT = {'kg', 'g'}
-_IMPERIAL_DISTANCE = {'mi', 'ft'}
-_METRIC_DISTANCE = {'km', 'm'}
+IMPERIAL_WEIGHT = {'lb', 'oz'}
+METRIC_WEIGHT = {'kg', 'g'}
+IMPERIAL_DISTANCE = {'mi', 'ft'}
+METRIC_DISTANCE = {'km', 'm'}
+
+
+def compute_weight_display(weight, weight_unit, abs_weight, system):
+    """
+    Return (display_value, display_unit) for a weight, respecting the user's measurement system.
+    abs_weight is in grams (from WeightMixin._abs_weight).
+    oz and g pass through unchanged since there is no cross-system equivalent.
+    """
+    if system == 'metric' and weight_unit in IMPERIAL_WEIGHT and abs_weight is not None:
+        return round(abs_weight / 1000, 2), 'kg'
+    if system == 'imperial' and weight_unit in METRIC_WEIGHT and abs_weight is not None:
+        lbs = round(abs_weight / 453.592, 2)
+        return lbs, 'lb' if lbs == 1 else 'lbs'
+    if weight_unit == 'lb':
+        return weight, 'lb' if weight == 1 else 'lbs'
+    return weight, weight_unit
+
+
+def compute_distance_display(distance, distance_unit, abs_distance, system):
+    """
+    Return (display_value, display_unit) for a distance, respecting the user's measurement system.
+    abs_distance is in metres (from DistanceMixin._abs_distance).
+    Distances < 1 km are shown in metres; < 1 mi are shown in feet.
+    """
+    if system == 'metric' and distance_unit in IMPERIAL_DISTANCE and abs_distance is not None:
+        abs_m = float(abs_distance)
+        if abs_m >= 1000:
+            return round(abs_m / 1000, 2), 'km'
+        return round(abs_m, 2), 'm'
+    if system == 'imperial' and distance_unit in METRIC_DISTANCE and abs_distance is not None:
+        abs_m = float(abs_distance)
+        if abs_m >= 1609.344:
+            return round(abs_m / 1609.344, 2), 'mi'
+        return round(abs_m / 0.3048, 2), 'ft'
+    return distance, distance_unit
 
 
 class WeightAttr(ObjectAttribute):
@@ -577,7 +612,8 @@ class WeightAttr(ObjectAttribute):
 
     Parameters:
         unit_attr (str): Name of the field holding the weight unit (default: 'weight_unit')
-        abs_attr (str): Name of the field holding the absolute weight in grams (default: '_abs_weight')
+        abs_attr (str): The internal _abs_weight field name on WeightMixin (stored in grams).
+            Accessed via Python — not subject to Django's template underscore restriction.
     """
     template_name = 'ui/attrs/numeric.html'
 
@@ -594,19 +630,7 @@ class WeightAttr(ObjectAttribute):
         system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
         unit = resolve_attr_path(obj, self.unit_attr)
         abs_weight = resolve_attr_path(obj, self.abs_attr)
-
-        if system == 'metric' and unit in _IMPERIAL_WEIGHT and abs_weight:
-            display_value = round(abs_weight / 1000, 2)
-            display_unit = 'kg'
-        elif system == 'imperial' and unit in _METRIC_WEIGHT and abs_weight:
-            display_value = round(abs_weight / 453.592, 2)
-            display_unit = 'lb' if display_value == 1 else 'lbs'
-        else:
-            display_value = weight
-            if unit == 'lb':
-                display_unit = 'lb' if display_value == 1 else 'lbs'
-            else:
-                display_unit = unit
+        display_value, display_unit = compute_weight_display(weight, unit, abs_weight, system)
 
         return render_to_string(self.template_name, {
             'name': context['name'],
@@ -621,7 +645,8 @@ class DistanceAttr(ObjectAttribute):
 
     Parameters:
         unit_attr (str): Name of the field holding the distance unit (default: 'distance_unit')
-        abs_attr (str): Name of the field holding the absolute distance in meters (default: '_abs_distance')
+        abs_attr (str): The internal _abs_distance field name on DistanceMixin (stored in metres).
+            Accessed via Python — not subject to Django's template underscore restriction.
     """
     template_name = 'ui/attrs/numeric.html'
 
@@ -638,26 +663,7 @@ class DistanceAttr(ObjectAttribute):
         system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
         unit = resolve_attr_path(obj, self.unit_attr)
         abs_distance = resolve_attr_path(obj, self.abs_attr)
-
-        if system == 'metric' and unit in _IMPERIAL_DISTANCE and abs_distance is not None:
-            abs_m = float(abs_distance)
-            if abs_m >= 1000:
-                display_value = round(abs_m / 1000, 2)
-                display_unit = 'km'
-            else:
-                display_value = round(abs_m, 2)
-                display_unit = 'm'
-        elif system == 'imperial' and unit in _METRIC_DISTANCE and abs_distance is not None:
-            abs_m = float(abs_distance)
-            if abs_m >= 1609.344:
-                display_value = round(abs_m / 1609.344, 2)
-                display_unit = 'mi'
-            else:
-                display_value = round(abs_m / 0.3048, 2)
-                display_unit = 'ft'
-        else:
-            display_value = distance
-            display_unit = unit  # 'km', 'm', 'mi', 'ft' are standard abbreviations
+        display_value, display_unit = compute_distance_display(distance, unit, abs_distance, system)
 
         return render_to_string(self.template_name, {
             'name': context['name'],

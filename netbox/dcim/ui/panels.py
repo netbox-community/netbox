@@ -62,7 +62,7 @@ class RackPanel(panels.ObjectAttributesPanel):
 class RackWeightPanel(panels.ObjectAttributesPanel):
     weight = attrs.WeightAttr('weight')
     max_weight = attrs.WeightAttr('max_weight', label=_('Maximum weight'))
-    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/rack/attrs/total_weight.html')
+    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/attrs/total_weight.html')
 
 
 class RackRolePanel(panels.OrganizationalObjectPanel):
@@ -137,7 +137,7 @@ class DeviceDeviceTypePanel(panels.ObjectAttributesPanel):
 class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
     title = _('Dimensions')
 
-    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
+    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/attrs/total_weight.html')
 
 
 class DeviceRolePanel(panels.NestedGroupObjectPanel):

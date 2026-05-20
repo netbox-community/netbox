@@ -10,7 +10,10 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
-from netbox.ui.attrs import _IMPERIAL_DISTANCE, _IMPERIAL_WEIGHT, _METRIC_DISTANCE, _METRIC_WEIGHT
+from netbox.ui.attrs import (
+    compute_distance_display,
+    compute_weight_display,
+)
 from utilities.forms import TableConfigForm, get_selected_values
 from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_action_url, get_viewname
@@ -19,6 +22,8 @@ __all__ = (
     'action_url',
     'applied_filters',
     'as_range',
+    'display_distance',
+    'display_weight',
     'divide',
     'get_item',
     'get_key',
@@ -337,42 +342,24 @@ def kg_to_pounds(n):
 def display_weight(context, weight, weight_unit, abs_weight):
     """
     Render a weight value respecting the user's ui.measurement_system preference.
-    When the stored unit conflicts with the preferred system, converts via abs_weight (grams).
-    Falls back to the stored value/unit when no conversion is needed.
     """
     if weight is None:
         return ''
     system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
-    if system == 'metric' and weight_unit in _IMPERIAL_WEIGHT and abs_weight:
-        return f'{round(abs_weight / 1000, 2):g} kg'
-    if system == 'imperial' and weight_unit in _METRIC_WEIGHT and abs_weight:
-        lbs = round(abs_weight / 453.592, 2)
-        return f'{lbs:g} {"lb" if lbs == 1 else "lbs"}'
-    unit = 'lb' if (weight_unit == 'lb' and weight == 1) else ('lbs' if weight_unit == 'lb' else weight_unit)
-    return f'{weight:g} {unit}'
+    value, unit = compute_weight_display(weight, weight_unit, abs_weight, system)
+    return f'{value:g} {unit}'
 
 
 @register.simple_tag(takes_context=True)
 def display_distance(context, distance, distance_unit, abs_distance):
     """
     Render a distance value respecting the user's ui.measurement_system preference.
-    When the stored unit conflicts with the preferred system, converts via abs_distance (meters).
-    Falls back to the stored value/unit when no conversion is needed.
     """
     if distance is None:
         return ''
     system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
-    if system == 'metric' and distance_unit in _IMPERIAL_DISTANCE and abs_distance is not None:
-        abs_m = float(abs_distance)
-        if abs_m >= 1000:
-            return f'{round(abs_m / 1000, 2):g} km'
-        return f'{round(abs_m, 2):g} m'
-    if system == 'imperial' and distance_unit in _METRIC_DISTANCE and abs_distance is not None:
-        abs_m = float(abs_distance)
-        if abs_m >= 1609.344:
-            return f'{round(abs_m / 1609.344, 2):g} mi'
-        return f'{round(abs_m / 0.3048, 2):g} ft'
-    return f'{distance:g} {distance_unit}'
+    value, unit = compute_distance_display(distance, distance_unit, abs_distance, system)
+    return f'{value:g} {unit}'
 
 
 @register.filter("startswith")
