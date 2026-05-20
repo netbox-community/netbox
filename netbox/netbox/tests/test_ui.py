@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from django.template import Context, Template
 from django.test import RequestFactory, SimpleTestCase, TestCase
 
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
@@ -615,6 +616,98 @@ class DistanceAttrTestCase(SimpleTestCase):
         result = attr.render(obj, self._ctx(system='metric'))
         self.assertIn('10', result)
         self.assertIn('ft', result)
+
+
+class DisplayWeightTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_weight weight weight_unit abs_weight %}')
+
+    def _render(self, weight, weight_unit, abs_weight, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'weight': weight,
+            'weight_unit': weight_unit,
+            'abs_weight': abs_weight,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_weight_returns_empty(self):
+        self.assertEqual(self._render(None, 'kg', None), '')
+
+    def test_zero_weight_is_not_suppressed(self):
+        self.assertEqual(self._render(0, 'kg', 0), '0 kg')
+
+    def test_inherit_stores_kg(self):
+        self.assertEqual(self._render(5, 'kg', 5000), '5 kg')
+
+    def test_inherit_stores_lb_plural(self):
+        self.assertEqual(self._render(10, 'lb', 4535.92), '10 lbs')
+
+    def test_inherit_stores_lb_singular(self):
+        self.assertEqual(self._render(1, 'lb', 453.592), '1 lb')
+
+    def test_metric_converts_lb_to_kg(self):
+        # 10 lb = 4535.92 g → round(4535.92/1000, 2) = 4.54 kg
+        result = self._render(10, 'lb', 4535.92, system='metric')
+        self.assertEqual(result, '4.54 kg')
+
+    def test_imperial_converts_kg_to_lbs(self):
+        # 1 kg = 1000 g → round(1000/453.592, 2) = 2.2 lbs
+        result = self._render(1, 'kg', 1000, system='imperial')
+        self.assertEqual(result, '2.2 lbs')
+
+    def test_imperial_converts_kg_to_singular_lb(self):
+        # 453.592 g = 1.0 lb → singular
+        result = self._render(1, 'kg', 453.592, system='imperial')
+        self.assertEqual(result, '1 lb')
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        result = self._render(5, 'kg', 5000, system='metric')
+        self.assertEqual(result, '5 kg')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        result = self._render(10, 'lb', 4535.92, system='imperial')
+        self.assertEqual(result, '10 lbs')
+
+
+class DisplayDistanceTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_distance distance distance_unit abs_distance %}')
+
+    def _render(self, distance, distance_unit, abs_distance, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'distance': distance,
+            'distance_unit': distance_unit,
+            'abs_distance': abs_distance,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_distance_returns_empty(self):
+        self.assertEqual(self._render(None, 'km', None), '')
+
+    def test_inherit_stores_km(self):
+        self.assertEqual(self._render(10, 'km', 10000), '10 km')
+
+    def test_metric_converts_ft_to_m_under_threshold(self):
+        # 500 ft = 152.4 m (< 1000)
+        self.assertEqual(self._render(500, 'ft', 152.4, system='metric'), '152.4 m')
+
+    def test_metric_converts_mi_to_km_over_threshold(self):
+        # 5 mi = 8046.72 m (>= 1000) → 8.05 km
+        self.assertEqual(self._render(5, 'mi', 8046.72, system='metric'), '8.05 km')
+
+    def test_imperial_converts_m_to_ft_under_threshold(self):
+        # 500 m (< 1609.344) → 500/0.3048 = 1640.42 ft
+        self.assertEqual(self._render(500, 'm', 500, system='imperial'), '1640.42 ft')
+
+    def test_imperial_converts_km_to_mi_over_threshold(self):
+        # 10 km = 10000 m (>= 1609.344) → 6.21 mi
+        self.assertEqual(self._render(10, 'km', 10000, system='imperial'), '6.21 mi')
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        self.assertEqual(self._render(10, 'km', 10000, system='metric'), '10 km')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        self.assertEqual(self._render(10, 'mi', 16093.44, system='imperial'), '10 mi')
 
 
 class ObjectsTablePanelTestCase(TestCase):
