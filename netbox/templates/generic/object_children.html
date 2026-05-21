@@ -26,6 +26,22 @@ Context:
     {% block table_controls %}
         {% include 'inc/table_controls_htmx.html' with table_modal=table_config %}
     {% endblock table_controls %}
+    {% if filter_form %}
+        {% applied_filters model filter_form request.GET %}
+        <div class="mb-3 d-print-none">
+            <button class="btn btn-sm btn-outline-secondary" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#filters-form"
+                    aria-expanded="{% if filter_form.changed_data %}true{% else %}false{% endif %}"
+                    aria-controls="filters-form">
+                <i class="mdi mdi-filter" aria-hidden="true"></i>
+                {% trans "Filters" %}
+                {% badge filter_form.changed_data|length bg_color="primary" %}
+            </button>
+        </div>
+        <div class="collapse {% if filter_form.changed_data %}show{% endif %}" id="filters-form">
+            {% include 'inc/filter_list.html' %}
+        </div>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
         <div class="card">
