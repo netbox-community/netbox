@@ -1143,6 +1143,33 @@ class ViewTestCases:
                 self.assertEqual(instance.label, f'{original_labels[i]}X')
                 self.assertEqual(instance.name, objects[i].name)
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_name_and_label_fields(self):
+            """When field_names=['name', 'label'] is submitted, both fields are updated simultaneously."""
+            if 'label' not in {f.name for f in self.model._meta.fields}:
+                self.skipTest("Model does not have a label field")
+
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            original_names = [obj.name for obj in objects]
+            original_labels = [obj.label for obj in objects]
+            data = {
+                'pk': pk_list,
+                'field_names': ['name', 'label'],
+                '_apply': True,
+            }
+            data.update(self.rename_data)
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+            for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
+                self.assertEqual(instance.name, f'{original_names[i]}X')
+                self.assertEqual(instance.label, f'{original_labels[i]}X')
+
     class PrimaryObjectViewTestCase(
         GetObjectViewTestCase,
         GetObjectChangelogViewTestCase,
