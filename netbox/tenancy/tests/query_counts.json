@@ -1,0 +1,14 @@
+{
+  "contact:api_list_objects": 14,
+  "contact:list_objects_with_permission": 21,
+  "contactassignment:api_list_objects": 17,
+  "contactassignment:list_objects_with_permission": 25,
+  "contactgroup:api_list_objects": 14,
+  "contactgroup:list_objects_with_permission": 20,
+  "contactrole:api_list_objects": 13,
+  "contactrole:list_objects_with_permission": 20,
+  "tenant:api_list_objects": 14,
+  "tenant:list_objects_with_permission": 21,
+  "tenantgroup:api_list_objects": 14,
+  "tenantgroup:list_objects_with_permission": 20
+}
