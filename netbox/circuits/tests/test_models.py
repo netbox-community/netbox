@@ -3,7 +3,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
 from model_bakery import baker
 
-from circuits.models import CircuitTermination
+from circuits.models import CircuitTermination, ProviderNetwork
 
 
 class CircuitTerminationTestCase(TestCase):
