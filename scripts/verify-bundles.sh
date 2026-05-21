@@ -21,12 +21,10 @@ bundle() {
 
 # See if any files have changed.
 check_dist() {
-    local changed=$(git --no-pager diff --name-only $DIST)
-    if [[ $changed != "" ]]; then
+    local diff=$(git --no-pager diff $DIST)
+    if [[ $diff != "" ]]; then
         local SHA=$(git rev-parse HEAD)
         echo "Commit '$SHA' produced different static assets than were committed"
-        echo "Changed files:"
-        echo "$changed"
         exit 1
     fi
 }
