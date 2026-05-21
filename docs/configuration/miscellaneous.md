@@ -197,11 +197,14 @@ This specifies the URL to use when presenting a map of a physical location by st
 **For GPS coordinates**, two formats are supported:
 
 * **Simple prefix** (default behavior): The latitude and longitude are appended as a comma-separated pair. For example, `https://maps.google.com/?q=` produces `https://maps.google.com/?q=48.858,2.294`.
-* **Format string**: Include `{lat}` and/or `{lon}` placeholders anywhere in the URL for full control over placement. For example:
+* **Coordinate placeholders**: Include `{lat}` and/or `{lon}` anywhere in the URL. Only these two literal placeholders are supported. For example:
 
 ```
 MAPS_URL = "https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}"
 ```
+
+!!! note
+    When `MAPS_URL` contains `{lat}` or `{lon}` placeholders, the "map it" button will only appear on pages with GPS coordinates — address-based map links will be suppressed, since the coordinate-format URL cannot be used with a plain address string.
 
 ---
 

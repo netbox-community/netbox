@@ -457,6 +457,15 @@ class GenericForeignKeyAttr(ObjectAttribute):
         }
 
 
+def _build_coords_url(map_url, latitude, longitude):
+    """Build a GPS map URL, substituting {lat}/{lon} placeholders or appending as a comma-separated pair."""
+    lat_str = str(latitude)
+    lon_str = str(longitude)
+    if '{lat}' in map_url or '{lon}' in map_url:
+        return map_url.replace('{lat}', lat_str).replace('{lon}', lon_str)
+    return f'{map_url}{lat_str},{lon_str}'
+
+
 class AddressAttr(MapURLMixin, ObjectAttribute):
     """
     A physical or mailing address.
@@ -472,8 +481,12 @@ class AddressAttr(MapURLMixin, ObjectAttribute):
         self._map_url = map_url
 
     def get_context(self, obj, attr, value, context):
+        map_url = self.map_url
+        # A GPS-format MAPS_URL (containing {lat}/{lon}) cannot be used for address rendering
+        if map_url and ('{lat}' in map_url or '{lon}' in map_url):
+            map_url = None
         return {
-            'map_url': self.map_url,
+            'map_url': map_url,
         }
 
 
@@ -502,24 +515,13 @@ class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
             return self.placeholder
         map_url = self.map_url
         if map_url:
-            map_url = self._build_coords_url(map_url, latitude, longitude)
+            map_url = _build_coords_url(map_url, latitude, longitude)
         return render_to_string(self.template_name, {
             'name': context['name'],
             'latitude': latitude,
             'longitude': longitude,
             'map_url': map_url,
         })
-
-    @staticmethod
-    def _build_coords_url(map_url, latitude, longitude):
-        if '{lat}' in map_url or '{lon}' in map_url:
-            # Substitute only {lat}/{lon}; leave any other placeholders intact
-            # so a misconfigured URL still resolves the known tokens correctly.
-            class _SubstituteKnown(dict):
-                def __missing__(self, key):
-                    return '{' + key + '}'
-            return map_url.format_map(_SubstituteKnown(lat=latitude, lon=longitude))
-        return f'{map_url}{latitude},{longitude}'
 
 
 class DateTimeAttr(ObjectAttribute):
