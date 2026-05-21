@@ -85,12 +85,14 @@ def register_user_preferences(plugin_name, preferences):
     registry['plugins']['preferences'][plugin_name] = preferences
 
 
-def register_serializer_resolver(resolver):
+def register_serializer_resolver(app_label, resolver):
     """
-    Register a callable that returns a DRF serializer class for a model, or
-    None if the resolver does not handle the model. Resolvers are tried in
-    registration order before the default import-path lookup performed by
-    utilities.api.get_serializer_for_model().
+    Register a callable that returns a DRF serializer class for a model in
+    the given app, or None if the resolver does not handle the model. The
+    resolver is consulted by utilities.api.get_serializer_for_model() before
+    the default import-path lookup, but only for models belonging to
+    `app_label`. Plugins (and internal apps) should only register resolvers
+    for their own models.
 
     This is the supported extension point for plugins whose models are
     generated dynamically (and therefore have no importable serializer at
@@ -101,4 +103,4 @@ def register_serializer_resolver(resolver):
     """
     if not callable(resolver):
         raise TypeError(_("Serializer resolver must be callable"))
-    registry['serializer_resolvers'].append(resolver)
+    registry['serializer_resolvers'][app_label] = resolver

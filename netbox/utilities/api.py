@@ -51,30 +51,31 @@ def get_serializer_for_model(model, prefix=''):
     """
     Return the appropriate REST API serializer for the given model.
 
-    Plugins may register custom resolvers via
-    netbox.plugins.register_serializer_resolver() to handle dynamically
-    generated models or to override serializer resolution for specific
-    models. Resolvers run in registration order; the first non-None return
-    wins. If no resolver matches, the default import-path lookup runs.
+    A plugin (or internal app) may register a custom resolver for its own
+    app via netbox.plugins.register_serializer_resolver() to handle
+    dynamically generated models or to override serializer resolution. If
+    a resolver is registered for the model's app and returns a Serializer
+    subclass, that result is used. Otherwise, the default import-path
+    lookup runs.
     """
-    for resolver in registry['serializer_resolvers']:
+    app_label, model_name = model._meta.label.split('.')
+
+    if resolver := registry['serializer_resolvers'].get(app_label):
         try:
             serializer = resolver(model, prefix=prefix)
         except Exception:
             # A buggy resolver must not break serializer lookup for the rest of NetBox.
-            logger.exception("Serializer resolver %r raised an exception; skipping.", resolver)
-            continue
-        if serializer is None:
-            continue
-        if not (isinstance(serializer, type) and issubclass(serializer, Serializer)):
+            logger.exception("Serializer resolver %r raised an exception; falling through to default lookup.", resolver)
+            serializer = None
+        if serializer is not None:
+            if isinstance(serializer, type) and issubclass(serializer, Serializer):
+                return serializer
             logger.warning(
-                "Serializer resolver %r returned %r, which is not a Serializer subclass; skipping.",
+                "Serializer resolver %r returned %r, which is not a Serializer subclass; "
+                "falling through to default lookup.",
                 resolver, serializer,
             )
-            continue
-        return serializer
 
-    app_label, model_name = model._meta.label.split('.')
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
     try:
         return import_string(serializer_name)

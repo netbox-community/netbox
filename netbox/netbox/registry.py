@@ -44,7 +44,7 @@ registry = Registry({
     'plugins': dict(),
     'request_processors': list(),
     'search': dict(),
-    'serializer_resolvers': list(),
+    'serializer_resolvers': dict(),
     'system_jobs': dict(),
     'tables': collections.defaultdict(dict),
     'views': collections.defaultdict(dict),
