@@ -66,28 +66,28 @@ Context:
                 <div class="card-body">
                     {# Hidden fields #}
                     {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+                    {# Per-field checkboxes first, so they aren't confused with "use regex" #}
+                    {% if rename_fields %}
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label pt-0 text-lg-end">{% trans "Fields" %}</label>
+                            <div class="col">
+                                {% for field in rename_fields %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="field_names"
+                                           id="id_field_names_{{ field }}" value="{{ field }}"
+                                           {% if field in selected_field_names %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_field_names_{{ field }}">{{ field|title }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
                     {# Standard fields (find, replace, use_regex) #}
                     {% for field in form.visible_fields %}
                       {% if not form.meta_fields or field.name not in form.meta_fields %}
                         {% render_field field %}
                       {% endif %}
                     {% endfor %}
-                    {# Per-field rename checkboxes, rendered before the changelog fieldset #}
-                    {% if rename_fields %}
-                    <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label pt-0 text-lg-end">{% trans "Fields" %}</label>
-                        <div class="col">
-                            {% for field in rename_fields %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="field_names"
-                                       id="id_field_names_{{ field }}" value="{{ field }}"
-                                       {% if field in selected_field_names %}checked{% endif %}>
-                                <label class="form-check-label" for="id_field_names_{{ field }}">{{ field|title }}</label>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
                     {# Changelog / meta fields #}
                     {% if form.meta_fields %}
                     <div class="bg-primary-subtle border border-primary rounded-1 pt-3 px-3 mb-3">
