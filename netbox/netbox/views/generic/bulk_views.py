@@ -186,7 +186,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             if request.GET['export']:
-                template = get_object_or_404(ExportTemplate, object_types=object_type, name=request.GET['export'])
+                template = get_object_or_404(
+                    ExportTemplate.objects.restrict(request.user, 'view'),
+                    object_types=object_type,
+                    name=request.GET['export'],
+                )
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model

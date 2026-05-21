@@ -1,6 +1,7 @@
 import json
 
 import strawberry
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -9,8 +10,10 @@ from strawberry.schema.config import StrawberryConfig
 
 from dcim.choices import LocationStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
+from extras.models import TableConfig
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions
+from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, TestCase, disable_warnings
 
 
@@ -215,6 +218,26 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['device_list']), 3)
+
+    def test_graphql_tableconfig_object_type_exposes_id(self):
+        """TableConfigType.object_type must expose ContentType fields (e.g. id)."""
+        self.add_permissions('extras.view_tableconfig')
+        url = reverse('graphql')
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        table_config = TableConfig.objects.create(
+            object_type=site_ct,
+            table=get_table_for_model(Site).__name__,
+            name='Test config',
+            columns=['name'],
+        )
+
+        query = '{ table_config(id: ' + str(table_config.pk) + ') { object_type { id } } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(int(data['data']['table_config']['object_type']['id']), site_ct.pk)
 
     def test_offset_pagination(self):
         self.add_permissions('dcim.view_site')

@@ -273,6 +273,53 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class TableConfigTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    # Add/Edit/BulkEdit views require an object_type pre-context from the source
+    # table view, so they are not exercised here.
+    model = TableConfig
+
+    @classmethod
+    def setUpTestData(cls):
+        site_type = ObjectType.objects.get_for_model(Site)
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        table_configs = (
+            TableConfig(
+                name='Table Config 1',
+                object_type=site_type,
+                table='SiteTable',
+                user=users[0],
+                columns=['name', 'status'],
+            ),
+            TableConfig(
+                name='Table Config 2',
+                object_type=site_type,
+                table='SiteTable',
+                user=users[1],
+                columns=['name', 'region'],
+            ),
+            TableConfig(
+                name='Table Config 3',
+                object_type=site_type,
+                table='SiteTable',
+                user=users[2],
+                columns=['name', 'tenant'],
+            ),
+        )
+        TableConfig.objects.bulk_create(table_configs)
+
+
 class BookmarkTestCase(
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
@@ -319,6 +366,52 @@ class BookmarkTestCase(
 
     def test_list_objects_with_constrained_permission(self):
         return
+
+
+class ImageAttachmentTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    # Add/Edit/BulkEdit are omitted: ImageField.save() re-reads the file to
+    # populate image_height / image_width, which fails when fixtures use
+    # placeholder URLs instead of real images on disk.
+    model = ImageAttachment
+
+    @classmethod
+    def setUpTestData(cls):
+        ct = ContentType.objects.get_for_model(Site)
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        ImageAttachment.objects.bulk_create(
+            [
+                ImageAttachment(
+                    object_type=ct,
+                    object_id=site.pk,
+                    name='Image Attachment 1',
+                    image='http://example.com/image1.png',
+                    image_height=100,
+                    image_width=100,
+                ),
+                ImageAttachment(
+                    object_type=ct,
+                    object_id=site.pk,
+                    name='Image Attachment 2',
+                    image='http://example.com/image2.png',
+                    image_height=100,
+                    image_width=100,
+                ),
+                ImageAttachment(
+                    object_type=ct,
+                    object_id=site.pk,
+                    name='Image Attachment 3',
+                    image='http://example.com/image3.png',
+                    image_height=100,
+                    image_width=100,
+                ),
+            ]
+        )
 
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -370,7 +463,7 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class ExportTemplateExportFlowTest(TestCase):
+class ExportTemplateExportFlowTestCase(TestCase):
     """
     End-to-end test for ExportTemplate invocation via a list view's ?export=<name> query param.
     """
@@ -399,7 +492,7 @@ class ExportTemplateExportFlowTest(TestCase):
         broken_template.object_types.set([site_type])
 
     def test_export_template_invocation(self):
-        self.add_permissions('dcim.view_site')
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
         url = reverse('dcim:site_list')
 
         response = self.client.get(f'{url}?export=Sites Export')
@@ -412,7 +505,7 @@ class ExportTemplateExportFlowTest(TestCase):
         self.assertEqual(rendered_names, {'Site A', 'Site B'})
 
     def test_export_template_render_error_redirects(self):
-        self.add_permissions('dcim.view_site')
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
         url = reverse('dcim:site_list')
 
         # A broken template surfaces an exception during render; the view catches it and redirects
