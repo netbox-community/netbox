@@ -16,6 +16,7 @@ from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface, Site
 from netbox.ui import attrs
 from netbox.ui.panels import ObjectsTablePanel
+from netbox.ui.utils import build_coords_url
 from users.models import ObjectPermission, User
 from utilities.testing import create_test_device
 from vpn.choices import (
@@ -441,11 +442,11 @@ class GPSCoordinatesAttrTestCase(TestCase):
         self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
 
     def test_build_coords_url_legacy_prefix(self):
-        url = attrs._build_coords_url('https://maps.google.com/?q=', 48.858, 2.294)
+        url = build_coords_url('https://maps.google.com/?q=', 48.858, 2.294)
         self.assertEqual(url, 'https://maps.google.com/?q=48.858,2.294')
 
     def test_build_coords_url_lat_lon_placeholders(self):
-        url = attrs._build_coords_url(
+        url = build_coords_url(
             'https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}',
             48.858,
             2.294,
@@ -453,21 +454,21 @@ class GPSCoordinatesAttrTestCase(TestCase):
         self.assertEqual(url, 'https://www.openstreetmap.org/?mlat=48.858&mlon=2.294#map=16/48.858/2.294')
 
     def test_build_coords_url_lat_placeholder_only(self):
-        url = attrs._build_coords_url('https://example.com/?lat={lat}', 48.858, 2.294)
+        url = build_coords_url('https://example.com/?lat={lat}', 48.858, 2.294)
         self.assertEqual(url, 'https://example.com/?lat=48.858')
 
     def test_build_coords_url_lon_placeholder_only(self):
-        url = attrs._build_coords_url('https://example.com/?lon={lon}', 48.858, 2.294)
+        url = build_coords_url('https://example.com/?lon={lon}', 48.858, 2.294)
         self.assertEqual(url, 'https://example.com/?lon=2.294')
 
     def test_build_coords_url_unknown_placeholder_falls_back_to_legacy(self):
         # URL with only an unknown placeholder (no {lat}/{lon}) → legacy append
-        url = attrs._build_coords_url('https://example.com/?q={unknown}', 48.858, 2.294)
+        url = build_coords_url('https://example.com/?q={unknown}', 48.858, 2.294)
         self.assertEqual(url, 'https://example.com/?q={unknown}48.858,2.294')
 
     def test_build_coords_url_known_and_unknown_placeholder(self):
         # {lat} is substituted; unknown key is left as a literal placeholder
-        url = attrs._build_coords_url(
+        url = build_coords_url(
             'https://example.com/?lat={lat}&layer={layer}', 48.858, 2.294
         )
         self.assertEqual(url, 'https://example.com/?lat=48.858&layer={layer}')
@@ -475,7 +476,7 @@ class GPSCoordinatesAttrTestCase(TestCase):
     def test_build_coords_url_decimal_values_no_locale_separator(self):
         # Decimal field values must format with '.' as the decimal separator regardless of locale;
         # a locale-style comma separator would produce e.g. '48,858258' and break the URL
-        url = attrs._build_coords_url(
+        url = build_coords_url(
             'https://maps.google.com/?q=',
             Decimal('48.858258'),
             Decimal('2.294498'),
@@ -483,7 +484,7 @@ class GPSCoordinatesAttrTestCase(TestCase):
         self.assertEqual(url, 'https://maps.google.com/?q=48.858258,2.294498')
 
     def test_build_coords_url_decimal_with_placeholders_no_locale_separator(self):
-        url = attrs._build_coords_url(
+        url = build_coords_url(
             'https://www.openstreetmap.org/?mlat={lat}&mlon={lon}',
             Decimal('48.858258'),
             Decimal('2.294498'),

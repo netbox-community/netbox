@@ -3,6 +3,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import get_config
+from netbox.ui.utils import build_coords_url, is_coordinate_map_url
 from utilities.data import resolve_attr_path
 
 __all__ = (
@@ -457,15 +458,6 @@ class GenericForeignKeyAttr(ObjectAttribute):
         }
 
 
-def _build_coords_url(map_url, latitude, longitude):
-    """Build a GPS map URL, substituting {lat}/{lon} placeholders or appending as a comma-separated pair."""
-    lat_str = str(latitude)
-    lon_str = str(longitude)
-    if '{lat}' in map_url or '{lon}' in map_url:
-        return map_url.replace('{lat}', lat_str).replace('{lon}', lon_str)
-    return f'{map_url}{lat_str},{lon_str}'
-
-
 class AddressAttr(MapURLMixin, ObjectAttribute):
     """
     A physical or mailing address.
@@ -482,8 +474,8 @@ class AddressAttr(MapURLMixin, ObjectAttribute):
 
     def get_context(self, obj, attr, value, context):
         map_url = self.map_url
-        # A GPS-format MAPS_URL (containing {lat}/{lon}) cannot be used for address rendering
-        if map_url and ('{lat}' in map_url or '{lon}' in map_url):
+        # A coordinate-format MAPS_URL (containing {lat}/{lon}) cannot be used for address rendering
+        if map_url and is_coordinate_map_url(map_url):
             map_url = None
         return {
             'map_url': map_url,
@@ -515,7 +507,7 @@ class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
             return self.placeholder
         map_url = self.map_url
         if map_url:
-            map_url = _build_coords_url(map_url, latitude, longitude)
+            map_url = build_coords_url(map_url, latitude, longitude)
         return render_to_string(self.template_name, {
             'name': context['name'],
             'latitude': latitude,
