@@ -157,117 +157,97 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-
-        # MPTT models: use .save() directly
-        regions = (
-            Region(name='Test Region 1', slug='test-region-1'),
-            Region(name='Test Region 2', slug='test-region-2'),
-            Region(name='Test Region 3', slug='test-region-3'),
+        from circuits.baker_recipes import (
+            active_circuit,
+            offline_circuit,
+            planned_circuit,
+            provider,
+            provider_account,
+            provider_network,
         )
+
+        # MPTT models: use .save() directly (baker triggers mptt guard)
+        regions = [Region(name=f'Test Region {i}', slug=f'test-region-{i}') for i in range(1, 4)]
         for r in regions:
             r.save()
 
-        site_groups = (
-            SiteGroup(name='Site Group 1', slug='site-group-1'),
-            SiteGroup(name='Site Group 2', slug='site-group-2'),
-            SiteGroup(name='Site Group 3', slug='site-group-3'),
-        )
-        for site_group in site_groups:
-            site_group.save()
+        site_groups = [SiteGroup(name=f'Site Group {i}', slug=f'site-group-{i}') for i in range(1, 4)]
+        for sg in site_groups:
+            sg.save()
 
-        sites = (
-            baker.make('dcim.Site', name='Test Site 1', slug='test-site-1', region=regions[0], group=site_groups[0]),
-            baker.make('dcim.Site', name='Test Site 2', slug='test-site-2', region=regions[1], group=site_groups[1]),
-            baker.make('dcim.Site', name='Test Site 3', slug='test-site-3', region=regions[2], group=site_groups[2]),
-        )
+        tenant_groups = [TenantGroup(name=f'Tenant group {i}', slug=f'tenant-group-{i}') for i in range(1, 4)]
+        for tg in tenant_groups:
+            tg.save()
 
-        # MPTT models: use .save() directly
-        tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
-        )
-        for tenantgroup in tenant_groups:
-            tenantgroup.save()
-
-        tenants = (
-            baker.make('tenancy.Tenant', name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
-            baker.make('tenancy.Tenant', name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
-            baker.make('tenancy.Tenant', name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
-        )
-
-        circuit_types = baker.make('circuits.CircuitType', _quantity=2)
-
-        providers = baker.make('circuits.Provider', _quantity=3)
-
+        # Non-MPTT models: use recipes
+        sites = [
+            baker.make_recipe('dcim.site', region=regions[i], group=site_groups[i])
+            for i in range(3)
+        ]
+        tenants = [
+            baker.make_recipe('tenancy.tenant', group=tenant_groups[i])
+            for i in range(3)
+        ]
+        circuit_types = baker.make_recipe('circuits.circuit_type', _quantity=2)
+        providers = provider.make(_quantity=3)
         provider_accounts = [
-            baker.make('circuits.ProviderAccount', provider=providers[0]),
-            baker.make('circuits.ProviderAccount', provider=providers[1]),
-            baker.make('circuits.ProviderAccount', provider=providers[2]),
+            provider_account.make(provider=providers[i])
+            for i in range(3)
+        ]
+        provider_networks = provider_network.make(provider=providers[1], _quantity=3)
+
+        # Location is MPTT: use .objects.create()
+        locations = [
+            Location.objects.create(
+                site=sites[i], name=f'Test Location {i + 1}', slug=f'test-location-{i + 1}',
+                status=LocationStatusChoices.STATUS_ACTIVE,
+            )
+            for i in range(2)
         ]
 
-        provider_networks = baker.make('circuits.ProviderNetwork', provider=providers[1], _quantity=3)
-
-        locations = (
-            Location.objects.create(
-                site=sites[0], name='Test Location 1', slug='test-location-1',
-                status=LocationStatusChoices.STATUS_ACTIVE,
-            ),
-            Location.objects.create(
-                site=sites[1], name='Test Location 2', slug='test-location-2',
-                status=LocationStatusChoices.STATUS_ACTIVE,
-            ),
-        )
-
-        circuits = (
-            baker.make(
-                'circuits.Circuit',
+        # Circuits: recipes encode status; test-specific fields passed as overrides
+        circuits = [
+            active_circuit.make(
                 provider=providers[0], provider_account=provider_accounts[0],
                 tenant=tenants[0], type=circuit_types[0],
                 cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01',
-                commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE,
-                description='foobar1', distance=10, distance_unit=DistanceUnitChoices.UNIT_FOOT,
+                commit_rate=1000, description='foobar1',
+                distance=10, distance_unit=DistanceUnitChoices.UNIT_FOOT,
             ),
-            baker.make(
-                'circuits.Circuit',
+            active_circuit.make(
                 provider=providers[0], provider_account=provider_accounts[0],
                 tenant=tenants[0], type=circuit_types[0],
                 cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02',
-                commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE,
-                description='foobar2', distance=20, distance_unit=DistanceUnitChoices.UNIT_METER,
+                commit_rate=2000, description='foobar2',
+                distance=20, distance_unit=DistanceUnitChoices.UNIT_METER,
             ),
-            baker.make(
-                'circuits.Circuit',
+            planned_circuit.make(
                 provider=providers[0], provider_account=provider_accounts[1],
                 tenant=tenants[1], type=circuit_types[0],
                 cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03',
-                commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED,
-                distance=30, distance_unit=DistanceUnitChoices.UNIT_METER,
+                commit_rate=3000, distance=30, distance_unit=DistanceUnitChoices.UNIT_METER,
             ),
-            baker.make(
-                'circuits.Circuit',
+            planned_circuit.make(
                 provider=providers[1], provider_account=provider_accounts[1],
                 tenant=tenants[1], type=circuit_types[1],
                 cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04',
-                commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED,
+                commit_rate=4000,
             ),
-            baker.make(
-                'circuits.Circuit',
+            offline_circuit.make(
                 provider=providers[1], provider_account=provider_accounts[2],
                 tenant=tenants[2], type=circuit_types[1],
                 cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05',
-                commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE,
+                commit_rate=5000,
             ),
-            baker.make(
-                'circuits.Circuit',
+            offline_circuit.make(
                 provider=providers[1], provider_account=provider_accounts[2],
                 tenant=tenants[2], type=circuit_types[1],
                 cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06',
-                commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE,
+                commit_rate=6000,
             ),
-        )
+        ]
 
-        circuit_terminations = ((
+        circuit_terminations = (
             CircuitTermination(circuit=circuits[0], termination=sites[0], term_side='A'),
             CircuitTermination(circuit=circuits[0], termination=locations[0], term_side='Z'),
             CircuitTermination(circuit=circuits[1], termination=sites[1], term_side='A'),
@@ -276,7 +256,7 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[3], termination=provider_networks[0], term_side='A'),
             CircuitTermination(circuit=circuits[4], termination=provider_networks[1], term_side='A'),
             CircuitTermination(circuit=circuits[5], termination=provider_networks[2], term_side='A'),
-        ))
+        )
         for ct in circuit_terminations:
             ct.save()
 
