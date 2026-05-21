@@ -2742,6 +2742,7 @@ class DeviceInterfacesView(DeviceComponentsView):
     child_model = Interface
     table = tables.DeviceInterfaceTable
     filterset = filtersets.InterfaceFilterSet
+    filterset_form = forms.InterfaceFilterForm
     actions = (EditObject, DeleteObject, BulkEdit, BulkRename, BulkDisconnect, BulkDelete)
     template_name = 'dcim/device/interfaces.html'
     tab = ViewTab(
