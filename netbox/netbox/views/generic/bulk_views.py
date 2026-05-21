@@ -962,7 +962,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             if form.is_valid():
                 submitted = [
                     f for f in request.POST.getlist('field_names')
-                    if f in self.rename_fields
+                    if self.rename_fields and f in self.rename_fields
                 ]
                 if self.rename_fields and not submitted:
                     form.add_error(None, _("Select at least one field to rename."))
