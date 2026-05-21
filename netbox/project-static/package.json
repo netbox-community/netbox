@@ -15,7 +15,7 @@
     "format": "yarn format:scripts && yarn format:styles",
     "format:scripts": "prettier -w src/**/*.ts",
     "format:styles": "prettier -w styles/**/*.scss",
-    "validate": "yarn validate:types && yarn validate:lint",
+    "validate": "yarn validate:types && yarn validate:lint && yarn validate:formatting",
     "validate:lint": "eslint ./src/**/*.ts",
     "validate:types": "tsc --noEmit",
     "validate:formatting": "yarn validate:formatting:scripts && yarn validate:formatting:styles",
