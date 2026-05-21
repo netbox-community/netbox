@@ -3360,7 +3360,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         post_url = f'{self._get_url("bulk_rename")}?device_id={get_qs["device_id"]}'
 
         # Preview step: ensure 37 selected (not just one page)
-        data = {'_preview': '1', '_all': '1', 'find': 'eth', 'replace': 'xe'}
+        data = {'_preview': '1', '_all': '1', 'find': 'eth', 'replace': 'xe', 'field_names': ['name']}
         response = self.client.post(post_url, data=data)
         self.assertHttpStatus(response, 200)
         self.assertEqual(len(response.context['selected_objects']), 37)
@@ -3373,7 +3373,9 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         pk_list = [str(pk) for pk in pk_list]
 
         # Apply step: include pk[] in the POST
-        apply_data = {'_apply': '1', '_all': '1', 'find': 'eth', 'replace': 'xe', 'pk': pk_list}
+        apply_data = {
+            '_apply': '1', '_all': '1', 'find': 'eth', 'replace': 'xe', 'pk': pk_list, 'field_names': ['name'],
+        }
         response = self.client.post(post_url, data=apply_data)
 
         # On success the view redirects back to the return URL
