@@ -505,6 +505,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
                 'name': u_name,
                 'face': face,
                 'device': None,
+                'reservation': None,
                 'occupied': False
             }
 
@@ -544,6 +545,10 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
                         elevation[device.position]['device'] = device
                     elevation[device.position]['occupied'] = True
                     elevation[device.position]['height'] = device.device_type.u_height
+
+            for reservation in self.reservations.all():
+                for u in reservation.units:
+                    elevation[u]['reservation'] = reservation
 
         return [u for u in elevation.values()]
 

@@ -744,6 +744,34 @@ class RackTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(unoccupied_unit['device'], None)
         self.assertEqual(unoccupied_unit['description'], None)
 
+    def test_get_rack_elevation_description_is_reservation(self):
+        """
+        Verify occupied rack units include the reservation in their description.
+        """
+        rack = Rack.objects.first()
+        self.add_permissions('dcim.view_rack', 'dcim.view_device')
+        url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
+
+        user = User.objects.create(username='user1', is_active=True)
+        reservation = RackReservation.objects.create(
+            rack=rack,
+            units=[40, 41],
+            user=user,
+            description='Rack Elevation test reservation'
+        )
+
+        # Retrieve all units
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        occupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U40')
+        self.assertEqual(occupied_unit['reservation']['id'], reservation.pk)
+        self.assertEqual(occupied_unit['description'], f'Reservation #{reservation.pk}: {reservation.description}')
+
+        unoccupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U39')
+        self.assertEqual(unoccupied_unit['reservation'], None)
+        self.assertEqual(unoccupied_unit['description'], None)
+
     def test_get_rack_elevation_svg(self):
         """
         GET a single rack elevation in SVG format.

@@ -6,6 +6,7 @@ from dcim.choices import *
 from netbox.api.fields import ChoiceField
 
 from .devices import DeviceSerializer
+from .racks import RackReservationSerializer
 
 __all__ = (
     'RackUnitSerializer',
@@ -24,6 +25,7 @@ class RackUnitSerializer(serializers.Serializer):
     name = serializers.CharField(read_only=True)
     face = ChoiceField(choices=DeviceFaceChoices, read_only=True)
     device = DeviceSerializer(nested=True, read_only=True)
+    reservation = RackReservationSerializer(nested=True, read_only=True)
     occupied = serializers.BooleanField(read_only=True)
     display = serializers.SerializerMethodField(read_only=True)
     description = serializers.SerializerMethodField(read_only=True)
@@ -34,4 +36,8 @@ class RackUnitSerializer(serializers.Serializer):
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_description(self, obj):
-        return f'{obj["device"]}' if obj['device'] else None
+        if obj['device']:
+            return f'{obj["device"]}'
+        if obj['reservation']:
+            return f'Reservation #{obj["reservation"].pk}: {obj["reservation"].description}'
+        return None
