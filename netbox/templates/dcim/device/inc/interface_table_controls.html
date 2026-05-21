@@ -10,27 +10,27 @@
     <li>
       <a class="dropdown-item{% if request.GET.enabled == 'True' %} active{% endif %}"
          href="{{ request.path }}{% if request.GET.enabled == 'True' %}{% querystring enabled=None %}{% else %}{% querystring enabled='True' %}{% endif %}">
-        {% if request.GET.enabled == "True" %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Disabled" %}
+        {% if request.GET.enabled == 'True' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Disabled" %}
       </a>
     </li>
     <li>
       <a class="dropdown-item{% if request.GET.enabled == 'False' %} active{% endif %}"
          href="{{ request.path }}{% if request.GET.enabled == 'False' %}{% querystring enabled=None %}{% else %}{% querystring enabled='False' %}{% endif %}">
-        {% if request.GET.enabled == "False" %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Enabled" %}
+        {% if request.GET.enabled == 'False' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Enabled" %}
       </a>
     </li>
     {# kind filter: physical = show only physical (hide virtual/wireless) #}
     <li>
       <a class="dropdown-item{% if request.GET.kind == 'physical' %} active{% endif %}"
          href="{{ request.path }}{% if request.GET.kind == 'physical' %}{% querystring kind=None %}{% else %}{% querystring kind='physical' %}{% endif %}">
-        {% if request.GET.kind == "physical" %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Virtual" %}
+        {% if request.GET.kind == 'physical' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Virtual" %}
       </a>
     </li>
     {# connected filter: True = show only connected (hide disconnected) #}
     <li>
       <a class="dropdown-item{% if request.GET.connected == 'True' %} active{% endif %}"
          href="{{ request.path }}{% if request.GET.connected == 'True' %}{% querystring connected=None %}{% else %}{% querystring connected='True' %}{% endif %}">
-        {% if request.GET.connected == "True" %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Disconnected" %}
+        {% if request.GET.connected == 'True' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Disconnected" %}
       </a>
     </li>
   </ul>
