@@ -39,10 +39,10 @@ Context:
             <thead>
                 <tr>
                     {% for field in selected_field_names %}
-                    {% with field_label=field|title %}
-                    <th>{% blocktrans %}Current {{ field_label }}{% endblocktrans %}</th>
-                    <th>{% blocktrans %}New {{ field_label }}{% endblocktrans %}</th>
-                    {% endwith %}
+                        {% with field_label=field|title %}
+                            <th>{% blocktrans %}Current {{ field_label }}{% endblocktrans %}</th>
+                            <th>{% blocktrans %}New {{ field_label }}{% endblocktrans %}</th>
+                        {% endwith %}
                     {% endfor %}
                 </tr>
             </thead>
@@ -50,8 +50,8 @@ Context:
                 {% for obj in selected_objects %}
                     <tr{% if obj.has_changes %} class="success"{% endif %}>
                         {% for field in selected_field_names %}
-                        <td>{{ obj|getattr:field }}</td>
-                        <td>{{ obj.new_names|getattr:field|default:'' }}</td>
+                            <td>{{ obj|getattr:field }}</td>
+                            <td>{{ obj.new_names|getattr:field|default:'' }}</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
@@ -74,8 +74,8 @@ Context:
                                 {% for field in rename_fields %}
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="field_names"
-                                           id="id_field_names_{{ field }}" value="{{ field }}"
-                                           {% if field in selected_field_names %}checked{% endif %}>
+                                       id="id_field_names_{{ field }}" value="{{ field }}"
+                                       {% if field in selected_field_names %}checked{% endif %}>
                                     <label class="form-check-label" for="id_field_names_{{ field }}">{{ field|title }}</label>
                                 </div>
                                 {% endfor %}
@@ -84,9 +84,9 @@ Context:
                     {% endif %}
                     {# Standard fields (find, replace, use_regex) #}
                     {% for field in form.visible_fields %}
-                      {% if not form.meta_fields or field.name not in form.meta_fields %}
-                        {% render_field field %}
-                      {% endif %}
+                        {% if not form.meta_fields or field.name not in form.meta_fields %}
+                            {% render_field field %}
+                        {% endif %}
                     {% endfor %}
                     {# Changelog / meta fields #}
                     {% if form.meta_fields %}
