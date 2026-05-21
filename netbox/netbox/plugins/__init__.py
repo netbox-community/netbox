@@ -32,7 +32,6 @@ DEFAULT_RESOURCE_PATHS = {
     'graphql_schema': 'graphql.schema',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
-    'serializer_resolver': 'api.serializers.serializer_resolver',
     'template_extensions': 'template_content.template_extensions',
     'user_preferences': 'preferences.preferences',
 }
@@ -136,9 +135,12 @@ class PluginConfig(AppConfig):
         if user_preferences := self._load_resource('user_preferences'):
             register_user_preferences(plugin_name, user_preferences)
 
-        # Register serializer resolver (if defined)
-        if serializer_resolver := self._load_resource('serializer_resolver'):
-            register_serializer_resolver(serializer_resolver)
+        # Register serializer resolver (if explicitly defined). No default path is attempted.
+        if self.serializer_resolver:
+            register_serializer_resolver(
+                self.label,
+                import_string(f"{self.__module__}.{self.serializer_resolver}"),
+            )
 
     @classmethod
     def validate(cls, user_config, netbox_version):

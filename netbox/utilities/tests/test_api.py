@@ -9,6 +9,7 @@ from dcim.api.serializers import SiteSerializer
 from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
+from ipam.api.serializers import VLANSerializer
 from ipam.models import VLAN
 from netbox.api.serializers import BaseModelSerializer
 from netbox.config import get_config
@@ -490,42 +491,47 @@ class _ResolvedSerializerB(Serializer):
 
 class SerializerResolverRegistryTestCase(TestCase):
     """
-    Verify that registered serializer resolvers are consulted before the
-    default import-path lookup in get_serializer_for_model().
+    Verify that a registered serializer resolver is consulted before the
+    default import-path lookup in get_serializer_for_model(), scoped to
+    the app for which it was registered.
     """
 
     def setUp(self):
-        # Snapshot and clear the resolver list so each test starts from a
+        # Snapshot and clear the resolver mapping so each test starts from a
         # known state and can't leak resolvers into the rest of the suite.
-        self._saved_resolvers = list(registry['serializer_resolvers'])
+        self._saved_resolvers = dict(registry['serializer_resolvers'])
         registry['serializer_resolvers'].clear()
 
     def tearDown(self):
         registry['serializer_resolvers'].clear()
-        registry['serializer_resolvers'].extend(self._saved_resolvers)
+        registry['serializer_resolvers'].update(self._saved_resolvers)
 
     def test_default_lookup_when_no_resolvers_registered(self):
         self.assertIs(get_serializer_for_model(Site), SiteSerializer)
 
     def test_registered_resolver_overrides_default(self):
-        register_serializer_resolver(lambda model, prefix='': _ResolvedSerializerA)
+        register_serializer_resolver('dcim', lambda model, prefix='': _ResolvedSerializerA)
 
         self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerA)
 
     def test_resolver_returning_none_falls_through_to_default(self):
-        register_serializer_resolver(lambda model, prefix='': None)
+        register_serializer_resolver('dcim', lambda model, prefix='': None)
 
         self.assertIs(get_serializer_for_model(Site), SiteSerializer)
 
-    def test_resolvers_tried_in_registration_order(self):
-        # First resolver only handles VLAN; second handles everything else.
-        register_serializer_resolver(
-            lambda model, prefix='': _ResolvedSerializerA if model is VLAN else None
-        )
-        register_serializer_resolver(lambda model, prefix='': _ResolvedSerializerB)
+    def test_resolver_scoped_to_registered_app(self):
+        # A resolver registered for dcim must not affect lookups for other apps (e.g. ipam).
+        register_serializer_resolver('dcim', lambda model, prefix='': _ResolvedSerializerA)
 
-        self.assertIs(get_serializer_for_model(VLAN), _ResolvedSerializerA)
-        self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerB)
+        self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerA)
+        self.assertIs(get_serializer_for_model(VLAN), VLANSerializer)
+
+    def test_per_app_resolvers_are_independent(self):
+        register_serializer_resolver('dcim', lambda model, prefix='': _ResolvedSerializerA)
+        register_serializer_resolver('ipam', lambda model, prefix='': _ResolvedSerializerB)
+
+        self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerA)
+        self.assertIs(get_serializer_for_model(VLAN), _ResolvedSerializerB)
 
     def test_resolver_receives_prefix(self):
         seen = {}
@@ -534,27 +540,26 @@ class SerializerResolverRegistryTestCase(TestCase):
             seen['prefix'] = prefix
             return _ResolvedSerializerA
 
-        register_serializer_resolver(resolver)
+        register_serializer_resolver('dcim', resolver)
         get_serializer_for_model(Site, prefix='Nested')
 
         self.assertEqual(seen['prefix'], 'Nested')
 
     def test_register_rejects_non_callable(self):
         with self.assertRaises(TypeError):
-            register_serializer_resolver('not a callable')
+            register_serializer_resolver('dcim', 'not a callable')
 
-    def test_raising_resolver_is_skipped(self):
+    def test_raising_resolver_falls_through_to_default(self):
         def broken_resolver(model, prefix=''):
             raise RuntimeError("intentional failure")
 
-        register_serializer_resolver(broken_resolver)
-        register_serializer_resolver(lambda model, prefix='': _ResolvedSerializerA)
+        register_serializer_resolver('dcim', broken_resolver)
 
         with self.assertLogs('netbox.utilities.api', level='ERROR'):
-            self.assertIs(get_serializer_for_model(Site), _ResolvedSerializerA)
+            self.assertIs(get_serializer_for_model(Site), SiteSerializer)
 
-    def test_resolver_returning_non_serializer_is_skipped(self):
-        register_serializer_resolver(lambda model, prefix='': object())
+    def test_resolver_returning_non_serializer_falls_through_to_default(self):
+        register_serializer_resolver('dcim', lambda model, prefix='': object())
 
         with self.assertLogs('netbox.utilities.api', level='WARNING'):
             self.assertIs(get_serializer_for_model(Site), SiteSerializer)
