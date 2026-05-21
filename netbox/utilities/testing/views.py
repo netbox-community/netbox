@@ -1032,6 +1032,7 @@ class ViewTestCases:
             data = {
                 'pk': pk_list,
                 '_apply': True,  # Form button
+                'field_names': ['name'],
             }
             data.update(self.rename_data)
 
@@ -1059,6 +1060,7 @@ class ViewTestCases:
                 'pk': pk_list,
                 '_apply': True,
                 'changelog_message': 'Bulk rename test message',
+                'field_names': ['name'],
             }
             data.update(self.rename_data)
 
@@ -1091,6 +1093,7 @@ class ViewTestCases:
             data = {
                 'pk': pk_list,
                 '_apply': True,  # Form button
+                'field_names': ['name'],
             }
             data.update(self.rename_data)
 

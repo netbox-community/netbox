@@ -936,8 +936,6 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                     new_values[field] = current.replace(find, replace)
 
             obj.new_names = SimpleNamespace(**new_values)
-            # Backward compat: single-field callers still reference obj.new_name
-            obj.new_name = new_values.get(field_names[0], '')
             obj.has_changes = any(
                 new_values[f] != (getattr(obj, f, '') or '') for f in field_names
             )
@@ -962,55 +960,56 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             form = self.form(request.POST, initial={'pk': pk_list})
 
             if form.is_valid():
-                # field_names checkboxes are rendered manually in the template and
-                # submitted directly, not via a form field, to avoid widget styling issues.
                 submitted = [
                     f for f in request.POST.getlist('field_names')
                     if f in self.rename_fields
                 ]
-                if submitted:
+                if self.rename_fields and not submitted:
+                    form.add_error(None, _("Select at least one field to rename."))
+                elif submitted:
                     field_names = submitted
-                try:
-                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
-                        renamed_pks = self._rename_objects(form, selected_objects, field_names)
+                if not form.errors:
+                    try:
+                        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+                            renamed_pks = self._rename_objects(form, selected_objects, field_names)
 
-                        if '_apply' in request.POST:
-                            # For MPTT models, delay tree updates until all saves are complete
-                            if issubclass(self.queryset.model, MPTTModel):
-                                with self.queryset.model.objects.delay_mptt_updates():
+                            if '_apply' in request.POST:
+                                # For MPTT models, delay tree updates until all saves are complete
+                                if issubclass(self.queryset.model, MPTTModel):
+                                    with self.queryset.model.objects.delay_mptt_updates():
+                                        for obj in selected_objects:
+                                            for field in field_names:
+                                                setattr(obj, field, getattr(obj.new_names, field))
+                                            obj._changelog_message = form.cleaned_data.get('changelog_message', '')
+                                            obj.save()
+                                else:
                                     for obj in selected_objects:
                                         for field in field_names:
                                             setattr(obj, field, getattr(obj.new_names, field))
                                         obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                         obj.save()
-                            else:
-                                for obj in selected_objects:
-                                    for field in field_names:
-                                        setattr(obj, field, getattr(obj.new_names, field))
-                                    obj._changelog_message = form.cleaned_data.get('changelog_message', '')
-                                    obj.save()
 
-                            # Enforce constrained permissions
-                            if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
-                                raise PermissionsViolation
+                                # Enforce constrained permissions
+                                if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
+                                    raise PermissionsViolation
 
-                            messages.success(
-                                request,
-                                _("Renamed {count} {object_type}").format(
-                                    count=len(selected_objects),
-                                    object_type=self.queryset.model._meta.verbose_name_plural
+                                messages.success(
+                                    request,
+                                    _("Renamed {count} {object_type}").format(
+                                        count=len(selected_objects),
+                                        object_type=self.queryset.model._meta.verbose_name_plural
+                                    )
                                 )
-                            )
-                            return redirect(self.get_return_url(request))
+                                return redirect(self.get_return_url(request))
 
-                except IntegrityError as e:
-                    messages.error(self.request, ", ".join(e.args))
-                    clear_events.send(sender=self)
+                    except IntegrityError as e:
+                        messages.error(self.request, ", ".join(e.args))
+                        clear_events.send(sender=self)
 
-                except (AbortRequest, PermissionsViolation) as e:
-                    logger.debug(e.message)
-                    form.add_error(None, e.message)
-                    clear_events.send(sender=self)
+                    except (AbortRequest, PermissionsViolation) as e:
+                        logger.debug(e.message)
+                        form.add_error(None, e.message)
+                        clear_events.send(sender=self)
 
         else:
             form = self.form(initial={'pk': pk_list})
