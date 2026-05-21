@@ -15,6 +15,7 @@ from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 
 from .base import ModelTestCase
+from .query_counts import assert_expected_query_count
 from .utils import add_custom_field_data, disable_warnings, get_random_string, post_data
 
 __all__ = (
@@ -470,7 +471,9 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try GET with model-level permission
-            self.assertHttpStatus(self.client.get(self._get_url('list')), 200)
+            with assert_expected_query_count(self, 'list_objects_with_permission'):
+                response = self.client.get(self._get_url('list'))
+            self.assertHttpStatus(response, 200)
 
         def test_list_objects_with_constrained_permission(self):
             instance1, instance2 = self._get_queryset().all()[:2]
