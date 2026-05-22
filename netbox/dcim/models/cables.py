@@ -690,9 +690,10 @@ class CableTermination(ChangeLoggedModel):
             self._location = self.termination.rack.location
             self._site = self.termination.rack.site
 
-        # Circuit terminations
-        elif getattr(self.termination, 'site', None):
-            self._site = self.termination.site
+        # Circuit terminations (which cache their own site/location)
+        elif self.termination._meta.label_lower == 'circuits.circuittermination':
+            self._site = self.termination._site
+            self._location = self.termination._location
     cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
