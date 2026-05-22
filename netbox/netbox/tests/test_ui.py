@@ -1,3 +1,4 @@
+from decimal import Decimal
 from types import SimpleNamespace
 
 from django.test import RequestFactory, TestCase
@@ -15,6 +16,7 @@ from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface, Site
 from netbox.ui import attrs
 from netbox.ui.panels import ObjectsTablePanel
+from netbox.ui.utils import build_coords_url
 from users.models import ObjectPermission, User
 from utilities.testing import create_test_device
 from vpn.choices import (
@@ -438,6 +440,78 @@ class GPSCoordinatesAttrTestCase(TestCase):
         attr = attrs.GPSCoordinatesAttr()
         obj = SimpleNamespace(latitude=None, longitude=None)
         self.assertEqual(attr.render(obj, {'name': 'coordinates'}), attr.placeholder)
+
+    def test_build_coords_url_legacy_prefix(self):
+        url = build_coords_url('https://maps.google.com/?q=', 48.858, 2.294)
+        self.assertEqual(url, 'https://maps.google.com/?q=48.858,2.294')
+
+    def test_build_coords_url_lat_lon_placeholders(self):
+        url = build_coords_url(
+            'https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}',
+            48.858,
+            2.294,
+        )
+        self.assertEqual(url, 'https://www.openstreetmap.org/?mlat=48.858&mlon=2.294#map=16/48.858/2.294')
+
+    def test_build_coords_url_lat_placeholder_only(self):
+        url = build_coords_url('https://example.com/?lat={lat}', 48.858, 2.294)
+        self.assertEqual(url, 'https://example.com/?lat=48.858')
+
+    def test_build_coords_url_lon_placeholder_only(self):
+        url = build_coords_url('https://example.com/?lon={lon}', 48.858, 2.294)
+        self.assertEqual(url, 'https://example.com/?lon=2.294')
+
+    def test_build_coords_url_unknown_placeholder_falls_back_to_legacy(self):
+        # URL with only an unknown placeholder (no {lat}/{lon}) → legacy append
+        url = build_coords_url('https://example.com/?q={unknown}', 48.858, 2.294)
+        self.assertEqual(url, 'https://example.com/?q={unknown}48.858,2.294')
+
+    def test_build_coords_url_known_and_unknown_placeholder(self):
+        # {lat} is substituted; unknown key is left as a literal placeholder
+        url = build_coords_url(
+            'https://example.com/?lat={lat}&layer={layer}', 48.858, 2.294
+        )
+        self.assertEqual(url, 'https://example.com/?lat=48.858&layer={layer}')
+
+    def test_build_coords_url_decimal_values_no_locale_separator(self):
+        # Decimal field values must format with '.' as the decimal separator regardless of locale;
+        # a locale-style comma separator would produce e.g. '48,858258' and break the URL
+        url = build_coords_url(
+            'https://maps.google.com/?q=',
+            Decimal('48.858258'),
+            Decimal('2.294498'),
+        )
+        self.assertEqual(url, 'https://maps.google.com/?q=48.858258,2.294498')
+
+    def test_build_coords_url_decimal_with_placeholders_no_locale_separator(self):
+        url = build_coords_url(
+            'https://www.openstreetmap.org/?mlat={lat}&mlon={lon}',
+            Decimal('48.858258'),
+            Decimal('2.294498'),
+        )
+        self.assertEqual(url, 'https://www.openstreetmap.org/?mlat=48.858258&mlon=2.294498')
+
+
+class AddressAttrTestCase(TestCase):
+
+    def test_plain_prefix_map_url_is_passed_through(self):
+        attr = attrs.AddressAttr('address', map_url='https://maps.google.com/?q=')
+        obj = SimpleNamespace(address='1 Main St')
+        context = attr.get_context(obj, 'address', '1 Main St', {})
+        self.assertEqual(context['map_url'], 'https://maps.google.com/?q=')
+
+    def test_gps_format_map_url_is_suppressed_for_addresses(self):
+        # A GPS-format URL cannot render address links; map_url should be None
+        attr = attrs.AddressAttr('address', map_url='https://maps.example.com/?mlat={lat}&mlon={lon}')
+        obj = SimpleNamespace(address='1 Main St')
+        context = attr.get_context(obj, 'address', '1 Main St', {})
+        self.assertIsNone(context['map_url'])
+
+    def test_no_map_url(self):
+        attr = attrs.AddressAttr('address', map_url=False)
+        obj = SimpleNamespace(address='1 Main St')
+        context = attr.get_context(obj, 'address', '1 Main St', {})
+        self.assertIsNone(context['map_url'])
 
 
 class DateTimeAttrTestCase(TestCase):

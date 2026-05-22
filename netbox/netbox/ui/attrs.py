@@ -3,6 +3,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.config import get_config
+from netbox.ui.utils import build_coords_url, is_coordinate_map_url
 from utilities.data import resolve_attr_path
 
 __all__ = (
@@ -472,8 +473,12 @@ class AddressAttr(MapURLMixin, ObjectAttribute):
         self._map_url = map_url
 
     def get_context(self, obj, attr, value, context):
+        map_url = self.map_url
+        # A coordinate-format MAPS_URL (containing {lat}/{lon}) cannot be used for address rendering
+        if map_url and is_coordinate_map_url(map_url):
+            map_url = None
         return {
-            'map_url': self.map_url,
+            'map_url': map_url,
         }
 
 
@@ -500,11 +505,14 @@ class GPSCoordinatesAttr(MapURLMixin, ObjectAttribute):
         longitude = resolve_attr_path(obj, self.longitude_attr)
         if latitude is None or longitude is None:
             return self.placeholder
+        map_url = self.map_url
+        if map_url:
+            map_url = build_coords_url(map_url, latitude, longitude)
         return render_to_string(self.template_name, {
             'name': context['name'],
             'latitude': latitude,
             'longitude': longitude,
-            'map_url': self.map_url,
+            'map_url': map_url,
         })
 
 
