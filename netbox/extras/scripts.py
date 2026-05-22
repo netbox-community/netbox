@@ -234,10 +234,12 @@ class ObjectVar(ScriptVariable):
     :param null_option: The label to use as a "null" selection option (optional)
     :param selector: Include an advanced object selection widget to assist the user in identifying the desired
         object (optional)
+    :param quick_add: Include a widget to quickly create a new related object for assignment. (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, model, query_params=None, context=None, null_option=None, selector=False, *args, **kwargs):
+    def __init__(self, model, query_params=None, context=None, null_option=None, selector=False, quick_add=False,
+                 *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.field_attrs.update({
@@ -246,6 +248,7 @@ class ObjectVar(ScriptVariable):
             'context': context,
             'null_option': null_option,
             'selector': selector,
+            'quick_add': quick_add,
         })
 
 
