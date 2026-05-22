@@ -549,6 +549,11 @@ class SerializerResolverRegistryTestCase(TestCase):
         with self.assertRaises(TypeError):
             register_serializer_resolver('dcim', 'not a callable')
 
+    def test_register_rejects_duplicate_app_registration(self):
+        register_serializer_resolver('dcim', lambda model, prefix='': _ResolvedSerializerA)
+        with self.assertRaises(ValueError):
+            register_serializer_resolver('dcim', lambda model, prefix='': _ResolvedSerializerB)
+
     def test_raising_resolver_falls_through_to_default(self):
         def broken_resolver(model, prefix=''):
             raise RuntimeError("intentional failure")

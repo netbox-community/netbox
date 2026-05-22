@@ -103,4 +103,8 @@ def register_serializer_resolver(app_label, resolver):
     """
     if not callable(resolver):
         raise TypeError(_("Serializer resolver must be callable"))
+    if app_label in registry['serializer_resolvers']:
+        raise ValueError(
+            _("A serializer resolver is already registered for app '{app_label}'").format(app_label=app_label)
+        )
     registry['serializer_resolvers'][app_label] = resolver
