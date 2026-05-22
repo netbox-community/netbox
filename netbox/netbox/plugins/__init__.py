@@ -135,12 +135,16 @@ class PluginConfig(AppConfig):
         if user_preferences := self._load_resource('user_preferences'):
             register_user_preferences(plugin_name, user_preferences)
 
-        # Register serializer resolver (if explicitly defined). No default path is attempted.
+        # Register serializer resolver (if defined)
         if self.serializer_resolver:
-            register_serializer_resolver(
-                self.label,
-                import_string(f"{self.__module__}.{self.serializer_resolver}"),
-            )
+            resolver_path = f"{self.__module__}.{self.serializer_resolver}"
+            try:
+                resolver = import_string(resolver_path)
+            except ImportError as e:
+                raise ImproperlyConfigured(
+                    f"Invalid serializer resolver path for plugin {self.__module__}: {resolver_path}"
+                ) from e
+            register_serializer_resolver(self.label, resolver)
 
     @classmethod
     def validate(cls, user_config, netbox_version):
