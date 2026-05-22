@@ -1,12 +1,11 @@
 from functools import lru_cache
 
 from rest_framework import serializers
-from rest_framework import serializers
 
 from .features import ChangeLogMessageSerializer
 
 __all__ = (
-    'BulkOperationSerializer', 
+    'BulkOperationSerializer',
     'BulkPartialUpdateSchemaMixin',
     'get_bulk_update_serializer_class'
 )
