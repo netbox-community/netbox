@@ -1,7 +1,8 @@
 from decimal import Decimal
 from types import SimpleNamespace
 
-from django.test import RequestFactory, TestCase
+from django.template import Context, Template
+from django.test import RequestFactory, SimpleTestCase, TestCase
 
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.models import (
@@ -533,6 +534,254 @@ class DateTimeAttrTestCase(TestCase):
         obj = SimpleNamespace(created='2024-01-01')
         context = attr.get_context(obj, 'created', '2024-01-01', {})
         self.assertEqual(context['spec'], 'minutes')
+
+
+class WeightAttrTestCase(SimpleTestCase):
+
+    def _ctx(self, system=''):
+        return {'name': 'weight', 'preferences': {'ui.measurement_system': system}}
+
+    def _obj(self, weight, unit, abs_g, display=None):
+        display_fn = (lambda: display) if display else (lambda: unit)
+        return SimpleNamespace(
+            weight=weight,
+            weight_unit=unit,
+            _abs_weight=abs_g,
+            get_weight_unit_display=display_fn,
+        )
+
+    def test_none_returns_placeholder(self):
+        attr = attrs.WeightAttr('weight')
+        obj = SimpleNamespace(weight=None)
+        self.assertEqual(attr.render(obj, self._ctx()), attr.placeholder)
+
+    def test_inherit_shows_stored_value(self):
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(5, 'kg', 5000, 'Kilograms')
+        result = attr.render(obj, self._ctx(system=''))
+        self.assertIn('5', result)
+        self.assertIn('kg', result)
+
+    def test_metric_converts_lbs_to_kg(self):
+        # 10 lb = 4535.92 g → 4535.92 / 1000 = 4.54 kg
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(10, 'lb', 4535.92, 'Pounds')
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('4.54', result)
+        self.assertIn('kg', result)
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(5, 'kg', 5000, 'Kilograms')
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('5', result)
+        self.assertIn('kg', result)
+
+    def test_imperial_converts_kg_to_lbs(self):
+        # 1 kg = 1000 g → 1000 / 453.592 = 2.2 lbs
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(1, 'kg', 1000, 'Kilograms')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('2.2', result)
+        self.assertIn('lbs', result)
+
+    def test_imperial_converts_kg_to_singular_lb(self):
+        # 453.592 g = exactly 1.0 lb → singular 'lb'
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(1, 'kg', 453.592, 'Kilograms')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('1.0', result)
+        self.assertIn('lb', result)
+        self.assertNotIn('lbs', result)
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        attr = attrs.WeightAttr('weight')
+        obj = self._obj(10, 'lb', 4535.92, 'Pounds')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('10', result)
+        self.assertIn('lbs', result)
+
+    def test_metric_no_conversion_when_abs_weight_is_none(self):
+        # abs_weight=None → falsy → falls through to stored value
+        attr = attrs.WeightAttr('weight')
+        obj = SimpleNamespace(weight=10, weight_unit='lb', _abs_weight=None)
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('10', result)
+        self.assertIn('lbs', result)
+
+
+class DistanceAttrTestCase(SimpleTestCase):
+
+    def _ctx(self, system=''):
+        return {'name': 'distance', 'preferences': {'ui.measurement_system': system}}
+
+    def _obj(self, distance, unit, abs_m, display=None):
+        display_fn = (lambda: display) if display else (lambda: unit)
+        return SimpleNamespace(
+            distance=distance,
+            distance_unit=unit,
+            _abs_distance=abs_m,
+            get_distance_unit_display=display_fn,
+        )
+
+    def test_none_returns_placeholder(self):
+        attr = attrs.DistanceAttr('distance')
+        obj = SimpleNamespace(distance=None)
+        self.assertEqual(attr.render(obj, self._ctx()), attr.placeholder)
+
+    def test_inherit_shows_stored_value(self):
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(10, 'km', 10000, 'Kilometers')
+        result = attr.render(obj, self._ctx(system=''))
+        self.assertIn('10', result)
+        self.assertIn('km', result)
+
+    def test_metric_converts_ft_to_m_under_threshold(self):
+        # 500 ft = 152.4 m (< 1000) → display in m
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(500, 'ft', 152.4, 'Feet')
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('152.4', result)
+        self.assertNotIn('km', result)
+        self.assertIn('m', result)
+
+    def test_metric_converts_mi_to_km_over_threshold(self):
+        # 5 mi = 8046.72 m (>= 1000) → 8046.72 / 1000 = 8.05 km
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(5, 'mi', 8046.72, 'Miles')
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('8.05', result)
+        self.assertIn('km', result)
+
+    def test_imperial_converts_m_to_ft_under_threshold(self):
+        # 500 m (< 1609.344) → 500 / 0.3048 = 1640.42 ft
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(500, 'm', 500, 'Meters')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('1640.42', result)
+        self.assertIn('ft', result)
+
+    def test_imperial_converts_km_to_mi_over_threshold(self):
+        # 10 km = 10000 m (>= 1609.344) → 10000 / 1609.344 = 6.21 mi
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(10, 'km', 10000, 'Kilometers')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('6.21', result)
+        self.assertIn('mi', result)
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(10, 'km', 10000, 'Kilometers')
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('10', result)
+        self.assertIn('km', result)
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        attr = attrs.DistanceAttr('distance')
+        obj = self._obj(10, 'mi', 16093.44, 'Miles')
+        result = attr.render(obj, self._ctx(system='imperial'))
+        self.assertIn('10', result)
+        self.assertIn('mi', result)
+
+    def test_metric_no_conversion_when_abs_distance_is_none(self):
+        # abs_distance=None → falls through to stored value
+        attr = attrs.DistanceAttr('distance')
+        obj = SimpleNamespace(distance=10, distance_unit='ft', _abs_distance=None)
+        result = attr.render(obj, self._ctx(system='metric'))
+        self.assertIn('10', result)
+        self.assertIn('ft', result)
+
+
+class DisplayWeightTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_weight weight weight_unit abs_weight %}')
+
+    def _render(self, weight, weight_unit, abs_weight, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'weight': weight,
+            'weight_unit': weight_unit,
+            'abs_weight': abs_weight,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_weight_returns_empty(self):
+        self.assertEqual(self._render(None, 'kg', None), '')
+
+    def test_zero_weight_is_not_suppressed(self):
+        self.assertEqual(self._render(0, 'kg', 0), '0 kg')
+
+    def test_inherit_stores_kg(self):
+        self.assertEqual(self._render(5, 'kg', 5000), '5 kg')
+
+    def test_inherit_stores_lb_plural(self):
+        self.assertEqual(self._render(10, 'lb', 4535.92), '10 lbs')
+
+    def test_inherit_stores_lb_singular(self):
+        self.assertEqual(self._render(1, 'lb', 453.592), '1 lb')
+
+    def test_metric_converts_lb_to_kg(self):
+        # 10 lb = 4535.92 g → round(4535.92/1000, 2) = 4.54 kg
+        result = self._render(10, 'lb', 4535.92, system='metric')
+        self.assertEqual(result, '4.54 kg')
+
+    def test_imperial_converts_kg_to_lbs(self):
+        # 1 kg = 1000 g → round(1000/453.592, 2) = 2.2 lbs
+        result = self._render(1, 'kg', 1000, system='imperial')
+        self.assertEqual(result, '2.2 lbs')
+
+    def test_imperial_converts_kg_to_singular_lb(self):
+        # 453.592 g = 1.0 lb → singular
+        result = self._render(1, 'kg', 453.592, system='imperial')
+        self.assertEqual(result, '1 lb')
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        result = self._render(5, 'kg', 5000, system='metric')
+        self.assertEqual(result, '5 kg')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        result = self._render(10, 'lb', 4535.92, system='imperial')
+        self.assertEqual(result, '10 lbs')
+
+
+class DisplayDistanceTagTestCase(SimpleTestCase):
+    TEMPLATE = Template('{% load helpers %}{% display_distance distance distance_unit abs_distance %}')
+
+    def _render(self, distance, distance_unit, abs_distance, system=''):
+        ctx = Context({
+            'preferences': {'ui.measurement_system': system},
+            'distance': distance,
+            'distance_unit': distance_unit,
+            'abs_distance': abs_distance,
+        })
+        return self.TEMPLATE.render(ctx).strip()
+
+    def test_none_distance_returns_empty(self):
+        self.assertEqual(self._render(None, 'km', None), '')
+
+    def test_inherit_stores_km(self):
+        self.assertEqual(self._render(10, 'km', 10000), '10 km')
+
+    def test_metric_converts_ft_to_m_under_threshold(self):
+        # 500 ft = 152.4 m (< 1000)
+        self.assertEqual(self._render(500, 'ft', 152.4, system='metric'), '152.4 m')
+
+    def test_metric_converts_mi_to_km_over_threshold(self):
+        # 5 mi = 8046.72 m (>= 1000) → 8.05 km
+        self.assertEqual(self._render(5, 'mi', 8046.72, system='metric'), '8.05 km')
+
+    def test_imperial_converts_m_to_ft_under_threshold(self):
+        # 500 m (< 1609.344) → 500/0.3048 = 1640.42 ft
+        self.assertEqual(self._render(500, 'm', 500, system='imperial'), '1640.42 ft')
+
+    def test_imperial_converts_km_to_mi_over_threshold(self):
+        # 10 km = 10000 m (>= 1609.344) → 6.21 mi
+        self.assertEqual(self._render(10, 'km', 10000, system='imperial'), '6.21 mi')
+
+    def test_metric_no_conversion_for_metric_unit(self):
+        self.assertEqual(self._render(10, 'km', 10000, system='metric'), '10 km')
+
+    def test_imperial_no_conversion_for_imperial_unit(self):
+        self.assertEqual(self._render(10, 'mi', 16093.44, system='imperial'), '10 mi')
 
 
 class ObjectsTablePanelTestCase(TestCase):

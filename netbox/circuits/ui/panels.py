@@ -120,7 +120,7 @@ class CircuitPanel(panels.ObjectAttributesPanel):
     cid = attrs.TextAttr('cid', label=_('Circuit ID'), style='font-monospace', copy_button=True)
     type = attrs.RelatedObjectAttr('type', linkify=True, colored=True)
     status = attrs.ChoiceAttr('status')
-    distance = attrs.NumericAttr('distance', unit_accessor='get_distance_unit_display')
+    distance = attrs.DistanceAttr('distance')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     install_date = attrs.DateTimeAttr('install_date', spec='date')
     termination_date = attrs.DateTimeAttr('termination_date', spec='date')

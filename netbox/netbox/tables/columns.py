@@ -721,7 +721,7 @@ class DistanceColumn(TemplateColumn):
     """
     template_code = """
     {% load helpers %}
-    {% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
+    {% display_distance record.distance record.distance_unit record.abs_distance %}
     """
 
     def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):
