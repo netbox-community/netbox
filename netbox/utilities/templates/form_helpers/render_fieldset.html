@@ -26,7 +26,7 @@
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
       <div class="row mb-3"{% if title %} role="group" aria-label="{{ title }}"{% endif %}>
-        <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
+        <label class="col col-3 col-form-label text-lg-end{% if items|any_required %} required{% endif %}">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1">
             {% render_field_with_aria field has_helptext=True %}

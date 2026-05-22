@@ -6,6 +6,7 @@ from django.conf import settings
 from utilities.forms.rendering import InlineFields, M2MAddRemoveFields, ObjectAttribute, TabbedGroups
 
 __all__ = (
+    'any_required',
     'getfield',
     'render_custom_fields',
     'render_errors',
@@ -32,6 +33,14 @@ def getfield(form, fieldname):
         return form[fieldname]
     except KeyError:
         return None
+
+
+@register.filter()
+def any_required(fields):
+    """
+    Return True if any of the given bound form fields is required.
+    """
+    return any(getattr(f, 'field', None) and f.field.required for f in fields)
 
 
 @register.filter(name='widget_type')
