@@ -1,6 +1,5 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django_rq.queues import get_connection
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
@@ -11,7 +10,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet
-from rq import Worker
 
 from extras import filtersets
 from extras.jobs import ScriptJob
@@ -24,6 +22,7 @@ from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
+from utilities.rqworker import any_workers_for_queue
 
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
@@ -326,7 +325,7 @@ class ScriptViewSet(ModelViewSet):
         )
 
         # Check that at least one RQ worker is running
-        if not Worker.count(get_connection('default')):
+        if not any_workers_for_queue('default'):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
