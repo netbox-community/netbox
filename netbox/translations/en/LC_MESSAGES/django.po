@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-22 06:20+0000\n"
+"POT-Creation-Date: 2026-05-23 06:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -456,7 +456,7 @@ msgstr ""
 #: netbox/dcim/tables/devicetypes.py:214 netbox/dcim/tables/devicetypes.py:255
 #: netbox/dcim/tables/devicetypes.py:274 netbox/dcim/tables/racks.py:54
 #: netbox/extras/forms/bulk_edit.py:313 netbox/extras/tables/tables.py:558
-#: netbox/netbox/ui/attrs.py:232
+#: netbox/netbox/ui/attrs.py:235
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:11
 msgid "Color"
 msgstr ""
@@ -773,8 +773,8 @@ msgstr ""
 #: netbox/extras/forms/bulk_edit.py:446 netbox/extras/tables/tables.py:97
 #: netbox/ipam/tables/vlans.py:218 netbox/ipam/tables/vlans.py:245
 #: netbox/netbox/forms/bulk_edit.py:79 netbox/netbox/forms/bulk_edit.py:91
-#: netbox/netbox/forms/bulk_edit.py:103 netbox/netbox/ui/panels.py:219
-#: netbox/netbox/ui/panels.py:228
+#: netbox/netbox/forms/bulk_edit.py:103 netbox/netbox/ui/panels.py:223
+#: netbox/netbox/ui/panels.py:232
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:89
 #: netbox/templates/core/plugin.html:80
 #: netbox/templates/dcim/cablebundle.html:21
@@ -1577,7 +1577,7 @@ msgstr ""
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:90
 #: netbox/ipam/tables/vlans.py:209 netbox/ipam/tables/vrfs.py:26
 #: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:344
-#: netbox/netbox/ui/panels.py:218 netbox/netbox/ui/panels.py:227
+#: netbox/netbox/ui/panels.py:222 netbox/netbox/ui/panels.py:231
 #: netbox/templates/core/htmx/system_db_schema.html:99
 #: netbox/templates/core/plugin.html:54 netbox/templates/core/rq_worker.html:43
 #: netbox/templates/dcim/cablebundle.html:17
@@ -2453,7 +2453,7 @@ msgstr ""
 msgid "last updated"
 msgstr ""
 
-#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:740
+#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:741
 msgid "path"
 msgstr ""
 
@@ -2670,7 +2670,7 @@ msgstr ""
 msgid "Interval"
 msgstr ""
 
-#: netbox/core/tables/jobs.py:51 netbox/core/views.py:271
+#: netbox/core/tables/jobs.py:51 netbox/core/views.py:272
 msgid "Log Entries"
 msgstr ""
 
@@ -2836,7 +2836,7 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:556
+#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:557
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr ""
@@ -2846,62 +2846,62 @@ msgstr ""
 msgid "Job {id} not found."
 msgstr ""
 
-#: netbox/core/views.py:135
+#: netbox/core/views.py:136
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr ""
 
-#: netbox/core/views.py:253 netbox/extras/forms/filtersets.py:184
+#: netbox/core/views.py:254 netbox/extras/forms/filtersets.py:184
 #: netbox/extras/forms/filtersets.py:385 netbox/extras/forms/filtersets.py:408
 #: netbox/extras/forms/filtersets.py:504 netbox/extras/forms/model_forms.py:765
 #: netbox/extras/ui/panels.py:381
 msgid "Data"
 msgstr ""
 
-#: netbox/core/views.py:264 netbox/templates/extras/htmx/script_result.html:43
+#: netbox/core/views.py:265 netbox/templates/extras/htmx/script_result.html:43
 msgid "Log"
 msgstr ""
 
-#: netbox/core/views.py:492
+#: netbox/core/views.py:493
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr ""
 
-#: netbox/core/views.py:595
+#: netbox/core/views.py:596
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr ""
 
-#: netbox/core/views.py:597
+#: netbox/core/views.py:598
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr ""
 
-#: netbox/core/views.py:606
+#: netbox/core/views.py:607
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr ""
 
-#: netbox/core/views.py:615
+#: netbox/core/views.py:616
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr ""
 
-#: netbox/core/views.py:624
+#: netbox/core/views.py:625
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr ""
 
-#: netbox/core/views.py:626
+#: netbox/core/views.py:627
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr ""
 
-#: netbox/core/views.py:840
+#: netbox/core/views.py:841
 msgid "Plugins catalog could not be loaded"
 msgstr ""
 
-#: netbox/core/views.py:876
+#: netbox/core/views.py:877
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr ""
@@ -3087,7 +3087,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:1237 netbox/ipam/forms/bulk_import.py:608
 #: netbox/ipam/forms/model_forms.py:788 netbox/ipam/tables/fhrp.py:56
 #: netbox/ipam/tables/ip.py:334 netbox/ipam/tables/services.py:42
-#: netbox/netbox/tables/tables.py:348 netbox/netbox/ui/panels.py:226
+#: netbox/netbox/tables/tables.py:348 netbox/netbox/ui/panels.py:230
 #: netbox/tenancy/forms/bulk_edit.py:33 netbox/tenancy/forms/bulk_edit.py:62
 #: netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
@@ -6032,43 +6032,43 @@ msgstr ""
 msgid "Circuit terminations attached to a provider network may not be cabled."
 msgstr ""
 
-#: netbox/dcim/models/cables.py:744 netbox/extras/models/configs.py:100
+#: netbox/dcim/models/cables.py:745 netbox/extras/models/configs.py:100
 msgid "is active"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:748
+#: netbox/dcim/models/cables.py:749
 msgid "is complete"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:752
+#: netbox/dcim/models/cables.py:753
 msgid "is split"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:765
+#: netbox/dcim/models/cables.py:766
 msgid "cable path"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:766
+#: netbox/dcim/models/cables.py:767
 msgid "cable paths"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:853
+#: netbox/dcim/models/cables.py:854
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:871
+#: netbox/dcim/models/cables.py:872
 msgid "All mid-span terminations must have the same termination type"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:879
+#: netbox/dcim/models/cables.py:880
 msgid "All mid-span terminations must have the same parent object"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:909
+#: netbox/dcim/models/cables.py:910
 msgid "All links must be cable or wireless"
 msgstr ""
 
-#: netbox/dcim/models/cables.py:911
+#: netbox/dcim/models/cables.py:912
 msgid "All links must match first link type"
 msgstr ""
 
@@ -8505,7 +8505,7 @@ msgid "Display some arbitrary custom content. Markdown is supported."
 msgstr ""
 
 #: netbox/extras/dashboard/widgets.py:183 netbox/templates/core/system.html:35
-#: netbox/templates/core/system.html:169
+#: netbox/templates/core/system.html:168
 msgid "Object Counts"
 msgstr ""
 
@@ -8920,7 +8920,7 @@ msgstr ""
 
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
 #: netbox/netbox/tables/tables.py:314 netbox/netbox/tables/tables.py:329
-#: netbox/netbox/tables/tables.py:352 netbox/netbox/ui/panels.py:239
+#: netbox/netbox/tables/tables.py:352 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:100
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
@@ -10163,11 +10163,11 @@ msgstr ""
 msgid "tagged items"
 msgstr ""
 
-#: netbox/extras/scripts.py:496
+#: netbox/extras/scripts.py:499
 msgid "Script Data"
 msgstr ""
 
-#: netbox/extras/scripts.py:503
+#: netbox/extras/scripts.py:506
 msgid "Script Execution Parameters"
 msgstr ""
 
@@ -10364,7 +10364,7 @@ msgstr ""
 msgid "Regular expression"
 msgstr ""
 
-#: netbox/extras/ui/panels.py:178 netbox/netbox/ui/panels.py:288
+#: netbox/extras/ui/panels.py:178 netbox/netbox/ui/panels.py:292
 #: netbox/templates/inc/panels/related_objects.html:5
 msgid "Related Objects"
 msgstr ""
@@ -12178,8 +12178,6 @@ msgid "Tab"
 msgstr ""
 
 #: netbox/netbox/choices.py:195
-#: netbox/templates/dcim/device/attrs/total_weight.html:2
-#: netbox/templates/dcim/rack/attrs/total_weight.html:2
 msgid "Kilograms"
 msgstr ""
 
@@ -12188,8 +12186,6 @@ msgid "Grams"
 msgstr ""
 
 #: netbox/netbox/choices.py:197
-#: netbox/templates/dcim/device/attrs/total_weight.html:3
-#: netbox/templates/dcim/rack/attrs/total_weight.html:3
 msgid "Pounds"
 msgstr ""
 
@@ -12400,8 +12396,13 @@ msgstr ""
 msgid "Maps URL"
 msgstr ""
 
-#: netbox/netbox/config/parameters.py:232
-msgid "Base URL for mapping geographic locations"
+#: netbox/netbox/config/parameters.py:233
+#, python-brace-format
+msgid ""
+"URL for mapping geographic locations. For GPS coordinates, include {lat} and/"
+"or {lon} placeholders, or omit them to append coordinates as a comma-"
+"separated pair. Note: when {lat} or {lon} placeholders are present, address-"
+"based map links will be disabled."
 msgstr ""
 
 #: netbox/netbox/forms/bulk_edit.py:36
@@ -12519,19 +12520,19 @@ msgstr ""
 msgid "weight unit"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:69
+#: netbox/netbox/models/mixins.py:74
 msgid "Must specify a unit when setting a weight"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:74
+#: netbox/netbox/models/mixins.py:79
 msgid "distance"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:81
+#: netbox/netbox/models/mixins.py:86
 msgid "distance unit"
 msgstr ""
 
-#: netbox/netbox/models/mixins.py:116
+#: netbox/netbox/models/mixins.py:126
 msgid "Must specify a unit when setting a distance"
 msgstr ""
 
@@ -12967,32 +12968,41 @@ msgstr ""
 msgid "Button color must be a choice within ButtonColorChoices."
 msgstr ""
 
-#: netbox/netbox/plugins/registration.py:27
+#: netbox/netbox/plugins/registration.py:28
 #, python-brace-format
 msgid ""
 "PluginTemplateExtension class {template_extension} was passed as an instance!"
 msgstr ""
 
-#: netbox/netbox/plugins/registration.py:33
+#: netbox/netbox/plugins/registration.py:34
 #, python-brace-format
 msgid ""
 "{template_extension} is not a subclass of netbox.plugins."
 "PluginTemplateExtension!"
 msgstr ""
 
-#: netbox/netbox/plugins/registration.py:50
+#: netbox/netbox/plugins/registration.py:51
 #, python-brace-format
 msgid "{item} must be an instance of netbox.plugins.PluginMenuItem"
 msgstr ""
 
-#: netbox/netbox/plugins/registration.py:61
+#: netbox/netbox/plugins/registration.py:62
 #, python-brace-format
 msgid "{menu_link} must be an instance of netbox.plugins.PluginMenuItem"
 msgstr ""
 
-#: netbox/netbox/plugins/registration.py:66
+#: netbox/netbox/plugins/registration.py:67
 #, python-brace-format
 msgid "{button} must be an instance of netbox.plugins.PluginMenuButton"
+msgstr ""
+
+#: netbox/netbox/plugins/registration.py:105
+msgid "Serializer resolver must be callable"
+msgstr ""
+
+#: netbox/netbox/plugins/registration.py:108
+#, python-brace-format
+msgid "A serializer resolver is already registered for app '{app_label}'"
 msgstr ""
 
 #: netbox/netbox/plugins/templates.py:42
@@ -13056,18 +13066,38 @@ msgid "Render table rows with alternating colors to increase readability"
 msgstr ""
 
 #: netbox/netbox/preferences.py:78
+msgid "Measurement units"
+msgstr ""
+
+#: netbox/netbox/preferences.py:80
+msgid "Inherited"
+msgstr ""
+
+#: netbox/netbox/preferences.py:81
+msgid "Metric"
+msgstr ""
+
+#: netbox/netbox/preferences.py:82
+msgid "Imperial"
+msgstr ""
+
+#: netbox/netbox/preferences.py:85
+msgid "Preferred unit system for displaying weight and distance measurements"
+msgstr ""
+
+#: netbox/netbox/preferences.py:90
 msgid "Data format"
 msgstr ""
 
-#: netbox/netbox/preferences.py:83
+#: netbox/netbox/preferences.py:95
 msgid "The preferred syntax for displaying generic data within the UI"
 msgstr ""
 
-#: netbox/netbox/preferences.py:86 netbox/utilities/forms/bulk_import.py:38
+#: netbox/netbox/preferences.py:98 netbox/utilities/forms/bulk_import.py:38
 msgid "CSV delimiter"
 msgstr ""
 
-#: netbox/netbox/preferences.py:89
+#: netbox/netbox/preferences.py:101
 msgid "The character used to separate fields in CSV data"
 msgstr ""
 
@@ -13084,67 +13114,67 @@ msgstr ""
 msgid "Cannot delete stores from registry"
 msgstr ""
 
-#: netbox/netbox/settings.py:865
+#: netbox/netbox/settings.py:872
 msgid "Czech"
 msgstr ""
 
-#: netbox/netbox/settings.py:866
+#: netbox/netbox/settings.py:873
 msgid "Danish"
 msgstr ""
 
-#: netbox/netbox/settings.py:867
+#: netbox/netbox/settings.py:874
 msgid "German"
 msgstr ""
 
-#: netbox/netbox/settings.py:868
+#: netbox/netbox/settings.py:875
 msgid "English"
 msgstr ""
 
-#: netbox/netbox/settings.py:869
+#: netbox/netbox/settings.py:876
 msgid "Spanish"
 msgstr ""
 
-#: netbox/netbox/settings.py:870
+#: netbox/netbox/settings.py:877
 msgid "French"
 msgstr ""
 
-#: netbox/netbox/settings.py:871
+#: netbox/netbox/settings.py:878
 msgid "Italian"
 msgstr ""
 
-#: netbox/netbox/settings.py:872
+#: netbox/netbox/settings.py:879
 msgid "Japanese"
 msgstr ""
 
-#: netbox/netbox/settings.py:873
+#: netbox/netbox/settings.py:880
 msgid "Latvian"
 msgstr ""
 
-#: netbox/netbox/settings.py:874
+#: netbox/netbox/settings.py:881
 msgid "Dutch"
 msgstr ""
 
-#: netbox/netbox/settings.py:875
+#: netbox/netbox/settings.py:882
 msgid "Polish"
 msgstr ""
 
-#: netbox/netbox/settings.py:876
+#: netbox/netbox/settings.py:883
 msgid "Portuguese"
 msgstr ""
 
-#: netbox/netbox/settings.py:877
+#: netbox/netbox/settings.py:884
 msgid "Russian"
 msgstr ""
 
-#: netbox/netbox/settings.py:878
+#: netbox/netbox/settings.py:885
 msgid "Turkish"
 msgstr ""
 
-#: netbox/netbox/settings.py:879
+#: netbox/netbox/settings.py:886
 msgid "Ukrainian"
 msgstr ""
 
-#: netbox/netbox/settings.py:880
+#: netbox/netbox/settings.py:887
 msgid "Chinese"
 msgstr ""
 
@@ -13190,19 +13220,19 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: netbox/netbox/ui/attrs.py:251
+#: netbox/netbox/ui/attrs.py:254
 #, python-brace-format
 msgid ""
 "Invalid decoding option: {decoding}! Must be one of {image_decoding_choices}"
 msgstr ""
 
-#: netbox/netbox/ui/attrs.py:316
+#: netbox/netbox/ui/attrs.py:319
 #, python-brace-format
 msgid ""
 "Invalid max_items value: {max_items}! Must be a positive integer or None."
 msgstr ""
 
-#: netbox/netbox/ui/attrs.py:490
+#: netbox/netbox/ui/attrs.py:497
 msgid "GPS coordinates"
 msgstr ""
 
@@ -13474,7 +13504,7 @@ msgid "Select %(name)s"
 msgstr ""
 
 #: netbox/templates/account/preferences.html:71
-#: netbox/templates/core/system.html:119
+#: netbox/templates/core/system.html:118
 #: netbox/templates/dcim/cable_trace.html:113
 #: netbox/templates/extras/object_configcontext.html:43
 msgid "None found"
@@ -14097,32 +14127,38 @@ msgstr ""
 msgid "RQ workers"
 msgstr ""
 
-#: netbox/templates/core/system.html:97
-msgid "default queue"
-msgstr ""
-
-#: netbox/templates/core/system.html:101
+#: netbox/templates/core/system.html:100
 msgid "System time"
 msgstr ""
 
-#: netbox/templates/core/system.html:107
+#: netbox/templates/core/system.html:106
 msgid "Django Apps"
 msgstr ""
 
-#: netbox/templates/core/system.html:132
+#: netbox/templates/core/system.html:131
 msgid "Current Configuration"
 msgstr ""
 
-#: netbox/templates/core/system.html:144
+#: netbox/templates/core/system.html:143
 msgid "Installed Plugins"
 msgstr ""
 
-#: netbox/templates/core/system.html:156
+#: netbox/templates/core/system.html:155
 msgid "No plugins are installed."
 msgstr ""
 
-#: netbox/templates/core/system.html:189
+#: netbox/templates/core/system.html:188
 msgid "Loading database schema…"
+msgstr ""
+
+#: netbox/templates/dcim/attrs/total_weight.html:4
+#: netbox/templates/dcim/attrs/total_weight.html:8
+msgid "Pound"
+msgstr ""
+
+#: netbox/templates/dcim/attrs/total_weight.html:6
+#: netbox/templates/dcim/attrs/total_weight.html:8
+msgid "Kilogram"
 msgstr ""
 
 #: netbox/templates/dcim/bulk_disconnect.html:9
@@ -16168,24 +16204,24 @@ msgstr ""
 msgid "Assigned Users"
 msgstr ""
 
-#: netbox/utilities/api.py:207
+#: netbox/utilities/api.py:236
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:210
+#: netbox/utilities/api.py:239
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr ""
 
-#: netbox/utilities/api.py:222
+#: netbox/utilities/api.py:251
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
 "attributes. Received an unrecognized value: {value}"
 msgstr ""
 
-#: netbox/utilities/api.py:231
+#: netbox/utilities/api.py:260
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr ""
