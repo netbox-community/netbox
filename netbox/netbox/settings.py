@@ -140,6 +140,7 @@ HTTP_CLIENT_IP_HEADERS = getattr(configuration, 'HTTP_CLIENT_IP_HEADERS', (
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
+JINJA_ENVIRONMENT_PARAMS = getattr(configuration, 'JINJA_ENVIRONMENT_PARAMS', [])
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
