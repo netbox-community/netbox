@@ -10,7 +10,7 @@
   "consoleserverport:api_list_objects": 14,
   "consoleserverport:list_objects_with_permission": 21,
   "consoleserverporttemplate:api_list_objects": 11,
-  "device:api_list_objects": 20,
+  "device:api_list_objects": 23,
   "device:list_objects_with_permission": 25,
   "devicebay:api_list_objects": 14,
   "devicebay:list_objects_with_permission": 21,

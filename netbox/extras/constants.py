@@ -201,3 +201,16 @@ LOG_LEVEL_RANK = {
     LogLevelChoices.LOG_WARNING: 3,
     LogLevelChoices.LOG_FAILURE: 4,
 }
+
+# Config context cache: fields whose modification on an object requires re-rendering its config
+# context cache, keyed by model label.
+CC_FIELDS_BY_MODEL = {
+    'dcim.device': (
+        'site_id', 'location_id', 'device_type_id', 'role_id', 'tenant_id', 'platform_id',
+        'cluster_id', 'local_context_data',
+    ),
+    'virtualization.virtualmachine': (
+        'site_id', 'cluster_id', 'device_id', 'tenant_id', 'platform_id', 'role_id',
+        'local_context_data',
+    ),
+}

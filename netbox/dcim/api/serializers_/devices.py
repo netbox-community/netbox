@@ -27,7 +27,6 @@ from .virtualchassis import VirtualChassisSerializer
 
 __all__ = (
     'DeviceSerializer',
-    'DeviceWithConfigContextSerializer',
     'MACAddressSerializer',
     'ModuleSerializer',
     'VirtualDeviceContextSerializer',
@@ -87,6 +86,7 @@ class DeviceSerializer(PrimaryModelSerializer):
     virtual_chassis = VirtualChassisSerializer(nested=True, required=False, allow_null=True, default=None)
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
+    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     # Counter fields
     console_port_count = serializers.IntegerField(read_only=True)
@@ -106,10 +106,10 @@ class DeviceSerializer(PrimaryModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
             'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
             'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template', 'local_context_data',
-            'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
-            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
-            'device_bay_count', 'module_bay_count', 'inventory_item_count',
+            'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template', 'config_context',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
+            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
+            'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -123,21 +123,6 @@ class DeviceSerializer(PrimaryModelSerializer):
         data = NestedDeviceSerializer(instance=device_bay.device, context=context).data
         data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
         return data
-
-
-class DeviceWithConfigContextSerializer(DeviceSerializer):
-    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
-
-    class Meta(DeviceSerializer.Meta):
-        fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
-            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'description', 'owner', 'comments', 'config_template', 'config_context',
-            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
-            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
-            'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
-        ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_config_context(self, obj):

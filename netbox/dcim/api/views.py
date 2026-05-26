@@ -420,24 +420,9 @@ class DeviceViewSet(
         'device_type__manufacturer',  # Referenced by Device.__str__() for unnamed devices
         'parent_bay',  # Referenced by DeviceSerializer.get_parent_device()
     )
+    serializer_class = serializers.DeviceSerializer
     filterset_class = filtersets.DeviceFilterSet
     pagination_class = StripCountAnnotationsPaginator
-
-    def get_serializer_class(self):
-        """
-        Select the specific serializer based on the request context.
-
-        If the `brief` query param equates to True, return the NestedDeviceSerializer
-
-        If the `exclude` query param includes `config_context` as a value, return the DeviceSerializer
-
-        Else, return the DeviceWithConfigContextSerializer
-        """
-        request = self.get_serializer_context()['request']
-        if self.brief or 'config_context' in request.query_params.get('exclude', []):
-            return serializers.DeviceSerializer
-
-        return serializers.DeviceWithConfigContextSerializer
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):

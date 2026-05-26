@@ -18,6 +18,10 @@ class ConfigContextQuerySet(RestrictedQuerySet):
         """
         Return all applicable ConfigContexts for a given object. Only active ConfigContexts will be included.
 
+        WARNING: This method's scope-matching logic is mirrored (inverted) by ConfigContext.get_affected_objects(),
+        which powers cache invalidation. Any change to the matching criteria here MUST be applied there as well, or
+        pre-rendered config context caches will go stale. See extras/models/configs.py.
+
         Args:
           aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
         """

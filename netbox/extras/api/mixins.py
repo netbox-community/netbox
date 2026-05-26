@@ -24,20 +24,7 @@ class ConfigContextQuerySetMixin:
     Provides a get_queryset() method which deals with adding the config context
     data annotation or not.
     """
-    def get_queryset(self):
-        """
-        Build the proper queryset based on the request context
-
-        If the `brief` query param equates to True or the `exclude` query param
-        includes `config_context` as a value, return the base queryset.
-
-        Else, return the queryset annotated with config context data
-        """
-        queryset = super().get_queryset()
-        request = self.get_serializer_context()['request']
-        if self.brief or 'config_context' in request.query_params.get('exclude', []):
-            return queryset
-        return queryset.annotate_config_context_data()
+    pass
 
 
 class ConfigTemplateRenderMixin:

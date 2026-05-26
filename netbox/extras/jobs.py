@@ -2,6 +2,7 @@ import logging
 import traceback
 from contextlib import ExitStack
 
+from django.apps import apps
 from django.db import DEFAULT_DB_ALIAS, router, transaction
 from django.utils.translation import gettext as _
 
@@ -14,6 +15,56 @@ from netbox.registry import registry
 from utilities.exceptions import AbortScript, AbortTransaction
 
 from .utils import is_report
+
+RENDER_CONFIG_CONTEXT_CHUNK_SIZE = 500
+
+
+class RenderConfigContextJob(JobRunner):
+    """
+    Recompute the pre-rendered `_config_context_data` cache for a set of Devices or
+    VirtualMachines. Triggered whenever an upstream change (ConfigContext, related object, or the
+    object itself) invalidates the cache.
+    """
+
+    class Meta:
+        name = 'Render config context'
+
+    def run(self, model_label=None, pks=None, **kwargs):
+        """
+        Args:
+            model_label: 'dcim.device' or 'virtualization.virtualmachine'. If None, both are processed.
+            pks: An iterable of object PKs to refresh. If None, refresh all objects whose cache is null.
+        """
+        if model_label is None:
+            for label in ('dcim.device', 'virtualization.virtualmachine'):
+                self._render_for_model(label, pks=None)
+            return
+        self._render_for_model(model_label, pks=pks)
+
+    def _render_for_model(self, model_label, pks):
+        Model = apps.get_model(model_label)
+        qs = Model.objects.filter(_config_context_data__isnull=True)
+        if pks is not None:
+            qs = qs.filter(pk__in=list(pks))
+
+        # Annotate so each instance's render() uses the same aggregated subquery the on-demand
+        # path would use, avoiding N additional queries.
+        qs = qs.annotate_config_context_data()
+
+        rendered = 0
+        batch = []
+        for obj in qs.iterator(chunk_size=RENDER_CONFIG_CONTEXT_CHUNK_SIZE):
+            obj._config_context_data = obj.render_config_context()
+            batch.append(obj)
+            if len(batch) >= RENDER_CONFIG_CONTEXT_CHUNK_SIZE:
+                Model.objects.bulk_update(batch, ['_config_context_data'])
+                rendered += len(batch)
+                batch = []
+        if batch:
+            Model.objects.bulk_update(batch, ['_config_context_data'])
+            rendered += len(batch)
+
+        self.logger.info(f"Rendered config context for {rendered} {model_label} object(s)")
 
 
 class ScriptJob(JobRunner):
