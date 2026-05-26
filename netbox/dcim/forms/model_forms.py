@@ -784,8 +784,8 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             self.fields['oob_ip'].widget.attrs['readonly'] = True
 
         # Rack position
-        position = self.data.get('position') or self.initial.get('position')
-        if position:
+        position = self.data.get('position') if self.data.get('position') is not None else self.initial.get('position')
+        if position is not None:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 

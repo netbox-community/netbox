@@ -218,7 +218,7 @@ class RackTypeImportForm(PrimaryModelImportForm):
     )
     starting_unit = forms.IntegerField(
         required=False,
-        min_value=1,
+        min_value=0,
         help_text=_('The lowest-numbered position in the rack')
     )
     width = forms.ChoiceField(

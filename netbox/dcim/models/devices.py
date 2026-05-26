@@ -584,7 +584,7 @@ class Device(
         decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX + 0.5)],
+        validators=[MinValueValidator(0), MaxValueValidator(RACK_U_HEIGHT_MAX + 0.5)],
         verbose_name=_('position (U)'),
         help_text=_('The lowest-numbered unit occupied by the device')
     )
@@ -812,24 +812,24 @@ class Device(
                 raise ValidationError({
                     'face': _("Cannot select a rack face without assigning a rack."),
                 })
-            if self.position:
+            if self.position is not None:
                 raise ValidationError({
                     'position': _("Cannot select a rack position without assigning a rack."),
                 })
 
         # Validate rack position and face
-        if self.position and self.position % decimal.Decimal(0.5):
+        if self.position is not None and self.position % decimal.Decimal(0.5):
             raise ValidationError({
                 'position': _("Position must be in increments of 0.5 rack units.")
             })
-        if self.position and not self.face:
+        if self.position is not None and not self.face:
             raise ValidationError({
                 'face': _("Must specify rack face when defining rack position."),
             })
 
         # Prevent 0U devices from being assigned to a specific position
         if hasattr(self, 'device_type'):
-            if self.position and self.device_type.u_height == 0:
+            if self.position is not None and self.device_type.u_height == 0:
                 raise ValidationError({
                     'position': _(
                         "A 0U device type ({device_type}) cannot be assigned to a rack position."
@@ -861,7 +861,7 @@ class Device(
                 available_units = self.rack.get_available_units(
                     u_height=self.device_type.u_height, rack_face=rack_face, exclude=exclude_list
                 )
-                if self.position and self.position not in available_units:
+                if self.position is not None and self.position not in available_units:
                     raise ValidationError({
                         'position': _(
                             "U{position} is already occupied or does not have sufficient space to accommodate this "

@@ -76,7 +76,7 @@ class RackBase(WeightMixin, PrimaryModel):
     starting_unit = models.PositiveSmallIntegerField(
         default=RACK_STARTING_UNIT_DEFAULT,
         verbose_name=_('starting unit'),
-        validators=[MinValueValidator(1)],
+        validators=[MinValueValidator(0)],
         help_text=_('Starting unit for rack')
     )
     desc_units = models.BooleanField(
@@ -522,7 +522,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
                 pk=exclude
             ).filter(
                 rack=self,
-                position__gt=0,
+                position__isnull=False,
                 device_type__u_height__gt=0
             ).filter(
                 Q(face=face) | Q(device_type__is_full_depth=True)
@@ -559,7 +559,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         :param ignore_excluded_devices: Ignore devices that are marked to exclude from utilization calculations
         """
         # Gather all devices which consume U space within the rack
-        devices = self.devices.prefetch_related('device_type').filter(position__gte=1)
+        devices = self.devices.prefetch_related('device_type').filter(position__isnull=False)
         if ignore_excluded_devices:
             devices = devices.exclude(device_type__exclude_from_utilization=True)
 

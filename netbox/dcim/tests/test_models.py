@@ -370,6 +370,50 @@ class RackTestCase(TestCase):
         rack.refresh_from_db()
         self.assertEqual(rack.get_utilization(), 1 / 42 * 100)
 
+    def test_starting_unit_zero_rack(self):
+        """
+        Check that a Rack with starting unit zero can be used.
+        """
+        site = Site.objects.first()
+        location = Location.objects.first()
+
+        rack0 = Rack(
+            name='Rack start zero',
+            site=site,
+            location=location,
+            starting_unit=0,
+            u_height=42
+        )
+        rack0.save()
+
+        self.assertEqual(rack0.starting_unit, 0)
+
+        # Test device in slot U0
+        Device(
+            name='Device 1',
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            site=site,
+            rack=rack0,
+            position=0
+        ).save()
+        rack0.refresh_from_db()
+        self.assertEqual(rack0.get_utilization(), 1 / 42 * 100)
+
+        # Last usable unit should be U41
+        Device(
+            name='Device 2',
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            site=site,
+            rack=rack0,
+            position=42,
+            face=DeviceFaceChoices.FACE_FRONT,
+        ).save()
+
+        with self.assertRaises(ValidationError):
+            rack0.clean()
+
 
 class DeviceTestCase(TestCase):
 

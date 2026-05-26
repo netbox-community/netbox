@@ -313,7 +313,7 @@ class RackBaseFilterForm(PrimaryModelFilterSetForm):
     )
     starting_unit = forms.IntegerField(
         required=False,
-        min_value=1
+        min_value=0
     )
     desc_units = forms.NullBooleanField(
         required=False,

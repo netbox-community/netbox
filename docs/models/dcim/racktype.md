@@ -36,7 +36,7 @@ The height of the rack, measured in units.
 
 ### Starting Unit
 
-The number of the numerically lowest unit in the rack. This value defaults to one, but may be higher in certain situations. For example, you may want to model only a select range of units within a shared physical rack (e.g. U13 through U24).
+The number of the numerically lowest unit in the rack. This value defaults to one, but may differ in certain situations (minimal valid value is zero). For example, you may want to model only a select range of units within a shared physical rack (e.g. U13 through U24).
 
 ### Outer Dimensions
 

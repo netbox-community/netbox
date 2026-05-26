@@ -53,7 +53,7 @@ class DeviceSerializer(PrimaryModelSerializer):
         decimal_places=1,
         allow_null=True,
         label=_('Position (U)'),
-        min_value=decimal.Decimal(0.5),
+        min_value=decimal.Decimal(0),
         default=None
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
