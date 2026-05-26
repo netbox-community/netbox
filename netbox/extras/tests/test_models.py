@@ -31,7 +31,7 @@ from extras.models import (
 from extras.models.mixins import RenderTemplateMixin
 from tenancy.models import Tenant, TenantGroup
 from utilities.exceptions import AbortRequest
-from utilities.jinja2 import render_jinja2
+from utilities.jinja2 import env_filter, render_jinja2
 from utilities.tables import get_table_for_model
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
@@ -971,6 +971,48 @@ class ConfigTemplateDebugTestCase(TestCase):
         """When debug=False, the {% debug %} tag is not available."""
         with self.assertRaises(TemplateSyntaxError):
             render_jinja2("{% debug %}", {}, debug=False)
+
+
+class JinjaEnvFilterTestCase(TestCase):
+    """
+    Tests for the env() Jinja2 filter and the JINJA_ENVIRONMENT_PARAMS configuration parameter.
+    """
+
+    def test_env_filter_returns_value_for_matching_name(self):
+        with patch.dict('os.environ', {'NETBOX_TEST_TOKEN': 'secret'}, clear=False), \
+                self.settings(JINJA_ENVIRONMENT_PARAMS=['NETBOX_TEST_TOKEN']):
+            self.assertEqual(env_filter('NETBOX_TEST_TOKEN'), 'secret')
+
+    def test_env_filter_returns_none_for_unmatched_name(self):
+        with patch.dict('os.environ', {'NETBOX_OTHER_TOKEN': 'secret'}, clear=False), \
+                self.settings(JINJA_ENVIRONMENT_PARAMS=['NETBOX_TEST_TOKEN']):
+            self.assertIsNone(env_filter('NETBOX_OTHER_TOKEN'))
+
+    def test_env_filter_wildcard_match(self):
+        with patch.dict('os.environ', {'NETBOX_TEST_TOKEN_1': 'one', 'NETBOX_TEST_TOKEN_2': 'two'}, clear=False), \
+                self.settings(JINJA_ENVIRONMENT_PARAMS=['NETBOX_TEST_TOKEN_*']):
+            self.assertEqual(env_filter('NETBOX_TEST_TOKEN_1'), 'one')
+            self.assertEqual(env_filter('NETBOX_TEST_TOKEN_2'), 'two')
+
+    def test_env_filter_returns_none_for_missing_env_var(self):
+        with self.settings(JINJA_ENVIRONMENT_PARAMS=['NETBOX_MISSING_VAR']):
+            self.assertIsNone(env_filter('NETBOX_MISSING_VAR'))
+
+    def test_env_filter_empty_whitelist_returns_none(self):
+        with patch.dict('os.environ', {'NETBOX_TEST_TOKEN': 'secret'}, clear=False), \
+                self.settings(JINJA_ENVIRONMENT_PARAMS=[]):
+            self.assertIsNone(env_filter('NETBOX_TEST_TOKEN'))
+
+    def test_env_filter_registered_by_default(self):
+        with patch.dict('os.environ', {'NETBOX_TEST_TOKEN': 'secret'}, clear=False), \
+                self.settings(JINJA_ENVIRONMENT_PARAMS=['NETBOX_TEST_TOKEN']):
+            output = render_jinja2("{{ 'NETBOX_TEST_TOKEN' | env }}", {})
+            self.assertEqual(output, 'secret')
+
+    def test_user_defined_filter_overrides_default(self):
+        with self.settings(JINJA2_FILTERS={'env': lambda name: 'overridden'}):
+            output = render_jinja2("{{ 'NETBOX_TEST_TOKEN' | env }}", {})
+            self.assertEqual(output, 'overridden')
 
 
 class ExportTemplateContextTestCase(TestCase):

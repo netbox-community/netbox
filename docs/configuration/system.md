@@ -145,6 +145,24 @@ Set this configuration parameter to `True` for NetBox deployments which do not h
 
 ---
 
+## JINJA_ENVIRONMENT_PARAMS
+
+Default: `[]`
+
+A list of system environment variable names which may be referenced from within Jinja2 templates via the built-in [`env`](#jinja2_filters) filter. Patterns may include wildcards (matched using Python's `fnmatch` syntax). Any variable whose name does not match an entry in this list cannot be referenced from a template. For example:
+
+```python
+JINJA_ENVIRONMENT_PARAMS = [
+    'WEBHOOK_TOKEN_*',
+    'DEFAULT_SECRET_ID',
+]
+```
+
+!!! info "Parameter names are case-sensitive"
+    For example, `FOO_*` will match `FOO_BAR` but `foo_*` will not.
+
+---
+
 ## JINJA2_FILTERS
 
 Default: `{}`
@@ -158,6 +176,18 @@ def uppercase(x):
 JINJA2_FILTERS = {
     'uppercase': uppercase,
 }
+```
+
+NetBox also registers the following filters by default. Any entry defined in `JINJA2_FILTERS` with the same name will override the default.
+
+| Filter | Description |
+|---|---|
+| `env` | Returns the value of the system environment variable with the given name, provided its name matches an entry in [`JINJA_ENVIRONMENT_PARAMS`](#jinja_environment_params). Returns `None` if the variable is not defined or its name is not whitelisted. |
+
+For example, given `JINJA_ENVIRONMENT_PARAMS = ['WEBHOOK_TOKEN_*']`, a Jinja2 template may reference an environment variable as:
+
+```
+Authorization: Bearer {{ 'WEBHOOK_TOKEN_3' | env }}
 ```
 
 ---
