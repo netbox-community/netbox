@@ -4,6 +4,7 @@ import jsonschema
 from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from jinja2.exceptions import TemplateError
@@ -215,6 +216,111 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         self.data = self.data_file.get_data()
     sync_data.alters_data = True
 
+    def get_affected_objects(self):
+        """
+        Return a (device_qs, vm_qs) tuple of all Devices and VirtualMachines that fall within this
+        ConfigContext's scope. This is the inverse of ConfigContextQuerySet.get_for_object().
+        Used to determine which pre-rendered context caches must be invalidated when this
+        ConfigContext changes.
+        """
+        from dcim.models import Device
+        from virtualization.models import VirtualMachine
+
+        device_q, vm_q = self._get_affected_object_filters()
+        return (
+            Device.objects.filter(device_q),
+            VirtualMachine.objects.filter(vm_q),
+        )
+
+    def _get_affected_object_filters(self):
+        """
+        Build the Q expressions matching Devices and VirtualMachines in this context's scope.
+        Returns (device_q, vm_q). Does NOT consider `is_active` — callers that need that should
+        check it separately. For invalidation purposes, we want the scope set regardless of
+        whether the context is currently active (toggling is_active also requires invalidation).
+        """
+        from extras.models.tags import TaggedItem
+
+        def _mptt_descendants(m2m):
+            # Return the PKs of all descendants (incl. self) of the items in this MPTT m2m,
+            # or None if the m2m is empty (meaning: no scope restriction).
+            scope_pks = list(m2m.values_list('pk', flat=True))
+            if not scope_pks:
+                return None
+            return list(
+                m2m.model.objects.filter(pk__in=scope_pks)
+                .get_descendants(include_self=True)
+                .values_list('pk', flat=True)
+            )
+
+        def _direct_pks(m2m):
+            pks = list(m2m.values_list('pk', flat=True))
+            return pks or None
+
+        # Shared filters (applicable to both Device and VirtualMachine)
+        shared = Q()
+
+        region_pks = _mptt_descendants(self.regions)
+        if region_pks is not None:
+            shared &= Q(site__region__in=region_pks)
+
+        site_group_pks = _mptt_descendants(self.site_groups)
+        if site_group_pks is not None:
+            shared &= Q(site__group__in=site_group_pks)
+
+        role_pks = _mptt_descendants(self.roles)
+        if role_pks is not None:
+            shared &= Q(role__in=role_pks)
+
+        platform_pks = _mptt_descendants(self.platforms)
+        if platform_pks is not None:
+            shared &= Q(platform__in=platform_pks)
+
+        for m2m, path in (
+            (self.sites, 'site'),
+            (self.cluster_types, 'cluster__type'),
+            (self.cluster_groups, 'cluster__group'),
+            (self.clusters, 'cluster'),
+            (self.tenant_groups, 'tenant__group'),
+            (self.tenants, 'tenant'),
+        ):
+            pks = _direct_pks(m2m)
+            if pks is not None:
+                shared &= Q(**{f'{path}__in': pks})
+
+        # Tag-scoped contexts: object must be tagged with at least one of the context's tags
+        tag_pks = _direct_pks(self.tags)
+
+        device_q = Q(shared)
+        vm_q = Q(shared)
+
+        # Device-only filters: location (MPTT) and device_type (direct)
+        location_pks = _mptt_descendants(self.locations)
+        if location_pks is not None:
+            device_q &= Q(location__in=location_pks)
+        device_type_pks = _direct_pks(self.device_types)
+        if device_type_pks is not None:
+            device_q &= Q(device_type__in=device_type_pks)
+        # For VMs, locations and device_types must be empty for the context to apply
+        if location_pks is not None or device_type_pks is not None:
+            vm_q &= Q(pk__in=())
+
+        if tag_pks is not None:
+            device_tagged = TaggedItem.objects.filter(
+                tag_id__in=tag_pks,
+                content_type__app_label='dcim',
+                content_type__model='device',
+            ).values_list('object_id', flat=True)
+            vm_tagged = TaggedItem.objects.filter(
+                tag_id__in=tag_pks,
+                content_type__app_label='virtualization',
+                content_type__model='virtualmachine',
+            ).values_list('object_id', flat=True)
+            device_q &= Q(pk__in=device_tagged)
+            vm_q &= Q(pk__in=vm_tagged)
+
+        return device_q, vm_q
+
 
 class ConfigContextModel(models.Model):
     """
@@ -234,8 +340,19 @@ class ConfigContextModel(models.Model):
 
     def get_config_context(self):
         """
+        Return the merged config context for this object. If a pre-rendered cache is present
+        (`_config_context_data`), return it directly. Otherwise, fall back to rendering on demand.
+        """
+        cached = getattr(self, '_config_context_data', None)
+        if cached is not None:
+            return cached
+        return self.render_config_context()
+
+    def render_config_context(self):
+        """
         Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs.
-        Return the rendered configuration context for a device or VM.
+        Return the rendered configuration context for a device or VM. This bypasses the pre-rendered cache
+        (`_config_context_data`); use get_config_context() for the cached read path.
         """
         data = {}
 
@@ -263,6 +380,14 @@ class ConfigContextModel(models.Model):
             raise ValidationError(
                 {'local_context_data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
             )
+
+    def serialize_object(self, exclude=None):
+        # Exclude the pre-rendered cache from change-log snapshots; it's a derived field and
+        # would otherwise produce noisy diffs.
+        exclude = list(exclude or [])
+        if '_config_context_data' not in exclude:
+            exclude.append('_config_context_data')
+        return super().serialize_object(exclude=exclude)
 
 
 #

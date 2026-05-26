@@ -735,6 +735,14 @@ class Device(
         to_field='device'
     )
 
+    # Pre-rendered config context cache. NULL means "invalidated; render on demand". Populated by
+    # extras.jobs.RenderConfigContextJob in the background.
+    _config_context_data = models.JSONField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = (
