@@ -12,7 +12,7 @@ django-redis==6.0.0
 django-rich==2.2.0
 django-rq==4.1.0
 django-storages==1.14.6
-django-tables2==2.8.0
+django-tables2==3.0.0
 django-taggit==6.1.0
 django-timezone-field==7.2.1
 djangorestframework==3.17.1
