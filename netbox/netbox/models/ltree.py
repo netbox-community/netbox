@@ -13,7 +13,7 @@ inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
 from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
-from django.db.models import Count, ForeignKey, ManyToManyField, Lookup, OuterRef, Q, Subquery
+from django.db.models import Count, ForeignKey, Lookup, ManyToManyField, OuterRef, Q, Subquery
 from django.db.models.expressions import RawSQL
 
 from utilities.querysets import RestrictedQuerySet
@@ -134,7 +134,7 @@ class LtreeQuerySet(RestrictedQuerySet):
                 return queryset.annotate(**{
                     count_attr: RawSQL(sql, [], output_field=models.IntegerField())
                 })
-            elif has_generic_fk:
+            if has_generic_fk:
                 content_type = ContentType.objects.get_for_model(queryset.model)
                 sql = f'''(
                     SELECT COUNT(DISTINCT "{related_table}"."id")
@@ -147,18 +147,17 @@ class LtreeQuerySet(RestrictedQuerySet):
                 return queryset.annotate(**{
                     count_attr: RawSQL(sql, [content_type.pk], output_field=models.IntegerField())
                 })
-            else:
-                rel_field_col = f'{rel_field}_id'
-                sql = f'''(
+            rel_field_col = f'{rel_field}_id'
+            sql = f'''(
                     SELECT COUNT(DISTINCT "{related_table}"."id")
                     FROM "{related_table}"
                     INNER JOIN "{parent_table}" AS subtree
                       ON "{related_table}"."{rel_field_col}" = subtree."id"
                     WHERE subtree."path" <@ "{parent_table}"."path"
                 )'''
-                return queryset.annotate(**{
-                    count_attr: RawSQL(sql, [], output_field=models.IntegerField())
-                })
+            return queryset.annotate(**{
+                count_attr: RawSQL(sql, [], output_field=models.IntegerField())
+            })
 
         # Non-cumulative: direct count.
         if is_many_to_many:

@@ -1,9 +1,9 @@
 import decimal
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.contrib.postgres.indexes import GistIndex
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneField

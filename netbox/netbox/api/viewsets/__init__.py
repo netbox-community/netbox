@@ -333,5 +333,3 @@ class NetBoxModelViewSet(
                 super().perform_destroy(instance)
         except ObjectDoesNotExist:
             raise PermissionDenied()
-
-
