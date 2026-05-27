@@ -21,7 +21,7 @@ EXEMPT_MODEL_FIELDS = (
     'comments',
     'custom_field_data',
     'path',      # ltree, trigger-maintained
-    'sort_path', # ltree, trigger-maintained
+    'sort_path',  # ltree, trigger-maintained
 )
 
 

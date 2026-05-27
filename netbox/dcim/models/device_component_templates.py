@@ -1,8 +1,8 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.contrib.postgres.indexes import GistIndex
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *

@@ -171,13 +171,13 @@ class SortPathTests(TestCase):
 
     def test_siblings_in_name_order_regardless_of_insertion_order(self):
         # Create siblings out of name order
-        z = Region.objects.create(name='Zebra', slug='zebra-sp')
-        a = Region.objects.create(name='Aardvark', slug='aardvark-sp')
-        b = Region.objects.create(name='Buffalo', slug='buffalo-sp')
+        Region.objects.create(name='Zebra', slug='zebra-sp')
+        Region.objects.create(name='Aardvark', slug='aardvark-sp')
+        buffalo = Region.objects.create(name='Buffalo', slug='buffalo-sp')
 
         # Children of Buffalo also out of order
-        b_z = Region.objects.create(parent=b, name='Zoo', slug='b-zoo-sp')
-        b_a = Region.objects.create(parent=b, name='Apex', slug='b-apex-sp')
+        Region.objects.create(parent=buffalo, name='Zoo', slug='b-zoo-sp')
+        Region.objects.create(parent=buffalo, name='Apex', slug='b-apex-sp')
 
         ordered = list(
             Region.objects.filter(slug__endswith='-sp')
@@ -190,8 +190,8 @@ class SortPathTests(TestCase):
 
     def test_default_ordering_is_sort_path(self):
         """Region.objects.all() uses sort_path-based ordering by default."""
-        b = Region.objects.create(name='B', slug='b-default')
-        a = Region.objects.create(name='A', slug='a-default')
+        Region.objects.create(name='B', slug='b-default')
+        Region.objects.create(name='A', slug='a-default')
         names = list(
             Region.objects.filter(slug__endswith='-default').values_list('name', flat=True)
         )
