@@ -1,5 +1,6 @@
 """Replace django-mptt with PostgreSQL ltree for wireless's hierarchical models."""
 from django.contrib.postgres.indexes import GistIndex
+from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations
 
 import netbox.models.ltree
@@ -13,10 +14,13 @@ LEGACY_FIELDS = ('lft', 'rght', 'tree_id', 'level')
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('wireless', '0020_enable_ltree_extension'),
+        ('wireless', '0019_default_ordering_indexes'),
     ]
 
     operations = [
+        # Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
+        CreateExtension('ltree'),
+
         migrations.AddField(
             model_name=MODEL,
             name='path',

@@ -1,5 +1,6 @@
 """Replace django-mptt with PostgreSQL ltree for tenancy's hierarchical models."""
 from django.contrib.postgres.indexes import GistIndex
+from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations
 
 import netbox.models.ltree
@@ -28,10 +29,13 @@ UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tenancy', '0025_enable_ltree_extension'),
+        ('tenancy', '0024_default_ordering_indexes'),
     ]
 
     operations = [
+        # Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
+        CreateExtension('ltree'),
+
         *[
             migrations.AddField(
                 model_name=m,

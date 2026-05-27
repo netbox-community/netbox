@@ -4,16 +4,17 @@ Replace django-mptt with PostgreSQL ltree for dcim's hierarchical models.
 For each of (Region, SiteGroup, Location, DeviceRole, Platform, ModuleBay,
 InventoryItem, InventoryItemTemplate) this migration:
 
-1. Adds a nullable `path` LTreeField.
-2. Installs per-table BEFORE-INSERT/UPDATE-OF-parent_id and AFTER-UPDATE-OF-path
-   triggers so concurrent writes during the long-running data step get correct
-   paths.
-3. Populates paths for existing rows via a single recursive CTE per table.
-4. Tightens `path` to NOT NULL.
-5. Drops the legacy MPTT columns (lft, rght, tree_id, level).
-6. Adds a GiST index on the `path` column for efficient `@>` / `<@` lookups.
+1. Enables the PostgreSQL ltree extension (idempotent).
+2. Adds a nullable `path` LTreeField.
+3. Installs per-table BEFORE-INSERT/UPDATE-OF-parent_id and AFTER-UPDATE-OF-(parent_id, path)
+   triggers so concurrent writes during the long-running data step get correct paths.
+4. Populates paths for existing rows via a single recursive CTE per table.
+5. Tightens `path` to NOT NULL.
+6. Drops the legacy MPTT columns (lft, rght, tree_id, level).
+7. Adds a GiST index on the `path` column for efficient `@>` / `<@` lookups.
 """
 from django.contrib.postgres.indexes import GistIndex
+from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations
 
 import netbox.models.ltree
@@ -56,11 +57,14 @@ UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0234_enable_ltree_extension'),
+        ('dcim', '0233_device_render_config_permission'),
     ]
 
     operations = [
-        # 1. Add nullable path column
+        # 1. Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
+        CreateExtension('ltree'),
+
+        # 2. Add nullable path column
         *[
             migrations.AddField(
                 model_name=m,
