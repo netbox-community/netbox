@@ -101,7 +101,8 @@ def assert_expected_query_count(test_case, name):
     """
     model = test_case.model
     app_label = model._meta.app_label
-    model_name = getattr(test_case, 'query_count_model_label', None) or model._meta.model_name
+    label = getattr(test_case, 'query_count_model_label', None)
+    model_name = label if label is not None else model._meta.model_name
     key = f'{model_name}:{name}'
 
     if _is_update_mode():
