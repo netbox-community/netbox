@@ -1,7 +1,8 @@
 """Replace django-mptt with PostgreSQL ltree for wireless's hierarchical models."""
+import django.db.models.deletion
 from django.contrib.postgres.indexes import GistIndex
 from django.contrib.postgres.operations import CreateExtension
-from django.db import migrations
+from django.db import migrations, models
 
 import netbox.models.ltree
 from netbox.models.ltree import InstallLtreeTriggers
@@ -18,6 +19,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey.
+        # No-op at the SQL level; reconciles migration state with model definitions.
+        migrations.AlterField(
+            model_name='wirelesslangroup',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='wireless.wirelesslangroup',
+            ),
+        ),
+
         # Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
         CreateExtension('ltree'),
 

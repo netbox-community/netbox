@@ -13,9 +13,10 @@ InventoryItem, InventoryItemTemplate) this migration:
 6. Drops the legacy MPTT columns (lft, rght, tree_id, level).
 7. Adds a GiST index on the `path` column for efficient `@>` / `<@` lookups.
 """
+import django.db.models.deletion
 from django.contrib.postgres.indexes import GistIndex
 from django.contrib.postgres.operations import CreateExtension
-from django.db import migrations
+from django.db import migrations, models
 
 import netbox.models.ltree
 from netbox.models.ltree import InstallLtreeTriggers
@@ -61,6 +62,75 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey.
+        # This is a no-op at the SQL level (TreeForeignKey is a subclass of
+        # ForeignKey producing the same column) but reconciles the migration state
+        # with the model definitions now that django-mptt is no longer used at runtime.
+        migrations.AlterField(
+            model_name='devicerole',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='dcim.devicerole',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='inventoryitem',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='child_items', to='dcim.inventoryitem',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='inventoryitemtemplate',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='child_items', to='dcim.inventoryitemtemplate',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='location',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='dcim.location',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='modulebay',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, editable=False, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='dcim.modulebay',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='platform',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='dcim.platform',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='region',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='dcim.region',
+            ),
+        ),
+        migrations.AlterField(
+            model_name='sitegroup',
+            name='parent',
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                related_name='children', to='dcim.sitegroup',
+            ),
+        ),
+
         # 1. Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
         CreateExtension('ltree'),
 
