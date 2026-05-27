@@ -43,7 +43,9 @@ class AssertExpectedQueryCountLabelTestCase(TestCase):
         def fake_record(app_label, key, count):
             captured['key'] = key
 
+        original_parallel = qc_mod._is_parallel_test_run
         qc_mod._record_update = fake_record
+        qc_mod._is_parallel_test_run = lambda: False
         try:
             import os
             old_env = os.environ.get(qc_mod.UPDATE_ENV_VAR)
@@ -58,6 +60,7 @@ class AssertExpectedQueryCountLabelTestCase(TestCase):
                     os.environ[qc_mod.UPDATE_ENV_VAR] = old_env
         finally:
             qc_mod._record_update = original
+            qc_mod._is_parallel_test_run = original_parallel
 
         return captured['key']
 
