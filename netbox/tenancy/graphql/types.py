@@ -88,7 +88,7 @@ class TenantType(ContactsMixin, PrimaryObjectType):
 
 @strawberry_django.type(
     models.TenantGroup,
-    fields='__all__',
+    exclude=['path'],
     filters=TenantGroupFilter,
     pagination=True
 )
@@ -125,7 +125,7 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
 
 @strawberry_django.type(
     models.ContactGroup,
-    fields='__all__',
+    exclude=['path'],
     filters=ContactGroupFilter,
     pagination=True
 )

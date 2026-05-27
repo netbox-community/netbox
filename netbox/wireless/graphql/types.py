@@ -22,7 +22,7 @@ __all__ = (
 
 @strawberry_django.type(
     models.WirelessLANGroup,
-    fields='__all__',
+    exclude=['path'],
     filters=WirelessLANGroupFilter,
     pagination=True
 )

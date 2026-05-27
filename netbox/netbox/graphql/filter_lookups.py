@@ -205,25 +205,28 @@ class TreeNodeFilter:
 
 def generate_tree_node_q_filter(model_class, filter_value: TreeNodeFilter) -> Q:
     """
-    Generate appropriate Q filter for MPTT tree filtering based on match type
+    Generate Q filter for ltree-backed hierarchical models based on match type.
     """
     try:
         node = model_class.objects.get(id=filter_value.id)
     except model_class.DoesNotExist:
         return Q(pk__in=[])
 
+    if not getattr(node, 'path', None):
+        return Q(id=filter_value.id)
+
     if filter_value.match_type == TreeNodeMatch.EXACT:
         return Q(id=filter_value.id)
     if filter_value.match_type == TreeNodeMatch.DESCENDANTS:
-        return Q(tree_id=node.tree_id, lft__gt=node.lft, rght__lt=node.rght)
+        return Q(path__descendant=node.path) & ~Q(id=node.id)
     if filter_value.match_type == TreeNodeMatch.SELF_AND_DESCENDANTS:
-        return Q(tree_id=node.tree_id, lft__gte=node.lft, rght__lte=node.rght)
+        return Q(path__descendant_or_equal=node.path)
     if filter_value.match_type == TreeNodeMatch.CHILDREN:
-        return Q(tree_id=node.tree_id, level=node.level + 1, lft__gt=node.lft, rght__lt=node.rght)
+        return Q(parent_id=node.id)
     if filter_value.match_type == TreeNodeMatch.SIBLINGS:
-        return Q(tree_id=node.tree_id, level=node.level, parent=node.parent) & ~Q(id=node.id)
+        return Q(parent_id=node.parent_id) & ~Q(id=node.id)
     if filter_value.match_type == TreeNodeMatch.ANCESTORS:
-        return Q(tree_id=node.tree_id, lft__lt=node.lft, rght__gt=node.rght)
+        return Q(path__ancestor=node.path) & ~Q(id=node.id)
     if filter_value.match_type == TreeNodeMatch.PARENT:
         return Q(id=node.parent_id) if node.parent_id else Q(pk__in=[])
     return Q()

@@ -1,5 +1,4 @@
 import django.db.models.deletion
-import mptt.fields
 from django.db import migrations, models
 
 
@@ -44,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='modulebay',
             name='parent',
-            field=mptt.fields.TreeForeignKey(
+            field=django.db.models.ForeignKey(
                 blank=True,
                 editable=False,
                 null=True,

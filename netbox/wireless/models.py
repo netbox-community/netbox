@@ -1,3 +1,4 @@
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -64,9 +65,9 @@ class WirelessLANGroup(NestedGroupModel):
 
     class Meta:
         ordering = ('name', 'pk')
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='wireless_lan_grp_path_gist'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),

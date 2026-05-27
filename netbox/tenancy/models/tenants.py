@@ -1,3 +1,4 @@
+from django.contrib.postgres.indexes import GistIndex
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
@@ -29,9 +30,9 @@ class TenantGroup(NestedGroupModel):
 
     class Meta:
         ordering = ['name']
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='tenancy_tenantgroup_path_gist'),
+        )
         verbose_name = _('tenant group')
         verbose_name_plural = _('tenant groups')
 

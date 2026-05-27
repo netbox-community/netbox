@@ -2,11 +2,11 @@ from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
@@ -15,9 +15,9 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
+from netbox.models.ltree import LtreeManager, LtreeModel
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.tracking import TrackingModelMixin
@@ -1313,11 +1313,11 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
+class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
     """
     An empty space within a Device which can house a child device
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='children',
@@ -1337,14 +1337,14 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         default=True,
     )
 
-    objects = TreeManager()
-
     clone_fields = ('device', 'enabled')
 
+    objects = LtreeManager()
+
     class Meta(ModularComponentModel.Meta):
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_modulebay_path_gist'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'module', 'name'),
@@ -1353,9 +1353,6 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
-
-    class MPTTMeta:
-        order_insertion_by = ('name',)
 
     def clean(self):
         super().clean()
@@ -1469,12 +1466,12 @@ class InventoryItemRole(OrganizationalModel):
         verbose_name_plural = _('inventory item roles')
 
 
-class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
+class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='child_items',
@@ -1542,14 +1539,15 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         help_text=_('This item was automatically discovered')
     )
 
-    objects = TreeManager()
-
     clone_fields = ('device', 'parent', 'role', 'manufacturer', 'status', 'part_id')
+
+    objects = LtreeManager()
 
     class Meta:
         ordering = ('device__id', 'parent__id', 'name')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
+            GistIndex(fields=['path'], name='dcim_inventoryitem_path_gist'),
         )
         constraints = (
             models.UniqueConstraint(

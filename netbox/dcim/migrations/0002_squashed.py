@@ -1,5 +1,4 @@
 import django.db.models.deletion
-import mptt.fields
 import taggit.managers
 from django.conf import settings
 from django.db import migrations, models
@@ -27,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sitegroup',
             name='parent',
-            field=mptt.fields.TreeForeignKey(
+            field=django.db.models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
@@ -76,7 +75,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='region',
             name='parent',
-            field=mptt.fields.TreeForeignKey(
+            field=django.db.models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
@@ -381,7 +380,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='location',
             name='parent',
-            field=mptt.fields.TreeForeignKey(
+            field=django.db.models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
@@ -417,7 +416,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='inventoryitem',
             name='parent',
-            field=mptt.fields.TreeForeignKey(
+            field=django.db.models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,

@@ -5,11 +5,10 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel, TreeForeignKey
 
 from netbox.models.features import *
+from netbox.models.ltree import LtreeManager, LtreeModel
 from netbox.models.mixins import OwnerMixin
-from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -159,16 +158,12 @@ class PrimaryModel(OwnerMixin, NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
+class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
-    recursively using MPTT. Within each parent, each child instance must have a unique name.
-
-    Note: django-mptt injects the (tree_id, lft) index dynamically, but Django's migration autodetector won't
-    detect it unless concrete subclasses explicitly declare Meta.indexes (even as an empty tuple). See #21016
-    and django-mptt/django-mptt#682.
+    recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='children',
@@ -194,13 +189,13 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
         blank=True
     )
 
-    objects = TreeManager()
+    # Re-declare so the LtreeManager wins over BaseModel's RestrictedQuerySet
+    # default manager via MRO resolution.
+    objects = LtreeManager()
 
     class Meta:
         abstract = True
-
-    class MPTTMeta:
-        order_insertion_by = ('name',)
+        ordering = ('path',)
 
     def __str__(self):
         return self.name
@@ -208,7 +203,7 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
     def clean(self):
         super().clean()
 
-        # An MPTT model cannot be its own parent
+        # A nested group cannot be its own parent or a descendant of itself
         if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
             raise ValidationError({
                 "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)

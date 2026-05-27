@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel
 
 from core.choices import ObjectChangeActionChoices
 from core.querysets import ObjectChangeQuerySet
@@ -164,9 +163,10 @@ class ObjectChange(models.Model):
         if issubclass(model, ChangeLoggingMixin):
             attrs.update({'created', 'last_updated'})
 
-        # Exclude MPTT-internal fields
-        if issubclass(model, MPTTModel):
-            attrs.update({'level', 'lft', 'rght', 'tree_id'})
+        # Exclude trigger-maintained ltree path
+        from netbox.models.ltree import LtreeModel
+        if issubclass(model, LtreeModel):
+            attrs.update({'path'})
 
         return attrs
 

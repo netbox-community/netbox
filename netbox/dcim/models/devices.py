@@ -4,6 +4,7 @@ from functools import cached_property
 import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -412,9 +413,9 @@ class DeviceRole(NestedGroupModel):
 
     class Meta:
         ordering = ('name',)
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_devicerole_path_gist'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -466,9 +467,9 @@ class Platform(NestedGroupModel):
 
     class Meta:
         ordering = ('name',)
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_platform_path_gist'),
+        )
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
         constraints = (

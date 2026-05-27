@@ -15,7 +15,6 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from mptt.models import MPTTModel
 
 from core.exceptions import JobFailed
 from core.models import ObjectType
@@ -557,12 +556,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
         } if prefetch_ids else {}
 
-        # For MPTT models, delay tree updates until all saves are complete
-        if issubclass(self.queryset.model, MPTTModel):
-            with self.queryset.model.objects.delay_mptt_updates():
-                saved_objects = self._process_import_records(form, request, records, prefetched_objects)
-        else:
-            saved_objects = self._process_import_records(form, request, records, prefetched_objects)
+        saved_objects = self._process_import_records(form, request, records, prefetched_objects)
 
         return saved_objects
 
@@ -756,10 +750,6 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
             if is_background_request(request):
                 request.job.logger.info(f"Updated {obj}")
 
-        # Rebuild the tree for MPTT models
-        if issubclass(self.queryset.model, MPTTModel):
-            self.queryset.model.objects.rebuild()
-
         return updated_objects
 
     #
@@ -935,16 +925,9 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                         renamed_pks = self._rename_objects(form, selected_objects)
 
                         if '_apply' in request.POST:
-                            # For MPTT models, delay tree updates until all saves are complete
-                            if issubclass(self.queryset.model, MPTTModel):
-                                with self.queryset.model.objects.delay_mptt_updates():
-                                    for obj in selected_objects:
-                                        setattr(obj, self.field_name, obj.new_name)
-                                        obj.save()
-                            else:
-                                for obj in selected_objects:
-                                    setattr(obj, self.field_name, obj.new_name)
-                                    obj.save()
+                            for obj in selected_objects:
+                                setattr(obj, self.field_name, obj.new_name)
+                                obj.save()
 
                             # Enforce constrained permissions
                             if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):

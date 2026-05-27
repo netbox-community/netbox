@@ -4,14 +4,12 @@ from functools import cached_property
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
-from django_pglocks import advisory_lock
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
-from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest, PreconditionFailed
 from utilities.query import reapply_model_ordering
@@ -337,20 +335,3 @@ class NetBoxModelViewSet(
             raise PermissionDenied()
 
 
-class MPTTLockedMixin:
-    """
-    Puts pglock on objects that derive from MPTTModel for parallel API calling.
-    Note: If adding this to a view, must add the model name to ADVISORY_LOCK_KEYS
-    """
-
-    def create(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().destroy(request, *args, **kwargs)

@@ -29,17 +29,6 @@ ADVISORY_LOCK_KEYS = {
     'available-vlans': 100300,
     'available-asns': 100400,
 
-    # MPTT locks
-    'region': 105100,
-    'sitegroup': 105200,
-    'location': 105300,
-    'tenantgroup': 105400,
-    'contactgroup': 105500,
-    'wirelesslangroup': 105600,
-    'inventoryitem': 105700,
-    'inventoryitemtemplate': 105800,
-    'platform': 105900,
-
     # Jobs
     'job-schedules': 110100,
 }

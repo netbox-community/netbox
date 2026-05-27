@@ -2,7 +2,6 @@ import django_filters
 from django.conf import settings
 from django.db import models
 from django.test import TestCase
-from mptt.fields import TreeForeignKey
 from taggit.managers import TaggableManager
 
 from dcim.choices import *
@@ -113,9 +112,11 @@ class DummyModel(models.Model):
     integerfield = models.IntegerField()
     macaddressfield = MACAddressField()
     timefield = models.TimeField()
-    treeforeignkeyfield = TreeForeignKey(
+    treeforeignkeyfield = models.ForeignKey(
         to='self',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     tags = TaggableManager(through=TaggedItem)

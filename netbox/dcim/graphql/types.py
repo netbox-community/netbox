@@ -319,7 +319,7 @@ class DeviceBayTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItemTemplate,
-    exclude=['component_type', 'component_id', 'parent'],
+    exclude=['component_type', 'component_id', 'parent', 'path'],
     filters=InventoryItemTemplateFilter,
     pagination=True
 )
@@ -347,7 +347,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.DeviceRole,
-    fields='__all__',
+    exclude=['path'],
     filters=DeviceRoleFilter,
     pagination=True
 )
@@ -484,7 +484,7 @@ class InterfaceTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItem,
-    exclude=['component_type', 'component_id', 'parent'],
+    exclude=['component_type', 'component_id', 'parent', 'path'],
     filters=InventoryItemFilter,
     pagination=True
 )
@@ -526,7 +526,7 @@ class InventoryItemRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.Location,
     # fields='__all__',
-    exclude=['parent'],  # bug - temp
+    exclude=['parent', 'path'],  # bug - temp
     filters=LocationFilter,
     pagination=True
 )
@@ -590,7 +590,7 @@ class ModuleType(PrimaryObjectType):
 @strawberry_django.type(
     models.ModuleBay,
     # fields='__all__',
-    exclude=['parent'],
+    exclude=['parent', 'path'],
     filters=ModuleBayFilter,
     pagination=True
 )
@@ -647,7 +647,7 @@ class ModuleTypeType(PrimaryObjectType):
 
 @strawberry_django.type(
     models.Platform,
-    fields='__all__',
+    exclude=['path'],
     filters=PlatformFilter,
     pagination=True
 )
@@ -855,7 +855,7 @@ class RearPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.Region,
-    exclude=['parent'],
+    exclude=['parent', 'path'],
     filters=RegionFilter,
     pagination=True
 )
@@ -916,7 +916,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObj
 
 @strawberry_django.type(
     models.SiteGroup,
-    exclude=['parent'],  # bug - temp
+    exclude=['parent', 'path'],  # bug - temp
     filters=SiteGroupFilter,
     pagination=True
 )

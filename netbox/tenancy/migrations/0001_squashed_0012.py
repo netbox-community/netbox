@@ -1,5 +1,4 @@
 import django.db.models.deletion
-import mptt.fields
 import taggit.managers
 from django.db import migrations, models
 
@@ -45,7 +44,7 @@ class Migration(migrations.Migration):
                 ('level', models.PositiveIntegerField(editable=False)),
                 (
                     'parent',
-                    mptt.fields.TreeForeignKey(
+                    django.db.models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,

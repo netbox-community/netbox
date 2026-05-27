@@ -1,7 +1,7 @@
 from django.db.models import Count, OuterRef, QuerySet, Subquery
 from django.db.models.functions import Coalesce
 
-from utilities.mptt import TreeManager
+from netbox.models.ltree import LtreeManager
 
 __all__ = (
     'count_related',
@@ -64,8 +64,9 @@ def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     Reapply model-level ordering in case it has been lost through .annotate().
     https://code.djangoproject.com/ticket/32811
     """
-    # MPTT-based models are exempt from this; use caution when annotating querysets of these models
-    if any(isinstance(manager, TreeManager) for manager in queryset.model._meta.local_managers):
+    # Hierarchical (ltree) models are exempt; their default ordering by `path` must not be
+    # clobbered by .annotate(). Use caution when annotating querysets of these models.
+    if any(isinstance(manager, LtreeManager) for manager in queryset.model._meta.local_managers):
         return queryset
     if queryset.ordered:
         return queryset

@@ -3,6 +3,7 @@ import decimal
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.contrib.postgres.indexes import GistIndex
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneField
@@ -44,9 +45,9 @@ class Region(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_region_path_gist'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -103,9 +104,9 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_sitegroup_path_gist'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -324,9 +325,9 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
 
     class Meta:
         ordering = ['site', 'name']
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_location_path_gist'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('site', 'parent', 'name'),
