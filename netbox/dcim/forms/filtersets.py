@@ -710,7 +710,7 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
         ),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
-            'pass_through_ports', name=_('Components')
+            'pass_through_ports', 'module_bays', name=_('Components')
         ),
         FieldSet('weight', 'weight_unit', name=_('Weight')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
@@ -774,6 +774,13 @@ class ModuleTypeFilterForm(PrimaryModelFilterSetForm):
     pass_through_ports = forms.NullBooleanField(
         required=False,
         label=_('Has pass-through ports'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    module_bays = forms.NullBooleanField(
+        required=False,
+        label=_('Has module bays'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
