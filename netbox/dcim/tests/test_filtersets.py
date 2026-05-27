@@ -1707,6 +1707,10 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             PortTemplateMapping(module_type=module_types[0], front_port=front_ports[0], rear_port=rear_ports[0]),
             PortTemplateMapping(module_type=module_types[1], front_port=front_ports[1], rear_port=rear_ports[1]),
         ])
+        ModuleBayTemplate.objects.bulk_create((
+            ModuleBayTemplate(module_type=module_types[0], name='Module Bay 1'),
+            ModuleBayTemplate(module_type=module_types[1], name='Module Bay 2'),
+        ))
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -1765,6 +1769,12 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'pass_through_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_module_bays(self):
+        params = {'module_bays': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'module_bays': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):

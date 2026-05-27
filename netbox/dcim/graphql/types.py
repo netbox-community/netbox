@@ -644,6 +644,14 @@ class ModuleTypeProfileType(PrimaryObjectType):
 )
 class ModuleTypeType(PrimaryObjectType):
     module_count: BigInt
+    console_port_template_count: BigInt
+    console_server_port_template_count: BigInt
+    power_port_template_count: BigInt
+    power_outlet_template_count: BigInt
+    interface_template_count: BigInt
+    front_port_template_count: BigInt
+    rear_port_template_count: BigInt
+    module_bay_template_count: BigInt
     profile: Annotated["ModuleTypeProfileType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 

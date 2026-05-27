@@ -1810,7 +1810,7 @@ class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_consoleports'
     tab = ViewTab(
         label=_('Console Ports'),
-        badge=lambda obj: obj.consoleporttemplates.count(),
+        badge=lambda obj: obj.console_port_template_count,
         permission='dcim.view_consoleporttemplate',
         weight=530,
         hide_if_empty=True
@@ -1825,7 +1825,7 @@ class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_consoleserverports'
     tab = ViewTab(
         label=_('Console Server Ports'),
-        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        badge=lambda obj: obj.console_server_port_template_count,
         permission='dcim.view_consoleserverporttemplate',
         weight=540,
         hide_if_empty=True
@@ -1840,7 +1840,7 @@ class ModuleTypePowerPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_powerports'
     tab = ViewTab(
         label=_('Power Ports'),
-        badge=lambda obj: obj.powerporttemplates.count(),
+        badge=lambda obj: obj.power_port_template_count,
         permission='dcim.view_powerporttemplate',
         weight=550,
         hide_if_empty=True
@@ -1855,7 +1855,7 @@ class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_poweroutlets'
     tab = ViewTab(
         label=_('Power Outlets'),
-        badge=lambda obj: obj.poweroutlettemplates.count(),
+        badge=lambda obj: obj.power_outlet_template_count,
         permission='dcim.view_poweroutlettemplate',
         weight=560,
         hide_if_empty=True
@@ -1870,7 +1870,7 @@ class ModuleTypeInterfacesView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_interfaces'
     tab = ViewTab(
         label=_('Interfaces'),
-        badge=lambda obj: obj.interfacetemplates.count(),
+        badge=lambda obj: obj.interface_template_count,
         permission='dcim.view_interfacetemplate',
         weight=500,
         hide_if_empty=True
@@ -1885,7 +1885,7 @@ class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_frontports'
     tab = ViewTab(
         label=_('Front Ports'),
-        badge=lambda obj: obj.frontporttemplates.count(),
+        badge=lambda obj: obj.front_port_template_count,
         permission='dcim.view_frontporttemplate',
         weight=510,
         hide_if_empty=True
@@ -1900,7 +1900,7 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_rearports'
     tab = ViewTab(
         label=_('Rear Ports'),
-        badge=lambda obj: obj.rearporttemplates.count(),
+        badge=lambda obj: obj.rear_port_template_count,
         permission='dcim.view_rearporttemplate',
         weight=520,
         hide_if_empty=True
@@ -1915,7 +1915,7 @@ class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_modulebays'
     tab = ViewTab(
         label=_('Module Bays'),
-        badge=lambda obj: obj.modulebaytemplates.count(),
+        badge=lambda obj: obj.module_bay_template_count,
         permission='dcim.view_modulebaytemplate',
         weight=570,
         hide_if_empty=True
