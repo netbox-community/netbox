@@ -90,7 +90,7 @@ def assert_expected_query_count(test_case, name):
     derived from `test_case.model._meta.model_name`. Test cases that use
     runtime-generated models with unstable names (e.g. names derived from a
     database primary-key sequence) can declare a ``query_count_model_label``
-    class attribute to provide a stable, human-assigned label instead::
+    class attribute to provide a stable, human-assigned label instead:
 
         class MyViewTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             query_count_model_label = 'my-stable-label'
