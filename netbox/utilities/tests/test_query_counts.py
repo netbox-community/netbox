@@ -1,5 +1,8 @@
+import os
+
 from django.test import TestCase
 
+import utilities.testing.query_counts as qc_mod
 from utilities.testing.query_counts import assert_expected_query_count
 
 
@@ -35,7 +38,6 @@ class AssertExpectedQueryCountLabelTestCase(TestCase):
         wrote.  We patch _record_update to capture the key without touching the
         filesystem.
         """
-        import utilities.testing.query_counts as qc_mod
         captured = {}
 
         original = qc_mod._record_update
@@ -47,7 +49,6 @@ class AssertExpectedQueryCountLabelTestCase(TestCase):
         qc_mod._record_update = fake_record
         qc_mod._is_parallel_test_run = lambda: False
         try:
-            import os
             old_env = os.environ.get(qc_mod.UPDATE_ENV_VAR)
             os.environ[qc_mod.UPDATE_ENV_VAR] = '1'
             try:
