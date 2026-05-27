@@ -11,9 +11,8 @@ InstallLtreeTriggers migration operation. The Python layer never computes or
 mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
-from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
-from django.db.models import Count, ForeignKey, Lookup, ManyToManyField, OuterRef, Q, Subquery
+from django.db.models import Count, ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
 
 from utilities.querysets import RestrictedQuerySet
@@ -135,17 +134,24 @@ class LtreeQuerySet(RestrictedQuerySet):
                     count_attr: RawSQL(sql, [], output_field=models.IntegerField())
                 })
             if has_generic_fk:
-                content_type = ContentType.objects.get_for_model(queryset.model)
+                # Resolve scope_type_id via subquery so this annotation can be
+                # constructed at import time (e.g. in a view class body) even
+                # before contenttypes has been migrated.
+                ct_app = queryset.model._meta.app_label
+                ct_model = queryset.model._meta.model_name
                 sql = f'''(
                     SELECT COUNT(DISTINCT "{related_table}"."id")
                     FROM "{related_table}"
                     INNER JOIN "{parent_table}" AS subtree
                       ON "{related_table}"."scope_id" = subtree."id"
-                    WHERE "{related_table}"."scope_type_id" = %s
+                    WHERE "{related_table}"."scope_type_id" = (
+                        SELECT id FROM django_content_type
+                        WHERE app_label = %s AND model = %s
+                    )
                       AND subtree."path" <@ "{parent_table}"."path"
                 )'''
                 return queryset.annotate(**{
-                    count_attr: RawSQL(sql, [content_type.pk], output_field=models.IntegerField())
+                    count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
                 })
             rel_field_col = f'{rel_field}_id'
             sql = f'''(
@@ -163,12 +169,19 @@ class LtreeQuerySet(RestrictedQuerySet):
         if is_many_to_many:
             return queryset.annotate(**{count_attr: Count(rel_field, distinct=True)})
         if has_generic_fk:
-            content_type = ContentType.objects.get_for_model(queryset.model)
-            subquery = model.objects.filter(
-                scope_type=content_type, scope_id=OuterRef('pk')
-            ).values('scope_id').annotate(c=Count('id')).values('c')
+            ct_app = queryset.model._meta.app_label
+            ct_model = queryset.model._meta.model_name
+            sql = f'''(
+                SELECT COUNT(DISTINCT "{related_table}"."id")
+                FROM "{related_table}"
+                WHERE "{related_table}"."scope_id" = "{parent_table}"."id"
+                  AND "{related_table}"."scope_type_id" = (
+                      SELECT id FROM django_content_type
+                      WHERE app_label = %s AND model = %s
+                  )
+            )'''
             return queryset.annotate(**{
-                count_attr: Subquery(subquery, output_field=models.IntegerField())
+                count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
             })
         return queryset.annotate(**{count_attr: Count(rel_field, distinct=True)})
 

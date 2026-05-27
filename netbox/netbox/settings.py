@@ -454,6 +454,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'django_prometheus',
     'strawberry_django',
+    'mptt',
     'rest_framework',
     'social_django',
     'sorl.thumbnail',

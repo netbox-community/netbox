@@ -1,4 +1,18 @@
+import mptt
+import mptt.managers
 from django.db import migrations
+
+
+def rebuild_mptt(apps, schema_editor):
+    """
+    Construct the MPTT hierarchy.
+    """
+    Platform = apps.get_model('dcim', 'Platform')
+    manager = mptt.managers.TreeManager()
+    manager.model = Platform
+    mptt.register(Platform)
+    manager.contribute_to_class(Platform, 'objects')
+    manager.rebuild()
 
 
 class Migration(migrations.Migration):
@@ -7,8 +21,9 @@ class Migration(migrations.Migration):
         ('dcim', '0213_platform_parent'),
     ]
 
-    # Historical MPTT rebuild: now a no-op. Tree state will be populated from
-    # parent FKs into an ltree path column by a later migration.
     operations = [
-        migrations.RunPython(migrations.RunPython.noop, migrations.RunPython.noop),
+        migrations.RunPython(
+            code=rebuild_mptt,
+            reverse_code=migrations.RunPython.noop
+        ),
     ]

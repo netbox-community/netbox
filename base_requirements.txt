@@ -26,6 +26,11 @@ django-graphiql-debug-toolbar
 # https://django-htmx.readthedocs.io/en/latest/changelog.html
 django-htmx
 
+# Modified Preorder Tree Traversal (required only for historical migrations
+# that pre-date the switch to PostgreSQL ltree; runtime code uses
+# netbox.models.ltree.LtreeModel instead).
+django-mptt
+
 # Context managers for PostgreSQL advisory locks
 # https://github.com/Xof/django-pglocks/blob/master/CHANGES.txt
 django-pglocks

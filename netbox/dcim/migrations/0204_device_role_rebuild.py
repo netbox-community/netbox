@@ -1,4 +1,15 @@
+import mptt
+import mptt.managers
 from django.db import migrations
+
+
+def rebuild_mptt(apps, schema_editor):
+    manager = mptt.managers.TreeManager()
+    DeviceRole = apps.get_model('dcim', 'DeviceRole')
+    manager.model = DeviceRole
+    mptt.register(DeviceRole)
+    manager.contribute_to_class(DeviceRole, 'objects')
+    manager.rebuild()
 
 
 class Migration(migrations.Migration):
@@ -6,9 +17,6 @@ class Migration(migrations.Migration):
         ('dcim', '0203_device_role_nested'),
     ]
 
-    # Historical MPTT rebuild: now a no-op. The legacy lft/rght/tree_id/level
-    # columns are removed in a later migration and ltree paths are populated
-    # from parent FKs after that.
     operations = [
-        migrations.RunPython(migrations.RunPython.noop, migrations.RunPython.noop),
+        migrations.RunPython(code=rebuild_mptt, reverse_code=migrations.RunPython.noop),
     ]

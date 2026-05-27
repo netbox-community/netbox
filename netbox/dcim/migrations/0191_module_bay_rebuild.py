@@ -1,4 +1,15 @@
+import mptt
+import mptt.managers
 from django.db import migrations
+
+
+def rebuild_mptt(apps, schema_editor):
+    manager = mptt.managers.TreeManager()
+    ModuleBay = apps.get_model('dcim', 'ModuleBay')
+    manager.model = ModuleBay
+    mptt.register(ModuleBay)
+    manager.contribute_to_class(ModuleBay, 'objects')
+    manager.rebuild()
 
 
 class Migration(migrations.Migration):
@@ -6,8 +17,6 @@ class Migration(migrations.Migration):
         ('dcim', '0190_nested_modules'),
     ]
 
-    # Historical MPTT rebuild: now a no-op. Tree state will be populated from
-    # parent FKs into an ltree path column by a later migration.
     operations = [
-        migrations.RunPython(migrations.RunPython.noop, migrations.RunPython.noop),
+        migrations.RunPython(code=rebuild_mptt, reverse_code=migrations.RunPython.noop),
     ]

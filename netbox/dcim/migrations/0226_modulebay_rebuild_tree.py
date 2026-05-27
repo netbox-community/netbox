@@ -1,4 +1,25 @@
+import mptt.managers
+import mptt.models
 from django.db import migrations
+
+
+def rebuild_mptt(apps, schema_editor):
+    """
+    Rebuild the MPTT tree for ModuleBay to apply new ordering.
+    """
+    ModuleBay = apps.get_model('dcim', 'ModuleBay')
+
+    # Set MPTTMeta with the correct order_insertion_by
+    class MPTTMeta:
+        order_insertion_by = ('name',)
+
+    ModuleBay.MPTTMeta = MPTTMeta
+    ModuleBay._mptt_meta = mptt.models.MPTTOptions(MPTTMeta)
+
+    manager = mptt.managers.TreeManager()
+    manager.model = ModuleBay
+    manager.contribute_to_class(ModuleBay, 'objects')
+    manager.rebuild()
 
 
 class Migration(migrations.Migration):
@@ -6,8 +27,6 @@ class Migration(migrations.Migration):
         ('dcim', '0226_add_mptt_tree_indexes'),
     ]
 
-    # Historical MPTT rebuild: now a no-op. The MPTT tree columns are removed
-    # by a later migration and ltree paths are populated from parent FKs.
     operations = [
-        migrations.RunPython(migrations.RunPython.noop, migrations.RunPython.noop),
+        migrations.RunPython(code=rebuild_mptt, reverse_code=migrations.RunPython.noop),
     ]
