@@ -5,23 +5,31 @@ from django.test import TestCase
 from dcim.models import Region, Site
 
 
+def _path(*pks):
+    """Construct the expected ltree path value from a sequence of PKs.
+
+    Mirrors the trigger's zero-padded label scheme (19 chars per label).
+    """
+    return '.'.join(str(pk).zfill(19) for pk in pks)
+
+
 class LtreeTriggerTests(TestCase):
     """Verify per-row PostgreSQL triggers maintain `path` correctly."""
 
     def test_insert_root_path(self):
         r = Region.objects.create(name='Root', slug='root')
-        self.assertEqual(r.path, str(r.pk))
+        self.assertEqual(r.path, _path(r.pk))
 
     def test_insert_child_path(self):
         r = Region.objects.create(name='Root', slug='root')
         c = Region.objects.create(parent=r, name='Child', slug='child')
-        self.assertEqual(c.path, f'{r.pk}.{c.pk}')
+        self.assertEqual(c.path, _path(r.pk, c.pk))
 
     def test_grandchild_path(self):
         r = Region.objects.create(name='R', slug='r')
         c = Region.objects.create(parent=r, name='C', slug='c')
         g = Region.objects.create(parent=c, name='G', slug='g')
-        self.assertEqual(g.path, f'{r.pk}.{c.pk}.{g.pk}')
+        self.assertEqual(g.path, _path(r.pk, c.pk, g.pk))
 
     def test_move_cascades_to_descendants(self):
         r = Region.objects.create(name='R', slug='r')
@@ -31,8 +39,8 @@ class LtreeTriggerTests(TestCase):
         c.save()
         c.refresh_from_db()
         g.refresh_from_db()
-        self.assertEqual(c.path, str(c.pk))
-        self.assertEqual(g.path, f'{c.pk}.{g.pk}')
+        self.assertEqual(c.path, _path(c.pk))
+        self.assertEqual(g.path, _path(c.pk, g.pk))
 
     def test_bulk_create_populates_paths(self):
         """BEFORE INSERT trigger fires on bulk_create, populating path."""
@@ -42,7 +50,7 @@ class LtreeTriggerTests(TestCase):
         ])
         for child in children:
             child.refresh_from_db()
-            self.assertEqual(child.path, f'{root.pk}.{child.pk}')
+            self.assertEqual(child.path, _path(root.pk, child.pk))
 
     def test_queryset_update_with_parent_id_cascades(self):
         """Raw .update() that changes parent_id still fires triggers."""
@@ -54,8 +62,8 @@ class LtreeTriggerTests(TestCase):
         Region.objects.filter(pk=c.pk).update(parent=r2)
         c.refresh_from_db()
         g.refresh_from_db()
-        self.assertEqual(c.path, f'{r2.pk}.{c.pk}')
-        self.assertEqual(g.path, f'{r2.pk}.{c.pk}.{g.pk}')
+        self.assertEqual(c.path, _path(r2.pk, c.pk))
+        self.assertEqual(g.path, _path(r2.pk, c.pk, g.pk))
 
     def test_gist_index_exists(self):
         """Every ltree-backed table has a GiST index on path."""
@@ -139,7 +147,7 @@ class LtreeAPIParityTests(TestCase):
         self.leaf.move_to(new_root)
         self.leaf.refresh_from_db()
         self.assertEqual(self.leaf.parent, new_root)
-        self.assertEqual(self.leaf.path, f'{new_root.pk}.{self.leaf.pk}')
+        self.assertEqual(self.leaf.path, _path(new_root.pk, self.leaf.pk))
 
 
 class CycleValidationTests(TestCase):
@@ -153,6 +161,41 @@ class CycleValidationTests(TestCase):
         a.parent = b
         with self.assertRaises(ValidationError):
             a.full_clean()
+
+
+class SortPathTests(TestCase):
+    """
+    Verify that sort_path produces tree-flatten output with siblings in name
+    order, mirroring MPTT's `order_insertion_by=('name',)` behavior.
+    """
+
+    def test_siblings_in_name_order_regardless_of_insertion_order(self):
+        # Create siblings out of name order
+        z = Region.objects.create(name='Zebra', slug='zebra-sp')
+        a = Region.objects.create(name='Aardvark', slug='aardvark-sp')
+        b = Region.objects.create(name='Buffalo', slug='buffalo-sp')
+
+        # Children of Buffalo also out of order
+        b_z = Region.objects.create(parent=b, name='Zoo', slug='b-zoo-sp')
+        b_a = Region.objects.create(parent=b, name='Apex', slug='b-apex-sp')
+
+        ordered = list(
+            Region.objects.filter(slug__endswith='-sp')
+            .order_by('sort_path')
+            .values_list('name', flat=True)
+        )
+        # Tree-flatten with siblings in name order:
+        # Aardvark, Buffalo (parent), Apex (child), Zoo (child), Zebra
+        self.assertEqual(ordered, ['Aardvark', 'Buffalo', 'Apex', 'Zoo', 'Zebra'])
+
+    def test_default_ordering_is_sort_path(self):
+        """Region.objects.all() uses sort_path-based ordering by default."""
+        b = Region.objects.create(name='B', slug='b-default')
+        a = Region.objects.create(name='A', slug='a-default')
+        names = list(
+            Region.objects.filter(slug__endswith='-default').values_list('name', flat=True)
+        )
+        self.assertEqual(names, ['A', 'B'])
 
 
 class AddRelatedCountTests(TestCase):

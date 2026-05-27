@@ -189,9 +189,6 @@ class LtreeQuerySet(RestrictedQuerySet):
 class LtreeManager(models.Manager.from_queryset(LtreeQuerySet)):
     """Drop-in replacement for django-mptt's TreeManager."""
 
-    def get_queryset(self):
-        return super().get_queryset().order_by('path')
-
 
 #
 # Abstract model
@@ -252,7 +249,8 @@ class LtreeModel(models.Model):
         """Integer PK of the root, mirroring django-mptt's `tree_id`."""
         if not self.path:
             return None
-        root_label = str(self.path).split('.', 1)[0]
+        # Strip leading zeros from the padded label
+        root_label = str(self.path).split('.', 1)[0].lstrip('0') or '0'
         try:
             return int(root_label)
         except (TypeError, ValueError):
@@ -270,7 +268,7 @@ class LtreeModel(models.Model):
     def get_root(self):
         if self.is_root_node():
             return self
-        root_pk = int(str(self.path).split('.', 1)[0])
+        root_pk = int(str(self.path).split('.', 1)[0].lstrip('0') or '0')
         return type(self)._default_manager.get(pk=root_pk)
 
     def get_parent(self):
@@ -348,23 +346,26 @@ class LtreeModel(models.Model):
 # Migration operation
 #
 
-_COMPUTE_PATH_FN = '''
+# Path label is the row's PK zero-padded to 19 chars (max bigint width) so that
+# lexicographic ordering of ltree labels matches numeric PK ordering across digit
+# boundaries (e.g. "0...09" sorts before "0...10").
+_COMPUTE_PATH_ONLY_FN = '''
 CREATE OR REPLACE FUNCTION "{table}_ltree_compute_path_fn"() RETURNS TRIGGER AS $$
 DECLARE parent_path ltree;
 BEGIN
     IF NEW.parent_id IS NOT NULL THEN
         EXECUTE format('SELECT path FROM %%I WHERE id = $1', TG_TABLE_NAME)
             INTO parent_path USING NEW.parent_id;
-        NEW.path := parent_path || NEW.id::text::ltree;
+        NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
     ELSE
-        NEW.path := NEW.id::text::ltree;
+        NEW.path := lpad(NEW.id::text, 19, '0')::ltree;
     END IF;
     RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 '''
 
-_CASCADE_PATH_FN = '''
+_CASCADE_PATH_ONLY_FN = '''
 CREATE OR REPLACE FUNCTION "{table}_ltree_cascade_path_fn"() RETURNS TRIGGER AS $$
 BEGIN
     EXECUTE format(
@@ -372,6 +373,50 @@ BEGIN
         ' WHERE path <@ $2 AND id != $3',
         TG_TABLE_NAME
     ) USING NEW.path, OLD.path, NEW.id;
+    RETURN NULL;
+END
+$$ LANGUAGE plpgsql;
+'''
+
+# For models with order_insertion_by=(name,) — maintain a second text column
+# `sort_path` whose value is the chain of ancestor names joined by chr(1)
+# (an unprintable separator that collates lower than any printable char in any
+# standard collation). ORDER BY sort_path then gives MPTT-equivalent
+# tree-flatten ordering with siblings in name (collation) order.
+#
+# Like MPTT's order_insertion_by, sort_path is computed at insert and
+# reparent only — renaming a node does NOT reposition it. A manual rebuild()
+# would be needed to re-sort everything by current names.
+_COMPUTE_PATH_AND_SORT_FN = '''
+CREATE OR REPLACE FUNCTION "{table}_ltree_compute_path_fn"() RETURNS TRIGGER AS $$
+DECLARE
+    parent_path ltree;
+    parent_sort_path text;
+BEGIN
+    IF NEW.parent_id IS NOT NULL THEN
+        EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1', TG_TABLE_NAME)
+            INTO parent_path, parent_sort_path USING NEW.parent_id;
+        NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
+        NEW.sort_path := parent_sort_path || chr(1) || NEW.{name_col};
+    ELSE
+        NEW.path := lpad(NEW.id::text, 19, '0')::ltree;
+        NEW.sort_path := NEW.{name_col};
+    END IF;
+    RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+'''
+
+_CASCADE_PATH_AND_SORT_FN = '''
+CREATE OR REPLACE FUNCTION "{table}_ltree_cascade_path_fn"() RETURNS TRIGGER AS $$
+BEGIN
+    EXECUTE format(
+        'UPDATE %%I SET '
+        '  path = $1 || subpath(path, nlevel($2)), '
+        '  sort_path = $4 || substring(sort_path FROM length($5) + 1) '
+        'WHERE path <@ $2 AND id != $3',
+        TG_TABLE_NAME
+    ) USING NEW.path, OLD.path, NEW.id, NEW.sort_path, OLD.sort_path;
     RETURN NULL;
 END
 $$ LANGUAGE plpgsql;
@@ -397,24 +442,35 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
 
     Two row-level triggers are installed on each target table:
 
-        BEFORE INSERT OR UPDATE OF parent_id -> compute NEW.path
-        AFTER UPDATE OF path WHEN distinct   -> cascade path change to descendants
+        BEFORE INSERT OR UPDATE OF parent_id -> compute NEW.path (and sort_path if applicable)
+        AFTER UPDATE OF parent_id, path      -> cascade path/sort_path change to descendants
 
-    The trigger function bodies use TG_TABLE_NAME so the SQL is table-agnostic,
-    but each table gets its own pair of CREATE FUNCTION statements to keep
-    pg_proc entries identifiable and to avoid surprising cross-table coupling.
+    If `name_column` is provided, the model is expected to have a `sort_path`
+    text column whose value will be maintained as a chr(1)-separated chain of
+    ancestor names. This implements MPTT's `order_insertion_by=(name,)`
+    semantics: insert and reparent honor the current value of `name_column`;
+    rename does NOT reposition the node (matching MPTT behavior).
     """
     reversible = True
 
-    def __init__(self, table_name):
+    def __init__(self, table_name, name_column=None):
         self.table_name = table_name
+        self.name_column = name_column
 
     def state_forwards(self, app_label, state):
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        schema_editor.execute(_COMPUTE_PATH_FN.format(table=self.table_name))
-        schema_editor.execute(_CASCADE_PATH_FN.format(table=self.table_name))
+        if self.name_column:
+            schema_editor.execute(_COMPUTE_PATH_AND_SORT_FN.format(
+                table=self.table_name, name_col=self.name_column,
+            ))
+            schema_editor.execute(_CASCADE_PATH_AND_SORT_FN.format(
+                table=self.table_name,
+            ))
+        else:
+            schema_editor.execute(_COMPUTE_PATH_ONLY_FN.format(table=self.table_name))
+            schema_editor.execute(_CASCADE_PATH_ONLY_FN.format(table=self.table_name))
         schema_editor.execute(_BEFORE_TRIGGER.format(table=self.table_name))
         schema_editor.execute(_AFTER_TRIGGER.format(table=self.table_name))
 

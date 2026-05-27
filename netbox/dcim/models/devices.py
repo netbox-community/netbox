@@ -412,9 +412,10 @@ class DeviceRole(NestedGroupModel):
     clone_fields = ('parent', 'description')
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='dcim_devicerole_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_devicerole_sort_path_idx'),
         )
         constraints = (
             models.UniqueConstraint(
@@ -466,9 +467,10 @@ class Platform(NestedGroupModel):
     clone_fields = ('parent', 'description')
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='dcim_platform_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_platform_sort_path_idx'),
         )
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')

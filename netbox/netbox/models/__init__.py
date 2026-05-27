@@ -162,6 +162,11 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
+
+    `sort_path` is a trigger-maintained text column that mirrors MPTT's `order_insertion_by=('name',)`
+    semantics: at insert and reparent time it is set to a chr(1)-separated chain of ancestor names.
+    Ordering by `sort_path` yields tree-flatten output with siblings in their column's collation order.
+    Renaming a node does NOT update `sort_path` (matching MPTT behavior).
     """
     parent = models.ForeignKey(
         to='self',
@@ -188,6 +193,11 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
         verbose_name=_('comments'),
         blank=True
     )
+    sort_path = models.TextField(
+        editable=False,
+        blank=True,
+        default='',
+    )
 
     # Re-declare so the LtreeManager wins over BaseModel's RestrictedQuerySet
     # default manager via MRO resolution.
@@ -195,7 +205,7 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
 
     class Meta:
         abstract = True
-        ordering = ('path',)
+        ordering = ('sort_path',)
 
     def __str__(self):
         return self.name

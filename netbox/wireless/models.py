@@ -62,11 +62,19 @@ class WirelessLANGroup(NestedGroupModel):
         max_length=100,
         unique=True
     )
+    # Override the abstract parent's sort_path to use natural_sort, matching `name`.
+    sort_path = models.TextField(
+        editable=False,
+        blank=True,
+        default='',
+        db_collation='natural_sort',
+    )
 
     class Meta:
-        ordering = ('name', 'pk')
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='wireless_lan_grp_path_gist'),
+            models.Index(fields=['sort_path'], name='wireless_lan_grp_sort_idx'),
         )
         constraints = (
             models.UniqueConstraint(

@@ -19,54 +19,67 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey.
-        # No-op at the SQL level; reconciles migration state with model definitions.
         migrations.AlterField(
-            model_name='wirelesslangroup',
-            name='parent',
+            model_name='wirelesslangroup', name='parent',
             field=models.ForeignKey(
                 blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
                 related_name='children', to='wireless.wirelesslangroup',
             ),
         ),
 
-        # Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
         CreateExtension('ltree'),
 
         migrations.AddField(
-            model_name=MODEL,
-            name='path',
+            model_name=MODEL, name='path',
             field=netbox.models.ltree.LtreeField(blank=True, editable=False, null=True),
         ),
+        # sort_path uses natural_sort to match the WirelessLANGroup.name collation.
+        migrations.AddField(
+            model_name=MODEL, name='sort_path',
+            field=models.TextField(
+                blank=True, default='', editable=False, db_collation='natural_sort',
+            ),
+        ),
 
-        InstallLtreeTriggers(TABLE),
+        InstallLtreeTriggers(TABLE, name_column='name'),
 
         migrations.RunSQL(
             f"""
-WITH RECURSIVE t(id, parent_id, path) AS (
-    SELECT id, parent_id, id::text::ltree FROM "{TABLE}" WHERE parent_id IS NULL
+WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
+    SELECT id, parent_id,
+           lpad(id::text, 19, '0')::ltree,
+           name::text
+    FROM "{TABLE}" WHERE parent_id IS NULL
     UNION ALL
-    SELECT r.id, r.parent_id, t.path || r.id::text::ltree
+    SELECT r.id, r.parent_id,
+           t.path || lpad(r.id::text, 19, '0')::ltree,
+           t.sort_path || chr(1) || r.name
     FROM "{TABLE}" r JOIN t ON r.parent_id = t.id
 )
-UPDATE "{TABLE}" SET path = t.path FROM t WHERE "{TABLE}".id = t.id;
+UPDATE "{TABLE}" SET path = t.path, sort_path = t.sort_path
+FROM t WHERE "{TABLE}".id = t.id;
 """,
             reverse_sql=migrations.RunSQL.noop,
         ),
 
         migrations.AlterField(
-            model_name=MODEL,
-            name='path',
+            model_name=MODEL, name='path',
             field=netbox.models.ltree.LtreeField(blank=True, default='', editable=False),
         ),
 
-        # Drop legacy (tree_id, lft) index added in 0018_add_mptt_tree_indexes,
-        # then drop the legacy MPTT columns.
+        migrations.AlterModelOptions(
+            name=MODEL, options={'ordering': ('sort_path',)},
+        ),
+
         migrations.RemoveIndex(model_name=MODEL, name='wireless_wirelesslangroup_fbcd'),
         *[migrations.RemoveField(model_name=MODEL, name=f) for f in LEGACY_FIELDS],
 
         migrations.AddIndex(
             model_name=MODEL,
             index=GistIndex(fields=['path'], name='wireless_lan_grp_path_gist'),
+        ),
+        migrations.AddIndex(
+            model_name=MODEL,
+            index=models.Index(fields=['sort_path'], name='wireless_lan_grp_sort_idx'),
         ),
     ]

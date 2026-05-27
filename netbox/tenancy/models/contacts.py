@@ -47,9 +47,10 @@ class ContactGroup(NestedGroupModel):
     objects = ContactGroupManager()
 
     class Meta:
-        ordering = ['name']
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='tenancy_contactgroup_path_gist'),
+            models.Index(fields=['sort_path'], name='tenancy_cg_sort_path_idx'),
         )
         constraints = (
             models.UniqueConstraint(

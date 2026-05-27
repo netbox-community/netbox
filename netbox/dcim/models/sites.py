@@ -45,8 +45,10 @@ class Region(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='dcim_region_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_region_sort_path_idx'),
         )
         constraints = (
             models.UniqueConstraint(
@@ -104,8 +106,10 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='dcim_sitegroup_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_sitegroup_sort_path_idx'),
         )
         constraints = (
             models.UniqueConstraint(
@@ -324,9 +328,10 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
     )
 
     class Meta:
-        ordering = ['site', 'name']
+        ordering = ('site', 'sort_path')
         indexes = (
             GistIndex(fields=['path'], name='dcim_location_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_location_sort_path_idx'),
         )
         constraints = (
             models.UniqueConstraint(

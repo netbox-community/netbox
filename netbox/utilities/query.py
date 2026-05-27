@@ -64,8 +64,8 @@ def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     Reapply model-level ordering in case it has been lost through .annotate().
     https://code.djangoproject.com/ticket/32811
     """
-    # Hierarchical (ltree) models are exempt; their default ordering by `path` must not be
-    # clobbered by .annotate(). Use caution when annotating querysets of these models.
+    # Hierarchical (ltree) models are exempt; their default ordering by `sort_path`/`path`
+    # must not be clobbered by .annotate(). Use caution when annotating these querysets.
     if any(isinstance(manager, LtreeManager) for manager in queryset.model._meta.local_managers):
         return queryset
     if queryset.ordered:

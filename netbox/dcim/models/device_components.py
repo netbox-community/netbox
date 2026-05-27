@@ -1336,14 +1336,21 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         verbose_name=_('enabled'),
         default=True,
     )
+    sort_path = models.TextField(
+        editable=False,
+        blank=True,
+        default='',
+    )
 
     clone_fields = ('device', 'enabled')
 
     objects = LtreeManager()
 
     class Meta(ModularComponentModel.Meta):
+        ordering = ('device', 'sort_path')
         indexes = (
             GistIndex(fields=['path'], name='dcim_modulebay_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_modulebay_sort_path_idx'),
         )
         constraints = (
             models.UniqueConstraint(

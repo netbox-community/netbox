@@ -16,13 +16,19 @@ def _populate_paths_sql():
     blocks = []
     for table in TABLES:
         blocks.append(f"""
-WITH RECURSIVE t(id, parent_id, path) AS (
-    SELECT id, parent_id, id::text::ltree FROM "{table}" WHERE parent_id IS NULL
+WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
+    SELECT id, parent_id,
+           lpad(id::text, 19, '0')::ltree,
+           name::text
+    FROM "{table}" WHERE parent_id IS NULL
     UNION ALL
-    SELECT r.id, r.parent_id, t.path || r.id::text::ltree
+    SELECT r.id, r.parent_id,
+           t.path || lpad(r.id::text, 19, '0')::ltree,
+           t.sort_path || chr(1) || r.name
     FROM "{table}" r JOIN t ON r.parent_id = t.id
 )
-UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
+UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
+FROM t WHERE "{table}".id = t.id;
 """)
     return '\n'.join(blocks)
 
@@ -35,51 +41,64 @@ class Migration(migrations.Migration):
 
     operations = [
         # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey.
-        # No-op at the SQL level; reconciles migration state with model definitions.
         migrations.AlterField(
-            model_name='contactgroup',
-            name='parent',
+            model_name='contactgroup', name='parent',
             field=models.ForeignKey(
                 blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
                 related_name='children', to='tenancy.contactgroup',
             ),
         ),
         migrations.AlterField(
-            model_name='tenantgroup',
-            name='parent',
+            model_name='tenantgroup', name='parent',
             field=models.ForeignKey(
                 blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
                 related_name='children', to='tenancy.tenantgroup',
             ),
         ),
 
-        # Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
         CreateExtension('ltree'),
 
+        # Add path (nullable initially) on both models.
         *[
             migrations.AddField(
-                model_name=m,
-                name='path',
+                model_name=m, name='path',
                 field=netbox.models.ltree.LtreeField(blank=True, editable=False, null=True),
             )
             for m in MODELS
         ],
+        # Add sort_path. TenantGroup gets natural_sort collation (matching its name field).
+        migrations.AddField(
+            model_name='contactgroup', name='sort_path',
+            field=models.TextField(blank=True, default='', editable=False),
+        ),
+        migrations.AddField(
+            model_name='tenantgroup', name='sort_path',
+            field=models.TextField(
+                blank=True, default='', editable=False, db_collation='natural_sort',
+            ),
+        ),
 
-        *[InstallLtreeTriggers(t) for t in TABLES],
+        # Install triggers maintaining both path and sort_path.
+        *[InstallLtreeTriggers(t, name_column='name') for t in TABLES],
 
         migrations.RunSQL(_populate_paths_sql(), reverse_sql=migrations.RunSQL.noop),
 
         *[
             migrations.AlterField(
-                model_name=m,
-                name='path',
+                model_name=m, name='path',
                 field=netbox.models.ltree.LtreeField(blank=True, default='', editable=False),
             )
             for m in MODELS
         ],
 
-        # Drop legacy (tree_id, lft) indexes added in 0023_add_mptt_tree_indexes,
-        # then drop the legacy MPTT columns.
+        migrations.AlterModelOptions(
+            name='contactgroup', options={'ordering': ('sort_path',)},
+        ),
+        migrations.AlterModelOptions(
+            name='tenantgroup', options={'ordering': ('sort_path',)},
+        ),
+
+        # Drop legacy (tree_id, lft) indexes and the MPTT columns.
         migrations.RemoveIndex(model_name='contactgroup', name='tenancy_contactgroup_tree_d2ce'),
         migrations.RemoveIndex(model_name='tenantgroup', name='tenancy_tenantgroup_tree_ifebc'),
         *[
@@ -87,6 +106,7 @@ class Migration(migrations.Migration):
             for m in MODELS for f in LEGACY_FIELDS
         ],
 
+        # GiST indexes on path.
         migrations.AddIndex(
             model_name='tenantgroup',
             index=GistIndex(fields=['path'], name='tenancy_tenantgroup_path_gist'),
@@ -94,5 +114,15 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name='contactgroup',
             index=GistIndex(fields=['path'], name='tenancy_contactgroup_path_gist'),
+        ),
+
+        # Btree indexes on sort_path for ORDER BY listing.
+        migrations.AddIndex(
+            model_name='tenantgroup',
+            index=models.Index(fields=['sort_path'], name='tenancy_tg_sort_path_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='contactgroup',
+            index=models.Index(fields=['sort_path'], name='tenancy_cg_sort_path_idx'),
         ),
     ]

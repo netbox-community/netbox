@@ -5,13 +5,17 @@ For each of (Region, SiteGroup, Location, DeviceRole, Platform, ModuleBay,
 InventoryItem, InventoryItemTemplate) this migration:
 
 1. Enables the PostgreSQL ltree extension (idempotent).
-2. Adds a nullable `path` LTreeField.
-3. Installs per-table BEFORE-INSERT/UPDATE-OF-parent_id and AFTER-UPDATE-OF-(parent_id, path)
-   triggers so concurrent writes during the long-running data step get correct paths.
-4. Populates paths for existing rows via a single recursive CTE per table.
-5. Tightens `path` to NOT NULL.
+2. Adds a nullable `path` LTreeField. For models that previously had
+   `MPTTMeta.order_insertion_by = ('name',)` — Region, SiteGroup, Location,
+   DeviceRole, Platform, ModuleBay — also adds a `sort_path` text column.
+3. Installs per-table BEFORE/AFTER triggers. For models with sort_path, the
+   trigger maintains both columns.
+4. Populates path (and sort_path where applicable) for existing rows via a
+   single recursive CTE per table.
+5. Tightens path to NOT NULL.
 6. Drops the legacy MPTT columns (lft, rght, tree_id, level).
-7. Adds a GiST index on the `path` column for efficient `@>` / `<@` lookups.
+7. Adds a GiST index on path (descendant/ancestor lookups via `<@` / `@>`).
+   For sort_path models, also adds a btree index for ORDER BY listing.
 """
 import django.db.models.deletion
 from django.contrib.postgres.indexes import GistIndex
@@ -21,12 +25,13 @@ from django.db import migrations, models
 import netbox.models.ltree
 from netbox.models.ltree import InstallLtreeTriggers
 
-MODELS = (
+# All models getting an ltree `path` column.
+ALL_MODELS = (
     'region', 'sitegroup', 'location', 'devicerole', 'platform',
     'inventoryitem', 'inventoryitemtemplate', 'modulebay',
 )
 
-TABLES = (
+ALL_TABLES = (
     'dcim_region',
     'dcim_sitegroup',
     'dcim_location',
@@ -37,17 +42,52 @@ TABLES = (
     'dcim_modulebay',
 )
 
+# Subset that previously declared `MPTTMeta.order_insertion_by = ('name',)` and
+# therefore needs a `sort_path` text column maintained alongside `path`.
+SORT_MODELS = ('region', 'sitegroup', 'location', 'devicerole', 'platform', 'modulebay')
+
+SORT_TABLES = (
+    'dcim_region',
+    'dcim_sitegroup',
+    'dcim_location',
+    'dcim_devicerole',
+    'dcim_platform',
+    'dcim_modulebay',
+)
+
 LEGACY_FIELDS = ('lft', 'rght', 'tree_id', 'level')
 
 
 def _populate_paths_sql():
+    """
+    Build the recursive CTE that walks each table from roots downward, computing
+    the new path (PK-based, zero-padded) and — for models with sort_path — the
+    chr(1)-separated chain of ancestor names.
+    """
     blocks = []
-    for table in TABLES:
-        blocks.append(f"""
-WITH RECURSIVE t(id, parent_id, path) AS (
-    SELECT id, parent_id, id::text::ltree FROM "{table}" WHERE parent_id IS NULL
+    for table in ALL_TABLES:
+        if table in SORT_TABLES:
+            blocks.append(f"""
+WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
+    SELECT id, parent_id,
+           lpad(id::text, 19, '0')::ltree,
+           name::text
+    FROM "{table}" WHERE parent_id IS NULL
     UNION ALL
-    SELECT r.id, r.parent_id, t.path || r.id::text::ltree
+    SELECT r.id, r.parent_id,
+           t.path || lpad(r.id::text, 19, '0')::ltree,
+           t.sort_path || chr(1) || r.name
+    FROM "{table}" r JOIN t ON r.parent_id = t.id
+)
+UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
+FROM t WHERE "{table}".id = t.id;
+""")
+        else:
+            blocks.append(f"""
+WITH RECURSIVE t(id, parent_id, path) AS (
+    SELECT id, parent_id, lpad(id::text, 19, '0')::ltree FROM "{table}" WHERE parent_id IS NULL
+    UNION ALL
+    SELECT r.id, r.parent_id, t.path || lpad(r.id::text, 19, '0')::ltree
     FROM "{table}" r JOIN t ON r.parent_id = t.id
 )
 UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
@@ -62,105 +102,109 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey.
-        # This is a no-op at the SQL level (TreeForeignKey is a subclass of
-        # ForeignKey producing the same column) but reconciles the migration state
-        # with the model definitions now that django-mptt is no longer used at runtime.
+        # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey
+        # (no-op at the SQL level; reconciles migration state with model definitions).
         migrations.AlterField(
-            model_name='devicerole',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='children', to='dcim.devicerole',
-            ),
+            model_name='devicerole', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children', to='dcim.devicerole'),
         ),
         migrations.AlterField(
-            model_name='inventoryitem',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='child_items', to='dcim.inventoryitem',
-            ),
+            model_name='inventoryitem', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='child_items', to='dcim.inventoryitem'),
         ),
         migrations.AlterField(
-            model_name='inventoryitemtemplate',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='child_items', to='dcim.inventoryitemtemplate',
-            ),
+            model_name='inventoryitemtemplate', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='child_items', to='dcim.inventoryitemtemplate'),
         ),
         migrations.AlterField(
-            model_name='location',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='children', to='dcim.location',
-            ),
+            model_name='location', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children', to='dcim.location'),
         ),
         migrations.AlterField(
-            model_name='modulebay',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, editable=False, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='children', to='dcim.modulebay',
-            ),
+            model_name='modulebay', name='parent',
+            field=models.ForeignKey(blank=True, editable=False, null=True,
+                                    on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children', to='dcim.modulebay'),
         ),
         migrations.AlterField(
-            model_name='platform',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='children', to='dcim.platform',
-            ),
+            model_name='platform', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children', to='dcim.platform'),
         ),
         migrations.AlterField(
-            model_name='region',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='children', to='dcim.region',
-            ),
+            model_name='region', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children', to='dcim.region'),
         ),
         migrations.AlterField(
-            model_name='sitegroup',
-            name='parent',
-            field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
-                related_name='children', to='dcim.sitegroup',
-            ),
+            model_name='sitegroup', name='parent',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='children', to='dcim.sitegroup'),
         ),
 
-        # 1. Enable the ltree extension (idempotent — CreateExtension emits IF NOT EXISTS)
+        # 1. Enable the ltree extension (idempotent).
         CreateExtension('ltree'),
 
-        # 2. Add nullable path column
+        # 2. Add nullable path column on all tree models.
         *[
             migrations.AddField(
-                model_name=m,
-                name='path',
+                model_name=m, name='path',
                 field=netbox.models.ltree.LtreeField(blank=True, editable=False, null=True),
             )
-            for m in MODELS
+            for m in ALL_MODELS
+        ],
+        # 2b. Add sort_path column (with default '') on the 6 models with order_insertion_by.
+        *[
+            migrations.AddField(
+                model_name=m, name='sort_path',
+                field=models.TextField(blank=True, default='', editable=False),
+            )
+            for m in SORT_MODELS
         ],
 
-        # 2. Install path-maintenance triggers
-        *[InstallLtreeTriggers(t) for t in TABLES],
+        # 3. Install path-maintenance triggers. Models with sort_path get triggers
+        #    that maintain both columns; the other two get path-only triggers.
+        *[InstallLtreeTriggers(t, name_column='name') for t in SORT_TABLES],
+        InstallLtreeTriggers('dcim_inventoryitem'),
+        InstallLtreeTriggers('dcim_inventoryitemtemplate'),
 
-        # 3. Populate existing rows
+        # 4. Populate existing rows via per-table recursive CTE.
         migrations.RunSQL(_populate_paths_sql(), reverse_sql=migrations.RunSQL.noop),
 
-        # 4. Tighten to NOT NULL with empty-string default
+        # 5. Tighten path to NOT NULL with empty-string default.
         *[
             migrations.AlterField(
-                model_name=m,
-                name='path',
+                model_name=m, name='path',
                 field=netbox.models.ltree.LtreeField(blank=True, default='', editable=False),
             )
-            for m in MODELS
+            for m in ALL_MODELS
         ],
 
-        # 5. Drop legacy (tree_id, lft) indexes added in 0226_add_mptt_tree_indexes,
+        # 6. Update Meta.ordering on the SORT_MODELS to reflect sort_path-based ordering.
+        migrations.AlterModelOptions(
+            name='devicerole', options={'ordering': ('sort_path',)},
+        ),
+        migrations.AlterModelOptions(
+            name='location', options={'ordering': ('site', 'sort_path')},
+        ),
+        migrations.AlterModelOptions(
+            name='modulebay', options={'ordering': ('device', 'sort_path')},
+        ),
+        migrations.AlterModelOptions(
+            name='platform', options={'ordering': ('sort_path',)},
+        ),
+        migrations.AlterModelOptions(
+            name='region', options={'ordering': ('sort_path',)},
+        ),
+        migrations.AlterModelOptions(
+            name='sitegroup', options={'ordering': ('sort_path',)},
+        ),
+
+        # 7. Drop legacy (tree_id, lft) indexes added in 0226_add_mptt_tree_indexes,
         # then drop the legacy MPTT columns.
         migrations.RemoveIndex(model_name='devicerole', name='dcim_devicerole_tree_id_lfbf11'),
         migrations.RemoveIndex(model_name='inventoryitem', name='dcim_inventoryitem_tree_id975c'),
@@ -172,10 +216,10 @@ class Migration(migrations.Migration):
         migrations.RemoveIndex(model_name='sitegroup', name='dcim_sitegroup_tree_id_lft_idx'),
         *[
             migrations.RemoveField(model_name=m, name=f)
-            for m in MODELS for f in LEGACY_FIELDS
+            for m in ALL_MODELS for f in LEGACY_FIELDS
         ],
 
-        # 6. Add GiST indexes on path
+        # 8. Add GiST indexes on path (descendant/ancestor containment).
         migrations.AddIndex(
             model_name='region',
             index=GistIndex(fields=['path'], name='dcim_region_path_gist'),
@@ -207,5 +251,31 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name='modulebay',
             index=GistIndex(fields=['path'], name='dcim_modulebay_path_gist'),
+        ),
+
+        # 9. Add btree indexes on sort_path (tree-flatten ORDER BY listing).
+        migrations.AddIndex(
+            model_name='region',
+            index=models.Index(fields=['sort_path'], name='dcim_region_sort_path_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='sitegroup',
+            index=models.Index(fields=['sort_path'], name='dcim_sitegroup_sort_path_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='location',
+            index=models.Index(fields=['sort_path'], name='dcim_location_sort_path_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='devicerole',
+            index=models.Index(fields=['sort_path'], name='dcim_devicerole_sort_path_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='platform',
+            index=models.Index(fields=['sort_path'], name='dcim_platform_sort_path_idx'),
+        ),
+        migrations.AddIndex(
+            model_name='modulebay',
+            index=models.Index(fields=['sort_path'], name='dcim_modulebay_sort_path_idx'),
         ),
     ]

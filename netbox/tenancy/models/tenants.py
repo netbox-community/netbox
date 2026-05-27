@@ -27,11 +27,19 @@ class TenantGroup(NestedGroupModel):
         max_length=100,
         unique=True
     )
+    # Override the abstract parent's sort_path to use natural_sort, matching `name`.
+    sort_path = models.TextField(
+        editable=False,
+        blank=True,
+        default='',
+        db_collation='natural_sort',
+    )
 
     class Meta:
-        ordering = ['name']
+        ordering = ('sort_path',)
         indexes = (
             GistIndex(fields=['path'], name='tenancy_tenantgroup_path_gist'),
+            models.Index(fields=['sort_path'], name='tenancy_tg_sort_path_idx'),
         )
         verbose_name = _('tenant group')
         verbose_name_plural = _('tenant groups')

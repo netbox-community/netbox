@@ -1,8 +1,8 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.contrib.postgres.indexes import GistIndex
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
@@ -860,9 +860,8 @@ class InventoryItemTemplate(LtreeModel, ComponentTemplateModel):
         help_text=_('Manufacturer-assigned part identifier')
     )
 
-    component_model = InventoryItem
-
     objects = LtreeManager()
+    component_model = InventoryItem
 
     class Meta:
         ordering = ('device_type__id', 'parent__id', 'name')

@@ -347,7 +347,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.DeviceRole,
-    exclude=['path'],
+    exclude=['path', 'sort_path'],
     filters=DeviceRoleFilter,
     pagination=True
 )
@@ -526,7 +526,7 @@ class InventoryItemRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.Location,
     # fields='__all__',
-    exclude=['parent', 'path'],  # bug - temp
+    exclude=['parent', 'path', 'sort_path'],  # bug - temp
     filters=LocationFilter,
     pagination=True
 )
@@ -590,7 +590,7 @@ class ModuleType(PrimaryObjectType):
 @strawberry_django.type(
     models.ModuleBay,
     # fields='__all__',
-    exclude=['parent', 'path'],
+    exclude=['parent', 'path', 'sort_path'],
     filters=ModuleBayFilter,
     pagination=True
 )
@@ -647,7 +647,7 @@ class ModuleTypeType(PrimaryObjectType):
 
 @strawberry_django.type(
     models.Platform,
-    exclude=['path'],
+    exclude=['path', 'sort_path'],
     filters=PlatformFilter,
     pagination=True
 )
@@ -855,7 +855,7 @@ class RearPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.Region,
-    exclude=['parent', 'path'],
+    exclude=['parent', 'path', 'sort_path'],
     filters=RegionFilter,
     pagination=True
 )
@@ -916,7 +916,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObj
 
 @strawberry_django.type(
     models.SiteGroup,
-    exclude=['parent', 'path'],  # bug - temp
+    exclude=['parent', 'path', 'sort_path'],  # bug - temp
     filters=SiteGroupFilter,
     pagination=True
 )
