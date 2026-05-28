@@ -1,6 +1,7 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -245,11 +246,28 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
             return [TokenWritePermission()]
         return super().get_permissions()
 
+    @extend_schema(
+        request=OpenApiTypes.OBJECT,
+        responses={
+            200: OpenApiResponse(
+                response=serializers.RenderedConfigSerializer,
+                description=_(
+                    "The rendered config template. When the client requests `text/plain`, the raw "
+                    "rendered content is returned in place of the JSON object."
+                ),
+            ),
+            500: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description=_("An error occurred while rendering the config template."),
+            ),
+        },
+    )
     @action(detail=True, methods=['post'], renderer_classes=[JSONRenderer, TextRenderer])
     def render(self, request, pk):
         """
-        Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
-        return the raw rendered content, rather than serialized JSON.
+        Render a ConfigTemplate using the context data provided (if any). The request body should be a
+        mapping of context variables to make available to the template. If the client requests "text/plain"
+        data, return the raw rendered content, rather than serialized JSON.
         """
         # Override restrict() on the default queryset to enforce the render & view actions
         self.queryset = self.queryset.model.objects.restrict(request.user, 'render').restrict(request.user, 'view')

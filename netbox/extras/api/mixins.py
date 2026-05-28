@@ -1,4 +1,5 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -8,7 +9,7 @@ from extras.models import ConfigTemplate
 from netbox.api.authentication import TokenWritePermission
 from netbox.api.renderers import TextRenderer
 
-from .serializers import ConfigTemplateSerializer
+from .serializers import RenderConfigInputSerializer, RenderedConfigSerializer
 
 __all__ = (
     'ConfigContextQuerySetMixin',
@@ -56,12 +57,11 @@ class ConfigTemplateRenderMixin:
         if request.accepted_renderer.format == 'txt':
             return Response(output)
 
-        template_serializer = ConfigTemplateSerializer(configtemplate, nested=True, context={'request': request})
-
-        return Response({
-            'configtemplate': template_serializer.data,
-            'content': output
-        })
+        serializer = RenderedConfigSerializer(
+            instance={'configtemplate': configtemplate, 'content': output},
+            context={'request': request},
+        )
+        return Response(serializer.data)
 
 
 class RenderConfigMixin(ConfigTemplateRenderMixin):
@@ -75,6 +75,26 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
             return [TokenWritePermission()]
         return super().get_permissions()
 
+    @extend_schema(
+        request=RenderConfigInputSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=RenderedConfigSerializer,
+                description=_(
+                    "The rendered config template. When the client requests `text/plain`, the raw "
+                    "rendered content is returned in place of the JSON object."
+                ),
+            ),
+            400: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description=_("No config template could be resolved for this object."),
+            ),
+            500: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description=_("An error occurred while rendering the config template."),
+            ),
+        },
+    )
     @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
     def render_config(self, request, pk):
         """
