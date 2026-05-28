@@ -5,6 +5,7 @@ from dcim.models import Site
 from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
+from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import (
     expand_alphanumeric_pattern,
@@ -555,6 +556,63 @@ class SelectMultipleWidgetTestCase(TestCase):
         self.assertEqual(widget.choices[0][1], [(2, 'Option 2')])
         self.assertEqual(widget.choices[1][0], 'Group B')
         self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])
+
+
+class DynamicChoiceFieldTestCase(TestCase):
+    """
+    Validate that DynamicChoiceField.get_bound_field() limits choices to the current
+    selection and clears them when nothing is selected.
+    """
+    CHOICES = [('a', 'Option A'), ('b', 'Option B'), ('c', 'Option C')]
+
+    def _make_form(self, data=None):
+        class TestForm(forms.Form):
+            field = DynamicChoiceField(choices=self.CHOICES, required=False)
+        return TestForm(data=data)
+
+    def test_unbound_clears_choices(self):
+        form = self._make_form()
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+    def test_bound_with_value_filters_to_selection(self):
+        form = self._make_form(data={'field': 'b'})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [('b', 'Option B')])
+
+    def test_bound_with_no_value_clears_choices(self):
+        form = self._make_form(data={})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+
+class DynamicMultipleChoiceFieldTestCase(TestCase):
+    """
+    Validate that DynamicMultipleChoiceField.get_bound_field() limits choices to
+    the current selection and clears them when nothing is selected.
+    """
+    CHOICES = [('a', 'Option A'), ('b', 'Option B'), ('c', 'Option C')]
+
+    def _make_form(self, data=None):
+        class TestForm(forms.Form):
+            field = DynamicMultipleChoiceField(choices=self.CHOICES, required=False)
+        return TestForm(data=data)
+
+    def test_unbound_clears_choices(self):
+        """Regression test for #22328: unbound form must not retain the full choices list."""
+        form = self._make_form()
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+    def test_bound_with_values_filters_to_selection(self):
+        form = self._make_form(data={'field': ['a', 'c']})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [('a', 'Option A'), ('c', 'Option C')])
+
+    def test_bound_with_no_values_clears_choices(self):
+        form = self._make_form(data={})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
 
 
 class GetCapacityUnitLabelTestCase(TestCase):
