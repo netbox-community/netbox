@@ -972,7 +972,7 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         extra_choice_values = set()
 
         if self.base_choices:
-            valid_choice_values.update(CHOICE_SETS.get(self.base_choices).values())
+            valid_choice_values.update(value for value, _ in CHOICE_SETS.get(self.base_choices))
 
         if self.extra_choices:
             for value, _label in self.extra_choices:
