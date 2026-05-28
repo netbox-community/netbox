@@ -8,6 +8,7 @@ from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange, ObjectType
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
+from extras.models import SavedFilter
 from ipam.choices import *
 from ipam.models import *
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
@@ -353,6 +354,69 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:aggregate_prefixes', kwargs={'pk': aggregate.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    def test_aggregate_prefixes_filter_suppresses_available_prefixes(self):
+        self.add_permissions('ipam.view_aggregate', 'ipam.view_prefix')
+
+        tenants = (
+            Tenant(name='Aggregate Tenant 1', slug='aggregate-tenant-1'),
+            Tenant(name='Aggregate Tenant 2', slug='aggregate-tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        aggregate = Aggregate.objects.create(
+            prefix=IPNetwork('203.0.113.0/24'),
+            rir=RIR.objects.first()
+        )
+        prefixes = (
+            Prefix(prefix=IPNetwork('203.0.113.0/26'), tenant=tenants[0]),
+            Prefix(prefix=IPNetwork('203.0.113.64/26'), tenant=tenants[1]),
+        )
+        Prefix.objects.bulk_create(prefixes)
+
+        url = reverse('ipam:aggregate_prefixes', kwargs={'pk': aggregate.pk})
+        response = self.client.get(url, {'tenant_id': tenants[0].pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, '203.0.113.0/26')
+        self.assertNotContains(response, '203.0.113.64/26')
+
+    def test_aggregate_prefixes_saved_filter(self):
+        self.add_permissions('ipam.view_aggregate', 'ipam.view_prefix')
+
+        tenants = (
+            Tenant(name='Aggregate Saved Tenant 1', slug='aggregate-saved-tenant-1'),
+            Tenant(name='Aggregate Saved Tenant 2', slug='aggregate-saved-tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        aggregate = Aggregate.objects.create(
+            prefix=IPNetwork('203.0.114.0/24'),
+            rir=RIR.objects.first()
+        )
+        prefixes = (
+            Prefix(prefix=IPNetwork('203.0.114.0/26'), tenant=tenants[0]),
+            Prefix(prefix=IPNetwork('203.0.114.64/26'), tenant=tenants[1]),
+        )
+        Prefix.objects.bulk_create(prefixes)
+
+        saved_filter = SavedFilter.objects.create(
+            name='Aggregate Tenant 1 prefixes',
+            slug='aggregate-tenant-1-prefixes',
+            parameters={
+                'tenant_id': [str(tenants[0].pk)],
+            },
+        )
+        saved_filter.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        url = reverse('ipam:aggregate_prefixes', kwargs={'pk': aggregate.pk})
+        response = self.client.get(url, {'filter_id': saved_filter.pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, '203.0.114.0/26')
+        self.assertNotContains(response, '203.0.114.64/26')
+
 
 class RoleTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Role
@@ -588,6 +652,63 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    def test_prefix_prefixes_filter_suppresses_available_prefixes(self):
+        self.add_permissions('ipam.view_prefix')
+
+        tenants = (
+            Tenant(name='Prefix Tenant 1', slug='prefix-tenant-1'),
+            Tenant(name='Prefix Tenant 2', slug='prefix-tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        parent = Prefix.objects.create(prefix=IPNetwork('198.51.100.0/24'))
+        prefixes = (
+            Prefix(prefix=IPNetwork('198.51.100.0/26'), tenant=tenants[0]),
+            Prefix(prefix=IPNetwork('198.51.100.64/26'), tenant=tenants[1]),
+        )
+        Prefix.objects.bulk_create(prefixes)
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': parent.pk})
+        response = self.client.get(url, {'tenant_id': tenants[0].pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, '198.51.100.0/26')
+        self.assertNotContains(response, '198.51.100.64/26')
+
+    def test_prefix_prefixes_saved_filter_suppresses_available_prefixes(self):
+        self.add_permissions('ipam.view_prefix')
+
+        tenants = (
+            Tenant(name='Prefix Saved Tenant 1', slug='prefix-saved-tenant-1'),
+            Tenant(name='Prefix Saved Tenant 2', slug='prefix-saved-tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        parent = Prefix.objects.create(prefix=IPNetwork('198.51.101.0/24'))
+        prefixes = (
+            Prefix(prefix=IPNetwork('198.51.101.0/26'), tenant=tenants[0]),
+            Prefix(prefix=IPNetwork('198.51.101.64/26'), tenant=tenants[1]),
+        )
+        Prefix.objects.bulk_create(prefixes)
+
+        saved_filter = SavedFilter.objects.create(
+            name='Prefix Tenant 1 prefixes',
+            slug='prefix-tenant-1-prefixes',
+            parameters={
+                'tenant_id': [str(tenants[0].pk)],
+            },
+        )
+        saved_filter.object_types.add(ObjectType.objects.get_for_model(Prefix))
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': parent.pk})
+        response = self.client.get(url, {'filter_id': saved_filter.pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, '198.51.101.0/26')
+        self.assertNotContains(response, '198.51.101.64/26')
+
     def test_prefix_ipranges(self):
         self.add_permissions('ipam.view_prefix', 'ipam.view_iprange')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
@@ -615,6 +736,63 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_prefix_ipaddresses_filter(self):
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress', 'ipam.view_iprange')
+
+        tenants = (
+            Tenant(name='IP Address Tenant 1', slug='ip-address-tenant-1'),
+            Tenant(name='IP Address Tenant 2', slug='ip-address-tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.0.2.1/24'), tenant=tenants[0]),
+            IPAddress(address=IPNetwork('192.0.2.2/24'), tenant=tenants[1]),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        response = self.client.get(url, {'tenant_id': tenants[0].pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, '192.0.2.1/24')
+        self.assertNotContains(response, '192.0.2.2/24')
+
+    def test_prefix_ipaddresses_saved_filter(self):
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress', 'ipam.view_iprange')
+
+        tenants = (
+            Tenant(name='Saved Filter Tenant 1', slug='saved-filter-tenant-1'),
+            Tenant(name='Saved Filter Tenant 2', slug='saved-filter-tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/24'))
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.0.2.1/24'), tenant=tenants[0]),
+            IPAddress(address=IPNetwork('192.0.2.2/24'), tenant=tenants[1]),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
+        saved_filter = SavedFilter.objects.create(
+            name='Tenant 1 IP addresses',
+            slug='tenant-1-ip-addresses',
+            parameters={
+                'tenant_id': [str(tenants[0].pk)],
+            },
+        )
+        saved_filter.object_types.add(ObjectType.objects.get_for_model(IPAddress))
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        response = self.client.get(url, {'filter_id': saved_filter.pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, '192.0.2.1/24')
+        self.assertNotContains(response, '192.0.2.2/24')
 
     def test_prefix_ipaddresses_with_single_address_range(self):
         self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress', 'ipam.view_iprange')
@@ -1129,6 +1307,57 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+    def test_vlans_filter_suppresses_available_vlans(self):
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan')
+
+        group = VLANGroup.objects.create(
+            name='Filtered VLAN Group',
+            slug='filtered-vlan-group'
+        )
+        vlans = (
+            VLAN(group=group, vid=100, name='VLAN100'),
+            VLAN(group=group, vid=200, name='VLAN200'),
+        )
+        VLAN.objects.bulk_create(vlans)
+
+        url = reverse('ipam:vlangroup_vlans', kwargs={'pk': group.pk})
+        response = self.client.get(url, {'vid': 100})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, 'VLAN100')
+        self.assertNotContains(response, 'VLAN200')
+
+    def test_vlans_saved_filter_suppresses_available_vlans(self):
+        self.add_permissions('ipam.view_vlangroup', 'ipam.view_vlan')
+
+        group = VLANGroup.objects.create(
+            name='Saved Filter VLAN Group',
+            slug='saved-filter-vlan-group'
+        )
+        vlans = (
+            VLAN(group=group, vid=100, name='VLAN100'),
+            VLAN(group=group, vid=200, name='VLAN200'),
+        )
+        VLAN.objects.bulk_create(vlans)
+
+        saved_filter = SavedFilter.objects.create(
+            name='VLAN 100',
+            slug='vlan-100',
+            parameters={
+                'vid': ['100'],
+            },
+        )
+        saved_filter.object_types.add(ObjectType.objects.get_for_model(VLAN))
+
+        url = reverse('ipam:vlangroup_vlans', kwargs={'pk': group.pk})
+        response = self.client.get(url, {'filter_id': saved_filter.pk})
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(len(response.context['table'].data), 1)
+        self.assertContains(response, 'VLAN100')
+        self.assertNotContains(response, 'VLAN200')
 
 
 class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):

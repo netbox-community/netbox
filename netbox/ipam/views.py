@@ -572,13 +572,18 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
 
+        if self.has_active_filters():
+            show_available = False
+
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
+        show_available = bool(request.GET.get('show_available', 'true') == 'true') and not self.has_active_filters()
+
         return {
             'bulk_querystring': f'within={instance.prefix}',
             'first_available_prefix': instance.get_first_available_prefix(),
-            'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
+            'show_available': show_available,
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
@@ -794,13 +799,18 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
 
+        if self.has_active_filters():
+            show_available = False
+
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
+        show_available = bool(request.GET.get('show_available', 'true') == 'true') and not self.has_active_filters()
+
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&within={instance.prefix}",
             'first_available_prefix': instance.get_first_available_prefix(),
-            'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
+            'show_available': show_available,
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
@@ -851,9 +861,10 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        if not request.GET.get('q') and not get_table_ordering(request, self.table):
+        if not self.has_active_filters() and not get_table_ordering(request, self.table):
             return annotate_ip_space(parent)
-        return queryset
+
+        return super().prep_table_data(request, queryset, parent)
 
     def get_extra_context(self, request, instance):
         return {
@@ -1312,9 +1323,11 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
         )
 
     def prep_table_data(self, request, queryset, parent):
-        if not get_table_ordering(request, self.table):
+        # Skip synthetic available rows under active filters: filtered-out VLANs would otherwise look available.
+        if not self.has_active_filters() and not get_table_ordering(request, self.table):
             return add_available_vlans(queryset, parent)
-        return queryset
+
+        return super().prep_table_data(request, queryset, parent)
 
 
 #
