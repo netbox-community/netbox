@@ -862,6 +862,10 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
         method='_pass_through_ports',
         label=_('Has pass-through ports'),
     )
+    module_bays = django_filters.BooleanFilter(
+        method='_module_bays',
+        label=_('Has module bays'),
+    )
 
     class Meta:
         model = ModuleType
@@ -869,6 +873,14 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
             'id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'description',
 
             # Counters
+            'console_port_template_count',
+            'console_server_port_template_count',
+            'power_port_template_count',
+            'power_outlet_template_count',
+            'interface_template_count',
+            'front_port_template_count',
+            'rear_port_template_count',
+            'module_bay_template_count',
             'module_count',
         )
 
@@ -903,6 +915,9 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
             frontporttemplates__isnull=value,
             rearporttemplates__isnull=value
         )
+
+    def _module_bays(self, queryset, name, value):
+        return queryset.exclude(modulebaytemplates__isnull=value)
 
 
 class DeviceTypeComponentFilterSet(django_filters.FilterSet):

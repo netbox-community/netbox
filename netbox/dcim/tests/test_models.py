@@ -114,6 +114,71 @@ class LocationTestCase(TestCase):
         self.assertEqual(PowerPanel.objects.get(pk=powerpanel1.pk).site, site_b)
 
 
+class DeviceTypeTestCase(TestCase):
+
+    def test_component_template_counts(self):
+        """
+        DeviceType component template counters should track the addition and removal of templates.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+
+        # Counters should start at zero
+        self.assertEqual(device_type.interface_template_count, 0)
+        self.assertEqual(device_type.console_port_template_count, 0)
+        self.assertEqual(device_type.module_bay_template_count, 0)
+        self.assertEqual(device_type.device_bay_template_count, 0)
+
+        # Adding templates should increment the relevant counters
+        InterfaceTemplate.objects.create(device_type=device_type, name='Interface 1')
+        InterfaceTemplate.objects.create(device_type=device_type, name='Interface 2')
+        ConsolePortTemplate.objects.create(device_type=device_type, name='Console 1')
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Module Bay 1')
+        DeviceBayTemplate.objects.create(device_type=device_type, name='Device Bay 1')
+        device_type.refresh_from_db()
+        self.assertEqual(device_type.interface_template_count, 2)
+        self.assertEqual(device_type.console_port_template_count, 1)
+        self.assertEqual(device_type.module_bay_template_count, 1)
+        self.assertEqual(device_type.device_bay_template_count, 1)
+
+        # Deleting a template should decrement the counter
+        InterfaceTemplate.objects.get(device_type=device_type, name='Interface 1').delete()
+        device_type.refresh_from_db()
+        self.assertEqual(device_type.interface_template_count, 1)
+
+
+class ModuleTypeTestCase(TestCase):
+
+    def test_component_template_counts(self):
+        """
+        ModuleType component template counters should track the addition and removal of templates.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
+
+        # Counters should start at zero
+        self.assertEqual(module_type.interface_template_count, 0)
+        self.assertEqual(module_type.console_port_template_count, 0)
+        self.assertEqual(module_type.module_bay_template_count, 0)
+
+        # Adding templates should increment the relevant counters
+        InterfaceTemplate.objects.create(module_type=module_type, name='Interface 1')
+        InterfaceTemplate.objects.create(module_type=module_type, name='Interface 2')
+        ConsolePortTemplate.objects.create(module_type=module_type, name='Console 1')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='Module Bay 1')
+        module_type.refresh_from_db()
+        self.assertEqual(module_type.interface_template_count, 2)
+        self.assertEqual(module_type.console_port_template_count, 1)
+        self.assertEqual(module_type.module_bay_template_count, 1)
+
+        # Deleting a template should decrement the counter
+        InterfaceTemplate.objects.get(module_type=module_type, name='Interface 1').delete()
+        module_type.refresh_from_db()
+        self.assertEqual(module_type.interface_template_count, 1)
+
+
 class RackTypeTestCase(TestCase):
 
     @classmethod

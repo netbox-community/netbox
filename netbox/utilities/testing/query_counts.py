@@ -86,7 +86,14 @@ def assert_expected_query_count(test_case, name):
     Assert that the wrapped block performs the number of SQL queries recorded
     in the per-app baseline file (`<app>/tests/query_counts.json`).
 
-    The baseline key is `<model_name>:<name>`, derived from `test_case.model`.
+    The baseline key is `<model_label>:<name>`. By default `<model_label>` is
+    derived from `test_case.model._meta.model_name`. Test cases that use
+    runtime-generated models with unstable names (e.g. names derived from a
+    database primary-key sequence) can declare a ``query_count_model_label``
+    class attribute to provide a stable, human-assigned label instead:
+
+        class MyViewTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+            query_count_model_label = 'my-stable-label'
 
     When the `UPDATE_QUERY_COUNTS` environment variable is set, the assertion
     is skipped and the observed count is written back to the baseline file
@@ -94,7 +101,8 @@ def assert_expected_query_count(test_case, name):
     """
     model = test_case.model
     app_label = model._meta.app_label
-    model_name = model._meta.model_name
+    label = getattr(test_case, 'query_count_model_label', None)
+    model_name = label if label is not None else model._meta.model_name
     key = f'{model_name}:{name}'
 
     if _is_update_mode():

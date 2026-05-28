@@ -1803,6 +1803,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
     def get_required_permission(self):
         return 'extras.view_script'
 
+    def get_queryset(self, request):
+        return Job.objects.restrict(request.user, 'view')
+
     def get_table(self, job, request, bulk_actions=True):
         data = []
         tests = None
@@ -1863,7 +1866,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
 
     def get(self, request, **kwargs):
         table = None
-        job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
+        job = get_object_or_404(self.queryset, pk=kwargs.get('job_pk'))
 
         # If a direct export output has been requested, return the job data content as a
         # downloadable file.

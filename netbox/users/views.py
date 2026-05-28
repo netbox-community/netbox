@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.utils.translation import gettext_lazy as _
 
@@ -79,6 +80,15 @@ class TokenDeleteView(generic.ObjectDeleteView):
 class TokenBulkImportView(generic.BulkImportView):
     queryset = Token.objects.all()
     model_form = forms.TokenImportForm
+
+    def save_object(self, object_form, request):
+        # Creating a Token on behalf of another user requires the grant_token permission. This is enforced only on
+        # creation; TokenImportForm disables the user field on update, so an existing Token's owner cannot change.
+        token_user = object_form.cleaned_data.get('user')
+        if object_form.instance._state.adding and token_user and token_user != request.user \
+                and not request.user.has_perm('users.grant_token'):
+            raise ValidationError(_("This user does not have permission to create tokens for other users."))
+        return super().save_object(object_form, request)
 
 
 @register_model_view(Token, 'bulk_edit', path='edit', detail=False)
