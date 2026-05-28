@@ -466,6 +466,15 @@ class CustomFieldTestCase(TestCase):
 
         self.assertIn('choice_colors', cm.exception.message_dict)
 
+    @tag('regression')
+    def test_choice_set_with_base_choices_validates_without_error(self):
+        """Regression test for #22325: base-only choice sets must validate."""
+        for base in ('IATA', 'ISO_3166', 'UN_LOCODE'):
+            with self.subTest(base=base):
+                choice_set = CustomFieldChoiceSet(name=f'Test {base}', base_choices=base, order_alphabetically=True)
+                choice_set.full_clean()  # must not raise
+                choice_set.save()        # must not raise (extra_choices is None)
+
     def test_remove_selected_choice(self):
         """
         Removing a ChoiceSet choice that is referenced by an object should raise
