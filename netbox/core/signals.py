@@ -232,6 +232,14 @@ def handle_deleted_object(sender, instance, **kwargs):
                 # already been recorded, so nulling the FK and saving here would record an
                 # UPDATE ObjectChange *after* the object's DELETE, corrupting the changelog and
                 # breaking branch replay. (Ref: #22270)
+                #
+                # Note this is order-dependent: it only fires once the related object's own
+                # pre_delete has run (adding it to the set). If the cascade happens to delete
+                # this instance *before* the related object, the guard won't trigger and the
+                # related object still gets an UPDATE — but in the harmless UPDATE-then-DELETE
+                # order, not the corrupting DELETE-then-UPDATE order. Fully suppressing it in
+                # every ordering would require the complete deletion set, which isn't available
+                # from a pre_delete signal.
                 if (related_object_type, obj.pk) in _signals_received.pre_delete:
                     continue
                 obj.snapshot()  # Ensure the change record includes the "before" state

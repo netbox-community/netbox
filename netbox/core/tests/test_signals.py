@@ -240,11 +240,11 @@ class HandleDeletedObjectSignalTestCase(TestCase):
                     changed_object_id=member_pk,
                 ).order_by('time', 'pk').values_list('action', flat=True)
             )
-            self.assertIn(ObjectChangeActionChoices.ACTION_DELETE, actions)
-            # The member's final change record must be its deletion, with no trailing update.
-            self.assertEqual(actions[-1], ObjectChangeActionChoices.ACTION_DELETE)
-            delete_index = actions.index(ObjectChangeActionChoices.ACTION_DELETE)
-            self.assertNotIn(ObjectChangeActionChoices.ACTION_UPDATE, actions[delete_index + 1:])
+            # In this ordering the member's pre_delete fires before the LAG's, so the LAG
+            # skips it: the member's only change record for the request is its own deletion.
+            # Pre-fix, a spurious UPDATE was appended *after* this DELETE — assert the exact
+            # sequence so any trailing (or leading) update fails the test.
+            self.assertEqual(actions, [ObjectChangeActionChoices.ACTION_DELETE])
 
 
 class ClearSignalHistorySignalTestCase(TestCase):
