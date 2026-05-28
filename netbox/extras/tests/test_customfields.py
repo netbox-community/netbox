@@ -466,10 +466,9 @@ class CustomFieldTestCase(TestCase):
 
         self.assertIn('choice_colors', cm.exception.message_dict)
 
+    @tag('regression')
     def test_choice_set_with_base_choices_validates_without_error(self):
-        """Regression test for #22325: creating a choice set with only base_choices
-        set must not raise AttributeError from clean().  CHOICE_SETS values are lists
-        of (value, label) tuples, not dicts, so .values() must not be called on them."""
+    """Regression test for #22325: base-only choice sets must validate."""
         for base in ('IATA', 'ISO_3166', 'UN_LOCODE'):
             with self.subTest(base=base):
                 choice_set = CustomFieldChoiceSet(name=f'Test {base}', base_choices=base)
