@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0235_cabletermination_circuit_site_cache'),
+        ('dcim', '0236_moduletype_component_counts'),
     ]
 
     operations = [
