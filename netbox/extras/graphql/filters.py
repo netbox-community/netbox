@@ -404,7 +404,9 @@ class EventRuleFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedMode
     action_type: BaseFilterLookup[Annotated['EventRuleActionEnum', strawberry.lazy('extras.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    action_object_type: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    action_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     action_object_type_id: ID | None = strawberry_django.filter_field()
     action_object_id: ID | None = strawberry_django.filter_field()
     action_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
