@@ -934,7 +934,17 @@ class CablePath(models.Model):
                 # Profile-based tracing
                 if links[0].profile:
                     cable_profile = links[0].profile_class()
-                    positions = position_stack.pop() if position_stack else [None]
+                    if position_stack:
+                        positions = position_stack.pop()
+                    else:
+                        # When the position stack is empty (e.g. the trace reached this
+                        # profiled cable after crossing single-position pass-through ports
+                        # which don't push onto the stack), derive positions from each
+                        # termination's own cable_positions — which were set by this
+                        # profiled cable when it was saved.
+                        positions = [
+                            pos for term in terminations for pos in (term.cable_positions or [])
+                        ]
                     remote_terminations = []
                     new_positions = []
 
@@ -951,9 +961,8 @@ class CablePath(models.Model):
                                     remaining[cp] -= 1
 
                     # Fallback for when positions don't match cable_positions
-                    # (e.g., empty position stack yielding [None])
                     if not term_position_pairs:
-                        term_position_pairs = [(terminations[0], pos) for pos in positions]
+                        term_position_pairs = [(terminations[0], pos) for pos in positions or [None]]
 
                     peer_results = cable_profile.get_peer_terminations(term_position_pairs)
                     seen = set()
