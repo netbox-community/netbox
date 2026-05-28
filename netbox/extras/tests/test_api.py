@@ -1155,6 +1155,12 @@ class ScriptTestCase(APITestCase):
         # Monkey-patch the Script model to return our TestScriptClass above
         Script.python_class = self.python_class
 
+        # The script-run endpoint gates on a live RQ worker. Tests run without
+        # one, so bypass the check to exercise validation and the enqueue path.
+        worker_patch = patch('extras.api.views.any_workers_for_queue', return_value=True)
+        worker_patch.start()
+        self.addCleanup(worker_patch.stop)
+
     def test_get_script(self):
         response = self.client.get(self.url, **self.header)
 

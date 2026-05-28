@@ -215,6 +215,14 @@ class BackgroundTaskTestCase(TestCase):
         get_queue('high').connection.flushall()
         get_queue('low').connection.flushall()
 
+    def tearDown(self):
+        super().tearDown()
+
+        # Clear all queues after each test so no leftover jobs leak into the next test suite
+        get_queue('default').connection.flushall()
+        get_queue('high').connection.flushall()
+        get_queue('low').connection.flushall()
+
     def test_background_queue_list(self):
         url = reverse('core:background_queue_list')
 
