@@ -111,8 +111,8 @@ class ConfigContextFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
 
 @strawberry_django.filter_type(models.ConfigContextProfile, lookups=True)
 class ConfigContextProfileFilter(SyncedDataFilterMixin, PrimaryModelFilter):
-    name: StrFilterLookup[str] = strawberry_django.filter_field()
-    description: StrFilterLookup[str] = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
     tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
 
 
