@@ -639,7 +639,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
         return elevation.render(face)
 
     def get_0u_devices(self):
-        return self.devices.filter(position=0)
+        return self.devices.filter(device_type__u_height=0)
 
     def get_utilization(self):
         """

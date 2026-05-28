@@ -847,7 +847,7 @@ class Device(
                             "device."
                         )
                     })
-                if self.device_type.is_child_device and self.position:
+                if self.device_type.is_child_device and self.position is not None:
                     raise ValidationError({
                         'position': _(
                             "Child device types cannot be assigned to a rack position. This is an attribute of the "
