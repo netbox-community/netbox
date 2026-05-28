@@ -1031,7 +1031,7 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
     def save(self, *args, **kwargs):
 
         # Sort choices if alphabetical ordering is enforced
-        if self.order_alphabetically:
+        if self.order_alphabetically and self.extra_choices:
             self.extra_choices = sorted(self.extra_choices, key=lambda x: x[0])
 
         return super().save(*args, **kwargs)
