@@ -350,13 +350,17 @@ class RackTestCase(TestCase):
         site = Site.objects.first()
         rack = Rack.objects.first()
 
-        Device(
+        device = Device(
             name='Device 1',
             role=DeviceRole.objects.first(),
-            device_type=DeviceType.objects.first(),
+            device_type=DeviceType.objects.get(u_height=0),
             site=site,
             rack=rack
-        ).save()
+        )
+        device.full_clean()
+        device.save()
+
+        self.assertEqual(device.rack, rack)
 
     def test_mount_half_u_devices(self):
         """
@@ -435,17 +439,44 @@ class RackTestCase(TestCase):
         rack.refresh_from_db()
         self.assertEqual(rack.get_utilization(), 1 / 42 * 100)
 
+    def test_0u_devices(self):
+        """
+        Check that get_0u_devices() successfully return 0U devices.
+        """
+        site = Site.objects.first()
+        rack = Rack.objects.first()
+
+        device1 = Device.objects.create(
+            name='Device 1',
+            role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.get(u_height=0),
+            site=site,
+            rack=rack
+        )
+        device1.full_clean()
+        device1.save()
+        device2 = Device.objects.create(
+            name='Device 2',
+            role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.get(u_height=0),
+            site=site,
+            rack=rack
+        )
+        device2.full_clean()
+        device2.save()
+
+        self.assertQuerySetEqual(rack.get_0u_devices(), [device1, device2])
+
     def test_starting_unit_zero_rack(self):
         """
         Check that a Rack with starting unit zero can be used.
         """
         site = Site.objects.first()
-        location = Location.objects.first()
 
         rack0 = Rack(
             name='Rack start zero',
             site=site,
-            location=location,
+            location=Location.objects.first(),
             starting_unit=0,
             u_height=42
         )
@@ -454,30 +485,70 @@ class RackTestCase(TestCase):
         self.assertEqual(rack0.starting_unit, 0)
 
         # Test device in slot U0
-        Device(
+        device1 = Device(
             name='Device 1',
             device_type=DeviceType.objects.first(),
             role=DeviceRole.objects.first(),
             site=site,
             rack=rack0,
-            position=0
-        ).save()
+            position=0,
+            face=DeviceFaceChoices.FACE_FRONT,
+        )
+        device1.full_clean()
+        device1.save()
         rack0.refresh_from_db()
         self.assertEqual(rack0.get_utilization(), 1 / 42 * 100)
+        self.assertQuerySetEqual(rack0.devices.all(), [device1])
+
+        # Check that get_0u_devices() doesn't return our device
+        self.assertQuerySetEqual(rack0.get_0u_devices(), [])
 
         # Last usable unit should be U41
-        Device(
+        device2 = Device(
             name='Device 2',
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            site=site,
+            rack=rack0,
+            position=41,
+            face=DeviceFaceChoices.FACE_FRONT,
+        )
+        device2.full_clean()
+        device2.save()
+        rack0.refresh_from_db()
+        self.assertEqual(rack0.get_utilization(), 2 / 42 * 100)
+        self.assertQuerySetEqual(rack0.devices.all(), [device1, device2])
+
+        device3 = Device(
+            name='Device 3',
             device_type=DeviceType.objects.first(),
             role=DeviceRole.objects.first(),
             site=site,
             rack=rack0,
             position=42,
             face=DeviceFaceChoices.FACE_FRONT,
-        ).save()
-
+        )
         with self.assertRaises(ValidationError):
-            rack0.clean()
+            device3.full_clean()
+
+    def test_rack_device_fails_zero_slot(self):
+        """
+        Check that standard rack (starting unit 1) still refuses a device for slot 0.
+        """
+        site = Site.objects.first()
+        rack = Rack.objects.first()
+
+        device1 = Device(
+            name='Device 1',
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            site=site,
+            rack=rack,
+            position=0,
+            face=DeviceFaceChoices.FACE_FRONT,
+        )
+        with self.assertRaises(ValidationError):
+            device1.full_clean()
 
 
 class DeviceTestCase(TestCase):
