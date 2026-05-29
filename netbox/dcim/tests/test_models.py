@@ -1234,6 +1234,57 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(child_1.tree_id, bay_b.tree_id)
         self.assertEqual(child_2.tree_id, bay_b.tree_id)
 
+    @tag('regression')  # #22251
+    def test_moving_module_reparents_grandchild_module_bays(self):
+        """
+        When a module is moved, grandchild ModuleBays (bays inside a module
+        that is itself installed inside a child bay of the moved module) must
+        also land in the new MPTT tree. MPTT moves subtrees atomically, so
+        calling save() only on direct children is sufficient — this test
+        documents and preserves that invariant for future tree-backend changes.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Grandchild Move Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        bay_a = ModuleBay.objects.create(device=device, name='Bay A')
+        bay_b = ModuleBay.objects.create(device=device, name='Bay B')
+
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Grandchild Move Type'
+        )
+        # Depth-1: module installed in bay_a, with one child bay.
+        module_1 = Module.objects.create(device=device, module_bay=bay_a, module_type=module_type)
+        child_bay = ModuleBay.objects.create(device=device, module=module_1, name='Child Bay')
+
+        # Depth-2: module installed in child_bay, with one grandchild bay.
+        module_2 = Module.objects.create(device=device, module_bay=child_bay, module_type=module_type)
+        grandchild_bay = ModuleBay.objects.create(device=device, module=module_2, name='Grandchild Bay')
+
+        self.assertEqual(child_bay.parent_id, bay_a.pk)
+        self.assertEqual(grandchild_bay.parent_id, child_bay.pk)
+        self.assertEqual(grandchild_bay.tree_id, bay_a.tree_id)
+
+        # Move the top-level module to bay_b.
+        module_1.module_bay = bay_b
+        module_1.save()
+
+        child_bay.refresh_from_db()
+        grandchild_bay.refresh_from_db()
+        bay_b.refresh_from_db()
+
+        self.assertEqual(child_bay.parent_id, bay_b.pk)
+        self.assertEqual(child_bay.tree_id, bay_b.tree_id)
+        # Grandchild's direct parent (child_bay) is unchanged; only tree placement moves.
+        self.assertEqual(grandchild_bay.parent_id, child_bay.pk)
+        self.assertEqual(grandchild_bay.tree_id, bay_b.tree_id)
+
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
