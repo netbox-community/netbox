@@ -336,7 +336,7 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
         super().save(*args, **kwargs)
 
         if old_module_bay_id is not None and old_module_bay_id != self.module_bay_id:
-            for child_bay in self.modulebays.all():
+            for child_bay in self.modulebays.select_related('module__module_bay'):
                 child_bay.save()
 
         adopt_components = getattr(self, '_adopt_components', False)
