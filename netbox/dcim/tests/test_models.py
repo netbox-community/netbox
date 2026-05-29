@@ -472,6 +472,7 @@ class RackTestCase(TestCase):
         Check that a Rack with starting unit zero can be used.
         """
         site = Site.objects.first()
+        device_type = DeviceType.objects.filter(u_height=1).first()
 
         rack0 = Rack(
             name='Rack start zero',
@@ -487,7 +488,7 @@ class RackTestCase(TestCase):
         # Test device in slot U0
         device1 = Device(
             name='Device 1',
-            device_type=DeviceType.objects.first(),
+            device_type=device_type,
             role=DeviceRole.objects.first(),
             site=site,
             rack=rack0,
@@ -506,7 +507,7 @@ class RackTestCase(TestCase):
         # Last usable unit should be U41
         device2 = Device(
             name='Device 2',
-            device_type=DeviceType.objects.first(),
+            device_type=device_type,
             role=DeviceRole.objects.first(),
             site=site,
             rack=rack0,
@@ -521,7 +522,7 @@ class RackTestCase(TestCase):
 
         device3 = Device(
             name='Device 3',
-            device_type=DeviceType.objects.first(),
+            device_type=device_type,
             role=DeviceRole.objects.first(),
             site=site,
             rack=rack0,

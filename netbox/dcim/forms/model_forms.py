@@ -1,5 +1,3 @@
-import decimal
-
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import EMPTY_VALUES
@@ -786,8 +784,8 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             self.fields['oob_ip'].widget.attrs['readonly'] = True
 
         # Rack position
-        position = self.data.get('position') if self.data.get('position') is not None else self.initial.get('position')
-        if isinstance(position, (int, decimal.Decimal)):
+        position = self.data.get('position')
+        if position not in EMPTY_VALUES or (position := self.initial.get('position')) not in EMPTY_VALUES:
             self.fields['position'].widget.choices = [(position, f'U{position}')]
 
 

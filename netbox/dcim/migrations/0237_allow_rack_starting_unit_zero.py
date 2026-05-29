@@ -8,6 +8,13 @@ class Migration(migrations.Migration):
         ('dcim', '0236_moduletype_component_counts'),
     ]
 
+    def clear_legacy_0u_positions(apps, schema_editor):
+        Device = apps.get_model('dcim', 'Device')
+        Device.objects.filter(
+            device_type__u_height=0,
+            position=0,
+        ).update(position=None)
+
     operations = [
         migrations.AlterField(
             model_name='device',
@@ -32,4 +39,5 @@ class Migration(migrations.Migration):
             name='starting_unit',
             field=models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MinValueValidator(0)]),
         ),
+        migrations.RunPython(clear_legacy_0u_positions, migrations.RunPython.noop),
     ]
