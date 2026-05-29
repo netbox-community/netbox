@@ -1216,7 +1216,6 @@ class ModuleBayTestCase(TestCase):
             device=device, module_bay=bay_a, module_type=module_type
         )
 
-        # Add two child bays to the module (parented to bay_a in the MPTT tree).
         child_1 = ModuleBay.objects.create(device=device, module=module, name='Child Bay 1')
         child_2 = ModuleBay.objects.create(device=device, module=module, name='Child Bay 2')
         self.assertEqual(child_1.parent_id, bay_a.pk)
