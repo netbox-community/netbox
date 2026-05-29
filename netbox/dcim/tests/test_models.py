@@ -1188,6 +1188,53 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(movable_bay.parent_id, host_bay.pk)
         self.assertEqual(movable_bay.tree_id, host_bay.tree_id)
 
+    @tag('regression')  # #22251
+    def test_moving_module_reparents_child_module_bays(self):
+        """
+        When a module is moved to a different module bay, each child ModuleBay
+        (a bay that belongs to the module) must have its MPTT parent updated
+        to the new host bay. Without the fix the children stay parented to the
+        old bay even though Module.module_bay_id has changed.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Move Module Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        bay_a = ModuleBay.objects.create(device=device, name='Bay A')
+        bay_b = ModuleBay.objects.create(device=device, name='Bay B')
+
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Move Module Type'
+        )
+        module = Module.objects.create(
+            device=device, module_bay=bay_a, module_type=module_type
+        )
+
+        # Add two child bays to the module (parented to bay_a in the MPTT tree).
+        child_1 = ModuleBay.objects.create(device=device, module=module, name='Child Bay 1')
+        child_2 = ModuleBay.objects.create(device=device, module=module, name='Child Bay 2')
+        self.assertEqual(child_1.parent_id, bay_a.pk)
+        self.assertEqual(child_2.parent_id, bay_a.pk)
+
+        # Move the module to bay_b.
+        module.module_bay = bay_b
+        module.save()
+
+        child_1.refresh_from_db()
+        child_2.refresh_from_db()
+        self.assertEqual(child_1.parent_id, bay_b.pk)
+        self.assertEqual(child_2.parent_id, bay_b.pk)
+        # Children must share the same MPTT tree as their new parent.
+        bay_b.refresh_from_db()
+        self.assertEqual(child_1.tree_id, bay_b.tree_id)
+        self.assertEqual(child_2.tree_id, bay_b.tree_id)
+
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()

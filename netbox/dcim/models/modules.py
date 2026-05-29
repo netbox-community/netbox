@@ -327,7 +327,20 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
     def save(self, *args, **kwargs):
         is_new = self.pk is None
 
+        # Capture the current bay before saving so we can detect a move.
+        if not is_new:
+            old_module_bay_id = Module.objects.filter(pk=self.pk).values_list(
+                'module_bay_id', flat=True
+            ).first()
+
         super().save(*args, **kwargs)
+
+        # When the module is moved to a different bay, re-save each child
+        # ModuleBay so ModuleBay.save() can update its MPTT parent to the
+        # new bay (ModuleBay.parent is derived from module.module_bay).
+        if not is_new and old_module_bay_id != self.module_bay_id:
+            for child_bay in self.modulebays.all():
+                child_bay.save()
 
         adopt_components = getattr(self, '_adopt_components', False)
         disable_replication = getattr(self, '_disable_replication', False)
