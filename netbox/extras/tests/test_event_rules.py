@@ -33,6 +33,12 @@ class EventRuleTestCase(APITestCase):
         self.queue = django_rq.get_queue('default')
         self.queue.empty()
 
+    def tearDown(self):
+        super().tearDown()
+
+        # Clear the queue so leftover jobs do not leak to the next test suite
+        self.queue.empty()
+
     @classmethod
     def setUpTestData(cls):
 
