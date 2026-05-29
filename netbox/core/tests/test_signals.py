@@ -12,7 +12,8 @@ from core import signals
 from core.choices import DataSourceStatusChoices, JobStatusChoices, ObjectChangeActionChoices
 from core.models import ConfigRevision, DataSource, ObjectChange, ObjectType
 from core.signals import _signals_received, clear_events, post_sync
-from dcim.models import Site, SiteGroup
+from dcim.choices import InterfaceTypeChoices
+from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site, SiteGroup
 from extras.models import Tag
 from extras.validators import CustomValidator
 from netbox.context import events_queue
@@ -203,6 +204,47 @@ class HandleDeletedObjectSignalTestCase(TestCase):
         )
         self.assertEqual(oc.prechange_data['group'], group_pk)
         self.assertIsNone(oc.postchange_data['group'])
+
+    def test_cascade_delete_does_not_record_update_after_delete(self):
+        # Regression test for #22270. Deleting a device cascades to all of its interfaces.
+        # When the LAG interface's pre_delete fires, it clears the `lag` FK (SET_NULL) on its
+        # member interfaces and records a change. If a member is itself being deleted in the
+        # same cascade, that update must not be written *after* the member's delete record —
+        # an UPDATE-after-DELETE corrupts the changelog and breaks branch replay.
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type', slug='device-type')
+        role = DeviceRole.objects.create(name='Role', slug='role')
+        site = Site.objects.create(name='Site', slug='site')
+        device = Device.objects.create(name='Device', site=site, device_type=device_type, role=role)
+        # Members are created before the LAG so their PKs are lower; the cascade fires their
+        # pre_delete (and records their DELETE) before the LAG's pre_delete runs.
+        member1 = Interface.objects.create(device=device, name='eth0', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        member2 = Interface.objects.create(device=device, name='eth1', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+        lag = Interface.objects.create(device=device, name='lag0', type=InterfaceTypeChoices.TYPE_LAG)
+        member1.lag = lag
+        member1.save()
+        member2.lag = lag
+        member2.save()
+        member_pks = (member1.pk, member2.pk)
+        interface_type = ContentType.objects.get_for_model(Interface)
+
+        request = _build_request(self.user)
+        with event_tracking(request):
+            device.delete()
+
+        for member_pk in member_pks:
+            actions = list(
+                ObjectChange.objects.filter(
+                    request_id=request.id,
+                    changed_object_type=interface_type,
+                    changed_object_id=member_pk,
+                ).order_by('time', 'pk').values_list('action', flat=True)
+            )
+            # In this ordering the member's pre_delete fires before the LAG's, so the LAG
+            # skips it: the member's only change record for the request is its own deletion.
+            # Pre-fix, a spurious UPDATE was appended *after* this DELETE — assert the exact
+            # sequence so any trailing (or leading) update fails the test.
+            self.assertEqual(actions, [ObjectChangeActionChoices.ACTION_DELETE])
 
 
 class ClearSignalHistorySignalTestCase(TestCase):
