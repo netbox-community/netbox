@@ -32,9 +32,12 @@ class Migration(migrations.Migration):
             model_name='role',
             index=models.Index(fields=['weight', 'name'], name='ipam_role_weight_01396b_idx'),
         ),
+        # Adding a dummy index, to allow a safe migration in case updating users already have services
+        # with a large number of ports configured (see issue #22273)
+        # Will get removed in 0091_alter_service_index_and_ordering
         migrations.AddIndex(
             model_name='service',
-            index=models.Index(fields=['protocol', 'ports', 'id'], name='ipam_servic_protoco_687d13_idx'),
+            index=models.Index(fields=['id'], name='ipam_servic_protoco_687d13_idx'),
         ),
         migrations.AddIndex(
             model_name='vlangroup',

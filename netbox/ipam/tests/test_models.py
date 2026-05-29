@@ -6,8 +6,10 @@ from netaddr import IPNetwork, IPSet
 
 from dcim.models import Site, SiteGroup
 from ipam.choices import *
+from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import *
 from utilities.data import string_to_ranges
+from virtualization.models import VirtualMachine
 
 
 class AggregateTestCase(TestCase):
@@ -926,3 +928,31 @@ class VLANTestCase(TestCase):
         vlan.group = vlangroups[2]
         with self.assertRaises(ValidationError):
             vlan.full_clean()
+
+
+class ServiceTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+        )
+        VirtualMachine.objects.create(
+            name='virtual machine 1',
+            site=site,
+        )
+
+    def test_large_service(self):
+        """
+        Test creation of service with large number of ports.
+        Related to issue #22273
+        """
+        service = Service(
+            name='Service 1',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=list(range(SERVICE_PORT_MIN, SERVICE_PORT_MAX)),
+            parent=VirtualMachine.objects.first(),
+        )
+        service.full_clean()
+        service.save()

@@ -74,7 +74,6 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         ct_field='parent_object_type',
         fk_field='parent_object_id'
     )
-
     name = models.CharField(
         max_length=100,
         verbose_name=_('name')
@@ -86,16 +85,29 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         verbose_name=_('IP addresses'),
         help_text=_("The specific IP addresses (if any) to which this application service is bound")
     )
+    _min_port = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
 
     clone_fields = (
         'protocol', 'ports', 'description', 'parent_object_type', 'parent_object_id', 'ipaddresses',
     )
 
+    def save(self, *args, **kwargs):
+        # On saving find the smallest port and save for default ordering
+        if self.ports:
+            self._min_port = min(self.ports)
+        else:
+            self._min_port = None
+
+        super().save(*args, **kwargs)
+
     class Meta:
         indexes = (
-            models.Index(fields=('protocol', 'ports', 'id')),  # Default ordering
+            models.Index(fields=('name', 'protocol', '_min_port', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
         )
-        ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
+        ordering = ('name', 'protocol', '_min_port', 'id')
         verbose_name = _('application service')
         verbose_name_plural = _('application services')
