@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 
 __all__ = (
@@ -12,7 +12,7 @@ __all__ = (
 )
 
 
-class TenantGroup(NestedGroupModel):
+class TenantGroup(NestedLtreeGroupModel):
     """
     An arbitrary collection of Tenants.
     """

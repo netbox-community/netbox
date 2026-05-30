@@ -6,7 +6,7 @@ from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, has_feature
 from netbox.models.ltree import LtreeManager
 from tenancy.choices import *
@@ -40,7 +40,7 @@ class ContactGroupManager(LtreeManager):
         )
 
 
-class ContactGroup(NestedGroupModel):
+class ContactGroup(NestedLtreeGroupModel):
     """
     An arbitrary collection of Contacts.
     """

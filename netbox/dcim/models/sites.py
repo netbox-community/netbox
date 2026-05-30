@@ -10,7 +10,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 
 __all__ = (
@@ -25,7 +25,7 @@ __all__ = (
 # Regions
 #
 
-class Region(ContactsMixin, NestedGroupModel):
+class Region(ContactsMixin, NestedLtreeGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
     states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
@@ -86,7 +86,7 @@ class Region(ContactsMixin, NestedGroupModel):
 # Site groups
 #
 
-class SiteGroup(ContactsMixin, NestedGroupModel):
+class SiteGroup(ContactsMixin, NestedLtreeGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
     within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
@@ -278,7 +278,7 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 # Locations
 #
 
-class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
+class Location(ContactsMixin, ImageAttachmentsMixin, NestedLtreeGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
     site, or a room within a building, for example.

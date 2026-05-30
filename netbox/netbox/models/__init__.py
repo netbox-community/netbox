@@ -5,16 +5,20 @@ from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from mptt.models import MPTTModel, TreeForeignKey
 
 from netbox.models.features import *
 from netbox.models.ltree import LtreeManager, LtreeModel
 from netbox.models.mixins import OwnerMixin
+from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
     'AdminModel',
     'ChangeLoggedModel',
     'NestedGroupModel',
+    'NestedGroupModelMixin',
+    'NestedLtreeGroupModel',
     'NetBoxModel',
     'OrganizationalModel',
     'PrimaryModel',
@@ -158,24 +162,11 @@ class PrimaryModel(OwnerMixin, NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
+class NestedGroupModelMixin(OwnerMixin, NetBoxModel):
     """
-    Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
-    recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
-
-    `sort_path` is a trigger-maintained text column that mirrors MPTT's `order_insertion_by=('name',)`
-    semantics: at insert and reparent time it is set to a chr(1)-separated chain of ancestor names.
-    Ordering by `sort_path` yields tree-flatten output with siblings in their column's collation order.
-    Renaming a node does NOT update `sort_path` (matching MPTT behavior).
+    Shared field set and behavior for hierarchical group models. Concrete bases supply the
+    tree backend (MPTT or ltree) and the corresponding `parent` ForeignKey / manager.
     """
-    parent = models.ForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -193,6 +184,66 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
         verbose_name=_('comments'),
         blank=True
     )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        super().clean()
+
+        # A nested group cannot be its own parent or a descendant of itself
+        if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
+            raise ValidationError({
+                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
+            })
+
+
+class NestedGroupModel(NestedGroupModelMixin, MPTTModel):
+    """
+    Deprecated MPTT-backed nested group base, retained for backwards compatibility with plugins.
+
+    New code (in NetBox core and in plugins) should use `NestedLtreeGroupModel` instead. This
+    class will be removed in a future release once the deprecation period has elapsed.
+    """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+
+    objects = TreeManager()
+
+    class Meta:
+        abstract = True
+
+    class MPTTMeta:
+        order_insertion_by = ('name',)
+
+
+class NestedLtreeGroupModel(NestedGroupModelMixin, LtreeModel):
+    """
+    Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
+    recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
+
+    `sort_path` is a trigger-maintained text column that mirrors MPTT's `order_insertion_by=('name',)`
+    semantics: at insert and reparent time it is set to a chr(1)-separated chain of ancestor names.
+    Ordering by `sort_path` yields tree-flatten output with siblings in their column's collation order.
+    Renaming a node does NOT update `sort_path` (matching MPTT behavior).
+    """
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
     sort_path = models.TextField(
         editable=False,
         blank=True,
@@ -206,18 +257,6 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, LtreeModel):
     class Meta:
         abstract = True
         ordering = ('sort_path',)
-
-    def __str__(self):
-        return self.name
-
-    def clean(self):
-        super().clean()
-
-        # A nested group cannot be its own parent or a descendant of itself
-        if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
-            raise ValidationError({
-                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
-            })
 
 
 class OrganizationalModel(OwnerMixin, NetBoxModel):

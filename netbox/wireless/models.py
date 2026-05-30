@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
 
 from .choices import *
@@ -47,7 +47,7 @@ class WirelessAuthenticationBase(models.Model):
         abstract = True
 
 
-class WirelessLANGroup(NestedGroupModel):
+class WirelessLANGroup(NestedLtreeGroupModel):
     """
     A nested grouping of WirelessLANs
     """
