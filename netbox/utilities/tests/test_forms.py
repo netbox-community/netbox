@@ -1,5 +1,5 @@
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
@@ -579,6 +579,16 @@ class FieldSetTestCase(TestCase):
     def test_fieldset_id_stored(self):
         fs = FieldSet('field1', 'field2', name='Test', fieldset_id='my-fieldset')
         self.assertEqual(fs.fieldset_id, 'my-fieldset')
+
+    @override_settings(DEBUG=True)
+    def test_fieldset_id_invalid_css_identifier_raises(self):
+        with self.assertRaises(ValueError):
+            FieldSet('field1', fieldset_id='123-bad')
+
+    @override_settings(DEBUG=False)
+    def test_fieldset_id_invalid_css_identifier_ignored_outside_debug(self):
+        fs = FieldSet('field1', fieldset_id='123-bad')
+        self.assertEqual(fs.fieldset_id, '123-bad')
 
 
 class HTMXSelectTestCase(TestCase):

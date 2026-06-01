@@ -1,6 +1,9 @@
 import random
+import re
 import string
 from functools import cached_property
+
+from django.conf import settings
 
 __all__ = (
     'FieldSet',
@@ -29,6 +32,9 @@ class FieldSet:
             Must be a valid CSS identifier: start with a letter, use only letters, digits, hyphens, underscores.
     """
     def __init__(self, *items, name=None, fieldset_id=None):
+        if fieldset_id is not None and settings.DEBUG:
+            if not re.match(r'^[a-zA-Z][a-zA-Z0-9_-]*$', fieldset_id):
+                raise ValueError(f"fieldset_id {fieldset_id!r} is not a valid CSS identifier")
         self.items = items
         self.name = name
         self.fieldset_id = fieldset_id
