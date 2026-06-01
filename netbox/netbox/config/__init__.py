@@ -77,7 +77,9 @@ class Config:
         """Populate config data from Redis cache"""
         cached = cache.get('config', _MISSING)
         self._cache_miss = cached is _MISSING
-        self.config = {} if self._cache_miss else cached
+        # A cached value of None (ConfigRevision.data is nullable) or {} is a legitimate empty
+        # config and must not be treated as a miss; normalize it to an empty dict.
+        self.config = {} if self._cache_miss else (cached or {})
         self.version = cache.get('config_version')
         if self.config:
             logger.debug("Loaded configuration data from cache")

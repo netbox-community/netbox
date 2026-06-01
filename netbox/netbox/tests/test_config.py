@@ -71,6 +71,19 @@ class ConfigTestCase(TestCase):
         self.assertEqual(config.config, CONFIG_DATA)
         self.assertEqual(config.version, configrevision.pk)
 
+    def test_config_init_from_cache_null_data(self):
+        # ConfigRevision.data is nullable; a revision with data=None caches None. Config access
+        # must normalize that to an empty dict rather than crash on attribute lookup.
+        configrevision = ConfigRevision.objects.create(data=None)
+        configrevision.activate()
+
+        clear_config()
+        config = get_config()
+        self.assertEqual(config.config, {})
+        self.assertEqual(config.version, configrevision.pk)
+        # Attribute access must fall back to defaults without raising.
+        self.assertEqual(config.BANNER_TOP, '')
+
     def test_config_init_from_db(self):
         CONFIG_DATA = {'BANNER_TOP': 'A'}
 
