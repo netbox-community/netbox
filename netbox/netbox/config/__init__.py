@@ -75,12 +75,19 @@ class Config:
 
     def _populate_from_cache(self):
         """Populate config data from Redis cache"""
-        cached = cache.get('config', _MISSING)
-        self._cache_miss = cached is _MISSING
+        cached_config = cache.get('config', _MISSING)
+        cached_version = cache.get('config_version', _MISSING)
+
+        # Treat the cache as warm only when both keys are present. A missing 'config_version'
+        # (e.g. evicted or never written) must re-query the database, even if 'config' is cached.
+        # The no-revision branch writes both keys (config={}, config_version=None), so the
+        # intentional empty state is still a cache hit.
+        self._cache_miss = cached_config is _MISSING or cached_version is _MISSING
+
         # A cached value of None (ConfigRevision.data is nullable) or {} is a legitimate empty
-        # config and must not be treated as a miss; normalize it to an empty dict.
-        self.config = {} if self._cache_miss else (cached or {})
-        self.version = cache.get('config_version')
+        # config and must not crash attribute access; normalize it to an empty dict.
+        self.config = {} if cached_config is _MISSING else (cached_config or {})
+        self.version = None if cached_version is _MISSING else cached_version
         if self.config:
             logger.debug("Loaded configuration data from cache")
 

@@ -84,6 +84,22 @@ class ConfigTestCase(TestCase):
         # Attribute access must fall back to defaults without raising.
         self.assertEqual(config.BANNER_TOP, '')
 
+    def test_missing_version_key_requeries(self):
+        # If 'config_version' is missing (evicted/never written) while 'config' is cached, the
+        # cache must be treated as cold and re-populated from the database rather than leaving
+        # version=None when a ConfigRevision exists.
+        CONFIG_DATA = {'BANNER_TOP': 'A'}
+        configrevision = ConfigRevision.objects.create(data=CONFIG_DATA)
+        configrevision.activate()
+
+        # Drop only the version key, leaving 'config' populated.
+        cache.delete('config_version')
+        clear_config()
+
+        config = get_config()
+        self.assertEqual(config.config, CONFIG_DATA)
+        self.assertEqual(config.version, configrevision.pk)
+
     def test_config_init_from_db(self):
         CONFIG_DATA = {'BANNER_TOP': 'A'}
 
