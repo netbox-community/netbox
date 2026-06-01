@@ -18,6 +18,7 @@ from core.models import *
 from dcim.models import Site
 from users.models import User
 from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
+from utilities.testing.mixins import RQQueueTestMixin
 
 
 class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -188,7 +189,7 @@ class ObjectChangeTestCase(TestCase):
         self.assertHttpStatus(response, 200)
 
 
-class BackgroundTaskTestCase(TestCase):
+class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
     user_permissions = ()
 
     # Dummy worker functions
@@ -209,19 +210,6 @@ class BackgroundTaskTestCase(TestCase):
         self.user.is_superuser = True
         self.user.is_active = True
         self.user.save()
-
-        # Clear all queues prior to running each test
-        get_queue('default').connection.flushall()
-        get_queue('high').connection.flushall()
-        get_queue('low').connection.flushall()
-
-    def tearDown(self):
-        super().tearDown()
-
-        # Clear all queues after each test so no leftover jobs leak into the next test suite
-        get_queue('default').connection.flushall()
-        get_queue('high').connection.flushall()
-        get_queue('low').connection.flushall()
 
     def test_background_queue_list(self):
         url = reverse('core:background_queue_list')

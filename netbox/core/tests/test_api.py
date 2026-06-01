@@ -11,8 +11,9 @@ from rq.job import JobStatus
 from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from users.constants import TOKEN_PREFIX
-from users.models import Token, User
+from users.models import Token
 from utilities.testing import APITestCase, APIViewTestCases, TestCase
+from utilities.testing.mixins import RQQueueTestMixin
 from utilities.testing.utils import disable_logging
 
 from ..models import *
@@ -168,7 +169,7 @@ class JobTestCase(
         )
 
 
-class BackgroundTaskTestCase(TestCase):
+class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
     user_permissions = ()
 
     @staticmethod
@@ -180,18 +181,13 @@ class BackgroundTaskTestCase(TestCase):
         raise Exception("Job failed")
 
     def setUp(self):
-        """
-        Create a user and token for API calls.
-        """
-        # Create the test user and assign permissions
-        self.user = User.objects.create_user(username='testuser', is_active=True)
+        super().setUp()
+
+        # The base TestCase creates self.user; make it active and create a token for API calls.
+        self.user.is_active = True
+        self.user.save()
         self.token = Token.objects.create(user=self.user)
         self.header = {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{self.token.key}.{self.token.token}'}
-
-        # Clear all queues prior to running each test
-        get_queue('default').connection.flushall()
-        get_queue('high').connection.flushall()
-        get_queue('low').connection.flushall()
 
     def test_background_queue_list(self):
         url = reverse('core-api:rqqueue-list')
