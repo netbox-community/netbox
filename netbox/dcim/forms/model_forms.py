@@ -475,7 +475,7 @@ class ModuleTypeForm(PrimaryModelForm):
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile'),
         required=False,
-        widget=HTMXSelect()
+        widget=HTMXSelect(hx_fieldset_id='profile-attributes')
     )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
@@ -487,7 +487,7 @@ class ModuleTypeForm(PrimaryModelForm):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
             FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
-            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'))
+            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), id='profile-attributes')
         ]
 
     class Meta:
@@ -872,13 +872,13 @@ class CableForm(TenancyForm, PrimaryModelForm):
     a_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_fieldset_id='cable-side-a'),
         label=_('Type')
     )
     b_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_fieldset_id='cable-side-b'),
         label=_('Type')
     )
     bundle = DynamicModelChoiceField(
