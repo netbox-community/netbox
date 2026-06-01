@@ -11,7 +11,6 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django_filters.constants import EMPTY_VALUES
 
 from core.signals import clear_events
 from netbox.object_actions import BulkDelete, BulkEdit, CloneObject, DeleteObject, EditObject
@@ -105,7 +104,6 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     table = None
     filterset = None
     filterset_form = None
-    filterset_instance = None
     actions = (CloneObject, EditObject, DeleteObject, BulkEdit, BulkDelete)
     template_name = 'generic/object_children.html'
 
@@ -120,66 +118,6 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         raise NotImplementedError(_('{class_name} must implement get_children()').format(
             class_name=self.__class__.__name__
         ))
-
-    def get_filterset(self, request, queryset):
-        """
-        Instantiate and return the child object FilterSet for the request.
-        """
-        if self.filterset is None:
-            return None
-
-        return self.filterset(request.GET, queryset, request=request)
-
-    def filter_queryset(self, request, queryset):
-        """
-        Apply the configured FilterSet to the child object queryset.
-        """
-        self.filterset_instance = self.get_filterset(request, queryset)
-
-        if self.filterset_instance is not None:
-            return self.filterset_instance.qs
-
-        return queryset
-
-    def has_active_filters(self):
-        """
-        Return True if the child object FilterSet has any active filter parameters.
-
-        Only declared filterset parameters are counted. This excludes table controls and other view-specific
-        query parameters, while still accounting for SavedFilter parameters after they have been expanded by the
-        FilterSet.
-
-        This must be called only after filter_queryset() has initialized self.filterset_instance.
-        """
-        if self.filterset_instance is None:
-            if self.filterset is not None:
-                raise RuntimeError(
-                    f"{self.__class__.__name__}.has_active_filters() must be called after filter_queryset()."
-                )
-            return False
-
-        filter_names = set(self.filterset_instance.filters)
-        data = self.filterset_instance.data
-
-        if not data:
-            return False
-
-        if hasattr(data, 'lists'):
-            data_items = data.lists()
-        else:
-            data_items = data.items()
-
-        for key, values in data_items:
-            if key not in filter_names:
-                continue
-
-            if not isinstance(values, (list, tuple)):
-                values = [values]
-
-            if any(value not in EMPTY_VALUES for value in values):
-                return True
-
-        return False
 
     def prep_table_data(self, request, queryset, parent):
         """
@@ -202,7 +140,9 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         """
         instance = self.get_object(**kwargs)
         child_objects = self.get_children(request, instance)
-        child_objects = self.filter_queryset(request, child_objects)
+
+        if self.filterset:
+            child_objects = self.filterset(request.GET, child_objects, request=request).qs
 
         # Determine the available actions
         actions = self.get_permitted_actions(request.user, model=self.child_model)
