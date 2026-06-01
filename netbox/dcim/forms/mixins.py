@@ -27,6 +27,7 @@ __all__ = (
 class ScopedForm(forms.Form):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
+        # hx_fieldset_id='scope' — all ScopedForm consumers must declare a FieldSet with fieldset_id='scope'
         widget=HTMXSelect(hx_fieldset_id='scope'),
         required=False,
         label=_('Scope type')

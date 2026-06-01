@@ -557,7 +557,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
         FieldSet('event_types', 'conditions', name=_('Triggers')),
-        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action'), id='event-rule-action'),
+        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action'), fieldset_id='event-rule-action'),
     )
 
     class Meta:

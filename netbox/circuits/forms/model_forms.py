@@ -211,7 +211,7 @@ class CircuitTerminationForm(NetBoxModelForm):
             'circuit', 'term_side', 'description', 'tags',
             'termination_type', 'termination',
             'mark_connected', name=_('Circuit Termination'),
-            id='circuit-termination',
+            fieldset_id='circuit-termination',
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
     )
@@ -297,7 +297,7 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     fieldsets = (
         FieldSet(
             'group', 'member_type', 'member', 'priority', 'tags',
-            name=_('Group Assignment'), id='circuit-group-assignment',
+            name=_('Group Assignment'), fieldset_id='circuit-group-assignment',
         ),
     )
 
@@ -406,7 +406,10 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('virtual_circuit', 'role', 'interface', 'description', 'tags', id='virtual-circuit-termination'),
+        FieldSet(
+            'virtual_circuit', 'role', 'interface', 'description', 'tags',
+            fieldset_id='virtual-circuit-termination',
+        ),
     )
 
     class Meta:

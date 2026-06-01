@@ -72,6 +72,7 @@ class HTMXSelect(forms.Select):
         }
         if hx_fieldset_id:
             _attrs['hx-select'] = f'#{hx_fieldset_id}'
+            _attrs['hx-swap'] = 'outerHTML'
         if attrs:
             _attrs.update(attrs)
 

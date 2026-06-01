@@ -6,13 +6,14 @@ from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.forms import BulkRenameForm
+from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
     expand_alphanumeric_pattern,
     expand_ipnetwork_pattern,
     get_capacity_unit_label,
     get_field_value,
 )
-from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
+from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, SelectedOptions
 
 
 class ExpandIPNetwork(TestCase):
@@ -567,3 +568,34 @@ class GetCapacityUnitLabelTest(TestCase):
 
     def test_iec_label(self):
         self.assertEqual(get_capacity_unit_label(1024), 'MiB')
+
+
+class FieldSetTestCase(TestCase):
+
+    def test_fieldset_id_defaults_to_none(self):
+        fs = FieldSet('field1', 'field2', name='Test')
+        self.assertIsNone(fs.fieldset_id)
+
+    def test_fieldset_id_stored(self):
+        fs = FieldSet('field1', 'field2', name='Test', fieldset_id='my-fieldset')
+        self.assertEqual(fs.fieldset_id, 'my-fieldset')
+
+
+class HTMXSelectTestCase(TestCase):
+
+    def test_default_targets_form_fields(self):
+        widget = HTMXSelect()
+        self.assertEqual(widget.attrs['hx-target'], '#form_fields')
+        self.assertEqual(widget.attrs['hx-include'], '#form_fields')
+        self.assertNotIn('hx-select', widget.attrs)
+        self.assertNotIn('hx-swap', widget.attrs)
+
+    def test_hx_fieldset_id_sets_target_select_and_swap(self):
+        widget = HTMXSelect(hx_fieldset_id='my-fieldset')
+        self.assertEqual(widget.attrs['hx-target'], '#my-fieldset')
+        self.assertEqual(widget.attrs['hx-select'], '#my-fieldset')
+        self.assertEqual(widget.attrs['hx-swap'], 'outerHTML')
+
+    def test_hx_fieldset_id_include_stays_on_form_fields(self):
+        widget = HTMXSelect(hx_fieldset_id='my-fieldset')
+        self.assertEqual(widget.attrs['hx-include'], '#form_fields')

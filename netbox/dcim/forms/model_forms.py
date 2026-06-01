@@ -487,7 +487,7 @@ class ModuleTypeForm(PrimaryModelForm):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
             FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
-            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), id='profile-attributes')
+            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), fieldset_id='profile-attributes')
         ]
 
     class Meta:
@@ -1646,7 +1646,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
             name=_('802.1Q Switching'),
-            id='dot1q-switching',
+            fieldset_id='dot1q-switching',
         ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',

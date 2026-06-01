@@ -145,10 +145,10 @@ class TunnelCreateForm(TunnelForm):
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
             'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_termination',
-            'termination1_outside_ip', name=_('First Termination'), id='tunnel-termination1'),
+            'termination1_outside_ip', name=_('First Termination'), fieldset_id='tunnel-termination1'),
         FieldSet(
             'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_termination',
-            'termination2_outside_ip', name=_('Second Termination'), id='tunnel-termination2'),
+            'termination2_outside_ip', name=_('Second Termination'), fieldset_id='tunnel-termination2'),
     )
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -250,7 +250,10 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags', id='tunnel-termination'),
+        FieldSet(
+            'tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags',
+            fieldset_id='tunnel-termination',
+        ),
     )
 
     class Meta:
