@@ -33,7 +33,7 @@ class TestSystemJobRunner(JobRunner):
         pass
 
 
-class JobRunnerTestCase(TestCase):
+class BaseJobRunnerTestCase(TestCase):
     def tearDown(self):
         super().tearDown()
 
@@ -48,9 +48,9 @@ class JobRunnerTestCase(TestCase):
         return timezone.now() + timedelta(weeks=offset)
 
 
-class JobRunnerTestCase(JobRunnerTestCase):
+class JobRunnerTestCase(BaseJobRunnerTestCase):
     """
-    Test internal logic of `JobRunner`.
+    Test the internal logic of `JobRunner`.
     """
 
     def test_name_default(self):
@@ -101,7 +101,7 @@ class JobRunnerTestCase(JobRunnerTestCase):
         self.assertNotIn(_INSTALL_ROOT, tb_message)
 
 
-class EnqueueTestCase(JobRunnerTestCase):
+class EnqueueTestCase(BaseJobRunnerTestCase):
     """
     Test enqueuing of `JobRunner`.
     """
@@ -177,11 +177,11 @@ class EnqueueTestCase(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
 
-class SystemJobTestCase(JobRunnerTestCase):
+class SystemJobTestCase(BaseJobRunnerTestCase):
     """
     Test that system jobs can be scheduled.
 
-    General functionality already tested by `JobRunnerTest` and `EnqueueTest`.
+    General functionality already tested by `JobRunnerTestCase` and `EnqueueTestCase`.
     """
 
     def test_scheduling(self):

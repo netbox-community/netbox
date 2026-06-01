@@ -4,10 +4,10 @@ from circuits.models import CircuitTermination
 from dcim.choices import CableProfileChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from dcim.tests.utils import CablePathTestCase
+from dcim.tests.utils import BaseCablePathTestCase
 
 
-class CablePathTestCase(CablePathTestCase):
+class CablePathTestCase(BaseCablePathTestCase):
     """
     Test the creation of CablePaths for Cables with different profiles applied.
 
