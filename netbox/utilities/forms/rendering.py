@@ -25,10 +25,13 @@ class FieldSet:
     Parameters:
         items: An iterable of items to be rendered (one per row)
         name: The fieldset's name, displayed as a heading (optional)
+        id: An HTML id for the rendered fieldset div, enabling HTMX partial swaps (optional).
+            Must be a valid CSS identifier: start with a letter, use only letters, digits, hyphens, underscores.
     """
-    def __init__(self, *items, name=None):
+    def __init__(self, *items, name=None, id=None):
         self.items = items
         self.name = name
+        self.id = id
 
 
 class InlineFields:

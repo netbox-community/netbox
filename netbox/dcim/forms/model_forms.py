@@ -1645,7 +1645,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
-            name=_('802.1Q Switching')
+            name=_('802.1Q Switching'),
+            id='dot1q-switching',
         ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
@@ -1666,7 +1667,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            'mode': HTMXSelect(),
+            'mode': HTMXSelect(hx_fieldset_id='dot1q-switching'),
         }
         labels = {
             'mode': '802.1Q Mode',

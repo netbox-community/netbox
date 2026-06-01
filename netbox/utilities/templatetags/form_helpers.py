@@ -113,6 +113,7 @@ def render_fieldset(form, fieldset):
 
     return {
         'heading': fieldset.name,
+        'fieldset_id': getattr(fieldset, 'id', None),
         'rows': rows,
     }
 
