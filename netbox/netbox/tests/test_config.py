@@ -1,9 +1,17 @@
 from django.conf import settings
 from django.core.cache import cache
+from django.db import connection
 from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 
 from core.models import ConfigRevision
 from netbox.config import clear_config, get_config
+
+
+def _configrevision_query_count(queries):
+    """Count captured queries that touch the core_configrevision table."""
+    return len([q for q in queries if 'core_configrevision' in q['sql']])
+
 
 # Prefix cache keys to avoid interfering with the local environment
 CACHES = settings.CACHES
@@ -29,6 +37,39 @@ class ConfigTestCase(TestCase):
         config = get_config()
         self.assertEqual(config.config, {})
         self.assertEqual(config.version, None)
+
+    def test_empty_config_not_requeried(self):
+        # With no ConfigRevision present, the empty state should be cached after the first load so
+        # that subsequent requests are served from the cache rather than re-querying the database
+        # on every request (#22158).
+        with CaptureQueriesContext(connection) as ctx:
+            first = get_config()
+        self.assertGreaterEqual(_configrevision_query_count(ctx.captured_queries), 1)
+        self.assertEqual(first.config, {})
+        self.assertEqual(first.version, None)
+
+        # Simulate the request boundary, where the middleware drops the thread-local config.
+        clear_config()
+
+        with CaptureQueriesContext(connection) as ctx:
+            second = get_config()
+        self.assertEqual(_configrevision_query_count(ctx.captured_queries), 0)
+        self.assertEqual(second.config, {})
+        self.assertEqual(second.version, None)
+
+    def test_empty_then_create_first_revision(self):
+        # Prime the cache with the empty state.
+        get_config()
+
+        # Creating the first ConfigRevision fires the post_save handler, which activates it and
+        # overwrites the cached empty state.
+        CONFIG_DATA = {'BANNER_TOP': 'A'}
+        configrevision = ConfigRevision.objects.create(data=CONFIG_DATA)
+
+        clear_config()
+        config = get_config()
+        self.assertEqual(config.config, CONFIG_DATA)
+        self.assertEqual(config.version, configrevision.pk)
 
     def test_config_init_from_db(self):
         CONFIG_DATA = {'BANNER_TOP': 'A'}
