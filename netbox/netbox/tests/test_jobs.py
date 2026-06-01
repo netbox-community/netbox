@@ -4,12 +4,12 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
-from django_rq import get_queue
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
 from utilities.testing import disable_warnings
+from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
 from ..jobs import _INSTALL_ROOT
@@ -33,14 +33,7 @@ class TestSystemJobRunner(JobRunner):
         pass
 
 
-class BaseJobRunnerTestCase(TestCase):
-    def tearDown(self):
-        super().tearDown()
-
-        # Clear all queues after running each test
-        get_queue('default').connection.flushall()
-        get_queue('high').connection.flushall()
-        get_queue('low').connection.flushall()
+class BaseJobRunnerTestCase(RQQueueTestMixin, TestCase):
 
     @staticmethod
     def get_schedule_at(offset=1):
