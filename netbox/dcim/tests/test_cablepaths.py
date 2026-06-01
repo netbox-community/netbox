@@ -2,11 +2,11 @@ from circuits.models import *
 from dcim.choices import LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from dcim.tests.utils import CablePathTestCase
+from dcim.tests.utils import BaseCablePathTestCase
 from utilities.exceptions import AbortRequest
 
 
-class LegacyCablePathTestCase(CablePathTestCase):
+class LegacyCablePathTestCase(BaseCablePathTestCase):
     """
     Test NetBox's ability to trace and retrace CablePaths in response to data model changes, without cable profiles.
 
