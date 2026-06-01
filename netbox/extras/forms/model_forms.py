@@ -107,7 +107,8 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Mimic HTMXSelect()
+        # Mimic HTMXSelect() — no hx_fieldset_id because changing type adds/removes
+        # Validation, Related Object, and Choices fieldsets dynamically.
         self.fields['type'].widget.attrs.update({
             'hx-get': '.',
             'hx-include': '#form_fields',

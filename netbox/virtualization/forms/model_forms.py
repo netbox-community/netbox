@@ -198,6 +198,8 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
         label=_('Type'),
         queryset=VirtualMachineType.objects.all(),
         required=False,
+        # No hx_fieldset_id: type change populates defaults across both the Virtual Machine
+        # and Resources fieldsets, so a single-fieldset partial swap would miss half the update.
         widget=HTMXSelect(),
     )
     site = DynamicModelChoiceField(
