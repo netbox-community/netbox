@@ -3,6 +3,7 @@ import logging
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import router
 from django.db.models.deletion import CASCADE, Collector
+from django.utils.translation import gettext as _
 
 logger = logging.getLogger("netbox.models.deletion")
 
@@ -45,7 +46,7 @@ class CustomCollector(Collector):
 
         # Add GenericRelations to the dependency graph
         processed_relations = set()
-        for _, instances in list(self.data.items()):
+        for _model, instances in list(self.data.items()):
             for instance in instances:
                 # Get all GenericRelations for this model
                 for field in instance._meta.private_fields:
@@ -70,10 +71,13 @@ class DeleteMixin:
         Override delete to use our custom collector.
         """
         using = using or router.db_for_write(self.__class__, instance=self)
-        assert self._get_pk_val() is not None, (
-            f"{self._meta.object_name} object can't be deleted because its "
-            f"{self._meta.pk.attname} attribute is set to None."
-        )
+        if self._get_pk_val() is None:
+            raise ValueError(
+                _("{object_name} object can't be deleted because its {pk_attname} attribute is set to None.").format(
+                    object_name=self._meta.object_name,
+                    pk_attname=self._meta.pk.attname,
+                )
+            )
 
         collector = CustomCollector(using=using)
         collector.collect([self], keep_parents=keep_parents)
