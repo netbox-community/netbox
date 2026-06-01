@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
 from django.test import TestCase, override_settings
@@ -13,18 +12,20 @@ def _configrevision_query_count(queries):
     return len([q for q in queries if 'core_configrevision' in q['sql']])
 
 
-# Prefix cache keys to avoid interfering with the local environment
-CACHES = settings.CACHES
-CACHES['default'].update({'KEY_PREFIX': 'TEST-'})
-
-
-@override_settings(CACHES=CACHES)
+# Use a per-process in-memory cache so the shared 'config'/'config_version' keys can't be
+# contaminated by other tests running in parallel against the same Redis instance.
+@override_settings(CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'netbox-config-tests',
+    },
+})
 class ConfigTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
         # Register cleanup so it runs after each test, even on assertion failure.
-        # clear_config drops the thread-local Config; cache.clear wipes the Redis
+        # clear_config drops the thread-local Config; cache.clear wipes the cache
         # entries that configrevision.activate writes.
         self.addCleanup(cache.clear)
         self.addCleanup(clear_config)
