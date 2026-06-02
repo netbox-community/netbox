@@ -19,12 +19,12 @@
           {% if page.has_previous %}
             <li class="page-item">
               {% if htmx %}
-                <a href="#" hx-get="{{ table.htmx_url }}{% querystring page=page.previous_page_number %}" class="page-link">
-                  <i class="mdi mdi-chevron-left"></i>
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring page=page.previous_page_number %}" class="page-link" aria-label="{% trans "Previous page" %}">
+                  <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
                 </a>
               {% else %}
-                <a href="{% querystring page=page.previous_page_number %}" class="page-link">
-                  <i class="mdi mdi-chevron-left"></i>
+                <a href="{% querystring page=page.previous_page_number %}" class="page-link" aria-label="{% trans "Previous page" %}">
+                  <i class="mdi mdi-chevron-left" aria-hidden="true"></i>
                 </a>
               {% endif %}
             </li>
@@ -33,17 +33,17 @@
 
           {# Page numbers #}
           {% for p in page.smart_pages %}
-            <li class="page-item{% if page.number == p %} active" aria-current="page{% endif %}">
+            <li class="page-item{% if page.number == p %} active{% endif %}"{% if page.number == p %} aria-current="page"{% endif %}>
               {% if p and htmx %}
-                <a href="#" hx-get="{{ table.htmx_url }}{% querystring page=p %}" class="page-link">
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring page=p %}" class="page-link" aria-label="{% blocktrans with num=p %}Page {{ num }}{% endblocktrans %}">
                   {{ p }}
                 </a>
               {% elif p %}
-                <a href="{% querystring page=p %}" class="page-link {% if page.number == p %} active{% endif %}">
+                <a href="{% querystring page=p %}" class="page-link {% if page.number == p %} active{% endif %}" aria-label="{% blocktrans with num=p %}Page {{ num }}{% endblocktrans %}">
                   {{ p }}
                 </a>
               {% else %}
-                <span class="page-link" disabled>&hellip;</span>
+                <span class="page-link" disabled aria-hidden="true">&hellip;</span>
               {% endif %}
             </li>
           {% endfor %}
@@ -53,12 +53,12 @@
           {% if page.has_next %}
             <li class="page-item">
               {% if htmx %}
-                <a href="#" hx-get="{{ table.htmx_url }}{% querystring page=page.next_page_number %}" class="page-link">
-                  <i class="mdi mdi-chevron-right"></i>
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring page=page.next_page_number %}" class="page-link" aria-label="{% trans "Next page" %}">
+                  <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
                 </a>
               {% else %}
-                <a href="{% querystring page=page.next_page_number %}" class="page-link">
-                  <i class="mdi mdi-chevron-right"></i>
+                <a href="{% querystring page=page.next_page_number %}" class="page-link" aria-label="{% trans "Next page" %}">
+                  <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
                 </a>
               {% endif %}
             </li>

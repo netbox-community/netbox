@@ -90,6 +90,15 @@ class ScriptFileForm(ManagedFileForm):
                 raise forms.ValidationError(
                     _("Error loading script: {error}").format(error=e)
                 )
+        elif data_file := self.cleaned_data.get('data_file'):
+            # Validate scripts synced from a data source as well, to avoid creating a broken
+            # script module that cannot be loaded or corrected
+            try:
+                validate_script_content(data_file.data, data_file.path)
+            except Exception as e:
+                raise forms.ValidationError(
+                    _("Error loading script: {error}").format(error=e)
+                )
 
         return self.cleaned_data
 

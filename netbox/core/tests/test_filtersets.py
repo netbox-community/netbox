@@ -244,6 +244,56 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
+class JobTestCase(TestCase, BaseFilterSetTests):
+    queryset = Job.objects.all()
+    filterset = JobFilterSet
+    ignore_fields = ('data', 'error', 'log_entries')
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            User(username='user1'),
+            User(username='user2'),
+            User(username='user3'),
+        )
+        User.objects.bulk_create(users)
+
+        jobs = (
+            Job(
+                name='Job 1', job_id=uuid.uuid4(), user=users[0],
+                notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
+            ),
+            Job(
+                name='Job 2', job_id=uuid.uuid4(), user=users[0],
+                notifications=JobNotificationChoices.NOTIFICATION_ALWAYS,
+            ),
+            Job(
+                name='Job 3', job_id=uuid.uuid4(), user=users[1],
+                notifications=JobNotificationChoices.NOTIFICATION_ON_FAILURE,
+            ),
+            Job(
+                name='Job 4', job_id=uuid.uuid4(), user=users[2],
+                notifications=JobNotificationChoices.NOTIFICATION_NEVER,
+            ),
+        )
+        Job.objects.bulk_create(jobs)
+
+    def test_user(self):
+        """Filter Jobs by user (ID and username)."""
+        params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'user': ['user1', 'user2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_notifications(self):
+        """Filter Jobs by notification policy."""
+        params = {'notifications': [
+            JobNotificationChoices.NOTIFICATION_ALWAYS,
+            JobNotificationChoices.NOTIFICATION_ON_FAILURE,
+        ]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
 class ObjectTypeTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectType.objects.all()
     filterset = ObjectTypeFilterSet

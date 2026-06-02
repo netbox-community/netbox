@@ -137,7 +137,24 @@ class JobFilterSet(BaseFilterSet):
         distinct=False,
         null_value=None
     )
+    notifications = django_filters.MultipleChoiceFilter(
+        choices=JobNotificationChoices,
+        distinct=False,
+        null_value=None
+    )
     queue_name = django_filters.CharFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=User.objects.all(),
+        distinct=False,
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=User.objects.all(),
+        distinct=False,
+        to_field_name='username',
+        label=_('User name'),
+    )
 
     class Meta:
         model = Job

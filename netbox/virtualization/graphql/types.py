@@ -59,7 +59,7 @@ class ClusterType(ContactsMixin, VLANGroupsMixin, PrimaryObjectType):
     virtual_machines: list[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
     devices: list[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='scope')
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]

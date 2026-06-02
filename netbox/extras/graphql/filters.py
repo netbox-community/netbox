@@ -1,15 +1,16 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
 from django.db.models import Q, QuerySet
 from strawberry.scalars import ID
-from strawberry_django import BaseFilterLookup, FilterLookup, StrFilterLookup
+from strawberry_django import BaseFilterLookup, DatetimeFilterLookup, FilterLookup, StrFilterLookup
 
 from extras import models
 from extras.graphql.filter_mixins import CustomFieldsFilterMixin, TagsFilterMixin
 from netbox.graphql.filter_mixins import SyncedDataFilterMixin
-from netbox.graphql.filters import ChangeLoggedModelFilter, PrimaryModelFilter
+from netbox.graphql.filters import BaseModelFilter, ChangeLoggedModelFilter, PrimaryModelFilter
 
 if TYPE_CHECKING:
     from core.graphql.filters import ContentTypeFilter
@@ -41,8 +42,10 @@ __all__ = (
     'ExportTemplateFilter',
     'ImageAttachmentFilter',
     'JournalEntryFilter',
+    'NotificationFilter',
     'NotificationGroupFilter',
     'SavedFilterFilter',
+    'SubscriptionFilter',
     'TableConfigFilter',
     'TagFilter',
     'WebhookFilter',
@@ -108,8 +111,8 @@ class ConfigContextFilter(SyncedDataFilterMixin, ChangeLoggedModelFilter):
 
 @strawberry_django.filter_type(models.ConfigContextProfile, lookups=True)
 class ConfigContextProfileFilter(SyncedDataFilterMixin, PrimaryModelFilter):
-    name: StrFilterLookup[str] = strawberry_django.filter_field()
-    description: StrFilterLookup[str] = strawberry_django.filter_field()
+    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
     tags: Annotated['TagFilter', strawberry.lazy('extras.graphql.filters')] | None = strawberry_django.filter_field()
 
 
@@ -291,6 +294,21 @@ class JournalEntryFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedM
     comments: StrFilterLookup[str] | None = strawberry_django.filter_field()
 
 
+@strawberry_django.filter_type(models.Notification, lookups=True)
+class NotificationFilter(BaseModelFilter):
+    created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    read: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
+    user_id: ID | None = strawberry_django.filter_field()
+    object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    object_type_id: ID | None = strawberry_django.filter_field()
+    object_id: ID | None = strawberry_django.filter_field()
+    object_repr: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    event_type: StrFilterLookup[str] | None = strawberry_django.filter_field()
+
+
 @strawberry_django.filter_type(models.NotificationGroup, lookups=True)
 class NotificationGroupFilter(ChangeLoggedModelFilter):
     name: StrFilterLookup[str] | None = strawberry_django.filter_field()
@@ -314,6 +332,18 @@ class SavedFilterFilter(ChangeLoggedModelFilter):
     parameters: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+
+
+@strawberry_django.filter_type(models.Subscription, lookups=True)
+class SubscriptionFilter(BaseModelFilter):
+    created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    user: Annotated['UserFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
+    user_id: ID | None = strawberry_django.filter_field()
+    object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
+    object_type_id: ID | None = strawberry_django.filter_field()
+    object_id: ID | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.TableConfig, lookups=True)
@@ -374,7 +404,9 @@ class EventRuleFilter(CustomFieldsFilterMixin, TagsFilterMixin, ChangeLoggedMode
     action_type: BaseFilterLookup[Annotated['EventRuleActionEnum', strawberry.lazy('extras.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    action_object_type: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    action_object_type: Annotated['ContentTypeFilter', strawberry.lazy('core.graphql.filters')] | None = (
+        strawberry_django.filter_field()
+    )
     action_object_type_id: ID | None = strawberry_django.filter_field()
     action_object_id: ID | None = strawberry_django.filter_field()
     action_data: Annotated['JSONFilter', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (

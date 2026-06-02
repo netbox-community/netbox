@@ -134,7 +134,7 @@ class ConditionTestCase(TestCase):
         self.assertTrue(c.eval({'x': '123'}))
 
 
-class ConditionSetTest(TestCase):
+class ConditionSetTestCase(TestCase):
 
     def test_empty(self):
         with self.assertRaises(ValueError):

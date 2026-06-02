@@ -1810,7 +1810,7 @@ class ModuleTypeConsolePortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_consoleports'
     tab = ViewTab(
         label=_('Console Ports'),
-        badge=lambda obj: obj.consoleporttemplates.count(),
+        badge=lambda obj: obj.console_port_template_count,
         permission='dcim.view_consoleporttemplate',
         weight=530,
         hide_if_empty=True
@@ -1825,7 +1825,7 @@ class ModuleTypeConsoleServerPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_consoleserverports'
     tab = ViewTab(
         label=_('Console Server Ports'),
-        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        badge=lambda obj: obj.console_server_port_template_count,
         permission='dcim.view_consoleserverporttemplate',
         weight=540,
         hide_if_empty=True
@@ -1840,7 +1840,7 @@ class ModuleTypePowerPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_powerports'
     tab = ViewTab(
         label=_('Power Ports'),
-        badge=lambda obj: obj.powerporttemplates.count(),
+        badge=lambda obj: obj.power_port_template_count,
         permission='dcim.view_powerporttemplate',
         weight=550,
         hide_if_empty=True
@@ -1855,7 +1855,7 @@ class ModuleTypePowerOutletsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_poweroutlets'
     tab = ViewTab(
         label=_('Power Outlets'),
-        badge=lambda obj: obj.poweroutlettemplates.count(),
+        badge=lambda obj: obj.power_outlet_template_count,
         permission='dcim.view_poweroutlettemplate',
         weight=560,
         hide_if_empty=True
@@ -1870,7 +1870,7 @@ class ModuleTypeInterfacesView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_interfaces'
     tab = ViewTab(
         label=_('Interfaces'),
-        badge=lambda obj: obj.interfacetemplates.count(),
+        badge=lambda obj: obj.interface_template_count,
         permission='dcim.view_interfacetemplate',
         weight=500,
         hide_if_empty=True
@@ -1885,7 +1885,7 @@ class ModuleTypeFrontPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_frontports'
     tab = ViewTab(
         label=_('Front Ports'),
-        badge=lambda obj: obj.frontporttemplates.count(),
+        badge=lambda obj: obj.front_port_template_count,
         permission='dcim.view_frontporttemplate',
         weight=510,
         hide_if_empty=True
@@ -1900,7 +1900,7 @@ class ModuleTypeRearPortsView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_rearports'
     tab = ViewTab(
         label=_('Rear Ports'),
-        badge=lambda obj: obj.rearporttemplates.count(),
+        badge=lambda obj: obj.rear_port_template_count,
         permission='dcim.view_rearporttemplate',
         weight=520,
         hide_if_empty=True
@@ -1915,7 +1915,7 @@ class ModuleTypeModuleBaysView(ModuleTypeComponentsView):
     viewname = 'dcim:moduletype_modulebays'
     tab = ViewTab(
         label=_('Module Bays'),
-        badge=lambda obj: obj.modulebaytemplates.count(),
+        badge=lambda obj: obj.module_bay_template_count,
         permission='dcim.view_modulebaytemplate',
         weight=570,
         hide_if_empty=True
@@ -2012,6 +2012,7 @@ class ConsolePortTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(ConsolePortTemplate, 'bulk_rename', path='rename', detail=False)
 class ConsolePortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ConsolePortTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(ConsolePortTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2052,6 +2053,7 @@ class ConsoleServerPortTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(ConsoleServerPortTemplate, 'bulk_rename', detail=False)
 class ConsoleServerPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ConsoleServerPortTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(ConsoleServerPortTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2092,6 +2094,7 @@ class PowerPortTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(PowerPortTemplate, 'bulk_rename', path='rename', detail=False)
 class PowerPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = PowerPortTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(PowerPortTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2132,6 +2135,7 @@ class PowerOutletTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(PowerOutletTemplate, 'bulk_rename', path='rename', detail=False)
 class PowerOutletTemplateBulkRenameView(generic.BulkRenameView):
     queryset = PowerOutletTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(PowerOutletTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2172,6 +2176,7 @@ class InterfaceTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(InterfaceTemplate, 'bulk_rename', path='rename', detail=False)
 class InterfaceTemplateBulkRenameView(generic.BulkRenameView):
     queryset = InterfaceTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(InterfaceTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2212,6 +2217,7 @@ class FrontPortTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(FrontPortTemplate, 'bulk_rename', path='rename', detail=False)
 class FrontPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = FrontPortTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(FrontPortTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2252,6 +2258,7 @@ class RearPortTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(RearPortTemplate, 'bulk_rename', path='rename', detail=False)
 class RearPortTemplateBulkRenameView(generic.BulkRenameView):
     queryset = RearPortTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(RearPortTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2292,6 +2299,7 @@ class ModuleBayTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(ModuleBayTemplate, 'bulk_rename', path='rename', detail=False)
 class ModuleBayTemplateBulkRenameView(generic.BulkRenameView):
     queryset = ModuleBayTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(ModuleBayTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2332,6 +2340,7 @@ class DeviceBayTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(DeviceBayTemplate, 'bulk_rename', path='rename', detail=False)
 class DeviceBayTemplateBulkRenameView(generic.BulkRenameView):
     queryset = DeviceBayTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(DeviceBayTemplate, 'bulk_delete', path='delete', detail=False)
@@ -2383,6 +2392,7 @@ class InventoryItemTemplateBulkEditView(generic.BulkEditView):
 @register_model_view(InventoryItemTemplate, 'bulk_rename', path='rename', detail=False)
 class InventoryItemTemplateBulkRenameView(generic.BulkRenameView):
     queryset = InventoryItemTemplate.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(InventoryItemTemplate, 'bulk_delete', path='delete', detail=False)
@@ -3067,6 +3077,7 @@ class ConsolePortBulkEditView(generic.BulkEditView):
 class ConsolePortBulkRenameView(generic.BulkRenameView):
     queryset = ConsolePort.objects.all()
     filterset = filtersets.ConsolePortFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(ConsolePort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3156,6 +3167,7 @@ class ConsoleServerPortBulkEditView(generic.BulkEditView):
 class ConsoleServerPortBulkRenameView(generic.BulkRenameView):
     queryset = ConsoleServerPort.objects.all()
     filterset = filtersets.ConsoleServerPortFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(ConsoleServerPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3244,6 +3256,7 @@ class PowerPortBulkEditView(generic.BulkEditView):
 class PowerPortBulkRenameView(generic.BulkRenameView):
     queryset = PowerPort.objects.all()
     filterset = filtersets.PowerPortFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(PowerPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3331,6 +3344,7 @@ class PowerOutletBulkEditView(generic.BulkEditView):
 class PowerOutletBulkRenameView(generic.BulkRenameView):
     queryset = PowerOutlet.objects.all()
     filterset = filtersets.PowerOutletFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(PowerOutlet, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3507,6 +3521,7 @@ class InterfaceBulkEditView(generic.BulkEditView):
 class InterfaceBulkRenameView(generic.BulkRenameView):
     queryset = Interface.objects.all()
     filterset = filtersets.InterfaceFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(Interface, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3611,6 +3626,7 @@ class FrontPortBulkEditView(generic.BulkEditView):
 class FrontPortBulkRenameView(generic.BulkRenameView):
     queryset = FrontPort.objects.all()
     filterset = filtersets.FrontPortFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(FrontPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3711,6 +3727,7 @@ class RearPortBulkEditView(generic.BulkEditView):
 @register_model_view(RearPort, 'bulk_rename', path='rename', detail=False)
 class RearPortBulkRenameView(generic.BulkRenameView):
     queryset = RearPort.objects.all()
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(RearPort, 'bulk_disconnect', path='disconnect', detail=False)
@@ -3793,6 +3810,7 @@ class ModuleBayBulkEditView(generic.BulkEditView):
 class ModuleBayBulkRenameView(generic.BulkRenameView):
     queryset = ModuleBay.objects.all()
     filterset = filtersets.ModuleBayFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(ModuleBay, 'bulk_delete', path='delete', detail=False)
@@ -3946,6 +3964,7 @@ class DeviceBayBulkEditView(generic.BulkEditView):
 class DeviceBayBulkRenameView(generic.BulkRenameView):
     queryset = DeviceBay.objects.all()
     filterset = filtersets.DeviceBayFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(DeviceBay, 'bulk_delete', path='delete', detail=False)
@@ -4015,6 +4034,7 @@ class InventoryItemBulkEditView(generic.BulkEditView):
 class InventoryItemBulkRenameView(generic.BulkRenameView):
     queryset = InventoryItem.objects.all()
     filterset = filtersets.InventoryItemFilterSet
+    rename_fields = ('name', 'label')
 
 
 @register_model_view(InventoryItem, 'bulk_delete', path='delete', detail=False)

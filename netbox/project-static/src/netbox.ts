@@ -8,7 +8,6 @@ import { initMessages } from './messages';
 import { initClipboard } from './clipboard';
 import { initDateSelector } from './dateSelector';
 import { initTableConfig } from './tableConfig';
-import { initInterfaceTable } from './tables';
 import { initSideNav } from './sidenav';
 import { initDashboard } from './dashboard';
 import { initRackElevation } from './racks';
@@ -28,7 +27,6 @@ function initDocument(): void {
     initButtons,
     initClipboard,
     initTableConfig,
-    initInterfaceTable,
     initSideNav,
     initDashboard,
     initRackElevation,

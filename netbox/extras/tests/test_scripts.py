@@ -32,7 +32,7 @@ JSON_DATA = """
 """
 
 
-class ScriptVariablesTest(TestCase):
+class ScriptVariablesTestCase(TestCase):
 
     def test_stringvar(self):
 

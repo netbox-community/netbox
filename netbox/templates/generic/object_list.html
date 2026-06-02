@@ -38,14 +38,14 @@ Context:
 {% block tabs %}
   <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+      <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="object-list" aria-selected="true">
         {% trans "Results" %}
         <span class="badge text-bg-secondary total-object-count">{% if table.page.paginator.count %}{{ table.page.paginator.count }}{% else %}{{ total_count|default:"0" }}{% endif %}</span>
       </a>
     </li>
     {% if filter_form %}
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+        <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="filters-form" aria-selected="false">
           {% trans "Filters" %}
           {% if filter_form %}{% badge filter_form.changed_data|length bg_color="primary" %}{% endif %}
         </button>

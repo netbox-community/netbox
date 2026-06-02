@@ -9,7 +9,7 @@ from vpn.choices import *
 from vpn.models import *
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
         url = reverse('vpn-api:api-root')
@@ -18,7 +18,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TunnelGroupTest(APIViewTestCases.APIViewTestCase):
+class TunnelGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = TunnelGroup
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'tunnel_count', 'url']
     create_data = (
@@ -50,7 +50,7 @@ class TunnelGroupTest(APIViewTestCases.APIViewTestCase):
         TunnelGroup.objects.bulk_create(tunnel_groups)
 
 
-class TunnelTest(APIViewTestCases.APIViewTestCase):
+class TunnelTestCase(APIViewTestCases.APIViewTestCase):
     model = Tunnel
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -111,7 +111,7 @@ class TunnelTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
+class TunnelTerminationTestCase(APIViewTestCases.APIViewTestCase):
     model = TunnelTermination
     brief_fields = ['display', 'id', 'url']
     bulk_update_data = {
@@ -179,7 +179,7 @@ class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class IKEProposalTest(APIViewTestCases.APIViewTestCase):
+class IKEProposalTestCase(APIViewTestCases.APIViewTestCase):
     model = IKEProposal
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -243,7 +243,7 @@ class IKEProposalTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class IKEPolicyTest(APIViewTestCases.APIViewTestCase):
+class IKEPolicyTestCase(APIViewTestCases.APIViewTestCase):
     model = IKEPolicy
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -317,7 +317,7 @@ class IKEPolicyTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class IPSecProposalTest(APIViewTestCases.APIViewTestCase):
+class IPSecProposalTestCase(APIViewTestCases.APIViewTestCase):
     model = IPSecProposal
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -367,7 +367,7 @@ class IPSecProposalTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
+class IPSecPolicyTestCase(APIViewTestCases.APIViewTestCase):
     model = IPSecPolicy
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -429,7 +429,7 @@ class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
+class IPSecProfileTestCase(APIViewTestCases.APIViewTestCase):
     model = IPSecProfile
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     user_permissions = ('vpn.view_ikepolicy', 'vpn.view_ipsecpolicy')
@@ -520,7 +520,7 @@ class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class L2VPNTest(APIViewTestCases.APIViewTestCase):
+class L2VPNTestCase(APIViewTestCases.APIViewTestCase):
     model = L2VPN
     brief_fields = ['description', 'display', 'id', 'identifier', 'name', 'slug', 'type', 'url']
     create_data = [
@@ -602,7 +602,7 @@ class L2VPNTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response_data['count'], 1)
 
 
-class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
+class L2VPNTerminationTestCase(APIViewTestCases.APIViewTestCase):
     model = L2VPNTermination
     brief_fields = ['display', 'id', 'l2vpn', 'url']
     user_permissions = ('dcim.view_location', 'vpn.view_l2vpn')

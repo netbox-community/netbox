@@ -220,6 +220,38 @@ class DeviceConnectionsReport(Script):
                 self.log_success("Passed", device)
 ```
 
+## Model Validation
+
+!!! warning "Validate objects before saving"
+    Direct ORM writes bypass validation normally performed by NetBox's UI and REST API.
+
+Custom scripts can create and update NetBox objects directly through Django's ORM. When doing so, instantiate the model, call `full_clean()`, and then call `save()`:
+
+```python
+obj = SomeModel(
+    field_a=value_a,
+    field_b=value_b,
+)
+
+obj.full_clean()
+obj.save()
+```
+
+Avoid using `Model.objects.create()` unless you intentionally want to skip model validation:
+
+```python
+SomeModel.objects.create(
+    field_a=value_a,
+    field_b=value_b,
+)
+```
+
+Django does not call `full_clean()` automatically when saving a model instance. Skipping validation can allow invalid or inconsistent data to be written to the database, which may later result in UI, API, or script errors.
+
+Bulk and direct queryset operations such as `bulk_create()`, `bulk_update()`, and `QuerySet.update()` should be used with the same care. These operations can bypass model validation and other model-specific save behavior.
+
+When editing an existing object, also see the change logging guidance below.
+
 ## Change Logging
 
 To generate the correct change log data when editing an existing object, a snapshot of the object must be taken before making any changes to the object.
@@ -325,6 +357,7 @@ A particular object within NetBox. Each ObjectVar must specify a particular mode
 * `context` - A custom dictionary mapping template context variables to fields, used when rendering `<option>` elements within the dropdown menu (optional; see below)
 * `null_option` - A label representing a "null" or empty choice (optional)
 * `selector` - A boolean that, when True, includes an advanced object selection widget to assist the user in identifying the desired object (optional; False by default)
+* `quick_add` - A boolean that, when True, includes a quick add widget, to create a new related object for assignment. (optional; False by default)
 
 To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:
 

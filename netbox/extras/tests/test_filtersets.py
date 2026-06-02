@@ -790,6 +790,62 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class TableConfigTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = TableConfig.objects.all()
+    filterset = TableConfigFilterSet
+    ignore_fields = ('columns', 'ordering')
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_by_natural_key('dcim', 'site')
+        rack_ct = ContentType.objects.get_by_natural_key('dcim', 'rack')
+
+        users = (
+            User(username='user1'),
+            User(username='user2'),
+            User(username='user3'),
+        )
+        User.objects.bulk_create(users)
+
+        TableConfig.objects.bulk_create(
+            [
+                TableConfig(
+                    object_type=site_ct,
+                    table='SiteTable',
+                    name='Table Config 1',
+                    user=users[0],
+                    weight=100,
+                    enabled=True,
+                    shared=True,
+                    columns=['name', 'status'],
+                    ordering=[],
+                ),
+                TableConfig(
+                    object_type=site_ct,
+                    table='SiteTable',
+                    name='Table Config 2',
+                    user=users[1],
+                    weight=200,
+                    enabled=True,
+                    shared=False,
+                    columns=['name', 'region'],
+                    ordering=[],
+                ),
+                TableConfig(
+                    object_type=rack_ct,
+                    table='RackTable',
+                    name='Table Config 3',
+                    user=users[2],
+                    weight=300,
+                    enabled=False,
+                    shared=True,
+                    columns=['name', 'site'],
+                    ordering=[],
+                ),
+            ]
+        )
+
+
 class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = JournalEntry.objects.all()
     filterset = JournalEntryFilterSet

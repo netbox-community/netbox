@@ -12,16 +12,43 @@ class CircuitCircuitTerminationPanel(panels.ObjectPanel):
 
     template_name = 'circuits/panels/circuit_circuit_termination.html'
     title = _('Termination')
+    termination_ancestor_max_depth = 3
 
     def __init__(self, side, accessor=None, **kwargs):
         super().__init__(accessor=accessor, **kwargs)
         self.side = side
 
+    def _get_termination_nodes(self, termination):
+        """
+        Return the termination target's ancestors, including itself, when the
+        target is tree-like.
+
+        Non-tree GFK targets return None, so the template preserves the current
+        single-object rendering.
+        """
+        target = getattr(termination, 'termination', None)
+        if target is None:
+            return None
+
+        get_ancestors = getattr(target, 'get_ancestors', None)
+        if not callable(get_ancestors):
+            return None
+
+        nodes = list(get_ancestors(include_self=True))
+
+        if self.termination_ancestor_max_depth is not None:
+            nodes = nodes[-self.termination_ancestor_max_depth:]
+
+        return nodes
+
     def get_context(self, context):
+        termination = resolve_attr_path(context, f'{self.accessor}.termination_{self.side.lower()}')
+
         return {
             **super().get_context(context),
             'side': self.side,
-            'termination': resolve_attr_path(context, f'{self.accessor}.termination_{self.side.lower()}'),
+            'termination': termination,
+            'termination_nodes': self._get_termination_nodes(termination),
         }
 
 
@@ -58,7 +85,9 @@ class CircuitTerminationPanel(panels.ObjectAttributesPanel):
     title = _('Circuit Termination')
     circuit = attrs.RelatedObjectAttr('circuit', linkify=True)
     provider = attrs.RelatedObjectAttr('circuit.provider', linkify=True)
-    termination = attrs.GenericForeignKeyAttr('termination', linkify=True, label=_('Termination point'))
+    termination = attrs.GenericForeignKeyAttr(
+        'termination', linkify=True, nested=True, max_depth=3, label=_('Termination point')
+    )
     connection = attrs.TemplatedAttr(
         'pk',
         template_name='circuits/circuit_termination/attrs/connection.html',
@@ -91,7 +120,7 @@ class CircuitPanel(panels.ObjectAttributesPanel):
     cid = attrs.TextAttr('cid', label=_('Circuit ID'), style='font-monospace', copy_button=True)
     type = attrs.RelatedObjectAttr('type', linkify=True, colored=True)
     status = attrs.ChoiceAttr('status')
-    distance = attrs.NumericAttr('distance', unit_accessor='get_distance_unit_display')
+    distance = attrs.DistanceAttr('distance')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     install_date = attrs.DateTimeAttr('install_date', spec='date')
     termination_date = attrs.DateTimeAttr('termination_date', spec='date')

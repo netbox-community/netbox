@@ -1,10 +1,11 @@
 from django.db import router
 from django.db.models import signals
-from taggit.managers import _TaggableManager
+from taggit.managers import TaggableManager, _TaggableManager
 from taggit.utils import require_instance_manager
 
 __all__ = (
     'NetBoxTaggableManager',
+    'NetBoxTaggableManagerField',
 )
 
 
@@ -65,3 +66,29 @@ class NetBoxTaggableManager(_TaggableManager):
             pk_set=new_ids,
             using=db,
         )
+
+
+class NetBoxTaggableManagerField(TaggableManager):
+    """
+    Subclass of taggit's TaggableManager that interpolates `%(app_label)s` and `%(class)s` in
+    `related_name`. taggit's contribute_to_class() bypasses Django's RelatedField, which is what
+    normally performs this substitution, so without this two taggable models that share a class
+    name (e.g. from different plugins) collide on Tag's reverse accessor.
+    """
+    def contribute_to_class(self, cls, name):
+        super().contribute_to_class(cls, name)
+        if not cls._meta.abstract and self.remote_field.related_name:
+            self.remote_field.related_name = self.remote_field.related_name % {
+                'class': cls.__name__.lower(),
+                'app_label': cls._meta.app_label.lower(),
+            }
+
+    def deconstruct(self):
+        # Emit the upstream taggit path and omit related_name so existing migrations remain
+        # equivalent and no AlterField is produced for every TagsMixin consumer. related_name
+        # has no effect on the database schema; it is reapplied on model load. Only safe while
+        # this subclass adds no field attributes that affect schema — if that changes, restore
+        # the real path so migrations capture the diff.
+        name, _path, args, kwargs = super().deconstruct()
+        kwargs.pop('related_name', None)
+        return name, 'taggit.managers.TaggableManager', args, kwargs

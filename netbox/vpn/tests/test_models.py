@@ -6,7 +6,7 @@ from ipam.models import VLAN
 from vpn.models import *
 
 
-class TestL2VPNTermination(TestCase):
+class L2VPNTerminationTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):

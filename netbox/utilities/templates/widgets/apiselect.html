@@ -6,13 +6,14 @@
     <button
       type="button"
       title="{% trans "Open selector" %}"
+      aria-label="{% trans "Open selector" %}"
       class="btn btn-outline-secondary ms-1"
       data-bs-toggle="modal"
       data-bs-target="#htmx-modal"
       hx-get="{% url 'htmx_object_selector' %}?_model={{ widget.attrs.selector }}&target={{ widget.attrs.id }}"
       hx-target="#htmx-modal-content"
     >
-      <i class="mdi mdi-database-search-outline"></i>
+      <i class="mdi mdi-database-search-outline" aria-hidden="true"></i>
     </button>
   {% endif %}
   {% if quick_add and not widget.attrs.disabled %}
@@ -20,13 +21,14 @@
     <button
       type="button"
       title="{% trans "Quick add" %}"
+      aria-label="{% trans "Quick add" %}"
       class="btn btn-outline-secondary ms-1"
       data-bs-toggle="modal"
       data-bs-target="#htmx-modal"
       hx-get="{{ quick_add.url }}?_quickadd=True&target={{ widget.attrs.id }}{% for k, v in quick_add.params.items %}&{{ k }}={{ v }}{% endfor %}"
       hx-target="#htmx-modal-content"
     >
-      <i class="mdi mdi-plus-circle"></i>
+      <i class="mdi mdi-plus-circle" aria-hidden="true"></i>
     </button>
   {% endif %}
 </div>

@@ -37,18 +37,18 @@
 
       {% if object.device_type.is_child_device and object.parent_bay %}
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">{% trans "Parent Device" %}</label>
+          <label for="id_parent_device" class="col-sm-3 col-form-label">{% trans "Parent Device" %}</label>
           <div class="col">
-            <input class="form-control" value="{{ object.parent_bay.device }}" disabled />
+            <input id="id_parent_device" class="form-control" value="{{ object.parent_bay.device }}" disabled />
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">{% trans "Parent Bay" %}</label>
+          <label for="id_parent_bay" class="col-sm-3 col-form-label">{% trans "Parent Bay" %}</label>
           <div class="col">
             <div class="input-group">
-              <input class="form-control" value="{{ object.parent_bay.name }}" disabled />
-              <a href="{% url 'dcim:devicebay_depopulate' pk=object.parent_bay.pk %}" title="{% trans "Regenerate Slug" %}" class="btn btn-danger d-inline-flex align-items-center">
-                <i class="mdi mdi-close-thick"></i>&nbsp;{% trans "Remove" %}
+              <input id="id_parent_bay" class="form-control" value="{{ object.parent_bay.name }}" disabled />
+              <a href="{% url 'dcim:devicebay_depopulate' pk=object.parent_bay.pk %}" title="{% trans "Remove" %}" aria-label="{% trans "Remove" %}" class="btn btn-danger d-inline-flex align-items-center">
+                <i class="mdi mdi-close-thick" aria-hidden="true"></i>&nbsp;{% trans "Remove" %}
               </a>
             </div>
             </div>

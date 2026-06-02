@@ -2,41 +2,41 @@ from utilities.testing import TableTestCases
 from vpn.tables import *
 
 
-class TunnelGroupTableTest(TableTestCases.StandardTableTestCase):
+class TunnelGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = TunnelGroupTable
 
 
-class TunnelTableTest(TableTestCases.StandardTableTestCase):
+class TunnelTableTestCase(TableTestCases.StandardTableTestCase):
     table = TunnelTable
 
 
-class TunnelTerminationTableTest(TableTestCases.StandardTableTestCase):
+class TunnelTerminationTableTestCase(TableTestCases.StandardTableTestCase):
     table = TunnelTerminationTable
 
 
-class IKEProposalTableTest(TableTestCases.StandardTableTestCase):
+class IKEProposalTableTestCase(TableTestCases.StandardTableTestCase):
     table = IKEProposalTable
 
 
-class IKEPolicyTableTest(TableTestCases.StandardTableTestCase):
+class IKEPolicyTableTestCase(TableTestCases.StandardTableTestCase):
     table = IKEPolicyTable
 
 
-class IPSecProposalTableTest(TableTestCases.StandardTableTestCase):
+class IPSecProposalTableTestCase(TableTestCases.StandardTableTestCase):
     table = IPSecProposalTable
 
 
-class IPSecPolicyTableTest(TableTestCases.StandardTableTestCase):
+class IPSecPolicyTableTestCase(TableTestCases.StandardTableTestCase):
     table = IPSecPolicyTable
 
 
-class IPSecProfileTableTest(TableTestCases.StandardTableTestCase):
+class IPSecProfileTableTestCase(TableTestCases.StandardTableTestCase):
     table = IPSecProfileTable
 
 
-class L2VPNTableTest(TableTestCases.StandardTableTestCase):
+class L2VPNTableTestCase(TableTestCases.StandardTableTestCase):
     table = L2VPNTable
 
 
-class L2VPNTerminationTableTest(TableTestCases.StandardTableTestCase):
+class L2VPNTerminationTableTestCase(TableTestCases.StandardTableTestCase):
     table = L2VPNTerminationTable

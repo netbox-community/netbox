@@ -57,6 +57,24 @@ class TokenSerializer(ValidatedModelSerializer):
 
         return super().validate(data)
 
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        # The plaintext token is only available in memory after save(); v2 tokens persist only an
+        # HMAC digest, so it can't be recovered later. Stash it on the request so to_representation()
+        # can return it even after the viewset re-fetches the instance from the database.
+        if request := self.context.get('request'):
+            if not hasattr(request, '_token_plaintexts'):
+                request._token_plaintexts = {}
+            request._token_plaintexts[instance.pk] = instance.token
+        return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not data.get('token') and (request := self.context.get('request')):
+            if plaintext := getattr(request, '_token_plaintexts', {}).get(instance.pk):
+                data['token'] = plaintext
+        return data
+
 
 class TokenProvisionSerializer(TokenSerializer):
     user = UserSerializer(

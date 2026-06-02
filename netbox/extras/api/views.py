@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django_rq.queues import get_connection
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.utils.translation import gettext_lazy as _
+from drf_spectacular.utils import OpenApiResponse, OpenApiTypes, extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -11,7 +11,6 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet
-from rq import Worker
 
 from extras import filtersets
 from extras.jobs import ScriptJob
@@ -24,6 +23,7 @@ from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
+from utilities.rqworker import any_workers_for_queue
 
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
@@ -246,11 +246,28 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
             return [TokenWritePermission()]
         return super().get_permissions()
 
+    @extend_schema(
+        request=OpenApiTypes.OBJECT,
+        responses={
+            200: OpenApiResponse(
+                response=serializers.RenderedConfigSerializer,
+                description=_(
+                    "The rendered config template. When the client requests `text/plain`, the raw "
+                    "rendered content is returned in place of the JSON object."
+                ),
+            ),
+            500: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                description=_("An error occurred while rendering the config template."),
+            ),
+        },
+    )
     @action(detail=True, methods=['post'], renderer_classes=[JSONRenderer, TextRenderer])
     def render(self, request, pk):
         """
-        Render a ConfigTemplate using the context data provided (if any). If the client requests "text/plain" data,
-        return the raw rendered content, rather than serialized JSON.
+        Render a ConfigTemplate using the context data provided (if any). The request body should be a
+        mapping of context variables to make available to the template. If the client requests "text/plain"
+        data, return the raw rendered content, rather than serialized JSON.
         """
         # Override restrict() on the default queryset to enforce the render & view actions
         self.queryset = self.queryset.model.objects.restrict(request.user, 'render').restrict(request.user, 'view')
@@ -326,7 +343,7 @@ class ScriptViewSet(ModelViewSet):
         )
 
         # Check that at least one RQ worker is running
-        if not Worker.count(get_connection('default')):
+        if not any_workers_for_queue('default'):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():

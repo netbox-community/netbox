@@ -12,10 +12,10 @@
                 <td>{{ obj.untagged_vlan|linkify:"vid" }}</td>
                 <td>{{ obj.untagged_vlan.name }}</td>
                 <td>
-                    <input type="radio" name="untagged_vlan" value="{{ obj.untagged_vlan.pk }}" checked="checked" />
+                    <input type="radio" name="untagged_vlan" value="{{ obj.untagged_vlan.pk }}" checked="checked" aria-label="{% blocktrans with vid=obj.untagged_vlan.vid name=obj.untagged_vlan.name %}Set VLAN {{ vid }} ({{ name }}) as untagged{% endblocktrans %}" />
                 </td>
                 <td>
-                    <input type="checkbox" name="tagged_vlans" value="{{ obj.untagged_vlan.pk }}" />
+                    <input type="checkbox" name="tagged_vlans" value="{{ obj.untagged_vlan.pk }}" aria-label="{% blocktrans with vid=obj.untagged_vlan.vid name=obj.untagged_vlan.name %}Tag VLAN {{ vid }} ({{ name }}){% endblocktrans %}" />
                 </td>
             </tr>
         {% endif %}
@@ -24,10 +24,10 @@
                 <td>{{ vlan|linkify:"vid" }}</td>
                 <td>{{ vlan.name }}</td>
                 <td>
-                    <input type="radio" name="untagged_vlan" value="{{ vlan.pk }}"{% if vlan == obj.untagged_vlan %} checked="checked"{% endif %} />
+                    <input type="radio" name="untagged_vlan" value="{{ vlan.pk }}"{% if vlan == obj.untagged_vlan %} checked="checked"{% endif %} aria-label="{% blocktrans with vid=vlan.vid name=vlan.name %}Set VLAN {{ vid }} ({{ name }}) as untagged{% endblocktrans %}" />
                 </td>
                 <td>
-                    <input type="checkbox" name="tagged_vlans" value="{{ vlan.pk }}" checked="checked" />
+                    <input type="checkbox" name="tagged_vlans" value="{{ vlan.pk }}" checked="checked" aria-label="{% blocktrans with vid=vlan.vid name=vlan.name %}Tag VLAN {{ vid }} ({{ name }}){% endblocktrans %}" />
                 </td>
             </tr>
         {% endfor %}
