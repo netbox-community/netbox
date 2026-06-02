@@ -509,10 +509,11 @@ class LtreeModel(models.Model):
         """
         Recompute `sort_path` for every row from current values of `name_column`.
 
-        The BEFORE trigger updates sort_path only on INSERT and parent change,
-        not on rename — matching django-mptt's `order_insertion_by` semantics.
-        After renaming rows, call this to bring sort_path back in line with
-        current names (and thus restore correct list ordering).
+        Inserts, reparents, AND renames are all maintained automatically by the
+        BEFORE/AFTER triggers (the BEFORE trigger fires on INSERT and on updates to
+        parent_id or the name column). Use this only to repair `sort_path` after a
+        raw SQL write (e.g. a bulk COPY or a direct UPDATE) that bypassed those
+        triggers.
 
         Raises if the table does not have a `sort_path` column.
         """
@@ -522,16 +523,18 @@ class LtreeModel(models.Model):
             raise NotImplementedError(
                 f"{cls.__name__} does not have a sort_path column"
             )
-        table = cls._meta.db_table
+        qn = connection.ops.quote_name
+        table = qn(cls._meta.db_table)
+        name_col = qn(name_column)
         sql = f'''
             WITH RECURSIVE t(id, parent_id, sort_path) AS (
-                SELECT id, parent_id, "{name_column}"::text
-                FROM "{table}" WHERE parent_id IS NULL
+                SELECT id, parent_id, {name_col}::text
+                FROM {table} WHERE parent_id IS NULL
                 UNION ALL
-                SELECT r.id, r.parent_id, t.sort_path || chr(1) || r."{name_column}"
-                FROM "{table}" r INNER JOIN t ON r.parent_id = t.id
+                SELECT r.id, r.parent_id, t.sort_path || chr(1) || r.{name_col}
+                FROM {table} r INNER JOIN t ON r.parent_id = t.id
             )
-            UPDATE "{table}" SET sort_path = t.sort_path FROM t WHERE "{table}".id = t.id;
+            UPDATE {table} SET sort_path = t.sort_path FROM t WHERE {table}.id = t.id;
         '''
         with connection.cursor() as cursor:
             cursor.execute(sql)
