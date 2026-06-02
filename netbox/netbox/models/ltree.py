@@ -119,15 +119,18 @@ class LtreeQuerySet(RestrictedQuerySet):
             if is_many_to_many:
                 field = model._meta.get_field(rel_field)
                 m2m_table = field.remote_field.through._meta.db_table
-                m2m_parent_col = field.m2m_column_name()
-                m2m_related_col = field.m2m_reverse_name()
+                # `model` is the declaring side (the side holding the items to count);
+                # `queryset.model` is the related (tree) side. m2m_column_name() points
+                # at the declaring model; m2m_reverse_name() points at the related model.
+                m2m_to_child_col = field.m2m_column_name()
+                m2m_to_tree_col = field.m2m_reverse_name()
                 sql = f'''(
                     SELECT COUNT(DISTINCT "{related_table}"."id")
                     FROM "{related_table}"
                     INNER JOIN "{m2m_table}"
-                      ON "{related_table}"."id" = "{m2m_table}"."{m2m_related_col}"
+                      ON "{related_table}"."id" = "{m2m_table}"."{m2m_to_child_col}"
                     INNER JOIN "{parent_table}" AS subtree
-                      ON "{m2m_table}"."{m2m_parent_col}" = subtree."id"
+                      ON "{m2m_table}"."{m2m_to_tree_col}" = subtree."id"
                     WHERE subtree."path" <@ "{parent_table}"."path"
                 )'''
                 return queryset.annotate(**{
@@ -201,6 +204,22 @@ class LtreeModel(models.Model):
     Subclasses must declare a `parent = models.ForeignKey('self', ...)`. The
     `path` column is maintained by per-table triggers installed via
     InstallLtreeTriggers; do not write to it from Python.
+
+    Bulk creates:
+        The BEFORE INSERT trigger resolves a row's parent by SELECTing
+        `path` from the same table by parent_id. In a multi-row INSERT
+        (e.g. `bulk_create`) PostgreSQL fires the BEFORE trigger per row in
+        list order, so any row whose parent is also in the same batch
+        must appear after its parent. A child placed before its parent in
+        the batch will be persisted with a root-level path (the parent
+        row is not yet visible to the lookup).
+
+    Sort-path staleness:
+        For subclasses with the optional `sort_path` column (see
+        InstallLtreeTriggers' `name_column` arg), renaming a row does NOT
+        update its sort_path — matching django-mptt's
+        `order_insertion_by` behavior. Call `rebuild_sort_paths()` to
+        recompute sort_path for every row from current names.
     """
     path = LtreeField(editable=False, null=False, blank=True, default='')
 
@@ -226,11 +245,18 @@ class LtreeModel(models.Model):
         consistent with the database.
         """
         is_insert = self._state.adding
-        parent_changed = (not is_insert) and self.parent_id != self._loaded_parent_id
+        # When update_fields is supplied and excludes parent, the DB does not see
+        # the new parent_id, so the trigger does not fire and _loaded_parent_id
+        # must not advance — otherwise a subsequent full save() would mis-detect
+        # the (real) parent change as already-applied and leave path stale.
+        update_fields = kwargs.get('update_fields')
+        parent_written = update_fields is None or 'parent' in update_fields or 'parent_id' in update_fields
+        parent_changed = (not is_insert) and parent_written and self.parent_id != self._loaded_parent_id
         super().save(*args, **kwargs)
         if is_insert or parent_changed:
             self.path = type(self).objects.values_list('path', flat=True).get(pk=self.pk)
-        self._loaded_parent_id = self.parent_id
+        if is_insert or parent_written:
+            self._loaded_parent_id = self.parent_id
 
     # -- MPTT-compatible API ------------------------------------------------
 
@@ -340,6 +366,38 @@ class LtreeModel(models.Model):
             raise ValueError(f"Unsupported insert_at position: {position!r}")
         if save:
             self.save()
+
+    @classmethod
+    def rebuild_sort_paths(cls, name_column='name'):
+        """
+        Recompute `sort_path` for every row from current values of `name_column`.
+
+        The BEFORE trigger updates sort_path only on INSERT and parent change,
+        not on rename — matching django-mptt's `order_insertion_by` semantics.
+        After renaming rows, call this to bring sort_path back in line with
+        current names (and thus restore correct list ordering).
+
+        Raises if the table does not have a `sort_path` column.
+        """
+        from django.db import connection
+
+        if not any(f.name == 'sort_path' for f in cls._meta.get_fields()):
+            raise NotImplementedError(
+                f"{cls.__name__} does not have a sort_path column"
+            )
+        table = cls._meta.db_table
+        sql = f'''
+            WITH RECURSIVE t(id, parent_id, sort_path) AS (
+                SELECT id, parent_id, "{name_column}"::text
+                FROM "{table}" WHERE parent_id IS NULL
+                UNION ALL
+                SELECT r.id, r.parent_id, t.sort_path || chr(1) || r."{name_column}"
+                FROM "{table}" r INNER JOIN t ON r.parent_id = t.id
+            )
+            UPDATE "{table}" SET sort_path = t.sort_path FROM t WHERE "{table}".id = t.id;
+        '''
+        with connection.cursor() as cursor:
+            cursor.execute(sql)
 
 
 #

@@ -3,6 +3,7 @@ from django.db import connection
 from django.test import TestCase
 
 from dcim.models import Region, Site
+from tenancy.models import Contact, ContactGroup
 
 
 def _path(*pks):
@@ -215,3 +216,119 @@ class AddRelatedCountTests(TestCase):
         # root sees both sites (direct + via child)
         self.assertEqual(counts['R'], 2)
         self.assertEqual(counts['C'], 1)
+
+    def test_cumulative_m2m_count(self):
+        """
+        Cumulative count over an M2M relation walks the subtree via
+        path <@, joining the through table by the correct columns.
+
+        Regression: previously the JOINs swapped m2m_column_name() and
+        m2m_reverse_name(), producing wrong counts on M2M relations.
+        """
+        root = ContactGroup.objects.create(name='Root', slug='root-m2m')
+        child = ContactGroup.objects.create(parent=root, name='Child', slug='child-m2m')
+        leaf = ContactGroup.objects.create(parent=child, name='Leaf', slug='leaf-m2m')
+        # 3 contacts spread across the subtree (one per node)
+        c_root = Contact.objects.create(name='CR')
+        c_child = Contact.objects.create(name='CC')
+        c_leaf = Contact.objects.create(name='CL')
+        c_root.groups.add(root)
+        c_child.groups.add(child)
+        c_leaf.groups.add(leaf)
+
+        qs = ContactGroup.objects.add_related_count(
+            ContactGroup.objects.filter(slug__endswith='-m2m'),
+            Contact, 'groups', 'contact_count', cumulative=True,
+        )
+        counts = {g.name: g.contact_count for g in qs}
+        self.assertEqual(counts['Root'], 3)
+        self.assertEqual(counts['Child'], 2)
+        self.assertEqual(counts['Leaf'], 1)
+
+
+class SaveUpdateFieldsTests(TestCase):
+    """
+    Regression: when save(update_fields=...) excludes parent, _loaded_parent_id
+    must not advance, otherwise a subsequent full save() will mis-detect the
+    parent change as already-applied and leave path stale in memory.
+    """
+
+    def test_partial_save_then_full_save_refreshes_path(self):
+        r1 = Region.objects.create(name='R1', slug='r1-uf')
+        r2 = Region.objects.create(name='R2', slug='r2-uf')
+        obj = Region.objects.create(name='Obj', slug='obj-uf')
+        original_path = obj.path
+
+        # Reparent in memory but persist a different field only:
+        obj.parent = r1
+        obj.name = 'Obj-renamed'
+        obj.save(update_fields=['name'])
+
+        # DB parent_id is still NULL — confirm:
+        db_parent = Region.objects.values_list('parent_id', flat=True).get(pk=obj.pk)
+        self.assertIsNone(db_parent)
+        self.assertEqual(
+            Region.objects.values_list('path', flat=True).get(pk=obj.pk),
+            original_path,
+        )
+
+        # Now a full save persists the new parent — path must refresh:
+        obj.parent = r2
+        obj.save()
+        db_path = Region.objects.values_list('path', flat=True).get(pk=obj.pk)
+        self.assertEqual(db_path, _path(r2.pk, obj.pk))
+        self.assertEqual(obj.path, db_path, "in-memory path is stale after full save")
+
+
+class BulkCreateOrderingTests(TestCase):
+    """
+    The BEFORE INSERT trigger looks up parent.path via subquery per row.
+    In bulk_create the trigger fires per row in list order, so a parent
+    placed in the same batch must precede its children.
+    """
+
+    def test_parent_before_child_in_same_batch(self):
+        root = Region.objects.create(name='R', slug='r-bcord')
+        # Parent BEFORE child in the list — both get correct paths
+        parent_pending = Region(parent=root, name='Mid', slug='mid-bcord')
+        child_pending = Region(parent=parent_pending, name='Leaf', slug='leaf-bcord')
+        # parent_pending isn't yet saved, so child_pending.parent_id is None;
+        # set the parent reference after the parent is saved.
+        Region.objects.bulk_create([parent_pending])
+        parent_pending.refresh_from_db()
+        child_pending.parent = parent_pending
+        Region.objects.bulk_create([child_pending])
+        child_pending.refresh_from_db()
+        self.assertEqual(child_pending.path, _path(root.pk, parent_pending.pk, child_pending.pk))
+
+
+class RebuildSortPathsTests(TestCase):
+    """
+    rebuild_sort_paths() recomputes sort_path from current names. The stale-
+    sort case shows up in descendants: renaming a parent and saving it
+    recomputes that one row's sort_path, but descendants' sort_paths still
+    contain the parent's old name until rebuilt.
+    """
+
+    def test_descendant_sort_paths_stale_then_rebuilt(self):
+        parent = Region.objects.create(name='Bravo', slug='bravo-rsp')
+        Region.objects.create(parent=parent, name='Mid', slug='mid-rsp')
+
+        # Rename parent. AFTER cascade only fires when path changes, so
+        # descendants keep their old sort_path embedding 'Bravo'.
+        parent.name = 'Zulu'
+        parent.save()
+        mid_sort = Region.objects.values_list('sort_path', flat=True).get(slug='mid-rsp')
+        self.assertIn('Bravo', mid_sort, "descendant sort_path should still contain old name")
+        self.assertNotIn('Zulu', mid_sort)
+
+        Region.rebuild_sort_paths()
+        mid_sort = Region.objects.values_list('sort_path', flat=True).get(slug='mid-rsp')
+        self.assertIn('Zulu', mid_sort)
+        self.assertNotIn('Bravo', mid_sort)
+
+    def test_raises_without_sort_path(self):
+        # InventoryItem uses LtreeModel but doesn't have a sort_path column.
+        from dcim.models import InventoryItem
+        with self.assertRaises(NotImplementedError):
+            InventoryItem.rebuild_sort_paths()
