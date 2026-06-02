@@ -4,6 +4,7 @@ from jinja2.meta import find_referenced_templates
 from jinja2.sandbox import SandboxedEnvironment
 
 from netbox.config import get_config
+from netbox.registry import registry
 
 __all__ = (
     'DataFileLoader',
@@ -77,7 +78,6 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
 
     # Build filter table: plugin-registered < instance JINJA2_FILTERS.
     # Instance-level config always wins so site admins can override anything.
-    from netbox.registry import registry
     filters = {
         **registry['plugins'].get('jinja2_filters', {}),
         **get_config().JINJA2_FILTERS,

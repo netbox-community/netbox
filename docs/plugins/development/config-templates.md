@@ -57,7 +57,7 @@ class MyPluginConfig(PluginConfig):
 
 ### Precedence
 
-Plugin-registered filters can be overridden on a per-instance basis via the [`JINJA2_FILTERS`](../../configuration/system.md#jinja2_filters) configuration parameter. Instance-level filters always take precedence over plugin-registered filters of the same name.
+Plugin-registered filters are applied in plugin load order. If two plugins register a filter with the same name, the later-loaded plugin's version wins and NetBox will log a warning. Instance-level [`JINJA2_FILTERS`](../../configuration/system.md#jinja2_filters) always takes final precedence over any plugin-registered filter of the same name.
 
 For example, if `my_plugin` registers a `prefix_list` filter but a site needs different behaviour, the operator can replace it in `configuration.py` without touching the plugin:
 
@@ -106,3 +106,8 @@ The returned dict is merged into the template context, so `my_plugin` becomes av
 
 !!! note "Conflict avoidance"
     Choose context variable names that are unlikely to collide with NetBox's built-in template variables (`device`, `queryset`, etc.) or with those contributed by other plugins. Prefixing with your plugin name is strongly recommended.
+
+    In addition, avoid top-level app-label names (`dcim`, `ipam`, `virtualization`, etc.). The auto-populated template context maps each app label to a dict of its public model classes; returning a key like `'dcim'` from `get_jinja2_context()` will silently replace that entire namespace.
+
+!!! note "No per-render context"
+    `get_jinja2_context()` receives no arguments — it has no access to the object being rendered or the caller-supplied context. It is intended for plugin-global namespaces (e.g. a lazily-evaluated query helper). Per-object logic belongs in the template itself or in a custom filter.

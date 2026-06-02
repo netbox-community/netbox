@@ -1,4 +1,5 @@
 import inspect
+import logging
 
 from django.utils.translation import gettext_lazy as _
 
@@ -6,6 +7,8 @@ from netbox.registry import registry
 
 from .navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 from .templates import PluginTemplateExtension
+
+logger = logging.getLogger(__name__)
 
 __all__ = (
     'register_graphql_schema',
@@ -29,6 +32,11 @@ def register_jinja2_filters(filters):
     for name, fn in filters.items():
         if not callable(fn):
             raise TypeError(_("Jinja2 filter '{name}' must be callable").format(name=name))
+        if name in registry['plugins']['jinja2_filters']:
+            logger.warning(
+                "Jinja2 filter '%s' registered by a plugin is being overridden by a later-loaded plugin",
+                name,
+            )
     registry['plugins']['jinja2_filters'].update(filters)
 
 

@@ -256,6 +256,19 @@ class PluginTest(TestCase):
         self.assertIn('dummy_plugin_var', ctx)
         self.assertEqual(ctx['dummy_plugin_var'], 'hello_from_dummy')
 
+    def test_get_jinja2_context_bad_return_is_silenced(self):
+        """
+        A non-dict return from get_jinja2_context() must not crash the render.
+        """
+        from unittest.mock import patch
+
+        from extras.models import ConfigTemplate
+        from netbox.tests.dummy_plugin import DummyPluginConfig
+        ct = ConfigTemplate(name='bad-ctx-test', template_code='')
+        with patch.object(DummyPluginConfig, 'get_jinja2_context', return_value='not_a_dict'):
+            ctx = ct.get_context()
+        self.assertNotIn('dummy_plugin_var', ctx)
+
     def test_instance_jinja2_filters_override_plugin_filters(self):
         """
         Instance-level JINJA2_FILTERS must take precedence over plugin-registered filters
