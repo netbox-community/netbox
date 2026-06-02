@@ -1,9 +1,14 @@
 from django.contrib.postgres.fields import ArrayField
-from django.core.serializers.json import Deserializer  # noqa: F401
+from django.core.serializers.json import Deserializer
 from django.core.serializers.json import Serializer as Serializer_
 from django.utils.encoding import is_protected_type
 
 # NOTE: Module must contain both Serializer and Deserializer
+
+__all__ = (
+    'Deserializer',
+    'Serializer',
+)
 
 
 class Serializer(Serializer_):
@@ -14,8 +19,8 @@ class Serializer(Serializer_):
     def _value_from_field(self, obj, field):
         value = field.value_from_object(obj)
 
-        # Handle ArrayFields of protected types
-        if type(field) is ArrayField:
+        # Handle ArrayFields (including subclasses) of protected types
+        if isinstance(field, ArrayField):
             if not value or is_protected_type(value[0]):
                 return value
 

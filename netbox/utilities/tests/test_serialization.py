@@ -2,7 +2,8 @@ from django.test import TestCase
 
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
-from extras.models import Tag
+from extras.choices import CustomFieldChoiceSetBaseChoices
+from extras.models import CustomFieldChoiceSet, Tag
 from utilities.serialization import deserialize_object, serialize_object
 
 
@@ -31,6 +32,16 @@ class SerializationTestCase(TestCase):
         self.assertEqual(data['tags'], [tag.name for tag in Tag.objects.all()])
         self.assertEqual(data['foo'], 123)
         self.assertNotIn('description', data)
+
+    def test_serialize_object_empty_array_field_subclass(self):
+        """An empty ArrayField subclass value serializes as a list, not a string."""
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Choice Set 1',
+            base_choices=CustomFieldChoiceSetBaseChoices.IATA,
+            extra_choices=[],
+        )
+        data = serialize_object(choice_set)
+        self.assertEqual(data['extra_choices'], [])
 
     def test_deserialize_object(self):
         data = {

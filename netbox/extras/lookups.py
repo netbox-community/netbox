@@ -3,7 +3,16 @@ from django.contrib.postgres.fields.ranges import RangeField
 from django.db.models import CharField, JSONField, Lookup
 from django.db.models.fields.json import KeyTextTransform
 
-from .fields import CachedValueField
+from .fields import CachedValueField, ChoiceSetField
+
+__all__ = (
+    'ChoiceValueLookup',
+    'Empty',
+    'JSONEmpty',
+    'NetContainsOrEquals',
+    'NetHost',
+    'RangeContains',
+)
 
 
 class RangeContains(Lookup):
@@ -32,6 +41,22 @@ class RangeContains(Lookup):
         sql = f"EXISTS (SELECT 1 FROM unnest({lhs}) AS r WHERE r @> {rhs})"
         params = lhs_params + rhs_params
         return sql, params
+
+
+class ChoiceValueLookup(Lookup):
+    """
+    Match rows where any [value, label] pair in a ChoiceSetField has the given value.
+
+    Compares the RHS against the first element (the value) of each pair.
+    """
+    lookup_name = 'choice_value'
+    prepare_rhs = False
+
+    def as_sql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        # Slice the value column of the two-dimensional array and match any element
+        return f'{rhs} = ANY({lhs}[:][1:1])', [*rhs_params, *lhs_params]
 
 
 class Empty(Lookup):
@@ -99,6 +124,7 @@ class NetContainsOrEquals(Lookup):
 
 
 ArrayField.register_lookup(RangeContains)
+ChoiceSetField.register_lookup(ChoiceValueLookup)
 CharField.register_lookup(Empty)
 JSONField.register_lookup(JSONEmpty)
 CachedValueField.register_lookup(NetHost)

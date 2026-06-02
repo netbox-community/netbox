@@ -7,7 +7,6 @@ import django_filters
 import jsonschema
 from django import forms
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.db.models import F, Func, Value
@@ -21,6 +20,7 @@ from jsonschema.exceptions import ValidationError as JSONValidationError
 from core.models import ObjectType
 from extras.choices import *
 from extras.data import CHOICE_SETS
+from extras.fields import ChoiceSetField
 from netbox.context import query_cache
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
@@ -877,11 +877,7 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, OwnerMixin, Chang
         null=True,
         help_text=_('Base set of predefined choices (optional)')
     )
-    extra_choices = ArrayField(
-        ArrayField(
-            base_field=models.CharField(max_length=100),
-            size=2
-        ),
+    extra_choices = ChoiceSetField(
         blank=True,
         null=True
     )

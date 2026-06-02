@@ -198,8 +198,8 @@ class ModelTestCase(TestCase):
                     model_dict[key] = [[r.lower, r.upper - 1] for r in value]
 
             else:
-                # Convert ArrayFields to CSV strings
-                if type(field) is ArrayField:
+                # Convert ArrayFields (including subclasses) to CSV strings
+                if isinstance(field, ArrayField):
                     if getattr(field.base_field, 'choices', None):
                         # Values for fields with pre-defined choices can be returned as lists
                         model_dict[key] = value
