@@ -140,6 +140,9 @@ JINJA2_FILTERS = {
 }
 ```
 
+!!! tip "Plugin-provided filters"
+    Plugins can also register Jinja2 filters without requiring instance configuration. See [Jinja2 Config Templates](../plugins/development/config-templates.md) in the plugin development documentation. Instance-level `JINJA2_FILTERS` always take precedence over plugin-registered filters of the same name.
+
 ---
 
 ## LOGGING

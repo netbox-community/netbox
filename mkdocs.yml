@@ -147,6 +147,7 @@ nav:
             - UI Components: 'plugins/development/ui-components.md'
             - Navigation: 'plugins/development/navigation.md'
             - Templates: 'plugins/development/templates.md'
+            - Config Templates: 'plugins/development/config-templates.md'
             - Tables: 'plugins/development/tables.md'
             - Forms: 'plugins/development/forms.md'
             - Filters & Filter Sets: 'plugins/development/filtersets.md'
