@@ -7,6 +7,7 @@ from .features import ChangeLogMessageSerializer
 
 __all__ = (
     'BulkOperationSerializer',
+    'BulkUpdateSchemaMixin',
     'BulkPartialUpdateSchemaMixin',
     'get_bulk_update_serializer_class'
 )
@@ -39,7 +40,7 @@ class BulkPartialUpdateSchemaMixin(BulkUpdateSchemaMixin):
         return fields
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def get_bulk_update_serializer_class(serializer_class, *, partial=False):
     """
     Return a schema-only serializer for bulk PUT/PATCH requests.
