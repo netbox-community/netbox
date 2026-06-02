@@ -1,5 +1,5 @@
 import copy
-from functools import lru_cache
+import functools
 
 from rest_framework import serializers
 
@@ -7,8 +7,8 @@ from .features import ChangeLogMessageSerializer
 
 __all__ = (
     'BulkOperationSerializer',
-    'BulkUpdateSchemaMixin',
     'BulkPartialUpdateSchemaMixin',
+    'BulkUpdateSchemaMixin',
     'get_bulk_update_serializer_class'
 )
 
@@ -40,7 +40,7 @@ class BulkPartialUpdateSchemaMixin(BulkUpdateSchemaMixin):
         return fields
 
 
-@lru_cache(maxsize=None)
+@functools.cache
 def get_bulk_update_serializer_class(serializer_class, *, partial=False):
     """
     Return a schema-only serializer for bulk PUT/PATCH requests.
