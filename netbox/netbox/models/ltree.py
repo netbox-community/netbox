@@ -115,6 +115,32 @@ class SortPathField(models.TextField):
 class LtreeQuerySet(RestrictedQuerySet):
     """QuerySet for ltree-based hierarchies, layered on RestrictedQuerySet."""
 
+    def bulk_create(self, objs, *args, **kwargs):
+        """
+        Same as the standard `bulk_create` but verifies that a row whose parent is
+        also in the same batch appears AFTER its parent. PostgreSQL fires the
+        BEFORE INSERT trigger per row in list order; a child placed before its
+        parent in the same batch would otherwise be persisted with a stale
+        root-level path silently. Raises ValueError when a misordering is detected.
+        """
+        seen = set()
+        objs_list = list(objs)
+        for idx, obj in enumerate(objs_list):
+            parent = getattr(obj, 'parent', None)
+            if parent is not None and parent.pk is None and id(parent) not in seen:
+                # parent is also in this batch (unsaved) but hasn't appeared yet
+                # — only an issue if it's actually later in the list.
+                for later in objs_list[idx + 1:]:
+                    if later is parent:
+                        raise ValueError(
+                            "bulk_create: child at index {idx} references parent that "
+                            "appears later in the same batch; parents must precede "
+                            "their children or the child's path will be stored as "
+                            "a root.".format(idx=idx)
+                        )
+            seen.add(id(obj))
+        return super().bulk_create(objs_list, *args, **kwargs)
+
     def add_related_count(self, queryset, model, rel_field, count_attr, cumulative=False):
         """
         Annotate `queryset` with the count of `model` instances related via

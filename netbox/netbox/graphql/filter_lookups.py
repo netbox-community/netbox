@@ -126,7 +126,7 @@ class JSONFilter:
 @strawberry.enum
 class TreeNodeMatch(Enum):
     EXACT = 'exact'  # Just the node itself
-    DESCENDANTS = 'descendants'  # Node and all descendants
+    DESCENDANTS = 'descendants'  # All descendants, excluding the node itself
     SELF_AND_DESCENDANTS = 'self_and_descendants'  # Node and all descendants
     CHILDREN = 'children'  # Just immediate children
     SIBLINGS = 'siblings'  # Nodes with same parent
@@ -159,12 +159,11 @@ class TreeNodeFilter:
         # Generate base Q filter for the related model without prefix
         q_filter = generate_tree_node_q_filter(related_model, self)
 
-        # Handle different relationship types
-        if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
-            return queryset, Q(**{f'{model_field_name}__in': related_model.objects.filter(q_filter)})
-        if isinstance(model_field, ForeignKey):
-            return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
-        if isinstance(model_field, ManyToOneRel):
+        # Handle different relationship types. All variants resolve the related
+        # rows against the q_filter (which may be a compound Q for DESCENDANTS,
+        # ANCESTORS, SIBLINGS, SELF_AND_DESCENDANTS) and join via __in. Destructuring
+        # q_filter.children into kwargs would crash on compound match types.
+        if isinstance(model_field, (ManyToManyField, ManyToManyRel, ForeignKey, ManyToOneRel)):
             return queryset, Q(**{f'{model_field_name}__in': related_model.objects.filter(q_filter)})
         return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
 

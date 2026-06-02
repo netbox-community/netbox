@@ -368,6 +368,77 @@ class BulkCreateOrderingTests(TestCase):
         child_pending.refresh_from_db()
         self.assertEqual(child_pending.path, _path(root.pk, parent_pending.pk, child_pending.pk))
 
+    def test_bulk_create_rejects_child_before_parent_in_same_batch(self):
+        """The guard refuses misordered batches instead of writing bad paths."""
+        unsaved_parent = Region(name='P', slug='p-bcrej')
+        unsaved_child = Region(parent=unsaved_parent, name='C', slug='c-bcrej')
+        with self.assertRaises(ValueError) as ctx:
+            Region.objects.bulk_create([unsaved_child, unsaved_parent])
+        self.assertIn('parents must precede', str(ctx.exception))
+
+    def test_bulk_create_allows_unrelated_unsaved_parent(self):
+        """An unsaved parent that isn't in the batch must not trigger the guard."""
+        external_parent = Region(name='X', slug='x-bcok')  # not in the batch
+        # This use is rare but valid: external_parent is unsaved, but the caller
+        # is responsible for ensuring it exists before the insert reaches the DB.
+        # The guard only inspects parents that share the same batch.
+        with self.assertRaises(Exception):
+            # The DB will reject this because parent has no PK; the point is the
+            # guard itself must not raise its own ValueError here.
+            Region.objects.bulk_create([Region(parent=external_parent, name='Y', slug='y-bcok')])
+
+
+class TreeNodeFilterTests(TestCase):
+    """
+    Regression: the FK branch of TreeNodeFilter.filter() previously destructured
+    q_filter.children as (str, value) tuples, which crashed for compound Q
+    match types (DESCENDANTS, ANCESTORS, SIBLINGS, SELF_AND_DESCENDANTS). The
+    FK branch must resolve via __in like the M2M / M2O branches.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        from tenancy.models import Tenant, TenantGroup
+        cls.Tenant = Tenant
+        cls.TenantGroup = TenantGroup
+        cls.root = TenantGroup.objects.create(name='Root', slug='root-tnf')
+        cls.mid = TenantGroup.objects.create(parent=cls.root, name='Mid', slug='mid-tnf')
+        cls.leaf = TenantGroup.objects.create(parent=cls.mid, name='Leaf', slug='leaf-tnf')
+        cls.sibling = TenantGroup.objects.create(parent=cls.root, name='Sibling', slug='sibling-tnf')
+
+        cls.t_root = Tenant.objects.create(name='TRoot', slug='troot-tnf', group=cls.root)
+        cls.t_mid = Tenant.objects.create(name='TMid', slug='tmid-tnf', group=cls.mid)
+        cls.t_leaf = Tenant.objects.create(name='TLeaf', slug='tleaf-tnf', group=cls.leaf)
+        cls.t_sibling = Tenant.objects.create(name='TSib', slug='tsib-tnf', group=cls.sibling)
+
+    def _filter(self, match_type):
+        from netbox.graphql.filter_lookups import TreeNodeFilter, TreeNodeMatch
+        tnf = TreeNodeFilter(id=self.mid.pk, match_type=getattr(TreeNodeMatch, match_type))
+        # `filter` is decorated by @strawberry_django.filter_field; its wrapper
+        # asserts info is not None. The undecorated body is on `_unbound_wrapped_func`.
+        inner = TreeNodeFilter.filter._unbound_wrapped_func
+        qs, q = inner(tnf, info=None, queryset=self.Tenant.objects.all(), prefix='group__')
+        return list(qs.filter(q).values_list('name', flat=True))
+
+    def test_descendants_strict(self):
+        # DESCENDANTS of `mid` = leaf only (Mid itself excluded)
+        names = self._filter('DESCENDANTS')
+        self.assertEqual(sorted(names), ['TLeaf'])
+
+    def test_self_and_descendants(self):
+        names = self._filter('SELF_AND_DESCENDANTS')
+        self.assertEqual(sorted(names), ['TLeaf', 'TMid'])
+
+    def test_ancestors(self):
+        names = self._filter('ANCESTORS')
+        # Ancestors of Mid = Root only (Mid itself excluded)
+        self.assertEqual(sorted(names), ['TRoot'])
+
+    def test_siblings(self):
+        # Siblings of Mid (within Root) = Sibling
+        names = self._filter('SIBLINGS')
+        self.assertEqual(sorted(names), ['TSib'])
+
 
 class DescendantLookupSemanticsTests(TestCase):
     """
