@@ -240,9 +240,9 @@ class LtreeModel(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Triggers compute `path` server-side. After insert or after a parent
-        change, refresh just the path column so the in-memory instance stays
-        consistent with the database.
+        Triggers compute `path` (and `sort_path`, where present) server-side.
+        After insert or after a parent change, refresh those columns so the
+        in-memory instance stays consistent with the database.
         """
         is_insert = self._state.adding
         # When update_fields is supplied and excludes parent, the DB does not see
@@ -254,7 +254,17 @@ class LtreeModel(models.Model):
         parent_changed = (not is_insert) and parent_written and self.parent_id != self._loaded_parent_id
         super().save(*args, **kwargs)
         if is_insert or parent_changed:
-            self.path = type(self).objects.values_list('path', flat=True).get(pk=self.pk)
+            # Refresh every trigger-maintained column (`path`, plus `sort_path` on
+            # models that declare it) so the in-memory instance matches the row the
+            # triggers actually wrote — otherwise e.g. change logging would snapshot
+            # a stale value.
+            refresh_fields = [
+                name for name in ('path', 'sort_path')
+                if any(f.attname == name for f in self._meta.concrete_fields)
+            ]
+            row = type(self).objects.values_list(*refresh_fields).get(pk=self.pk)
+            for name, value in zip(refresh_fields, row):
+                setattr(self, name, value)
         if is_insert or parent_written:
             self._loaded_parent_id = self.parent_id
 
@@ -486,9 +496,15 @@ CREATE TRIGGER "{table}_ltree_compute_path"
     FOR EACH ROW EXECUTE FUNCTION "{table}_ltree_compute_path_fn"();
 '''
 
+# Fire only on parent_id changes, not on path changes. A single reparent's
+# cascade rewrites the whole subtree (WHERE path <@ OLD.path) at every depth in
+# one statement, so it never needs to re-fire; including `path` here would make
+# every descendant the cascade touches re-fire the trigger, each running a no-op
+# cascade against its now-vacated OLD.path. Nothing mutates `path` without also
+# touching `parent_id`, so `parent_id` alone is sufficient.
 _AFTER_TRIGGER = '''
 CREATE TRIGGER "{table}_ltree_cascade_path"
-    AFTER UPDATE OF parent_id, path ON "{table}"
+    AFTER UPDATE OF parent_id ON "{table}"
     FOR EACH ROW WHEN (OLD.path IS DISTINCT FROM NEW.path)
     EXECUTE FUNCTION "{table}_ltree_cascade_path_fn"();
 '''
@@ -501,7 +517,7 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
     Two row-level triggers are installed on each target table:
 
         BEFORE INSERT OR UPDATE OF parent_id -> compute NEW.path (and sort_path if applicable)
-        AFTER UPDATE OF parent_id, path      -> cascade path/sort_path change to descendants
+        AFTER UPDATE OF parent_id            -> cascade path/sort_path change to descendants
 
     If `name_column` is provided, the model is expected to have a `sort_path`
     text column whose value will be maintained as a chr(1)-separated chain of

@@ -163,10 +163,10 @@ class ObjectChange(models.Model):
         if issubclass(model, ChangeLoggingMixin):
             attrs.update({'created', 'last_updated'})
 
-        # Exclude trigger-maintained ltree path
+        # Exclude trigger-maintained ltree columns (path and the optional sort_path)
         from netbox.models.ltree import LtreeModel
         if issubclass(model, LtreeModel):
-            attrs.update({'path'})
+            attrs.update({'path', 'sort_path'})
 
         return attrs
 

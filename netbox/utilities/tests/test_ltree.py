@@ -1,7 +1,9 @@
 """Tests for the ltree-based hierarchical model infrastructure."""
+from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.test import TestCase
 
+from core.models import ObjectChange
 from dcim.models import Region, Site
 from tenancy.models import Contact, ContactGroup
 
@@ -332,3 +334,76 @@ class RebuildSortPathsTests(TestCase):
         from dcim.models import InventoryItem
         with self.assertRaises(NotImplementedError):
             InventoryItem.rebuild_sort_paths()
+
+
+class SortPathRefreshTests(TestCase):
+    """
+    save() must refresh the in-memory `sort_path` (not just `path`) after insert
+    and reparent, so callers (notably change logging) never snapshot a stale value.
+    """
+
+    def test_create_refreshes_sort_path(self):
+        root = Region.objects.create(name='Root', slug='root-spr')
+        child = Region.objects.create(name='Kid', slug='kid-spr', parent=root)
+        db_sort_path = Region.objects.values_list('sort_path', flat=True).get(pk=child.pk)
+        self.assertEqual(child.sort_path, db_sort_path)
+        self.assertEqual(child.sort_path, f'Root{chr(1)}Kid')
+
+    def test_reparent_refreshes_sort_path(self):
+        a = Region.objects.create(name='Alpha', slug='alpha-spr')
+        b = Region.objects.create(name='Bravo', slug='bravo-spr')
+        child = Region.objects.create(name='Kid', slug='kid2-spr', parent=a)
+        child.parent = b
+        child.save()
+        db_sort_path = Region.objects.values_list('sort_path', flat=True).get(pk=child.pk)
+        self.assertEqual(child.sort_path, db_sort_path)
+        self.assertEqual(child.sort_path, f'Bravo{chr(1)}Kid')
+
+
+class ChangeLogExclusionTests(TestCase):
+    """
+    Trigger-maintained columns (`path`, `sort_path`) must be excluded from change
+    log diffs, and the postchange snapshot must capture the refreshed values.
+    """
+
+    def test_sort_path_excluded_from_diff(self):
+        oc = ObjectChange()
+        oc.changed_object_type = ContentType.objects.get_for_model(Region)
+        self.assertIn('path', oc.diff_exclude_fields)
+        self.assertIn('sort_path', oc.diff_exclude_fields)
+
+    def test_reparent_postchange_snapshot_matches_db(self):
+        a = Region.objects.create(name='Alpha', slug='alpha-cl')
+        b = Region.objects.create(name='Bravo', slug='bravo-cl')
+        child = Region.objects.create(name='Kid', slug='kid-cl', parent=a)
+        # Reload so the prechange snapshot reflects the persisted state.
+        child = Region.objects.get(pk=child.pk)
+        child.snapshot()
+        child.parent = b
+        child.save()
+        oc = child.to_objectchange('update')
+        db = Region.objects.values('path', 'sort_path').get(pk=child.pk)
+        self.assertEqual(oc.postchange_data['path'], db['path'])
+        self.assertEqual(oc.postchange_data['sort_path'], db['sort_path'])
+        # path/sort_path are excluded, so they must not surface in the cleaned diff data.
+        self.assertNotIn('sort_path', oc.postchange_data_clean)
+        self.assertNotIn('path', oc.postchange_data_clean)
+
+
+class CascadeTriggerScopeTests(TestCase):
+    """
+    The AFTER cascade trigger fires on parent_id changes only; renames (which do
+    not touch parent_id or path) must not cascade.
+    """
+
+    def test_rename_does_not_cascade_to_descendants(self):
+        parent = Region.objects.create(name='Bravo', slug='bravo-ct')
+        child = Region.objects.create(parent=parent, name='Mid', slug='mid-ct')
+        original_child_path = child.path
+        parent.name = 'Zulu'
+        parent.save()
+        child.refresh_from_db()
+        # Path is unaffected by a rename, and the descendant keeps the old
+        # name embedding in sort_path (MPTT order_insertion_by parity).
+        self.assertEqual(child.path, original_child_path)
+        self.assertIn('Bravo', child.sort_path)
