@@ -74,7 +74,15 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
         environment_params['loader'] = loader
 
     environment = SandboxedEnvironment(**environment_params)
-    environment.filters.update(get_config().JINJA2_FILTERS)
+
+    # Build filter table: plugin-registered < instance JINJA2_FILTERS.
+    # Instance-level config always wins so site admins can override anything.
+    from netbox.registry import registry
+    filters = {
+        **registry['plugins'].get('jinja2_filters', {}),
+        **get_config().JINJA2_FILTERS,
+    }
+    environment.filters.update(filters)
 
     if data_file:
         template = environment.get_template(data_file.path)

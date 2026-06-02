@@ -9,11 +9,27 @@ from .templates import PluginTemplateExtension
 
 __all__ = (
     'register_graphql_schema',
+    'register_jinja2_filters',
     'register_menu',
     'register_menu_items',
     'register_template_extensions',
     'register_user_preferences',
 )
+
+
+def register_jinja2_filters(filters):
+    """
+    Register a dict of Jinja2 filter functions provided by a plugin. Each key is the
+    filter name as it will appear in templates; the value is the callable implementing it.
+    Plugin-registered filters have lower precedence than instance-level JINJA2_FILTERS
+    so that site admins can always override them in configuration.py.
+    """
+    if not isinstance(filters, dict):
+        raise TypeError(_("jinja2_filters must be a dict mapping filter names to callables"))
+    for name, fn in filters.items():
+        if not callable(fn):
+            raise TypeError(_("Jinja2 filter '{name}' must be callable").format(name=name))
+    registry['plugins']['jinja2_filters'].update(filters)
 
 
 def register_template_extensions(class_list):
