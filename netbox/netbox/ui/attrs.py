@@ -8,6 +8,7 @@ from utilities.data import resolve_attr_path
 
 __all__ = (
     'AddressAttr',
+    'ArrayAttr',
     'BooleanAttr',
     'ChoiceAttr',
     'ColorAttr',
@@ -139,6 +140,25 @@ class TextAttr(ObjectAttribute):
             'style': self.style,
             'copy_button': self.copy_button,
         }
+
+
+class ArrayAttr(TextAttr):
+    """
+    An attribute comprising an array of values, rendered as a comma-separated list.
+
+    Parameters:
+        func (callable): Function used to transform each item for display (default: str)
+    """
+
+    def __init__(self, *args, func=str, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.func = func
+
+    def get_value(self, obj):
+        value = resolve_attr_path(obj, self.accessor)
+        if not value:
+            return None
+        return ', '.join(self.func(v) for v in value)
 
 
 class NumericAttr(ObjectAttribute):

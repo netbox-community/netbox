@@ -135,28 +135,31 @@ panels.ObjectsTablePanel(
 
 The following classes are available to represent object attributes within an ObjectAttributesPanel. Additionally, plugins can subclass `netbox.ui.attrs.ObjectAttribute` to create custom classes.
 
-| Class                                    | Description                                      |
-|------------------------------------------|--------------------------------------------------|
-| `netbox.ui.attrs.AddressAttr`            | A physical or mailing address.                   |
-| `netbox.ui.attrs.BooleanAttr`            | A boolean value                                  |
-| `netbox.ui.attrs.ChoiceAttr`             | A selection from a set of choices                |
-| `netbox.ui.attrs.ColorAttr`              | A color expressed in RGB                         |
-| `netbox.ui.attrs.DateTimeAttr`           | A date or datetime value                         |
-| `netbox.ui.attrs.GenericForeignKeyAttr`  | A related object via a generic foreign key       |
-| `netbox.ui.attrs.GPSCoordinatesAttr`     | GPS coordinates (latitude and longitude)         |
-| `netbox.ui.attrs.ImageAttr`              | An attached image (displays the image)           |
-| `netbox.ui.attrs.NestedObjectAttr`       | A related nested object (includes ancestors)     |
-| `netbox.ui.attrs.NumericAttr`            | An integer or float value                        |
-| `netbox.ui.attrs.RelatedObjectAttr`      | A related object                                 |
-| `netbox.ui.attrs.RelatedObjectListAttr`  | A list of related objects                        |
-| `netbox.ui.attrs.TemplatedAttr`          | Renders an attribute using a custom template     |
-| `netbox.ui.attrs.TextAttr`               | A string (text) value                            |
-| `netbox.ui.attrs.TimezoneAttr`           | A timezone with annotated offset                 |
-| `netbox.ui.attrs.UtilizationAttr`        | A numeric value expressed as a utilization graph |
+| Class                                   | Description                                         |
+|-----------------------------------------|-----------------------------------------------------|
+| `netbox.ui.attrs.AddressAttr`           | A physical or mailing address.                      |
+| `netbox.ui.attrs.ArrayAttr`             | An array of values, shown as a comma-separated list |
+| `netbox.ui.attrs.BooleanAttr`           | A boolean value                                     |
+| `netbox.ui.attrs.ChoiceAttr`            | A selection from a set of choices                   |
+| `netbox.ui.attrs.ColorAttr`             | A color expressed in RGB                            |
+| `netbox.ui.attrs.DateTimeAttr`          | A date or datetime value                            |
+| `netbox.ui.attrs.GenericForeignKeyAttr` | A related object via a generic foreign key          |
+| `netbox.ui.attrs.GPSCoordinatesAttr`    | GPS coordinates (latitude and longitude)            |
+| `netbox.ui.attrs.ImageAttr`             | An attached image (displays the image)              |
+| `netbox.ui.attrs.NestedObjectAttr`      | A related nested object (includes ancestors)        |
+| `netbox.ui.attrs.NumericAttr`           | An integer or float value                           |
+| `netbox.ui.attrs.RelatedObjectAttr`     | A related object                                    |
+| `netbox.ui.attrs.RelatedObjectListAttr` | A list of related objects                           |
+| `netbox.ui.attrs.TemplatedAttr`         | Renders an attribute using a custom template        |
+| `netbox.ui.attrs.TextAttr`              | A string (text) value                               |
+| `netbox.ui.attrs.TimezoneAttr`          | A timezone with annotated offset                    |
+| `netbox.ui.attrs.UtilizationAttr`       | A numeric value expressed as a utilization graph    |
 
 ::: netbox.ui.attrs.ObjectAttribute
 
 ::: netbox.ui.attrs.AddressAttr
+
+::: netbox.ui.attrs.ArrayAttr
 
 ::: netbox.ui.attrs.BooleanAttr
 
