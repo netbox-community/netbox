@@ -1,3 +1,4 @@
+import copy
 from functools import lru_cache
 
 from rest_framework import serializers
@@ -11,10 +12,25 @@ __all__ = (
 )
 
 
-class BulkPartialUpdateSchemaMixin:
+class BulkOperationSerializer(ChangeLogMessageSerializer):
+    id = serializers.IntegerField()
+
+
+class BulkUpdateSchemaMixin:
     def get_fields(self):
         fields = super().get_fields()
-        fields['id'] = serializers.IntegerField(required=True)
+        # Reuse the runtime bulk-operation ID field so the schema stays in sync
+        # with the validator that consumes `id` before model serialization.
+        _id = copy.deepcopy(BulkOperationSerializer().fields['id'])
+        _id.required = True
+        fields['id'] = _id
+
+        return fields
+
+
+class BulkPartialUpdateSchemaMixin(BulkUpdateSchemaMixin):
+    def get_fields(self):
+        fields = super().get_fields()
 
         for name, field in fields.items():
             if name != 'id':
@@ -33,6 +49,7 @@ def get_bulk_update_serializer_class(serializer_class, *, partial=False):
     normal model serializer. The runtime code consumes `id` before invoking
     the model serializer for each object.
     """
+
     meta = getattr(serializer_class, 'Meta')
 
     class Meta(meta):
@@ -41,11 +58,10 @@ def get_bulk_update_serializer_class(serializer_class, *, partial=False):
     bases = (
         (BulkPartialUpdateSchemaMixin, serializer_class)
         if partial
-        else (serializer_class,)
+        else (BulkUpdateSchemaMixin, serializer_class)
     )
 
     attrs = {
-        'id': serializers.IntegerField(required=True),
         'Meta': Meta,
         '__module__': serializer_class.__module__,
     }
@@ -54,5 +70,4 @@ def get_bulk_update_serializer_class(serializer_class, *, partial=False):
     return type(f'{prefix}{serializer_class.__name__}', bases, attrs)
 
 
-class BulkOperationSerializer(ChangeLogMessageSerializer):
-    id = serializers.IntegerField()
+
