@@ -228,6 +228,72 @@ class PluginTest(TestCase):
         """
         self.assertIn(set_context, registry['webhook_callbacks'])
 
+    def test_jinja2_filters_registered(self):
+        """
+        Check that Jinja2 filters exported by the dummy plugin are registered in
+        registry['plugins']['jinja2_filters'] after ready().
+        """
+        from netbox.tests.dummy_plugin.jinja2_env import dummy_upper
+        self.assertIn('dummy_upper', registry['plugins']['jinja2_filters'])
+        self.assertIs(registry['plugins']['jinja2_filters']['dummy_upper'], dummy_upper)
+
+    def test_jinja2_filter_available_in_render(self):
+        """
+        Filters registered by a plugin must be usable inside render_jinja2().
+        """
+        from utilities.jinja2 import render_jinja2
+        result = render_jinja2("{{ 'hello' | dummy_upper }}", {})
+        self.assertEqual(result, 'HELLO')
+
+    def test_get_jinja2_context_merged_into_render(self):
+        """
+        Variables returned by a plugin's get_jinja2_context() must appear in the
+        context produced by RenderTemplateMixin.get_context().
+        """
+        from extras.models import ExportTemplate
+        et = ExportTemplate(name='jinja2-ctx-test', template_code='')
+        ctx = et.get_context()
+        self.assertIn('dummy_plugin_var', ctx)
+        self.assertEqual(ctx['dummy_plugin_var'], 'hello_from_dummy')
+
+    def test_instance_jinja2_filters_override_plugin_filters(self):
+        """
+        Instance-level JINJA2_FILTERS must take precedence over plugin-registered filters
+        of the same name.
+        """
+        from utilities.jinja2 import render_jinja2
+        override = {'dummy_upper': lambda v: 'overridden'}
+        with self.settings(JINJA2_FILTERS=override):
+            result = render_jinja2("{{ 'hello' | dummy_upper }}", {})
+        self.assertEqual(result, 'overridden')
+
+
+@skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+class PluginJinja2RegistrationTest(TestCase):
+    """
+    Tests for the register_jinja2_filters() registration helper independent of
+    the dummy plugin's startup path.
+    """
+
+    def test_register_jinja2_filters_rejects_non_dict(self):
+        from netbox.plugins.registration import register_jinja2_filters
+        with self.assertRaises(TypeError):
+            register_jinja2_filters([('my_filter', lambda v: v)])
+
+    def test_register_jinja2_filters_rejects_non_callable_value(self):
+        from netbox.plugins.registration import register_jinja2_filters
+        with self.assertRaises(TypeError):
+            register_jinja2_filters({'my_filter': 'not_a_function'})
+
+    def test_register_jinja2_filters_merges_into_registry(self):
+        from netbox.plugins.registration import register_jinja2_filters
+        fn = lambda v: v  # noqa: E731
+        register_jinja2_filters({'_test_temp_filter': fn})
+        try:
+            self.assertIs(registry['plugins']['jinja2_filters']['_test_temp_filter'], fn)
+        finally:
+            del registry['plugins']['jinja2_filters']['_test_temp_filter']
+
 
 class PluginNavigationTest(TestCase):
 
