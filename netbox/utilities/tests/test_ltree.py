@@ -337,30 +337,84 @@ class BulkCreateOrderingTests(TestCase):
         self.assertEqual(child_pending.path, _path(root.pk, parent_pending.pk, child_pending.pk))
 
 
-class RebuildSortPathsTests(TestCase):
+class DescendantLookupSemanticsTests(TestCase):
     """
-    rebuild_sort_paths() recomputes sort_path from current names. The stale-
-    sort case shows up in descendants: renaming a parent and saving it
-    recomputes that one row's sort_path, but descendants' sort_paths still
-    contain the parent's old name until rebuilt.
+    path__descendant is strict (path <@ rhs AND path != rhs); the inclusive
+    form is path__descendant_or_equal. Previously both were inclusive.
     """
 
-    def test_descendant_sort_paths_stale_then_rebuilt(self):
-        parent = Region.objects.create(name='Bravo', slug='bravo-rsp')
-        Region.objects.create(parent=parent, name='Mid', slug='mid-rsp')
+    def test_strict_descendant_excludes_self(self):
+        root = Region.objects.create(name='Root', slug='root-dls')
+        Region.objects.create(parent=root, name='Kid', slug='kid-dls')
+        strict = list(
+            Region.objects.filter(path__descendant=root.path)
+            .values_list('name', flat=True)
+        )
+        self.assertEqual(sorted(strict), ['Kid'])
+        inclusive = list(
+            Region.objects.filter(path__descendant_or_equal=root.path)
+            .values_list('name', flat=True)
+        )
+        self.assertEqual(sorted(inclusive), ['Kid', 'Root'])
 
-        # Rename parent. AFTER cascade only fires when path changes, so
-        # descendants keep their old sort_path embedding 'Bravo'.
+
+class RenameCascadesSortPathTests(TestCase):
+    """
+    Renaming a node updates its own sort_path AND cascades into descendants'
+    sort_paths via the AFTER trigger. (Diverges from MPTT order_insertion_by,
+    which leaves descendants stale until manual rebuild.)
+    """
+
+    def test_rename_cascades_into_descendants(self):
+        parent = Region.objects.create(name='Bravo', slug='bravo-rcsp')
+        mid = Region.objects.create(parent=parent, name='Mid', slug='mid-rcsp')
+        leaf = Region.objects.create(parent=mid, name='Leaf', slug='leaf-rcsp')
+
         parent.name = 'Zulu'
         parent.save()
-        mid_sort = Region.objects.values_list('sort_path', flat=True).get(slug='mid-rsp')
-        self.assertIn('Bravo', mid_sort, "descendant sort_path should still contain old name")
-        self.assertNotIn('Zulu', mid_sort)
+
+        parent.refresh_from_db()
+        mid.refresh_from_db()
+        leaf.refresh_from_db()
+        self.assertEqual(parent.sort_path, 'Zulu')
+        self.assertEqual(mid.sort_path, f'Zulu{chr(1)}Mid')
+        self.assertEqual(leaf.sort_path, f'Zulu{chr(1)}Mid{chr(1)}Leaf')
+        # Paths unchanged — only sort_path moved.
+        self.assertEqual(mid.path, _path(parent.pk, mid.pk))
+        self.assertEqual(leaf.path, _path(parent.pk, mid.pk, leaf.pk))
+
+    def test_rename_does_not_affect_unrelated_subtree(self):
+        # Two roots; renaming one must not touch the other's sort_path.
+        a = Region.objects.create(name='AA', slug='aa-iso')
+        Region.objects.create(parent=a, name='AKid', slug='akid-iso')
+        b = Region.objects.create(name='BB', slug='bb-iso')
+        b_kid = Region.objects.create(parent=b, name='BKid', slug='bkid-iso')
+
+        a.name = 'AAren'
+        a.save()
+
+        b_kid.refresh_from_db()
+        self.assertEqual(b_kid.sort_path, f'BB{chr(1)}BKid')
+
+
+class RebuildSortPathsTests(TestCase):
+    """rebuild_sort_paths() is still available for repair after raw SQL writes."""
+
+    def test_rebuild_after_raw_update(self):
+        parent = Region.objects.create(name='Bravo', slug='bravo-rsp')
+        mid = Region.objects.create(parent=parent, name='Mid', slug='mid-rsp')
+        # Raw .update() with only the name column bypasses the BEFORE trigger
+        # (its column list is parent_id + name, but the trigger is keyed on
+        # name in the SET clause). Actually update() on `name` DOES fire the
+        # trigger now — so to simulate a bypass we corrupt sort_path directly.
+        Region.objects.filter(pk=parent.pk).update(sort_path='garbage')
+        Region.objects.filter(pk=mid.pk).update(sort_path='also-garbage')
 
         Region.rebuild_sort_paths()
-        mid_sort = Region.objects.values_list('sort_path', flat=True).get(slug='mid-rsp')
-        self.assertIn('Zulu', mid_sort)
-        self.assertNotIn('Bravo', mid_sort)
+        parent.refresh_from_db()
+        mid.refresh_from_db()
+        self.assertEqual(parent.sort_path, 'Bravo')
+        self.assertEqual(mid.sort_path, f'Bravo{chr(1)}Mid')
 
     def test_raises_without_sort_path(self):
         # InventoryItem uses LtreeModel but doesn't have a sort_path column.
@@ -425,18 +479,18 @@ class ChangeLogExclusionTests(TestCase):
 
 class CascadeTriggerScopeTests(TestCase):
     """
-    The AFTER cascade trigger fires on parent_id changes only; renames (which do
-    not touch parent_id or path) must not cascade.
+    The AFTER cascade trigger fires on parent_id or name changes. A rename
+    leaves `path` untouched but pushes the new sort_path into descendants.
     """
 
-    def test_rename_does_not_cascade_to_descendants(self):
+    def test_rename_preserves_descendant_path_but_updates_sort_path(self):
         parent = Region.objects.create(name='Bravo', slug='bravo-ct')
         child = Region.objects.create(parent=parent, name='Mid', slug='mid-ct')
         original_child_path = child.path
         parent.name = 'Zulu'
         parent.save()
         child.refresh_from_db()
-        # Path is unaffected by a rename, and the descendant keeps the old
-        # name embedding in sort_path (MPTT order_insertion_by parity).
+        # Path is unaffected by a rename; sort_path follows the new name.
         self.assertEqual(child.path, original_child_path)
-        self.assertIn('Bravo', child.sort_path)
+        self.assertNotIn('Bravo', child.sort_path)
+        self.assertIn('Zulu', child.sort_path)

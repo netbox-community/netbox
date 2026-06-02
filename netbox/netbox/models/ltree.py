@@ -11,7 +11,7 @@ InstallLtreeTriggers migration operation. The Python layer never computes or
 mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
-from django.db import migrations, models
+from django.db import connection, migrations, models
 from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
 
@@ -59,18 +59,22 @@ class Ancestor(Lookup):
 
 @LtreeField.register_lookup
 class Descendant(Lookup):
-    """`path` is a descendant of (or equal to) the queried path:  path <@ rhs"""
+    """
+    `path` is a strict descendant of the queried path:  path <@ rhs AND path <> rhs.
+
+    Use `descendant_or_equal` for the inclusive form (`<@`).
+    """
     lookup_name = 'descendant'
 
     def as_sql(self, compiler, connection):
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.process_rhs(compiler, connection)
-        return f'{lhs} <@ {rhs}', lhs_params + rhs_params
+        return f'({lhs} <@ {rhs} AND {lhs} <> {rhs})', lhs_params + rhs_params + lhs_params + rhs_params
 
 
 @LtreeField.register_lookup
 class DescendantOrEqual(Lookup):
-    """Alias of `descendant`; `<@` is inclusive in PostgreSQL ltree."""
+    """`path` is a descendant of (or equal to) the queried path:  path <@ rhs"""
     lookup_name = 'descendant_or_equal'
 
     def as_sql(self, compiler, connection):
@@ -112,26 +116,27 @@ class LtreeQuerySet(RestrictedQuerySet):
             and not has_direct_fk and not is_many_to_many
         )
 
-        parent_table = queryset.model._meta.db_table
-        related_table = model._meta.db_table
+        qn = connection.ops.quote_name
+        parent_table = qn(queryset.model._meta.db_table)
+        related_table = qn(model._meta.db_table)
 
         if cumulative:
             if is_many_to_many:
                 field = model._meta.get_field(rel_field)
-                m2m_table = field.remote_field.through._meta.db_table
+                m2m_table = qn(field.remote_field.through._meta.db_table)
                 # `model` is the declaring side (the side holding the items to count);
                 # `queryset.model` is the related (tree) side. m2m_column_name() points
                 # at the declaring model; m2m_reverse_name() points at the related model.
-                m2m_to_child_col = field.m2m_column_name()
-                m2m_to_tree_col = field.m2m_reverse_name()
+                m2m_to_child_col = qn(field.m2m_column_name())
+                m2m_to_tree_col = qn(field.m2m_reverse_name())
                 sql = f'''(
-                    SELECT COUNT(DISTINCT "{related_table}"."id")
-                    FROM "{related_table}"
-                    INNER JOIN "{m2m_table}"
-                      ON "{related_table}"."id" = "{m2m_table}"."{m2m_to_child_col}"
-                    INNER JOIN "{parent_table}" AS subtree
-                      ON "{m2m_table}"."{m2m_to_tree_col}" = subtree."id"
-                    WHERE subtree."path" <@ "{parent_table}"."path"
+                    SELECT COUNT(DISTINCT {related_table}."id")
+                    FROM {related_table}
+                    INNER JOIN {m2m_table}
+                      ON {related_table}."id" = {m2m_table}.{m2m_to_child_col}
+                    INNER JOIN {parent_table} AS subtree
+                      ON {m2m_table}.{m2m_to_tree_col} = subtree."id"
+                    WHERE subtree."path" <@ {parent_table}."path"
                 )'''
                 return queryset.annotate(**{
                     count_attr: RawSQL(sql, [], output_field=models.IntegerField())
@@ -143,26 +148,27 @@ class LtreeQuerySet(RestrictedQuerySet):
                 ct_app = queryset.model._meta.app_label
                 ct_model = queryset.model._meta.model_name
                 sql = f'''(
-                    SELECT COUNT(DISTINCT "{related_table}"."id")
-                    FROM "{related_table}"
-                    INNER JOIN "{parent_table}" AS subtree
-                      ON "{related_table}"."scope_id" = subtree."id"
-                    WHERE "{related_table}"."scope_type_id" = (
+                    SELECT COUNT(DISTINCT {related_table}."id")
+                    FROM {related_table}
+                    INNER JOIN {parent_table} AS subtree
+                      ON {related_table}."scope_id" = subtree."id"
+                    WHERE {related_table}."scope_type_id" = (
                         SELECT id FROM django_content_type
                         WHERE app_label = %s AND model = %s
                     )
-                      AND subtree."path" <@ "{parent_table}"."path"
+                      AND subtree."path" <@ {parent_table}."path"
                 )'''
                 return queryset.annotate(**{
                     count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
                 })
-            rel_field_col = f'{rel_field}_id'
+            # Use field.column (not f'{rel_field}_id') so custom db_column works.
+            rel_field_col = qn(field.column)
             sql = f'''(
-                    SELECT COUNT(DISTINCT "{related_table}"."id")
-                    FROM "{related_table}"
-                    INNER JOIN "{parent_table}" AS subtree
-                      ON "{related_table}"."{rel_field_col}" = subtree."id"
-                    WHERE subtree."path" <@ "{parent_table}"."path"
+                    SELECT COUNT(DISTINCT {related_table}."id")
+                    FROM {related_table}
+                    INNER JOIN {parent_table} AS subtree
+                      ON {related_table}.{rel_field_col} = subtree."id"
+                    WHERE subtree."path" <@ {parent_table}."path"
                 )'''
             return queryset.annotate(**{
                 count_attr: RawSQL(sql, [], output_field=models.IntegerField())
@@ -172,15 +178,15 @@ class LtreeQuerySet(RestrictedQuerySet):
         # cumulative branches but joins on equality instead of the `<@` subtree test.
         if is_many_to_many:
             field = model._meta.get_field(rel_field)
-            m2m_table = field.remote_field.through._meta.db_table
-            m2m_to_child_col = field.m2m_column_name()
-            m2m_to_tree_col = field.m2m_reverse_name()
+            m2m_table = qn(field.remote_field.through._meta.db_table)
+            m2m_to_child_col = qn(field.m2m_column_name())
+            m2m_to_tree_col = qn(field.m2m_reverse_name())
             sql = f'''(
-                SELECT COUNT(DISTINCT "{related_table}"."id")
-                FROM "{related_table}"
-                INNER JOIN "{m2m_table}"
-                  ON "{related_table}"."id" = "{m2m_table}"."{m2m_to_child_col}"
-                WHERE "{m2m_table}"."{m2m_to_tree_col}" = "{parent_table}"."id"
+                SELECT COUNT(DISTINCT {related_table}."id")
+                FROM {related_table}
+                INNER JOIN {m2m_table}
+                  ON {related_table}."id" = {m2m_table}.{m2m_to_child_col}
+                WHERE {m2m_table}.{m2m_to_tree_col} = {parent_table}."id"
             )'''
             return queryset.annotate(**{
                 count_attr: RawSQL(sql, [], output_field=models.IntegerField())
@@ -189,10 +195,10 @@ class LtreeQuerySet(RestrictedQuerySet):
             ct_app = queryset.model._meta.app_label
             ct_model = queryset.model._meta.model_name
             sql = f'''(
-                SELECT COUNT(DISTINCT "{related_table}"."id")
-                FROM "{related_table}"
-                WHERE "{related_table}"."scope_id" = "{parent_table}"."id"
-                  AND "{related_table}"."scope_type_id" = (
+                SELECT COUNT(DISTINCT {related_table}."id")
+                FROM {related_table}
+                WHERE {related_table}."scope_id" = {parent_table}."id"
+                  AND {related_table}."scope_type_id" = (
                       SELECT id FROM django_content_type
                       WHERE app_label = %s AND model = %s
                   )
@@ -200,11 +206,11 @@ class LtreeQuerySet(RestrictedQuerySet):
             return queryset.annotate(**{
                 count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
             })
-        rel_field_col = f'{rel_field}_id'
+        rel_field_col = qn(field.column)
         sql = f'''(
-            SELECT COUNT(DISTINCT "{related_table}"."id")
-            FROM "{related_table}"
-            WHERE "{related_table}"."{rel_field_col}" = "{parent_table}"."id"
+            SELECT COUNT(DISTINCT {related_table}."id")
+            FROM {related_table}
+            WHERE {related_table}.{rel_field_col} = {parent_table}."id"
         )'''
         return queryset.annotate(**{
             count_attr: RawSQL(sql, [], output_field=models.IntegerField())
@@ -236,12 +242,15 @@ class LtreeModel(models.Model):
         the batch will be persisted with a root-level path (the parent
         row is not yet visible to the lookup).
 
-    Sort-path staleness:
+    Sort-path on rename:
         For subclasses with the optional `sort_path` column (see
-        InstallLtreeTriggers' `name_column` arg), renaming a row does NOT
-        update its sort_path — matching django-mptt's
-        `order_insertion_by` behavior. Call `rebuild_sort_paths()` to
-        recompute sort_path for every row from current names.
+        InstallLtreeTriggers' `name_column` arg), renaming a row updates its
+        own sort_path AND cascades into descendants' sort_paths via the AFTER
+        trigger. This diverges from django-mptt's `order_insertion_by` (which
+        leaves both the renamed row and its descendants stale until a manual
+        rebuild) because list views are expected to reflect renames promptly.
+        `rebuild_sort_paths()` is still available for bulk repair after raw
+        SQL writes that bypass the triggers.
 
     Concurrency:
         Path maintenance takes no table-wide lock (unlike django-mptt, which
@@ -256,6 +265,12 @@ class LtreeModel(models.Model):
         for dropping the table-wide lock; if strict serialization is ever needed,
         lock the parent row (`SELECT ... FOR SHARE`) inside the BEFORE trigger.
     """
+    # `default=''` here is a Django-side placeholder that the BEFORE INSERT
+    # trigger always overwrites with a valid path before the row reaches
+    # storage. Empty ltree (`''`) is itself a valid PostgreSQL ltree value
+    # (nlevel = 0) in supported PostgreSQL versions (15+), so even harnesses
+    # that bypass the trigger will not fail at INSERT — they will simply
+    # store a zero-level path.
     path = LtreeField(editable=False, null=False, blank=True, default='')
 
     objects = LtreeManager()
@@ -356,17 +371,13 @@ class LtreeModel(models.Model):
     def get_descendants(self, include_self=False):
         if not self.path:
             return type(self)._default_manager.none()
-        qs = type(self)._default_manager.filter(path__descendant=self.path)
-        if not include_self:
-            qs = qs.exclude(pk=self.pk)
-        return qs.order_by('path')
+        lookup = 'descendant_or_equal' if include_self else 'descendant'
+        return type(self)._default_manager.filter(**{f'path__{lookup}': self.path}).order_by('path')
 
     def get_descendant_count(self):
         if not self.path:
             return 0
-        return type(self)._default_manager.filter(
-            path__descendant=self.path
-        ).exclude(pk=self.pk).count()
+        return type(self)._default_manager.filter(path__descendant=self.path).count()
 
     def get_children(self):
         return type(self)._default_manager.filter(parent_id=self.pk)
@@ -376,7 +387,7 @@ class LtreeModel(models.Model):
         if not self.path:
             return type(self)._default_manager.none()
         return type(self)._default_manager.filter(
-            Q(path__ancestor=self.path) | Q(path__descendant=self.path)
+            Q(path__ancestor=self.path) | Q(path__descendant_or_equal=self.path)
         ).distinct().order_by('path')
 
     def get_siblings(self, include_self=False):
@@ -487,9 +498,12 @@ $$ LANGUAGE plpgsql;
 # standard collation). ORDER BY sort_path then gives MPTT-equivalent
 # tree-flatten ordering with siblings in name (collation) order.
 #
-# Like MPTT's order_insertion_by, sort_path is computed at insert and
-# reparent only — renaming a node does NOT reposition it. A manual rebuild()
-# would be needed to re-sort everything by current names.
+# The BEFORE trigger fires on INSERT, parent_id changes, and name changes, so
+# a rename updates the row's own sort_path; the AFTER trigger then cascades
+# the new sort_path into descendants. (django-mptt's `order_insertion_by`
+# stops at the renamed node and leaves descendants stale until a manual
+# rebuild — NetBox auto-cascades because operators expect renames to flow
+# through. `rebuild_sort_paths()` is still available for bulk repair.)
 _COMPUTE_PATH_AND_SORT_FN = '''
 CREATE OR REPLACE FUNCTION "{table}_ltree_compute_path_fn"() RETURNS TRIGGER AS $$
 DECLARE
@@ -525,22 +539,41 @@ END
 $$ LANGUAGE plpgsql;
 '''
 
-_BEFORE_TRIGGER = '''
+_BEFORE_TRIGGER_PATH_ONLY = '''
 CREATE TRIGGER "{table}_ltree_compute_path"
     BEFORE INSERT OR UPDATE OF parent_id ON "{table}"
     FOR EACH ROW EXECUTE FUNCTION "{table}_ltree_compute_path_fn"();
 '''
 
-# Fire only on parent_id changes, not on path changes. A single reparent's
-# cascade rewrites the whole subtree (WHERE path <@ OLD.path) at every depth in
-# one statement, so it never needs to re-fire; including `path` here would make
-# every descendant the cascade touches re-fire the trigger, each running a no-op
-# cascade against its now-vacated OLD.path. Nothing mutates `path` without also
-# touching `parent_id`, so `parent_id` alone is sufficient.
-_AFTER_TRIGGER = '''
+# For path+sort tables, also fire on UPDATE OF {name_col} so that renaming a
+# node recomputes its sort_path. The cascade trigger then propagates the new
+# sort_path to descendants.
+_BEFORE_TRIGGER_PATH_AND_SORT = '''
+CREATE TRIGGER "{table}_ltree_compute_path"
+    BEFORE INSERT OR UPDATE OF parent_id, "{name_col}" ON "{table}"
+    FOR EACH ROW EXECUTE FUNCTION "{table}_ltree_compute_path_fn"();
+'''
+
+# AFTER trigger fires on the columns that operators / Django write directly
+# (parent_id and the name column) — NOT on path or sort_path. The cascade
+# function rewrites path/sort_path on descendants in a single statement, and
+# because that statement does not touch parent_id or {name_col}, the AFTER
+# trigger does not re-fire on those descendant rows. This prevents the
+# quadratic re-cascade that would otherwise occur for any deep subtree.
+_AFTER_TRIGGER_PATH_ONLY = '''
 CREATE TRIGGER "{table}_ltree_cascade_path"
     AFTER UPDATE OF parent_id ON "{table}"
     FOR EACH ROW WHEN (OLD.path IS DISTINCT FROM NEW.path)
+    EXECUTE FUNCTION "{table}_ltree_cascade_path_fn"();
+'''
+
+_AFTER_TRIGGER_PATH_AND_SORT = '''
+CREATE TRIGGER "{table}_ltree_cascade_path"
+    AFTER UPDATE OF parent_id, "{name_col}" ON "{table}"
+    FOR EACH ROW WHEN (
+        OLD.path IS DISTINCT FROM NEW.path
+        OR OLD.sort_path IS DISTINCT FROM NEW.sort_path
+    )
     EXECUTE FUNCTION "{table}_ltree_cascade_path_fn"();
 '''
 
@@ -557,8 +590,8 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
     If `name_column` is provided, the model is expected to have a `sort_path`
     text column whose value will be maintained as a chr(1)-separated chain of
     ancestor names. This implements MPTT's `order_insertion_by=(name,)`
-    semantics: insert and reparent honor the current value of `name_column`;
-    rename does NOT reposition the node (matching MPTT behavior).
+    semantics: insert, reparent, and rename all honor the current value of
+    `name_column`, with renames cascaded into descendants' sort_paths.
     """
     reversible = True
 
@@ -577,11 +610,17 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
             schema_editor.execute(_CASCADE_PATH_AND_SORT_FN.format(
                 table=self.table_name,
             ))
+            schema_editor.execute(_BEFORE_TRIGGER_PATH_AND_SORT.format(
+                table=self.table_name, name_col=self.name_column,
+            ))
+            schema_editor.execute(_AFTER_TRIGGER_PATH_AND_SORT.format(
+                table=self.table_name, name_col=self.name_column,
+            ))
         else:
             schema_editor.execute(_COMPUTE_PATH_ONLY_FN.format(table=self.table_name))
             schema_editor.execute(_CASCADE_PATH_ONLY_FN.format(table=self.table_name))
-        schema_editor.execute(_BEFORE_TRIGGER.format(table=self.table_name))
-        schema_editor.execute(_AFTER_TRIGGER.format(table=self.table_name))
+            schema_editor.execute(_BEFORE_TRIGGER_PATH_ONLY.format(table=self.table_name))
+            schema_editor.execute(_AFTER_TRIGGER_PATH_ONLY.format(table=self.table_name))
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         t = self.table_name

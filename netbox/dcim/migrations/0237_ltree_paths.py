@@ -17,10 +17,17 @@ InventoryItem, InventoryItemTemplate) this migration:
 7. Adds a GiST index on path (descendant/ancestor lookups via `<@` / `@>`).
    For sort_path models, also adds a btree index for ORDER BY listing.
 
+!!! OPERATOR WARNING !!!
+
+Step 4 runs ONE recursive-CTE UPDATE per table over every row, taking a
+row-exclusive lock on the entire table for the duration of the statement.
+On large deployments — particularly dcim_inventoryitem, which can contain
+millions of rows — this can block writes for minutes. Plan a maintenance
+window and budget accordingly. The other tables (region, sitegroup,
+location, devicerole, platform, modulebay, inventoryitemtemplate) are
+typically far smaller.
+
 Notes:
-- Step 4 populates each table with a single recursive-CTE UPDATE over all rows.
-  On very large tables (notably InventoryItem) this is one long-running statement
-  holding a row-exclusive lock for its duration; budget for it during upgrades.
 - The reverse migration is lossy: it re-adds the MPTT columns (lft/rght/tree_id/
   level) empty and does NOT rebuild the tree. Forward migration is the supported
   direction.
