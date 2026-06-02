@@ -9,7 +9,7 @@ from mptt.models import MPTTModel
 
 from dcim.choices import *
 from dcim.utils import create_port_mappings, update_interface_bridges
-from extras.models import ConfigContextModel, CustomField
+from extras.models import CustomField
 from netbox.models import PrimaryModel
 from netbox.models.features import ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
@@ -240,7 +240,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         return yaml.dump(dict(data), sort_keys=False)
 
 
-class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
+class Module(TrackingModelMixin, PrimaryModel):
     """
     A Module represents a field-installable component within a Device which may itself hold multiple device components
     (for example, a line card within a chassis switch). Modules are instantiated from ModuleTypes.
