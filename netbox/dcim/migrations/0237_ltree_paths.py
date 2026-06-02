@@ -158,13 +158,20 @@ class Migration(migrations.Migration):
             for m in ALL_MODELS
         ],
         # 2b. Add sort_path column (with default '') on the 6 models with order_insertion_by.
+        #     ModuleBay's `name` uses the natural_sort collation, so its sort_path must
+        #     match it (Slot 0..Slot 13, not lexicographic Slot 0, 1, 10, 2...). The other
+        #     five use a plain-collation `name`, so their sort_path stays plain.
         *[
             migrations.AddField(
                 model_name=m, name='sort_path',
                 field=models.TextField(blank=True, default='', editable=False),
             )
-            for m in SORT_MODELS
+            for m in SORT_MODELS if m != 'modulebay'
         ],
+        migrations.AddField(
+            model_name='modulebay', name='sort_path',
+            field=models.TextField(blank=True, default='', editable=False, db_collation='natural_sort'),
+        ),
 
         # 3. Install path-maintenance triggers. Models with sort_path get triggers
         #    that maintain both columns; the other two get path-only triggers.

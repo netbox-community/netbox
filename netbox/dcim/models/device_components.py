@@ -1340,6 +1340,10 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         editable=False,
         blank=True,
         default='',
+        # `name` uses the natural_sort collation; match it here so ORDER BY
+        # sort_path sorts siblings naturally (Slot 0..Slot 13) as MPTT's
+        # order_insertion_by=('name',) did, not lexicographically.
+        db_collation='natural_sort',
     )
 
     clone_fields = ('device', 'enabled')
