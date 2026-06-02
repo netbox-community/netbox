@@ -14,7 +14,7 @@ class TokenPanel(panels.ObjectAttributesPanel):
     write_enabled = attrs.BooleanAttr('write_enabled')
     expires = attrs.TextAttr('expires')
     last_used = attrs.TextAttr('last_used')
-    allowed_ips = attrs.TextAttr('allowed_ips')
+    allowed_ips = attrs.ArrayAttr('allowed_ips', label=_('Allowed IPs'))
 
 
 class TokenExamplePanel(panels.Panel):
