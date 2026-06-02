@@ -39,25 +39,25 @@ class UserTestCase(APIViewTestCases.APIViewTestCase):
         permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
 
         users = (
-            User(username='User1', password='FooBarFooBar1'),
-            User(username='User2', password='FooBarFooBar2'),
-            User(username='User3', password='FooBarFooBar3'),
+            User(username='user1', password='FooBarFooBar1'),
+            User(username='user2', password='FooBarFooBar2'),
+            User(username='user3', password='FooBarFooBar3'),
         )
         User.objects.bulk_create(users)
 
         cls.create_data = [
             {
-                'username': 'User4',
+                'username': 'user4',
                 'password': 'FooBarFooBar4',
                 'permissions': [permissions[0].pk],
             },
             {
-                'username': 'User5',
+                'username': 'user5',
                 'password': 'FooBarFooBar5',
                 'permissions': [permissions[1].pk],
             },
             {
-                'username': 'User6',
+                'username': 'user6',
                 'password': 'FooBarFooBar6',
                 'permissions': [permissions[2].pk],
             },
