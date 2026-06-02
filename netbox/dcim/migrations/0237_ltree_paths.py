@@ -98,7 +98,7 @@ UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0233_device_render_config_permission'),
+        ('dcim', '0236_moduletype_component_counts'),
     ]
 
     operations = [

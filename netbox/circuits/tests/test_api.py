@@ -8,7 +8,7 @@ from ipam.models import ASN, RIR
 from utilities.testing import APITestCase, APIViewTestCases
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
         url = reverse('circuits-api:api-root')
@@ -17,7 +17,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ProviderTest(APIViewTestCases.APIViewTestCase):
+class ProviderTestCase(APIViewTestCases.APIViewTestCase):
     model = Provider
     brief_fields = ['circuit_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
@@ -59,7 +59,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
+class CircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = CircuitType
     brief_fields = ['circuit_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = (
@@ -91,7 +91,7 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
         CircuitType.objects.bulk_create(circuit_types)
 
 
-class CircuitTest(APIViewTestCases.APIViewTestCase):
+class CircuitTestCase(APIViewTestCases.APIViewTestCase):
     model = Circuit
     brief_fields = ['cid', 'description', 'display', 'id', 'provider', 'url']
     bulk_update_data = {
@@ -155,7 +155,7 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
+class CircuitTerminationTestCase(APIViewTestCases.APIViewTestCase):
     model = CircuitTermination
     brief_fields = ['_occupied', 'cable', 'circuit', 'description', 'display', 'id', 'term_side', 'url']
     user_permissions = ('circuits.view_circuit', )
@@ -217,7 +217,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
+class CircuitGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = CircuitGroup
     brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -249,7 +249,7 @@ class CircuitGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
+class ProviderAccountTestCase(APIViewTestCases.APIViewTestCase):
     model = ProviderAccount
     brief_fields = ['account', 'description', 'display', 'id', 'name', 'url']
     user_permissions = ('circuits.view_provider',)
@@ -293,7 +293,7 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
+class CircuitGroupAssignmentTestCase(APIViewTestCases.APIViewTestCase):
     model = CircuitGroupAssignment
     brief_fields = ['display', 'group', 'id', 'member', 'member_id', 'member_type', 'priority', 'url']
     bulk_update_data = {
@@ -368,7 +368,7 @@ class CircuitGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
+class ProviderNetworkTestCase(APIViewTestCases.APIViewTestCase):
     model = ProviderNetwork
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     user_permissions = ('circuits.view_provider', )
@@ -409,7 +409,7 @@ class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class VirtualCircuitTypeTest(APIViewTestCases.APIViewTestCase):
+class VirtualCircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualCircuitType
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url', 'virtual_circuit_count']
     create_data = (
@@ -441,7 +441,7 @@ class VirtualCircuitTypeTest(APIViewTestCases.APIViewTestCase):
         VirtualCircuitType.objects.bulk_create(virtual_circuit_types)
 
 
-class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
+class VirtualCircuitTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualCircuit
     brief_fields = ['cid', 'description', 'display', 'id', 'provider_network', 'url']
     bulk_update_data = {
@@ -505,7 +505,7 @@ class VirtualCircuitTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class VirtualCircuitTerminationTest(APIViewTestCases.APIViewTestCase):
+class VirtualCircuitTerminationTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualCircuitTermination
     brief_fields = ['description', 'display', 'id', 'interface', 'role', 'url', 'virtual_circuit']
     bulk_update_data = {

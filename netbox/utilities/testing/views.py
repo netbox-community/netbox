@@ -15,6 +15,7 @@ from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 
 from .base import ModelTestCase
+from .query_counts import assert_expected_query_count
 from .utils import add_custom_field_data, disable_warnings, get_random_string, post_data
 
 __all__ = (
@@ -470,7 +471,9 @@ class ViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try GET with model-level permission
-            self.assertHttpStatus(self.client.get(self._get_url('list')), 200)
+            with assert_expected_query_count(self, 'list_objects_with_permission'):
+                response = self.client.get(self._get_url('list'))
+            self.assertHttpStatus(response, 200)
 
         def test_list_objects_with_constrained_permission(self):
             instance1, instance2 = self._get_queryset().all()[:2]
@@ -1032,6 +1035,7 @@ class ViewTestCases:
             data = {
                 'pk': pk_list,
                 '_apply': True,  # Form button
+                'field_names': ['name'],
             }
             data.update(self.rename_data)
 
@@ -1050,12 +1054,49 @@ class ViewTestCases:
                 self.assertEqual(instance.name, f'{objects[i].name}X')
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_objects_with_changelog_message(self):
+            if not issubclass(self.model, ChangeLoggingMixin):
+                self.skipTest("Model does not support change logging")
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            data = {
+                'pk': pk_list,
+                '_apply': True,
+                'changelog_message': 'Bulk rename test message',
+                'field_names': ['name'],
+            }
+            data.update(self.rename_data)
+
+            # Assign model-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['change']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+
+            # Verify changelog message was recorded on each renamed object
+            object_type = ObjectType.objects.get_for_model(self.model)
+            for pk in pk_list:
+                oc = ObjectChange.objects.filter(
+                    changed_object_type=object_type,
+                    changed_object_id=pk,
+                    action=ObjectChangeActionChoices.ACTION_UPDATE,
+                ).order_by('-time').first()
+                self.assertIsNotNone(oc)
+                self.assertEqual(oc.message, 'Bulk rename test message')
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_rename_objects_with_constrained_permission(self):
             objects = self._get_queryset().all()[:3]
             pk_list = [obj.pk for obj in objects]
             data = {
                 'pk': pk_list,
                 '_apply': True,  # Form button
+                'field_names': ['name'],
             }
             data.update(self.rename_data)
 
@@ -1081,6 +1122,59 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
             for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
                 self.assertEqual(instance.name, f'{objects[i].name}X')
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_label_field(self):
+            """When field_names=['label'] is submitted, labels (not names) are updated."""
+            if 'label' not in {f.name for f in self.model._meta.fields}:
+                self.skipTest("Model does not have a label field")
+
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            original_labels = [obj.label for obj in objects]
+            data = {
+                'pk': pk_list,
+                'field_names': ['label'],
+                '_apply': True,
+            }
+            data.update(self.rename_data)
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+            for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
+                self.assertEqual(instance.label, f'{original_labels[i]}X')
+                self.assertEqual(instance.name, objects[i].name)
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        def test_bulk_rename_name_and_label_fields(self):
+            """When field_names=['name', 'label'] is submitted, both fields are updated simultaneously."""
+            if 'label' not in {f.name for f in self.model._meta.fields}:
+                self.skipTest("Model does not have a label field")
+
+            objects = self._get_queryset().all()[:3]
+            pk_list = [obj.pk for obj in objects]
+            original_names = [obj.name for obj in objects]
+            original_labels = [obj.label for obj in objects]
+            data = {
+                'pk': pk_list,
+                'field_names': ['name', 'label'],
+                '_apply': True,
+            }
+            data.update(self.rename_data)
+
+            obj_perm = ObjectPermission(name='Test permission', actions=['change'])
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.assertHttpStatus(self.client.post(self._get_url('bulk_rename'), data), 302)
+            for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
+                self.assertEqual(instance.name, f'{original_names[i]}X')
+                self.assertEqual(instance.label, f'{original_labels[i]}X')
 
     class PrimaryObjectViewTestCase(
         GetObjectViewTestCase,

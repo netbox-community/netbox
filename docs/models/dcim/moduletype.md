@@ -11,8 +11,9 @@ Similar to [device types](./devicetype.md), each module type can have any of the
 * Power Outlets
 * Front pass-through ports
 * Rear pass-through ports
+* Module bays
 
-Note that device bays and module bays may _not_ be added to modules.
+Note that device bays may _not_ be added to modules.
 
 ## Automatic Component Renaming
 

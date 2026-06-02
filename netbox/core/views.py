@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
-from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
+from django_rq.queues import get_queue_by_index, get_redis_connection
 from django_rq.settings import get_queues_list, get_queues_map
 from django_rq.utils import get_statistics
 from rq.exceptions import NoSuchJobError
@@ -55,6 +55,7 @@ from utilities.forms import ConfirmationForm
 from utilities.htmx import htmx_partial
 from utilities.json import ConfigJSONEncoder
 from utilities.query import count_related
+from utilities.rqworker import get_all_workers
 from utilities.views import (
     ContentTypePermissionRequiredMixin,
     GetRelatedModelsMixin,
@@ -707,7 +708,7 @@ class SystemView(UserPassesTestMixin, View):
             'postgresql_version': psql_version,
             'database_name': db_name,
             'database_size': db_size,
-            'rq_worker_count': Worker.count(get_connection('default')),
+            'rq_worker_count': len(get_all_workers()),
         }
 
     def _get_object_counts(self):

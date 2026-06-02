@@ -8,7 +8,7 @@ from netbox.tables import NetBoxTable, columns
 from utilities.testing import create_tags, create_test_device, create_test_user
 
 
-class BaseTableTest(TestCase):
+class BaseTableTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -99,7 +99,7 @@ class TagColumnTable(NetBoxTable):
         default_columns = fields
 
 
-class TagColumnTest(TestCase):
+class TagColumnTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):

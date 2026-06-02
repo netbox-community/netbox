@@ -5,7 +5,7 @@ from dcim.forms import InterfaceImportForm
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 
 
-class NetBoxModelImportFormCleanTest(TestCase):
+class NetBoxModelImportFormCleanTestCase(TestCase):
     """
     Test the clean() method of NetBoxModelImportForm to ensure it properly converts
     empty strings to None for nullable fields during CSV import.

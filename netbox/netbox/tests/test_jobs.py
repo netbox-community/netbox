@@ -1,13 +1,15 @@
+import uuid
 from datetime import timedelta
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.utils import timezone
-from django_rq import get_queue
 
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import DataSource, Job
 from utilities.testing import disable_warnings
+from utilities.testing.mixins import RQQueueTestMixin
 
 from ..jobs import *
 from ..jobs import _INSTALL_ROOT
@@ -24,14 +26,14 @@ class TestJobRunner(JobRunner):
         self.logger.error("Error message")
 
 
-class JobRunnerTestCase(TestCase):
-    def tearDown(self):
-        super().tearDown()
+@system_job(interval=60)
+class TestSystemJobRunner(JobRunner):
 
-        # Clear all queues after running each test
-        get_queue('default').connection.flushall()
-        get_queue('high').connection.flushall()
-        get_queue('low').connection.flushall()
+    def run(self, *args, **kwargs):
+        pass
+
+
+class BaseJobRunnerTestCase(RQQueueTestMixin, TestCase):
 
     @staticmethod
     def get_schedule_at(offset=1):
@@ -39,9 +41,9 @@ class JobRunnerTestCase(TestCase):
         return timezone.now() + timedelta(weeks=offset)
 
 
-class JobRunnerTest(JobRunnerTestCase):
+class JobRunnerTestCase(BaseJobRunnerTestCase):
     """
-    Test internal logic of `JobRunner`.
+    Test the internal logic of `JobRunner`.
     """
 
     def test_name_default(self):
@@ -92,7 +94,7 @@ class JobRunnerTest(JobRunnerTestCase):
         self.assertNotIn(_INSTALL_ROOT, tb_message)
 
 
-class EnqueueTest(JobRunnerTestCase):
+class EnqueueTestCase(BaseJobRunnerTestCase):
     """
     Test enqueuing of `JobRunner`.
     """
@@ -168,11 +170,11 @@ class EnqueueTest(JobRunnerTestCase):
         self.assertEqual(TestJobRunner.get_jobs(instance).count(), 1)
 
 
-class SystemJobTest(JobRunnerTestCase):
+class SystemJobTestCase(BaseJobRunnerTestCase):
     """
     Test that system jobs can be scheduled.
 
-    General functionality already tested by `JobRunnerTest` and `EnqueueTest`.
+    General functionality already tested by `JobRunnerTestCase` and `EnqueueTestCase`.
     """
 
     def test_scheduling(self):
@@ -193,3 +195,125 @@ class SystemJobTest(JobRunnerTestCase):
 
         self.assertEqual(job1, job2)
         self.assertEqual(TestJobRunner.get_jobs().count(), 1)
+
+    def test_handle_skips_reschedule_when_successor_exists(self):
+        """
+        When `handle()` finishes a periodic system job, it must not create a duplicate
+        scheduled job if a successor is already enqueued (issue #22232). This guards
+        against the race where a worker starts up between `job.terminate()` and the
+        finally block's reschedule, calling `enqueue_once()` which would create a parallel
+        job.
+        """
+        interval = 60
+
+        # Simulate a successor that was already created by another worker.
+        successor = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=interval,
+            scheduled=self.get_schedule_at(),
+            job_id=uuid.uuid4(),
+        )
+
+        # The just-finished job. `handle()` will run its finally block.
+        finished = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_COMPLETED,
+            interval=interval,
+            started=timezone.now(),
+            completed=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        TestSystemJobRunner.handle(finished)
+
+        # Only the original successor should remain enqueued — no duplicate should have
+        # been created.
+        enqueued = Job.objects.filter(
+            name=TestSystemJobRunner.name,
+            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+            interval=interval,
+        )
+        self.assertEqual(enqueued.count(), 1)
+        self.assertEqual(enqueued.first().pk, successor.pk)
+
+    def test_handle_reschedules_when_only_instance_bound_successor_exists(self):
+        """
+        For a system (object-less) job, an instance-bound job of the same JobRunner class
+        must not be treated as a successor. The system job should still reschedule itself.
+        """
+        interval = 60
+        instance = DataSource.objects.create(name='test-ds', type='local')
+
+        # An instance-bound enqueued job of the same class and interval — must NOT be
+        # treated as a successor of the object-less finished job.
+        Job.objects.create(
+            name=TestSystemJobRunner.name,
+            object=instance,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=interval,
+            scheduled=self.get_schedule_at(),
+            job_id=uuid.uuid4(),
+        )
+
+        # Object-less finished system job.
+        finished = Job.objects.create(
+            name=TestSystemJobRunner.name,
+            status=JobStatusChoices.STATUS_COMPLETED,
+            interval=interval,
+            started=timezone.now(),
+            completed=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        TestSystemJobRunner.handle(finished)
+
+        # A new object-less successor should have been scheduled.
+        enqueued = Job.objects.filter(
+            name=TestSystemJobRunner.name,
+            object_id__isnull=True,
+            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+            interval=interval,
+        )
+        self.assertEqual(enqueued.count(), 1)
+
+    def test_handle_reschedules_non_system_job_independently(self):
+        """
+        Two recurring non-system jobs (e.g. scheduled scripts) for the same runner and
+        object with the same interval but distinct runtime kwargs must each reschedule
+        themselves; one must not be treated as the successor of the other and skipped.
+        """
+        interval = 60
+        instance = DataSource.objects.create(name='test-ds-script', type='local')
+
+        # An unrelated recurring schedule for the same runner/object/interval. Stands in
+        # for a second scheduled-script entry with different `data`.
+        Job.objects.create(
+            name=TestJobRunner.name,
+            object=instance,
+            status=JobStatusChoices.STATUS_SCHEDULED,
+            interval=interval,
+            scheduled=self.get_schedule_at(),
+            job_id=uuid.uuid4(),
+        )
+
+        finished = Job.objects.create(
+            name=TestJobRunner.name,
+            object=instance,
+            status=JobStatusChoices.STATUS_COMPLETED,
+            interval=interval,
+            started=timezone.now(),
+            completed=timezone.now(),
+            job_id=uuid.uuid4(),
+        )
+
+        with patch.object(TestJobRunner, 'run'):
+            TestJobRunner.handle(finished)
+
+        # Both the unrelated schedule and the finished job's successor should be enqueued.
+        enqueued = Job.objects.filter(
+            name=TestJobRunner.name,
+            status__in=JobStatusChoices.ENQUEUED_STATE_CHOICES,
+            interval=interval,
+        )
+        self.assertEqual(enqueued.count(), 2)

@@ -46,7 +46,7 @@ class WirelessLANType(PrimaryObjectType):
 
     interfaces: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='scope')
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]

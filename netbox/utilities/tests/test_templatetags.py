@@ -1,5 +1,7 @@
+import warnings
 from unittest.mock import patch
 
+from django import forms
 from django.template.loader import render_to_string
 from django.test import TestCase, override_settings
 
@@ -7,11 +9,13 @@ from core.models import ObjectType
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
+from utilities.forms.rendering import FieldSet, InlineFields
 from utilities.templatetags.builtins.tags import badge, customfield_value, static_with_params
+from utilities.templatetags.form_helpers import any_required, render_field_with_aria, render_fieldset
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
 
 
-class CustomFieldValueTagTest(TestCase):
+class CustomFieldValueTagTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         object_type = ObjectType.objects.get_for_model(Site)
@@ -60,7 +64,7 @@ class CustomFieldValueTagTest(TestCase):
         self.assertEqual(context['value'], ['Option B'])
 
 
-class StaticWithParamsTest(TestCase):
+class StaticWithParamsTestCase(TestCase):
     """
     Test the static_with_params template tag functionality.
     """
@@ -103,7 +107,7 @@ class StaticWithParamsTest(TestCase):
                 self.assertNotIn('v=old_version', result)
 
 
-class BadgeTest(TestCase):
+class BadgeTestCase(TestCase):
     """
     Test the badge template tag functionality.
     """
@@ -117,7 +121,7 @@ class BadgeTest(TestCase):
         self.assertIn('>Role<', html)
 
 
-class HumanizeCapacityTest(TestCase):
+class HumanizeCapacityTestCase(TestCase):
     """
     Test the _humanize_capacity function for correct SI/IEC unit label selection.
     """
@@ -160,7 +164,7 @@ class HumanizeCapacityTest(TestCase):
         self.assertEqual(_humanize_capacity(2000), '2.00 GB')
 
 
-class HumanizeSpeedTest(TestCase):
+class HumanizeSpeedTestCase(TestCase):
     """
     Test the humanize_speed filter for correct unit selection and decimal formatting.
     """
@@ -242,3 +246,93 @@ class HumanizeSpeedTest(TestCase):
     def test_trailing_zeros_stripped(self):
         """Ensure trailing fractional zeros are stripped (5.500 → 5.5)."""
         self.assertEqual(humanize_speed(5_500_000), '5.5 Gbps')
+
+
+class RenderFieldWithAriaTestCase(TestCase):
+    """
+    Test the render_field_with_aria template tag.
+    """
+
+    def test_aria_describedby_includes_errors_and_helptext(self):
+        class TestForm(forms.Form):
+            name = forms.CharField(help_text='Hello', required=True)
+
+        form = TestForm({'name': ''})
+        self.assertFalse(form.is_valid())
+
+        html = render_field_with_aria(form['name'])
+
+        self.assertIn('aria-invalid="true"', html)
+        self.assertIn('id_name_errors', html)
+        self.assertIn('id_name_helptext', html)
+
+    @override_settings(DEBUG=True)
+    def test_missing_label_emits_debug_warning(self):
+        class TestForm(forms.Form):
+            dns_name = forms.CharField(label='')
+
+        form = TestForm()
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            html = render_field_with_aria(form['dns_name'])
+
+        messages = [str(w.message) for w in caught]
+        self.assertTrue(
+            any('TestForm.dns_name' in m for m in messages),
+            f'Expected a warning naming TestForm.dns_name; got: {messages}',
+        )
+        # No aria-label should be synthesized — an untranslated English fallback
+        # would degrade accessibility under non-English locales.
+        self.assertNotIn('aria-label', html)
+
+
+class AnyRequiredTestCase(TestCase):
+    """
+    Test the any_required template filter.
+    """
+
+    class TestForm(forms.Form):
+        required_field = forms.CharField(required=True)
+        optional_field = forms.CharField(required=False)
+
+    def test_returns_true_when_any_field_required(self):
+        form = self.TestForm()
+        self.assertTrue(any_required([form['optional_field'], form['required_field']]))
+
+    def test_returns_false_when_no_field_required(self):
+        form = self.TestForm()
+        self.assertFalse(any_required([form['optional_field']]))
+
+    def test_returns_false_for_empty_list(self):
+        self.assertFalse(any_required([]))
+
+
+class RenderFieldsetInlineRequiredTestCase(TestCase):
+    """
+    Verify the shared label for an InlineFields row receives the `required`
+    CSS class when at least one inline field is required.
+    """
+
+    class TestForm(forms.Form):
+        required_field = forms.CharField(required=True)
+        optional_field = forms.CharField(required=False)
+        another_optional = forms.CharField(required=False)
+
+    def _render(self, fieldset):
+        context = render_fieldset(self.TestForm(), fieldset)
+        return render_to_string('form_helpers/render_fieldset.html', context)
+
+    def test_inline_label_marked_required_when_any_field_required(self):
+        fieldset = FieldSet(
+            InlineFields('optional_field', 'required_field', label='Combined'),
+        )
+        html = self._render(fieldset)
+        self.assertIn('col-form-label text-lg-end required', html)
+
+    def test_inline_label_not_marked_required_when_no_field_required(self):
+        fieldset = FieldSet(
+            InlineFields('optional_field', 'another_optional', label='Combined'),
+        )
+        html = self._render(fieldset)
+        self.assertNotIn('col-form-label text-lg-end required', html)

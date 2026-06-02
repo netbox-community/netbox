@@ -1,11 +1,11 @@
 from django.contrib.auth.models import AnonymousUser
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from netaddr import IPAddress
 
 from utilities.request import copy_safe_request, get_client_ip
 
 
-class CopySafeRequestTests(TestCase):
+class CopySafeRequestTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -39,7 +39,7 @@ class CopySafeRequestTests(TestCase):
         self.assertNotIn('HTTP_X_CUSTOM_INT', fake.META)
 
 
-class GetClientIPTests(TestCase):
+class GetClientIPTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -61,3 +61,31 @@ class GetClientIPTests(TestCase):
         request = self.factory.get('/', HTTP_X_FORWARDED_FOR='invalid_ip')
         with self.assertRaises(ValueError):
             get_client_ip(request)
+
+    def test_no_matching_header(self):
+        request = self.factory.get('/')
+        request.META.pop('REMOTE_ADDR', None)
+        self.assertIsNone(get_client_ip(request))
+
+    def test_additional_headers_argument(self):
+        """Headers passed via `additional_headers` are checked after the configured defaults."""
+        request = self.factory.get('/', HTTP_CF_CONNECTING_IP='10.0.0.1')
+        request.META.pop('REMOTE_ADDR', None)
+        self.assertEqual(
+            get_client_ip(request, additional_headers=('HTTP_CF_CONNECTING_IP',)),
+            IPAddress('10.0.0.1'),
+        )
+
+    def test_default_headers_precede_additional_headers(self):
+        """Headers from HTTP_CLIENT_IP_HEADERS take precedence over `additional_headers`."""
+        request = self.factory.get('/', HTTP_X_FORWARDED_FOR='192.168.1.1', HTTP_CF_CONNECTING_IP='10.0.0.1')
+        self.assertEqual(
+            get_client_ip(request, additional_headers=('HTTP_CF_CONNECTING_IP',)),
+            IPAddress('192.168.1.1'),
+        )
+
+    @override_settings(HTTP_CLIENT_IP_HEADERS=('HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'))
+    def test_custom_configured_headers(self):
+        """get_client_ip() should honor the HTTP_CLIENT_IP_HEADERS setting."""
+        request = self.factory.get('/', HTTP_X_FORWARDED_FOR='192.168.1.1', HTTP_CF_CONNECTING_IP='10.0.0.1')
+        self.assertEqual(get_client_ip(request), IPAddress('10.0.0.1'))

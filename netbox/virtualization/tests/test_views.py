@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 
 from dcim.choices import InterfaceModeChoices
@@ -189,15 +188,15 @@ class ClusterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_cluster_virtualmachines(self):
+        self.add_permissions('virtualization.view_cluster', 'virtualization.view_virtualmachine')
         cluster = Cluster.objects.first()
 
         url = reverse('virtualization:cluster_virtualmachines', kwargs={'pk': cluster.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_cluster_devices(self):
+        self.add_permissions('virtualization.view_cluster', 'dcim.view_device')
         cluster = Cluster.objects.first()
 
         url = reverse('virtualization:cluster_devices', kwargs={'pk': cluster.pk})
@@ -423,9 +422,15 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'start_on_boot': VirtualMachineStartOnBootChoices.STATUS_OFF,
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_create_virtualmachine_with_type_defaults(self):
-        self.add_permissions('virtualization.add_virtualmachine')
+        self.add_permissions(
+            'virtualization.view_virtualmachine',
+            'virtualization.add_virtualmachine',
+            'virtualization.view_cluster',
+            'virtualization.view_virtualmachinetype',
+            'dcim.view_site',
+            'dcim.view_platform',
+        )
 
         response = self.client.post(
             self._get_url('add'),
@@ -449,8 +454,8 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertEqual(vm.vcpus, self.vm_types[0].default_vcpus)
         self.assertEqual(vm.memory, self.vm_types[0].default_memory)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_virtualmachine_interfaces(self):
+        self.add_permissions('virtualization.view_virtualmachine', 'virtualization.view_vminterface')
         virtualmachine = VirtualMachine.objects.first()
         vminterfaces = (
             VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
