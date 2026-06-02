@@ -1,5 +1,6 @@
 import importlib.abc
 import importlib.util
+import logging
 import os
 import sys
 from collections import defaultdict
@@ -19,6 +20,8 @@ __all__ = (
     'PythonModuleMixin',
     'RenderTemplateMixin',
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CustomStoragesLoader(importlib.abc.Loader):
@@ -139,7 +142,7 @@ class RenderTemplateMixin(models.Model):
                 try:
                     _context.update(app_config.get_jinja2_context())
                 except Exception:
-                    pass
+                    logger.exception("Plugin %r raised an exception in get_jinja2_context()", app_config.name)
 
         if context is not None:
             _context.update(context)

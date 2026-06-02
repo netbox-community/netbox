@@ -119,10 +119,10 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `search_extensions`   | The dotted path to the list of search index classes (default: `search.indexes`)                                                    |
 | `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                                     |
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)                        |
+| `jinja2_filters`      | The dotted path to a dict of custom Jinja2 filter functions for use in config templates (default: `jinja2_env.filters`)            |
 | `menu_items`          | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)                                |
 | `graphql_schema`      | The dotted path to the plugin's GraphQL schema class, if any (default: `graphql.schema`)                                           |
 | `user_preferences`    | The dotted path to the dictionary mapping of user preferences defined by the plugin (default: `preferences.preferences`)           |
-| `jinja2_filters`      | The dotted path to a dict of custom Jinja2 filter functions for use in config templates (default: `jinja2_env.filters`)            |
 
 All required settings must be configured by the user. If a configuration parameter is listed in both `required_settings` and `default_settings`, the default setting will be ignored.
 

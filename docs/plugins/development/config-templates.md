@@ -66,7 +66,7 @@ def prefix_list(device):
     # Site-local override: include only loopback prefixes
     return [
         str(ip.address)
-        for iface in device.interfaces.filter(type='virtual')
+        for iface in device.interfaces.filter(type='loopback')
         for ip in iface.ip_addresses.all()
     ]
 

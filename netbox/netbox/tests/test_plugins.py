@@ -250,9 +250,9 @@ class PluginTest(TestCase):
         Variables returned by a plugin's get_jinja2_context() must appear in the
         context produced by RenderTemplateMixin.get_context().
         """
-        from extras.models import ExportTemplate
-        et = ExportTemplate(name='jinja2-ctx-test', template_code='')
-        ctx = et.get_context()
+        from extras.models import ConfigTemplate
+        ct = ConfigTemplate(name='jinja2-ctx-test', template_code='')
+        ctx = ct.get_context()
         self.assertIn('dummy_plugin_var', ctx)
         self.assertEqual(ctx['dummy_plugin_var'], 'hello_from_dummy')
 
