@@ -7,6 +7,7 @@ from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
+from netbox.models.ltree import SortPathField
 from netbox.models.mixins import DistanceMixin
 
 from .choices import *
@@ -63,7 +64,7 @@ class WirelessLANGroup(NestedLtreeGroupModel):
         unique=True
     )
     # Override the abstract parent's sort_path to use natural_sort, matching `name`.
-    sort_path = models.TextField(
+    sort_path = SortPathField(
         editable=False,
         blank=True,
         default='',

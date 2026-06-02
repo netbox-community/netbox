@@ -1,6 +1,7 @@
 import strawberry
 import strawberry_django
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import ExpressionWrapper, F, Func, IntegerField, Value
 from strawberry.types import Info
 
 from core.graphql.mixins import ChangelogMixin
@@ -11,6 +12,7 @@ from users.graphql.mixins import OwnerMixin
 __all__ = (
     'BaseObjectType',
     'ContentTypeType',
+    'LtreeNodeMixin',
     'NestedGroupObjectType',
     'NetBoxObjectType',
     'ObjectType',
@@ -83,7 +85,29 @@ class OrganizationalObjectType(
     pass
 
 
+@strawberry.type
+class LtreeNodeMixin:
+    """
+    Exposes the ltree-backed tree depth as a `level` field, preserving the `level`
+    field MPTT-based types previously surfaced automatically as a real column.
+
+    The depth is computed in the database as `nlevel(path) - 1` (root = 0) and
+    annotated onto the queryset. We read the annotation rather than the `path`
+    column directly: `path` is excluded from the schema, so accessing it through
+    the resolver source would re-enter field resolution and recurse.
+    """
+    @strawberry_django.field(annotate={
+        'ltree_level': ExpressionWrapper(
+            Func(F('path'), function='nlevel', output_field=IntegerField()) - Value(1),
+            output_field=IntegerField(),
+        )
+    })
+    def level(self) -> int:
+        return self.ltree_level
+
+
 class NestedGroupObjectType(
+    LtreeNodeMixin,
     ChangelogMixin,
     CustomFieldsMixin,
     JournalEntriesMixin,

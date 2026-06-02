@@ -66,7 +66,10 @@ def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     """
     # Hierarchical (ltree) models are exempt; their default ordering by `sort_path`/`path`
     # must not be clobbered by .annotate(). Use caution when annotating these querysets.
-    if any(isinstance(manager, LtreeManager) for manager in queryset.model._meta.local_managers):
+    # Use `managers` (not `local_managers`): the LtreeManager is declared on the abstract
+    # NestedLtreeGroupModel base, so concrete subclasses inherit it via the MRO rather than
+    # holding it in their own `local_managers`.
+    if any(isinstance(manager, LtreeManager) for manager in queryset.model._meta.managers):
         return queryset
     if queryset.ordered:
         return queryset

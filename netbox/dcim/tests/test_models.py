@@ -2561,3 +2561,65 @@ class PowerPortDrawTestCase(TestCase):
         self.assertEqual(legs_by_name['A']['maximum'], 200)
         self.assertEqual(legs_by_name['B']['allocated'], 0)
         self.assertEqual(legs_by_name['C']['allocated'], 0)
+
+
+class InventoryItemCycleTestCase(TestCase):
+    """
+    InventoryItem (ltree-backed, not the nested-group base) must reject assigning
+    self or a descendant as parent — behavior django-mptt previously enforced via
+    InvalidMove on save().
+    """
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='inv-site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='inv-mfr-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='inv-dt-1'
+        )
+        role = DeviceRole.objects.create(name='Role 1', slug='inv-role-1')
+        cls.device = Device.objects.create(
+            name='Device 1', device_type=device_type, role=role, site=site
+        )
+
+    def test_cannot_assign_descendant_as_parent(self):
+        a = InventoryItem.objects.create(device=self.device, name='A')
+        b = InventoryItem.objects.create(device=self.device, name='B', parent=a)
+        c = InventoryItem.objects.create(device=self.device, name='C', parent=b)
+        a.parent = c
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+        # The save()-level guard also rejects the cycle when clean() is bypassed.
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_cannot_assign_self_as_parent(self):
+        a = InventoryItem.objects.create(device=self.device, name='A')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+
+
+class InventoryItemTemplateCycleTestCase(TestCase):
+    """InventoryItemTemplate must likewise reject self/descendant as parent."""
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='iit-mfr-1')
+        cls.device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='iit-dt-1'
+        )
+
+    def test_cannot_assign_descendant_as_parent(self):
+        a = InventoryItemTemplate.objects.create(device_type=self.device_type, name='A')
+        b = InventoryItemTemplate.objects.create(device_type=self.device_type, name='B', parent=a)
+        a.parent = b
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_cannot_assign_self_as_parent(self):
+        a = InventoryItemTemplate.objects.create(device_type=self.device_type, name='A')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.full_clean()

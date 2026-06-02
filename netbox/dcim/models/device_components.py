@@ -15,7 +15,7 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
-from netbox.models.ltree import LtreeManager, LtreeModel
+from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
@@ -1336,7 +1336,7 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         verbose_name=_('enabled'),
         default=True,
     )
-    sort_path = models.TextField(
+    sort_path = SortPathField(
         editable=False,
         blank=True,
         default='',
@@ -1385,6 +1385,12 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         else:
             self.parent = None
         super().save(*args, **kwargs)
+
+    def _parent_creates_cycle(self):
+        # A ModuleBay's parent is system-derived from its module (see save()), not
+        # user-assigned, and module/bay recursion is validated in clean(); skip the
+        # generic ltree cycle guard.
+        return False
 
     @property
     def _occupied(self):
@@ -1572,10 +1578,10 @@ class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
     def clean(self):
         super().clean()
 
-        # An InventoryItem cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
+        # An InventoryItem cannot be its own parent or a descendant of itself
+        if self.pk and self._parent_creates_cycle():
             raise ValidationError({
-                "parent": _("Cannot assign self as parent.")
+                "parent": _("Cannot assign self or a descendant as parent.")
             })
 
         # Validation for moving InventoryItems

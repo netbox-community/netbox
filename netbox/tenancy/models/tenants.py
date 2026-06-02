@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.features import ContactsMixin
+from netbox.models.ltree import SortPathField
 
 __all__ = (
     'Tenant',
@@ -28,7 +29,7 @@ class TenantGroup(NestedLtreeGroupModel):
         unique=True
     )
     # Override the abstract parent's sort_path to use natural_sort, matching `name`.
-    sort_path = models.TextField(
+    sort_path = SortPathField(
         editable=False,
         blank=True,
         default='',

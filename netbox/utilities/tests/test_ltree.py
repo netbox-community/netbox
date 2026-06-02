@@ -154,7 +154,7 @@ class LtreeAPIParityTests(TestCase):
 
 
 class CycleValidationTests(TestCase):
-    """clean() must refuse to assign a descendant as parent."""
+    """clean() and save() must refuse to assign self or a descendant as parent."""
 
     def test_cycle_raises(self):
         from django.core.exceptions import ValidationError
@@ -164,6 +164,38 @@ class CycleValidationTests(TestCase):
         a.parent = b
         with self.assertRaises(ValidationError):
             a.full_clean()
+
+    def test_cycle_raises_on_save_without_clean(self):
+        # The save()-level guard mirrors django-mptt's InvalidMove: a cyclic move
+        # is rejected even when full_clean() is bypassed (scripts, bulk callers).
+        from django.core.exceptions import ValidationError
+        a = Region.objects.create(name='A', slug='a-cyc2')
+        b = Region.objects.create(parent=a, name='B', slug='b-cyc2')
+        Region.objects.create(parent=b, name='C', slug='c-cyc2')
+        a.parent = b
+        with self.assertRaises(ValidationError):
+            a.save()
+        # The rejected move must leave the tree unchanged.
+        a.refresh_from_db()
+        self.assertIsNone(a.parent_id)
+
+    def test_self_parent_raises_on_save(self):
+        from django.core.exceptions import ValidationError
+        a = Region.objects.create(name='A', slug='a-self')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_move_to_unrelated_parent_is_allowed(self):
+        # A legitimate move (target is neither self nor a descendant) must succeed.
+        a = Region.objects.create(name='A', slug='a-ok')
+        b = Region.objects.create(name='B', slug='b-ok')
+        child = Region.objects.create(parent=a, name='Child', slug='child-ok')
+        child.parent = b
+        child.save()
+        child.refresh_from_db()
+        self.assertEqual(child.parent_id, b.pk)
+        self.assertEqual(child.path, _path(b.pk, child.pk))
 
 
 class SortPathTests(TestCase):
@@ -445,6 +477,43 @@ class SortPathRefreshTests(TestCase):
         db_sort_path = Region.objects.values_list('sort_path', flat=True).get(pk=child.pk)
         self.assertEqual(child.sort_path, db_sort_path)
         self.assertEqual(child.sort_path, f'Bravo{chr(1)}Kid')
+
+    def test_rename_refreshes_sort_path(self):
+        # The trigger rewrites sort_path on a name change; the in-memory instance
+        # must reflect it without a manual refresh_from_db().
+        root = Region.objects.create(name='Root', slug='root-rn')
+        root.name = 'Renamed'
+        root.save()
+        db_sort_path = Region.objects.values_list('sort_path', flat=True).get(pk=root.pk)
+        self.assertEqual(root.sort_path, db_sort_path)
+        self.assertEqual(root.sort_path, 'Renamed')
+
+
+class ReapplyModelOrderingTests(TestCase):
+    """Ltree-backed models must be exempt from reapply_model_ordering()."""
+
+    def test_ltree_model_is_exempt(self):
+        from utilities.query import reapply_model_ordering
+        # Clear ordering so a non-exempt model would be re-ordered by Meta.ordering.
+        qs = Region.objects.all().order_by()
+        result = reapply_model_ordering(qs)
+        # The LtreeManager is inherited from the abstract base (not in
+        # local_managers), so the exemption must still apply and return qs as-is.
+        self.assertIs(result, qs)
+
+
+class AddRelatedCountErrorTests(TestCase):
+    """add_related_count() must fail clearly on an unresolvable rel_field."""
+
+    def test_unknown_field_raises_fielddoesnotexist(self):
+        from django.core.exceptions import FieldDoesNotExist
+        # Region has no scope_type/scope_id, so an unknown rel_field cannot resolve
+        # to a FK/M2M or the GenericFK scope pattern -> explicit FieldDoesNotExist
+        # rather than an opaque NameError deep in the SQL builder.
+        with self.assertRaises(FieldDoesNotExist):
+            Region.objects.add_related_count(
+                Region.objects.all(), Region, 'not_a_field', 'bogus_count', cumulative=True
+            )
 
 
 class ChangeLogExclusionTests(TestCase):

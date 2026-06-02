@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from netbox.models.features import *
-from netbox.models.ltree import LtreeManager, LtreeModel
+from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
@@ -231,10 +231,11 @@ class NestedLtreeGroupModel(NestedGroupModelMixin, LtreeModel):
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
 
-    `sort_path` is a trigger-maintained text column that mirrors MPTT's `order_insertion_by=('name',)`
-    semantics: at insert and reparent time it is set to a chr(1)-separated chain of ancestor names.
-    Ordering by `sort_path` yields tree-flatten output with siblings in their column's collation order.
-    Renaming a node does NOT update `sort_path` (matching MPTT behavior).
+    `sort_path` is a trigger-maintained text column holding a chr(1)-separated chain of ancestor
+    names; ordering by it yields tree-flatten output with siblings in name (collation) order.
+    Inserts, reparents, AND renames all update `sort_path` (a rename cascades to descendants), so
+    list ordering reflects renames immediately — unlike django-mptt's `order_insertion_by`, which
+    left descendants stale until a manual rebuild.
     """
     parent = models.ForeignKey(
         to='self',
@@ -244,7 +245,7 @@ class NestedLtreeGroupModel(NestedGroupModelMixin, LtreeModel):
         null=True,
         db_index=True
     )
-    sort_path = models.TextField(
+    sort_path = SortPathField(
         editable=False,
         blank=True,
         default='',

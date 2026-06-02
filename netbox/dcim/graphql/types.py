@@ -12,6 +12,7 @@ from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
+    LtreeNodeMixin,
     NestedGroupObjectType,
     NetBoxObjectType,
     OrganizationalObjectType,
@@ -326,7 +327,7 @@ class DeviceBayTemplateType(ComponentTemplateType):
     filters=InventoryItemTemplateFilter,
     pagination=True
 )
-class InventoryItemTemplateType(ComponentTemplateType):
+class InventoryItemTemplateType(LtreeNodeMixin, ComponentTemplateType):
     role: Annotated['InventoryItemRoleType', strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated['ManufacturerType', strawberry.lazy('dcim.graphql.types')]
 
@@ -491,7 +492,7 @@ class InterfaceTemplateType(ModularComponentTemplateType):
     filters=InventoryItemFilter,
     pagination=True
 )
-class InventoryItemType(ComponentType):
+class InventoryItemType(LtreeNodeMixin, ComponentType):
     role: Annotated['InventoryItemRoleType', strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated['ManufacturerType', strawberry.lazy('dcim.graphql.types')] | None
 
@@ -606,7 +607,7 @@ class ModuleType(PrimaryObjectType):
     filters=ModuleBayFilter,
     pagination=True
 )
-class ModuleBayType(ModularComponentType):
+class ModuleBayType(LtreeNodeMixin, ModularComponentType):
 
     installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]

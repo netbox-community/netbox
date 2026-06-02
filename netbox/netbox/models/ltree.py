@@ -11,9 +11,11 @@ InstallLtreeTriggers migration operation. The Python layer never computes or
 mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import connection, migrations, models
 from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
+from django.utils.translation import gettext_lazy as _
 
 from utilities.querysets import RestrictedQuerySet
 
@@ -23,6 +25,7 @@ __all__ = (
     'LtreeManager',
     'LtreeModel',
     'LtreeQuerySet',
+    'SortPathField',
 )
 
 
@@ -36,6 +39,13 @@ class LtreeField(models.TextField):
     such as "1.4.27" (each label is the integer PK of an ancestor).
     """
     description = "PostgreSQL ltree field"
+
+    # `path` is computed by a BEFORE INSERT trigger, so its final value isn't known
+    # until the row is written. Marking the field db_returning lets the
+    # INSERT ... RETURNING clause fetch the trigger-computed value in the same
+    # round-trip (PostgreSQL evaluates RETURNING after BEFORE triggers fire),
+    # avoiding a follow-up SELECT in LtreeModel.save(). Mirrors AutoFieldMixin.
+    db_returning = True
 
     def db_type(self, connection):
         return 'ltree'
@@ -83,6 +93,21 @@ class DescendantOrEqual(Lookup):
         return f'{lhs} <@ {rhs}', lhs_params + rhs_params
 
 
+class SortPathField(models.TextField):
+    """
+    Text column holding the chr(1)-separated chain of ancestor names that drives
+    tree-flatten ordering. Like `path`, its value is maintained by triggers, so it
+    is marked db_returning to be populated via INSERT ... RETURNING without an
+    extra SELECT. It deconstructs as a plain TextField so existing migrations
+    (which created the column as TextField) require no schema change.
+    """
+    db_returning = True
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        return name, 'django.db.models.TextField', args, kwargs
+
+
 #
 # QuerySet / Manager
 #
@@ -104,17 +129,25 @@ class LtreeQuerySet(RestrictedQuerySet):
         is_many_to_many = False
         try:
             field = model._meta.get_field(rel_field)
-            if isinstance(field, ManyToManyField):
-                is_many_to_many = True
-            elif isinstance(field, ForeignKey):
-                has_direct_fk = True
         except Exception:
-            pass
+            field = None
+        if isinstance(field, ManyToManyField):
+            is_many_to_many = True
+        elif isinstance(field, ForeignKey):
+            has_direct_fk = True
 
         has_generic_fk = (
             hasattr(model, 'scope_type') and hasattr(model, 'scope_id')
             and not has_direct_fk and not is_many_to_many
         )
+
+        # The FK branches below dereference field.column, so fail loudly here if the
+        # field could not be resolved and this isn't the scope GenericFK pattern —
+        # rather than raising an opaque AttributeError deep in the SQL builder.
+        if field is None and not has_generic_fk:
+            raise FieldDoesNotExist(
+                f"{model._meta.label} has no field '{rel_field}' for add_related_count()"
+            )
 
         qn = connection.ops.quote_name
         parent_table = qn(queryset.model._meta.db_table)
@@ -280,19 +313,47 @@ class LtreeModel(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._loaded_parent_id = self.parent_id
+        # Read from __dict__ rather than via attribute access: a deferred
+        # `parent_id`/`name` (e.g. a GraphQL query selecting only a subset of
+        # fields) must not be lazily loaded here, since that triggers
+        # refresh_from_db() which rebuilds the instance and recurses into __init__.
+        self._loaded_parent_id = self.__dict__.get('parent_id')
+        self._loaded_name = self.__dict__.get('name')
 
     @classmethod
     def from_db(cls, db, field_names, values):
         instance = super().from_db(db, field_names, values)
-        instance._loaded_parent_id = instance.parent_id
+        instance._loaded_parent_id = instance.__dict__.get('parent_id')
+        instance._loaded_name = instance.__dict__.get('name')
         return instance
+
+    def _parent_creates_cycle(self):
+        """
+        Return True if the current `parent` assignment would make this node its
+        own ancestor (the new parent is self or one of its descendants), mirroring
+        django-mptt's save-time InvalidMove guard.
+
+        Subclasses whose `parent` is system-managed (e.g. ModuleBay, whose parent
+        is derived from its module) may override this to disable the check.
+        """
+        if self.parent_id is None or not self.path:
+            return False
+        # The new parent lies inside this node's current subtree iff its path is a
+        # descendant of (or equal to) self.path.
+        return type(self)._default_manager.filter(
+            pk=self.parent_id, path__descendant_or_equal=self.path
+        ).exists()
 
     def save(self, *args, **kwargs):
         """
         Triggers compute `path` (and `sort_path`, where present) server-side.
-        After insert or after a parent change, refresh those columns so the
-        in-memory instance stays consistent with the database.
+
+        On INSERT the trigger-maintained columns are db_returning, so they are
+        populated in-place by the INSERT ... RETURNING clause without an extra
+        query. On an UPDATE that changes `parent` or the name column the triggers
+        rewrite those columns server-side, so refresh them afterward to keep the
+        in-memory instance consistent (e.g. so change logging snapshots the value
+        the triggers actually wrote, not a stale one).
         """
         is_insert = self._state.adding
         # When update_fields is supplied and excludes parent, the DB does not see
@@ -302,21 +363,40 @@ class LtreeModel(models.Model):
         update_fields = kwargs.get('update_fields')
         parent_written = update_fields is None or 'parent' in update_fields or 'parent_id' in update_fields
         parent_changed = (not is_insert) and parent_written and self.parent_id != self._loaded_parent_id
+
+        # The sort_path trigger also fires on a name change; detect that so the
+        # cascaded sort_path can be refreshed below (path-only models have no
+        # sort_path and are unaffected by renames).
+        has_sort_path = any(f.attname == 'sort_path' for f in self._meta.concrete_fields)
+        name_written = update_fields is None or 'name' in update_fields
+        name_changed = (
+            (not is_insert) and has_sort_path and name_written
+            and self.__dict__.get('name') != self._loaded_name
+        )
+
+        # Reject cyclic moves before writing, mirroring django-mptt's save-time
+        # guard so scripts / bulk callers (which bypass form & serializer clean())
+        # cannot silently corrupt the tree.
+        if parent_changed and self._parent_creates_cycle():
+            raise ValidationError(_("Cannot assign self or a descendant as parent."))
+
         super().save(*args, **kwargs)
-        if is_insert or parent_changed:
-            # Refresh every trigger-maintained column (`path`, plus `sort_path` on
-            # models that declare it) so the in-memory instance matches the row the
-            # triggers actually wrote — otherwise e.g. change logging would snapshot
-            # a stale value.
+
+        if (parent_changed or name_changed) and not is_insert:
+            # The triggers rewrote path/sort_path on this UPDATE; fetch them back.
+            # (INSERT ... RETURNING covers the insert case, so only updates reach here.)
             refresh_fields = [
-                name for name in ('path', 'sort_path')
-                if any(f.attname == name for f in self._meta.concrete_fields)
+                fname for fname in ('path', 'sort_path')
+                if any(f.attname == fname for f in self._meta.concrete_fields)
             ]
             row = type(self).objects.values_list(*refresh_fields).get(pk=self.pk)
-            for name, value in zip(refresh_fields, row):
-                setattr(self, name, value)
+            for fname, value in zip(refresh_fields, row):
+                setattr(self, fname, value)
+
         if is_insert or parent_written:
             self._loaded_parent_id = self.parent_id
+        if is_insert or name_written:
+            self._loaded_name = self.__dict__.get('name')
 
     # -- MPTT-compatible API ------------------------------------------------
 
@@ -330,17 +410,19 @@ class LtreeModel(models.Model):
     def get_level(self):
         return self.level
 
+    def _root_pk(self):
+        """
+        Integer PK of the root node, parsed from the first (zero-padded) path label.
+        Returns None for a node with no path.
+        """
+        if not self.path:
+            return None
+        return int(str(self.path).split('.', 1)[0].lstrip('0') or '0')
+
     @property
     def tree_id(self):
         """Integer PK of the root, mirroring django-mptt's `tree_id`."""
-        if not self.path:
-            return None
-        # Strip leading zeros from the padded label
-        root_label = str(self.path).split('.', 1)[0].lstrip('0') or '0'
-        try:
-            return int(root_label)
-        except (TypeError, ValueError):
-            return root_label
+        return self._root_pk()
 
     def is_root_node(self):
         return self.parent_id is None
@@ -354,8 +436,7 @@ class LtreeModel(models.Model):
     def get_root(self):
         if self.is_root_node():
             return self
-        root_pk = int(str(self.path).split('.', 1)[0].lstrip('0') or '0')
-        return type(self)._default_manager.get(pk=root_pk)
+        return type(self)._default_manager.get(pk=self._root_pk())
 
     def get_parent(self):
         return self.parent
