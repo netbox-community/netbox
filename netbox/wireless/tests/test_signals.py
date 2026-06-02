@@ -1,7 +1,8 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from django.test import SimpleTestCase, TestCase
+from django.db.models.signals import post_save
+from django.test import SimpleTestCase, TestCase, tag
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import CablePath, Interface
@@ -20,7 +21,7 @@ class WirelessLinkSignalTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.device = create_test_device('Device 1')
-        # Eight interfaces — one distinct pair per test method so no test sees stale
+        # Ten interfaces — one distinct pair per test method so no test sees stale
         # in-memory state mutated by a previous test.
         cls.interfaces = [
             Interface.objects.create(
@@ -31,7 +32,7 @@ class WirelessLinkSignalTestCase(TestCase):
                 rf_channel_frequency=5160,
                 rf_channel_width=20,
             )
-            for i in range(8)
+            for i in range(10)
         ]
 
     def test_creating_link_assigns_wireless_link_to_both_interfaces(self):
@@ -76,6 +77,40 @@ class WirelessLinkSignalTestCase(TestCase):
         self.assertIsNone(interface_b.wireless_link)
         # All wireless cable paths should be gone.
         self.assertEqual(CablePath.objects.count(), 0)
+
+    @tag('regression')  # #21338
+    def test_path_refreshes_unset_cablepath_reference(self):
+        """
+        An interface instance saved during wireless link creation, before path
+        tracing, should resolve its path and connected endpoints.
+
+        The stale-instance preconditions rely on update_connected_interfaces
+        saving both interfaces before creating cable paths.
+        """
+        interface_a, interface_b = self.interfaces[8], self.interfaces[9]
+
+        # Capture the instances handed to the event machinery on save
+        saved_instances = []
+
+        def capture(sender, instance, **kwargs):
+            saved_instances.append(instance)
+
+        post_save.connect(capture, sender=Interface)
+        try:
+            WirelessLink(interface_a=interface_a, interface_b=interface_b, ssid='LINK1').save()
+        finally:
+            post_save.disconnect(capture, sender=Interface)
+
+        self.assertEqual(len(saved_instances), 2)
+        captured_a = next(i for i in saved_instances if i.pk == interface_a.pk)
+
+        # The captured instance predates path tracing: linked, but no path yet
+        self.assertIsNotNone(captured_a.wireless_link_id)
+        self.assertIsNone(captured_a._path_id)
+
+        # The accessor must repair the unset denormalized reference
+        self.assertIsNotNone(captured_a.path)
+        self.assertEqual(captured_a.connected_endpoints, [interface_b])
 
 
 class UpdateConnectedInterfacesDirectHandlerTestCase(SimpleTestCase):

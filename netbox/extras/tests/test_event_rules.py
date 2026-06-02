@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 import django_rq
 from django.conf import settings
 from django.http import HttpResponse
-from django.test import RequestFactory
+from django.test import RequestFactory, tag
 from django.urls import reverse
 from requests import Session
 from rest_framework import status
@@ -14,14 +14,14 @@ from rest_framework import status
 from core.events import *
 from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
-from dcim.models import Site
+from dcim.models import Interface, Site
 from extras.choices import EventRuleActionChoices
 from extras.events import enqueue_event, flush_events, serialize_for_event
 from extras.models import EventRule, Script, Tag, Webhook
 from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
 from netbox.context_managers import event_tracking
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, create_test_device
 
 
 class EventRuleTestCase(APITestCase):
@@ -530,6 +530,48 @@ class EventRuleTestCase(APITestCase):
         self.assertIn('data', event.data)
         self.assertEqual(event['data']['name'], 'Site 1')
         self.assertIsNone(event['snapshots']['postchange'])
+
+    @tag('regression')  # #21338
+    def test_cable_creation_event_payload_includes_connected_endpoints(self):
+        """
+        Interface update events queued during cable creation must include the
+        peer interface in connected_endpoints and link_peers.
+        """
+        webhook = Webhook.objects.get(name='Webhook 1')
+        event_rule = EventRule.objects.create(
+            name='Interface Update Rule',
+            event_types=[OBJECT_UPDATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=ObjectType.objects.get_for_model(Webhook),
+            action_object_id=webhook.id,
+        )
+        event_rule.object_types.set([ObjectType.objects.get_for_model(Interface)])
+
+        device = create_test_device('Device 1')
+        interface_a = Interface.objects.create(device=device, name='eth0')
+        interface_b = Interface.objects.create(device=device, name='eth1')
+
+        # Create a cable between the two interfaces via the REST API
+        data = {
+            'a_terminations': [{'object_type': 'dcim.interface', 'object_id': interface_a.pk}],
+            'b_terminations': [{'object_type': 'dcim.interface', 'object_id': interface_b.pk}],
+        }
+        url = reverse('dcim-api:cable-list')
+        self.add_permissions('dcim.add_cable')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        # One update event was queued for each interface
+        self.assertEqual(self.queue.count, 2)
+        payloads = {job.kwargs['data']['id']: job.kwargs['data'] for job in self.queue.jobs}
+        peers = {interface_a.pk: interface_b.pk, interface_b.pk: interface_a.pk}
+        self.assertEqual(set(payloads), set(peers))
+        for interface_id, payload in payloads.items():
+            peer_id = peers[interface_id]
+            self.assertIsNotNone(payload['connected_endpoints'])
+            self.assertEqual([endpoint['id'] for endpoint in payload['connected_endpoints']], [peer_id])
+            self.assertEqual([peer['id'] for peer in payload['link_peers']], [peer_id])
+            self.assertTrue(payload['connected_endpoints_reachable'])
 
     def test_duplicate_triggers(self):
         """

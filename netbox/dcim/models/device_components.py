@@ -384,12 +384,27 @@ class PathEndpoint(models.Model):
         a stale in-memory `_path` relation while the database already points to
         a different CablePath (or to no path at all).
 
-        If the cached relation points to a CablePath that has just been
-        deleted, refresh only the `_path` field from the database and retry.
-        This keeps the fix cheap and narrowly scoped to the denormalized FK.
+        Two stale cases are repaired by refreshing only the `_path` field
+        from the database:
+
+        1. The endpoint is linked (by cable or wireless link) but `_path` is
+           unset, because the instance was loaded before its path was traced
+           (e.g. while queued for event serialization during link creation).
+        2. The cached relation points to a CablePath row that has just been
+           deleted.
+
+        Repairing case 1 costs one query per access for a linked endpoint
+        whose path is genuinely absent in the database. That state is
+        transient outside of tracing failures, so no result caching is
+        attempted here.
         """
         if self._path_id is None:
-            return None
+            has_link = self.cable_id is not None or getattr(self, 'wireless_link_id', None) is not None
+            if self.pk and has_link:
+                self.refresh_from_db(fields=['_path'])
+
+            if self._path_id is None:
+                return None
 
         try:
             return self._path

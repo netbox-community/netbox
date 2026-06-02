@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
 from django.test import TestCase, tag
 
 from circuits.models import *
@@ -2034,6 +2035,61 @@ class CableTestCase(TestCase):
         self.assertIsNone(data['connected_endpoints'])
         self.assertIsNone(data['connected_endpoints_type'])
         self.assertFalse(data['connected_endpoints_reachable'])
+
+    @tag('regression')  # #21338
+    def test_path_refreshes_unset_cablepath_reference(self):
+        """
+        An endpoint instance saved during cable creation, before path tracing,
+        should resolve its path and connected endpoints.
+
+        The stale-instance preconditions rely on Cable.save() saving each
+        CableTermination (which re-saves the endpoint) before trace_paths
+        creates the CablePath records.
+        """
+        device = Device.objects.get(name='TestDevice2')
+        interface_a = Interface.objects.create(device=device, name='eth2')
+        interface_b = Interface.objects.create(device=device, name='eth3')
+
+        # Capture the instances handed to the event machinery on save
+        saved_instances = []
+
+        def capture(sender, instance, **kwargs):
+            saved_instances.append(instance)
+
+        post_save.connect(capture, sender=Interface)
+        try:
+            Cable(a_terminations=[interface_a], b_terminations=[interface_b]).save()
+        finally:
+            post_save.disconnect(capture, sender=Interface)
+
+        self.assertEqual(len(saved_instances), 2)
+        captured_a = next(i for i in saved_instances if i.pk == interface_a.pk)
+        captured_b = next(i for i in saved_instances if i.pk == interface_b.pk)
+
+        # The captured instances predate path tracing: cabled, but no path yet
+        self.assertIsNotNone(captured_a.cable_id)
+        self.assertIsNone(captured_a._path_id)
+        self.assertIsNone(captured_b._path_id)
+
+        # The accessor must repair the unset denormalized reference
+        self.assertIsNotNone(captured_a.path)
+        self.assertEqual(captured_a.connected_endpoints, [interface_b])
+
+        # Serialization as performed by the event queue must see the peer
+        data = serialize_for_event(captured_b)
+        self.assertEqual([endpoint['id'] for endpoint in data['connected_endpoints']], [interface_a.pk])
+        self.assertEqual([peer['id'] for peer in data['link_peers']], [interface_a.pk])
+        self.assertTrue(data['connected_endpoints_reachable'])
+
+    def test_path_returns_none_for_unsaved_endpoint(self):
+        """
+        An unsaved endpoint with a link assigned should report no path rather
+        than attempting a database refresh.
+        """
+        device = Device.objects.get(name='TestDevice1')
+        cable = Cable.objects.first()
+        interface = Interface(device=device, name='tmp', cable=cable)
+        self.assertIsNone(interface.path)
 
 
 class VirtualDeviceContextTestCase(TestCase):
