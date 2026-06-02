@@ -59,6 +59,22 @@ class MyPluginConfig(PluginConfig):
 
 Plugin-registered filters can be overridden on a per-instance basis via the [`JINJA2_FILTERS`](../../configuration/system.md#jinja2_filters) configuration parameter. Instance-level filters always take precedence over plugin-registered filters of the same name.
 
+For example, if `my_plugin` registers a `prefix_list` filter but a site needs different behaviour, the operator can replace it in `configuration.py` without touching the plugin:
+
+```python title="configuration.py"
+def prefix_list(device):
+    # Site-local override: include only loopback prefixes
+    return [
+        str(ip.address)
+        for iface in device.interfaces.filter(type='virtual')
+        for ip in iface.ip_addresses.all()
+    ]
+
+JINJA2_FILTERS = {
+    'prefix_list': prefix_list,
+}
+```
+
 ---
 
 ## Injecting Context Variables
