@@ -27,7 +27,7 @@ class DummyPluginConfig(PluginConfig):
     def ready(self):
         super().ready()
 
-        from . import jobs, webhook_callbacks  # noqa: F401
+        from . import jobs, webhook_callbacks, widgets  # noqa: F401
 
 
 config = DummyPluginConfig

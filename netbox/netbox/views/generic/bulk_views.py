@@ -2,6 +2,7 @@ import logging
 import re
 from collections import Counter
 from copy import deepcopy
+from types import SimpleNamespace
 
 from django.conf import settings
 from django.contrib import messages
@@ -22,6 +23,7 @@ from core.models import ObjectType
 from core.signals import clear_events
 from extras.choices import CustomFieldUIEditableChoices
 from extras.models import CustomField, ExportTemplate
+from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
@@ -184,7 +186,11 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             if request.GET['export']:
-                template = get_object_or_404(ExportTemplate, object_types=object_type, name=request.GET['export'])
+                template = get_object_or_404(
+                    ExportTemplate.objects.restrict(request.user, 'view'),
+                    object_types=object_type,
+                    name=request.GET['export'],
+                )
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model
@@ -870,9 +876,14 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     An extendable view for renaming objects in bulk.
 
     Attributes:
-        field_name: The name of the object attribute for which the value is being updated (defaults to "name")
+        field_name: The name of the object attribute to rename (defaults to "name"). Used when
+            rename_fields is not set; kept for backward compatibility with plugins.
+        rename_fields: Tuple of field names that can be selected for renaming. When two or more
+            fields are listed, the form renders a checkbox per field so the user can apply the
+            find/replace pattern to any combination of them simultaneously.
     """
     field_name = 'name'
+    rename_fields = ()
     template_name = 'generic/bulk_rename.html'
     # Match BulkEditView/BulkDeleteView behavior: allow passing a FilterSet
     # so "Select all N matching query" can expand across the full queryset.
@@ -881,19 +892,30 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Create a new Form class from BulkRenameForm
-        class _Form(BulkRenameForm):
-            pk = ModelMultipleChoiceField(
-                queryset=self.queryset,
-                widget=MultipleHiddenInput()
-            )
+        # Use the changelog-aware form for models that support change logging
+        base_form = (
+            NetBoxModelBulkRenameForm
+            if issubclass(self.queryset.model, ChangeLoggingMixin)
+            else BulkRenameForm
+        )
 
-        self.form = _Form
+        self.form = type('_Form', (base_form,), {
+            'pk': ModelMultipleChoiceField(
+                queryset=self.queryset,
+                widget=MultipleHiddenInput(),
+            ),
+        })
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'change')
 
-    def _rename_objects(self, form, selected_objects):
+    def _rename_objects(self, form, selected_objects, field_names=None):
+        if field_names is None:
+            field_names = [self.field_name]
+
+        find = form.cleaned_data['find']
+        replace = form.cleaned_data['replace']
+        use_regex = form.cleaned_data['use_regex']
         renamed_pks = []
 
         for obj in selected_objects:
@@ -901,22 +923,30 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             if hasattr(obj, 'snapshot'):
                 obj.snapshot()
 
-            find = form.cleaned_data['find']
-            replace = form.cleaned_data['replace']
-            if form.cleaned_data['use_regex']:
-                try:
-                    obj.new_name = re.sub(find, replace, getattr(obj, self.field_name, '') or '')
-                # Catch regex group reference errors
-                except re.error:
-                    obj.new_name = getattr(obj, self.field_name)
-            else:
-                obj.new_name = (getattr(obj, self.field_name, '') or '').replace(find, replace)
+            new_values = {}
+            for field in field_names:
+                current = getattr(obj, field, '') or ''
+                if use_regex:
+                    try:
+                        new_values[field] = re.sub(find, replace, current)
+                    # Catch regex group reference errors
+                    except re.error:
+                        new_values[field] = current
+                else:
+                    new_values[field] = current.replace(find, replace)
+
+            obj.new_names = SimpleNamespace(**new_values)
+            obj.has_changes = any(
+                new_values[f] != (getattr(obj, f, '') or '') for f in field_names
+            )
             renamed_pks.append(obj.pk)
 
         return renamed_pks
 
     def post(self, request):
         logger = logging.getLogger('netbox.views.BulkRenameView')
+        # Default field list: either all rename_fields or the single legacy field_name
+        field_names = list(self.rename_fields) if self.rename_fields else [self.field_name]
 
         # If we are editing *all* objects in the queryset, replace the PK list with all matched objects.
         if request.POST.get('_all') and self.filterset is not None:
@@ -930,49 +960,63 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
             form = self.form(request.POST, initial={'pk': pk_list})
 
             if form.is_valid():
-                try:
-                    with transaction.atomic(using=router.db_for_write(self.queryset.model)):
-                        renamed_pks = self._rename_objects(form, selected_objects)
+                submitted = [
+                    f for f in request.POST.getlist('field_names')
+                    if self.rename_fields and f in self.rename_fields
+                ]
+                if self.rename_fields and not submitted:
+                    form.add_error(None, _("Select at least one field to rename."))
+                elif submitted:
+                    field_names = submitted
+                if not form.errors:
+                    try:
+                        with transaction.atomic(using=router.db_for_write(self.queryset.model)):
+                            renamed_pks = self._rename_objects(form, selected_objects, field_names)
 
-                        if '_apply' in request.POST:
-                            # For MPTT models, delay tree updates until all saves are complete
-                            if issubclass(self.queryset.model, MPTTModel):
-                                with self.queryset.model.objects.delay_mptt_updates():
+                            if '_apply' in request.POST:
+                                # For MPTT models, delay tree updates until all saves are complete
+                                if issubclass(self.queryset.model, MPTTModel):
+                                    with self.queryset.model.objects.delay_mptt_updates():
+                                        for obj in selected_objects:
+                                            for field in field_names:
+                                                setattr(obj, field, getattr(obj.new_names, field))
+                                            obj._changelog_message = form.cleaned_data.get('changelog_message', '')
+                                            obj.save()
+                                else:
                                     for obj in selected_objects:
-                                        setattr(obj, self.field_name, obj.new_name)
+                                        for field in field_names:
+                                            setattr(obj, field, getattr(obj.new_names, field))
+                                        obj._changelog_message = form.cleaned_data.get('changelog_message', '')
                                         obj.save()
-                            else:
-                                for obj in selected_objects:
-                                    setattr(obj, self.field_name, obj.new_name)
-                                    obj.save()
 
-                            # Enforce constrained permissions
-                            if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
-                                raise PermissionsViolation
+                                # Enforce constrained permissions
+                                if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
+                                    raise PermissionsViolation
 
-                            messages.success(
-                                request,
-                                _("Renamed {count} {object_type}").format(
-                                    count=len(selected_objects),
-                                    object_type=self.queryset.model._meta.verbose_name_plural
+                                messages.success(
+                                    request,
+                                    _("Renamed {count} {object_type}").format(
+                                        count=len(selected_objects),
+                                        object_type=self.queryset.model._meta.verbose_name_plural
+                                    )
                                 )
-                            )
-                            return redirect(self.get_return_url(request))
+                                return redirect(self.get_return_url(request))
 
-                except IntegrityError as e:
-                    messages.error(self.request, ", ".join(e.args))
-                    clear_events.send(sender=self)
+                    except IntegrityError as e:
+                        messages.error(self.request, ", ".join(e.args))
+                        clear_events.send(sender=self)
 
-                except (AbortRequest, PermissionsViolation) as e:
-                    logger.debug(e.message)
-                    form.add_error(None, e.message)
-                    clear_events.send(sender=self)
+                    except (AbortRequest, PermissionsViolation) as e:
+                        logger.debug(e.message)
+                        form.add_error(None, e.message)
+                        clear_events.send(sender=self)
 
         else:
             form = self.form(initial={'pk': pk_list})
 
         return render(request, self.template_name, {
-            'field_name': self.field_name,
+            'rename_fields': self.rename_fields,
+            'selected_field_names': field_names,
             'form': form,
             'obj_type_plural': self.queryset.model._meta.verbose_name_plural,
             'selected_objects': selected_objects,

@@ -1,6 +1,6 @@
 import strawberry
 from django.conf import settings
-from strawberry.extensions import MaxAliasesLimiter
+from strawberry.extensions import MaxAliasesLimiter, QueryDepthLimiter, SchemaExtension
 from strawberry.schema.config import StrawberryConfig
 from strawberry_django.optimizer import DjangoOptimizerExtension
 
@@ -36,6 +36,17 @@ class Query(
     pass
 
 
+def get_schema_extensions() -> list[SchemaExtension]:
+    extensions: list[SchemaExtension] = [
+        DjangoOptimizerExtension(prefetch_custom_queryset=True),
+        MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
+    ]
+    max_depth = settings.GRAPHQL_MAX_QUERY_DEPTH
+    if max_depth and max_depth > 0:
+        extensions.append(QueryDepthLimiter(max_depth=max_depth))
+    return extensions
+
+
 schema = strawberry.Schema(
     query=Query,
     config=StrawberryConfig(
@@ -44,8 +55,5 @@ schema = strawberry.Schema(
             BigInt: BigIntScalar,
         },
     ),
-    extensions=[
-        DjangoOptimizerExtension(prefetch_custom_queryset=True),
-        MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
-    ],
+    extensions=get_schema_extensions(),
 )

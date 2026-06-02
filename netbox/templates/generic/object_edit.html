@@ -32,8 +32,8 @@ Context:
 
     {# Link to model documentation #}
     {% if settings.DOCS_ROOT and object.docs_url %}
-      <a href="{{ object.docs_url }}" target="_blank" class="btn btn-outline-secondary" title="{% trans "View model documentation" %}">
-        <i class="mdi mdi-help-circle"></i> {% trans "Help" %}
+      <a href="{{ object.docs_url }}" target="_blank" class="btn btn-outline-secondary" title="{% trans "View model documentation" %}" aria-label="{% trans "View model documentation" %}">
+        <i class="mdi mdi-help-circle" aria-hidden="true"></i> {% trans "Help" %}
       </a>
     {% endif %}
 
@@ -51,7 +51,7 @@ Context:
 {% endblock tabs %}
 
 {% block content %}
-  <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
+  <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="edit-form-tab">
 
     {# Warn about missing prerequisite objects #}
     {% if prerequisite_model %}

@@ -1,29 +1,47 @@
 @use 'sass:map';
 
 // Interface row coloring
-tr[data-cable-status=connected] {
-  background-color: rgba(map.get($theme-colors, "green"), 0.15);
+// Use --tblr-table-bg-state so type highlights take precedence over striping
+// (which sets --tblr-table-bg-type via the box-shadow cascade).
+tr[data-cable-status='connected'] {
+  --tblr-table-bg-state: #{rgba(map.get($theme-colors, 'green'), 0.15)};
 }
-tr[data-cable-status=planned] {
-  background-color: rgba(map.get($theme-colors, "blue"), 0.15);
+tr[data-cable-status='planned'] {
+  --tblr-table-bg-state: #{rgba(map.get($theme-colors, 'blue'), 0.15)};
 }
-tr[data-cable-status=decommissioning] {
-  background-color: rgba(map.get($theme-colors, "yellow"), 0.15);
+tr[data-cable-status='decommissioning'] {
+  --tblr-table-bg-state: #{rgba(map.get($theme-colors, 'yellow'), 0.15)};
 }
-tr[data-mark-connected=true] {
-  background-color: rgba(map.get($theme-colors, "success"), 0.15);
+tr[data-mark-connected='true'] {
+  --tblr-table-bg-state: #{rgba(map.get($theme-colors, 'success'), 0.15)};
 }
-tr[data-virtual=true] {
-  background-color: rgba(map.get($theme-colors, "primary"), 0.15);
+tr[data-virtual='true'] {
+  --tblr-table-bg-state: #{rgba(map.get($theme-colors, 'primary'), 0.15)};
 }
-tr[data-enabled=disabled] {
-  background-color: rgba($gray-400, 0.15);
+tr[data-enabled='disabled'] {
+  --tblr-table-bg-state: #{rgba($gray-400, 0.15)};
+}
+
+// Bootstrap paints --tblr-table-bg-state via an inset box-shadow on each cell.
+// In Chrome with border-collapse: collapse, that shadow covers the cell's
+// bottom border and the row separator vanishes (Safari paints them in a
+// different order, which is why it's not visible there). Repaint the highlight
+// via background-color and clear the inset shadow so the border stays on top.
+// Also use the opaque border color, since the default translucent value blends
+// nearly invisibly against a tinted background.
+tr[data-cable-status] > *,
+tr[data-mark-connected='true'] > *,
+tr[data-virtual='true'] > *,
+tr[data-enabled='disabled'] > * {
+  background-color: var(--tblr-table-bg-state);
+  border-bottom-color: var(--tblr-gray-300);
+  box-shadow: none;
 }
 
 // Only show the correct button depending on the cable status
-tr[data-cable-status=connected] button.mark-installed {
+tr[data-cable-status='connected'] button.mark-installed {
   display: none;
 }
-tr:not([data-cable-status=connected]) button.mark-planned {
+tr:not([data-cable-status='connected']) button.mark-planned {
   display: none;
 }

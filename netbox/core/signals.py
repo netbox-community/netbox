@@ -225,7 +225,23 @@ def handle_deleted_object(sender, instance, **kwargs):
                 # We only care about triggering the m2m_changed signal for models which support
                 # change logging
                 continue
+            related_object_type = ContentType.objects.get_for_model(related_model)
             for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
+                # Skip any related object that is itself being deleted as part of this same
+                # operation (e.g. a sibling caught up in the same cascade). Its deletion has
+                # already been recorded, so nulling the FK and saving here would record an
+                # UPDATE ObjectChange *after* the object's DELETE, corrupting the changelog and
+                # breaking branch replay. (Ref: #22270)
+                #
+                # Note this is order-dependent: it only fires once the related object's own
+                # pre_delete has run (adding it to the set). If the cascade happens to delete
+                # this instance *before* the related object, the guard won't trigger and the
+                # related object still gets an UPDATE — but in the harmless UPDATE-then-DELETE
+                # order, not the corrupting DELETE-then-UPDATE order. Fully suppressing it in
+                # every ordering would require the complete deletion set, which isn't available
+                # from a pre_delete signal.
+                if (related_object_type, obj.pk) in _signals_received.pre_delete:
+                    continue
                 obj.snapshot()  # Ensure the change record includes the "before" state
                 if type(relation) is ManyToManyRel:
                     getattr(obj, related_field_name).remove(instance)

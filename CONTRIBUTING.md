@@ -35,7 +35,10 @@ NetBox users are welcome to participate in either role, on stage or in the crowd
 * Familiarize yourself with [this list of discussion anti-patterns](https://github.com/bradfitz/issue-tracker-behaviors) and make every effort to avoid them.
 
 > [!CAUTION]
-> We do not currently accept issues submitted via GitHub's API: All issues must be submitted using one of the [provided templates](https://github.com/netbox-community/netbox/issues/new/choose). The templates not only help ensure high-quality submissions, but they also automatically assign issue types and labels for categorization. This does not happen when issues are submitted via the API.
+> We do not currently accept issues submitted via GitHub's API: All issues must be submitted using one of the [provided templates](https://github.com/netbox-community/netbox/issues/new/choose). In addition to ensuring high-quality submissions, these templates automatically assign issue types and labels for categorization to help expedite triage. This does not happen when issues are submitted via the API.
+
+> [!IMPORTANT]
+> Every issue submitted to this repository is afforded consideration by a human reviewer. To mitigate abuse, we ask that users refrain from submitting AI-generated issues. Please note that issues which appear to be completely authored by an AI may be rejected without further discussion.
 
 ## :bug: Reporting Bugs
 
@@ -98,9 +101,6 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
   * Python syntax is valid
   * All tests pass when run with `NETBOX_CONFIGURATION=netbox.configuration_testing ./manage.py test`
   * `ruff check` successfully validates style compliance
-
-> [!CAUTION]
-> Any contributions which include solely AI-generated content will be rejected. All PRs must be submitted by a human.
 
 * Some other tips to keep in mind:
   * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (GitHub allows only people who have commented on an issue to be assigned as its owner.)

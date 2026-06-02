@@ -57,7 +57,9 @@ class MyPluginConfig(PluginConfig):
 
 ### Precedence
 
-Plugin-registered filters are applied in plugin load order. If two plugins register a filter with the same name, the later-loaded plugin's version wins and NetBox will log a warning. Instance-level [`JINJA2_FILTERS`](../../configuration/system.md#jinja2_filters) always takes final precedence over any plugin-registered filter of the same name.
+The full filter precedence from lowest to highest is: **NetBox built-in filters** (e.g. `env`) → **plugin-registered filters** → **instance [`JINJA2_FILTERS`](../../configuration/system.md#jinja2_filters)**. Instance-level filters always win, so site admins can override anything without touching a plugin.
+
+If two plugins register a filter with the same name, the later-loaded plugin's version wins and NetBox will log a warning.
 
 For example, if `my_plugin` registers a `prefix_list` filter but a site needs different behaviour, the operator can replace it in `configuration.py` without touching the plugin:
 

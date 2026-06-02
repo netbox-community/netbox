@@ -1,4 +1,3 @@
-from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import *
@@ -7,7 +6,7 @@ from utilities.testing.base import TestCase
 from utilities.testing.utils import create_test_device
 
 
-class CountersTest(TestCase):
+class CountersTestCase(TestCase):
     """
     Validate the operation of the CounterCacheField (tracking counters).
     """
@@ -82,7 +81,6 @@ class CountersTest(TestCase):
         self.assertEqual(device1.interface_count, 1)
         self.assertEqual(device2.interface_count, 3)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_mptt_child_delete(self):
         device1 = Device.objects.first()
         inventory_item1 = InventoryItem.objects.create(device=device1, name='Inventory Item 1')
@@ -91,7 +89,7 @@ class CountersTest(TestCase):
         self.assertEqual(device1.inventory_item_count, 2)
 
         # Setup bulk_delete for the inventory items
-        self.add_permissions('dcim.delete_inventoryitem')
+        self.add_permissions('dcim.view_inventoryitem', 'dcim.delete_inventoryitem')
         pk_list = device1.inventoryitems.values_list('pk', flat=True)
         data = {
             'pk': pk_list,

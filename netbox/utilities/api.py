@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import (
     FieldDoesNotExist,
@@ -17,9 +19,12 @@ from rest_framework.views import get_view_name as drf_get_view_name
 from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from netbox.api.fields import RelatedObjectCountField
+from netbox.registry import registry
 
 from .query import count_related, dict_to_filter_params
 from .string import title
+
+logger = logging.getLogger('netbox.utilities.api')
 
 __all__ = (
     'IsSuperuser',
@@ -45,8 +50,32 @@ class IsSuperuser(BasePermission):
 def get_serializer_for_model(model, prefix=''):
     """
     Return the appropriate REST API serializer for the given model.
+
+    A plugin (or internal app) may register a custom resolver for its own
+    app via netbox.plugins.register_serializer_resolver() to handle
+    dynamically generated models or to override serializer resolution. If
+    a resolver is registered for the model's app and returns a Serializer
+    subclass, that result is used. Otherwise, the default import-path
+    lookup runs.
     """
     app_label, model_name = model._meta.label.split('.')
+
+    if resolver := registry['serializer_resolvers'].get(app_label):
+        try:
+            serializer = resolver(model, prefix=prefix)
+        except Exception:
+            # A buggy resolver must not break serializer lookup for the rest of NetBox.
+            logger.exception("Serializer resolver %r raised an exception; falling through to default lookup.", resolver)
+            serializer = None
+        if serializer is not None:
+            if isinstance(serializer, type) and issubclass(serializer, Serializer):
+                return serializer
+            logger.warning(
+                "Serializer resolver %r returned %r, which is not a Serializer subclass; "
+                "falling through to default lookup.",
+                resolver, serializer,
+            )
+
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
     try:
         return import_string(serializer_name)

@@ -10,8 +10,9 @@ from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
@@ -186,7 +187,8 @@ class ToggleColumn(tables.CheckBoxColumn):
                     'class': 'w-1',
                 },
                 'input': {
-                    'class': 'form-check-input'
+                    'class': 'form-check-input',
+                    'aria-label': lambda record, value: format_lazy(_('Select {object}'), object=record),
                 }
             }
         super().__init__(*args, default=default, visible=visible, **kwargs)
@@ -194,7 +196,10 @@ class ToggleColumn(tables.CheckBoxColumn):
     @property
     def header(self):
         title_text = _('Toggle all')
-        return mark_safe(f'<input type="checkbox" class="toggle form-check-input" title="{title_text}" />')
+        return format_html(
+            '<input type="checkbox" class="toggle form-check-input" title="{}" aria-label="{}" />',
+            title_text, title_text,
+        )
 
 
 class BooleanColumn(tables.Column):
@@ -716,7 +721,7 @@ class DistanceColumn(TemplateColumn):
     """
     template_code = """
     {% load helpers %}
-    {% if record.distance %}{{ record.distance|floatformat:"-2" }} {{ record.distance_unit }}{% endif %}
+    {% display_distance record.distance record.distance_unit record.abs_distance %}
     """
 
     def __init__(self, template_code=template_code, order_by='_abs_distance', **kwargs):

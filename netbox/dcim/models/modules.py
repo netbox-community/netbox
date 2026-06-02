@@ -58,8 +58,8 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
-    DeviceType, each ModuleType can have console, power, interface, and pass-through port templates assigned to it. It
-    cannot, however house device bays or module bays.
+    DeviceType, each ModuleType can have console, power, interface, pass-through port, and module bay templates assigned
+    to it. It cannot, however, house device bays.
     """
     profile = models.ForeignKey(
         to='dcim.ModuleTypeProfile',
@@ -97,6 +97,40 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
     module_count = CounterCacheField(
         to_model='dcim.Module',
+        to_field='module_type'
+    )
+
+    # Counter fields
+    console_port_template_count = CounterCacheField(
+        to_model='dcim.ConsolePortTemplate',
+        to_field='module_type'
+    )
+    console_server_port_template_count = CounterCacheField(
+        to_model='dcim.ConsoleServerPortTemplate',
+        to_field='module_type'
+    )
+    power_port_template_count = CounterCacheField(
+        to_model='dcim.PowerPortTemplate',
+        to_field='module_type'
+    )
+    power_outlet_template_count = CounterCacheField(
+        to_model='dcim.PowerOutletTemplate',
+        to_field='module_type'
+    )
+    interface_template_count = CounterCacheField(
+        to_model='dcim.InterfaceTemplate',
+        to_field='module_type'
+    )
+    front_port_template_count = CounterCacheField(
+        to_model='dcim.FrontPortTemplate',
+        to_field='module_type'
+    )
+    rear_port_template_count = CounterCacheField(
+        to_model='dcim.RearPortTemplate',
+        to_field='module_type'
+    )
+    module_bay_template_count = CounterCacheField(
+        to_model='dcim.ModuleBayTemplate',
         to_field='module_type'
     )
 

@@ -2,19 +2,18 @@ import platform
 
 from django import __version__ as DJANGO_VERSION
 from django.conf import settings
-from django_rq.queues import get_connection
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rq.worker import Worker
 
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.plugins.utils import get_installed_plugins
 from users.api.serializers import UserSerializer
 from utilities.apps import get_installed_apps
+from utilities.rqworker import get_all_workers
 
 
 class APIRootView(APIView):
@@ -62,7 +61,7 @@ class StatusView(APIView):
             'netbox-full-version': settings.RELEASE.full_version,
             'plugins': get_installed_plugins(),
             'python-version': platform.python_version(),
-            'rq-workers-running': Worker.count(get_connection('default')),
+            'rq-workers-running': len(get_all_workers()),
         })
 
 

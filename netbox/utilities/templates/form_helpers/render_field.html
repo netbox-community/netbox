@@ -18,45 +18,45 @@
     {# Include the "regenerate" button on slug fields #}
     {% if field|widget_type == 'slugwidget' %}
       <div class="input-group">
-        {{ field }}
-        <button type="button" title="{% trans "Regenerate Slug" %}" class="btn reslug">
-          <i class="mdi mdi-reload"></i>
+        {% render_field_with_aria field %}
+        <button type="button" title="{% trans "Regenerate Slug" %}" aria-label="{% trans "Regenerate Slug" %}" class="btn reslug">
+          <i class="mdi mdi-reload" aria-hidden="true"></i>
         </button>
       </div>
     {# Render checkbox labels to the right of the field #}
     {% elif field|widget_type == 'checkboxinput' %}
       <div class="form-check mb-0">
-        {{ field }}
+        {% render_field_with_aria field %}
         <label for="{{ field.id_for_label }}" class="form-check-label">
           {{ label }}
         </label>
         {% if field.help_text %}
-          <span class="form-text">{{ field.help_text|safe }}</span>
+          <span class="form-text" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</span>
         {% endif %}
       </div>
     {# Include a copy-to-clipboard button #}
     {% elif 'data-clipboard' in field.field.widget.attrs %}
       <div class="input-group">
-        {{ field }}
-        <button type="button" title="{% trans "Copy to clipboard" %}" class="btn copy-content" data-clipboard-target="#{{ field.id_for_label }}">
-          <i class="mdi mdi-content-copy"></i>
+        {% render_field_with_aria field %}
+        <button type="button" title="{% trans "Copy to clipboard" %}" aria-label="{% trans "Copy to clipboard" %}" class="btn copy-content" data-clipboard-target="#{{ field.id_for_label }}">
+          <i class="mdi mdi-content-copy" aria-hidden="true"></i>
         </button>
       </div>
     {# Default field rendering #}
     {% else %}
-      {{ field }}
+      {% render_field_with_aria field %}
     {% endif %}
 
     {# Display any error messages #}
     {% if field.errors %}
-      <div class="form-text text-danger">
+      <div class="form-text text-danger" id="{{ field.auto_id }}_errors" role="alert">
         {% for error in field.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
       </div>
     {% endif %}
 
     {# Help text #}
     {% if field.help_text and field|widget_type != 'checkboxinput' %}
-      <span class="form-text">{{ field.help_text|safe }}</span>
+      <span class="form-text" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</span>
     {% endif %}
 
     {# For bulk edit forms, include an option to nullify the field #}

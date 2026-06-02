@@ -130,10 +130,17 @@ FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
 GRAPHQL_DEFAULT_VERSION = getattr(configuration, 'GRAPHQL_DEFAULT_VERSION', 1)
 GRAPHQL_MAX_ALIASES = getattr(configuration, 'GRAPHQL_MAX_ALIASES', 10)
+GRAPHQL_MAX_QUERY_DEPTH = getattr(configuration, 'GRAPHQL_MAX_QUERY_DEPTH', None)
 HOSTNAME = getattr(configuration, 'HOSTNAME', platform.node())
+HTTP_CLIENT_IP_HEADERS = getattr(configuration, 'HTTP_CLIENT_IP_HEADERS', (
+    'HTTP_X_REAL_IP',
+    'HTTP_X_FORWARDED_FOR',
+    'REMOTE_ADDR',
+))
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
+JINJA_ENVIRONMENT_PARAMS = getattr(configuration, 'JINJA_ENVIRONMENT_PARAMS', [])
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
@@ -170,6 +177,13 @@ REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME'
 # Required by extras/migrations/0109_script_models.py
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ = getattr(configuration, 'RQ', {})
+if 'WORKER_CLASS' in RQ and RQ['WORKER_CLASS'] != 'utilities.rqworker.NetBoxRQWorker':
+    warnings.warn(
+        f"RQ['WORKER_CLASS'] is set to {RQ['WORKER_CLASS']!r}; NetBoxRQWorker's self-healing heartbeat "
+        f"logic will not be applied. Workers may not automatically recover from a Redis outage."
+    )
+else:
+    RQ.setdefault('WORKER_CLASS', 'utilities.rqworker.NetBoxRQWorker')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
 RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
@@ -866,6 +880,9 @@ STRAWBERRY_DJANGO = {
     "DEFAULT_PK_FIELD_NAME": "id",
     "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
     "PAGINATION_DEFAULT_LIMIT": 100,
+    # Disable the library's max-limit cap (introduced in strawberry-graphql-django 0.85); NetBox enforces its own
+    # page-size ceiling via MAX_PAGE_SIZE in netbox.graphql.pagination.apply_pagination().
+    "PAGINATION_MAX_LIMIT": None,
 }
 
 #

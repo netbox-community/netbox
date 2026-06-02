@@ -128,7 +128,7 @@ class FHRPGroupType(IPAddressesMixin, PrimaryObjectType):
 class FHRPGroupAssignmentType(BaseObjectType):
     group: Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='interface')
     def interface(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VMInterfaceType', strawberry.lazy('virtualization.graphql.types')],
@@ -153,7 +153,7 @@ class IPAddressType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     tunnel_terminations: list[Annotated['TunnelTerminationType', strawberry.lazy('vpn.graphql.types')]]
     services: list[Annotated['ServiceType', strawberry.lazy('ipam.graphql.types')]]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='assigned_object')
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['FHRPGroupType', strawberry.lazy('ipam.graphql.types')]
@@ -190,7 +190,7 @@ class PrefixType(ContactsMixin, BaseIPAddressFamilyType, PrimaryObjectType):
     vlan: Annotated['VLANType', strawberry.lazy('ipam.graphql.types')] | None
     role: Annotated['RoleType', strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='scope')
     def scope(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
@@ -252,7 +252,7 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
     ports: list[int]
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated[
         Annotated['DeviceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VirtualMachineType', strawberry.lazy('virtualization.graphql.types')]
@@ -291,7 +291,7 @@ class VLANType(PrimaryObjectType):
     interfaces_as_tagged: list[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
     vminterfaces_as_tagged: list[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='qinq_svlan')
     def qinq_svlan(self) -> Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None:
         return self.qinq_svlan
 
@@ -309,7 +309,7 @@ class VLANGroupType(OrganizationalObjectType):
     total_vlan_ids: BigInt
     tenant: Annotated['TenantType', strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='scope')
     def scope(self) -> Annotated[
         Annotated['ClusterType', strawberry.lazy('virtualization.graphql.types')]
         | Annotated['ClusterGroupType', strawberry.lazy('virtualization.graphql.types')]

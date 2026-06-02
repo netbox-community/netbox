@@ -144,7 +144,7 @@ class PrefixPanel(panels.ObjectAttributesPanel):
         template_name='ipam/prefix/attrs/aggregate.html',
         label=_('Aggregate'),
     )
-    scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
+    scope = attrs.GenericForeignKeyAttr('scope', linkify=True, nested=True, max_depth=3)
     vlan = attrs.RelatedObjectAttr('vlan', linkify=True, label=_('VLAN'), grouped_by='group')
     status = attrs.ChoiceAttr('status')
     role = attrs.RelatedObjectAttr('role', linkify=True)
@@ -155,7 +155,7 @@ class PrefixPanel(panels.ObjectAttributesPanel):
 class VLANGroupPanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     description = attrs.TextAttr('description')
-    scope = attrs.GenericForeignKeyAttr('scope', linkify=True)
+    scope = attrs.GenericForeignKeyAttr('scope', linkify=True, nested=True, max_depth=3)
     vid_ranges = attrs.TemplatedAttr(
         'vid_ranges_items',
         template_name='ipam/vlangroup/attrs/vid_ranges.html',

@@ -41,7 +41,10 @@ class ExportTemplatesMixin:
     def list(self, request, *args, **kwargs):
         if 'export' in request.GET:
             object_type = ObjectType.objects.get_for_model(self.get_serializer_class().Meta.model)
-            et = ExportTemplate.objects.filter(object_types=object_type, name=request.GET['export']).first()
+            et = ExportTemplate.objects.restrict(request.user, 'view').filter(
+                object_types=object_type,
+                name=request.GET['export'],
+            ).first()
             if et is None:
                 raise Http404
             queryset = self.filter_queryset(self.get_queryset())

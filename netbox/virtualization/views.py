@@ -744,7 +744,6 @@ class VMInterfaceBulkEditView(generic.BulkEditView):
 class VMInterfaceBulkRenameView(generic.BulkRenameView):
     queryset = VMInterface.objects.all()
     filterset = filtersets.VMInterfaceFilterSet
-    form = forms.VMInterfaceBulkRenameForm
 
 
 @register_model_view(VMInterface, 'bulk_delete', path='delete', detail=False)
@@ -817,7 +816,6 @@ class VirtualDiskBulkEditView(generic.BulkEditView):
 class VirtualDiskBulkRenameView(generic.BulkRenameView):
     queryset = VirtualDisk.objects.all()
     filterset = filtersets.VirtualDiskFilterSet
-    form = forms.VirtualDiskBulkRenameForm
 
 
 @register_model_view(VirtualDisk, 'bulk_delete', path='delete', detail=False)

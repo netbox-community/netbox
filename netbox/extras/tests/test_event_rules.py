@@ -24,13 +24,19 @@ from netbox.context_managers import event_tracking
 from utilities.testing import APITestCase
 
 
-class EventRuleTest(APITestCase):
+class EventRuleTestCase(APITestCase):
 
     def setUp(self):
         super().setUp()
 
         # Ensure the queue has been cleared for each test
         self.queue = django_rq.get_queue('default')
+        self.queue.empty()
+
+    def tearDown(self):
+        super().tearDown()
+
+        # Clear the queue so leftover jobs do not leak to the next test suite
         self.queue.empty()
 
     @classmethod

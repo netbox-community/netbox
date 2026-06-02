@@ -7,7 +7,7 @@ from dcim.models import Device, DeviceType, Manufacturer
 from netbox.object_actions import AddObject, BulkEdit, BulkImport
 
 
-class ObjectActionTest(TestCase):
+class ObjectActionTestCase(TestCase):
 
     def test_get_url_core_model(self):
         """Test URL generation for core NetBox models"""
