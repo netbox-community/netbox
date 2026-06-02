@@ -268,8 +268,8 @@ class ArrayAttrTestCase(TestCase):
         obj = SimpleNamespace(allowed_ips=None)
         self.assertIsNone(attr.get_value(obj))
 
-    def test_get_value_with_func(self):
-        attr = attrs.ArrayAttr('ports', func=lambda v: f'{v}/tcp')
+    def test_get_value_with_format_string(self):
+        attr = attrs.ArrayAttr('ports', format_string='{}/tcp')
         obj = SimpleNamespace(ports=[80, 443])
         self.assertEqual(attr.get_value(obj), '80/tcp, 443/tcp')
 

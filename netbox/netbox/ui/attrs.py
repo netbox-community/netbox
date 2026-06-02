@@ -144,21 +144,18 @@ class TextAttr(ObjectAttribute):
 
 class ArrayAttr(TextAttr):
     """
-    An attribute comprising an array of values, rendered as a comma-separated list.
-
-    Parameters:
-        func (callable): Function used to transform each item for display (default: str)
+    An attribute comprising an array of values, rendered as a comma-separated list. If specified, `format_string`
+    is applied to each item individually. Null and empty arrays are treated as equivalent: both render as the
+    placeholder.
     """
-
-    def __init__(self, *args, func=str, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.func = func
 
     def get_value(self, obj):
         value = resolve_attr_path(obj, self.accessor)
         if not value:
             return None
-        return ', '.join(self.func(v) for v in value)
+        if self.format_string:
+            return ', '.join(self.format_string.format(v) for v in value)
+        return ', '.join(str(v) for v in value)
 
 
 class NumericAttr(ObjectAttribute):
