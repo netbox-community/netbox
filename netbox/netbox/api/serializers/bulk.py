@@ -68,6 +68,3 @@ def get_bulk_update_serializer_class(serializer_class, *, partial=False):
 
     prefix = 'PatchedBulk' if partial else 'Bulk'
     return type(f'{prefix}{serializer_class.__name__}', bases, attrs)
-
-
-
