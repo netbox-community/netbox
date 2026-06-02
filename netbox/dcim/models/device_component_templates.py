@@ -752,11 +752,18 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('module bay templates')
 
     def instantiate(self, **kwargs):
+        module = kwargs.get('module')
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
-            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
-            position=self.resolve_position(kwargs.get('module'), kwargs.get('device')),
+            name=self.resolve_name(module, kwargs.get('device')),
+            label=self.resolve_label(module, kwargs.get('device')),
+            position=self.resolve_position(module, kwargs.get('device')),
             enabled=self.enabled,
+            # A module bay created for an installed module nests under that module's
+            # bay. bulk_create() bypasses ModuleBay.save() (which would otherwise set
+            # this), so the parent must be assigned here for the path trigger to nest
+            # it correctly. Device-level bays are instantiated without a module and
+            # remain roots (parent=None).
+            parent=module.module_bay if module else None,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True

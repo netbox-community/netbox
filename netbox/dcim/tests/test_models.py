@@ -1265,6 +1265,38 @@ class ModuleBayTestCase(TestCase):
         nested_bay = module.modulebays.get(name='SFP A-21')
         self.assertEqual(nested_bay.label, 'A-21')
 
+    @tag('regression')  # #21418
+    def test_module_install_nests_module_bay_parent(self):
+        """
+        A module bay instantiated when a module is installed must be nested under the
+        installing module's bay. bulk_create() bypasses ModuleBay.save(), so the parent
+        is assigned in ModuleBayTemplate.instantiate(); without it the bay would be left
+        a root with a top-level ltree path.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Chassis with Bay', slug='chassis-with-bay'
+        )
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Bay A')
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module with Sub-bay')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='Sub-bay 1')
+
+        device = Device.objects.create(
+            name='Nested Bay Parent Device', device_type=device_type, role=device_role, site=site
+        )
+        parent_bay = device.modulebays.get(name='Bay A')
+        module = Module.objects.create(device=device, module_bay=parent_bay, module_type=module_type)
+
+        nested_bay = module.modulebays.get(name='Sub-bay 1')
+        self.assertEqual(nested_bay.parent, parent_bay)
+        # The ltree path/level must reflect the nesting, not a root placement.
+        self.assertEqual(nested_bay.level, parent_bay.level + 1)
+        self.assertTrue(str(nested_bay.path).startswith(f'{parent_bay.path}.'))
+
     @tag('regression')  # #20467
     def test_nested_module_bay_position_resolution(self):
         """Test that {module} in a module bay template's position field is resolved when the module is installed."""

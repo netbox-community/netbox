@@ -247,6 +247,39 @@ class AddRelatedCountTests(TestCase):
         self.assertEqual(counts['Child'], 2)
         self.assertEqual(counts['Leaf'], 1)
 
+    def test_noncumulative_fk_count(self):
+        """Non-cumulative FK count includes only rows pointing directly at the node."""
+        root = Region.objects.create(name='R', slug='r-ncfk')
+        child = Region.objects.create(parent=root, name='C', slug='c-ncfk')
+        Site.objects.create(name='S1', slug='s1-ncfk', region=child)
+        Site.objects.create(name='S2', slug='s2-ncfk', region=root)
+
+        qs = Region.objects.add_related_count(
+            Region.objects.filter(slug__endswith='-ncfk'),
+            Site, 'region', 'site_count', cumulative=False,
+        )
+        counts = {r.name: r.site_count for r in qs}
+        # Each node counts only its own directly-assigned sites (no subtree rollup).
+        self.assertEqual(counts['R'], 1)
+        self.assertEqual(counts['C'], 1)
+
+    def test_noncumulative_m2m_count(self):
+        """Non-cumulative M2M count includes only directly-assigned rows, not the subtree."""
+        root = ContactGroup.objects.create(name='Root', slug='root-ncm2m')
+        child = ContactGroup.objects.create(parent=root, name='Child', slug='child-ncm2m')
+        c_root = Contact.objects.create(name='CR-nc')
+        c_child = Contact.objects.create(name='CC-nc')
+        c_root.groups.add(root)
+        c_child.groups.add(child)
+
+        qs = ContactGroup.objects.add_related_count(
+            ContactGroup.objects.filter(slug__endswith='-ncm2m'),
+            Contact, 'groups', 'contact_count', cumulative=False,
+        )
+        counts = {g.name: g.contact_count for g in qs}
+        self.assertEqual(counts['Root'], 1)
+        self.assertEqual(counts['Child'], 1)
+
 
 class SaveUpdateFieldsTests(TestCase):
     """

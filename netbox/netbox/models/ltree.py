@@ -12,7 +12,7 @@ mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
 from django.db import migrations, models
-from django.db.models import Count, ForeignKey, Lookup, ManyToManyField, Q
+from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
 
 from utilities.querysets import RestrictedQuerySet
@@ -168,9 +168,23 @@ class LtreeQuerySet(RestrictedQuerySet):
                 count_attr: RawSQL(sql, [], output_field=models.IntegerField())
             })
 
-        # Non-cumulative: direct count.
+        # Non-cumulative: count only rows pointing directly at each node. Mirrors the
+        # cumulative branches but joins on equality instead of the `<@` subtree test.
         if is_many_to_many:
-            return queryset.annotate(**{count_attr: Count(rel_field, distinct=True)})
+            field = model._meta.get_field(rel_field)
+            m2m_table = field.remote_field.through._meta.db_table
+            m2m_to_child_col = field.m2m_column_name()
+            m2m_to_tree_col = field.m2m_reverse_name()
+            sql = f'''(
+                SELECT COUNT(DISTINCT "{related_table}"."id")
+                FROM "{related_table}"
+                INNER JOIN "{m2m_table}"
+                  ON "{related_table}"."id" = "{m2m_table}"."{m2m_to_child_col}"
+                WHERE "{m2m_table}"."{m2m_to_tree_col}" = "{parent_table}"."id"
+            )'''
+            return queryset.annotate(**{
+                count_attr: RawSQL(sql, [], output_field=models.IntegerField())
+            })
         if has_generic_fk:
             ct_app = queryset.model._meta.app_label
             ct_model = queryset.model._meta.model_name
@@ -186,7 +200,15 @@ class LtreeQuerySet(RestrictedQuerySet):
             return queryset.annotate(**{
                 count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
             })
-        return queryset.annotate(**{count_attr: Count(rel_field, distinct=True)})
+        rel_field_col = f'{rel_field}_id'
+        sql = f'''(
+            SELECT COUNT(DISTINCT "{related_table}"."id")
+            FROM "{related_table}"
+            WHERE "{related_table}"."{rel_field_col}" = "{parent_table}"."id"
+        )'''
+        return queryset.annotate(**{
+            count_attr: RawSQL(sql, [], output_field=models.IntegerField())
+        })
 
 
 class LtreeManager(models.Manager.from_queryset(LtreeQuerySet)):
@@ -220,6 +242,19 @@ class LtreeModel(models.Model):
         update its sort_path — matching django-mptt's
         `order_insertion_by` behavior. Call `rebuild_sort_paths()` to
         recompute sort_path for every row from current names.
+
+    Concurrency:
+        Path maintenance takes no table-wide lock (unlike django-mptt, which
+        acquired a per-model advisory lock on every write to protect its global
+        lft/rght/tree_id numbering). Because a row's path depends only on its
+        parent's path, concurrent inserts and moves under *different* parents
+        never conflict. One narrow race remains: inserting (or moving a node)
+        under parent P while P — or an ancestor of P — is concurrently reparented
+        in another transaction. The BEFORE trigger reads P's pre-move path under
+        its own snapshot, so the row may persist with a stale path. This requires
+        concurrent mutation of the same subtree and is accepted as the trade-off
+        for dropping the table-wide lock; if strict serialization is ever needed,
+        lock the parent row (`SELECT ... FOR SHARE`) inside the BEFORE trigger.
     """
     path = LtreeField(editable=False, null=False, blank=True, default='')
 

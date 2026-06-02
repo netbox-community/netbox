@@ -385,8 +385,9 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 component._location = self.device.location
                 component._rack = self.device.rack
 
-            # Bulk-create new instances. For ltree-backed models (ModuleBay,
-            # InventoryItem), the BEFORE INSERT trigger populates `path` per row.
+            # Bulk-create new instances. ModuleBay is ltree-backed: its parent is set
+            # in ModuleBayTemplate.instantiate() (bulk_create bypasses ModuleBay.save()),
+            # and the BEFORE INSERT trigger derives path/sort_path from parent_id per row.
             component_model.objects.bulk_create(create_instances)
             for component in create_instances:
                 post_save.send(

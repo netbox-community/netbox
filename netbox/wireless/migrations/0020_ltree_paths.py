@@ -1,4 +1,8 @@
-"""Replace django-mptt with PostgreSQL ltree for wireless's hierarchical models."""
+"""Replace django-mptt with PostgreSQL ltree for wireless's hierarchical models.
+
+The reverse migration is lossy: it re-adds the MPTT columns empty and does not
+rebuild the tree. Forward migration is the supported direction.
+"""
 import django.db.models.deletion
 from django.contrib.postgres.indexes import GistIndex
 from django.contrib.postgres.operations import CreateExtension

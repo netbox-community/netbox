@@ -16,6 +16,14 @@ InventoryItem, InventoryItemTemplate) this migration:
 6. Drops the legacy MPTT columns (lft, rght, tree_id, level).
 7. Adds a GiST index on path (descendant/ancestor lookups via `<@` / `@>`).
    For sort_path models, also adds a btree index for ORDER BY listing.
+
+Notes:
+- Step 4 populates each table with a single recursive-CTE UPDATE over all rows.
+  On very large tables (notably InventoryItem) this is one long-running statement
+  holding a row-exclusive lock for its duration; budget for it during upgrades.
+- The reverse migration is lossy: it re-adds the MPTT columns (lft/rght/tree_id/
+  level) empty and does NOT rebuild the tree. Forward migration is the supported
+  direction.
 """
 import django.db.models.deletion
 from django.contrib.postgres.indexes import GistIndex
