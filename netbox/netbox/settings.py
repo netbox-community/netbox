@@ -898,6 +898,9 @@ STRAWBERRY_DJANGO = {
     "DEFAULT_PK_FIELD_NAME": "id",
     "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
     "PAGINATION_DEFAULT_LIMIT": 100,
+    # Disable the library's max-limit cap (introduced in strawberry-graphql-django 0.85); NetBox enforces its own
+    # page-size ceiling via MAX_PAGE_SIZE in netbox.graphql.pagination.apply_pagination().
+    "PAGINATION_MAX_LIMIT": None,
 }
 
 #

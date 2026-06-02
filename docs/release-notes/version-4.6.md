@@ -1,5 +1,44 @@
 # NetBox v4.6
 
+## v4.6.2 (2026-06-02)
+
+### Enhancements
+
+* [#17127](https://github.com/netbox-community/netbox/issues/17127) - Add a user preference for selecting metric or imperial units of measurement
+* [#19336](https://github.com/netbox-community/netbox/issues/19336) - Convert the filtering of tabbed list views from JavaScript to HTMX
+* [#19460](https://github.com/netbox-community/netbox/issues/19460) - Support additional template variables for greater flexibility when constructing map URLs
+* [#20804](https://github.com/netbox-community/netbox/issues/20804) - Support bulk renaming of the `label` field on device components
+* [#21261](https://github.com/netbox-community/netbox/issues/21261) - Allow setting `quick_add` on an `ObjectVar` in custom scripts
+* [#21952](https://github.com/netbox-community/netbox/issues/21952) - Improve robustness of the RQ worker liveness check
+* [#22109](https://github.com/netbox-community/netbox/issues/22109) - Include child dependency counts in the module type REST API representation
+* [#22212](https://github.com/netbox-community/netbox/issues/22212) - Make designated environment parameters available within Jinja2 templates via the new `env()` filter
+* [#22239](https://github.com/netbox-community/netbox/issues/22239) - Rename the "Save" button on the table configuration form to "Apply" for clarity
+* [#22255](https://github.com/netbox-community/netbox/issues/22255) - Allow plugins to register custom serializer resolvers for `get_serializer_for_model()`
+
+### Bug Fixes
+
+* [#21091](https://github.com/netbox-community/netbox/issues/21091) - Declare proper request & response schema types for the device/VM config rendering API endpoints
+* [#22158](https://github.com/netbox-community/netbox/issues/22158) - Cache empty config revision state to avoid per-request queries polluting database connections
+* [#22163](https://github.com/netbox-community/netbox/issues/22163) - Fix `ValueError` raised by CircuitTerminationForm when a termination type is set but the target object is blank
+* [#22180](https://github.com/netbox-community/netbox/issues/22180) - Ensure custom scripts added via a remote data source are validated
+* [#22187](https://github.com/netbox-community/netbox/issues/22187) - Fix erroneous cable path retracing when using a cable profile
+* [#22219](https://github.com/netbox-community/netbox/issues/22219) - Add missing required form field indicator to InlineFields rows
+* [#22228](https://github.com/netbox-community/netbox/issues/22228) - Validate `vid_ranges` bounds metadata in `VLANGroup.save()` to avoid miscounts and a crash on singleton ranges
+* [#22232](https://github.com/netbox-community/netbox/issues/22232) - Prevent duplicate scheduled background jobs from being created
+* [#22233](https://github.com/netbox-community/netbox/issues/22233) - Fix `site_id` filter on the cables REST API returning no results when both endpoints are circuit terminations
+* [#22247](https://github.com/netbox-community/netbox/issues/22247) - Display the verbose name instead of the internal model name for the related object type on the custom field detail page
+* [#22270](https://github.com/netbox-community/netbox/issues/22270) - Avoid recording a spurious UPDATE change record after DELETE for objects with reverse SET_NULL relations
+* [#22282](https://github.com/netbox-community/netbox/issues/22282) - Fix `fetch()` on S3Backend to reliably resolve object keys
+* [#22283](https://github.com/netbox-community/netbox/issues/22283) - Restrict the Job queryset in ScriptResultView to authorized objects
+* [#22286](https://github.com/netbox-community/netbox/issues/22286) - Mark the `name` and `description` fields on the GraphQL ConfigContextProfileFilter as optional
+* [#22287](https://github.com/netbox-community/netbox/issues/22287) - Fix GraphQL `EventRuleFilter.action_object_type` being typed as a string lookup against a ContentType foreign key
+* [#22301](https://github.com/netbox-community/netbox/issues/22301) - Avoid name conflict when multiple plugins introduce taggable models of the same name
+* [#22307](https://github.com/netbox-community/netbox/issues/22307) - Fix inconsistent enforcement of `grant_token` permissions between the UI and REST API
+* [#22325](https://github.com/netbox-community/netbox/issues/22325) - Fix `AttributeError` when creating a custom field choice set with base choices
+* [#22328](https://github.com/netbox-community/netbox/issues/22328) - Avoid out-of-memory crash in DynamicMultipleChoiceField with large choice sets
+
+---
+
 ## v4.6.1 (2026-05-19)
 
 ### Enhancements
