@@ -4,17 +4,17 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# horsitis, 2026
 # Jeremy Stretch, 2026
+# horsitis, 2026
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-19 06:21+0000\n"
+"POT-Creation-Date: 2026-06-02 06:30+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2026\n"
+"Last-Translator: horsitis, 2026\n"
 "Language-Team: Latvian (https://app.transifex.com/netbox-community/teams/178115/lv/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -89,7 +89,7 @@ msgid "Decommissioned"
 msgstr "Demontēts"
 
 #: netbox/circuits/choices.py:90 netbox/dcim/choices.py:2030
-#: netbox/dcim/tables/devices.py:1240
+#: netbox/dcim/tables/devices.py:1238
 #: netbox/templates/dcim/interface/attrs/mac_address.html:3
 #: netbox/tenancy/choices.py:17
 msgid "Primary"
@@ -126,10 +126,10 @@ msgstr "Runāja"
 #: netbox/circuits/filtersets.py:307 netbox/dcim/base_filtersets.py:23
 #: netbox/dcim/filtersets.py:123 netbox/dcim/filtersets.py:182
 #: netbox/dcim/filtersets.py:243 netbox/dcim/filtersets.py:384
-#: netbox/dcim/filtersets.py:542 netbox/dcim/filtersets.py:1282
-#: netbox/dcim/filtersets.py:1644 netbox/dcim/filtersets.py:1751
-#: netbox/dcim/filtersets.py:2539 netbox/dcim/filtersets.py:2887
-#: netbox/dcim/filtersets.py:2948 netbox/ipam/filtersets.py:1005
+#: netbox/dcim/filtersets.py:542 netbox/dcim/filtersets.py:1297
+#: netbox/dcim/filtersets.py:1659 netbox/dcim/filtersets.py:1766
+#: netbox/dcim/filtersets.py:2554 netbox/dcim/filtersets.py:2902
+#: netbox/dcim/filtersets.py:2963 netbox/ipam/filtersets.py:1005
 #: netbox/virtualization/filtersets.py:218 netbox/vpn/filtersets.py:402
 msgid "Region (ID)"
 msgstr "Reģions (ID)"
@@ -138,10 +138,10 @@ msgstr "Reģions (ID)"
 #: netbox/circuits/filtersets.py:314 netbox/dcim/base_filtersets.py:30
 #: netbox/dcim/filtersets.py:130 netbox/dcim/filtersets.py:188
 #: netbox/dcim/filtersets.py:250 netbox/dcim/filtersets.py:391
-#: netbox/dcim/filtersets.py:549 netbox/dcim/filtersets.py:1289
-#: netbox/dcim/filtersets.py:1651 netbox/dcim/filtersets.py:1758
-#: netbox/dcim/filtersets.py:2546 netbox/dcim/filtersets.py:2894
-#: netbox/dcim/filtersets.py:2955 netbox/extras/filtersets.py:716
+#: netbox/dcim/filtersets.py:549 netbox/dcim/filtersets.py:1304
+#: netbox/dcim/filtersets.py:1666 netbox/dcim/filtersets.py:1773
+#: netbox/dcim/filtersets.py:2561 netbox/dcim/filtersets.py:2909
+#: netbox/dcim/filtersets.py:2970 netbox/extras/filtersets.py:716
 #: netbox/ipam/filtersets.py:1012 netbox/virtualization/filtersets.py:225
 #: netbox/vpn/filtersets.py:397
 msgid "Region (slug)"
@@ -151,9 +151,9 @@ msgstr "Reģions (URL identifikators)"
 #: netbox/circuits/filtersets.py:320 netbox/dcim/base_filtersets.py:36
 #: netbox/dcim/filtersets.py:156 netbox/dcim/filtersets.py:256
 #: netbox/dcim/filtersets.py:397 netbox/dcim/filtersets.py:555
-#: netbox/dcim/filtersets.py:1295 netbox/dcim/filtersets.py:1657
-#: netbox/dcim/filtersets.py:1764 netbox/dcim/filtersets.py:2552
-#: netbox/dcim/filtersets.py:2900 netbox/dcim/filtersets.py:2961
+#: netbox/dcim/filtersets.py:1310 netbox/dcim/filtersets.py:1672
+#: netbox/dcim/filtersets.py:1779 netbox/dcim/filtersets.py:2567
+#: netbox/dcim/filtersets.py:2915 netbox/dcim/filtersets.py:2976
 #: netbox/ipam/filtersets.py:261 netbox/ipam/filtersets.py:1018
 #: netbox/virtualization/filtersets.py:231
 msgid "Site group (ID)"
@@ -163,9 +163,9 @@ msgstr "Vietu grupa (ID)"
 #: netbox/circuits/filtersets.py:327 netbox/dcim/base_filtersets.py:43
 #: netbox/dcim/filtersets.py:163 netbox/dcim/filtersets.py:263
 #: netbox/dcim/filtersets.py:404 netbox/dcim/filtersets.py:562
-#: netbox/dcim/filtersets.py:1302 netbox/dcim/filtersets.py:1664
-#: netbox/dcim/filtersets.py:1771 netbox/dcim/filtersets.py:2559
-#: netbox/dcim/filtersets.py:2907 netbox/dcim/filtersets.py:2968
+#: netbox/dcim/filtersets.py:1317 netbox/dcim/filtersets.py:1679
+#: netbox/dcim/filtersets.py:1786 netbox/dcim/filtersets.py:2574
+#: netbox/dcim/filtersets.py:2922 netbox/dcim/filtersets.py:2983
 #: netbox/extras/filtersets.py:722 netbox/ipam/filtersets.py:268
 #: netbox/ipam/filtersets.py:1025 netbox/virtualization/filtersets.py:238
 msgid "Site group (slug)"
@@ -181,11 +181,11 @@ msgstr "Vietu grupa (URL identifikators)"
 #: netbox/dcim/forms/bulk_import.py:656 netbox/dcim/forms/bulk_import.py:1700
 #: netbox/dcim/forms/bulk_import.py:1728 netbox/dcim/forms/filtersets.py:108
 #: netbox/dcim/forms/filtersets.py:258 netbox/dcim/forms/filtersets.py:390
-#: netbox/dcim/forms/filtersets.py:500 netbox/dcim/forms/filtersets.py:888
-#: netbox/dcim/forms/filtersets.py:1110 netbox/dcim/forms/filtersets.py:1191
-#: netbox/dcim/forms/filtersets.py:1228 netbox/dcim/forms/filtersets.py:1329
-#: netbox/dcim/forms/filtersets.py:1368 netbox/dcim/forms/filtersets.py:2105
-#: netbox/dcim/forms/filtersets.py:2129 netbox/dcim/forms/filtersets.py:2153
+#: netbox/dcim/forms/filtersets.py:500 netbox/dcim/forms/filtersets.py:895
+#: netbox/dcim/forms/filtersets.py:1117 netbox/dcim/forms/filtersets.py:1198
+#: netbox/dcim/forms/filtersets.py:1235 netbox/dcim/forms/filtersets.py:1336
+#: netbox/dcim/forms/filtersets.py:1375 netbox/dcim/forms/filtersets.py:2112
+#: netbox/dcim/forms/filtersets.py:2136 netbox/dcim/forms/filtersets.py:2160
 #: netbox/dcim/forms/model_forms.py:168 netbox/dcim/forms/model_forms.py:211
 #: netbox/dcim/forms/model_forms.py:294 netbox/dcim/forms/model_forms.py:615
 #: netbox/dcim/forms/model_forms.py:901 netbox/dcim/forms/object_create.py:294
@@ -273,9 +273,9 @@ msgstr "Pieslēguma tips (URL identifikators)"
 #: netbox/circuits/filtersets.py:248 netbox/circuits/filtersets.py:333
 #: netbox/dcim/base_filtersets.py:49 netbox/dcim/filtersets.py:268
 #: netbox/dcim/filtersets.py:409 netbox/dcim/filtersets.py:529
-#: netbox/dcim/filtersets.py:1307 netbox/dcim/filtersets.py:1670
-#: netbox/dcim/filtersets.py:1777 netbox/dcim/filtersets.py:2565
-#: netbox/dcim/filtersets.py:2912 netbox/dcim/filtersets.py:2974
+#: netbox/dcim/filtersets.py:1322 netbox/dcim/filtersets.py:1685
+#: netbox/dcim/filtersets.py:1792 netbox/dcim/filtersets.py:2580
+#: netbox/dcim/filtersets.py:2927 netbox/dcim/filtersets.py:2989
 #: netbox/ipam/filtersets.py:273 netbox/ipam/filtersets.py:1030
 #: netbox/virtualization/filtersets.py:243 netbox/vpn/filtersets.py:412
 msgid "Site (ID)"
@@ -284,8 +284,8 @@ msgstr "Vietne (ID)"
 #: netbox/circuits/filtersets.py:258 netbox/circuits/filtersets.py:346
 #: netbox/dcim/base_filtersets.py:62 netbox/dcim/filtersets.py:293
 #: netbox/dcim/filtersets.py:422 netbox/dcim/filtersets.py:568
-#: netbox/dcim/filtersets.py:1320 netbox/dcim/filtersets.py:1683
-#: netbox/dcim/filtersets.py:1790 netbox/dcim/filtersets.py:2925
+#: netbox/dcim/filtersets.py:1335 netbox/dcim/filtersets.py:1698
+#: netbox/dcim/filtersets.py:1805 netbox/dcim/filtersets.py:2940
 msgid "Location (ID)"
 msgstr "Telpa (ID)"
 
@@ -296,8 +296,8 @@ msgstr "Savienojums A (ID)"
 #: netbox/circuits/filtersets.py:295 netbox/circuits/filtersets.py:405
 #: netbox/circuits/filtersets.py:580 netbox/core/filtersets.py:91
 #: netbox/core/filtersets.py:179 netbox/core/filtersets.py:205
-#: netbox/core/filtersets.py:248 netbox/dcim/filtersets.py:911
-#: netbox/dcim/filtersets.py:1745 netbox/dcim/filtersets.py:3026
+#: netbox/core/filtersets.py:248 netbox/dcim/filtersets.py:926
+#: netbox/dcim/filtersets.py:1760 netbox/dcim/filtersets.py:3041
 #: netbox/extras/filtersets.py:47 netbox/extras/filtersets.py:71
 #: netbox/extras/filtersets.py:102 netbox/extras/filtersets.py:144
 #: netbox/extras/filtersets.py:198 netbox/extras/filtersets.py:252
@@ -328,7 +328,7 @@ msgstr "Meklēt"
 #: netbox/circuits/forms/filtersets.py:306
 #: netbox/circuits/forms/model_forms.py:168
 #: netbox/circuits/forms/model_forms.py:191
-#: netbox/circuits/forms/model_forms.py:289
+#: netbox/circuits/forms/model_forms.py:299
 #: netbox/circuits/tables/circuits.py:103
 #: netbox/circuits/tables/circuits.py:200 netbox/dcim/forms/connections.py:83
 #: netbox/templates/dcim/inc/cable_termination.html:62
@@ -338,8 +338,8 @@ msgstr "Pieslēgums"
 
 #: netbox/circuits/filtersets.py:353 netbox/dcim/base_filtersets.py:69
 #: netbox/dcim/filtersets.py:300 netbox/dcim/filtersets.py:429
-#: netbox/dcim/filtersets.py:575 netbox/dcim/filtersets.py:1327
-#: netbox/dcim/filtersets.py:1690 netbox/dcim/filtersets.py:1797
+#: netbox/dcim/filtersets.py:575 netbox/dcim/filtersets.py:1342
+#: netbox/dcim/filtersets.py:1705 netbox/dcim/filtersets.py:1812
 #: netbox/extras/filtersets.py:749
 msgid "Location (slug)"
 msgstr "Telpa (URL identifikators)"
@@ -360,7 +360,7 @@ msgstr "Pieslēguma (ID)"
 msgid "Virtual circuit (CID)"
 msgstr "Virtuāls pieslēgums (CID)"
 
-#: netbox/circuits/filtersets.py:426 netbox/dcim/filtersets.py:2321
+#: netbox/circuits/filtersets.py:426 netbox/dcim/filtersets.py:2336
 msgid "Virtual circuit (ID)"
 msgstr "Virtuāls pieslēgums (ID)"
 
@@ -388,14 +388,14 @@ msgstr "Virtuālās pieslēguma tips (URL identifikators)"
 #: netbox/circuits/forms/bulk_import.py:248
 #: netbox/circuits/forms/filtersets.py:384
 #: netbox/circuits/forms/filtersets.py:390
-#: netbox/circuits/forms/model_forms.py:367
-#: netbox/circuits/forms/model_forms.py:382
+#: netbox/circuits/forms/model_forms.py:377
+#: netbox/circuits/forms/model_forms.py:392
 #: netbox/circuits/tables/virtual_circuits.py:84
 msgid "Virtual circuit"
 msgstr "Virtuāls pieslēgums"
 
-#: netbox/circuits/filtersets.py:628 netbox/dcim/filtersets.py:1557
-#: netbox/dcim/filtersets.py:2046 netbox/ipam/filtersets.py:680
+#: netbox/circuits/filtersets.py:628 netbox/dcim/filtersets.py:1572
+#: netbox/dcim/filtersets.py:2061 netbox/ipam/filtersets.py:680
 #: netbox/vpn/filtersets.py:117 netbox/vpn/filtersets.py:445
 msgid "Interface (ID)"
 msgstr "Interfeiss (ID)"
@@ -455,15 +455,15 @@ msgstr "Pakalpojuma ID"
 #: netbox/dcim/forms/bulk_edit.py:628 netbox/dcim/forms/bulk_edit.py:849
 #: netbox/dcim/forms/bulk_edit.py:1103 netbox/dcim/forms/bulk_edit.py:1202
 #: netbox/dcim/forms/bulk_edit.py:1229 netbox/dcim/forms/bulk_edit.py:1773
-#: netbox/dcim/forms/bulk_import.py:1541 netbox/dcim/forms/filtersets.py:1276
-#: netbox/dcim/forms/filtersets.py:1606 netbox/dcim/forms/filtersets.py:1822
-#: netbox/dcim/forms/filtersets.py:1841 netbox/dcim/forms/filtersets.py:1865
-#: netbox/dcim/forms/filtersets.py:1884 netbox/dcim/tables/devices.py:806
-#: netbox/dcim/tables/devices.py:859 netbox/dcim/tables/devices.py:1132
+#: netbox/dcim/forms/bulk_import.py:1541 netbox/dcim/forms/filtersets.py:1283
+#: netbox/dcim/forms/filtersets.py:1613 netbox/dcim/forms/filtersets.py:1829
+#: netbox/dcim/forms/filtersets.py:1848 netbox/dcim/forms/filtersets.py:1872
+#: netbox/dcim/forms/filtersets.py:1891 netbox/dcim/tables/devices.py:804
+#: netbox/dcim/tables/devices.py:857 netbox/dcim/tables/devices.py:1130
 #: netbox/dcim/tables/devicetypes.py:214 netbox/dcim/tables/devicetypes.py:255
 #: netbox/dcim/tables/devicetypes.py:274 netbox/dcim/tables/racks.py:54
 #: netbox/extras/forms/bulk_edit.py:313 netbox/extras/tables/tables.py:558
-#: netbox/netbox/ui/attrs.py:232
+#: netbox/netbox/ui/attrs.py:235
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:11
 msgid "Color"
 msgstr "Krāsa"
@@ -489,15 +489,15 @@ msgstr "Krāsa"
 #: netbox/dcim/forms/bulk_import.py:881 netbox/dcim/forms/bulk_import.py:902
 #: netbox/dcim/forms/bulk_import.py:988 netbox/dcim/forms/bulk_import.py:1117
 #: netbox/dcim/forms/bulk_import.py:1136 netbox/dcim/forms/bulk_import.py:1515
-#: netbox/dcim/forms/bulk_import.py:1765 netbox/dcim/forms/filtersets.py:1148
-#: netbox/dcim/forms/filtersets.py:1261 netbox/dcim/forms/filtersets.py:1394
-#: netbox/dcim/forms/filtersets.py:1485 netbox/dcim/forms/filtersets.py:1505
-#: netbox/dcim/forms/filtersets.py:1525 netbox/dcim/forms/filtersets.py:1545
-#: netbox/dcim/forms/filtersets.py:1565 netbox/dcim/forms/filtersets.py:1580
-#: netbox/dcim/forms/filtersets.py:1600 netbox/dcim/forms/filtersets.py:1624
-#: netbox/dcim/forms/filtersets.py:1663 netbox/dcim/forms/filtersets.py:1768
-#: netbox/dcim/forms/filtersets.py:1817 netbox/dcim/forms/filtersets.py:1836
-#: netbox/dcim/forms/filtersets.py:1860 netbox/dcim/forms/filtersets.py:1879
+#: netbox/dcim/forms/bulk_import.py:1765 netbox/dcim/forms/filtersets.py:1155
+#: netbox/dcim/forms/filtersets.py:1268 netbox/dcim/forms/filtersets.py:1401
+#: netbox/dcim/forms/filtersets.py:1492 netbox/dcim/forms/filtersets.py:1512
+#: netbox/dcim/forms/filtersets.py:1532 netbox/dcim/forms/filtersets.py:1552
+#: netbox/dcim/forms/filtersets.py:1572 netbox/dcim/forms/filtersets.py:1587
+#: netbox/dcim/forms/filtersets.py:1607 netbox/dcim/forms/filtersets.py:1631
+#: netbox/dcim/forms/filtersets.py:1670 netbox/dcim/forms/filtersets.py:1775
+#: netbox/dcim/forms/filtersets.py:1824 netbox/dcim/forms/filtersets.py:1843
+#: netbox/dcim/forms/filtersets.py:1867 netbox/dcim/forms/filtersets.py:1886
 #: netbox/dcim/forms/model_forms.py:877 netbox/dcim/forms/model_forms.py:883
 #: netbox/dcim/forms/object_import.py:85
 #: netbox/dcim/forms/object_import.py:114
@@ -530,7 +530,7 @@ msgstr "Veids"
 #: netbox/circuits/forms/filtersets.py:159
 #: netbox/circuits/forms/filtersets.py:357
 #: netbox/circuits/forms/model_forms.py:146
-#: netbox/circuits/forms/model_forms.py:355
+#: netbox/circuits/forms/model_forms.py:365
 msgid "Provider account"
 msgstr "Pakalpojuma sniedzēja konts"
 
@@ -554,12 +554,12 @@ msgstr "Pakalpojuma sniedzēja konts"
 #: netbox/dcim/forms/bulk_import.py:1760 netbox/dcim/forms/bulk_import.py:1823
 #: netbox/dcim/forms/filtersets.py:210 netbox/dcim/forms/filtersets.py:270
 #: netbox/dcim/forms/filtersets.py:413 netbox/dcim/forms/filtersets.py:528
-#: netbox/dcim/forms/filtersets.py:934 netbox/dcim/forms/filtersets.py:1057
-#: netbox/dcim/forms/filtersets.py:1151 netbox/dcim/forms/filtersets.py:1266
-#: netbox/dcim/forms/filtersets.py:1389 netbox/dcim/forms/filtersets.py:1610
-#: netbox/dcim/forms/filtersets.py:2006 netbox/dcim/tables/devices.py:144
-#: netbox/dcim/tables/devices.py:543 netbox/dcim/tables/devices.py:915
-#: netbox/dcim/tables/devices.py:1080 netbox/dcim/tables/devices.py:1188
+#: netbox/dcim/forms/filtersets.py:941 netbox/dcim/forms/filtersets.py:1064
+#: netbox/dcim/forms/filtersets.py:1158 netbox/dcim/forms/filtersets.py:1273
+#: netbox/dcim/forms/filtersets.py:1396 netbox/dcim/forms/filtersets.py:1617
+#: netbox/dcim/forms/filtersets.py:2013 netbox/dcim/tables/devices.py:144
+#: netbox/dcim/tables/devices.py:543 netbox/dcim/tables/devices.py:913
+#: netbox/dcim/tables/devices.py:1078 netbox/dcim/tables/devices.py:1186
 #: netbox/dcim/tables/modules.py:106 netbox/dcim/tables/power.py:71
 #: netbox/dcim/tables/racks.py:143 netbox/dcim/tables/racks.py:248
 #: netbox/dcim/tables/sites.py:62 netbox/dcim/tables/sites.py:106
@@ -575,7 +575,7 @@ msgstr "Pakalpojuma sniedzēja konts"
 #: netbox/ipam/tables/vlans.py:102 netbox/templates/core/rq_task.html:81
 #: netbox/templates/core/system.html:20
 #: netbox/templates/extras/inc/script_list_content.html:35
-#: netbox/users/forms/filtersets.py:36 netbox/users/forms/model_forms.py:215
+#: netbox/users/forms/filtersets.py:36 netbox/users/forms/model_forms.py:232
 #: netbox/virtualization/forms/bulk_edit.py:62
 #: netbox/virtualization/forms/bulk_edit.py:115
 #: netbox/virtualization/forms/bulk_import.py:57
@@ -616,9 +616,9 @@ msgstr "Statuss"
 #: netbox/dcim/forms/bulk_import.py:1816 netbox/dcim/forms/filtersets.py:145
 #: netbox/dcim/forms/filtersets.py:204 netbox/dcim/forms/filtersets.py:237
 #: netbox/dcim/forms/filtersets.py:374 netbox/dcim/forms/filtersets.py:459
-#: netbox/dcim/forms/filtersets.py:480 netbox/dcim/forms/filtersets.py:856
-#: netbox/dcim/forms/filtersets.py:1048 netbox/dcim/forms/filtersets.py:1171
-#: netbox/dcim/forms/filtersets.py:1214 netbox/dcim/forms/filtersets.py:1349
+#: netbox/dcim/forms/filtersets.py:480 netbox/dcim/forms/filtersets.py:863
+#: netbox/dcim/forms/filtersets.py:1055 netbox/dcim/forms/filtersets.py:1178
+#: netbox/dcim/forms/filtersets.py:1221 netbox/dcim/forms/filtersets.py:1356
 #: netbox/dcim/tables/power.py:85 netbox/extras/filtersets.py:819
 #: netbox/extras/forms/filtersets.py:412 netbox/extras/forms/filtersets.py:491
 #: netbox/ipam/forms/bulk_edit.py:49 netbox/ipam/forms/bulk_edit.py:68
@@ -705,19 +705,19 @@ msgstr "Pakalpojuma parametri"
 #: netbox/circuits/forms/filtersets.py:341 netbox/core/forms/filtersets.py:78
 #: netbox/core/forms/filtersets.py:150 netbox/dcim/forms/bulk_edit.py:867
 #: netbox/dcim/forms/bulk_import.py:504 netbox/dcim/forms/filtersets.py:203
-#: netbox/dcim/forms/filtersets.py:236 netbox/dcim/forms/filtersets.py:1047
-#: netbox/dcim/forms/filtersets.py:1200 netbox/dcim/forms/filtersets.py:1212
-#: netbox/dcim/forms/filtersets.py:1348 netbox/dcim/forms/filtersets.py:1475
-#: netbox/dcim/forms/filtersets.py:1501 netbox/dcim/forms/filtersets.py:1515
-#: netbox/dcim/forms/filtersets.py:1541 netbox/dcim/forms/filtersets.py:1555
-#: netbox/dcim/forms/filtersets.py:1576 netbox/dcim/forms/filtersets.py:1590
-#: netbox/dcim/forms/filtersets.py:1620 netbox/dcim/forms/filtersets.py:1634
-#: netbox/dcim/forms/filtersets.py:1762 netbox/dcim/forms/filtersets.py:1806
-#: netbox/dcim/forms/filtersets.py:1832 netbox/dcim/forms/filtersets.py:1850
-#: netbox/dcim/forms/filtersets.py:1875 netbox/dcim/forms/filtersets.py:1893
-#: netbox/dcim/forms/filtersets.py:1917 netbox/dcim/forms/filtersets.py:1935
-#: netbox/dcim/forms/filtersets.py:1955 netbox/dcim/forms/filtersets.py:1971
-#: netbox/dcim/forms/filtersets.py:2017 netbox/dcim/forms/filtersets.py:2053
+#: netbox/dcim/forms/filtersets.py:236 netbox/dcim/forms/filtersets.py:1054
+#: netbox/dcim/forms/filtersets.py:1207 netbox/dcim/forms/filtersets.py:1219
+#: netbox/dcim/forms/filtersets.py:1355 netbox/dcim/forms/filtersets.py:1482
+#: netbox/dcim/forms/filtersets.py:1508 netbox/dcim/forms/filtersets.py:1522
+#: netbox/dcim/forms/filtersets.py:1548 netbox/dcim/forms/filtersets.py:1562
+#: netbox/dcim/forms/filtersets.py:1583 netbox/dcim/forms/filtersets.py:1597
+#: netbox/dcim/forms/filtersets.py:1627 netbox/dcim/forms/filtersets.py:1641
+#: netbox/dcim/forms/filtersets.py:1769 netbox/dcim/forms/filtersets.py:1813
+#: netbox/dcim/forms/filtersets.py:1839 netbox/dcim/forms/filtersets.py:1857
+#: netbox/dcim/forms/filtersets.py:1882 netbox/dcim/forms/filtersets.py:1900
+#: netbox/dcim/forms/filtersets.py:1924 netbox/dcim/forms/filtersets.py:1942
+#: netbox/dcim/forms/filtersets.py:1962 netbox/dcim/forms/filtersets.py:1978
+#: netbox/dcim/forms/filtersets.py:2024 netbox/dcim/forms/filtersets.py:2060
 #: netbox/dcim/tables/modules.py:25 netbox/dcim/views.py:1774
 #: netbox/extras/forms/bulk_edit.py:98 netbox/extras/forms/filtersets.py:48
 #: netbox/extras/forms/filtersets.py:152 netbox/extras/forms/filtersets.py:231
@@ -743,8 +743,8 @@ msgstr "Atribūti"
 #: netbox/circuits/forms/bulk_edit.py:175
 #: netbox/circuits/forms/bulk_edit.py:317
 #: netbox/circuits/forms/model_forms.py:171
-#: netbox/circuits/forms/model_forms.py:267
-#: netbox/circuits/forms/model_forms.py:369
+#: netbox/circuits/forms/model_forms.py:277
+#: netbox/circuits/forms/model_forms.py:379
 #: netbox/dcim/forms/model_forms.py:170 netbox/dcim/forms/model_forms.py:226
 #: netbox/dcim/forms/model_forms.py:330 netbox/dcim/forms/model_forms.py:387
 #: netbox/dcim/forms/model_forms.py:945 netbox/dcim/forms/model_forms.py:1961
@@ -782,8 +782,8 @@ msgstr "Īrēšana"
 #: netbox/extras/forms/bulk_edit.py:446 netbox/extras/tables/tables.py:97
 #: netbox/ipam/tables/vlans.py:218 netbox/ipam/tables/vlans.py:245
 #: netbox/netbox/forms/bulk_edit.py:79 netbox/netbox/forms/bulk_edit.py:91
-#: netbox/netbox/forms/bulk_edit.py:103 netbox/netbox/ui/panels.py:219
-#: netbox/netbox/ui/panels.py:228
+#: netbox/netbox/forms/bulk_edit.py:103 netbox/netbox/ui/panels.py:223
+#: netbox/netbox/ui/panels.py:232
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:89
 #: netbox/templates/core/plugin.html:80
 #: netbox/templates/dcim/cablebundle.html:21
@@ -799,7 +799,7 @@ msgid "Description"
 msgstr "Apraksts"
 
 #: netbox/circuits/forms/bulk_edit.py:192
-#: netbox/circuits/forms/model_forms.py:199
+#: netbox/circuits/forms/model_forms.py:198
 #: netbox/dcim/forms/bulk_import.py:1461 netbox/dcim/forms/bulk_import.py:1494
 msgid "Termination type"
 msgstr "Savienojuma veids"
@@ -807,7 +807,7 @@ msgstr "Savienojuma veids"
 #: netbox/circuits/forms/bulk_edit.py:195
 #: netbox/circuits/forms/bulk_import.py:133
 #: netbox/circuits/forms/filtersets.py:234
-#: netbox/circuits/forms/model_forms.py:202 netbox/circuits/ui/panels.py:14
+#: netbox/circuits/forms/model_forms.py:201 netbox/circuits/ui/panels.py:14
 #: netbox/templates/circuits/inc/circuit_termination.html:6
 #: netbox/templates/circuits/panels/circuit_circuit_termination.html:6
 #: netbox/vpn/forms/bulk_import.py:99 netbox/vpn/forms/filtersets.py:87
@@ -831,8 +831,8 @@ msgid "Mark connected"
 msgstr "Atzīmēt pievienotu"
 
 #: netbox/circuits/forms/bulk_edit.py:220
-#: netbox/circuits/forms/model_forms.py:213 netbox/circuits/ui/panels.py:85
-#: netbox/dcim/views.py:3564 netbox/dcim/views.py:3665
+#: netbox/circuits/forms/model_forms.py:211 netbox/circuits/ui/panels.py:85
+#: netbox/dcim/views.py:3579 netbox/dcim/views.py:3681
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:43
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:59
 #: netbox/templates/dcim/panels/interface_connection.html:92
@@ -840,7 +840,7 @@ msgid "Circuit Termination"
 msgstr "Pieslēguma savienojums"
 
 #: netbox/circuits/forms/bulk_edit.py:222
-#: netbox/circuits/forms/model_forms.py:215
+#: netbox/circuits/forms/model_forms.py:213
 msgid "Termination Details"
 msgstr "Savienojuma detaļas"
 
@@ -863,7 +863,7 @@ msgstr "Prioritāte"
 #: netbox/circuits/forms/filtersets.py:272
 #: netbox/circuits/forms/filtersets.py:365
 #: netbox/circuits/forms/filtersets.py:403
-#: netbox/circuits/forms/model_forms.py:350
+#: netbox/circuits/forms/model_forms.py:360
 #: netbox/circuits/tables/virtual_circuits.py:51
 #: netbox/circuits/tables/virtual_circuits.py:95
 msgid "Provider network"
@@ -872,15 +872,15 @@ msgstr "Pakalpojuma sniedzēja tīkls"
 #: netbox/circuits/forms/bulk_edit.py:326
 #: netbox/circuits/forms/bulk_import.py:253
 #: netbox/circuits/forms/filtersets.py:393
-#: netbox/circuits/forms/model_forms.py:389 netbox/dcim/forms/bulk_edit.py:372
+#: netbox/circuits/forms/model_forms.py:399 netbox/dcim/forms/bulk_edit.py:372
 #: netbox/dcim/forms/bulk_edit.py:1301 netbox/dcim/forms/bulk_edit.py:1737
 #: netbox/dcim/forms/bulk_import.py:286 netbox/dcim/forms/bulk_import.py:1227
-#: netbox/dcim/forms/filtersets.py:421 netbox/dcim/forms/filtersets.py:912
-#: netbox/dcim/forms/filtersets.py:1983 netbox/dcim/forms/filtersets.py:2023
+#: netbox/dcim/forms/filtersets.py:421 netbox/dcim/forms/filtersets.py:919
+#: netbox/dcim/forms/filtersets.py:1990 netbox/dcim/forms/filtersets.py:2030
 #: netbox/dcim/forms/model_forms.py:312 netbox/dcim/forms/model_forms.py:1298
 #: netbox/dcim/forms/model_forms.py:1781
 #: netbox/dcim/forms/object_import.py:198 netbox/dcim/tables/devices.py:173
-#: netbox/dcim/tables/devices.py:1064 netbox/dcim/tables/devicetypes.py:324
+#: netbox/dcim/tables/devices.py:1062 netbox/dcim/tables/devicetypes.py:324
 #: netbox/dcim/tables/racks.py:146 netbox/extras/filtersets.py:759
 #: netbox/ipam/forms/bulk_edit.py:127 netbox/ipam/forms/bulk_edit.py:214
 #: netbox/ipam/forms/bulk_edit.py:258 netbox/ipam/forms/bulk_edit.py:305
@@ -994,14 +994,14 @@ msgid "Operational role"
 msgstr "Darbības loma"
 
 #: netbox/circuits/forms/bulk_import.py:258
-#: netbox/circuits/forms/model_forms.py:392
+#: netbox/circuits/forms/model_forms.py:402
 #: netbox/circuits/tables/virtual_circuits.py:109
 #: netbox/circuits/ui/panels.py:179 netbox/dcim/forms/bulk_import.py:1358
 #: netbox/dcim/forms/model_forms.py:1372 netbox/dcim/forms/model_forms.py:1641
 #: netbox/dcim/forms/model_forms.py:1822 netbox/dcim/forms/model_forms.py:1857
 #: netbox/dcim/forms/model_forms.py:1982 netbox/dcim/tables/connections.py:66
-#: netbox/dcim/tables/devices.py:1231 netbox/dcim/views.py:3556
-#: netbox/dcim/views.py:3659 netbox/ipam/forms/bulk_import.py:330
+#: netbox/dcim/tables/devices.py:1229 netbox/dcim/views.py:3571
+#: netbox/dcim/views.py:3675 netbox/ipam/forms/bulk_import.py:330
 #: netbox/ipam/forms/model_forms.py:307 netbox/ipam/forms/model_forms.py:316
 #: netbox/ipam/tables/fhrp.py:61 netbox/ipam/tables/ip.py:328
 #: netbox/ipam/tables/vlans.py:149
@@ -1029,16 +1029,16 @@ msgstr "Interfeiss "
 #: netbox/dcim/forms/bulk_import.py:1740 netbox/dcim/forms/filtersets.py:116
 #: netbox/dcim/forms/filtersets.py:369 netbox/dcim/forms/filtersets.py:404
 #: netbox/dcim/forms/filtersets.py:455 netbox/dcim/forms/filtersets.py:508
-#: netbox/dcim/forms/filtersets.py:853 netbox/dcim/forms/filtersets.py:897
-#: netbox/dcim/forms/filtersets.py:1075 netbox/dcim/forms/filtersets.py:1118
-#: netbox/dcim/forms/filtersets.py:1170 netbox/dcim/forms/filtersets.py:1209
-#: netbox/dcim/forms/filtersets.py:1233 netbox/dcim/forms/filtersets.py:1307
-#: netbox/dcim/forms/filtersets.py:1338 netbox/dcim/forms/filtersets.py:1347
-#: netbox/dcim/forms/filtersets.py:1476 netbox/dcim/forms/filtersets.py:1516
-#: netbox/dcim/forms/filtersets.py:1556 netbox/dcim/forms/filtersets.py:1591
-#: netbox/dcim/forms/filtersets.py:1639 netbox/dcim/forms/filtersets.py:1807
-#: netbox/dcim/forms/filtersets.py:1851 netbox/dcim/forms/filtersets.py:1894
-#: netbox/dcim/forms/filtersets.py:1936 netbox/dcim/forms/filtersets.py:1973
+#: netbox/dcim/forms/filtersets.py:860 netbox/dcim/forms/filtersets.py:904
+#: netbox/dcim/forms/filtersets.py:1082 netbox/dcim/forms/filtersets.py:1125
+#: netbox/dcim/forms/filtersets.py:1177 netbox/dcim/forms/filtersets.py:1216
+#: netbox/dcim/forms/filtersets.py:1240 netbox/dcim/forms/filtersets.py:1314
+#: netbox/dcim/forms/filtersets.py:1345 netbox/dcim/forms/filtersets.py:1354
+#: netbox/dcim/forms/filtersets.py:1483 netbox/dcim/forms/filtersets.py:1523
+#: netbox/dcim/forms/filtersets.py:1563 netbox/dcim/forms/filtersets.py:1598
+#: netbox/dcim/forms/filtersets.py:1646 netbox/dcim/forms/filtersets.py:1814
+#: netbox/dcim/forms/filtersets.py:1858 netbox/dcim/forms/filtersets.py:1901
+#: netbox/dcim/forms/filtersets.py:1943 netbox/dcim/forms/filtersets.py:1980
 #: netbox/dcim/forms/model_forms.py:225 netbox/dcim/forms/model_forms.py:299
 #: netbox/dcim/forms/model_forms.py:620 netbox/dcim/forms/model_forms.py:906
 #: netbox/dcim/tables/devices.py:161 netbox/dcim/tables/power.py:30
@@ -1071,17 +1071,17 @@ msgstr "Telpa"
 #: netbox/dcim/forms/filtersets.py:460 netbox/dcim/forms/filtersets.py:481
 #: netbox/dcim/forms/filtersets.py:552 netbox/dcim/forms/filtersets.py:572
 #: netbox/dcim/forms/filtersets.py:697 netbox/dcim/forms/filtersets.py:716
-#: netbox/dcim/forms/filtersets.py:803 netbox/dcim/forms/filtersets.py:823
-#: netbox/dcim/forms/filtersets.py:857 netbox/dcim/forms/filtersets.py:1049
-#: netbox/dcim/forms/filtersets.py:1080 netbox/dcim/forms/filtersets.py:1172
-#: netbox/dcim/forms/filtersets.py:1215 netbox/dcim/forms/filtersets.py:1308
-#: netbox/dcim/forms/filtersets.py:1350 netbox/dcim/forms/filtersets.py:1482
-#: netbox/dcim/forms/filtersets.py:1522 netbox/dcim/forms/filtersets.py:1562
-#: netbox/dcim/forms/filtersets.py:1597 netbox/dcim/forms/filtersets.py:1646
-#: netbox/dcim/forms/filtersets.py:1813 netbox/dcim/forms/filtersets.py:1857
-#: netbox/dcim/forms/filtersets.py:1899 netbox/dcim/forms/filtersets.py:1941
-#: netbox/dcim/forms/filtersets.py:1978 netbox/dcim/forms/filtersets.py:2040
-#: netbox/dcim/forms/filtersets.py:2055 netbox/extras/forms/filtersets.py:52
+#: netbox/dcim/forms/filtersets.py:810 netbox/dcim/forms/filtersets.py:830
+#: netbox/dcim/forms/filtersets.py:864 netbox/dcim/forms/filtersets.py:1056
+#: netbox/dcim/forms/filtersets.py:1087 netbox/dcim/forms/filtersets.py:1179
+#: netbox/dcim/forms/filtersets.py:1222 netbox/dcim/forms/filtersets.py:1315
+#: netbox/dcim/forms/filtersets.py:1357 netbox/dcim/forms/filtersets.py:1489
+#: netbox/dcim/forms/filtersets.py:1529 netbox/dcim/forms/filtersets.py:1569
+#: netbox/dcim/forms/filtersets.py:1604 netbox/dcim/forms/filtersets.py:1653
+#: netbox/dcim/forms/filtersets.py:1820 netbox/dcim/forms/filtersets.py:1864
+#: netbox/dcim/forms/filtersets.py:1906 netbox/dcim/forms/filtersets.py:1948
+#: netbox/dcim/forms/filtersets.py:1985 netbox/dcim/forms/filtersets.py:2047
+#: netbox/dcim/forms/filtersets.py:2062 netbox/extras/forms/filtersets.py:52
 #: netbox/extras/forms/filtersets.py:132 netbox/extras/forms/filtersets.py:153
 #: netbox/extras/forms/filtersets.py:186 netbox/extras/forms/filtersets.py:249
 #: netbox/extras/forms/filtersets.py:312 netbox/extras/forms/filtersets.py:335
@@ -1127,7 +1127,7 @@ msgstr "Īpašumtiesības"
 #: netbox/dcim/forms/filtersets.py:189 netbox/dcim/forms/filtersets.py:206
 #: netbox/dcim/forms/filtersets.py:239 netbox/dcim/forms/filtersets.py:376
 #: netbox/dcim/forms/filtersets.py:461 netbox/dcim/forms/filtersets.py:553
-#: netbox/dcim/forms/filtersets.py:858 netbox/dcim/forms/filtersets.py:1309
+#: netbox/dcim/forms/filtersets.py:865 netbox/dcim/forms/filtersets.py:1316
 #: netbox/ipam/forms/filtersets.py:111 netbox/ipam/forms/filtersets.py:203
 #: netbox/ipam/forms/filtersets.py:304 netbox/ipam/forms/filtersets.py:358
 #: netbox/ipam/forms/filtersets.py:665 netbox/netbox/navigation/menu.py:34
@@ -1151,11 +1151,11 @@ msgstr "Kontaktpersonas"
 #: netbox/dcim/forms/bulk_import.py:110 netbox/dcim/forms/filtersets.py:94
 #: netbox/dcim/forms/filtersets.py:171 netbox/dcim/forms/filtersets.py:217
 #: netbox/dcim/forms/filtersets.py:244 netbox/dcim/forms/filtersets.py:382
-#: netbox/dcim/forms/filtersets.py:486 netbox/dcim/forms/filtersets.py:874
-#: netbox/dcim/forms/filtersets.py:1096 netbox/dcim/forms/filtersets.py:1177
-#: netbox/dcim/forms/filtersets.py:1220 netbox/dcim/forms/filtersets.py:1315
-#: netbox/dcim/forms/filtersets.py:1355 netbox/dcim/forms/filtersets.py:2097
-#: netbox/dcim/forms/filtersets.py:2121 netbox/dcim/forms/filtersets.py:2145
+#: netbox/dcim/forms/filtersets.py:486 netbox/dcim/forms/filtersets.py:881
+#: netbox/dcim/forms/filtersets.py:1103 netbox/dcim/forms/filtersets.py:1184
+#: netbox/dcim/forms/filtersets.py:1227 netbox/dcim/forms/filtersets.py:1322
+#: netbox/dcim/forms/filtersets.py:1362 netbox/dcim/forms/filtersets.py:2104
+#: netbox/dcim/forms/filtersets.py:2128 netbox/dcim/forms/filtersets.py:2152
 #: netbox/dcim/forms/model_forms.py:131 netbox/dcim/forms/object_create.py:278
 #: netbox/dcim/tables/devices.py:147 netbox/dcim/tables/sites.py:65
 #: netbox/extras/filtersets.py:710 netbox/ipam/forms/bulk_edit.py:409
@@ -1174,9 +1174,9 @@ msgstr "Reģions"
 #: netbox/dcim/forms/bulk_edit.py:898 netbox/dcim/forms/filtersets.py:99
 #: netbox/dcim/forms/filtersets.py:222 netbox/dcim/forms/filtersets.py:249
 #: netbox/dcim/forms/filtersets.py:395 netbox/dcim/forms/filtersets.py:491
-#: netbox/dcim/forms/filtersets.py:879 netbox/dcim/forms/filtersets.py:1101
-#: netbox/dcim/forms/filtersets.py:1182 netbox/dcim/forms/filtersets.py:1320
-#: netbox/dcim/forms/filtersets.py:1360 netbox/dcim/forms/object_create.py:286
+#: netbox/dcim/forms/filtersets.py:886 netbox/dcim/forms/filtersets.py:1108
+#: netbox/dcim/forms/filtersets.py:1189 netbox/dcim/forms/filtersets.py:1327
+#: netbox/dcim/forms/filtersets.py:1367 netbox/dcim/forms/object_create.py:286
 #: netbox/extras/filtersets.py:727 netbox/ipam/forms/bulk_edit.py:414
 #: netbox/ipam/forms/filtersets.py:171 netbox/ipam/forms/filtersets.py:251
 #: netbox/ipam/forms/filtersets.py:482 netbox/ipam/forms/filtersets.py:585
@@ -1205,12 +1205,12 @@ msgstr "Termina puse"
 #: netbox/ipam/forms/model_forms.py:353 netbox/ipam/ui/panels.py:122
 #: netbox/templates/ipam/vlan_edit.html:42
 #: netbox/tenancy/forms/filtersets.py:116
-#: netbox/users/forms/model_forms.py:370 netbox/users/forms/model_forms.py:412
+#: netbox/users/forms/model_forms.py:387 netbox/users/forms/model_forms.py:429
 msgid "Assignment"
 msgstr "Sasaiste"
 
 #: netbox/circuits/forms/filtersets.py:311
-#: netbox/circuits/forms/model_forms.py:279
+#: netbox/circuits/forms/model_forms.py:289
 #: netbox/circuits/tables/circuits.py:187 netbox/dcim/forms/bulk_edit.py:126
 #: netbox/dcim/forms/bulk_edit.py:356 netbox/dcim/forms/bulk_import.py:117
 #: netbox/dcim/forms/model_forms.py:137 netbox/dcim/tables/racks.py:139
@@ -1231,7 +1231,7 @@ msgstr "Sasaiste"
 #: netbox/users/forms/bulk_edit.py:161 netbox/users/forms/filtersets.py:35
 #: netbox/users/forms/filtersets.py:41 netbox/users/forms/filtersets.py:76
 #: netbox/users/forms/filtersets.py:165 netbox/users/forms/filtersets.py:171
-#: netbox/users/forms/model_forms.py:543 netbox/users/tables.py:186
+#: netbox/users/forms/model_forms.py:560 netbox/users/tables.py:186
 #: netbox/virtualization/forms/bulk_edit.py:57
 #: netbox/virtualization/forms/bulk_import.py:50
 #: netbox/virtualization/forms/filtersets.py:102
@@ -1263,15 +1263,21 @@ msgstr "Noņemt ASN"
 msgid "{count} ASNs currently assigned"
 msgstr "{count} Pašlaik piešķirtie ASN"
 
-#: netbox/circuits/forms/model_forms.py:266
+#: netbox/circuits/forms/model_forms.py:265
+#: netbox/circuits/models/circuits.py:374
+#, python-brace-format
+msgid "Please select a {termination_type}."
+msgstr "Lūdzu, izvēlieties {termination_type}."
+
+#: netbox/circuits/forms/model_forms.py:276
 msgid "Circuit Group"
 msgstr "Pielsēgumu grupa"
 
-#: netbox/circuits/forms/model_forms.py:286
+#: netbox/circuits/forms/model_forms.py:296
 msgid "Circuit type"
 msgstr "Pielsēguma veids"
 
-#: netbox/circuits/forms/model_forms.py:297
+#: netbox/circuits/forms/model_forms.py:307
 msgid "Group Assignment"
 msgstr "Grupu sasaiste"
 
@@ -1288,35 +1294,35 @@ msgstr "Grupu sasaiste"
 msgid "color"
 msgstr "krāsa"
 
-#: netbox/circuits/models/circuits.py:39
+#: netbox/circuits/models/circuits.py:40
 msgid "circuit type"
 msgstr "pieslēguma veids"
 
-#: netbox/circuits/models/circuits.py:40
+#: netbox/circuits/models/circuits.py:41
 msgid "circuit types"
 msgstr "pieslēguma veidi"
 
-#: netbox/circuits/models/circuits.py:51
+#: netbox/circuits/models/circuits.py:52
 #: netbox/circuits/models/virtual_circuits.py:39
 msgid "circuit ID"
 msgstr "pieslēguma ID"
 
-#: netbox/circuits/models/circuits.py:52
+#: netbox/circuits/models/circuits.py:53
 #: netbox/circuits/models/virtual_circuits.py:40
 msgid "Unique circuit ID"
 msgstr "Unikāls pieslēguma ID"
 
-#: netbox/circuits/models/circuits.py:72
+#: netbox/circuits/models/circuits.py:73
 #: netbox/circuits/models/virtual_circuits.py:60 netbox/core/models/data.py:53
 #: netbox/core/models/jobs.py:95 netbox/dcim/models/cables.py:93
 #: netbox/dcim/models/device_components.py:619
 #: netbox/dcim/models/device_components.py:1560
 #: netbox/dcim/models/devices.py:599 netbox/dcim/models/devices.py:1261
-#: netbox/dcim/models/modules.py:230 netbox/dcim/models/power.py:95
+#: netbox/dcim/models/modules.py:264 netbox/dcim/models/power.py:95
 #: netbox/dcim/models/racks.py:329 netbox/dcim/models/racks.py:716
 #: netbox/dcim/models/sites.py:163 netbox/dcim/models/sites.py:287
 #: netbox/ipam/models/ip.py:252 netbox/ipam/models/ip.py:554
-#: netbox/ipam/models/ip.py:792 netbox/ipam/models/vlans.py:227
+#: netbox/ipam/models/ip.py:792 netbox/ipam/models/vlans.py:242
 #: netbox/virtualization/models/clusters.py:70
 #: netbox/virtualization/models/virtualmachines.py:169
 #: netbox/vpn/models/l2vpn.py:36 netbox/vpn/models/tunnels.py:38
@@ -1324,92 +1330,92 @@ msgstr "Unikāls pieslēguma ID"
 msgid "status"
 msgstr "statuss"
 
-#: netbox/circuits/models/circuits.py:87 netbox/templates/core/plugin.html:20
+#: netbox/circuits/models/circuits.py:88 netbox/templates/core/plugin.html:20
 msgid "installed"
 msgstr "uzstādīts"
 
-#: netbox/circuits/models/circuits.py:92
+#: netbox/circuits/models/circuits.py:93
 msgid "terminates"
 msgstr "izbeidzas"
 
-#: netbox/circuits/models/circuits.py:97
+#: netbox/circuits/models/circuits.py:98
 msgid "commit rate (Kbps)"
 msgstr "garantētais ātrums (Kbps)"
 
-#: netbox/circuits/models/circuits.py:98
+#: netbox/circuits/models/circuits.py:99
 msgid "Committed rate"
 msgstr "Garantētais ātrums"
 
-#: netbox/circuits/models/circuits.py:150
+#: netbox/circuits/models/circuits.py:151
 msgid "circuit"
 msgstr "pieslēgums"
 
-#: netbox/circuits/models/circuits.py:151
+#: netbox/circuits/models/circuits.py:152
 msgid "circuits"
 msgstr "pieslēgumi"
 
-#: netbox/circuits/models/circuits.py:180
+#: netbox/circuits/models/circuits.py:181
 msgid "circuit group"
 msgstr "pieslēguma grupa"
 
-#: netbox/circuits/models/circuits.py:181
+#: netbox/circuits/models/circuits.py:182
 msgid "circuit groups"
 msgstr "pieslēguma grupas"
 
-#: netbox/circuits/models/circuits.py:197
+#: netbox/circuits/models/circuits.py:198
 msgid "member ID"
 msgstr "dalībnieka ID"
 
-#: netbox/circuits/models/circuits.py:209 netbox/ipam/models/fhrp.py:99
+#: netbox/circuits/models/circuits.py:210 netbox/ipam/models/fhrp.py:99
 #: netbox/tenancy/models/contacts.py:150
 msgid "priority"
 msgstr "prioritāte"
 
-#: netbox/circuits/models/circuits.py:230
+#: netbox/circuits/models/circuits.py:231
 msgid "Circuit group assignment"
 msgstr "Pieslēgumu grupas sasaiste"
 
-#: netbox/circuits/models/circuits.py:231
+#: netbox/circuits/models/circuits.py:232
 msgid "Circuit group assignments"
 msgstr "Pieslēguma grupu sasaistes"
 
-#: netbox/circuits/models/circuits.py:258
+#: netbox/circuits/models/circuits.py:259
 msgid "termination side"
 msgstr "savienojuma puse"
 
-#: netbox/circuits/models/circuits.py:276
+#: netbox/circuits/models/circuits.py:277
 msgid "port speed (Kbps)"
 msgstr "porta ātrums (Kbps)"
 
-#: netbox/circuits/models/circuits.py:279
+#: netbox/circuits/models/circuits.py:280
 msgid "Physical circuit speed"
 msgstr "Fiziskais pieslēguma ātrums"
 
-#: netbox/circuits/models/circuits.py:284
+#: netbox/circuits/models/circuits.py:285
 msgid "upstream speed (Kbps)"
 msgstr "augšupplūdes ātrums (Kbps)"
 
-#: netbox/circuits/models/circuits.py:285
+#: netbox/circuits/models/circuits.py:286
 msgid "Upstream speed, if different from port speed"
 msgstr "Pieslēguma ātrums, ja tas atšķiras no porta ātruma"
 
-#: netbox/circuits/models/circuits.py:290
+#: netbox/circuits/models/circuits.py:291
 msgid "cross-connect ID"
 msgstr "savstarpēja savienojuma ID"
 
-#: netbox/circuits/models/circuits.py:291
+#: netbox/circuits/models/circuits.py:292
 msgid "ID of the local cross-connect"
 msgstr "Lokālā starpsavienojuma ID"
 
-#: netbox/circuits/models/circuits.py:296
+#: netbox/circuits/models/circuits.py:297
 msgid "patch panel/port(s)"
 msgstr "ielāpu panelis/ports (-i)"
 
-#: netbox/circuits/models/circuits.py:297
+#: netbox/circuits/models/circuits.py:298
 msgid "Patch panel ID and port number(s)"
 msgstr "Patch paneļa ID un porta numurs (-i)"
 
-#: netbox/circuits/models/circuits.py:300
+#: netbox/circuits/models/circuits.py:301
 #: netbox/circuits/models/virtual_circuits.py:149
 #: netbox/dcim/models/device_component_templates.py:69
 #: netbox/dcim/models/device_components.py:67 netbox/dcim/models/racks.py:733
@@ -1420,7 +1426,7 @@ msgstr "Patch paneļa ID un porta numurs (-i)"
 #: netbox/extras/models/models.py:496 netbox/extras/models/models.py:578
 #: netbox/extras/models/models.py:707
 #: netbox/extras/models/notifications.py:132 netbox/extras/models/tags.py:34
-#: netbox/ipam/models/vlans.py:386 netbox/netbox/models/__init__.py:149
+#: netbox/ipam/models/vlans.py:401 netbox/netbox/models/__init__.py:149
 #: netbox/netbox/models/__init__.py:188 netbox/netbox/models/__init__.py:238
 #: netbox/netbox/models/__init__.py:269 netbox/users/models/permissions.py:27
 #: netbox/users/models/tokens.py:46 netbox/users/models/users.py:41
@@ -1428,15 +1434,15 @@ msgstr "Patch paneļa ID un porta numurs (-i)"
 msgid "description"
 msgstr "apraksts"
 
-#: netbox/circuits/models/circuits.py:353
+#: netbox/circuits/models/circuits.py:354
 msgid "circuit termination"
 msgstr "pieslēguma savienojums"
 
-#: netbox/circuits/models/circuits.py:354
+#: netbox/circuits/models/circuits.py:355
 msgid "circuit terminations"
 msgstr "pieslēguma savienojumi"
 
-#: netbox/circuits/models/circuits.py:373
+#: netbox/circuits/models/circuits.py:381
 msgid "A circuit termination must attach to a terminating object."
 msgstr "Pieslēguma savienojums jāpievieno savienojošam objektam."
 
@@ -1459,8 +1465,8 @@ msgstr "Pieslēguma savienojums jāpievieno savienojošam objektam."
 #: netbox/extras/models/notifications.py:127
 #: netbox/extras/models/scripts.py:29 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:24 netbox/ipam/models/services.py:51
-#: netbox/ipam/models/services.py:80 netbox/ipam/models/vlans.py:36
-#: netbox/ipam/models/vlans.py:216 netbox/ipam/models/vlans.py:365
+#: netbox/ipam/models/services.py:80 netbox/ipam/models/vlans.py:42
+#: netbox/ipam/models/vlans.py:231 netbox/ipam/models/vlans.py:380
 #: netbox/ipam/models/vrfs.py:20 netbox/ipam/models/vrfs.py:78
 #: netbox/netbox/models/__init__.py:180 netbox/netbox/models/__init__.py:228
 #: netbox/tenancy/models/contacts.py:85 netbox/tenancy/models/tenants.py:19
@@ -1485,7 +1491,7 @@ msgstr "Pakalpojuma sniedzēja pilnais nosaukums"
 #: netbox/circuits/models/providers.py:28 netbox/dcim/models/devices.py:89
 #: netbox/dcim/models/racks.py:166 netbox/dcim/models/sites.py:158
 #: netbox/extras/models/models.py:491 netbox/ipam/models/asns.py:24
-#: netbox/ipam/models/vlans.py:41 netbox/netbox/models/__init__.py:184
+#: netbox/ipam/models/vlans.py:47 netbox/netbox/models/__init__.py:184
 #: netbox/netbox/models/__init__.py:233 netbox/tenancy/models/tenants.py:25
 #: netbox/tenancy/models/tenants.py:50
 #: netbox/virtualization/models/virtualmachines.py:44
@@ -1569,10 +1575,10 @@ msgstr "virtuāla pieslēguma savienojumi"
 #: netbox/dcim/tables/devices.py:462 netbox/dcim/tables/devices.py:510
 #: netbox/dcim/tables/devices.py:564 netbox/dcim/tables/devices.py:587
 #: netbox/dcim/tables/devices.py:727 netbox/dcim/tables/devices.py:749
-#: netbox/dcim/tables/devices.py:830 netbox/dcim/tables/devices.py:883
-#: netbox/dcim/tables/devices.py:961 netbox/dcim/tables/devices.py:1036
-#: netbox/dcim/tables/devices.py:1104 netbox/dcim/tables/devices.py:1123
-#: netbox/dcim/tables/devices.py:1152 netbox/dcim/tables/devices.py:1179
+#: netbox/dcim/tables/devices.py:828 netbox/dcim/tables/devices.py:881
+#: netbox/dcim/tables/devices.py:959 netbox/dcim/tables/devices.py:1034
+#: netbox/dcim/tables/devices.py:1102 netbox/dcim/tables/devices.py:1121
+#: netbox/dcim/tables/devices.py:1150 netbox/dcim/tables/devices.py:1177
 #: netbox/dcim/tables/devicetypes.py:32 netbox/dcim/tables/devicetypes.py:229
 #: netbox/dcim/tables/modules.py:18 netbox/dcim/tables/power.py:22
 #: netbox/dcim/tables/power.py:59 netbox/dcim/tables/racks.py:22
@@ -1592,7 +1598,7 @@ msgstr "virtuāla pieslēguma savienojumi"
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:90
 #: netbox/ipam/tables/vlans.py:209 netbox/ipam/tables/vrfs.py:26
 #: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:344
-#: netbox/netbox/ui/panels.py:218 netbox/netbox/ui/panels.py:227
+#: netbox/netbox/ui/panels.py:222 netbox/netbox/ui/panels.py:231
 #: netbox/templates/core/htmx/system_db_schema.html:99
 #: netbox/templates/core/plugin.html:54
 #: netbox/templates/core/rq_worker.html:43
@@ -1653,7 +1659,7 @@ msgstr "Lapa Z"
 msgid "Commit Rate"
 msgstr "Garantētais ātrums"
 
-#: netbox/circuits/tables/circuits.py:85 netbox/dcim/forms/filtersets.py:2054
+#: netbox/circuits/tables/circuits.py:85 netbox/dcim/forms/filtersets.py:2061
 #: netbox/tenancy/tables/contacts.py:67 netbox/tenancy/views.py:402
 msgid "Assignments"
 msgstr "Sasaistes"
@@ -1708,20 +1714,20 @@ msgstr "Savienojumi"
 #: netbox/dcim/forms/bulk_import.py:1150 netbox/dcim/forms/bulk_import.py:1168
 #: netbox/dcim/forms/bulk_import.py:1222 netbox/dcim/forms/bulk_import.py:1344
 #: netbox/dcim/forms/bulk_import.py:1810 netbox/dcim/forms/connections.py:34
-#: netbox/dcim/forms/filtersets.py:158 netbox/dcim/forms/filtersets.py:1054
-#: netbox/dcim/forms/filtersets.py:1091 netbox/dcim/forms/filtersets.py:1258
-#: netbox/dcim/forms/filtersets.py:1479 netbox/dcim/forms/filtersets.py:1502
-#: netbox/dcim/forms/filtersets.py:1519 netbox/dcim/forms/filtersets.py:1542
-#: netbox/dcim/forms/filtersets.py:1559 netbox/dcim/forms/filtersets.py:1577
-#: netbox/dcim/forms/filtersets.py:1594 netbox/dcim/forms/filtersets.py:1621
-#: netbox/dcim/forms/filtersets.py:1643 netbox/dcim/forms/filtersets.py:1765
-#: netbox/dcim/forms/filtersets.py:1810 netbox/dcim/forms/filtersets.py:1833
-#: netbox/dcim/forms/filtersets.py:1854 netbox/dcim/forms/filtersets.py:1876
-#: netbox/dcim/forms/filtersets.py:1897 netbox/dcim/forms/filtersets.py:1918
-#: netbox/dcim/forms/filtersets.py:1939 netbox/dcim/forms/filtersets.py:1956
-#: netbox/dcim/forms/filtersets.py:1976 netbox/dcim/forms/filtersets.py:2018
-#: netbox/dcim/forms/filtersets.py:2113 netbox/dcim/forms/filtersets.py:2137
-#: netbox/dcim/forms/filtersets.py:2161 netbox/dcim/forms/model_forms.py:794
+#: netbox/dcim/forms/filtersets.py:158 netbox/dcim/forms/filtersets.py:1061
+#: netbox/dcim/forms/filtersets.py:1098 netbox/dcim/forms/filtersets.py:1265
+#: netbox/dcim/forms/filtersets.py:1486 netbox/dcim/forms/filtersets.py:1509
+#: netbox/dcim/forms/filtersets.py:1526 netbox/dcim/forms/filtersets.py:1549
+#: netbox/dcim/forms/filtersets.py:1566 netbox/dcim/forms/filtersets.py:1584
+#: netbox/dcim/forms/filtersets.py:1601 netbox/dcim/forms/filtersets.py:1628
+#: netbox/dcim/forms/filtersets.py:1650 netbox/dcim/forms/filtersets.py:1772
+#: netbox/dcim/forms/filtersets.py:1817 netbox/dcim/forms/filtersets.py:1840
+#: netbox/dcim/forms/filtersets.py:1861 netbox/dcim/forms/filtersets.py:1883
+#: netbox/dcim/forms/filtersets.py:1904 netbox/dcim/forms/filtersets.py:1925
+#: netbox/dcim/forms/filtersets.py:1946 netbox/dcim/forms/filtersets.py:1963
+#: netbox/dcim/forms/filtersets.py:1983 netbox/dcim/forms/filtersets.py:2025
+#: netbox/dcim/forms/filtersets.py:2120 netbox/dcim/forms/filtersets.py:2144
+#: netbox/dcim/forms/filtersets.py:2168 netbox/dcim/forms/model_forms.py:794
 #: netbox/dcim/forms/model_forms.py:1025 netbox/dcim/forms/model_forms.py:1439
 #: netbox/dcim/forms/model_forms.py:1933 netbox/dcim/forms/model_forms.py:2006
 #: netbox/dcim/forms/object_create.py:207 netbox/dcim/tables/connections.py:23
@@ -1729,9 +1735,9 @@ msgstr "Savienojumi"
 #: netbox/dcim/tables/devices.py:293 netbox/dcim/tables/devices.py:399
 #: netbox/dcim/tables/devices.py:440 netbox/dcim/tables/devices.py:482
 #: netbox/dcim/tables/devices.py:532 netbox/dcim/tables/devices.py:649
-#: netbox/dcim/tables/devices.py:799 netbox/dcim/tables/devices.py:852
-#: netbox/dcim/tables/devices.py:905 netbox/dcim/tables/devices.py:983
-#: netbox/dcim/tables/devices.py:1057 netbox/dcim/tables/devices.py:1183
+#: netbox/dcim/tables/devices.py:797 netbox/dcim/tables/devices.py:850
+#: netbox/dcim/tables/devices.py:903 netbox/dcim/tables/devices.py:981
+#: netbox/dcim/tables/devices.py:1055 netbox/dcim/tables/devices.py:1181
 #: netbox/dcim/tables/modules.py:84 netbox/extras/forms/filtersets.py:410
 #: netbox/ipam/forms/bulk_import.py:316 netbox/ipam/forms/filtersets.py:670
 #: netbox/ipam/forms/model_forms.py:349 netbox/ipam/tables/vlans.py:160
@@ -1770,9 +1776,9 @@ msgstr "Piešķirt grupu"
 msgid "Termination point"
 msgstr "Savienojuma punkts"
 
-#: netbox/circuits/ui/panels.py:94 netbox/dcim/forms/filtersets.py:1481
-#: netbox/dcim/forms/filtersets.py:1521 netbox/dcim/forms/filtersets.py:1561
-#: netbox/dcim/forms/filtersets.py:1596 netbox/dcim/forms/filtersets.py:1645
+#: netbox/circuits/ui/panels.py:94 netbox/dcim/forms/filtersets.py:1488
+#: netbox/dcim/forms/filtersets.py:1528 netbox/dcim/forms/filtersets.py:1568
+#: netbox/dcim/forms/filtersets.py:1603 netbox/dcim/forms/filtersets.py:1652
 #: netbox/dcim/tables/devices.py:381 netbox/dcim/tables/devices.py:693
 #: netbox/dcim/ui/panels.py:394 netbox/dcim/ui/panels.py:530
 #: netbox/ipam/tables/vlans.py:178
@@ -1782,8 +1788,8 @@ msgstr "Savienojums"
 
 #: netbox/circuits/ui/panels.py:99 netbox/dcim/forms/bulk_edit.py:1480
 #: netbox/dcim/forms/bulk_import.py:835 netbox/dcim/forms/bulk_import.py:861
-#: netbox/dcim/forms/filtersets.py:1490 netbox/dcim/forms/filtersets.py:1530
-#: netbox/dcim/forms/filtersets.py:1668 netbox/dcim/tables/devices.py:662
+#: netbox/dcim/forms/filtersets.py:1497 netbox/dcim/forms/filtersets.py:1537
+#: netbox/dcim/forms/filtersets.py:1675 netbox/dcim/tables/devices.py:662
 #: netbox/dcim/ui/panels.py:488
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:68
 msgid "Speed"
@@ -1872,7 +1878,7 @@ msgstr "Ziņojumi"
 
 #: netbox/core/choices.py:54 netbox/dcim/choices.py:154
 msgid "Pending"
-msgstr "Gaidīts"
+msgstr "Gaida"
 
 #: netbox/core/choices.py:55 netbox/core/constants.py:24
 #: netbox/core/tables/jobs.py:36 netbox/core/tables/tasks.py:39
@@ -1986,43 +1992,51 @@ msgstr "Brīdinājums"
 msgid "Error"
 msgstr "Kļūda"
 
-#: netbox/core/data_backends.py:46 netbox/core/tables/plugins.py:54
+#: netbox/core/data_backends.py:45 netbox/core/tables/plugins.py:54
 #: netbox/templates/core/plugin.html:88
 #: netbox/templates/dcim/panels/interface_wireless.html:10
 msgid "Local"
 msgstr "Tuvais"
 
-#: netbox/core/data_backends.py:64 netbox/core/tables/change_logging.py:21
+#: netbox/core/data_backends.py:63 netbox/core/tables/change_logging.py:21
 #: netbox/templates/account/profile.html:13 netbox/users/tables.py:64
 msgid "Username"
 msgstr "Lietotājvārds"
 
-#: netbox/core/data_backends.py:66 netbox/core/data_backends.py:72
+#: netbox/core/data_backends.py:65 netbox/core/data_backends.py:71
 msgid "Only used for cloning with HTTP(S)"
 msgstr "Izmanto tikai klonēšanai ar HTTP (S)"
 
-#: netbox/core/data_backends.py:70 netbox/templates/account/base.html:23
+#: netbox/core/data_backends.py:69 netbox/templates/account/base.html:23
 #: netbox/templates/account/password.html:12
-#: netbox/users/forms/model_forms.py:191
+#: netbox/users/forms/model_forms.py:208
 msgid "Password"
 msgstr "Parole"
 
-#: netbox/core/data_backends.py:76
+#: netbox/core/data_backends.py:75
 msgid "Branch"
 msgstr "Atzars"
 
-#: netbox/core/data_backends.py:136
+#: netbox/core/data_backends.py:135
 #, python-brace-format
 msgid "Fetching remote data failed ({name}): {error}"
 msgstr "Attālo datu ieguve neizdevās ({name}): {error}"
 
-#: netbox/core/data_backends.py:149
+#: netbox/core/data_backends.py:148
 msgid "AWS access key ID"
 msgstr "AWS piekļuves atslēgas ID"
 
-#: netbox/core/data_backends.py:153
+#: netbox/core/data_backends.py:152
 msgid "AWS secret access key"
 msgstr "AWS slepena piekļuves atslēga"
+
+#: netbox/core/data_backends.py:210
+#, python-brace-format
+msgid ""
+"Invalid S3 object key '{key}': resolves outside of the local data directory"
+msgstr ""
+"Nederīga S3 objekta atslēga '{key}': tā norāda ārpus lokālās datu "
+"direktorijas"
 
 #: netbox/core/filtersets.py:65 netbox/extras/filtersets.py:295
 #: netbox/extras/filtersets.py:665 netbox/extras/filtersets.py:841
@@ -2050,12 +2064,12 @@ msgstr "Lietotāja vārds"
 #: netbox/core/tables/data.py:28 netbox/dcim/choices.py:2068
 #: netbox/dcim/forms/bulk_edit.py:1151 netbox/dcim/forms/bulk_edit.py:1255
 #: netbox/dcim/forms/bulk_edit.py:1278 netbox/dcim/forms/bulk_edit.py:1442
-#: netbox/dcim/forms/filtersets.py:1680 netbox/dcim/forms/filtersets.py:1773
-#: netbox/dcim/forms/filtersets.py:1906 netbox/dcim/forms/filtersets.py:1925
-#: netbox/dcim/forms/filtersets.py:1944 netbox/dcim/forms/filtersets.py:1959
-#: netbox/dcim/tables/devices.py:592 netbox/dcim/tables/devices.py:912
-#: netbox/dcim/tables/devices.py:967 netbox/dcim/tables/devices.py:990
-#: netbox/dcim/tables/devices.py:1040 netbox/dcim/tables/devicetypes.py:233
+#: netbox/dcim/forms/filtersets.py:1687 netbox/dcim/forms/filtersets.py:1780
+#: netbox/dcim/forms/filtersets.py:1913 netbox/dcim/forms/filtersets.py:1932
+#: netbox/dcim/forms/filtersets.py:1951 netbox/dcim/forms/filtersets.py:1966
+#: netbox/dcim/tables/devices.py:592 netbox/dcim/tables/devices.py:910
+#: netbox/dcim/tables/devices.py:965 netbox/dcim/tables/devices.py:988
+#: netbox/dcim/tables/devices.py:1038 netbox/dcim/tables/devicetypes.py:233
 #: netbox/dcim/tables/devicetypes.py:293 netbox/dcim/tables/devicetypes.py:307
 #: netbox/extras/forms/bulk_edit.py:134 netbox/extras/forms/bulk_edit.py:202
 #: netbox/extras/forms/bulk_edit.py:230 netbox/extras/forms/bulk_edit.py:289
@@ -2172,7 +2186,7 @@ msgstr "Pabeigts pirms"
 #: netbox/templates/inc/user_menu.html:31 netbox/users/filtersets.py:135
 #: netbox/users/filtersets.py:217 netbox/users/forms/filtersets.py:81
 #: netbox/users/forms/filtersets.py:126 netbox/users/forms/model_forms.py:173
-#: netbox/users/forms/model_forms.py:213 netbox/users/tables.py:22
+#: netbox/users/forms/model_forms.py:230 netbox/users/tables.py:22
 msgid "User"
 msgstr "Lietotājs"
 
@@ -2277,7 +2291,7 @@ msgstr "Lietotāja iestatījumi"
 msgid "Change Log"
 msgstr "Vēsture"
 
-#: netbox/core/forms/model_forms.py:171 netbox/dcim/forms/filtersets.py:867
+#: netbox/core/forms/model_forms.py:171 netbox/dcim/forms/filtersets.py:874
 #: netbox/templates/core/inc/config_data.html:140
 #: netbox/users/forms/model_forms.py:77
 msgid "Miscellaneous"
@@ -2345,7 +2359,7 @@ msgstr "Šim objektu tipam izmaiņu reģistrēšana netiek atbalstīta ({type}).
 #: netbox/core/models/files.py:30 netbox/core/models/jobs.py:60
 #: netbox/extras/models/models.py:864 netbox/extras/models/notifications.py:39
 #: netbox/extras/models/notifications.py:196
-#: netbox/netbox/models/features.py:63 netbox/users/models/tokens.py:51
+#: netbox/netbox/models/features.py:62 netbox/users/models/tokens.py:51
 msgid "created"
 msgstr "izveidots"
 
@@ -2472,11 +2486,11 @@ msgid ""
 msgstr "Inicializējot aizmuguri, radās kļūda. Ir jāuzstāda atkarība: "
 
 #: netbox/core/models/data.py:294 netbox/core/models/files.py:34
-#: netbox/netbox/models/features.py:69
+#: netbox/netbox/models/features.py:68
 msgid "last updated"
 msgstr "Pēdējo reizi atjaunināts"
 
-#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:740
+#: netbox/core/models/data.py:304 netbox/dcim/models/cables.py:741
 msgid "path"
 msgstr "ceļš"
 
@@ -2693,7 +2707,7 @@ msgstr "ID"
 msgid "Interval"
 msgstr "Intervāls"
 
-#: netbox/core/tables/jobs.py:51 netbox/core/views.py:271
+#: netbox/core/tables/jobs.py:51 netbox/core/views.py:272
 msgid "Log Entries"
 msgstr "Žurnāla ieraksti"
 
@@ -2860,7 +2874,7 @@ msgstr "Plānošana"
 msgid "Change"
 msgstr "Mainīt"
 
-#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:556
+#: netbox/core/utils.py:87 netbox/core/utils.py:153 netbox/core/views.py:557
 #, python-brace-format
 msgid "Job {job_id} not found"
 msgstr "Uzdevums{job_id} nav atrasts"
@@ -2870,62 +2884,62 @@ msgstr "Uzdevums{job_id} nav atrasts"
 msgid "Job {id} not found."
 msgstr "Uzdevums{id} nav atrasts."
 
-#: netbox/core/views.py:135
+#: netbox/core/views.py:136
 #, python-brace-format
 msgid "Queued job #{id} to sync {datasource}"
 msgstr "Rindā ievietotais uzdevums #{id} sinhronizēt {datasource}"
 
-#: netbox/core/views.py:253 netbox/extras/forms/filtersets.py:184
+#: netbox/core/views.py:254 netbox/extras/forms/filtersets.py:184
 #: netbox/extras/forms/filtersets.py:385 netbox/extras/forms/filtersets.py:408
 #: netbox/extras/forms/filtersets.py:504
 #: netbox/extras/forms/model_forms.py:765 netbox/extras/ui/panels.py:381
 msgid "Data"
 msgstr "Dati"
 
-#: netbox/core/views.py:264 netbox/templates/extras/htmx/script_result.html:43
+#: netbox/core/views.py:265 netbox/templates/extras/htmx/script_result.html:43
 msgid "Log"
 msgstr "žurnāls"
 
-#: netbox/core/views.py:492
+#: netbox/core/views.py:493
 #, python-brace-format
 msgid "Restored configuration revision #{id}"
 msgstr "Atjaunota konfigurācijas pārskatīšana #{id}"
 
-#: netbox/core/views.py:595
+#: netbox/core/views.py:596
 #, python-brace-format
 msgid "Job {id} has been deleted."
 msgstr "Uzdeuvms{id} ir dzēsts."
 
-#: netbox/core/views.py:597
+#: netbox/core/views.py:598
 #, python-brace-format
 msgid "Error deleting job {id}: {error}"
 msgstr "Kļūda dzēšot uzdevumu{id}: {error}"
 
-#: netbox/core/views.py:606
+#: netbox/core/views.py:607
 #, python-brace-format
 msgid "Job {id} has been re-enqueued."
 msgstr "Uzdevums{id} ir atkal ievietots rindā."
 
-#: netbox/core/views.py:615
+#: netbox/core/views.py:616
 #, python-brace-format
 msgid "Job {id} has been enqueued."
 msgstr "Uzdevums{id} ir ierindots rindā."
 
-#: netbox/core/views.py:624
+#: netbox/core/views.py:625
 #, python-brace-format
 msgid "Job {id} has been stopped."
 msgstr "Uzdevums{id} ir apturēts."
 
-#: netbox/core/views.py:626
+#: netbox/core/views.py:627
 #, python-brace-format
 msgid "Failed to stop job {id}"
 msgstr "Neizdevās pārtraukt uzdevumu {id}"
 
-#: netbox/core/views.py:840
+#: netbox/core/views.py:841
 msgid "Plugins catalog could not be loaded"
 msgstr "Spraudņu katalogu nevarēja ielādēt"
 
-#: netbox/core/views.py:876
+#: netbox/core/views.py:877
 #, python-brace-format
 msgid "Plugin {name} not found"
 msgstr "Spraudnis {name} nav atrasts"
@@ -3109,18 +3123,18 @@ msgstr "Novecojis"
 #: netbox/dcim/forms/bulk_import.py:530 netbox/dcim/forms/bulk_import.py:556
 #: netbox/dcim/forms/bulk_import.py:682 netbox/dcim/forms/bulk_import.py:958
 #: netbox/dcim/forms/bulk_import.py:1239 netbox/dcim/forms/filtersets.py:267
-#: netbox/dcim/forms/filtersets.py:813 netbox/dcim/forms/filtersets.py:829
+#: netbox/dcim/forms/filtersets.py:820 netbox/dcim/forms/filtersets.py:836
 #: netbox/dcim/forms/model_forms.py:95 netbox/dcim/forms/model_forms.py:113
 #: netbox/dcim/forms/model_forms.py:216 netbox/dcim/forms/model_forms.py:559
 #: netbox/dcim/forms/model_forms.py:580 netbox/dcim/forms/model_forms.py:1290
 #: netbox/dcim/forms/model_forms.py:1773
 #: netbox/dcim/forms/object_import.py:193 netbox/dcim/tables/devices.py:722
-#: netbox/dcim/tables/devices.py:757 netbox/dcim/tables/devices.py:994
-#: netbox/dcim/tables/devices.py:1084 netbox/dcim/tables/devices.py:1237
+#: netbox/dcim/tables/devices.py:757 netbox/dcim/tables/devices.py:992
+#: netbox/dcim/tables/devices.py:1082 netbox/dcim/tables/devices.py:1235
 #: netbox/ipam/forms/bulk_import.py:608 netbox/ipam/forms/model_forms.py:788
 #: netbox/ipam/tables/fhrp.py:56 netbox/ipam/tables/ip.py:334
 #: netbox/ipam/tables/services.py:42 netbox/netbox/tables/tables.py:348
-#: netbox/netbox/ui/panels.py:226 netbox/tenancy/forms/bulk_edit.py:33
+#: netbox/netbox/ui/panels.py:230 netbox/tenancy/forms/bulk_edit.py:33
 #: netbox/tenancy/forms/bulk_edit.py:62 netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
 #: netbox/tenancy/forms/model_forms.py:26
@@ -3157,7 +3171,7 @@ msgstr "Aizmugurē"
 #: netbox/dcim/choices.py:205 netbox/dcim/choices.py:258
 #: netbox/dcim/choices.py:2109 netbox/virtualization/choices.py:47
 msgid "Staged"
-msgstr "Iestrāvēts"
+msgstr "Sagatavots"
 
 #: netbox/dcim/choices.py:207
 msgid "Inventory"
@@ -3236,8 +3250,8 @@ msgid "Virtual"
 msgstr "Virtuāls"
 
 #: netbox/dcim/choices.py:885 netbox/dcim/choices.py:1378
-#: netbox/dcim/forms/bulk_edit.py:1602 netbox/dcim/forms/filtersets.py:1638
-#: netbox/dcim/forms/filtersets.py:1764 netbox/dcim/forms/model_forms.py:1189
+#: netbox/dcim/forms/bulk_edit.py:1602 netbox/dcim/forms/filtersets.py:1645
+#: netbox/dcim/forms/filtersets.py:1771 netbox/dcim/forms/model_forms.py:1189
 #: netbox/dcim/forms/model_forms.py:1653 netbox/dcim/ui/panels.py:556
 #: netbox/netbox/navigation/menu.py:157 netbox/netbox/navigation/menu.py:161
 msgid "Wireless"
@@ -3321,8 +3335,8 @@ msgid "Cellular"
 msgstr "Mobilais"
 
 #: netbox/dcim/choices.py:1446 netbox/dcim/forms/filtersets.py:442
-#: netbox/dcim/forms/filtersets.py:944 netbox/dcim/forms/filtersets.py:1156
-#: netbox/dcim/forms/filtersets.py:1991
+#: netbox/dcim/forms/filtersets.py:951 netbox/dcim/forms/filtersets.py:1163
+#: netbox/dcim/forms/filtersets.py:1998
 #: netbox/templates/dcim/virtualchassis_edit.html:66
 msgid "Serial"
 msgstr "Seriālais"
@@ -3533,7 +3547,7 @@ msgstr "Šķiedra - vienmodas (SM)"
 msgid "Fiber - Other"
 msgstr "Šķiedra - Cits"
 
-#: netbox/dcim/choices.py:1960 netbox/dcim/forms/filtersets.py:1463
+#: netbox/dcim/choices.py:1960 netbox/dcim/forms/filtersets.py:1470
 msgid "Connected"
 msgstr "Pieslēgts"
 
@@ -3634,17 +3648,17 @@ msgstr "Vecāk-telpa (URL identifikators)"
 
 #: netbox/dcim/filtersets.py:340 netbox/dcim/filtersets.py:447
 #: netbox/dcim/filtersets.py:659 netbox/dcim/filtersets.py:832
-#: netbox/dcim/filtersets.py:1074 netbox/dcim/filtersets.py:1182
-#: netbox/dcim/filtersets.py:1226 netbox/dcim/filtersets.py:1612
-#: netbox/dcim/filtersets.py:2464
+#: netbox/dcim/filtersets.py:1089 netbox/dcim/filtersets.py:1197
+#: netbox/dcim/filtersets.py:1241 netbox/dcim/filtersets.py:1627
+#: netbox/dcim/filtersets.py:2479
 msgid "Manufacturer (ID)"
 msgstr "Ražotājs (ID)"
 
 #: netbox/dcim/filtersets.py:347 netbox/dcim/filtersets.py:454
 #: netbox/dcim/filtersets.py:666 netbox/dcim/filtersets.py:839
-#: netbox/dcim/filtersets.py:1081 netbox/dcim/filtersets.py:1189
-#: netbox/dcim/filtersets.py:1233 netbox/dcim/filtersets.py:1619
-#: netbox/dcim/filtersets.py:2471
+#: netbox/dcim/filtersets.py:1096 netbox/dcim/filtersets.py:1204
+#: netbox/dcim/filtersets.py:1248 netbox/dcim/filtersets.py:1634
+#: netbox/dcim/filtersets.py:2486
 msgid "Manufacturer (slug)"
 msgstr "Ražotājs (URL identifikators)"
 
@@ -3656,25 +3670,25 @@ msgstr "Statnes tips (URL identifikators)"
 msgid "Rack type (ID)"
 msgstr "Statnes veids (ID)"
 
-#: netbox/dcim/filtersets.py:484 netbox/dcim/filtersets.py:1086
-#: netbox/dcim/filtersets.py:1251 netbox/dcim/filtersets.py:2476
+#: netbox/dcim/filtersets.py:484 netbox/dcim/filtersets.py:1101
+#: netbox/dcim/filtersets.py:1266 netbox/dcim/filtersets.py:2491
 #: netbox/ipam/filtersets.py:295 netbox/ipam/filtersets.py:418
 #: netbox/ipam/filtersets.py:535 netbox/ipam/filtersets.py:1054
 #: netbox/virtualization/filtersets.py:258
 msgid "Role (ID)"
 msgstr "Loma (ID)"
 
-#: netbox/dcim/filtersets.py:491 netbox/dcim/filtersets.py:1093
-#: netbox/dcim/filtersets.py:1258 netbox/dcim/filtersets.py:2483
+#: netbox/dcim/filtersets.py:491 netbox/dcim/filtersets.py:1108
+#: netbox/dcim/filtersets.py:1273 netbox/dcim/filtersets.py:2498
 #: netbox/extras/filtersets.py:765 netbox/ipam/filtersets.py:302
 #: netbox/ipam/filtersets.py:425 netbox/ipam/filtersets.py:542
 #: netbox/ipam/filtersets.py:1061 netbox/virtualization/filtersets.py:265
 msgid "Role (slug)"
 msgstr "Loma (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:523 netbox/dcim/filtersets.py:1333
-#: netbox/dcim/filtersets.py:1696 netbox/dcim/filtersets.py:1803
-#: netbox/dcim/filtersets.py:2992
+#: netbox/dcim/filtersets.py:523 netbox/dcim/filtersets.py:1348
+#: netbox/dcim/filtersets.py:1711 netbox/dcim/filtersets.py:1818
+#: netbox/dcim/filtersets.py:3007
 msgid "Rack (ID)"
 msgstr "Statne (ID)"
 
@@ -3710,47 +3724,48 @@ msgid "Has a rear image"
 msgstr "Ir aizmugurējais attēls"
 
 #: netbox/dcim/filtersets.py:691 netbox/dcim/filtersets.py:843
-#: netbox/dcim/filtersets.py:1409 netbox/dcim/forms/filtersets.py:620
-#: netbox/dcim/forms/filtersets.py:741 netbox/dcim/forms/filtersets.py:983
+#: netbox/dcim/filtersets.py:1424 netbox/dcim/forms/filtersets.py:620
+#: netbox/dcim/forms/filtersets.py:741 netbox/dcim/forms/filtersets.py:990
 msgid "Has console ports"
 msgstr "Ir konsoles porti"
 
 #: netbox/dcim/filtersets.py:695 netbox/dcim/filtersets.py:847
-#: netbox/dcim/filtersets.py:1413 netbox/dcim/forms/filtersets.py:627
-#: netbox/dcim/forms/filtersets.py:748 netbox/dcim/forms/filtersets.py:990
+#: netbox/dcim/filtersets.py:1428 netbox/dcim/forms/filtersets.py:627
+#: netbox/dcim/forms/filtersets.py:748 netbox/dcim/forms/filtersets.py:997
 msgid "Has console server ports"
 msgstr "Ir konsoles servera porti"
 
 #: netbox/dcim/filtersets.py:699 netbox/dcim/filtersets.py:851
-#: netbox/dcim/filtersets.py:1417 netbox/dcim/forms/filtersets.py:634
-#: netbox/dcim/forms/filtersets.py:755 netbox/dcim/forms/filtersets.py:997
+#: netbox/dcim/filtersets.py:1432 netbox/dcim/forms/filtersets.py:634
+#: netbox/dcim/forms/filtersets.py:755 netbox/dcim/forms/filtersets.py:1004
 msgid "Has power ports"
 msgstr "Ir strāvas porti"
 
 #: netbox/dcim/filtersets.py:703 netbox/dcim/filtersets.py:855
-#: netbox/dcim/filtersets.py:1421 netbox/dcim/forms/filtersets.py:641
-#: netbox/dcim/forms/filtersets.py:762 netbox/dcim/forms/filtersets.py:1004
+#: netbox/dcim/filtersets.py:1436 netbox/dcim/forms/filtersets.py:641
+#: netbox/dcim/forms/filtersets.py:762 netbox/dcim/forms/filtersets.py:1011
 msgid "Has power outlets"
 msgstr "Ir strāvas kontaktligzdas"
 
 #: netbox/dcim/filtersets.py:707 netbox/dcim/filtersets.py:859
-#: netbox/dcim/filtersets.py:1425 netbox/dcim/forms/filtersets.py:648
-#: netbox/dcim/forms/filtersets.py:769 netbox/dcim/forms/filtersets.py:1011
+#: netbox/dcim/filtersets.py:1440 netbox/dcim/forms/filtersets.py:648
+#: netbox/dcim/forms/filtersets.py:769 netbox/dcim/forms/filtersets.py:1018
 msgid "Has interfaces"
 msgstr "Ir interfeisi"
 
 #: netbox/dcim/filtersets.py:711 netbox/dcim/filtersets.py:863
-#: netbox/dcim/filtersets.py:1429 netbox/dcim/forms/filtersets.py:655
-#: netbox/dcim/forms/filtersets.py:776 netbox/dcim/forms/filtersets.py:1018
+#: netbox/dcim/filtersets.py:1444 netbox/dcim/forms/filtersets.py:655
+#: netbox/dcim/forms/filtersets.py:776 netbox/dcim/forms/filtersets.py:1025
 msgid "Has pass-through ports"
 msgstr "Ir caurlaides porti"
 
-#: netbox/dcim/filtersets.py:715 netbox/dcim/filtersets.py:1433
-#: netbox/dcim/forms/filtersets.py:669
+#: netbox/dcim/filtersets.py:715 netbox/dcim/filtersets.py:867
+#: netbox/dcim/filtersets.py:1448 netbox/dcim/forms/filtersets.py:669
+#: netbox/dcim/forms/filtersets.py:783
 msgid "Has module bays"
 msgstr "Ir moduļu nodalījumi"
 
-#: netbox/dcim/filtersets.py:719 netbox/dcim/filtersets.py:1437
+#: netbox/dcim/filtersets.py:719 netbox/dcim/filtersets.py:1452
 #: netbox/dcim/forms/filtersets.py:662
 msgid "Has device bays"
 msgstr "Ir iekārtu nodalījumi"
@@ -3759,120 +3774,120 @@ msgstr "Ir iekārtu nodalījumi"
 msgid "Has inventory items"
 msgstr "Ir inventāra preces"
 
-#: netbox/dcim/filtersets.py:820 netbox/dcim/filtersets.py:1599
+#: netbox/dcim/filtersets.py:820 netbox/dcim/filtersets.py:1614
 #: netbox/extras/filtersets.py:698
 msgid "Profile (ID)"
 msgstr "Profils (ID)"
 
-#: netbox/dcim/filtersets.py:827 netbox/dcim/filtersets.py:1606
+#: netbox/dcim/filtersets.py:827 netbox/dcim/filtersets.py:1621
 #: netbox/extras/filtersets.py:705
 msgid "Profile (name)"
 msgstr "Profils (nosaukums)"
 
-#: netbox/dcim/filtersets.py:917 netbox/dcim/filtersets.py:1245
-#: netbox/dcim/filtersets.py:1828
+#: netbox/dcim/filtersets.py:932 netbox/dcim/filtersets.py:1260
+#: netbox/dcim/filtersets.py:1843
 msgid "Device type (ID)"
 msgstr "Iekārtas tips (ID)"
 
-#: netbox/dcim/filtersets.py:934 netbox/dcim/filtersets.py:1625
+#: netbox/dcim/filtersets.py:949 netbox/dcim/filtersets.py:1640
 msgid "Module type (ID)"
 msgstr "Moduļa tips (ID)"
 
-#: netbox/dcim/filtersets.py:972 netbox/dcim/filtersets.py:1997
+#: netbox/dcim/filtersets.py:987 netbox/dcim/filtersets.py:2012
 msgid "Power port (ID)"
 msgstr "Barošanas ports (ID)"
 
-#: netbox/dcim/filtersets.py:1021 netbox/dcim/filtersets.py:2383
+#: netbox/dcim/filtersets.py:1036 netbox/dcim/filtersets.py:2398
 msgid "Rear port (ID)"
 msgstr "Aizmugurējais ports (ID)"
 
-#: netbox/dcim/filtersets.py:1040 netbox/dcim/filtersets.py:2405
+#: netbox/dcim/filtersets.py:1055 netbox/dcim/filtersets.py:2420
 msgid "Front port (ID)"
 msgstr "Priekšējais ports (ID)"
 
-#: netbox/dcim/filtersets.py:1069 netbox/dcim/filtersets.py:2459
+#: netbox/dcim/filtersets.py:1084 netbox/dcim/filtersets.py:2474
 msgid "Parent inventory item (ID)"
 msgstr "Mātes inventāra vienība (ID)"
 
-#: netbox/dcim/filtersets.py:1118 netbox/dcim/filtersets.py:1198
-#: netbox/dcim/filtersets.py:1405 netbox/virtualization/filtersets.py:291
+#: netbox/dcim/filtersets.py:1133 netbox/dcim/filtersets.py:1213
+#: netbox/dcim/filtersets.py:1420 netbox/virtualization/filtersets.py:291
 msgid "Config template (ID)"
 msgstr "Konfigurācijas veidne (ID)"
 
-#: netbox/dcim/filtersets.py:1123 netbox/dcim/filtersets.py:1136
+#: netbox/dcim/filtersets.py:1138 netbox/dcim/filtersets.py:1151
 msgid "Parent device role (ID)"
 msgstr "Vecāk-iekārtas loma (ID)"
 
-#: netbox/dcim/filtersets.py:1130 netbox/dcim/filtersets.py:1143
+#: netbox/dcim/filtersets.py:1145 netbox/dcim/filtersets.py:1158
 msgid "Parent device role (slug)"
 msgstr "Vecāk-iekārtas loma (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1156
+#: netbox/dcim/filtersets.py:1171
 msgid "Immediate parent platform (ID)"
 msgstr "Tūlītēja vecāku platforma (ID)"
 
-#: netbox/dcim/filtersets.py:1163
+#: netbox/dcim/filtersets.py:1178
 msgid "Immediate parent platform (slug)"
 msgstr "Tūlītēja vecāk-platforma (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1169
+#: netbox/dcim/filtersets.py:1184
 msgid "Parent platform (ID)"
 msgstr "Vecāku platforma (ID)"
 
-#: netbox/dcim/filtersets.py:1176
+#: netbox/dcim/filtersets.py:1191
 msgid "Parent platform (slug)"
 msgstr "Vecāk-platforma (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1240
+#: netbox/dcim/filtersets.py:1255
 msgid "Device type (slug)"
 msgstr "Iekārtas tips (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1263
+#: netbox/dcim/filtersets.py:1278
 msgid "Parent Device (ID)"
 msgstr "Vecāk-iekārta (ID)"
 
-#: netbox/dcim/filtersets.py:1269 netbox/virtualization/filtersets.py:271
+#: netbox/dcim/filtersets.py:1284 netbox/virtualization/filtersets.py:271
 msgid "Platform (ID)"
 msgstr "Platforma (ID)"
 
-#: netbox/dcim/filtersets.py:1276 netbox/extras/filtersets.py:776
+#: netbox/dcim/filtersets.py:1291 netbox/extras/filtersets.py:776
 #: netbox/virtualization/filtersets.py:278
 msgid "Platform (slug)"
 msgstr "Platforma (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1314 netbox/dcim/filtersets.py:1677
-#: netbox/dcim/filtersets.py:1784 netbox/dcim/filtersets.py:2572
-#: netbox/dcim/filtersets.py:2919 netbox/dcim/filtersets.py:2981
+#: netbox/dcim/filtersets.py:1329 netbox/dcim/filtersets.py:1692
+#: netbox/dcim/filtersets.py:1799 netbox/dcim/filtersets.py:2587
+#: netbox/dcim/filtersets.py:2934 netbox/dcim/filtersets.py:2996
 msgid "Site name (slug)"
 msgstr "Vietas nosaukums (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1338
+#: netbox/dcim/filtersets.py:1353
 msgid "Parent bay (ID)"
 msgstr "Vecāk-nodalījums (ID)"
 
-#: netbox/dcim/filtersets.py:1343
+#: netbox/dcim/filtersets.py:1358
 msgid "VM cluster (ID)"
 msgstr "VM klasteris (ID)"
 
-#: netbox/dcim/filtersets.py:1350 netbox/extras/filtersets.py:798
+#: netbox/dcim/filtersets.py:1365 netbox/extras/filtersets.py:798
 #: netbox/virtualization/filtersets.py:175
 msgid "Cluster group (slug)"
 msgstr "Klāsteru grupa (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1356 netbox/virtualization/filtersets.py:168
+#: netbox/dcim/filtersets.py:1371 netbox/virtualization/filtersets.py:168
 msgid "Cluster group (ID)"
 msgstr "Klasteru grupa (ID)"
 
-#: netbox/dcim/filtersets.py:1363
+#: netbox/dcim/filtersets.py:1378
 msgid "Device model (slug)"
 msgstr "Iekārtas modelis (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1375 netbox/dcim/forms/bulk_edit.py:529
+#: netbox/dcim/filtersets.py:1390 netbox/dcim/forms/bulk_edit.py:529
 msgid "Is full depth"
 msgstr "Ir pilna dziļuma"
 
-#: netbox/dcim/filtersets.py:1379 netbox/dcim/forms/filtersets.py:953
-#: netbox/dcim/forms/filtersets.py:1695 netbox/dcim/forms/filtersets.py:2060
+#: netbox/dcim/filtersets.py:1394 netbox/dcim/forms/filtersets.py:960
+#: netbox/dcim/forms/filtersets.py:1702 netbox/dcim/forms/filtersets.py:2067
 #: netbox/dcim/forms/model_forms.py:1979 netbox/dcim/models/devices.py:1359
 #: netbox/dcim/models/devices.py:1383 netbox/dcim/ui/panels.py:383
 #: netbox/dcim/ui/panels.py:518 netbox/virtualization/filtersets.py:282
@@ -3882,84 +3897,84 @@ msgstr "Ir pilna dziļuma"
 msgid "MAC address"
 msgstr "MAC adrese"
 
-#: netbox/dcim/filtersets.py:1386 netbox/dcim/filtersets.py:1565
-#: netbox/dcim/forms/filtersets.py:962 netbox/dcim/forms/filtersets.py:1063
+#: netbox/dcim/filtersets.py:1401 netbox/dcim/filtersets.py:1580
+#: netbox/dcim/forms/filtersets.py:969 netbox/dcim/forms/filtersets.py:1070
 #: netbox/virtualization/filtersets.py:286
 #: netbox/virtualization/forms/filtersets.py:243
 msgid "Has a primary IP"
 msgstr "Ir primārā IP"
 
-#: netbox/dcim/filtersets.py:1390
+#: netbox/dcim/filtersets.py:1405
 msgid "Has an out-of-band IP"
 msgstr "Ir OOB IP"
 
-#: netbox/dcim/filtersets.py:1396
+#: netbox/dcim/filtersets.py:1411
 msgid "Virtual chassis (ID)"
 msgstr "Virtuālā šasija (ID)"
 
-#: netbox/dcim/filtersets.py:1400
+#: netbox/dcim/filtersets.py:1415
 msgid "Is a virtual chassis member"
 msgstr "Ir virtuāls šasijas loceklis"
 
-#: netbox/dcim/filtersets.py:1443
+#: netbox/dcim/filtersets.py:1458
 msgid "OOB IP (ID)"
 msgstr "OOB IP (ID)"
 
-#: netbox/dcim/filtersets.py:1447
+#: netbox/dcim/filtersets.py:1462
 msgid "Has virtual device context"
 msgstr "Ir virtuālās iekārtas konteksts"
 
-#: netbox/dcim/filtersets.py:1546
+#: netbox/dcim/filtersets.py:1561
 msgid "VDC (ID)"
 msgstr "VDC (ID)"
 
-#: netbox/dcim/filtersets.py:1552
+#: netbox/dcim/filtersets.py:1567
 msgid "Device model"
 msgstr "Iekārtas modelis"
 
-#: netbox/dcim/filtersets.py:1632
+#: netbox/dcim/filtersets.py:1647
 msgid "Module type (model)"
 msgstr "Moduļa tips (modelis)"
 
-#: netbox/dcim/filtersets.py:1638
+#: netbox/dcim/filtersets.py:1653
 msgid "Module bay (ID)"
 msgstr "Moduļu nodalījums (ID)"
 
-#: netbox/dcim/filtersets.py:1703 netbox/dcim/filtersets.py:1810
+#: netbox/dcim/filtersets.py:1718 netbox/dcim/filtersets.py:1825
 msgid "Rack (name)"
 msgstr "Statne (nosaukums)"
 
-#: netbox/dcim/filtersets.py:1708 netbox/dcim/filtersets.py:1815
-#: netbox/dcim/filtersets.py:2025 netbox/ipam/filtersets.py:659
+#: netbox/dcim/filtersets.py:1723 netbox/dcim/filtersets.py:1830
+#: netbox/dcim/filtersets.py:2040 netbox/ipam/filtersets.py:659
 #: netbox/ipam/filtersets.py:906 netbox/ipam/filtersets.py:1243
 #: netbox/virtualization/filtersets.py:205 netbox/vpn/filtersets.py:423
 msgid "Device (ID)"
 msgstr "Iekārta (ID)"
 
-#: netbox/dcim/filtersets.py:1715 netbox/dcim/filtersets.py:1822
-#: netbox/dcim/filtersets.py:2020 netbox/ipam/filtersets.py:654
+#: netbox/dcim/filtersets.py:1730 netbox/dcim/filtersets.py:1837
+#: netbox/dcim/filtersets.py:2035 netbox/ipam/filtersets.py:654
 #: netbox/ipam/filtersets.py:901 netbox/ipam/filtersets.py:1238
 #: netbox/vpn/filtersets.py:418
 msgid "Device (name)"
 msgstr "Iekārta (nosaukums)"
 
-#: netbox/dcim/filtersets.py:1835
+#: netbox/dcim/filtersets.py:1850
 msgid "Device type (model)"
 msgstr "Iekārtas tips (modelis)"
 
-#: netbox/dcim/filtersets.py:1841
+#: netbox/dcim/filtersets.py:1856
 msgid "Device role (ID)"
 msgstr "Iekārtas loma (ID)"
 
-#: netbox/dcim/filtersets.py:1848
+#: netbox/dcim/filtersets.py:1863
 msgid "Device role (slug)"
 msgstr "Iekārtas loma (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1854
+#: netbox/dcim/filtersets.py:1869
 msgid "Virtual Chassis (ID)"
 msgstr "Virtuālā šasija (ID)"
 
-#: netbox/dcim/filtersets.py:1861 netbox/dcim/forms/filtersets.py:130
+#: netbox/dcim/filtersets.py:1876 netbox/dcim/forms/filtersets.py:130
 #: netbox/dcim/forms/object_create.py:329 netbox/dcim/tables/devices.py:215
 #: netbox/netbox/navigation/menu.py:88
 #: netbox/templates/dcim/device_edit.html:95
@@ -3967,78 +3982,78 @@ msgstr "Virtuālā šasija (ID)"
 msgid "Virtual Chassis"
 msgstr "Virtuālā šasija"
 
-#: netbox/dcim/filtersets.py:1872 netbox/dcim/filtersets.py:2578
+#: netbox/dcim/filtersets.py:1887 netbox/dcim/filtersets.py:2593
 #: netbox/tenancy/filtersets.py:271
 msgid "Tenant (ID)"
 msgstr "Īrnieks (ID)"
 
-#: netbox/dcim/filtersets.py:1879 netbox/dcim/filtersets.py:2585
+#: netbox/dcim/filtersets.py:1894 netbox/dcim/filtersets.py:2600
 #: netbox/extras/filtersets.py:825 netbox/tenancy/filtersets.py:278
 msgid "Tenant (slug)"
 msgstr "Nomnieks (URL identifikators)"
 
-#: netbox/dcim/filtersets.py:1900
+#: netbox/dcim/filtersets.py:1915
 msgid "Module (ID)"
 msgstr "Modulis (ID)"
 
-#: netbox/dcim/filtersets.py:1908 netbox/dcim/filtersets.py:2812
+#: netbox/dcim/filtersets.py:1923 netbox/dcim/filtersets.py:2827
 msgid "Cable (ID)"
 msgstr "Kabelis (ID)"
 
-#: netbox/dcim/filtersets.py:2030 netbox/ipam/filtersets.py:664
+#: netbox/dcim/filtersets.py:2045 netbox/ipam/filtersets.py:664
 #: netbox/ipam/filtersets.py:911 netbox/ipam/filtersets.py:1248
 #: netbox/vpn/filtersets.py:429
 msgid "Virtual machine (name)"
 msgstr "Virtuālā mašīna (nosaukums)"
 
-#: netbox/dcim/filtersets.py:2035 netbox/ipam/filtersets.py:669
+#: netbox/dcim/filtersets.py:2050 netbox/ipam/filtersets.py:669
 #: netbox/ipam/filtersets.py:916 netbox/ipam/filtersets.py:1253
 #: netbox/virtualization/filtersets.py:347
 #: netbox/virtualization/filtersets.py:405 netbox/vpn/filtersets.py:434
 msgid "Virtual machine (ID)"
 msgstr "Virtuālā mašīna (ID)"
 
-#: netbox/dcim/filtersets.py:2041 netbox/ipam/filtersets.py:675
+#: netbox/dcim/filtersets.py:2056 netbox/ipam/filtersets.py:675
 #: netbox/vpn/filtersets.py:112 netbox/vpn/filtersets.py:440
 msgid "Interface (name)"
 msgstr "Interfeiss (nosaukums)"
 
-#: netbox/dcim/filtersets.py:2052 netbox/ipam/filtersets.py:686
+#: netbox/dcim/filtersets.py:2067 netbox/ipam/filtersets.py:686
 #: netbox/vpn/filtersets.py:123 netbox/vpn/filtersets.py:451
 msgid "VM interface (name)"
 msgstr "VM interfeiss (nosaukums)"
 
-#: netbox/dcim/filtersets.py:2057 netbox/ipam/filtersets.py:691
+#: netbox/dcim/filtersets.py:2072 netbox/ipam/filtersets.py:691
 #: netbox/vpn/filtersets.py:128
 msgid "VM interface (ID)"
 msgstr "VM interfeiss (ID)"
 
-#: netbox/dcim/filtersets.py:2061 netbox/ipam/filtersets.py:704
+#: netbox/dcim/filtersets.py:2076 netbox/ipam/filtersets.py:704
 msgid "Is assigned"
 msgstr "Ir piešķirts"
 
-#: netbox/dcim/filtersets.py:2065 netbox/dcim/forms/bulk_import.py:1365
+#: netbox/dcim/filtersets.py:2080 netbox/dcim/forms/bulk_import.py:1365
 #: netbox/ipam/forms/bulk_import.py:344
 msgid "Is primary"
 msgstr "Ir primārais"
 
-#: netbox/dcim/filtersets.py:2129
+#: netbox/dcim/filtersets.py:2144
 #: netbox/virtualization/forms/model_forms.py:468
 #: netbox/virtualization/ui/panels.py:95
 msgid "802.1Q Mode"
 msgstr "802.1Q režīms"
 
-#: netbox/dcim/filtersets.py:2133 netbox/ipam/forms/bulk_import.py:202
+#: netbox/dcim/filtersets.py:2148 netbox/ipam/forms/bulk_import.py:202
 #: netbox/vpn/forms/bulk_import.py:313
 msgid "Assigned VLAN"
 msgstr "Piešķirtais VLAN"
 
-#: netbox/dcim/filtersets.py:2137
+#: netbox/dcim/filtersets.py:2152
 msgid "Assigned VID"
 msgstr "Piešķirtais VID"
 
-#: netbox/dcim/filtersets.py:2143 netbox/dcim/forms/bulk_edit.py:1568
-#: netbox/dcim/forms/bulk_import.py:1050 netbox/dcim/forms/filtersets.py:1748
+#: netbox/dcim/filtersets.py:2158 netbox/dcim/forms/bulk_edit.py:1568
+#: netbox/dcim/forms/bulk_import.py:1050 netbox/dcim/forms/filtersets.py:1755
 #: netbox/dcim/forms/model_forms.py:1619
 #: netbox/dcim/models/device_components.py:942
 #: netbox/dcim/tables/devices.py:678 netbox/dcim/ui/panels.py:521
@@ -4068,18 +4083,18 @@ msgstr "Piešķirtais VID"
 msgid "VRF"
 msgstr "VRF"
 
-#: netbox/dcim/filtersets.py:2150 netbox/ipam/filtersets.py:379
+#: netbox/dcim/filtersets.py:2165 netbox/ipam/filtersets.py:379
 #: netbox/ipam/filtersets.py:390 netbox/ipam/filtersets.py:530
 #: netbox/ipam/filtersets.py:637 netbox/ipam/filtersets.py:648
 msgid "VRF (RD)"
 msgstr "VRF (RD)"
 
-#: netbox/dcim/filtersets.py:2155 netbox/ipam/filtersets.py:1096
+#: netbox/dcim/filtersets.py:2170 netbox/ipam/filtersets.py:1096
 #: netbox/vpn/filtersets.py:385
 msgid "L2VPN (ID)"
 msgstr "L2VPN (ID)"
 
-#: netbox/dcim/filtersets.py:2161 netbox/dcim/forms/filtersets.py:1753
+#: netbox/dcim/filtersets.py:2176 netbox/dcim/forms/filtersets.py:1760
 #: netbox/dcim/tables/devices.py:618 netbox/dcim/ui/panels.py:501
 #: netbox/ipam/filtersets.py:1102 netbox/ipam/forms/filtersets.py:634
 #: netbox/ipam/tables/vlans.py:120 netbox/ipam/ui/panels.py:207
@@ -4091,11 +4106,11 @@ msgstr "L2VPN (ID)"
 msgid "L2VPN"
 msgstr "L2VPN"
 
-#: netbox/dcim/filtersets.py:2167 netbox/ipam/filtersets.py:1182
+#: netbox/dcim/filtersets.py:2182 netbox/ipam/filtersets.py:1182
 msgid "VLAN Translation Policy (ID)"
 msgstr "VLAN pārveides politika (ID)"
 
-#: netbox/dcim/filtersets.py:2174 netbox/dcim/forms/filtersets.py:1719
+#: netbox/dcim/filtersets.py:2189 netbox/dcim/forms/filtersets.py:1726
 #: netbox/dcim/forms/model_forms.py:1636
 #: netbox/dcim/models/device_components.py:743
 #: netbox/ipam/forms/filtersets.py:552 netbox/ipam/forms/model_forms.py:733
@@ -4105,111 +4120,111 @@ msgstr "VLAN pārveides politika (ID)"
 msgid "VLAN Translation Policy"
 msgstr "VLAN pārveides politika"
 
-#: netbox/dcim/filtersets.py:2208
+#: netbox/dcim/filtersets.py:2223
 msgid "Virtual Chassis Interfaces for Device when device is master"
 msgstr "Virtuālās šasijas interfeiss iekārtai, kad iekārta ir galvenā"
 
-#: netbox/dcim/filtersets.py:2213
+#: netbox/dcim/filtersets.py:2228
 msgid "Virtual Chassis Interfaces for Device when device is master (ID)"
 msgstr "Virtuālās šasijas interfeiss iekārtai, kad iekārta ir galvenā (ID)"
 
-#: netbox/dcim/filtersets.py:2218
+#: netbox/dcim/filtersets.py:2233
 msgid "Virtual Chassis Interfaces for Device"
 msgstr "Virtuālās šasijas interfeisi iekārtai"
 
-#: netbox/dcim/filtersets.py:2223
+#: netbox/dcim/filtersets.py:2238
 msgid "Virtual Chassis Interfaces for Device (ID)"
 msgstr "Virtuālās šasijas interfeisi iekārtai (ID)"
 
-#: netbox/dcim/filtersets.py:2227
+#: netbox/dcim/filtersets.py:2242
 msgid "Kind of interface"
 msgstr "Interfeisa veids"
 
-#: netbox/dcim/filtersets.py:2233 netbox/virtualization/filtersets.py:360
+#: netbox/dcim/filtersets.py:2248 netbox/virtualization/filtersets.py:360
 msgid "Parent interface (ID)"
 msgstr "Vecāk-interfeiss (ID)"
 
-#: netbox/dcim/filtersets.py:2239 netbox/virtualization/filtersets.py:366
+#: netbox/dcim/filtersets.py:2254 netbox/virtualization/filtersets.py:366
 msgid "Bridged interface (ID)"
 msgstr "Tilta interfeiss (ID)"
 
-#: netbox/dcim/filtersets.py:2245
+#: netbox/dcim/filtersets.py:2260
 msgid "LAG interface (ID)"
 msgstr "LAG interfeiss (ID)"
 
-#: netbox/dcim/filtersets.py:2254 netbox/dcim/tables/devices.py:1226
+#: netbox/dcim/filtersets.py:2269 netbox/dcim/tables/devices.py:1224
 #: netbox/virtualization/ui/panels.py:104
 msgid "MAC Address"
 msgstr "MAC adrese"
 
-#: netbox/dcim/filtersets.py:2260 netbox/virtualization/filtersets.py:376
+#: netbox/dcim/filtersets.py:2275 netbox/virtualization/filtersets.py:376
 msgid "Primary MAC address (ID)"
 msgstr "Primārā MAC adrese (ID)"
 
-#: netbox/dcim/filtersets.py:2267 netbox/dcim/forms/model_forms.py:1623
+#: netbox/dcim/filtersets.py:2282 netbox/dcim/forms/model_forms.py:1623
 #: netbox/virtualization/filtersets.py:383
 #: netbox/virtualization/forms/model_forms.py:384
 msgid "Primary MAC address"
 msgstr "Primārā MAC adrese"
 
-#: netbox/dcim/filtersets.py:2294 netbox/dcim/filtersets.py:2306
-#: netbox/dcim/forms/filtersets.py:1655 netbox/dcim/forms/model_forms.py:1959
+#: netbox/dcim/filtersets.py:2309 netbox/dcim/filtersets.py:2321
+#: netbox/dcim/forms/filtersets.py:1662 netbox/dcim/forms/model_forms.py:1959
 msgid "Virtual Device Context"
 msgstr "Virtuālās iekārtas konteksts"
 
-#: netbox/dcim/filtersets.py:2300
+#: netbox/dcim/filtersets.py:2315
 msgid "Virtual Device Context (Identifier)"
 msgstr "Virtuālās iekārtas konteksts (identifikators)"
 
-#: netbox/dcim/filtersets.py:2311 netbox/wireless/forms/model_forms.py:54
+#: netbox/dcim/filtersets.py:2326 netbox/wireless/forms/model_forms.py:54
 msgid "Wireless LAN"
 msgstr "Bezvadu tīkli"
 
-#: netbox/dcim/filtersets.py:2316 netbox/dcim/tables/devices.py:665
+#: netbox/dcim/filtersets.py:2331 netbox/dcim/tables/devices.py:665
 msgid "Wireless link"
 msgstr "Bezvadu savienojums"
 
-#: netbox/dcim/filtersets.py:2326
+#: netbox/dcim/filtersets.py:2341
 msgid "Virtual circuit termination (ID)"
 msgstr "Virtuālā pieslēguma savienojums (ID)"
 
-#: netbox/dcim/filtersets.py:2421
+#: netbox/dcim/filtersets.py:2436
 msgid "Parent module bay (ID)"
 msgstr "Vecāku moduļa nodalījums (ID)"
 
-#: netbox/dcim/filtersets.py:2426
+#: netbox/dcim/filtersets.py:2441
 msgid "Installed module (ID)"
 msgstr "Uzstādītais modulis (ID)"
 
-#: netbox/dcim/filtersets.py:2439
+#: netbox/dcim/filtersets.py:2454
 msgid "Installed device (ID)"
 msgstr "Uzstādītā iekārta (ID)"
 
-#: netbox/dcim/filtersets.py:2446
+#: netbox/dcim/filtersets.py:2461
 msgid "Installed device (name)"
 msgstr "Uzstādītā iekārta (nosaukums)"
 
-#: netbox/dcim/filtersets.py:2526
+#: netbox/dcim/filtersets.py:2541
 msgid "Master (ID)"
 msgstr "Galvenais (ID)"
 
-#: netbox/dcim/filtersets.py:2533
+#: netbox/dcim/filtersets.py:2548
 msgid "Master (name)"
 msgstr "Galvenais (nosaukums)"
 
-#: netbox/dcim/filtersets.py:2639 netbox/dcim/forms/filtersets.py:1289
+#: netbox/dcim/filtersets.py:2654 netbox/dcim/forms/filtersets.py:1296
 msgid "Unterminated"
 msgstr "Neizbeigts"
 
-#: netbox/dcim/filtersets.py:2643
+#: netbox/dcim/filtersets.py:2658
 msgid "Cable bundle (ID)"
 msgstr "Kabeļu kūlis (ID)"
 
-#: netbox/dcim/filtersets.py:2649
+#: netbox/dcim/filtersets.py:2664
 msgid "Cable bundle (name)"
 msgstr "Kabeļu kūlis (nosaukums)"
 
-#: netbox/dcim/filtersets.py:2986
+#: netbox/dcim/filtersets.py:3001
 msgid "Power panel (ID)"
 msgstr "Barošanas panelis (ID)"
 
@@ -4227,8 +4242,8 @@ msgstr "Barošanas panelis (ID)"
 msgid "Tags"
 msgstr "Birkas"
 
-#: netbox/dcim/forms/bulk_create.py:120 netbox/dcim/forms/filtersets.py:1902
-#: netbox/dcim/forms/filtersets.py:1921 netbox/dcim/forms/model_forms.py:640
+#: netbox/dcim/forms/bulk_create.py:120 netbox/dcim/forms/filtersets.py:1909
+#: netbox/dcim/forms/filtersets.py:1928 netbox/dcim/forms/model_forms.py:640
 #: netbox/dcim/forms/model_forms.py:707 netbox/dcim/forms/object_create.py:155
 #: netbox/dcim/forms/object_create.py:256 netbox/dcim/tables/devices.py:169
 #: netbox/templates/dcim/panels/front_port_mappings.html:9
@@ -4276,14 +4291,14 @@ msgstr "Laika josla"
 #: netbox/dcim/forms/bulk_import.py:602 netbox/dcim/forms/bulk_import.py:1233
 #: netbox/dcim/forms/filtersets.py:355 netbox/dcim/forms/filtersets.py:426
 #: netbox/dcim/forms/filtersets.py:578 netbox/dcim/forms/filtersets.py:728
-#: netbox/dcim/forms/filtersets.py:834 netbox/dcim/forms/filtersets.py:917
-#: netbox/dcim/forms/filtersets.py:1133 netbox/dcim/forms/filtersets.py:1988
-#: netbox/dcim/forms/filtersets.py:2028 netbox/dcim/forms/model_forms.py:263
+#: netbox/dcim/forms/filtersets.py:841 netbox/dcim/forms/filtersets.py:924
+#: netbox/dcim/forms/filtersets.py:1140 netbox/dcim/forms/filtersets.py:1995
+#: netbox/dcim/forms/filtersets.py:2035 netbox/dcim/forms/model_forms.py:263
 #: netbox/dcim/forms/model_forms.py:399 netbox/dcim/forms/model_forms.py:411
 #: netbox/dcim/forms/model_forms.py:481 netbox/dcim/forms/model_forms.py:585
 #: netbox/dcim/forms/model_forms.py:1303 netbox/dcim/forms/model_forms.py:1786
 #: netbox/dcim/forms/object_import.py:204 netbox/dcim/tables/devices.py:101
-#: netbox/dcim/tables/devices.py:176 netbox/dcim/tables/devices.py:1067
+#: netbox/dcim/tables/devices.py:176 netbox/dcim/tables/devices.py:1065
 #: netbox/dcim/tables/devicetypes.py:87 netbox/dcim/tables/devicetypes.py:328
 #: netbox/dcim/tables/modules.py:47 netbox/dcim/tables/modules.py:92
 #: netbox/dcim/tables/racks.py:75 netbox/dcim/tables/racks.py:149
@@ -4344,7 +4359,7 @@ msgstr "Montāžas dziļums"
 #: netbox/dcim/forms/filtersets.py:326 netbox/dcim/forms/filtersets.py:348
 #: netbox/dcim/forms/filtersets.py:373 netbox/dcim/forms/filtersets.py:458
 #: netbox/dcim/forms/filtersets.py:571 netbox/dcim/forms/filtersets.py:683
-#: netbox/dcim/forms/filtersets.py:715 netbox/dcim/forms/filtersets.py:788
+#: netbox/dcim/forms/filtersets.py:715 netbox/dcim/forms/filtersets.py:795
 #: netbox/dcim/forms/model_forms.py:277 netbox/dcim/forms/model_forms.py:363
 #: netbox/dcim/tables/devicetypes.py:110 netbox/dcim/tables/modules.py:55
 #: netbox/dcim/tables/racks.py:95 netbox/dcim/tables/racks.py:190
@@ -4368,7 +4383,7 @@ msgstr "Maksimālais svars"
 #: netbox/dcim/forms/bulk_import.py:236 netbox/dcim/forms/bulk_import.py:328
 #: netbox/dcim/forms/bulk_import.py:450 netbox/dcim/forms/bulk_import.py:498
 #: netbox/dcim/forms/filtersets.py:336 netbox/dcim/forms/filtersets.py:687
-#: netbox/dcim/forms/filtersets.py:792
+#: netbox/dcim/forms/filtersets.py:799
 msgid "Weight unit"
 msgstr "Svara vienība"
 
@@ -4409,8 +4424,8 @@ msgid "Serial Number"
 msgstr "Sērijas numurs"
 
 #: netbox/dcim/forms/bulk_edit.py:387 netbox/dcim/forms/filtersets.py:446
-#: netbox/dcim/forms/filtersets.py:948 netbox/dcim/forms/filtersets.py:1160
-#: netbox/dcim/forms/filtersets.py:1995
+#: netbox/dcim/forms/filtersets.py:955 netbox/dcim/forms/filtersets.py:1167
+#: netbox/dcim/forms/filtersets.py:2002
 msgid "Asset tag"
 msgstr "Inventāra numurs"
 
@@ -4418,8 +4433,8 @@ msgstr "Inventāra numurs"
 #: netbox/dcim/forms/bulk_edit.py:593 netbox/dcim/forms/bulk_edit.py:724
 #: netbox/dcim/forms/bulk_import.py:322 netbox/dcim/forms/bulk_import.py:487
 #: netbox/dcim/forms/bulk_import.py:696 netbox/dcim/forms/filtersets.py:437
-#: netbox/dcim/forms/filtersets.py:600 netbox/dcim/forms/filtersets.py:783
-#: netbox/dcim/forms/filtersets.py:939
+#: netbox/dcim/forms/filtersets.py:600 netbox/dcim/forms/filtersets.py:790
+#: netbox/dcim/forms/filtersets.py:946
 msgid "Airflow"
 msgstr "Gaisa plūsmas virziens"
 
@@ -4429,8 +4444,8 @@ msgstr "Gaisa plūsmas virziens"
 #: netbox/dcim/forms/bulk_import.py:1751 netbox/dcim/forms/filtersets.py:125
 #: netbox/dcim/forms/filtersets.py:370 netbox/dcim/forms/filtersets.py:465
 #: netbox/dcim/forms/filtersets.py:479 netbox/dcim/forms/filtersets.py:525
-#: netbox/dcim/forms/filtersets.py:907 netbox/dcim/forms/filtersets.py:1123
-#: netbox/dcim/forms/filtersets.py:1242 netbox/dcim/forms/filtersets.py:1386
+#: netbox/dcim/forms/filtersets.py:914 netbox/dcim/forms/filtersets.py:1130
+#: netbox/dcim/forms/filtersets.py:1249 netbox/dcim/forms/filtersets.py:1393
 #: netbox/dcim/forms/model_forms.py:327 netbox/dcim/forms/model_forms.py:371
 #: netbox/dcim/forms/model_forms.py:631 netbox/dcim/forms/model_forms.py:933
 #: netbox/dcim/forms/object_create.py:303 netbox/dcim/tables/devices.py:165
@@ -4445,7 +4460,7 @@ msgstr "Statne"
 #: netbox/dcim/forms/bulk_edit.py:464 netbox/dcim/forms/bulk_edit.py:751
 #: netbox/dcim/forms/filtersets.py:371 netbox/dcim/forms/filtersets.py:457
 #: netbox/dcim/forms/filtersets.py:564 netbox/dcim/forms/filtersets.py:709
-#: netbox/dcim/forms/filtersets.py:855 netbox/dcim/forms/filtersets.py:1078
+#: netbox/dcim/forms/filtersets.py:862 netbox/dcim/forms/filtersets.py:1085
 #: netbox/dcim/forms/model_forms.py:489 netbox/dcim/forms/model_forms.py:833
 #: netbox/dcim/forms/model_forms.py:1854
 #: netbox/templates/dcim/device_edit.html:22
@@ -4493,7 +4508,7 @@ msgstr "Struktūra"
 #: netbox/dcim/forms/bulk_edit.py:572 netbox/dcim/forms/bulk_edit.py:579
 #: netbox/dcim/forms/bulk_edit.py:828 netbox/dcim/forms/bulk_import.py:476
 #: netbox/dcim/forms/bulk_import.py:1509 netbox/dcim/forms/filtersets.py:723
-#: netbox/dcim/forms/filtersets.py:1139 netbox/dcim/forms/filtersets.py:1271
+#: netbox/dcim/forms/filtersets.py:1146 netbox/dcim/forms/filtersets.py:1278
 #: netbox/dcim/forms/model_forms.py:463 netbox/dcim/forms/model_forms.py:476
 #: netbox/dcim/tables/modules.py:43 netbox/dcim/tables/modules.py:97
 #: netbox/extras/forms/filtersets.py:418
@@ -4505,13 +4520,13 @@ msgstr "Struktūra"
 msgid "Profile"
 msgstr "Profils"
 
-#: netbox/dcim/forms/bulk_edit.py:611 netbox/dcim/forms/filtersets.py:1440
+#: netbox/dcim/forms/bulk_edit.py:611 netbox/dcim/forms/filtersets.py:1447
 #: netbox/dcim/forms/model_forms.py:488 netbox/dcim/forms/model_forms.py:1085
 #: netbox/dcim/forms/model_forms.py:1129 netbox/dcim/forms/model_forms.py:1156
 #: netbox/dcim/forms/model_forms.py:1184 netbox/dcim/forms/model_forms.py:1205
 #: netbox/dcim/forms/model_forms.py:1245 netbox/dcim/forms/model_forms.py:1263
 #: netbox/dcim/forms/object_create.py:120 netbox/dcim/tables/modules.py:52
-#: netbox/dcim/tables/modules.py:102 netbox/dcim/views.py:2948
+#: netbox/dcim/tables/modules.py:102 netbox/dcim/views.py:2958
 msgid "Module Type"
 msgstr "Moduļa tips"
 
@@ -4528,8 +4543,8 @@ msgstr "VM loma"
 #: netbox/dcim/forms/bulk_edit.py:734 netbox/dcim/forms/bulk_import.py:540
 #: netbox/dcim/forms/bulk_import.py:544 netbox/dcim/forms/bulk_import.py:573
 #: netbox/dcim/forms/bulk_import.py:577 netbox/dcim/forms/bulk_import.py:702
-#: netbox/dcim/forms/bulk_import.py:706 netbox/dcim/forms/filtersets.py:808
-#: netbox/dcim/forms/filtersets.py:839 netbox/dcim/forms/filtersets.py:958
+#: netbox/dcim/forms/bulk_import.py:706 netbox/dcim/forms/filtersets.py:815
+#: netbox/dcim/forms/filtersets.py:846 netbox/dcim/forms/filtersets.py:965
 #: netbox/dcim/forms/model_forms.py:554 netbox/dcim/forms/model_forms.py:591
 #: netbox/dcim/forms/model_forms.py:716
 #: netbox/virtualization/forms/bulk_import.py:171
@@ -4541,7 +4556,7 @@ msgstr "Konfigurācijas veidne"
 
 #: netbox/dcim/forms/bulk_edit.py:680 netbox/dcim/forms/bulk_edit.py:1086
 #: netbox/dcim/forms/bulk_import.py:608 netbox/dcim/forms/filtersets.py:135
-#: netbox/dcim/forms/filtersets.py:1431 netbox/dcim/forms/model_forms.py:661
+#: netbox/dcim/forms/filtersets.py:1438 netbox/dcim/forms/model_forms.py:661
 #: netbox/dcim/forms/model_forms.py:1048 netbox/dcim/forms/model_forms.py:1065
 #: netbox/extras/filtersets.py:754
 msgid "Device type"
@@ -4553,7 +4568,7 @@ msgid "Device role"
 msgstr "iekārtas loma"
 
 #: netbox/dcim/forms/bulk_edit.py:714 netbox/dcim/forms/bulk_import.py:614
-#: netbox/dcim/forms/filtersets.py:822 netbox/dcim/forms/filtersets.py:931
+#: netbox/dcim/forms/filtersets.py:829 netbox/dcim/forms/filtersets.py:938
 #: netbox/dcim/forms/model_forms.py:602 netbox/dcim/forms/model_forms.py:674
 #: netbox/dcim/tables/devices.py:191 netbox/extras/filtersets.py:770
 #: netbox/virtualization/forms/bulk_edit.py:164
@@ -4565,7 +4580,7 @@ msgid "Platform"
 msgstr "Platforma"
 
 #: netbox/dcim/forms/bulk_edit.py:739 netbox/dcim/forms/bulk_import.py:633
-#: netbox/dcim/forms/filtersets.py:863 netbox/dcim/forms/filtersets.py:1033
+#: netbox/dcim/forms/filtersets.py:870 netbox/dcim/forms/filtersets.py:1040
 #: netbox/dcim/forms/model_forms.py:683 netbox/dcim/tables/devices.py:211
 #: netbox/extras/filtersets.py:803 netbox/extras/forms/filtersets.py:411
 #: netbox/ipam/forms/filtersets.py:468 netbox/ipam/forms/filtersets.py:507
@@ -4599,7 +4614,7 @@ msgid "Module type"
 msgstr "Moduļa tips"
 
 #: netbox/dcim/forms/bulk_edit.py:839 netbox/dcim/forms/bulk_import.py:1528
-#: netbox/dcim/forms/filtersets.py:1298 netbox/dcim/forms/model_forms.py:888
+#: netbox/dcim/forms/filtersets.py:1305 netbox/dcim/forms/model_forms.py:888
 #: netbox/dcim/tables/cables.py:124
 msgid "Bundle"
 msgstr "Kūlis"
@@ -4618,12 +4633,12 @@ msgstr "Kūlis"
 msgid "Label"
 msgstr "Etiķete"
 
-#: netbox/dcim/forms/bulk_edit.py:853 netbox/dcim/forms/filtersets.py:1280
+#: netbox/dcim/forms/bulk_edit.py:853 netbox/dcim/forms/filtersets.py:1287
 msgid "Length"
 msgstr "Garums"
 
 #: netbox/dcim/forms/bulk_edit.py:858 netbox/dcim/forms/bulk_import.py:1535
-#: netbox/dcim/forms/bulk_import.py:1538 netbox/dcim/forms/filtersets.py:1284
+#: netbox/dcim/forms/bulk_import.py:1538 netbox/dcim/forms/filtersets.py:1291
 msgid "Length unit"
 msgstr "Garuma vienība"
 
@@ -4632,29 +4647,29 @@ msgid "Domain"
 msgstr "Domēns"
 
 #: netbox/dcim/forms/bulk_edit.py:932 netbox/dcim/forms/bulk_import.py:1734
-#: netbox/dcim/forms/filtersets.py:1377 netbox/dcim/forms/model_forms.py:927
+#: netbox/dcim/forms/filtersets.py:1384 netbox/dcim/forms/model_forms.py:927
 msgid "Power panel"
 msgstr "Strāvas panelis"
 
 #: netbox/dcim/forms/bulk_edit.py:954 netbox/dcim/forms/bulk_import.py:1770
-#: netbox/dcim/forms/filtersets.py:1399
+#: netbox/dcim/forms/filtersets.py:1406
 msgid "Supply"
 msgstr "Piegāde"
 
 #: netbox/dcim/forms/bulk_edit.py:960 netbox/dcim/forms/bulk_import.py:1775
-#: netbox/dcim/forms/filtersets.py:1404
+#: netbox/dcim/forms/filtersets.py:1411
 msgid "Phase"
 msgstr "fāze"
 
-#: netbox/dcim/forms/bulk_edit.py:966 netbox/dcim/forms/filtersets.py:1409
+#: netbox/dcim/forms/bulk_edit.py:966 netbox/dcim/forms/filtersets.py:1416
 msgid "Voltage"
 msgstr "Spriegums"
 
-#: netbox/dcim/forms/bulk_edit.py:970 netbox/dcim/forms/filtersets.py:1413
+#: netbox/dcim/forms/bulk_edit.py:970 netbox/dcim/forms/filtersets.py:1420
 msgid "Amperage"
 msgstr "Strāvas stiprums"
 
-#: netbox/dcim/forms/bulk_edit.py:974 netbox/dcim/forms/filtersets.py:1417
+#: netbox/dcim/forms/bulk_edit.py:974 netbox/dcim/forms/filtersets.py:1424
 msgid "Max utilization"
 msgstr "Maksimālais izlietojums"
 
@@ -4689,28 +4704,28 @@ msgid "Feed leg"
 msgstr "Barošanas kāja"
 
 #: netbox/dcim/forms/bulk_edit.py:1158 netbox/dcim/forms/bulk_edit.py:1489
-#: netbox/dcim/forms/filtersets.py:1780 netbox/dcim/ui/panels.py:492
+#: netbox/dcim/forms/filtersets.py:1787 netbox/dcim/ui/panels.py:492
 msgid "Management only"
 msgstr "Tikai vadība"
 
 #: netbox/dcim/forms/bulk_edit.py:1168 netbox/dcim/forms/bulk_edit.py:1495
-#: netbox/dcim/forms/bulk_import.py:1001 netbox/dcim/forms/filtersets.py:1704
-#: netbox/dcim/forms/filtersets.py:1789 netbox/dcim/forms/object_import.py:91
+#: netbox/dcim/forms/bulk_import.py:1001 netbox/dcim/forms/filtersets.py:1711
+#: netbox/dcim/forms/filtersets.py:1796 netbox/dcim/forms/object_import.py:91
 #: netbox/dcim/models/device_component_templates.py:472
 #: netbox/dcim/models/device_components.py:914 netbox/dcim/ui/panels.py:494
 msgid "PoE mode"
 msgstr "PoE režīms"
 
 #: netbox/dcim/forms/bulk_edit.py:1174 netbox/dcim/forms/bulk_edit.py:1501
-#: netbox/dcim/forms/bulk_import.py:1007 netbox/dcim/forms/filtersets.py:1709
-#: netbox/dcim/forms/filtersets.py:1794 netbox/dcim/forms/object_import.py:96
+#: netbox/dcim/forms/bulk_import.py:1007 netbox/dcim/forms/filtersets.py:1716
+#: netbox/dcim/forms/filtersets.py:1801 netbox/dcim/forms/object_import.py:96
 #: netbox/dcim/models/device_component_templates.py:479
 #: netbox/dcim/models/device_components.py:921 netbox/dcim/ui/panels.py:495
 msgid "PoE type"
 msgstr "PoE tips"
 
-#: netbox/dcim/forms/bulk_edit.py:1180 netbox/dcim/forms/filtersets.py:1724
-#: netbox/dcim/forms/filtersets.py:1799 netbox/dcim/forms/object_import.py:101
+#: netbox/dcim/forms/bulk_edit.py:1180 netbox/dcim/forms/filtersets.py:1731
+#: netbox/dcim/forms/filtersets.py:1806 netbox/dcim/forms/object_import.py:101
 msgid "Wireless role"
 msgstr "Bezvada loma"
 
@@ -4741,7 +4756,7 @@ msgstr "Režīms"
 
 #: netbox/dcim/forms/bulk_edit.py:1517 netbox/dcim/forms/bulk_import.py:1016
 #: netbox/dcim/forms/model_forms.py:1585 netbox/ipam/forms/bulk_import.py:184
-#: netbox/ipam/forms/filtersets.py:603 netbox/ipam/models/vlans.py:92
+#: netbox/ipam/forms/filtersets.py:603 netbox/ipam/models/vlans.py:99
 #: netbox/virtualization/forms/bulk_edit.py:251
 #: netbox/virtualization/forms/bulk_import.py:211
 #: netbox/virtualization/forms/model_forms.py:408
@@ -4791,7 +4806,7 @@ msgstr "Bezvadu tīkla grupa"
 msgid "Wireless LANs"
 msgstr "Bezvadu tīkli"
 
-#: netbox/dcim/forms/bulk_edit.py:1587 netbox/dcim/forms/filtersets.py:1635
+#: netbox/dcim/forms/bulk_edit.py:1587 netbox/dcim/forms/filtersets.py:1642
 #: netbox/dcim/forms/model_forms.py:1643 netbox/dcim/ui/panels.py:513
 #: netbox/ipam/forms/bulk_edit.py:232 netbox/ipam/forms/bulk_edit.py:318
 #: netbox/ipam/forms/filtersets.py:196 netbox/netbox/navigation/menu.py:118
@@ -4802,14 +4817,14 @@ msgstr "Bezvadu tīkli"
 msgid "Addressing"
 msgstr "Adresošana"
 
-#: netbox/dcim/forms/bulk_edit.py:1588 netbox/dcim/forms/filtersets.py:854
+#: netbox/dcim/forms/bulk_edit.py:1588 netbox/dcim/forms/filtersets.py:861
 #: netbox/dcim/forms/model_forms.py:1644
 #: netbox/virtualization/forms/model_forms.py:452
 msgid "Operation"
 msgstr "Darbība"
 
-#: netbox/dcim/forms/bulk_edit.py:1589 netbox/dcim/forms/filtersets.py:1636
-#: netbox/dcim/forms/filtersets.py:1763 netbox/dcim/forms/model_forms.py:1188
+#: netbox/dcim/forms/bulk_edit.py:1589 netbox/dcim/forms/filtersets.py:1643
+#: netbox/dcim/forms/filtersets.py:1770 netbox/dcim/forms/model_forms.py:1188
 #: netbox/dcim/forms/model_forms.py:1646
 msgid "PoE"
 msgstr "PoE"
@@ -4820,7 +4835,7 @@ msgstr "PoE"
 msgid "Related Interfaces"
 msgstr "Saistītie interfeisi"
 
-#: netbox/dcim/forms/bulk_edit.py:1592 netbox/dcim/forms/filtersets.py:1637
+#: netbox/dcim/forms/bulk_edit.py:1592 netbox/dcim/forms/filtersets.py:1644
 #: netbox/dcim/forms/model_forms.py:1649
 #: netbox/virtualization/forms/bulk_edit.py:286
 #: netbox/virtualization/forms/filtersets.py:267
@@ -5134,7 +5149,7 @@ msgstr ""
 msgid "Physical medium"
 msgstr "Fiziskais līdzeklis"
 
-#: netbox/dcim/forms/bulk_import.py:993 netbox/dcim/forms/filtersets.py:1675
+#: netbox/dcim/forms/bulk_import.py:993 netbox/dcim/forms/filtersets.py:1682
 msgid "Duplex"
 msgstr "Duplekss"
 
@@ -5395,7 +5410,7 @@ msgstr ""
 "sešām rakstzīmēm: nederīgs hex."
 
 #: netbox/dcim/forms/bulk_import.py:1682 netbox/dcim/forms/model_forms.py:962
-#: netbox/dcim/tables/devices.py:1156
+#: netbox/dcim/tables/devices.py:1154
 #: netbox/templates/dcim/panels/virtual_chassis_members.html:10
 msgid "Master"
 msgstr "Galvenais"
@@ -5467,7 +5482,7 @@ msgid "Power Panel"
 msgstr "Barošanas panelis"
 
 #: netbox/dcim/forms/connections.py:68 netbox/dcim/forms/model_forms.py:942
-#: netbox/dcim/views.py:3203
+#: netbox/dcim/views.py:3215
 msgid "Power Feed"
 msgstr "Strāvas padeve"
 
@@ -5515,7 +5530,7 @@ msgid "Images"
 msgstr "Attēli"
 
 #: netbox/dcim/forms/filtersets.py:569 netbox/dcim/forms/filtersets.py:713
-#: netbox/dcim/forms/filtersets.py:861
+#: netbox/dcim/forms/filtersets.py:868
 msgid "Components"
 msgstr "Komponenti"
 
@@ -5531,79 +5546,79 @@ msgstr "Apakšiekārtas loma"
 msgid "Module count"
 msgstr "Moduļu skaits"
 
-#: netbox/dcim/forms/filtersets.py:802 netbox/dcim/forms/model_forms.py:567
+#: netbox/dcim/forms/filtersets.py:809 netbox/dcim/forms/model_forms.py:567
 msgid "Device Role"
 msgstr "Iekārtas loma"
 
-#: netbox/dcim/forms/filtersets.py:925 netbox/dcim/tables/racks.py:71
+#: netbox/dcim/forms/filtersets.py:932 netbox/dcim/tables/racks.py:71
 #: netbox/templates/dcim/panels/module_type.html:11
 msgid "Model"
 msgstr "Modelis"
 
-#: netbox/dcim/forms/filtersets.py:969
+#: netbox/dcim/forms/filtersets.py:976
 msgid "Has an OOB IP"
 msgstr "Ir OOB IP"
 
-#: netbox/dcim/forms/filtersets.py:976
+#: netbox/dcim/forms/filtersets.py:983
 msgid "Virtual chassis member"
 msgstr "Virtuālais šasijas loceklis"
 
-#: netbox/dcim/forms/filtersets.py:1025
+#: netbox/dcim/forms/filtersets.py:1032
 msgid "Has virtual device contexts"
 msgstr "Ir virtuālo iekārtu konteksts"
 
-#: netbox/dcim/forms/filtersets.py:1038 netbox/extras/filtersets.py:792
+#: netbox/dcim/forms/filtersets.py:1045 netbox/extras/filtersets.py:792
 #: netbox/ipam/forms/filtersets.py:512
 #: netbox/virtualization/forms/filtersets.py:174
 msgid "Cluster group"
 msgstr "Klasteru grupa"
 
-#: netbox/dcim/forms/filtersets.py:1446
+#: netbox/dcim/forms/filtersets.py:1453
 msgid "Cabled"
 msgstr "Ar kabeļiem"
 
-#: netbox/dcim/forms/filtersets.py:1453
+#: netbox/dcim/forms/filtersets.py:1460
 msgid "Occupied"
 msgstr "Aizņemts"
 
-#: netbox/dcim/forms/filtersets.py:1658 netbox/extras/forms/bulk_edit.py:433
+#: netbox/dcim/forms/filtersets.py:1665 netbox/extras/forms/bulk_edit.py:433
 #: netbox/extras/forms/bulk_import.py:332
 #: netbox/extras/forms/filtersets.py:595
 #: netbox/extras/forms/model_forms.py:877 netbox/extras/tables/tables.py:765
 msgid "Kind"
 msgstr "Veids"
 
-#: netbox/dcim/forms/filtersets.py:1687
+#: netbox/dcim/forms/filtersets.py:1694
 msgid "Mgmt only"
 msgstr "Tikai MGMT"
 
-#: netbox/dcim/forms/filtersets.py:1699 netbox/dcim/forms/model_forms.py:1631
+#: netbox/dcim/forms/filtersets.py:1706 netbox/dcim/forms/model_forms.py:1631
 #: netbox/dcim/models/device_components.py:867 netbox/dcim/ui/panels.py:520
 msgid "WWN"
 msgstr "WWN"
 
-#: netbox/dcim/forms/filtersets.py:1714 netbox/dcim/ui/panels.py:496
+#: netbox/dcim/forms/filtersets.py:1721 netbox/dcim/ui/panels.py:496
 #: netbox/virtualization/forms/filtersets.py:308
 msgid "802.1Q mode"
 msgstr "802.1Q režīms"
 
-#: netbox/dcim/forms/filtersets.py:1729
+#: netbox/dcim/forms/filtersets.py:1736
 msgid "Wireless channel"
 msgstr "Radio kanāls"
 
-#: netbox/dcim/forms/filtersets.py:1733
+#: netbox/dcim/forms/filtersets.py:1740
 msgid "Channel frequency (MHz)"
 msgstr "Kanāla frekvence (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1737
+#: netbox/dcim/forms/filtersets.py:1744
 msgid "Channel width (MHz)"
 msgstr "Kanāla platums (MHz)"
 
-#: netbox/dcim/forms/filtersets.py:1741
+#: netbox/dcim/forms/filtersets.py:1748
 msgid "Transmit power (dBm)"
 msgstr "Pārraides jauda (dBm)"
 
-#: netbox/dcim/forms/filtersets.py:1812 netbox/dcim/forms/filtersets.py:1856
+#: netbox/dcim/forms/filtersets.py:1819 netbox/dcim/forms/filtersets.py:1863
 #: netbox/dcim/tables/devices.py:344 netbox/templates/dcim/cable_trace.html:46
 #: netbox/templates/dcim/htmx/cable_edit.html:53
 #: netbox/templates/dcim/inc/connection_endpoints.html:4
@@ -5614,23 +5629,23 @@ msgstr "Pārraides jauda (dBm)"
 msgid "Cable"
 msgstr "Kabelis"
 
-#: netbox/dcim/forms/filtersets.py:1999 netbox/dcim/tables/devices.py:1076
+#: netbox/dcim/forms/filtersets.py:2006 netbox/dcim/tables/devices.py:1074
 msgid "Discovered"
 msgstr "Atklāts"
 
-#: netbox/dcim/forms/filtersets.py:2065 netbox/ipam/forms/filtersets.py:394
+#: netbox/dcim/forms/filtersets.py:2072 netbox/ipam/forms/filtersets.py:394
 msgid "Assigned Device"
 msgstr "Piešķirtā iekārta"
 
-#: netbox/dcim/forms/filtersets.py:2070 netbox/ipam/forms/filtersets.py:399
+#: netbox/dcim/forms/filtersets.py:2077 netbox/ipam/forms/filtersets.py:399
 msgid "Assigned VM"
 msgstr "Piešķirtais VM"
 
-#: netbox/dcim/forms/filtersets.py:2074 netbox/ipam/forms/filtersets.py:418
+#: netbox/dcim/forms/filtersets.py:2081 netbox/ipam/forms/filtersets.py:418
 msgid "Assigned to an interface"
 msgstr "Piešķirts interfeisam"
 
-#: netbox/dcim/forms/filtersets.py:2081
+#: netbox/dcim/forms/filtersets.py:2088
 msgid "Primary MAC of an interface"
 msgstr "Interfeisa primārā MAC adrese"
 
@@ -5840,19 +5855,19 @@ msgid "Rear port template"
 msgstr "Aizmugurējā porta veidne"
 
 #: netbox/dcim/forms/model_forms.py:1373 netbox/dcim/forms/model_forms.py:1858
-#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3113
-#: netbox/dcim/views.py:3558
+#: netbox/dcim/tables/connections.py:28 netbox/dcim/views.py:3124
+#: netbox/dcim/views.py:3573
 msgid "Console Port"
 msgstr "Konsoles ports"
 
 #: netbox/dcim/forms/model_forms.py:1374 netbox/dcim/forms/model_forms.py:1859
-#: netbox/dcim/views.py:3023 netbox/dcim/views.py:3557
+#: netbox/dcim/views.py:3033 netbox/dcim/views.py:3572
 msgid "Console Server Port"
 msgstr "Konsoles servera ports"
 
 #: netbox/dcim/forms/model_forms.py:1375 netbox/dcim/forms/model_forms.py:1860
-#: netbox/dcim/views.py:3025 netbox/dcim/views.py:3114
-#: netbox/dcim/views.py:3559 netbox/dcim/views.py:3660
+#: netbox/dcim/views.py:3035 netbox/dcim/views.py:3125
+#: netbox/dcim/views.py:3574 netbox/dcim/views.py:3676
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:41
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:57
 #: netbox/templates/dcim/panels/interface_connection.html:86
@@ -5861,8 +5876,8 @@ msgid "Front Port"
 msgstr "Priekšējais ports"
 
 #: netbox/dcim/forms/model_forms.py:1376 netbox/dcim/forms/model_forms.py:1861
-#: netbox/dcim/views.py:3026 netbox/dcim/views.py:3115
-#: netbox/dcim/views.py:3560 netbox/dcim/views.py:3661
+#: netbox/dcim/views.py:3036 netbox/dcim/views.py:3126
+#: netbox/dcim/views.py:3575 netbox/dcim/views.py:3677
 #: netbox/templates/circuits/circuit_termination/attrs/connection.html:42
 #: netbox/templates/circuits/inc/circuit_termination_fields.html:58
 #: netbox/templates/dcim/panels/front_port_mappings.html:10
@@ -5872,12 +5887,12 @@ msgstr "Aizmugurējais ports"
 
 #: netbox/dcim/forms/model_forms.py:1377 netbox/dcim/forms/model_forms.py:1862
 #: netbox/dcim/tables/connections.py:47 netbox/dcim/tables/devices.py:539
-#: netbox/dcim/views.py:3290 netbox/dcim/views.py:4815
+#: netbox/dcim/views.py:3303 netbox/dcim/views.py:4835
 msgid "Power Port"
 msgstr "Strāvas ports"
 
 #: netbox/dcim/forms/model_forms.py:1378 netbox/dcim/forms/model_forms.py:1863
-#: netbox/dcim/views.py:3202
+#: netbox/dcim/views.py:3214
 msgid "Power Outlet"
 msgstr "Strāvas kontaktligzda"
 
@@ -5979,10 +5994,10 @@ msgstr ""
 "Nodrošinātais modelis norāda {value_count} vērtības, bet {pattern_count} ir "
 "sagaidāmi."
 
-#: netbox/dcim/forms/object_create.py:312 netbox/dcim/tables/devices.py:1162
+#: netbox/dcim/forms/object_create.py:312 netbox/dcim/tables/devices.py:1160
 #: netbox/ipam/tables/fhrp.py:31 netbox/ipam/ui/panels.py:185
 #: netbox/ipam/views.py:1508 netbox/templates/dcim/virtualchassis_edit.html:59
-#: netbox/users/views.py:364
+#: netbox/users/views.py:374
 msgid "Members"
 msgstr "Biedri"
 
@@ -6116,44 +6131,44 @@ msgstr ""
 "Pieslēguma savienojumi, kas pievienoti pakalpojumu sniedzēja tīklam, "
 "nedrīkst tikt savienoti ar kabeļiem."
 
-#: netbox/dcim/models/cables.py:744 netbox/extras/models/configs.py:100
+#: netbox/dcim/models/cables.py:745 netbox/extras/models/configs.py:100
 msgid "is active"
 msgstr "ir aktīvs"
 
-#: netbox/dcim/models/cables.py:748
+#: netbox/dcim/models/cables.py:749
 msgid "is complete"
 msgstr "ir pabeigts"
 
-#: netbox/dcim/models/cables.py:752
+#: netbox/dcim/models/cables.py:753
 msgid "is split"
 msgstr "ir sadalīts"
 
-#: netbox/dcim/models/cables.py:765
+#: netbox/dcim/models/cables.py:766
 msgid "cable path"
 msgstr "kabeļa ceļš"
 
-#: netbox/dcim/models/cables.py:766
+#: netbox/dcim/models/cables.py:767
 msgid "cable paths"
 msgstr "kabeļu ceļi"
 
-#: netbox/dcim/models/cables.py:853
+#: netbox/dcim/models/cables.py:854
 msgid "All originating terminations must be attached to the same link"
 msgstr ""
 "Visiem izcelsmes izbeigumiem jābūt pievienotiem vienai un tai pašai saitei"
 
-#: netbox/dcim/models/cables.py:871
+#: netbox/dcim/models/cables.py:872
 msgid "All mid-span terminations must have the same termination type"
 msgstr "Visiem vidēja termiņa beigām jābūt vienādam izbeigšanas veidam"
 
-#: netbox/dcim/models/cables.py:879
+#: netbox/dcim/models/cables.py:880
 msgid "All mid-span terminations must have the same parent object"
 msgstr "Visiem vidēja termiņa beigām jābūt vienam un tam pašam mātesobjektam"
 
-#: netbox/dcim/models/cables.py:909
+#: netbox/dcim/models/cables.py:910
 msgid "All links must be cable or wireless"
 msgstr "Visiem savienojumiem jābūt kabeļiem vai bezvadu"
 
-#: netbox/dcim/models/cables.py:911
+#: netbox/dcim/models/cables.py:912
 msgid "All links must match first link type"
 msgstr "Visiem savienojumiem jāatbilst pirmajam savienojuma veidam"
 
@@ -6757,7 +6772,7 @@ msgid "module bays"
 msgstr "moduļu nodalījumi"
 
 #: netbox/dcim/models/device_components.py:1398
-#: netbox/dcim/models/modules.py:287
+#: netbox/dcim/models/modules.py:321
 msgid "A module bay cannot belong to a module installed within it."
 msgstr "Moduļa nodalījums nevar piederēt tajā uzstādītam modulim."
 
@@ -6797,14 +6812,14 @@ msgid "inventory item roles"
 msgstr "inventāra vienību lomas"
 
 #: netbox/dcim/models/device_components.py:1587
-#: netbox/dcim/models/devices.py:552 netbox/dcim/models/modules.py:238
+#: netbox/dcim/models/devices.py:552 netbox/dcim/models/modules.py:272
 #: netbox/dcim/models/racks.py:345
 #: netbox/virtualization/models/virtualmachines.py:221
 msgid "serial number"
 msgstr "sērijas numurs"
 
 #: netbox/dcim/models/device_components.py:1595
-#: netbox/dcim/models/devices.py:560 netbox/dcim/models/modules.py:245
+#: netbox/dcim/models/devices.py:560 netbox/dcim/models/modules.py:279
 #: netbox/dcim/models/racks.py:352
 msgid "asset tag"
 msgstr "inventāra numurs"
@@ -6869,7 +6884,7 @@ msgstr "daļas numurs"
 
 #: netbox/dcim/models/devices.py:104 netbox/dcim/models/modules.py:84
 msgid "Discrete part number (optional)"
-msgstr "Diskrēts detaļas numurs (pēc izvēles)"
+msgstr "Nošķirts detaļas numurs (neobligāts)"
 
 #: netbox/dcim/models/devices.py:110 netbox/dcim/models/racks.py:72
 msgid "height (U)"
@@ -7001,7 +7016,7 @@ msgstr "Funkcija, ko šī iekārta veic"
 msgid "Chassis serial number, assigned by the manufacturer"
 msgstr "Ražotāja piešķirtais šasijas sērijas numurs"
 
-#: netbox/dcim/models/devices.py:561 netbox/dcim/models/modules.py:246
+#: netbox/dcim/models/devices.py:561 netbox/dcim/models/modules.py:280
 msgid "A unique tag used to identify this device"
 msgstr "Unikāls birka, ko izmanto, lai identificētu šo ierīci"
 
@@ -7294,28 +7309,28 @@ msgstr "moduļa tipa profili"
 msgid "attributes"
 msgstr "atribūti"
 
-#: netbox/dcim/models/modules.py:119
+#: netbox/dcim/models/modules.py:153
 msgid "module type"
 msgstr "moduļa tips"
 
-#: netbox/dcim/models/modules.py:120
+#: netbox/dcim/models/modules.py:154
 msgid "module types"
 msgstr "moduļu veidi"
 
-#: netbox/dcim/models/modules.py:150
+#: netbox/dcim/models/modules.py:184
 #, python-brace-format
 msgid "Invalid schema: {error}"
 msgstr "Nederīga struktūra: {error}"
 
-#: netbox/dcim/models/modules.py:253
+#: netbox/dcim/models/modules.py:287
 msgid "module"
 msgstr "modulis"
 
-#: netbox/dcim/models/modules.py:254
+#: netbox/dcim/models/modules.py:288
 msgid "modules"
 msgstr "moduļi"
 
-#: netbox/dcim/models/modules.py:267
+#: netbox/dcim/models/modules.py:301
 #, python-brace-format
 msgid ""
 "Module must be installed within a module bay belonging to the assigned "
@@ -7324,7 +7339,7 @@ msgstr ""
 "Modulis jāuzstāda moduļa nodalījumā, kas pieder piešķirtajai iekārtai "
 "({device})."
 
-#: netbox/dcim/models/modules.py:277
+#: netbox/dcim/models/modules.py:311
 msgid "Cannot install a module in a disabled module bay."
 msgstr "Nevar uzstādīt moduli atspējotā moduļa nodalījumā."
 
@@ -7687,11 +7702,11 @@ msgstr "Pievienot komponentus"
 msgid "Disconnect Selected"
 msgstr "Atvienot atlasīto"
 
-#: netbox/dcim/tables/cables.py:57 netbox/dcim/views.py:4322
+#: netbox/dcim/tables/cables.py:57 netbox/dcim/views.py:4342
 msgid "Termination A"
 msgstr "Savienojums A"
 
-#: netbox/dcim/tables/cables.py:62 netbox/dcim/views.py:4326
+#: netbox/dcim/tables/cables.py:62 netbox/dcim/views.py:4346
 msgid "Termination B"
 msgstr "Savienojums B"
 
@@ -7774,7 +7789,7 @@ msgstr "Konfigurācijas veidne"
 msgid "U Height"
 msgstr "U augstums"
 
-#: netbox/dcim/tables/devices.py:196 netbox/dcim/tables/devices.py:1193
+#: netbox/dcim/tables/devices.py:196 netbox/dcim/tables/devices.py:1191
 #: netbox/ipam/forms/bulk_import.py:627 netbox/ipam/forms/model_forms.py:333
 #: netbox/ipam/forms/model_forms.py:345 netbox/ipam/forms/model_forms.py:494
 #: netbox/ipam/tables/ip.py:312 netbox/ipam/tables/ip.py:376
@@ -7783,12 +7798,12 @@ msgstr "U augstums"
 msgid "IP Address"
 msgstr "IP adrese"
 
-#: netbox/dcim/tables/devices.py:200 netbox/dcim/tables/devices.py:1197
+#: netbox/dcim/tables/devices.py:200 netbox/dcim/tables/devices.py:1195
 #: netbox/virtualization/tables/virtualmachines.py:93
 msgid "IPv4 Address"
 msgstr "IPv4 Adrese"
 
-#: netbox/dcim/tables/devices.py:204 netbox/dcim/tables/devices.py:1201
+#: netbox/dcim/tables/devices.py:204 netbox/dcim/tables/devices.py:1199
 #: netbox/virtualization/tables/virtualmachines.py:97
 msgid "IPv6 Address"
 msgstr "IPv6 adrese"
@@ -7826,9 +7841,9 @@ msgstr "Strāvas porti"
 msgid "Power outlets"
 msgstr "Strāvas kontaktligzdas"
 
-#: netbox/dcim/tables/devices.py:254 netbox/dcim/tables/devices.py:1206
+#: netbox/dcim/tables/devices.py:254 netbox/dcim/tables/devices.py:1204
 #: netbox/dcim/tables/devicetypes.py:132 netbox/dcim/views.py:1518
-#: netbox/dcim/views.py:1872 netbox/dcim/views.py:2749
+#: netbox/dcim/views.py:1872 netbox/dcim/views.py:2759
 #: netbox/netbox/navigation/menu.py:104 netbox/netbox/navigation/menu.py:269
 #: netbox/templates/dcim/buttons/bulk_add_components.html:38
 #: netbox/templates/dcim/device/base.html:37
@@ -7872,7 +7887,7 @@ msgstr "Moduļa nodalījums"
 
 #: netbox/dcim/tables/devices.py:335 netbox/dcim/tables/devicetypes.py:53
 #: netbox/dcim/tables/devicetypes.py:147 netbox/dcim/ui/panels.py:416
-#: netbox/dcim/views.py:1593 netbox/dcim/views.py:2835
+#: netbox/dcim/views.py:1593 netbox/dcim/views.py:2845
 #: netbox/netbox/navigation/menu.py:113
 #: netbox/templates/dcim/buttons/bulk_add_components.html:66
 #: netbox/templates/dcim/device/base.html:52
@@ -7901,7 +7916,7 @@ msgstr "Maksimālā jauda (W)"
 msgid "Allocated draw (W)"
 msgstr "Piešķirtā jauda (W)"
 
-#: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3388
+#: netbox/dcim/tables/devices.py:597 netbox/dcim/views.py:3402
 #: netbox/ipam/forms/model_forms.py:805 netbox/ipam/tables/fhrp.py:28
 #: netbox/ipam/ui/panels.py:252 netbox/ipam/views.py:844
 #: netbox/ipam/views.py:968 netbox/netbox/navigation/menu.py:175
@@ -7913,7 +7928,7 @@ msgstr "IP adreses"
 msgid "Primary MAC"
 msgstr "Primārā MAC"
 
-#: netbox/dcim/tables/devices.py:606 netbox/dcim/views.py:3394
+#: netbox/dcim/tables/devices.py:606 netbox/dcim/views.py:3408
 #: netbox/netbox/navigation/menu.py:120
 msgid "MAC Addresses"
 msgstr "MAC adreses"
@@ -7944,56 +7959,56 @@ msgstr "VDC"
 msgid "Virtual Circuit"
 msgstr "Virtuāls pieslēgums"
 
-#: netbox/dcim/tables/devices.py:809 netbox/dcim/tables/devices.py:862
+#: netbox/dcim/tables/devices.py:807 netbox/dcim/tables/devices.py:860
 #: netbox/dcim/tables/devicetypes.py:258 netbox/dcim/tables/devicetypes.py:277
 msgid "Mappings"
 msgstr "Kartēšana"
 
-#: netbox/dcim/tables/devices.py:920 netbox/dcim/ui/panels.py:287
+#: netbox/dcim/tables/devices.py:918 netbox/dcim/ui/panels.py:287
 msgid "Installed Device"
 msgstr "Uzstādītā iekārta"
 
-#: netbox/dcim/tables/devices.py:925
+#: netbox/dcim/tables/devices.py:923
 msgid "Installed Role"
 msgstr "Uzstādītā loma"
 
-#: netbox/dcim/tables/devices.py:930
+#: netbox/dcim/tables/devices.py:928
 msgid "Installed Type"
 msgstr "Uzstādītais veids"
 
-#: netbox/dcim/tables/devices.py:934
+#: netbox/dcim/tables/devices.py:932
 msgid "Installed Description"
 msgstr "Uzstādītais apraksts"
 
-#: netbox/dcim/tables/devices.py:938
+#: netbox/dcim/tables/devices.py:936
 msgid "Installed Serial"
 msgstr "Uzstādītais sērijas numurs"
 
-#: netbox/dcim/tables/devices.py:942
+#: netbox/dcim/tables/devices.py:940
 msgid "Installed Asset Tag"
 msgstr "Uzstādītā inventāra numurs"
 
-#: netbox/dcim/tables/devices.py:998 netbox/dcim/ui/panels.py:271
+#: netbox/dcim/tables/devices.py:996 netbox/dcim/ui/panels.py:271
 msgid "Installed Module"
 msgstr "Uzstādītais modulis"
 
-#: netbox/dcim/tables/devices.py:1001
+#: netbox/dcim/tables/devices.py:999
 msgid "Module Serial"
 msgstr "Sērijas modulis"
 
-#: netbox/dcim/tables/devices.py:1005
+#: netbox/dcim/tables/devices.py:1003
 msgid "Module Asset Tag"
 msgstr "Moduļa inventāra numurs"
 
-#: netbox/dcim/tables/devices.py:1014
+#: netbox/dcim/tables/devices.py:1012
 msgid "Module Status"
 msgstr "Moduļa statuss"
 
-#: netbox/dcim/tables/devices.py:1071 netbox/dcim/tables/devicetypes.py:332
+#: netbox/dcim/tables/devices.py:1069 netbox/dcim/tables/devicetypes.py:332
 msgid "Component"
 msgstr "Komponents"
 
-#: netbox/dcim/tables/devices.py:1129
+#: netbox/dcim/tables/devices.py:1127
 msgid "Items"
 msgstr "Priekšmeti"
 
@@ -8031,7 +8046,7 @@ msgid "Device Count"
 msgstr "Iekārtu skaits"
 
 #: netbox/dcim/tables/devicetypes.py:120 netbox/dcim/views.py:1458
-#: netbox/dcim/views.py:1812 netbox/dcim/views.py:2684
+#: netbox/dcim/views.py:1812 netbox/dcim/views.py:2694
 #: netbox/netbox/navigation/menu.py:107
 #: netbox/templates/dcim/buttons/bulk_add_components.html:10
 #: netbox/templates/dcim/device/base.html:25
@@ -8042,7 +8057,7 @@ msgid "Console Ports"
 msgstr "Konsoles porti"
 
 #: netbox/dcim/tables/devicetypes.py:123 netbox/dcim/views.py:1473
-#: netbox/dcim/views.py:1827 netbox/dcim/views.py:2700
+#: netbox/dcim/views.py:1827 netbox/dcim/views.py:2710
 #: netbox/netbox/navigation/menu.py:108
 #: netbox/templates/dcim/buttons/bulk_add_components.html:17
 #: netbox/templates/dcim/device/base.html:28
@@ -8053,7 +8068,7 @@ msgid "Console Server Ports"
 msgstr "Konsoles servera porti"
 
 #: netbox/dcim/tables/devicetypes.py:126 netbox/dcim/views.py:1488
-#: netbox/dcim/views.py:1842 netbox/dcim/views.py:2716
+#: netbox/dcim/views.py:1842 netbox/dcim/views.py:2726
 #: netbox/netbox/navigation/menu.py:109
 #: netbox/templates/dcim/buttons/bulk_add_components.html:24
 #: netbox/templates/dcim/device/base.html:31
@@ -8064,7 +8079,7 @@ msgid "Power Ports"
 msgstr "Strāvas porti"
 
 #: netbox/dcim/tables/devicetypes.py:129 netbox/dcim/views.py:1503
-#: netbox/dcim/views.py:1857 netbox/dcim/views.py:2732
+#: netbox/dcim/views.py:1857 netbox/dcim/views.py:2742
 #: netbox/netbox/navigation/menu.py:110
 #: netbox/templates/dcim/buttons/bulk_add_components.html:31
 #: netbox/templates/dcim/device/base.html:34
@@ -8075,7 +8090,7 @@ msgid "Power Outlets"
 msgstr "Strāvas kontaktligzdas"
 
 #: netbox/dcim/tables/devicetypes.py:135 netbox/dcim/views.py:1533
-#: netbox/dcim/views.py:1887 netbox/dcim/views.py:2771
+#: netbox/dcim/views.py:1887 netbox/dcim/views.py:2781
 #: netbox/netbox/navigation/menu.py:105
 #: netbox/templates/dcim/device/base.html:40
 #: netbox/templates/dcim/devicetype/base.html:37
@@ -8085,7 +8100,7 @@ msgid "Front Ports"
 msgstr "Priekšējie porti"
 
 #: netbox/dcim/tables/devicetypes.py:138 netbox/dcim/views.py:1548
-#: netbox/dcim/views.py:1902 netbox/dcim/views.py:2787
+#: netbox/dcim/views.py:1902 netbox/dcim/views.py:2797
 #: netbox/netbox/navigation/menu.py:106
 #: netbox/templates/dcim/buttons/bulk_add_components.html:45
 #: netbox/templates/dcim/device/base.html:43
@@ -8096,7 +8111,7 @@ msgid "Rear Ports"
 msgstr "Aizmugurējie porti"
 
 #: netbox/dcim/tables/devicetypes.py:141 netbox/dcim/views.py:1578
-#: netbox/dcim/views.py:2819 netbox/netbox/navigation/menu.py:112
+#: netbox/dcim/views.py:2829 netbox/netbox/navigation/menu.py:112
 #: netbox/templates/dcim/buttons/bulk_add_components.html:52
 #: netbox/templates/dcim/device/base.html:49
 #: netbox/templates/dcim/devicetype/base.html:46
@@ -8104,7 +8119,7 @@ msgid "Device Bays"
 msgstr "Iekārtas nodalījumi"
 
 #: netbox/dcim/tables/devicetypes.py:144 netbox/dcim/views.py:1563
-#: netbox/dcim/views.py:1917 netbox/dcim/views.py:2803
+#: netbox/dcim/views.py:1917 netbox/dcim/views.py:2813
 #: netbox/netbox/navigation/menu.py:111
 #: netbox/templates/dcim/buttons/bulk_add_components.html:59
 #: netbox/templates/dcim/device/base.html:46
@@ -8304,89 +8319,89 @@ msgstr "Apakštelpas"
 msgid "Reservations"
 msgstr "Rezervācijas"
 
-#: netbox/dcim/views.py:2434
+#: netbox/dcim/views.py:2444
 msgid "Child Device Roles"
 msgstr "Iekārtu apakšlomas"
 
-#: netbox/dcim/views.py:2535
+#: netbox/dcim/views.py:2545
 msgid "Child Platforms"
 msgstr "Apakšplatformas"
 
-#: netbox/dcim/views.py:2627 netbox/netbox/navigation/menu.py:223
+#: netbox/dcim/views.py:2637 netbox/netbox/navigation/menu.py:223
 #: netbox/virtualization/views.py:493
 msgid "Application Services"
 msgstr "Lietotnes servisi"
 
-#: netbox/dcim/views.py:2848 netbox/extras/forms/filtersets.py:407
+#: netbox/dcim/views.py:2858 netbox/extras/forms/filtersets.py:407
 #: netbox/extras/forms/model_forms.py:770 netbox/extras/ui/panels.py:435
 #: netbox/virtualization/forms/model_forms.py:270
 #: netbox/virtualization/views.py:569
 msgid "Config Context"
 msgstr "Konfigurācijas konteksts"
 
-#: netbox/dcim/views.py:2859 netbox/virtualization/views.py:580
+#: netbox/dcim/views.py:2869 netbox/virtualization/views.py:580
 msgid "Render Config"
 msgstr "Renderēšanas konfigurācija"
 
-#: netbox/dcim/views.py:2872 netbox/extras/tables/tables.py:735
+#: netbox/dcim/views.py:2882 netbox/extras/tables/tables.py:735
 #: netbox/netbox/navigation/menu.py:266 netbox/netbox/navigation/menu.py:268
 #: netbox/virtualization/views.py:278
 msgid "Virtual Machines"
 msgstr "Virtuālās mašīnas"
 
-#: netbox/dcim/views.py:3375 netbox/netbox/navigation/menu.py:89
+#: netbox/dcim/views.py:3389 netbox/netbox/navigation/menu.py:89
 msgid "Virtual Device Contexts"
 msgstr "Virtuālo iekārtu konteksti"
 
-#: netbox/dcim/views.py:3400 netbox/ipam/forms/filtersets.py:469
-#: netbox/ipam/models/vlans.py:293 netbox/ipam/tables/ip.py:121
+#: netbox/dcim/views.py:3414 netbox/ipam/forms/filtersets.py:469
+#: netbox/ipam/models/vlans.py:308 netbox/ipam/tables/ip.py:121
 #: netbox/ipam/tables/vlans.py:52 netbox/ipam/views.py:1302
 #: netbox/netbox/navigation/menu.py:210 netbox/netbox/navigation/menu.py:212
 msgid "VLANs"
 msgstr "VLAN"
 
-#: netbox/dcim/views.py:3402
+#: netbox/dcim/views.py:3416
 msgid "LAG Members"
 msgstr "LAG Members"
 
-#: netbox/dcim/views.py:3403 netbox/virtualization/ui/panels.py:108
+#: netbox/dcim/views.py:3417 netbox/virtualization/ui/panels.py:108
 #: netbox/virtualization/views.py:680
 msgid "VLAN Translation"
 msgstr "VLAN pārveide"
 
-#: netbox/dcim/views.py:3404
+#: netbox/dcim/views.py:3418
 msgid "Bridged Interfaces"
 msgstr "Tilta interfeisi"
 
-#: netbox/dcim/views.py:3405 netbox/virtualization/views.py:681
+#: netbox/dcim/views.py:3419 netbox/virtualization/views.py:681
 msgid "Child Interfaces"
 msgstr "Apakšinterfeisi"
 
-#: netbox/dcim/views.py:3874
+#: netbox/dcim/views.py:3892
 #, python-brace-format
 msgid "Installed device {device} in bay {device_bay}."
 msgstr "Uzstādīta iekārta {device} nodalījumā {device_bay}."
 
-#: netbox/dcim/views.py:3915
+#: netbox/dcim/views.py:3933
 #, python-brace-format
 msgid "Removed device {device} from bay {device_bay}."
 msgstr "Demontēta iekārta {device} no nodalījuma {device_bay}."
 
-#: netbox/dcim/views.py:4035 netbox/ipam/tables/ip.py:184
+#: netbox/dcim/views.py:4055 netbox/ipam/tables/ip.py:184
 msgid "Children"
 msgstr "Bērni"
 
-#: netbox/dcim/views.py:4605
+#: netbox/dcim/views.py:4625
 #, python-brace-format
 msgid "Added member <a href=\"{url}\">{device}</a>"
 msgstr "Pievienots dalībnieks <a href=\"{url}\">{device}</a>"
 
-#: netbox/dcim/views.py:4650
+#: netbox/dcim/views.py:4670
 #, python-brace-format
 msgid "Unable to remove master device {device} from the virtual chassis."
 msgstr "Nevar noņemt galveno iekārtu{device} no virtuālās šasijas."
 
-#: netbox/dcim/views.py:4661
+#: netbox/dcim/views.py:4681
 #, python-brace-format
 msgid "Removed {device} from virtual chassis {chassis}"
 msgstr "Noņemts {device} no virtuālās šasijas {chassis}"
@@ -8401,15 +8416,43 @@ msgstr "Pielāgots lauks '{name}'neeksistē šim objekta tipam."
 msgid "Unknown related object(s): {name}"
 msgstr "Nezināms (-i) saistītais objekts (-i): {name}"
 
-#: netbox/extras/api/mixins.py:97 netbox/extras/views.py:1298
+#: netbox/extras/api/mixins.py:84 netbox/extras/api/views.py:255
+msgid ""
+"The rendered config template. When the client requests `text/plain`, the raw"
+" rendered content is returned in place of the JSON object."
+msgstr ""
+"Renderētā konfigurācijas veidne. Kad klients pieprasa “text/plain”, JSON "
+"objekta vietā tiek atgriezts neapstrādātais renderētais saturs."
+
+#: netbox/extras/api/mixins.py:90
+msgid "No config template could be resolved for this object."
+msgstr "Šim objektam nevarēja atrast konfigurācijas veidni."
+
+#: netbox/extras/api/mixins.py:94 netbox/extras/api/views.py:261
+msgid "An error occurred while rendering the config template."
+msgstr "Renderējot konfigurācijas veidni, radās kļūda."
+
+#: netbox/extras/api/mixins.py:117 netbox/extras/views.py:1298
 #, python-brace-format
 msgid "Config template with ID {id} not found."
 msgstr "Konfigurācijas veidne ar ID {id} nav atrasta."
 
-#: netbox/extras/api/mixins.py:103
+#: netbox/extras/api/mixins.py:123
 #, python-brace-format
 msgid "No config template found for this {object_type}."
 msgstr "Objekta tipam {object_type} nav atrasta konfigurācijas veidne."
+
+#: netbox/extras/api/serializers_/configtemplates.py:51
+msgid ""
+"Optional ID of the ConfigTemplate to render. If omitted, the object's "
+"assigned config template is used."
+msgstr ""
+"Neobligāts renderējamās ConfigTemplate ID. Ja tas nav norādīts, tiek "
+"izmantota objektam piešķirtā konfigurācijas veidne."
+
+#: netbox/extras/api/serializers_/configtemplates.py:77
+msgid "The rendered template output."
+msgstr "Renderētās veidnes izvade."
 
 #: netbox/extras/api/serializers_/customfields.py:79
 msgid "Changing the type of custom fields is not supported."
@@ -8671,7 +8714,7 @@ msgid "Display some arbitrary custom content. Markdown is supported."
 msgstr "Parādiet kādu patvaļīgu pielāgotu saturu. Markdown tiek atbalstīts."
 
 #: netbox/extras/dashboard/widgets.py:183 netbox/templates/core/system.html:35
-#: netbox/templates/core/system.html:169
+#: netbox/templates/core/system.html:168
 msgid "Object Counts"
 msgstr "Objektu skaits"
 
@@ -8956,7 +8999,7 @@ msgstr "Automātiskā sinhronizācija iespējo"
 #: netbox/extras/forms/model_forms.py:381
 #: netbox/extras/forms/model_forms.py:535
 #: netbox/extras/forms/model_forms.py:652
-#: netbox/users/forms/model_forms.py:318
+#: netbox/users/forms/model_forms.py:335
 msgid "Object types"
 msgstr "Objektu veidi"
 
@@ -9098,7 +9141,7 @@ msgstr "Ierakstu klasifikācija"
 
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
 #: netbox/netbox/tables/tables.py:314 netbox/netbox/tables/tables.py:329
-#: netbox/netbox/tables/tables.py:352 netbox/netbox/ui/panels.py:239
+#: netbox/netbox/tables/tables.py:352 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:100
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
@@ -9109,9 +9152,9 @@ msgstr "Komentāri"
 #: netbox/extras/forms/bulk_import.py:350
 #: netbox/extras/forms/model_forms.py:483 netbox/extras/ui/panels.py:321
 #: netbox/netbox/navigation/menu.py:423 netbox/users/forms/filtersets.py:181
-#: netbox/users/forms/model_forms.py:257 netbox/users/forms/model_forms.py:269
-#: netbox/users/forms/model_forms.py:344 netbox/users/forms/model_forms.py:540
-#: netbox/users/forms/model_forms.py:555 netbox/users/tables.py:136
+#: netbox/users/forms/model_forms.py:274 netbox/users/forms/model_forms.py:286
+#: netbox/users/forms/model_forms.py:361 netbox/users/forms/model_forms.py:557
+#: netbox/users/forms/model_forms.py:572 netbox/users/tables.py:136
 #: netbox/users/tables.py:194
 msgid "Users"
 msgstr "Lietotāji"
@@ -9127,9 +9170,9 @@ msgstr "Lietotājvārdi, kas atdalīti ar komatiem, pārklāti ar dubultām pēd
 #: netbox/tenancy/forms/filtersets.py:107
 #: netbox/tenancy/forms/model_forms.py:93 netbox/tenancy/tables/contacts.py:57
 #: netbox/tenancy/tables/contacts.py:101 netbox/tenancy/ui/panels.py:12
-#: netbox/users/forms/filtersets.py:176 netbox/users/forms/model_forms.py:202
-#: netbox/users/forms/model_forms.py:214 netbox/users/forms/model_forms.py:349
-#: netbox/users/forms/model_forms.py:539 netbox/users/tables.py:68
+#: netbox/users/forms/filtersets.py:176 netbox/users/forms/model_forms.py:219
+#: netbox/users/forms/model_forms.py:231 netbox/users/forms/model_forms.py:366
+#: netbox/users/forms/model_forms.py:556 netbox/users/tables.py:68
 #: netbox/users/tables.py:140 netbox/users/tables.py:190
 msgid "Groups"
 msgstr "Grupas"
@@ -9355,7 +9398,7 @@ msgstr "Saglabātais filtrs"
 #: netbox/extras/forms/model_forms.py:413 netbox/extras/ui/panels.py:294
 #: netbox/templates/account/preferences.html:50
 msgid "Ordering"
-msgstr "Pasūtīšana"
+msgstr "Kārtošana"
 
 #: netbox/extras/forms/model_forms.py:415
 msgid ""
@@ -10223,7 +10266,7 @@ msgstr "Objekta tips (-i), uz kuru attiecas šis filtrs."
 
 #: netbox/extras/models/models.py:515 netbox/extras/models/models.py:597
 msgid "shared"
-msgstr "dalīts"
+msgstr "koplietots"
 
 #: netbox/extras/models/models.py:531
 msgid "saved filter"
@@ -10418,11 +10461,11 @@ msgstr "birkots vienums"
 msgid "tagged items"
 msgstr "birkoti vienumi"
 
-#: netbox/extras/scripts.py:496
+#: netbox/extras/scripts.py:499
 msgid "Script Data"
 msgstr "Skripta dati"
 
-#: netbox/extras/scripts.py:503
+#: netbox/extras/scripts.py:506
 msgid "Script Execution Parameters"
 msgstr "Skripta izpildes parametri"
 
@@ -10488,7 +10531,7 @@ msgstr "Validācijas shēma"
 #: netbox/netbox/forms/mixins.py:166 netbox/netbox/forms/mixins.py:191
 #: netbox/netbox/tables/tables.py:311 netbox/netbox/tables/tables.py:326
 #: netbox/netbox/tables/tables.py:341 netbox/templates/generic/object.html:61
-#: netbox/users/forms/model_forms.py:538
+#: netbox/users/forms/model_forms.py:555
 msgid "Owner"
 msgstr "Īpašnieks"
 
@@ -10621,7 +10664,7 @@ msgstr "Pārbaudes kārtulas"
 msgid "Regular expression"
 msgstr "Regulāra izteiksme"
 
-#: netbox/extras/ui/panels.py:178 netbox/netbox/ui/panels.py:288
+#: netbox/extras/ui/panels.py:178 netbox/netbox/ui/panels.py:292
 #: netbox/templates/inc/panels/related_objects.html:5
 msgid "Related Objects"
 msgstr "Saistītie objekti"
@@ -11084,7 +11127,7 @@ msgstr "VLAN grupa"
 
 #: netbox/ipam/forms/bulk_edit.py:187 netbox/ipam/forms/bulk_import.py:198
 #: netbox/ipam/forms/filtersets.py:291 netbox/ipam/forms/model_forms.py:219
-#: netbox/ipam/models/vlans.py:292 netbox/ipam/tables/ip.py:210
+#: netbox/ipam/models/vlans.py:307 netbox/ipam/tables/ip.py:210
 #: netbox/ipam/ui/panels.py:148 netbox/templates/ipam/vlan/base.html:6
 #: netbox/templates/ipam/vlan_edit.html:14 netbox/vpn/forms/bulk_import.py:309
 #: netbox/vpn/forms/filtersets.py:306 netbox/vpn/forms/model_forms.py:431
@@ -11164,12 +11207,12 @@ msgstr "Autentifikācijas atslēga"
 msgid "Authentication"
 msgstr "Autentifikācija"
 
-#: netbox/ipam/forms/bulk_edit.py:375 netbox/ipam/models/vlans.py:60
+#: netbox/ipam/forms/bulk_edit.py:375 netbox/ipam/models/vlans.py:67
 msgid "VLAN ID ranges"
 msgstr "VLAN ID diapazoni"
 
 #: netbox/ipam/forms/bulk_edit.py:451 netbox/ipam/forms/bulk_import.py:548
-#: netbox/ipam/forms/filtersets.py:621 netbox/ipam/models/vlans.py:249
+#: netbox/ipam/forms/filtersets.py:621 netbox/ipam/models/vlans.py:264
 #: netbox/ipam/tables/vlans.py:110
 msgid "Q-in-Q role"
 msgstr "Q-in-Q loma"
@@ -11282,7 +11325,7 @@ msgstr "Piešķirtā VLAN grupa"
 msgid "Service VLAN (for Q-in-Q/802.1ad customer VLANs)"
 msgstr "Pakalpojuma VLAN (Q-in-Q/802.1ad klientu VLAN)"
 
-#: netbox/ipam/forms/bulk_import.py:581 netbox/ipam/models/vlans.py:371
+#: netbox/ipam/forms/bulk_import.py:581 netbox/ipam/models/vlans.py:386
 msgid "VLAN translation policy"
 msgstr "VLAN pārveides politika"
 
@@ -11374,7 +11417,7 @@ msgstr "Iekārta/VM"
 #: netbox/templates/dcim/device/attrs/ipaddress.html:7
 #: netbox/templates/virtualization/virtualmachine/attrs/ipaddress.html:7
 msgid "NAT"
-msgstr "NAKTS"
+msgstr "NAT"
 
 #: netbox/ipam/forms/filtersets.py:368
 msgid "Parent Prefix"
@@ -11396,11 +11439,11 @@ msgstr "Satur VLAN ID"
 msgid "Total VLAN IDs"
 msgstr "Kopējie VLAN ID"
 
-#: netbox/ipam/forms/filtersets.py:557 netbox/ipam/models/vlans.py:391
+#: netbox/ipam/forms/filtersets.py:557 netbox/ipam/models/vlans.py:406
 msgid "Local VLAN ID"
 msgstr "Vietējais VLAN ID"
 
-#: netbox/ipam/forms/filtersets.py:562 netbox/ipam/models/vlans.py:399
+#: netbox/ipam/forms/filtersets.py:562 netbox/ipam/models/vlans.py:414
 msgid "Remote VLAN ID"
 msgstr "Attālā VLAN ID"
 
@@ -11408,7 +11451,7 @@ msgstr "Attālā VLAN ID"
 msgid "Q-in-Q/802.1ad"
 msgstr "Q-in-Q/802.1ad"
 
-#: netbox/ipam/forms/filtersets.py:618 netbox/ipam/models/vlans.py:208
+#: netbox/ipam/forms/filtersets.py:618 netbox/ipam/models/vlans.py:223
 #: netbox/ipam/ui/panels.py:199
 msgid "VLAN ID"
 msgstr "VLAN ID"
@@ -11879,29 +11922,29 @@ msgstr "lietotnes serviss"
 msgid "application services"
 msgstr "lietotnes servisi"
 
-#: netbox/ipam/models/vlans.py:93
+#: netbox/ipam/models/vlans.py:100
 msgid "VLAN groups"
 msgstr "VLAN grupas"
 
-#: netbox/ipam/models/vlans.py:100
+#: netbox/ipam/models/vlans.py:107
 msgid "Cannot set scope_type without scope_id."
 msgstr "Nevar iestatīt scope_type bez scope_id."
 
-#: netbox/ipam/models/vlans.py:102
+#: netbox/ipam/models/vlans.py:109
 msgid "Cannot set scope_id without scope_type."
 msgstr "Nevar iestatīt scope_id bez scope_type."
 
-#: netbox/ipam/models/vlans.py:110
+#: netbox/ipam/models/vlans.py:116
 #, python-brace-format
 msgid "Starting VLAN ID in range ({value}) cannot be less than {minimum}"
 msgstr "VLAN ID sākšana diapazonā ({value}) nevar būt mazāks par {minimum}"
 
-#: netbox/ipam/models/vlans.py:116
+#: netbox/ipam/models/vlans.py:122
 #, python-brace-format
 msgid "Ending VLAN ID in range ({value}) cannot exceed {maximum}"
 msgstr "VLAN ID beigšana diapazonā ({value}) nevar pārsniegt {maximum}"
 
-#: netbox/ipam/models/vlans.py:123
+#: netbox/ipam/models/vlans.py:129
 #, python-brace-format
 msgid ""
 "Ending VLAN ID in range must be greater than or equal to the starting VLAN "
@@ -11910,36 +11953,36 @@ msgstr ""
 "VLAN ID beigām diapazonā jābūt lielākam vai vienādam ar sākuma VLAN ID "
 "({range})"
 
-#: netbox/ipam/models/vlans.py:129
+#: netbox/ipam/models/vlans.py:135
 msgid "Ranges cannot overlap."
 msgstr "Diapazoni nevar pārklāties."
 
-#: netbox/ipam/models/vlans.py:197
+#: netbox/ipam/models/vlans.py:212
 msgid "The specific site to which this VLAN is assigned (if any)"
 msgstr "Konkrētā vieta, kurai šīs VLAN ir piešķirts (ja tāda ir)"
 
-#: netbox/ipam/models/vlans.py:205
+#: netbox/ipam/models/vlans.py:220
 msgid "VLAN group (optional)"
 msgstr "VLAN grupa (pēc izvēles)"
 
-#: netbox/ipam/models/vlans.py:213 netbox/ipam/models/vlans.py:396
-#: netbox/ipam/models/vlans.py:404
+#: netbox/ipam/models/vlans.py:228 netbox/ipam/models/vlans.py:411
+#: netbox/ipam/models/vlans.py:419
 msgid "Numeric VLAN ID (1-4094)"
 msgstr "Ciparu VLAN ID (1-4094)"
 
-#: netbox/ipam/models/vlans.py:231
+#: netbox/ipam/models/vlans.py:246
 msgid "Operational status of this VLAN"
 msgstr "Šī VLAN darbības statuss"
 
-#: netbox/ipam/models/vlans.py:239
+#: netbox/ipam/models/vlans.py:254
 msgid "The primary function of this VLAN"
 msgstr "Šī VLAN galvenā funkcija"
 
-#: netbox/ipam/models/vlans.py:254
+#: netbox/ipam/models/vlans.py:269
 msgid "Customer/service VLAN designation (for Q-in-Q/IEEE 802.1ad)"
 msgstr "Klienta/servisa VLAN apzīmējums (Q-in-Q/IEEE 802.1ad)"
 
-#: netbox/ipam/models/vlans.py:306
+#: netbox/ipam/models/vlans.py:321
 #, python-brace-format
 msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
@@ -11948,7 +11991,7 @@ msgstr ""
 "VLAN ir piešķirts grupai {group} (darbības vēriens: {scope}); nevar arī "
 "piešķirt vietai{site}."
 
-#: netbox/ipam/models/vlans.py:313
+#: netbox/ipam/models/vlans.py:328
 #, python-brace-format
 msgid ""
 "The assigned site {site} is not a member of the assigned group {group} "
@@ -11957,24 +12000,24 @@ msgstr ""
 "Piešķirtā vieta {site} nav piešķirtās grupas dalībnieks {group} (darbības "
 "vēriens: {scope})."
 
-#: netbox/ipam/models/vlans.py:322
+#: netbox/ipam/models/vlans.py:337
 #, python-brace-format
 msgid "VID must be in ranges {ranges} for VLANs in group {group}"
 msgstr "VID jābūt diapazonos {ranges} grupā esošajiem VLAN {group}"
 
-#: netbox/ipam/models/vlans.py:329
+#: netbox/ipam/models/vlans.py:344
 msgid "Only Q-in-Q customer VLANs maybe assigned to a service VLAN."
 msgstr "Pakalpojuma VLAN var tikt piešķirti tikai Q-in-Q klientu VLAN."
 
-#: netbox/ipam/models/vlans.py:335
+#: netbox/ipam/models/vlans.py:350
 msgid "A Q-in-Q customer VLAN must be assigned to a service VLAN."
 msgstr "Pakalpojuma VLAN ir jāpiešķir Q-in-Q klienta VLAN."
 
-#: netbox/ipam/models/vlans.py:372
+#: netbox/ipam/models/vlans.py:387
 msgid "VLAN translation policies"
 msgstr "VLAN pārveides politikas"
 
-#: netbox/ipam/models/vlans.py:413
+#: netbox/ipam/models/vlans.py:428
 msgid "VLAN translation rule"
 msgstr "VLAN pārveides kārtula"
 
@@ -12318,11 +12361,11 @@ msgstr "Pievienot IP adresi"
 msgid "Add a Prefix"
 msgstr "Pievienojiet prefiksu"
 
-#: netbox/netbox/api/fields.py:67
+#: netbox/netbox/api/fields.py:69
 msgid "This field may not be blank."
 msgstr "Šis lauks var nebūt tukšs."
 
-#: netbox/netbox/api/fields.py:72
+#: netbox/netbox/api/fields.py:74
 msgid ""
 "Value must be passed directly (e.g. \"foo\": 123); do not use a dictionary "
 "or list."
@@ -12330,25 +12373,25 @@ msgstr ""
 "Vērtība jānodod tieši (piemēram, “foo”: 123); nelietojiet vārdnīcu vai "
 "sarakstu."
 
-#: netbox/netbox/api/fields.py:93
+#: netbox/netbox/api/fields.py:95
 #, python-brace-format
 msgid "{value} is not a valid choice."
 msgstr "{value} nav derīga izvēle."
 
-#: netbox/netbox/api/fields.py:106
+#: netbox/netbox/api/fields.py:108
 #, python-brace-format
 msgid "Invalid content type: {content_type}"
 msgstr "Nederīgs satura tips: {content_type}"
 
-#: netbox/netbox/api/fields.py:107
+#: netbox/netbox/api/fields.py:109
 msgid "Invalid value. Specify a content type as '<app_label>.<model_name>'."
 msgstr "Nederīga vērtība. Norādiet satura tipu kā '<app_label>.<model_name>”."
 
-#: netbox/netbox/api/fields.py:169
+#: netbox/netbox/api/fields.py:171
 msgid "Ranges must be specified in the form (lower, upper)."
 msgstr "Diapazoni jānorāda formā (apakšējā, augšējā)."
 
-#: netbox/netbox/api/fields.py:171
+#: netbox/netbox/api/fields.py:173
 msgid "Range boundaries must be defined as integers."
 msgstr "Diapazona robežas jādefinē kā veseli skaitļi."
 
@@ -12473,8 +12516,6 @@ msgid "Tab"
 msgstr "Cilne"
 
 #: netbox/netbox/choices.py:195
-#: netbox/templates/dcim/device/attrs/total_weight.html:2
-#: netbox/templates/dcim/rack/attrs/total_weight.html:2
 msgid "Kilograms"
 msgstr "Kilogrami"
 
@@ -12483,8 +12524,6 @@ msgid "Grams"
 msgstr "Grami"
 
 #: netbox/netbox/choices.py:197
-#: netbox/templates/dcim/device/attrs/total_weight.html:3
-#: netbox/templates/dcim/rack/attrs/total_weight.html:3
 msgid "Pounds"
 msgstr "Mārciņas"
 
@@ -12492,7 +12531,7 @@ msgstr "Mārciņas"
 msgid "Ounces"
 msgstr "Unces"
 
-#: netbox/netbox/config/__init__.py:68
+#: netbox/netbox/config/__init__.py:74
 #, python-brace-format
 msgid "Invalid configuration parameter: {item}"
 msgstr "Nederīgs konfigurācijas parametrs: {item}"
@@ -12704,9 +12743,18 @@ msgstr ""
 msgid "Maps URL"
 msgstr "Kartes URL"
 
-#: netbox/netbox/config/parameters.py:232
-msgid "Base URL for mapping geographic locations"
-msgstr "Bāzes URL ģeogrāfisko atrašanās vietu kartēšanai"
+#: netbox/netbox/config/parameters.py:233
+#, python-brace-format
+msgid ""
+"URL for mapping geographic locations. For GPS coordinates, include {lat} "
+"and/or {lon} placeholders, or omit them to append coordinates as a comma-"
+"separated pair. Note: when {lat} or {lon} placeholders are present, address-"
+"based map links will be disabled."
+msgstr ""
+"URL ģeogrāfisko atrašanās vietu kartēšanai. GPS koordinātām iekļaujiet {lat}"
+" un/vai {lon} vietturus vai izlaist tos, lai pievienotu koordinātas kā "
+"komatu atdalītu pāri. Piezīme: kad {lat} vai {lon} vietturētāji ir klāt, uz "
+"adresēm balstītas kartes saites tiks atspējotas."
 
 #: netbox/netbox/forms/bulk_edit.py:36
 msgid "Add tags"
@@ -12745,7 +12793,7 @@ msgstr "Īpašnieku grupa"
 
 #: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:307
 #: netbox/netbox/tables/tables.py:322 netbox/netbox/tables/tables.py:337
-#: netbox/users/forms/model_forms.py:526
+#: netbox/users/forms/model_forms.py:543
 msgid "Owner Group"
 msgstr "Īpašnieku Grupa"
 
@@ -12777,47 +12825,47 @@ msgstr "Objekta tips (-i)"
 msgid "Lookup"
 msgstr "Uzmeklēšana"
 
-#: netbox/netbox/models/features.py:312
+#: netbox/netbox/models/features.py:311
 #, python-brace-format
 msgid "Invalid value for custom field '{name}': {error}"
 msgstr "Nederīga vērtība pielāgotajam laukam '{name}”: {error}"
 
-#: netbox/netbox/models/features.py:321
+#: netbox/netbox/models/features.py:320
 #, python-brace-format
 msgid "Custom field '{name}' must have a unique value."
 msgstr "Pielāgots lauks '{name}“jābūt unikālai vērtībai."
 
-#: netbox/netbox/models/features.py:328
+#: netbox/netbox/models/features.py:327
 #, python-brace-format
 msgid "Missing required custom field '{name}'."
 msgstr "Trūkst nepieciešamā pielāgotā lauka '{name}”."
 
-#: netbox/netbox/models/features.py:522
+#: netbox/netbox/models/features.py:524
 msgid "Remote data source"
 msgstr "Attālais datu avots"
 
-#: netbox/netbox/models/features.py:532
+#: netbox/netbox/models/features.py:534
 msgid "data path"
 msgstr "datu ceļš"
 
-#: netbox/netbox/models/features.py:536
+#: netbox/netbox/models/features.py:538
 msgid "Path to remote file (relative to data source root)"
 msgstr "Ceļš uz attālo failu (attiecībā pret datu avota sakni)"
 
-#: netbox/netbox/models/features.py:539
+#: netbox/netbox/models/features.py:541
 msgid "auto sync enabled"
 msgstr "automātiskā sinhronizācija iespējota"
 
-#: netbox/netbox/models/features.py:541
+#: netbox/netbox/models/features.py:543
 msgid "Enable automatic synchronization of data when the data file is updated"
 msgstr ""
 "Iespējot automātisku datu sinhronizāciju, kad datu fails tiek atjaunināts"
 
-#: netbox/netbox/models/features.py:544
+#: netbox/netbox/models/features.py:546
 msgid "date synced"
 msgstr "datums sinhronizēts"
 
-#: netbox/netbox/models/features.py:637
+#: netbox/netbox/models/features.py:639
 #, python-brace-format
 msgid "{class_name} must implement a sync_data() method."
 msgstr "{class_name} jāievieš sync_data () metode."
@@ -12826,19 +12874,19 @@ msgstr "{class_name} jāievieš sync_data () metode."
 msgid "weight unit"
 msgstr "svara vienība"
 
-#: netbox/netbox/models/mixins.py:69
+#: netbox/netbox/models/mixins.py:74
 msgid "Must specify a unit when setting a weight"
 msgstr "Jānorāda vienība, iestatot svaru"
 
-#: netbox/netbox/models/mixins.py:74
+#: netbox/netbox/models/mixins.py:79
 msgid "distance"
 msgstr "attālums"
 
-#: netbox/netbox/models/mixins.py:81
+#: netbox/netbox/models/mixins.py:86
 msgid "distance unit"
 msgstr "attāluma vienība"
 
-#: netbox/netbox/models/mixins.py:116
+#: netbox/netbox/models/mixins.py:126
 msgid "Must specify a unit when setting a distance"
 msgstr "Jānorāda vienība, iestatot attālumu"
 
@@ -13150,9 +13198,9 @@ msgstr "Administrators"
 msgid "API Tokens"
 msgstr "API žetoni"
 
-#: netbox/netbox/navigation/menu.py:426 netbox/users/forms/model_forms.py:208
-#: netbox/users/forms/model_forms.py:216 netbox/users/forms/model_forms.py:263
-#: netbox/users/forms/model_forms.py:270
+#: netbox/netbox/navigation/menu.py:426 netbox/users/forms/model_forms.py:225
+#: netbox/users/forms/model_forms.py:233 netbox/users/forms/model_forms.py:280
+#: netbox/users/forms/model_forms.py:287
 msgid "Permissions"
 msgstr "Atļaujas"
 
@@ -13274,7 +13322,7 @@ msgstr "Pogas jānodod kā tuple vai saraksts."
 msgid "Button color must be a choice within ButtonColorChoices."
 msgstr "Pogu krāsai jābūt izvēlei sadaļā ButtonColorChoices."
 
-#: netbox/netbox/plugins/registration.py:27
+#: netbox/netbox/plugins/registration.py:28
 #, python-brace-format
 msgid ""
 "PluginTemplateExtension class {template_extension} was passed as an "
@@ -13282,7 +13330,7 @@ msgid ""
 msgstr ""
 "PluginTemplateExtension klase {template_extension} tika nodots kā piemērs!"
 
-#: netbox/netbox/plugins/registration.py:33
+#: netbox/netbox/plugins/registration.py:34
 #, python-brace-format
 msgid ""
 "{template_extension} is not a subclass of "
@@ -13291,20 +13339,29 @@ msgstr ""
 "{template_extension} nav Netbox.Plugins.Plugins.PluginTemplateExtension "
 "apakšklase!"
 
-#: netbox/netbox/plugins/registration.py:50
+#: netbox/netbox/plugins/registration.py:51
 #, python-brace-format
 msgid "{item} must be an instance of netbox.plugins.PluginMenuItem"
 msgstr "{item} jābūt Netbox.plugins.plugins.pluginMenuItem eksemplāram"
 
-#: netbox/netbox/plugins/registration.py:61
+#: netbox/netbox/plugins/registration.py:62
 #, python-brace-format
 msgid "{menu_link} must be an instance of netbox.plugins.PluginMenuItem"
 msgstr "{menu_link} jābūt Netbox.plugins.plugins.pluginMenuItem eksemplāram"
 
-#: netbox/netbox/plugins/registration.py:66
+#: netbox/netbox/plugins/registration.py:67
 #, python-brace-format
 msgid "{button} must be an instance of netbox.plugins.PluginMenuButton"
 msgstr "{button} jābūt Netbox.plugins.plugins.pluginMenuButton eksemplāram"
+
+#: netbox/netbox/plugins/registration.py:105
+msgid "Serializer resolver must be callable"
+msgstr "Serializatora risinātājam jābūt izsaucamam"
+
+#: netbox/netbox/plugins/registration.py:108
+#, python-brace-format
+msgid "A serializer resolver is already registered for app '{app_label}'"
+msgstr "Serializatora risinātājs jau ir reģistrēts lietotnei '{app_label}”"
 
 #: netbox/netbox/plugins/templates.py:42
 msgid "extra_context must be a dictionary"
@@ -13368,18 +13425,38 @@ msgstr ""
 "Renderējiet tabulu rindas ar mainīgām krāsām, lai palielinātu lasāmību"
 
 #: netbox/netbox/preferences.py:78
+msgid "Measurement units"
+msgstr "Mērvienības"
+
+#: netbox/netbox/preferences.py:80
+msgid "Inherited"
+msgstr "Mantots"
+
+#: netbox/netbox/preferences.py:81
+msgid "Metric"
+msgstr "Metriskā"
+
+#: netbox/netbox/preferences.py:82
+msgid "Imperial"
+msgstr "imperiālā"
+
+#: netbox/netbox/preferences.py:85
+msgid "Preferred unit system for displaying weight and distance measurements"
+msgstr "Vēlamā vienību sistēma svara un attāluma mērījumu parādīšanai"
+
+#: netbox/netbox/preferences.py:90
 msgid "Data format"
 msgstr "Datu formāts"
 
-#: netbox/netbox/preferences.py:83
+#: netbox/netbox/preferences.py:95
 msgid "The preferred syntax for displaying generic data within the UI"
 msgstr "Vēlamā sintakse vispārīgo datu parādīšanai lietotāja saskarnē"
 
-#: netbox/netbox/preferences.py:86 netbox/utilities/forms/bulk_import.py:38
+#: netbox/netbox/preferences.py:98 netbox/utilities/forms/bulk_import.py:38
 msgid "CSV delimiter"
 msgstr "CSV atdalītājs"
 
-#: netbox/netbox/preferences.py:89
+#: netbox/netbox/preferences.py:101
 msgid "The character used to separate fields in CSV data"
 msgstr "Rakstzīme, ko izmanto lauku atdalīšanai CSV datos"
 
@@ -13396,67 +13473,67 @@ msgstr "Pēc inicializācijas nevar pievienot veikalus reģistram"
 msgid "Cannot delete stores from registry"
 msgstr "Nevar izdzēst veikalus no reģistra"
 
-#: netbox/netbox/settings.py:865
+#: netbox/netbox/settings.py:873
 msgid "Czech"
 msgstr "Čehu valoda"
 
-#: netbox/netbox/settings.py:866
+#: netbox/netbox/settings.py:874
 msgid "Danish"
 msgstr "Dāņu valoda"
 
-#: netbox/netbox/settings.py:867
+#: netbox/netbox/settings.py:875
 msgid "German"
 msgstr "Vācu valoda"
 
-#: netbox/netbox/settings.py:868
+#: netbox/netbox/settings.py:876
 msgid "English"
 msgstr "Angļu valoda"
 
-#: netbox/netbox/settings.py:869
+#: netbox/netbox/settings.py:877
 msgid "Spanish"
 msgstr "Spāņu valoda"
 
-#: netbox/netbox/settings.py:870
+#: netbox/netbox/settings.py:878
 msgid "French"
 msgstr "Franču valoda"
 
-#: netbox/netbox/settings.py:871
+#: netbox/netbox/settings.py:879
 msgid "Italian"
 msgstr "Itāļu valoda"
 
-#: netbox/netbox/settings.py:872
+#: netbox/netbox/settings.py:880
 msgid "Japanese"
 msgstr "Japāņu valoda"
 
-#: netbox/netbox/settings.py:873
+#: netbox/netbox/settings.py:881
 msgid "Latvian"
 msgstr "Latviešu valoda"
 
-#: netbox/netbox/settings.py:874
+#: netbox/netbox/settings.py:882
 msgid "Dutch"
 msgstr "Holandiešu valoda"
 
-#: netbox/netbox/settings.py:875
+#: netbox/netbox/settings.py:883
 msgid "Polish"
 msgstr "Poļu valoda"
 
-#: netbox/netbox/settings.py:876
+#: netbox/netbox/settings.py:884
 msgid "Portuguese"
 msgstr "Portugāļu valoda"
 
-#: netbox/netbox/settings.py:877
+#: netbox/netbox/settings.py:885
 msgid "Russian"
 msgstr "Krievu valoda"
 
-#: netbox/netbox/settings.py:878
+#: netbox/netbox/settings.py:886
 msgid "Turkish"
 msgstr "Turku valoda"
 
-#: netbox/netbox/settings.py:879
+#: netbox/netbox/settings.py:887
 msgid "Ukrainian"
 msgstr "Ukraiņu valoda"
 
-#: netbox/netbox/settings.py:880
+#: netbox/netbox/settings.py:888
 msgid "Chinese"
 msgstr "Ķīniešu valoda"
 
@@ -13502,7 +13579,7 @@ msgstr "Manekens spraudnis"
 msgid "Copy"
 msgstr "Kopēt"
 
-#: netbox/netbox/ui/attrs.py:251
+#: netbox/netbox/ui/attrs.py:254
 #, python-brace-format
 msgid ""
 "Invalid decoding option: {decoding}! Must be one of {image_decoding_choices}"
@@ -13510,7 +13587,7 @@ msgstr ""
 "Nederīga dekodēšanas opcija: {decoding}! Jābūt vienam no "
 "{image_decoding_choices}"
 
-#: netbox/netbox/ui/attrs.py:316
+#: netbox/netbox/ui/attrs.py:319
 #, python-brace-format
 msgid ""
 "Invalid max_items value: {max_items}! Must be a positive integer or None."
@@ -13518,11 +13595,11 @@ msgstr ""
 "Nederīga max_items vērtība: {max_items}! Jābūt pozitīvam veselam skaitlim "
 "vai neuzstādītam."
 
-#: netbox/netbox/ui/attrs.py:490
+#: netbox/netbox/ui/attrs.py:497
 msgid "GPS coordinates"
 msgstr "GPS koordinātes"
 
-#: netbox/netbox/views/generic/bulk_views.py:139
+#: netbox/netbox/views/generic/bulk_views.py:140
 #, python-brace-format
 msgid ""
 "There was an error rendering the selected export template ({template}): "
@@ -13530,20 +13607,20 @@ msgid ""
 msgstr ""
 "Atzīmējot izvēlēto eksportēšanas veidni, radās kļūda ({template}): {error}"
 
-#: netbox/netbox/views/generic/bulk_views.py:423
+#: netbox/netbox/views/generic/bulk_views.py:424
 msgid "Must be a list."
 msgstr "Jābūt sarakstam."
 
-#: netbox/netbox/views/generic/bulk_views.py:433
+#: netbox/netbox/views/generic/bulk_views.py:434
 msgid "Must be a dictionary."
 msgstr "Jābūt vārdnīcai."
 
-#: netbox/netbox/views/generic/bulk_views.py:490
+#: netbox/netbox/views/generic/bulk_views.py:491
 #, python-brace-format
 msgid "Object with ID {id} does not exist"
 msgstr "Objekts ar ID {id} neeksistē"
 
-#: netbox/netbox/views/generic/bulk_views.py:553
+#: netbox/netbox/views/generic/bulk_views.py:554
 #, python-brace-format
 msgid ""
 "Duplicate objects found: {model} with ID(s) {ids} appears multiple times"
@@ -13551,62 +13628,66 @@ msgstr ""
 "Atrasti dublikāti objekti: {model} ar ID (-iem) {ids} parādās vairākas "
 "reizes"
 
-#: netbox/netbox/views/generic/bulk_views.py:605
+#: netbox/netbox/views/generic/bulk_views.py:606
 #, python-brace-format
 msgid "Bulk import {count} {object_type}"
 msgstr "Lielapjoma imports {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:621
+#: netbox/netbox/views/generic/bulk_views.py:622
 #, python-brace-format
 msgid "Imported {count} {object_type}"
 msgstr "Importēts {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:811
+#: netbox/netbox/views/generic/bulk_views.py:812
 #, python-brace-format
 msgid "Bulk edit {count} {object_type}"
 msgstr "Lielapjoma rediģēšana {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:827
+#: netbox/netbox/views/generic/bulk_views.py:828
 #, python-brace-format
 msgid "Updated {count} {object_type}"
 msgstr "Atjaunināts {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:860
-#: netbox/netbox/views/generic/bulk_views.py:1109
-#: netbox/netbox/views/generic/bulk_views.py:1157
+#: netbox/netbox/views/generic/bulk_views.py:861
+#: netbox/netbox/views/generic/bulk_views.py:1140
+#: netbox/netbox/views/generic/bulk_views.py:1188
 #, python-brace-format
 msgid "No {object_type} were selected."
 msgstr "Netika izvēlēti {object_type}"
 
 #: netbox/netbox/views/generic/bulk_views.py:968
+msgid "Select at least one field to rename."
+msgstr "Atlasiet vismaz vienu lauku, lai pārdēvētu."
+
+#: netbox/netbox/views/generic/bulk_views.py:998
 #, python-brace-format
 msgid "Renamed {count} {object_type}"
 msgstr "Pārdēvēts {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1038
+#: netbox/netbox/views/generic/bulk_views.py:1069
 #, python-brace-format
 msgid "Bulk delete {count} {object_type}"
 msgstr "Lielapjoma dzēšana {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1065
+#: netbox/netbox/views/generic/bulk_views.py:1096
 #, python-brace-format
 msgid "Deleted {count} {object_type}"
 msgstr "{count} {object_type} izdzēsts(i)"
 
-#: netbox/netbox/views/generic/bulk_views.py:1082
+#: netbox/netbox/views/generic/bulk_views.py:1113
 msgid "Deletion failed due to the presence of one or more dependent objects."
 msgstr "Dzēšana neizdevās viena vai vairāku atkarīgo objektu klātbūtnes dēļ."
 
-#: netbox/netbox/views/generic/bulk_views.py:1170
+#: netbox/netbox/views/generic/bulk_views.py:1201
 #, python-brace-format
 msgid "Bulk add {count} {object_type}"
 msgstr "Lielapjoma pievienošana {count} {object_type}"
 
-#: netbox/netbox/views/generic/bulk_views.py:1223
+#: netbox/netbox/views/generic/bulk_views.py:1254
 msgid "An integrity error occurred while creating components"
 msgstr "Izveidojot komponentus, radās integritātes kļūda"
 
-#: netbox/netbox/views/generic/bulk_views.py:1235
+#: netbox/netbox/views/generic/bulk_views.py:1266
 #, python-brace-format
 msgid "Added {count} {component} to {parent_count} {parent}."
 msgstr "Pievienots {count} {component} pie {parent_count} {parent}."
@@ -13738,7 +13819,7 @@ msgstr "Mainīt paroli"
 #: netbox/templates/generic/bulk_import.html:66
 #: netbox/templates/generic/bulk_import.html:98
 #: netbox/templates/generic/bulk_import.html:131
-#: netbox/templates/generic/bulk_rename.html:65
+#: netbox/templates/generic/bulk_rename.html:101
 #: netbox/templates/generic/confirmation_form.html:19
 #: netbox/templates/generic/object_edit.html:74
 #: netbox/templates/htmx/delete_form.html:66
@@ -13760,9 +13841,10 @@ msgstr "Atcelt"
 #: netbox/templates/extras/dashboard/widget_config.html:19
 #: netbox/templates/extras/object_journal.html:27
 #: netbox/templates/generic/object_edit.html:77
+#: netbox/templates/htmx/table.html:27
+#: netbox/templates/inc/table_controls_htmx.html:41
 #: netbox/templates/users/token_edit.html:34
 #: netbox/utilities/templates/helpers/applied_filters.html:16
-#: netbox/utilities/templates/helpers/table_config_form.html:40
 msgid "Save"
 msgstr "Saglabāt"
 
@@ -13794,7 +13876,7 @@ msgid "Select %(name)s"
 msgstr "Izvēlēties %(name)s"
 
 #: netbox/templates/account/preferences.html:71
-#: netbox/templates/core/system.html:119
+#: netbox/templates/core/system.html:118
 #: netbox/templates/dcim/cable_trace.html:113
 #: netbox/templates/extras/object_configcontext.html:43
 msgid "None found"
@@ -13825,8 +13907,8 @@ msgstr "Pēdējā pieteikšanās"
 msgid "Superuser"
 msgstr "Superlietotājs"
 
-#: netbox/templates/account/profile.html:47 netbox/users/views.py:118
-#: netbox/users/views.py:300
+#: netbox/templates/account/profile.html:47 netbox/users/views.py:128
+#: netbox/users/views.py:310
 msgid "Assigned Groups"
 msgstr "Piešķirtās grupas"
 
@@ -14422,33 +14504,39 @@ msgstr "Nav pieejams"
 msgid "RQ workers"
 msgstr "RQ darbinieki"
 
-#: netbox/templates/core/system.html:97
-msgid "default queue"
-msgstr "noklusējuma rinda"
-
-#: netbox/templates/core/system.html:101
+#: netbox/templates/core/system.html:100
 msgid "System time"
 msgstr "Sistēmas laiks"
 
-#: netbox/templates/core/system.html:107
+#: netbox/templates/core/system.html:106
 msgid "Django Apps"
 msgstr "Django lietotnes"
 
-#: netbox/templates/core/system.html:132
+#: netbox/templates/core/system.html:131
 msgid "Current Configuration"
 msgstr "Pašreizējā konfigurācija"
 
-#: netbox/templates/core/system.html:144
+#: netbox/templates/core/system.html:143
 msgid "Installed Plugins"
 msgstr "Uzstādītie spraudņi"
 
-#: netbox/templates/core/system.html:156
+#: netbox/templates/core/system.html:155
 msgid "No plugins are installed."
 msgstr "Nav uzstādītu spraudņu."
 
-#: netbox/templates/core/system.html:189
+#: netbox/templates/core/system.html:188
 msgid "Loading database schema…"
 msgstr "Ielādē datu bāzes struktūru..."
+
+#: netbox/templates/dcim/attrs/total_weight.html:4
+#: netbox/templates/dcim/attrs/total_weight.html:8
+msgid "Pound"
+msgstr "Mārciņa"
+
+#: netbox/templates/dcim/attrs/total_weight.html:6
+#: netbox/templates/dcim/attrs/total_weight.html:8
+msgid "Kilogram"
+msgstr "Kilograms"
 
 #: netbox/templates/dcim/bulk_disconnect.html:9
 #, python-format
@@ -14544,19 +14632,19 @@ msgstr "Izcelt iekārtu statnē"
 msgid "Not racked"
 msgstr "Nav ievietots statnē"
 
-#: netbox/templates/dcim/device/inc/interface_table_controls.html:9
-msgid "Hide Enabled"
-msgstr "Paslēpt iespējots"
-
-#: netbox/templates/dcim/device/inc/interface_table_controls.html:10
+#: netbox/templates/dcim/device/inc/interface_table_controls.html:13
 msgid "Hide Disabled"
 msgstr "Paslēpt atspējotos"
 
-#: netbox/templates/dcim/device/inc/interface_table_controls.html:11
+#: netbox/templates/dcim/device/inc/interface_table_controls.html:19
+msgid "Hide Enabled"
+msgstr "Paslēpt iespējots"
+
+#: netbox/templates/dcim/device/inc/interface_table_controls.html:26
 msgid "Hide Virtual"
 msgstr "Slēpt virtuālo"
 
-#: netbox/templates/dcim/device/inc/interface_table_controls.html:12
+#: netbox/templates/dcim/device/inc/interface_table_controls.html:33
 msgid "Hide Disconnected"
 msgstr "Paslēpt atvienoto"
 
@@ -14857,8 +14945,8 @@ msgstr "Pievienot jaunu dalībnieku"
 
 #: netbox/templates/dcim/virtualchassis_add_member.html:27
 #: netbox/templates/generic/object_edit.html:80
-#: netbox/users/forms/filtersets.py:64 netbox/users/forms/model_forms.py:368
-#: netbox/users/forms/model_forms.py:410 netbox/users/ui/panels.py:50
+#: netbox/users/forms/filtersets.py:64 netbox/users/forms/model_forms.py:385
+#: netbox/users/forms/model_forms.py:427 netbox/users/ui/panels.py:50
 msgid "Actions"
 msgstr "Darbības"
 
@@ -15306,7 +15394,8 @@ msgid "Bulk Edit"
 msgstr "Lielapjoma rediģēšana"
 
 #: netbox/templates/generic/bulk_edit.html:131
-#: netbox/templates/generic/bulk_rename.html:68
+#: netbox/templates/generic/bulk_rename.html:104
+#: netbox/utilities/templates/helpers/table_config_form.html:40
 msgid "Apply"
 msgstr "Pielietot izmaiņas"
 
@@ -15362,27 +15451,33 @@ msgstr ""
 "Uz saistītajiem objektiem var atsaukties jebkurš unikāls atribūts. Piemēram,"
 " <code>%(example)s</code> identificētu VRF pēc tā oute distinguisher."
 
-#: netbox/templates/generic/bulk_rename.html:20
+#: netbox/templates/generic/bulk_rename.html:22
 msgid "Renaming"
 msgstr "Pārdēvēšana"
 
-#: netbox/templates/generic/bulk_rename.html:27
+#: netbox/templates/generic/bulk_rename.html:29
 msgid "Bulk Rename"
 msgstr "Lielapjoma pārdēvēšana"
 
-#: netbox/templates/generic/bulk_rename.html:39
-msgid "Current Name"
-msgstr "Pašreizējais nosaukums"
+#: netbox/templates/generic/bulk_rename.html:43
+#, python-format
+msgid "Current %(field_label)s"
+msgstr "Pašreizējais %(field_label)s"
 
-#: netbox/templates/generic/bulk_rename.html:40
-msgid "New Name"
-msgstr "Jauns nosaukums"
+#: netbox/templates/generic/bulk_rename.html:44
+#, python-format
+msgid "New %(field_label)s"
+msgstr "Jauns %(field_label)s"
 
-#: netbox/templates/generic/bulk_rename.html:59
+#: netbox/templates/generic/bulk_rename.html:65
 msgid "Rename"
 msgstr "Pārdēvēt"
 
-#: netbox/templates/generic/bulk_rename.html:66
+#: netbox/templates/generic/bulk_rename.html:72
+msgid "Fields"
+msgstr "Lauki"
+
+#: netbox/templates/generic/bulk_rename.html:102
 #: netbox/utilities/templates/widgets/markdown_input.html:11
 msgid "Preview"
 msgstr "Priekšskatījums"
@@ -15593,7 +15688,7 @@ msgstr "Notīrīt ātro meklēšanu"
 
 #: netbox/templates/inc/table_htmx.html:18
 msgid "Clear ordering"
-msgstr "Skaidra pasūtīšana"
+msgstr "Tīrīt kārtošanu"
 
 #: netbox/templates/inc/toast.html:8
 msgid "Close"
@@ -15832,11 +15927,11 @@ msgstr ""
 " tāpēc šī ir jūsu vienīgā iespēja to nokopēt. Tas tiks zaudēts, pārvietojoties prom no šīs lapas.\n"
 "        "
 
-#: netbox/templates/users/inc/user_activity.html:6 netbox/users/views.py:132
+#: netbox/templates/users/inc/user_activity.html:6 netbox/users/views.py:142
 msgid "Recent Activity"
 msgstr "Nesenās aktivitātes"
 
-#: netbox/templates/users/inc/user_activity.html:9 netbox/users/views.py:137
+#: netbox/templates/users/inc/user_activity.html:9 netbox/users/views.py:147
 msgid "View All"
 msgstr "Skatīt visu"
 
@@ -15858,7 +15953,7 @@ msgid "Permission"
 msgstr "Atļauja"
 
 #: netbox/templates/users/panels/actions.html:27
-#: netbox/users/forms/model_forms.py:338
+#: netbox/users/forms/model_forms.py:355
 msgid "Additional actions"
 msgstr "Papildu darbības"
 
@@ -16294,34 +16389,42 @@ msgstr ""
 "lai nebūtu ierobežojumu. Piemērs: <code>10.1.1.0/24,192.168.10.16/32,2001: "
 "dB 8:1: :/64</code>"
 
-#: netbox/users/forms/model_forms.py:196
+#: netbox/users/forms/model_forms.py:197
+msgid "Unable to verify permission to create tokens."
+msgstr "Nevar pārbaudīt atļauju žetonu izveidei."
+
+#: netbox/users/forms/model_forms.py:200 netbox/users/views.py:90
+msgid "This user does not have permission to create tokens for other users."
+msgstr "Šim lietotājam nav atļaujas izveidot žetonus citiem lietotājiem."
+
+#: netbox/users/forms/model_forms.py:213
 msgid "Confirm password"
 msgstr "Apstipriniet paroli"
 
-#: netbox/users/forms/model_forms.py:199
+#: netbox/users/forms/model_forms.py:216
 msgid "Enter the same password as before, for verification."
 msgstr "Verifikācijai ievadiet to pašu paroli kā iepriekš."
 
-#: netbox/users/forms/model_forms.py:248
+#: netbox/users/forms/model_forms.py:265
 msgid "Passwords do not match! Please check your input and try again."
 msgstr "Paroles nesakrīt! Lūdzu, pārbaudiet savu ievadi un mēģiniet vēlreiz."
 
-#: netbox/users/forms/model_forms.py:323
+#: netbox/users/forms/model_forms.py:340
 msgid "Select the types of objects to which the permission will apply."
 msgstr "Atlasiet objektu veidus, kuriem tiks piemērota atļauja."
 
-#: netbox/users/forms/model_forms.py:341
+#: netbox/users/forms/model_forms.py:358
 msgid ""
 "Additional actions for models which have not yet registered their own "
 "actions"
 msgstr "Papildu darbības modeļiem, kuri vēl nav reģistrējuši savas darbības"
 
-#: netbox/users/forms/model_forms.py:355 netbox/users/forms/model_forms.py:371
-#: netbox/users/forms/model_forms.py:413 netbox/users/views.py:292
+#: netbox/users/forms/model_forms.py:372 netbox/users/forms/model_forms.py:388
+#: netbox/users/forms/model_forms.py:430 netbox/users/views.py:302
 msgid "Constraints"
 msgstr "Ierobežojumi"
 
-#: netbox/users/forms/model_forms.py:357
+#: netbox/users/forms/model_forms.py:374
 msgid ""
 "JSON expression of a queryset filter that will return only permitted "
 "objects. Leave null to match all objects of this type. A list of multiple "
@@ -16331,20 +16434,20 @@ msgstr ""
 "Atstājiet nulli, lai tie atbilstu visiem šāda veida objektiem. Vairāku "
 "objektu saraksts radīs loģisku OR darbību."
 
-#: netbox/users/forms/model_forms.py:365 netbox/users/forms/model_forms.py:405
+#: netbox/users/forms/model_forms.py:382 netbox/users/forms/model_forms.py:422
 msgid "Objects"
 msgstr "Objekti"
 
-#: netbox/users/forms/model_forms.py:492
+#: netbox/users/forms/model_forms.py:509
 msgid "At least one action must be selected."
 msgstr "Jāizvēlas vismaz viena darbība."
 
-#: netbox/users/forms/model_forms.py:510
+#: netbox/users/forms/model_forms.py:527
 #, python-brace-format
 msgid "Invalid filter for {model}: {error}"
 msgstr "Nederīgs filtrs {model}: {error}"
 
-#: netbox/users/forms/model_forms.py:550
+#: netbox/users/forms/model_forms.py:567
 msgid "User groups"
 msgstr "Lietotāju grupas"
 
@@ -16573,30 +16676,30 @@ msgstr "Pēdējā pieteikšanās"
 msgid "View"
 msgstr "Skatīt"
 
-#: netbox/users/views.py:122 netbox/users/views.py:223
+#: netbox/users/views.py:132 netbox/users/views.py:233
 msgid "Assigned Permissions"
 msgstr "Piešķirtās atļaujas"
 
-#: netbox/users/views.py:126 netbox/users/views.py:227
+#: netbox/users/views.py:136 netbox/users/views.py:237
 msgid "Owner Membership"
 msgstr "Īpašnieka dalība"
 
-#: netbox/users/views.py:297
+#: netbox/users/views.py:307
 msgid "Assigned Users"
 msgstr "Piešķirtie lietotāji"
 
-#: netbox/utilities/api.py:207
+#: netbox/utilities/api.py:236
 #, python-brace-format
 msgid "Related object not found using the provided attributes: {params}"
 msgstr ""
 "Saistītais objekts nav atrasts, izmantojot sniegtos atribūtus: {params}"
 
-#: netbox/utilities/api.py:210
+#: netbox/utilities/api.py:239
 #, python-brace-format
 msgid "Multiple objects match the provided attributes: {params}"
 msgstr "Vairāki objekti atbilst sniegtajiem atribūtiem: {params}"
 
-#: netbox/utilities/api.py:222
+#: netbox/utilities/api.py:251
 #, python-brace-format
 msgid ""
 "Related objects must be referenced by numeric ID or by dictionary of "
@@ -16605,7 +16708,7 @@ msgstr ""
 "Saistītajiem objektiem jānorāda ar ciparu ID vai atribūtu vārdnīcu. Saņēma "
 "neatzītu vērtību: {value}"
 
-#: netbox/utilities/api.py:231
+#: netbox/utilities/api.py:260
 #, python-brace-format
 msgid "Related object not found using the provided numeric ID: {id}"
 msgstr "Saistītais objekts nav atrasts, izmantojot norādīto ciparu ID: {id}"
@@ -17138,7 +17241,7 @@ msgstr "Rakstīt"
 msgid "Selected"
 msgstr "Izvēlēts"
 
-#: netbox/utilities/testing/views.py:725
+#: netbox/utilities/testing/views.py:728
 msgid "The test must define csv_update_data."
 msgstr "Pārbaudei jādefinē csv_update_data."
 
