@@ -52,8 +52,16 @@ def get_bulk_update_serializer_class(serializer_class, *, partial=False):
 
     meta = getattr(serializer_class, 'Meta')
 
-    class Meta(meta):
+    if meta.fields == '__all__':
+        fields = '__all__'
+    else:
         fields = ('id', *[f for f in meta.fields if f != 'id'])
+
+    class Meta(meta):
+        pass
+
+    # intentional; this is different than setting fields = fields within class Meta above
+    Meta.fields = fields
 
     bases = (
         (BulkPartialUpdateSchemaMixin, serializer_class)
