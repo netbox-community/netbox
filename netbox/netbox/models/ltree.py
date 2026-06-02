@@ -290,13 +290,17 @@ class LtreeModel(models.Model):
         acquired a per-model advisory lock on every write to protect its global
         lft/rght/tree_id numbering). Because a row's path depends only on its
         parent's path, concurrent inserts and moves under *different* parents
-        never conflict. One narrow race remains: inserting (or moving a node)
-        under parent P while P — or an ancestor of P — is concurrently reparented
-        in another transaction. The BEFORE trigger reads P's pre-move path under
-        its own snapshot, so the row may persist with a stale path. This requires
-        concurrent mutation of the same subtree and is accepted as the trade-off
-        for dropping the table-wide lock; if strict serialization is ever needed,
-        lock the parent row (`SELECT ... FOR SHARE`) inside the BEFORE trigger.
+        never conflict.
+
+        To keep a node consistent with a concurrently-reparented ancestor, the
+        BEFORE trigger reads the parent row `FOR SHARE`. That shared lock conflicts
+        with the row-exclusive lock a reparent/rename of the parent takes, so an
+        insert/move under P is serialized against a concurrent reparent or rename
+        of P (or of an ancestor, whose cascade must update P's row). Sibling
+        inserts under a stable parent still proceed concurrently — shared locks
+        don't conflict. Crossing reparents (moving A under B while moving B under
+        A) can deadlock; PostgreSQL aborts one with a retryable error rather than
+        silently persisting a stale path.
     """
     # `default=''` here is a Django-side placeholder that the BEFORE INSERT
     # trigger always overwrites with a valid path before the row reaches
@@ -552,7 +556,10 @@ CREATE OR REPLACE FUNCTION "{table}_ltree_compute_path_fn"() RETURNS TRIGGER AS 
 DECLARE parent_path ltree;
 BEGIN
     IF NEW.parent_id IS NOT NULL THEN
-        EXECUTE format('SELECT path FROM %%I WHERE id = $1', TG_TABLE_NAME)
+        -- FOR SHARE locks the parent row so a concurrent reparent/rename of it
+        -- (or of an ancestor, whose cascade updates this parent's row) cannot
+        -- proceed until this insert/move commits, preventing a stale path.
+        EXECUTE format('SELECT path FROM %%I WHERE id = $1 FOR SHARE', TG_TABLE_NAME)
             INTO parent_path USING NEW.parent_id;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
     ELSE
@@ -595,7 +602,10 @@ DECLARE
     parent_sort_path text;
 BEGIN
     IF NEW.parent_id IS NOT NULL THEN
-        EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1', TG_TABLE_NAME)
+        -- FOR SHARE locks the parent row so a concurrent reparent/rename of it
+        -- (or of an ancestor, whose cascade updates this parent's row) cannot
+        -- proceed until this insert/move commits, preventing a stale path/sort_path.
+        EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1 FOR SHARE', TG_TABLE_NAME)
             INTO parent_path, parent_sort_path USING NEW.parent_id;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
         NEW.sort_path := parent_sort_path || chr(1) || NEW.{name_col};
