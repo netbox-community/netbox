@@ -140,7 +140,7 @@ END $$;
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0236_moduletype_component_counts'),
+        ('dcim', '0237_module_remove_local_context_data'),
     ]
 
     operations = [
