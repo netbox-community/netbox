@@ -28,13 +28,32 @@ WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
     UNION ALL
     SELECT r.id, r.parent_id,
            t.path || lpad(r.id::text, 19, '0')::ltree,
-           t.sort_path || chr(1) || r.name
+           t.sort_path || chr(9) || r.name
     FROM "{table}" r JOIN t ON r.parent_id = t.id
 )
 UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
 FROM t WHERE "{table}".id = t.id;
 """)
     return '\n'.join(blocks)
+
+
+def _assert_paths_populated_sql():
+    checks = []
+    for table in TABLES:
+        checks.append(f"""
+DO $$
+DECLARE missing bigint;
+BEGIN
+    SELECT count(*) INTO missing FROM "{table}" WHERE path IS NULL;
+    IF missing > 0 THEN
+        RAISE EXCEPTION
+            'ltree backfill left % rows in "{table}" with NULL path; '
+            'likely orphan parent_id references — resolve before re-running '
+            'this migration', missing;
+    END IF;
+END $$;
+""")
+    return '\n'.join(checks)
 
 
 class Migration(migrations.Migration):
@@ -86,6 +105,10 @@ class Migration(migrations.Migration):
         *[InstallLtreeTriggers(t, name_column='name') for t in TABLES],
 
         migrations.RunSQL(_populate_paths_sql(), reverse_sql=migrations.RunSQL.noop),
+
+        # Fail fast if any row still has NULL path (orphan FKs) before the
+        # AlterField below tries to set NOT NULL inside ALTER COLUMN.
+        migrations.RunSQL(_assert_paths_populated_sql(), reverse_sql=migrations.RunSQL.noop),
 
         *[
             migrations.AlterField(

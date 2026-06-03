@@ -77,7 +77,7 @@ def _populate_paths_sql():
     """
     Build the recursive CTE that walks each table from roots downward, computing
     the new path (PK-based, zero-padded) and — for models with sort_path — the
-    chr(1)-separated chain of ancestor names.
+    chr(9)-separated chain of ancestor names.
     """
     blocks = []
     for table in ALL_TABLES:
@@ -91,7 +91,7 @@ WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
     UNION ALL
     SELECT r.id, r.parent_id,
            t.path || lpad(r.id::text, 19, '0')::ltree,
-           t.sort_path || chr(1) || r.name
+           t.sort_path || chr(9) || r.name
     FROM "{table}" r JOIN t ON r.parent_id = t.id
 )
 UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
@@ -108,6 +108,33 @@ WITH RECURSIVE t(id, parent_id, path) AS (
 UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
 """)
     return '\n'.join(blocks)
+
+
+def _assert_paths_populated_sql():
+    """
+    After the recursive CTE backfills paths from `parent_id IS NULL` roots, any
+    row whose parent_id points to a row that the CTE could not reach (orphan FK,
+    stray cycle left by a prior raw write) will still have path IS NULL. The
+    immediately following AlterField that sets path to NOT NULL would then abort
+    inside ALTER COLUMN with an opaque message. Fail fast here instead so the
+    operator sees the offending table and row counts.
+    """
+    checks = []
+    for table in ALL_TABLES:
+        checks.append(f"""
+DO $$
+DECLARE missing bigint;
+BEGIN
+    SELECT count(*) INTO missing FROM "{table}" WHERE path IS NULL;
+    IF missing > 0 THEN
+        RAISE EXCEPTION
+            'ltree backfill left % rows in "{table}" with NULL path; '
+            'likely orphan parent_id references — resolve before re-running '
+            'this migration', missing;
+    END IF;
+END $$;
+""")
+    return '\n'.join(checks)
 
 
 class Migration(migrations.Migration):
@@ -196,6 +223,10 @@ class Migration(migrations.Migration):
 
         # 4. Populate existing rows via per-table recursive CTE.
         migrations.RunSQL(_populate_paths_sql(), reverse_sql=migrations.RunSQL.noop),
+
+        # 4b. Fail fast (with a useful message) if any row still has NULL path —
+        #     otherwise the AlterField below aborts opaquely inside ALTER COLUMN.
+        migrations.RunSQL(_assert_paths_populated_sql(), reverse_sql=migrations.RunSQL.noop),
 
         # 5. Tighten path to NOT NULL with empty-string default.
         *[

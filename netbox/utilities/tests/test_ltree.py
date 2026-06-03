@@ -376,16 +376,18 @@ class BulkCreateOrderingTests(TestCase):
             Region.objects.bulk_create([unsaved_child, unsaved_parent])
         self.assertIn('parents must precede', str(ctx.exception))
 
-    def test_bulk_create_allows_unrelated_unsaved_parent(self):
-        """An unsaved parent that isn't in the batch must not trigger the guard."""
+    def test_bulk_create_rejects_unsaved_parent_not_in_batch(self):
+        """
+        An unsaved parent that isn't in the batch must be rejected with a clear
+        ValueError; otherwise the child's parent_id is None at INSERT time and
+        the BEFORE trigger silently stores the row as a root.
+        """
         external_parent = Region(name='X', slug='x-bcok')  # not in the batch
-        # This use is rare but valid: external_parent is unsaved, but the caller
-        # is responsible for ensuring it exists before the insert reaches the DB.
-        # The guard only inspects parents that share the same batch.
-        with self.assertRaises(Exception):
-            # The DB will reject this because parent has no PK; the point is the
-            # guard itself must not raise its own ValueError here.
+        with self.assertRaises(ValueError) as ctx:
             Region.objects.bulk_create([Region(parent=external_parent, name='Y', slug='y-bcok')])
+        self.assertIn('unsaved parent', str(ctx.exception))
+        # Nothing should have been written.
+        self.assertFalse(Region.objects.filter(slug='y-bcok').exists())
 
 
 class TreeNodeFilterTests(TestCase):
@@ -480,8 +482,8 @@ class RenameCascadesSortPathTests(TestCase):
         mid.refresh_from_db()
         leaf.refresh_from_db()
         self.assertEqual(parent.sort_path, 'Zulu')
-        self.assertEqual(mid.sort_path, f'Zulu{chr(1)}Mid')
-        self.assertEqual(leaf.sort_path, f'Zulu{chr(1)}Mid{chr(1)}Leaf')
+        self.assertEqual(mid.sort_path, f'Zulu{chr(9)}Mid')
+        self.assertEqual(leaf.sort_path, f'Zulu{chr(9)}Mid{chr(9)}Leaf')
         # Paths unchanged — only sort_path moved.
         self.assertEqual(mid.path, _path(parent.pk, mid.pk))
         self.assertEqual(leaf.path, _path(parent.pk, mid.pk, leaf.pk))
@@ -497,7 +499,7 @@ class RenameCascadesSortPathTests(TestCase):
         a.save()
 
         b_kid.refresh_from_db()
-        self.assertEqual(b_kid.sort_path, f'BB{chr(1)}BKid')
+        self.assertEqual(b_kid.sort_path, f'BB{chr(9)}BKid')
 
 
 class RebuildSortPathsTests(TestCase):
@@ -517,7 +519,7 @@ class RebuildSortPathsTests(TestCase):
         parent.refresh_from_db()
         mid.refresh_from_db()
         self.assertEqual(parent.sort_path, 'Bravo')
-        self.assertEqual(mid.sort_path, f'Bravo{chr(1)}Mid')
+        self.assertEqual(mid.sort_path, f'Bravo{chr(9)}Mid')
 
     def test_raises_without_sort_path(self):
         # InventoryItem uses LtreeModel but doesn't have a sort_path column.
@@ -537,7 +539,7 @@ class SortPathRefreshTests(TestCase):
         child = Region.objects.create(name='Kid', slug='kid-spr', parent=root)
         db_sort_path = Region.objects.values_list('sort_path', flat=True).get(pk=child.pk)
         self.assertEqual(child.sort_path, db_sort_path)
-        self.assertEqual(child.sort_path, f'Root{chr(1)}Kid')
+        self.assertEqual(child.sort_path, f'Root{chr(9)}Kid')
 
     def test_reparent_refreshes_sort_path(self):
         a = Region.objects.create(name='Alpha', slug='alpha-spr')
@@ -547,7 +549,7 @@ class SortPathRefreshTests(TestCase):
         child.save()
         db_sort_path = Region.objects.values_list('sort_path', flat=True).get(pk=child.pk)
         self.assertEqual(child.sort_path, db_sort_path)
-        self.assertEqual(child.sort_path, f'Bravo{chr(1)}Kid')
+        self.assertEqual(child.sort_path, f'Bravo{chr(9)}Kid')
 
     def test_rename_refreshes_sort_path(self):
         # The trigger rewrites sort_path on a name change; the in-memory instance
@@ -686,3 +688,106 @@ class CascadeTriggerScopeTests(TestCase):
         self.assertEqual(child.path, original_child_path)
         self.assertNotIn('Bravo', child.sort_path)
         self.assertIn('Zulu', child.sort_path)
+
+
+class CycleGuardWithEmptyPathTests(TestCase):
+    """
+    _parent_creates_cycle must catch self-as-parent even when self.path is
+    empty or deferred — otherwise an instance constructed without a loaded
+    path can pass the Python guard and corrupt the tree.
+    """
+
+    def test_self_parent_rejected_when_path_is_empty(self):
+        from django.core.exceptions import ValidationError
+        a = Region.objects.create(name='A', slug='a-empty-cyc')
+        # Simulate a caller (script, plugin) that holds an instance whose `path`
+        # attribute was never loaded — e.g. via .only('id', 'parent_id').
+        # Empty-string path is the LtreeField default, so this mirrors what a
+        # deferred-or-unset path looks like at the Python layer.
+        a.path = ''
+        a.parent_id = a.pk
+        with self.assertRaises(ValidationError):
+            a.save()
+
+
+class TriggerCycleGuardTests(TestCase):
+    """
+    The BEFORE INSERT/UPDATE trigger must reject a parent_id assignment that
+    would form a cycle. The Python save()-time guard already catches this for
+    ordinary save(); the trigger backstops QuerySet.update / bulk_update /
+    raw UPDATEs that bypass save().
+    """
+
+    def test_queryset_update_to_self_parent_blocked_by_trigger(self):
+        from django.db import IntegrityError, transaction
+        a = Region.objects.create(name='A', slug='a-tgcyc')
+        # IntegrityError leaves Django's transaction marked-for-rollback; wrap
+        # the failing UPDATE in a savepoint so the outer test transaction can
+        # continue to issue queries (refresh_from_db).
+        with self.assertRaises(IntegrityError) as ctx:
+            with transaction.atomic():
+                Region.objects.filter(pk=a.pk).update(parent_id=a.pk)
+        self.assertIn('cycle detected', str(ctx.exception))
+        a.refresh_from_db()
+        self.assertIsNone(a.parent_id)
+
+    def test_queryset_update_to_descendant_blocked_by_trigger(self):
+        from django.db import IntegrityError, transaction
+        a = Region.objects.create(name='A', slug='a-tgcyc2')
+        b = Region.objects.create(parent=a, name='B', slug='b-tgcyc2')
+        # Try to reparent A under B (B is A's descendant) via raw UPDATE.
+        with self.assertRaises(IntegrityError) as ctx:
+            with transaction.atomic():
+                Region.objects.filter(pk=a.pk).update(parent_id=b.pk)
+        self.assertIn('cycle detected', str(ctx.exception))
+        a.refresh_from_db()
+        self.assertIsNone(a.parent_id)
+
+    def test_legitimate_reparent_via_update_still_works(self):
+        a = Region.objects.create(name='A', slug='a-tgok')
+        b = Region.objects.create(name='B', slug='b-tgok')
+        child = Region.objects.create(parent=a, name='C', slug='c-tgok')
+        Region.objects.filter(pk=child.pk).update(parent_id=b.pk)
+        child.refresh_from_db()
+        self.assertEqual(child.parent_id, b.pk)
+        self.assertEqual(child.path, _path(b.pk, child.pk))
+
+
+class NaturalSortSortPathTests(TestCase):
+    """
+    Sort-path separator must produce correct tree-flatten ordering under the
+    `natural_sort` (ICU `und-u-kn-true`) collation used by ModuleBay,
+    TenantGroup, and WirelessLANGroup. chr(1) was variable-ignorable under
+    that collation and would interleave children with unrelated roots;
+    chr(9) (TAB) is treated non-variably and orders deterministically.
+    """
+
+    def test_chr9_separator_collates_below_letters_under_natural_sort(self):
+        # Direct collation probe — independent of any model schema.
+        with connection.cursor() as cur:
+            cur.execute("""
+                SELECT
+                  ('A' || chr(9) || 'Z') COLLATE "natural_sort"
+                    < 'AA' COLLATE "natural_sort"
+            """)
+            self.assertTrue(cur.fetchone()[0])
+
+    def test_tree_flatten_ordering_under_natural_sort(self):
+        # TenantGroup.sort_path uses natural_sort collation; build a small tree
+        # where chr(1) would have produced wrong sibling ordering. TenantGroup
+        # names are globally unique, so each row gets a distinct name. Under
+        # the old chr(1) separator the child's sort_path was variable-ignorable
+        # and collated AFTER the unrelated root 'nsP1'; chr(9) sorts strictly
+        # below digits/letters and keeps children clustered under their parent.
+        from tenancy.models import TenantGroup
+        parent = TenantGroup.objects.create(name='nsP', slug='nsp-ns')
+        TenantGroup.objects.create(parent=parent, name='nsPchild', slug='nspc-ns')
+        TenantGroup.objects.create(name='nsP1', slug='nsp1-ns')  # unrelated root
+
+        names = list(
+            TenantGroup.objects.filter(slug__endswith='-ns')
+            .order_by('sort_path')
+            .values_list('name', flat=True)
+        )
+        # Expected tree-flatten: parent, its child, then the unrelated root.
+        self.assertEqual(names, ['nsP', 'nsPchild', 'nsP1'])

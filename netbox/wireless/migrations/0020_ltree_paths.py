@@ -57,11 +57,30 @@ WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
     UNION ALL
     SELECT r.id, r.parent_id,
            t.path || lpad(r.id::text, 19, '0')::ltree,
-           t.sort_path || chr(1) || r.name
+           t.sort_path || chr(9) || r.name
     FROM "{TABLE}" r JOIN t ON r.parent_id = t.id
 )
 UPDATE "{TABLE}" SET path = t.path, sort_path = t.sort_path
 FROM t WHERE "{TABLE}".id = t.id;
+""",
+            reverse_sql=migrations.RunSQL.noop,
+        ),
+
+        # Fail fast if any row still has NULL path (orphan FKs) before the
+        # AlterField below tries to set NOT NULL inside ALTER COLUMN.
+        migrations.RunSQL(
+            f"""
+DO $$
+DECLARE missing bigint;
+BEGIN
+    SELECT count(*) INTO missing FROM "{TABLE}" WHERE path IS NULL;
+    IF missing > 0 THEN
+        RAISE EXCEPTION
+            'ltree backfill left % rows in "{TABLE}" with NULL path; '
+            'likely orphan parent_id references — resolve before re-running '
+            'this migration', missing;
+    END IF;
+END $$;
 """,
             reverse_sql=migrations.RunSQL.noop,
         ),

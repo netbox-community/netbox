@@ -231,7 +231,7 @@ class NestedLtreeGroupModel(NestedGroupModelMixin, LtreeModel):
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
 
-    `sort_path` is a trigger-maintained text column holding a chr(1)-separated chain of ancestor
+    `sort_path` is a trigger-maintained text column holding a chr(9)-separated chain of ancestor
     names; ordering by it yields tree-flatten output with siblings in name (collation) order.
     Inserts, reparents, AND renames all update `sort_path` (a rename cascades to descendants), so
     list ordering reflects renames immediately — unlike django-mptt's `order_insertion_by`, which

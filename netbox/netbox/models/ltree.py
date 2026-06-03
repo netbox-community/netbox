@@ -95,7 +95,7 @@ class DescendantOrEqual(Lookup):
 
 class SortPathField(models.TextField):
     """
-    Text column holding the chr(1)-separated chain of ancestor names that drives
+    Text column holding the chr(9)-separated chain of ancestor names that drives
     tree-flatten ordering. Like `path`, its value is maintained by triggers, so it
     is marked db_returning to be populated via INSERT ... RETURNING without an
     extra SELECT. It deconstructs as a plain TextField so existing migrations
@@ -117,27 +117,36 @@ class LtreeQuerySet(RestrictedQuerySet):
 
     def bulk_create(self, objs, *args, **kwargs):
         """
-        Same as the standard `bulk_create` but verifies that a row whose parent is
-        also in the same batch appears AFTER its parent. PostgreSQL fires the
-        BEFORE INSERT trigger per row in list order; a child placed before its
-        parent in the same batch would otherwise be persisted with a stale
-        root-level path silently. Raises ValueError when a misordering is detected.
+        Same as the standard `bulk_create` but verifies that, for every row whose
+        parent is an unsaved instance, the parent appears earlier in the same
+        batch. PostgreSQL fires the BEFORE INSERT trigger per row in list order;
+        a child whose parent is unsaved and either (a) appears later in the batch
+        or (b) is not in the batch at all would otherwise be persisted silently
+        with a stale root-level path. Raises ValueError in both cases.
         """
-        seen = set()
         objs_list = list(objs)
+        seen = set()
         for idx, obj in enumerate(objs_list):
             parent = getattr(obj, 'parent', None)
             if parent is not None and parent.pk is None and id(parent) not in seen:
-                # parent is also in this batch (unsaved) but hasn't appeared yet
-                # — only an issue if it's actually later in the list.
-                for later in objs_list[idx + 1:]:
-                    if later is parent:
-                        raise ValueError(
-                            "bulk_create: child at index {idx} references parent that "
-                            "appears later in the same batch; parents must precede "
-                            "their children or the child's path will be stored as "
-                            "a root.".format(idx=idx)
-                        )
+                # Parent is unsaved and has not yet been encountered. It must appear
+                # later in the batch (which is still wrong — children must follow
+                # parents) or not at all; either way the trigger would see
+                # parent_id=NULL and store this row as a root.
+                in_batch_later = any(later is parent for later in objs_list[idx + 1:])
+                if in_batch_later:
+                    raise ValueError(
+                        "bulk_create: child at index {idx} references parent that "
+                        "appears later in the same batch; parents must precede "
+                        "their children or the child's path will be stored as "
+                        "a root.".format(idx=idx)
+                    )
+                raise ValueError(
+                    "bulk_create: child at index {idx} references an unsaved parent "
+                    "that is not in this batch; save the parent first or include "
+                    "it earlier in the batch — otherwise the child would be "
+                    "persisted with a root-level path.".format(idx=idx)
+                )
             seen.add(id(obj))
         return super().bulk_create(objs_list, *args, **kwargs)
 
@@ -366,7 +375,13 @@ class LtreeModel(models.Model):
         Subclasses whose `parent` is system-managed (e.g. ModuleBay, whose parent
         is derived from its module) may override this to disable the check.
         """
-        if self.parent_id is None or not self.path:
+        if self.parent_id is None:
+            return False
+        # Self-as-parent is always a cycle and must be caught even if self.path
+        # is empty or deferred (path would otherwise short-circuit below).
+        if self.parent_id == self.pk:
+            return True
+        if not self.path:
             return False
         # The new parent lies inside this node's current subtree iff its path is a
         # descendant of (or equal to) self.path.
@@ -561,7 +576,7 @@ class LtreeModel(models.Model):
                 SELECT id, parent_id, {name_col}::text
                 FROM {table} WHERE parent_id IS NULL
                 UNION ALL
-                SELECT r.id, r.parent_id, t.sort_path || chr(1) || r.{name_col}
+                SELECT r.id, r.parent_id, t.sort_path || chr(9) || r.{name_col}
                 FROM {table} r INNER JOIN t ON r.parent_id = t.id
             )
             UPDATE {table} SET sort_path = t.sort_path FROM t WHERE {table}.id = t.id;
@@ -587,6 +602,15 @@ BEGIN
         -- proceed until this insert/move commits, preventing a stale path.
         EXECUTE format('SELECT path FROM %%I WHERE id = $1 FOR SHARE', TG_TABLE_NAME)
             INTO parent_path USING NEW.parent_id;
+        -- Cycle guard. The Python LtreeModel.save() also rejects cyclic moves,
+        -- but a QuerySet.update() / bulk_update() bypasses save() entirely, so
+        -- catch the case here as a last line of defense. lpad(NEW.id,..) @>
+        -- parent_path is TRUE iff parent_path starts with this row's own
+        -- label (i.e. the proposed parent is self or one of self's descendants).
+        IF lpad(NEW.id::text, 19, '0')::ltree @> parent_path THEN
+            RAISE EXCEPTION 'cycle detected: %% cannot be assigned a parent that is itself or one of its descendants', TG_TABLE_NAME
+                USING ERRCODE = 'check_violation';
+        END IF;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
     ELSE
         NEW.path := lpad(NEW.id::text, 19, '0')::ltree;
@@ -610,9 +634,13 @@ $$ LANGUAGE plpgsql;
 '''
 
 # For models with order_insertion_by=(name,) — maintain a second text column
-# `sort_path` whose value is the chain of ancestor names joined by chr(1)
-# (an unprintable separator that collates lower than any printable char in any
-# standard collation). ORDER BY sort_path then gives MPTT-equivalent
+# `sort_path` whose value is the chain of ancestor names joined by chr(9) (TAB).
+# TAB sorts strictly below any printable character under both the default text
+# collation and the ICU `natural_sort` collation (which is `und-u-kn-true`).
+# ICU collations with default variable weighting treat U+0001..U+0008 as
+# variable-ignorable, so a chr(1) separator under natural_sort would interleave
+# children with unrelated roots; TAB is given a primary weight and orders
+# deterministically. ORDER BY sort_path then gives MPTT-equivalent
 # tree-flatten ordering with siblings in name (collation) order.
 #
 # The BEFORE trigger fires on INSERT, parent_id changes, and name changes, so
@@ -633,8 +661,14 @@ BEGIN
         -- proceed until this insert/move commits, preventing a stale path/sort_path.
         EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1 FOR SHARE', TG_TABLE_NAME)
             INTO parent_path, parent_sort_path USING NEW.parent_id;
+        -- Cycle guard. See _COMPUTE_PATH_ONLY_FN for the rationale; this catches
+        -- raw UPDATE / bulk_update paths that bypass LtreeModel.save().
+        IF lpad(NEW.id::text, 19, '0')::ltree @> parent_path THEN
+            RAISE EXCEPTION 'cycle detected: %% cannot be assigned a parent that is itself or one of its descendants', TG_TABLE_NAME
+                USING ERRCODE = 'check_violation';
+        END IF;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
-        NEW.sort_path := parent_sort_path || chr(1) || NEW.{name_col};
+        NEW.sort_path := parent_sort_path || chr(9) || NEW.{name_col};
     ELSE
         NEW.path := lpad(NEW.id::text, 19, '0')::ltree;
         NEW.sort_path := NEW.{name_col};
@@ -708,7 +742,7 @@ class InstallLtreeTriggers(migrations.operations.base.Operation):
         AFTER UPDATE OF parent_id            -> cascade path/sort_path change to descendants
 
     If `name_column` is provided, the model is expected to have a `sort_path`
-    text column whose value will be maintained as a chr(1)-separated chain of
+    text column whose value will be maintained as a chr(9)-separated chain of
     ancestor names. This implements MPTT's `order_insertion_by=(name,)`
     semantics: insert, reparent, and rename all honor the current value of
     `name_column`, with renames cascaded into descendants' sort_paths.

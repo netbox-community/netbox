@@ -407,16 +407,13 @@ class ContactsMixin(models.Model):
         """
         from tenancy.models import ContactAssignment
 
-        # TODO: Once the deprecated MPTT-backed NestedGroupModel is removed, narrow this
-        #  check to NestedLtreeGroupModel (or drop the mixin alias). NestedGroupModelMixin
-        #  exists only so both legacy MPTT and new ltree bases satisfy the inheritance check.
-        from . import NestedGroupModelMixin
+        from . import NestedGroupModel, NestedLtreeGroupModel
 
         filter = Q(
             object_type=ObjectType.objects.get_for_model(self),
             object_id__in=(
                 self.get_ancestors(include_self=True)
-                if (isinstance(self, NestedGroupModelMixin) and inherited)
+                if (isinstance(self, (NestedGroupModel, NestedLtreeGroupModel)) and inherited)
                 else [self.pk]
             ),
         )
