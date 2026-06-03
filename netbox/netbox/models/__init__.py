@@ -191,15 +191,6 @@ class NestedGroupModelMixin(OwnerMixin, NetBoxModel):
     def __str__(self):
         return self.name
 
-    def clean(self):
-        super().clean()
-
-        # A nested group cannot be its own parent or a descendant of itself
-        if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
-            raise ValidationError({
-                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
-            })
-
 
 class NestedGroupModel(NestedGroupModelMixin, MPTTModel):
     """
@@ -224,6 +215,17 @@ class NestedGroupModel(NestedGroupModelMixin, MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ('name',)
+
+    def clean(self):
+        super().clean()
+
+        # A nested group cannot be its own parent or a descendant of itself. The ltree
+        # base (NestedLtreeGroupModel) enforces this via LtreeModel.clean(); this MPTT
+        # variant keeps the original get_descendants()-based check.
+        if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
+            raise ValidationError({
+                "parent": _("Cannot assign self or a descendant as parent.")
+            })
 
 
 class NestedLtreeGroupModel(NestedGroupModelMixin, LtreeModel):

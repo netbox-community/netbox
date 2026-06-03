@@ -673,6 +673,7 @@ class MPTTChangeLogExclusionTests(TestCase):
 
     def test_diff_exclude_fields_for_mptt_subclass(self):
         from unittest.mock import MagicMock
+
         from mptt.models import MPTTModel
 
         class _FakeMPTT(MPTTModel):

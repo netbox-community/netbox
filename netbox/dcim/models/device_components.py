@@ -1336,14 +1336,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
         verbose_name=_('enabled'),
         default=True,
     )
+    # sort_path inherits `name`'s natural_sort collation automatically (LtreeModelBase),
+    # so ORDER BY sort_path sorts siblings naturally (Slot 0..Slot 13) — as MPTT's
+    # order_insertion_by=('name',) did — rather than lexicographically.
     sort_path = SortPathField(
         editable=False,
         blank=True,
         default='',
-        # `name` uses the natural_sort collation; match it here so ORDER BY
-        # sort_path sorts siblings naturally (Slot 0..Slot 13) as MPTT's
-        # order_insertion_by=('name',) did, not lexicographically.
-        db_collation='natural_sort',
     )
 
     clone_fields = ('device', 'enabled')
@@ -1576,13 +1575,7 @@ class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
         verbose_name_plural = _('inventory items')
 
     def clean(self):
-        super().clean()
-
-        # An InventoryItem cannot be its own parent or a descendant of itself
-        if self.pk and self._parent_creates_cycle():
-            raise ValidationError({
-                "parent": _("Cannot assign self or a descendant as parent.")
-            })
+        super().clean()  # LtreeModel.clean() rejects self/descendant-as-parent cycles
 
         # Validation for moving InventoryItems
         if not self._state.adding:

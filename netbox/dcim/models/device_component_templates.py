@@ -885,14 +885,7 @@ class InventoryItemTemplate(LtreeModel, ComponentTemplateModel):
         verbose_name = _('inventory item template')
         verbose_name_plural = _('inventory item templates')
 
-    def clean(self):
-        super().clean()
-
-        # A template cannot be its own parent or a descendant of itself
-        if self.pk and self._parent_creates_cycle():
-            raise ValidationError({
-                "parent": _("Cannot assign self or a descendant as parent.")
-            })
+    # Self/descendant-as-parent cycles are rejected by the inherited LtreeModel.clean().
 
     def instantiate(self, **kwargs):
         parent = InventoryItem.objects.get(name=self.parent.name, **kwargs) if self.parent else None

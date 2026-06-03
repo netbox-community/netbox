@@ -11,7 +11,7 @@ InstallLtreeTriggers migration operation. The Python layer never computes or
 mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import IntegrityError, connection, migrations, models
 from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
@@ -281,7 +281,33 @@ class LtreeManager(models.Manager.from_queryset(LtreeQuerySet)):
 # Abstract model
 #
 
-class LtreeModel(models.Model):
+class LtreeModelBase(models.base.ModelBase):
+    """
+    Metaclass that keeps a model's `sort_path` collation in sync with its `name`.
+
+    `sort_path` holds a chr(9)-joined chain of ancestor names, so to flatten siblings
+    in the same order the database sorts `name`, the two columns must share a collation.
+    Deriving it here means a subclass that gives `name` a custom db_collation (e.g.
+    `natural_sort`) automatically gets a matching `sort_path` — no need to redeclare the
+    field just to repeat the collation. An explicit db_collation on `sort_path` is left
+    untouched.
+    """
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        cls = super().__new__(mcs, name, bases, namespace, **kwargs)
+        if cls._meta.abstract:
+            return cls
+        try:
+            name_field = cls._meta.get_field('name')
+            sort_path_field = cls._meta.get_field('sort_path')
+        except FieldDoesNotExist:
+            return cls
+        name_collation = getattr(name_field, 'db_collation', None)
+        if name_collation and not getattr(sort_path_field, 'db_collation', None):
+            sort_path_field.db_collation = name_collation
+        return cls
+
+
+class LtreeModel(models.Model, metaclass=LtreeModelBase):
     """
     Abstract base for hierarchical models backed by PostgreSQL ltree.
 
@@ -377,6 +403,22 @@ class LtreeModel(models.Model):
             pk=self.parent_id, path__descendant_or_equal=self.path
         ).exists()
 
+    def clean(self):
+        """
+        Reject assigning self or a descendant as parent, surfacing it as a field
+        error for forms/serializers. This mirrors the save()-time guard; the two
+        share _parent_creates_cycle() so the rule lives in exactly one place.
+
+        Subclasses whose `parent` is system-managed (e.g. ModuleBay) disable the
+        check by overriding _parent_creates_cycle() to return False.
+        """
+        super().clean()
+
+        if self.pk and self._parent_creates_cycle():
+            raise ValidationError({
+                "parent": _("Cannot assign self or a descendant as parent.")
+            })
+
     def save(self, *args, **kwargs):
         """
         Triggers compute `path` (and `sort_path`, where present) server-side.
@@ -417,25 +459,30 @@ class LtreeModel(models.Model):
             super().save(*args, **kwargs)
         except IntegrityError as exc:
             # A concurrent reparent that races the Python-level _parent_creates_cycle
-            # check can be caught by the BEFORE trigger as a check_violation cycle.
-            # Surface it as a ValidationError so the API/UI returns 400 instead of
-            # the IntegrityError → 500 the trigger would otherwise produce.
-            if 'cycle detected' in str(exc):
+            # check can be caught by the BEFORE trigger, which RAISEs the cycle with
+            # ERRCODE = check_violation (SQLSTATE 23514). Match on the SQLSTATE rather
+            # than the message text (which is not stable across wording/locales), and
+            # surface it as a ValidationError so the API/UI returns 400 instead of the
+            # IntegrityError → 500 the trigger would otherwise produce. None of the
+            # ltree-backed models declare other CHECK constraints, so 23514 here is
+            # unambiguously the cycle guard.
+            if getattr(exc.__cause__, 'sqlstate', None) == '23514':
                 raise ValidationError(
                     _("Cannot assign self or a descendant as parent.")
                 ) from None
             raise
 
         if (parent_changed or name_changed) and not is_insert:
-            # The triggers rewrote path/sort_path on this UPDATE; fetch them back.
-            # (INSERT ... RETURNING covers the insert case, so only updates reach here.)
+            # The triggers rewrote path/sort_path on this UPDATE; fetch them back so
+            # the in-memory instance matches storage (e.g. so change logging snapshots
+            # the value the triggers wrote, not a stale one). This costs one extra
+            # SELECT per reparent/rename; INSERT ... RETURNING covers the insert case,
+            # so only updates reach here.
             refresh_fields = [
                 fname for fname in ('path', 'sort_path')
                 if any(f.attname == fname for f in self._meta.concrete_fields)
             ]
-            row = type(self).objects.values_list(*refresh_fields).get(pk=self.pk)
-            for fname, value in zip(refresh_fields, row):
-                setattr(self, fname, value)
+            self.refresh_from_db(fields=refresh_fields)
 
         if is_insert or parent_written:
             self._loaded_parent_id = self.parent_id
@@ -535,9 +582,11 @@ class LtreeModel(models.Model):
         """Ancestors + self + descendants, in tree-order."""
         if not self.path:
             return type(self)._default_manager.none()
+        # No .distinct() needed: this is a single-table OR with no joins, so a row
+        # (self, which matches both branches) is still returned only once.
         return type(self)._default_manager.filter(
             Q(path__ancestor=self.path) | Q(path__descendant_or_equal=self.path)
-        ).distinct().order_by(self._tree_order_field())
+        ).order_by(self._tree_order_field())
 
     def get_siblings(self, include_self=False):
         qs = type(self)._default_manager.filter(parent_id=self.parent_id)
@@ -632,7 +681,7 @@ BEGIN
         -- become its own ancestor). Match the label as any segment via lquery.
         IF parent_path ~ ('*.' || lpad(NEW.id::text, 19, '0') || '.*')::lquery
             OR parent_path = lpad(NEW.id::text, 19, '0')::ltree THEN
-            RAISE EXCEPTION 'cycle detected: %% cannot be assigned a parent that is itself or one of its descendants', TG_TABLE_NAME
+            RAISE EXCEPTION 'cycle detected: %% cannot be its own ancestor', TG_TABLE_NAME
                 USING ERRCODE = 'check_violation';
         END IF;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
@@ -689,7 +738,7 @@ BEGIN
         -- raw UPDATE / bulk_update paths that bypass LtreeModel.save().
         IF parent_path ~ ('*.' || lpad(NEW.id::text, 19, '0') || '.*')::lquery
             OR parent_path = lpad(NEW.id::text, 19, '0')::ltree THEN
-            RAISE EXCEPTION 'cycle detected: %% cannot be assigned a parent that is itself or one of its descendants', TG_TABLE_NAME
+            RAISE EXCEPTION 'cycle detected: %% cannot be its own ancestor', TG_TABLE_NAME
                 USING ERRCODE = 'check_violation';
         END IF;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
