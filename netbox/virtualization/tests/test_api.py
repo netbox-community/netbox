@@ -534,7 +534,7 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(virtualmachine)}?exclude=config_context',
+            self._get_detail_url(virtualmachine),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)

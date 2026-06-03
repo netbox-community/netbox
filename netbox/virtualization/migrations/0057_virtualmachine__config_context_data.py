@@ -13,4 +13,9 @@ class Migration(migrations.Migration):
             name='_config_context_data',
             field=models.JSONField(blank=True, editable=False, null=True),
         ),
+        migrations.AddField(
+            model_name='virtualmachine',
+            name='_config_context_generation',
+            field=models.PositiveBigIntegerField(default=0, editable=False),
+        ),
     ]

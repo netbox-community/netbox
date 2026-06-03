@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0236_moduletype_component_counts'),
+        ('dcim', '0237_module_remove_local_context_data'),
     ]
 
     operations = [
@@ -12,5 +12,10 @@ class Migration(migrations.Migration):
             model_name='device',
             name='_config_context_data',
             field=models.JSONField(blank=True, editable=False, null=True),
+        ),
+        migrations.AddField(
+            model_name='device',
+            name='_config_context_generation',
+            field=models.PositiveBigIntegerField(default=0, editable=False),
         ),
     ]

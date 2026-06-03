@@ -75,7 +75,7 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
         fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
     )
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
-    config_context = serializers.SerializerMethodField()
+    config_context = serializers.SerializerMethodField(read_only=True)
 
     # Counter fields
     interface_count = serializers.IntegerField(read_only=True)

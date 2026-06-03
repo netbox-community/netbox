@@ -1965,7 +1965,7 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(device)}?exclude=config_context',
+            self._get_detail_url(device),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -1993,7 +1993,7 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(device)}?exclude=config_context',
+            self._get_detail_url(device),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)

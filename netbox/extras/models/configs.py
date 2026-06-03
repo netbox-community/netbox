@@ -327,6 +327,20 @@ class ConfigContextModel(models.Model):
     A model which includes local configuration context data. This local data will override any inherited data from
     ConfigContexts.
     """
+    # Pre-rendered config context cache. NULL means "invalidated; render on demand". Populated by
+    # extras.jobs.RenderConfigContextJob in the background.
+    _config_context_data = models.JSONField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    # Monotonic counter bumped each time the cache is invalidated. The background renderer captures
+    # this value before rendering and only writes the result back if it is unchanged, so a fresh
+    # invalidation that lands mid-render is never overwritten by a stale value (compare-and-set).
+    _config_context_generation = models.PositiveBigIntegerField(
+        default=0,
+        editable=False,
+    )
     local_context_data = models.JSONField(
         blank=True,
         null=True,
@@ -382,11 +396,12 @@ class ConfigContextModel(models.Model):
             )
 
     def serialize_object(self, exclude=None):
-        # Exclude the pre-rendered cache from change-log snapshots; it's a derived field and
-        # would otherwise produce noisy diffs.
+        # Exclude the pre-rendered cache and its generation counter from change-log snapshots;
+        # they are derived fields and would otherwise produce noisy diffs.
         exclude = list(exclude or [])
-        if '_config_context_data' not in exclude:
-            exclude.append('_config_context_data')
+        for field in ('_config_context_data', '_config_context_generation'):
+            if field not in exclude:
+                exclude.append(field)
         return super().serialize_object(exclude=exclude)
 
 

@@ -12,19 +12,9 @@ from netbox.api.renderers import TextRenderer
 from .serializers import RenderConfigInputSerializer, RenderedConfigSerializer
 
 __all__ = (
-    'ConfigContextQuerySetMixin',
     'ConfigTemplateRenderMixin',
     'RenderConfigMixin',
 )
-
-
-class ConfigContextQuerySetMixin:
-    """
-    Used by views that work with config context models (device and virtual machine).
-    Provides a get_queryset() method which deals with adding the config context
-    data annotation or not.
-    """
-    pass
 
 
 class ConfigTemplateRenderMixin:
