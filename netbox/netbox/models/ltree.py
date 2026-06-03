@@ -12,7 +12,7 @@ mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
 from django.core.exceptions import FieldDoesNotExist, ValidationError
-from django.db import IntegrityError, connection, migrations, models
+from django.db import IntegrityError, OperationalError, connection, migrations, models
 from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
 from django.utils.translation import gettext_lazy as _
@@ -147,129 +147,68 @@ class LtreeQuerySet(RestrictedQuerySet):
         (using the ltree `<@` operator against the parent's `path`). Handles
         ForeignKey, ManyToManyField, and the NetBox GenericForeignKey "scope"
         pattern (scope_type / scope_id).
+
+        The six historical variants (3 relation kinds × cumulative/not) are
+        assembled from two fragments: how a related row links to a tree node
+        (`link_expr` + any join/scope filter), and which node is counted — the
+        parent row itself (non-cumulative) or any node in its subtree via `<@`
+        (cumulative).
         """
-        has_direct_fk = False
-        is_many_to_many = False
         try:
             field = model._meta.get_field(rel_field)
         except Exception:
             field = None
-        if isinstance(field, ManyToManyField):
-            is_many_to_many = True
-        elif isinstance(field, ForeignKey):
-            has_direct_fk = True
-
+        is_many_to_many = isinstance(field, ManyToManyField)
+        has_direct_fk = isinstance(field, ForeignKey)
         has_generic_fk = (
             hasattr(model, 'scope_type') and hasattr(model, 'scope_id')
             and not has_direct_fk and not is_many_to_many
         )
 
-        # Many call sites bind add_related_count() as a class attribute, so it
-        # runs at module import. Raising FieldDoesNotExist here would block app
-        # startup whenever an unrelated field is renamed; fall back to the
-        # Django default column name (`{rel_field}_id`) instead, matching MPTT's
-        # add_related_count behavior.
-        rel_field_col_default = f'{rel_field}_id'
-
         qn = connection.ops.quote_name
         parent_table = qn(queryset.model._meta.db_table)
         related_table = qn(model._meta.db_table)
 
-        if cumulative:
-            if is_many_to_many:
-                field = model._meta.get_field(rel_field)
-                m2m_table = qn(field.remote_field.through._meta.db_table)
-                # `model` is the declaring side (the side holding the items to count);
-                # `queryset.model` is the related (tree) side. m2m_column_name() points
-                # at the declaring model; m2m_reverse_name() points at the related model.
-                m2m_to_child_col = qn(field.m2m_column_name())
-                m2m_to_tree_col = qn(field.m2m_reverse_name())
-                sql = f'''(
-                    SELECT COUNT(DISTINCT {related_table}."id")
-                    FROM {related_table}
-                    INNER JOIN {m2m_table}
-                      ON {related_table}."id" = {m2m_table}.{m2m_to_child_col}
-                    INNER JOIN {parent_table} AS subtree
-                      ON {m2m_table}.{m2m_to_tree_col} = subtree."id"
-                    WHERE subtree."path" <@ {parent_table}."path"
-                )'''
-                return queryset.annotate(**{
-                    count_attr: RawSQL(sql, [], output_field=models.IntegerField())
-                })
-            if has_generic_fk:
-                # Resolve scope_type_id via subquery so this annotation can be
-                # constructed at import time (e.g. in a view class body) even
-                # before contenttypes has been migrated.
-                ct_app = queryset.model._meta.app_label
-                ct_model = queryset.model._meta.model_name
-                sql = f'''(
-                    SELECT COUNT(DISTINCT {related_table}."id")
-                    FROM {related_table}
-                    INNER JOIN {parent_table} AS subtree
-                      ON {related_table}."scope_id" = subtree."id"
-                    WHERE {related_table}."scope_type_id" = (
-                        SELECT id FROM django_content_type
-                        WHERE app_label = %s AND model = %s
-                    )
-                      AND subtree."path" <@ {parent_table}."path"
-                )'''
-                return queryset.annotate(**{
-                    count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
-                })
-            # Use field.column (not f'{rel_field}_id') so custom db_column works;
-            # fall back to default naming if the field was not resolved.
-            rel_field_col = qn(field.column if field is not None else rel_field_col_default)
-            sql = f'''(
-                    SELECT COUNT(DISTINCT {related_table}."id")
-                    FROM {related_table}
-                    INNER JOIN {parent_table} AS subtree
-                      ON {related_table}.{rel_field_col} = subtree."id"
-                    WHERE subtree."path" <@ {parent_table}."path"
-                )'''
-            return queryset.annotate(**{
-                count_attr: RawSQL(sql, [], output_field=models.IntegerField())
-            })
-
-        # Non-cumulative: count only rows pointing directly at each node. Mirrors the
-        # cumulative branches but joins on equality instead of the `<@` subtree test.
+        # `from_join` is the FROM (+ m2m join); `link_expr` is the column that points
+        # at a tree node's id; `scope_filter` constrains the generic-FK content type.
+        params = []
+        from_join = f'FROM {related_table}'
+        scope_filter = ''
         if is_many_to_many:
-            field = model._meta.get_field(rel_field)
+            # m2m_column_name() points at the declaring model (`model`);
+            # m2m_reverse_name() points at the related (tree) model.
             m2m_table = qn(field.remote_field.through._meta.db_table)
-            m2m_to_child_col = qn(field.m2m_column_name())
-            m2m_to_tree_col = qn(field.m2m_reverse_name())
-            sql = f'''(
-                SELECT COUNT(DISTINCT {related_table}."id")
-                FROM {related_table}
-                INNER JOIN {m2m_table}
-                  ON {related_table}."id" = {m2m_table}.{m2m_to_child_col}
-                WHERE {m2m_table}.{m2m_to_tree_col} = {parent_table}."id"
-            )'''
-            return queryset.annotate(**{
-                count_attr: RawSQL(sql, [], output_field=models.IntegerField())
-            })
-        if has_generic_fk:
-            ct_app = queryset.model._meta.app_label
-            ct_model = queryset.model._meta.model_name
-            sql = f'''(
-                SELECT COUNT(DISTINCT {related_table}."id")
-                FROM {related_table}
-                WHERE {related_table}."scope_id" = {parent_table}."id"
-                  AND {related_table}."scope_type_id" = (
-                      SELECT id FROM django_content_type
-                      WHERE app_label = %s AND model = %s
-                  )
-            )'''
-            return queryset.annotate(**{
-                count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
-            })
-        rel_field_col = qn(field.column if field is not None else rel_field_col_default)
-        sql = f'''(
-            SELECT COUNT(DISTINCT {related_table}."id")
-            FROM {related_table}
-            WHERE {related_table}.{rel_field_col} = {parent_table}."id"
-        )'''
+            from_join += (
+                f' INNER JOIN {m2m_table}'
+                f' ON {related_table}."id" = {m2m_table}.{qn(field.m2m_column_name())}'
+            )
+            link_expr = f'{m2m_table}.{qn(field.m2m_reverse_name())}'
+        elif has_generic_fk:
+            link_expr = f'{related_table}."scope_id"'
+            # Resolve scope_type_id via subquery so the annotation can be built at
+            # import time (e.g. in a view class body) before contenttypes migrate.
+            scope_filter = (
+                f' AND {related_table}."scope_type_id" = ('
+                'SELECT id FROM django_content_type WHERE app_label = %s AND model = %s)'
+            )
+            params = [queryset.model._meta.app_label, queryset.model._meta.model_name]
+        else:
+            # field.column honors a custom db_column; fall back to Django's default
+            # `{rel_field}_id` if the field was not resolved (a renamed unrelated
+            # field must not break import-time annotation construction).
+            rel_field_col = qn(field.column if field is not None else f'{rel_field}_id')
+            link_expr = f'{related_table}.{rel_field_col}'
+
+        if cumulative:
+            node_join = f' INNER JOIN {parent_table} AS subtree ON {link_expr} = subtree."id"'
+            where = f'WHERE subtree."path" <@ {parent_table}."path"{scope_filter}'
+        else:
+            node_join = ''
+            where = f'WHERE {link_expr} = {parent_table}."id"{scope_filter}'
+
+        sql = f'(SELECT COUNT(DISTINCT {related_table}."id") {from_join}{node_join} {where})'
         return queryset.annotate(**{
-            count_attr: RawSQL(sql, [], output_field=models.IntegerField())
+            count_attr: RawSQL(sql, params, output_field=models.IntegerField())
         })
 
 
@@ -410,6 +349,15 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
             pk=self.parent_id, path__descendant_or_equal=self.path
         ).exists()
 
+    @classmethod
+    def _has_sort_path(cls):
+        """
+        Whether this model carries the optional trigger-maintained `sort_path`
+        column (the MPTT `order_insertion_by=('name',)` equivalent). Single source
+        of truth for clean(), save(), and _tree_order_field().
+        """
+        return any(f.attname == 'sort_path' for f in cls._meta.concrete_fields)
+
     def clean(self):
         """
         Reject assigning self or a descendant as parent, surfacing it as a field
@@ -430,8 +378,7 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
                 "parent": _("Cannot assign self or a descendant as parent.")
             })
 
-        has_sort_path = any(f.attname == 'sort_path' for f in self._meta.concrete_fields)
-        if has_sort_path and '\t' in (getattr(self, 'name', None) or ''):
+        if self._has_sort_path() and '\t' in (getattr(self, 'name', None) or ''):
             raise ValidationError({
                 "name": _("Name cannot contain tab characters.")
             })
@@ -459,7 +406,7 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         # The sort_path trigger also fires on a name change; detect that so the
         # cascaded sort_path can be refreshed below (path-only models have no
         # sort_path and are unaffected by renames).
-        has_sort_path = any(f.attname == 'sort_path' for f in self._meta.concrete_fields)
+        has_sort_path = self._has_sort_path()
         name_written = update_fields is None or 'name' in update_fields
         name_changed = (
             (not is_insert) and has_sort_path and name_written
@@ -476,16 +423,37 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
             super().save(*args, **kwargs)
         except IntegrityError as exc:
             # A concurrent reparent that races the Python-level _parent_creates_cycle
-            # check can be caught by the BEFORE trigger, which RAISEs the cycle with
-            # ERRCODE = check_violation (SQLSTATE 23514). Match on the SQLSTATE rather
-            # than the message text (which is not stable across wording/locales), and
-            # surface it as a ValidationError so the API/UI returns 400 instead of the
-            # IntegrityError → 500 the trigger would otherwise produce. None of the
-            # ltree-backed models declare other CHECK constraints, so 23514 here is
-            # unambiguously the cycle guard.
-            if getattr(exc.__cause__, 'sqlstate', None) == '23514':
+            # check is caught by the BEFORE trigger, which RAISEs 'cycle detected ...'
+            # with ERRCODE = check_violation (SQLSTATE 23514). Gate on the SQLSTATE
+            # (the primary, stable signal) AND the message marker, so an unrelated
+            # CHECK constraint on a subclass (also 23514) is not misreported as a
+            # cycle. Surface it as a ValidationError so the API/UI returns 400 instead
+            # of the IntegrityError → 500 the trigger would otherwise produce.
+            if (
+                getattr(exc.__cause__, 'sqlstate', None) == '23514'
+                and 'cycle detected' in str(exc)
+            ):
                 raise ValidationError(
                     _("Cannot assign self or a descendant as parent.")
+                ) from None
+            # The BEFORE trigger likewise rejects a tab in the name (it would corrupt
+            # sort_path); translate it for direct save() calls that skip clean().
+            if (
+                getattr(exc.__cause__, 'sqlstate', None) == '23514'
+                and 'tab character' in str(exc)
+            ):
+                raise ValidationError({
+                    "name": _("Name cannot contain tab characters.")
+                }) from None
+            raise
+        except OperationalError as exc:
+            # The per-tree advisory locks can deadlock on crossing reparents or two
+            # concurrent ancestor/descendant moves; PostgreSQL aborts one with
+            # SQLSTATE 40P01. Surface a clear, retryable message instead of the
+            # opaque 500 the bare OperationalError would produce.
+            if getattr(exc.__cause__, 'sqlstate', None) == '40P01':
+                raise ValidationError(
+                    _("The hierarchy was modified concurrently; please retry.")
                 ) from None
             raise
 
@@ -495,10 +463,7 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
             # the value the triggers wrote, not a stale one). This costs one extra
             # SELECT per reparent/rename; INSERT ... RETURNING covers the insert case,
             # so only updates reach here.
-            refresh_fields = [
-                fname for fname in ('path', 'sort_path')
-                if any(f.attname == fname for f in self._meta.concrete_fields)
-            ]
+            refresh_fields = ['path'] + (['sort_path'] if has_sort_path else [])
             self.refresh_from_db(fields=refresh_fields)
 
         if is_insert or parent_written:
@@ -566,9 +531,7 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         order siblings by name to match the prior MPTT behavior; models
         without it fall back to `path` (PK-padded, insertion order).
         """
-        if any(f.attname == 'sort_path' for f in cls._meta.concrete_fields):
-            return 'sort_path'
-        return 'path'
+        return 'sort_path' if cls._has_sort_path() else 'path'
 
     def get_ancestors(self, ascending=False, include_self=False):
         if not self.path:
@@ -653,7 +616,7 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         """
         from django.db import connection
 
-        if not any(f.name == 'sort_path' for f in cls._meta.get_fields()):
+        if not cls._has_sort_path():
             raise NotImplementedError(
                 f"{cls.__name__} does not have a sort_path column"
             )
@@ -689,10 +652,16 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
 # different trees use different keys and run in parallel.
 _LOCK_TREE_ROOTS_SQL = '''
     -- Destination tree root: the parent's root label, or this row's own label
-    -- when it is (or becomes) a root.
+    -- when it is (or becomes) a root. The CASE guards against a parent whose path
+    -- is the empty ltree '' (reachable only via a trigger-bypassing raw write):
+    -- subltree('', 0, 1) would raise 'invalid positions', so fall back to the
+    -- child's own label as the lock key rather than aborting the insert/move.
     IF NEW.parent_id IS NOT NULL THEN
-        EXECUTE format('SELECT subltree(path, 0, 1)::text FROM %%I WHERE id = $1', TG_TABLE_NAME)
-            INTO dest_root USING NEW.parent_id;
+        EXECUTE format(
+            'SELECT CASE WHEN nlevel(path) > 0 THEN subltree(path, 0, 1)::text END'
+            ' FROM %%I WHERE id = $1',
+            TG_TABLE_NAME
+        ) INTO dest_root USING NEW.parent_id;
     END IF;
     dest_root := COALESCE(dest_root, lpad(NEW.id::text, 19, '0'));
     -- Source tree root (moves only): this row's current root, which the AFTER
@@ -747,9 +716,12 @@ $$ LANGUAGE plpgsql;
 _CASCADE_PATH_ONLY_FN = '''
 CREATE OR REPLACE FUNCTION "{table}_ltree_cascade_path_fn"() RETURNS TRIGGER AS $$
 BEGIN
+    -- `nlevel($2) > 0` guards against an empty OLD.path ('', reachable only via a
+    -- trigger-bypassing raw write): `path <@ ''` is true for EVERY row, so without
+    -- this the cascade would rewrite the entire table on one reparent.
     EXECUTE format(
         'UPDATE %%I SET path = $1 || subpath(path, nlevel($2))'
-        ' WHERE path <@ $2 AND id != $3',
+        ' WHERE nlevel($2) > 0 AND path <@ $2 AND id != $3',
         TG_TABLE_NAME
     ) USING NEW.path, OLD.path, NEW.id;
     RETURN NULL;
@@ -784,6 +756,14 @@ DECLARE
     key_old bigint;
 BEGIN
 ''' + _LOCK_TREE_ROOTS_SQL + '''
+    -- sort_path joins ancestor names with chr(9) (TAB); a literal tab in a name
+    -- would inject a spurious separator and corrupt sibling ordering for the node
+    -- and its descendants. LtreeModel.clean() rejects this for forms/serializers;
+    -- this is the backstop for bulk_create / scripts / raw writes that bypass clean().
+    IF position(chr(9) in COALESCE(NEW."{name_col}", '')) > 0 THEN
+        RAISE EXCEPTION 'name contains a tab character, which is not allowed'
+            USING ERRCODE = 'check_violation';
+    END IF;
     IF NEW.parent_id IS NOT NULL THEN
         EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1', TG_TABLE_NAME)
             INTO parent_path, parent_sort_path USING NEW.parent_id;
@@ -811,11 +791,14 @@ BEGIN
     -- COALESCE guards against a NULL sort_path slipping in via a raw write that
     -- bypassed the BEFORE trigger: without it, length(NULL)/substring(... FROM NULL)
     -- would cascade NULL to every descendant's sort_path in one shot.
+    -- `nlevel($2) > 0` guards against an empty OLD.path ('', reachable only via a
+    -- trigger-bypassing raw write): `path <@ ''` is true for EVERY row, so without
+    -- this the cascade would rewrite the entire table on one reparent.
     EXECUTE format(
         'UPDATE %%I SET '
         '  path = $1 || subpath(path, nlevel($2)), '
         '  sort_path = COALESCE($4, '''') || substring(COALESCE(sort_path, '''') FROM length(COALESCE($5, '''')) + 1) '
-        'WHERE path <@ $2 AND id != $3',
+        'WHERE nlevel($2) > 0 AND path <@ $2 AND id != $3',
         TG_TABLE_NAME
     ) USING NEW.path, OLD.path, NEW.id, NEW.sort_path, OLD.sort_path;
     RETURN NULL;

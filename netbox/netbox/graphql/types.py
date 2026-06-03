@@ -93,9 +93,11 @@ class LtreeNodeMixin:
     field MPTT-based types previously surfaced automatically as a real column.
 
     The depth is computed in the database as `nlevel(path) - 1` (root = 0) and
-    annotated onto the queryset. We read the annotation rather than the `path`
-    column directly: `path` is excluded from the schema, so accessing it through
-    the resolver source would re-enter field resolution and recurse.
+    annotated onto the queryset. We prefer the annotation over the `path` column,
+    which is excluded from the schema. When a resolution path does not apply the
+    annotation (e.g. a nested relation), `ltree_level` is absent; fall back to the
+    loaded `path` string (the same depth the LtreeModel.level property computes)
+    so the field never raises AttributeError.
     """
     @strawberry_django.field(annotate={
         'ltree_level': ExpressionWrapper(
@@ -104,7 +106,11 @@ class LtreeNodeMixin:
         )
     })
     def level(self) -> int:
-        return self.ltree_level
+        ltree_level = getattr(self, 'ltree_level', None)
+        if ltree_level is not None:
+            return ltree_level
+        path = getattr(self, 'path', '') or ''
+        return str(path).count('.')
 
 
 class NestedGroupObjectType(
