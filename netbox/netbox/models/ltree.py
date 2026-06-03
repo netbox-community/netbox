@@ -336,20 +336,27 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
 
     Concurrency:
         Path maintenance takes no table-wide lock (unlike django-mptt, which
-        acquired a per-model advisory lock on every write to protect its global
-        lft/rght/tree_id numbering). Because a row's path depends only on its
-        parent's path, concurrent inserts and moves under *different* parents
-        never conflict.
+        acquired a per-model advisory lock on *every* write to protect its global
+        lft/rght/tree_id numbering). Instead, the BEFORE trigger serializes per
+        tree: it takes a transaction-level advisory lock keyed on the root of the
+        tree being written (and, for a cross-tree move, on both the source and
+        destination roots, acquired in ascending key order to avoid deadlocks).
 
-        To keep a node consistent with a concurrently-reparented ancestor, the
-        BEFORE trigger reads the parent row `FOR SHARE`. That shared lock conflicts
-        with the row-exclusive lock a reparent/rename of the parent takes, so an
-        insert/move under P is serialized against a concurrent reparent or rename
-        of P (or of an ancestor, whose cascade must update P's row). Sibling
-        inserts under a stable parent still proceed concurrently — shared locks
-        don't conflict. Crossing reparents (moving A under B while moving B under
-        A) can deadlock; PostgreSQL aborts one with a retryable error rather than
-        silently persisting a stale path.
+        Every insert, move, and reparent of a node in a tree takes the same key,
+        so an insert deep in a subtree and a concurrent reparent of one of its
+        ancestors are serialized — the loser blocks until the winner commits, and
+        the winner's AFTER cascade can never miss a row inserted concurrently
+        (which a row-level `FOR SHARE` on the parent could not prevent: a set-based
+        cascade's snapshot would skip a row inserted after it began). Writes to
+        *different* trees use different keys and proceed fully in parallel — e.g.
+        inventory ingestion across different devices, each its own tree.
+
+        Two residual, retryable cases remain (PostgreSQL aborts one transaction
+        with a deadlock error rather than persisting a stale path): crossing
+        reparents (moving A under B while moving B under A), and two concurrent
+        *moves* in an ancestor/descendant relationship (a move locks the moved
+        row before its BEFORE trigger can take the advisory lock). Plain inserts
+        — the high-volume path — never hit this.
     """
     # `default=''` here is a Django-side placeholder that the BEFORE INSERT
     # trigger always overwrites with a valid path before the row reaches
@@ -411,12 +418,22 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
 
         Subclasses whose `parent` is system-managed (e.g. ModuleBay) disable the
         check by overriding _parent_creates_cycle() to return False.
+
+        For sort_path-backed models, also reject a tab in the name column: sort_path
+        joins ancestor names with chr(9) (TAB), so a literal tab in a name would
+        corrupt sibling ordering for the node and its descendants.
         """
         super().clean()
 
         if self.pk and self._parent_creates_cycle():
             raise ValidationError({
                 "parent": _("Cannot assign self or a descendant as parent.")
+            })
+
+        has_sort_path = any(f.attname == 'sort_path' for f in self._meta.concrete_fields)
+        if has_sort_path and '\t' in (getattr(self, 'name', None) or ''):
+            raise ValidationError({
+                "name": _("Name cannot contain tab characters.")
             })
 
     def save(self, *args, **kwargs):
@@ -664,15 +681,49 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
 # Path label is the row's PK zero-padded to 19 chars (max bigint width) so that
 # lexicographic ordering of ltree labels matches numeric PK ordering across digit
 # boundaries (e.g. "0...09" sorts before "0...10").
+# Per-tree advisory locking (see _lock_tree_roots_sql / LtreeModel "Concurrency"):
+# every insert/move/reparent of a node takes a transaction-level advisory lock
+# keyed on the root(s) of the tree(s) it touches, BEFORE reading the parent path.
+# A concurrent reparent of an ancestor takes the same key, so the two serialize
+# and the AFTER cascade can never miss a row inserted concurrently; writes in
+# different trees use different keys and run in parallel.
+_LOCK_TREE_ROOTS_SQL = '''
+    -- Destination tree root: the parent's root label, or this row's own label
+    -- when it is (or becomes) a root.
+    IF NEW.parent_id IS NOT NULL THEN
+        EXECUTE format('SELECT subltree(path, 0, 1)::text FROM %%I WHERE id = $1', TG_TABLE_NAME)
+            INTO dest_root USING NEW.parent_id;
+    END IF;
+    dest_root := COALESCE(dest_root, lpad(NEW.id::text, 19, '0'));
+    -- Source tree root (moves only): this row's current root, which the AFTER
+    -- cascade will rewrite.
+    IF TG_OP = 'UPDATE' AND OLD.path IS NOT NULL AND nlevel(OLD.path) > 0 THEN
+        old_root := subltree(OLD.path, 0, 1)::text;
+    END IF;
+    key_dest := hashtextextended(TG_TABLE_NAME || ':' || dest_root, 0);
+    IF old_root IS NOT NULL AND old_root <> dest_root THEN
+        -- Cross-tree move: lock both roots, ascending, to avoid deadlock between
+        -- two concurrent moves that touch the same pair.
+        key_old := hashtextextended(TG_TABLE_NAME || ':' || old_root, 0);
+        PERFORM pg_advisory_xact_lock(LEAST(key_dest, key_old));
+        PERFORM pg_advisory_xact_lock(GREATEST(key_dest, key_old));
+    ELSE
+        PERFORM pg_advisory_xact_lock(key_dest);
+    END IF;
+'''
+
 _COMPUTE_PATH_ONLY_FN = '''
 CREATE OR REPLACE FUNCTION "{table}_ltree_compute_path_fn"() RETURNS TRIGGER AS $$
-DECLARE parent_path ltree;
+DECLARE
+    parent_path ltree;
+    dest_root text;
+    old_root text;
+    key_dest bigint;
+    key_old bigint;
 BEGIN
+''' + _LOCK_TREE_ROOTS_SQL + '''
     IF NEW.parent_id IS NOT NULL THEN
-        -- FOR SHARE locks the parent row so a concurrent reparent/rename of it
-        -- (or of an ancestor, whose cascade updates this parent's row) cannot
-        -- proceed until this insert/move commits, preventing a stale path.
-        EXECUTE format('SELECT path FROM %%I WHERE id = $1 FOR SHARE', TG_TABLE_NAME)
+        EXECUTE format('SELECT path FROM %%I WHERE id = $1', TG_TABLE_NAME)
             INTO parent_path USING NEW.parent_id;
         -- Cycle guard. The Python LtreeModel.save() also rejects cyclic moves,
         -- but a QuerySet.update() / bulk_update() bypasses save() entirely, so
@@ -727,12 +778,14 @@ CREATE OR REPLACE FUNCTION "{table}_ltree_compute_path_fn"() RETURNS TRIGGER AS 
 DECLARE
     parent_path ltree;
     parent_sort_path text;
+    dest_root text;
+    old_root text;
+    key_dest bigint;
+    key_old bigint;
 BEGIN
+''' + _LOCK_TREE_ROOTS_SQL + '''
     IF NEW.parent_id IS NOT NULL THEN
-        -- FOR SHARE locks the parent row so a concurrent reparent/rename of it
-        -- (or of an ancestor, whose cascade updates this parent's row) cannot
-        -- proceed until this insert/move commits, preventing a stale path/sort_path.
-        EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1 FOR SHARE', TG_TABLE_NAME)
+        EXECUTE format('SELECT path, sort_path FROM %%I WHERE id = $1', TG_TABLE_NAME)
             INTO parent_path, parent_sort_path USING NEW.parent_id;
         -- Cycle guard. See _COMPUTE_PATH_ONLY_FN for the rationale; this catches
         -- raw UPDATE / bulk_update paths that bypass LtreeModel.save().
@@ -742,10 +795,10 @@ BEGIN
                 USING ERRCODE = 'check_violation';
         END IF;
         NEW.path := parent_path || lpad(NEW.id::text, 19, '0')::ltree;
-        NEW.sort_path := parent_sort_path || chr(9) || NEW.{name_col};
+        NEW.sort_path := parent_sort_path || chr(9) || NEW."{name_col}";
     ELSE
         NEW.path := lpad(NEW.id::text, 19, '0')::ltree;
-        NEW.sort_path := NEW.{name_col};
+        NEW.sort_path := NEW."{name_col}";
     END IF;
     RETURN NEW;
 END
