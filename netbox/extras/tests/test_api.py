@@ -325,6 +325,64 @@ class CustomFieldChoiceSetTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.post(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(response.status_code, 400)
 
+    def test_graphql_filter_extra_choices(self):
+        """Filter choice sets by choice value and by number of choices."""
+        self.add_permissions('extras.view_customfieldchoiceset')
+
+        # '1A' appears here only as a label, so it must not match contains
+        CustomFieldChoiceSet.objects.create(
+            name='Choice Set Labels',
+            extra_choices=[['sel1', 'Selection 1'], ['other', '1A']],
+        )
+
+        def run(lookup):
+            query = '{ custom_field_choice_set_list(filters: {extra_choices: ' + lookup + '}) { name } }'
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = response.json()
+            self.assertNotIn('errors', data)
+            return sorted(row['name'] for row in data['data']['custom_field_choice_set_list'])
+
+        # contains matches choice values only, never labels
+        self.assertEqual(run('{contains: "1A"}'), ['Choice Set 1'])
+        self.assertEqual(run('{contains: "sel1"}'), ['Choice Set Labels'])
+        self.assertEqual(run('{contains: "Selection 1"}'), [])
+        # length is the number of [value, label] pairs
+        self.assertEqual(run('{length: 2}'), ['Choice Set Labels'])
+        self.assertEqual(run('{length: 1}'), [])
+
+    def test_graphql_filter_extra_choices_rejects_array_operands(self):
+        """The legacy flat and nested array operand shapes fail schema validation."""
+        self.add_permissions('extras.view_customfieldchoiceset')
+
+        def run_invalid(lookup):
+            query = '{ custom_field_choice_set_list(filters: {extra_choices: ' + lookup + '}) { name } }'
+            response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            self.assertIn('errors', response.json())
+
+        # shapes advertised or attempted before #22324
+        run_invalid('{contains: ["1A"]}')
+        run_invalid('{contains: [["1A", "Choice 1A"]]}')
+
+    def test_graphql_filter_extra_choices_via_relation(self):
+        """The extra_choices lookup composes through the choice_set relation prefix."""
+        self.add_permissions('extras.view_customfield')
+
+        for choice_set in CustomFieldChoiceSet.objects.filter(name__in=['Choice Set 1', 'Choice Set 2']):
+            CustomField.objects.create(
+                name=f'cf_{choice_set.name[-1]}',
+                type=CustomFieldTypeChoices.TYPE_SELECT,
+                choice_set=choice_set,
+            )
+
+        query = '{ custom_field_list(filters: {choice_set: {extra_choices: {contains: "1A"}}}) { name } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = response.json()
+        self.assertNotIn('errors', data)
+        self.assertEqual([row['name'] for row in data['data']['custom_field_list']], ['cf_1'])
+
 
 class CustomLinkTestCase(APIViewTestCases.APIViewTestCase):
     model = CustomLink

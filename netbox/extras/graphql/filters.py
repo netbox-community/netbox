@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         SiteFilter,
         SiteGroupFilter,
     )
+    from extras.graphql.filter_lookups import ExtraChoicesLookup
     from netbox.graphql.enums import ColorEnum
     from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup, JSONFilter, StringArrayLookup, TreeNodeFilter
     from tenancy.graphql.filters import TenantFilter, TenantGroupFilter
@@ -198,7 +199,7 @@ class CustomFieldChoiceSetFilter(ChangeLoggedModelFilter):
     ) = (
         strawberry_django.filter_field()
     )
-    extra_choices: Annotated['StringArrayLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+    extra_choices: Annotated['ExtraChoicesLookup', strawberry.lazy('extras.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
     order_alphabetically: FilterLookup[bool] | None = strawberry_django.filter_field()
