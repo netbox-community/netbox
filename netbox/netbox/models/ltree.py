@@ -117,37 +117,25 @@ class LtreeQuerySet(RestrictedQuerySet):
 
     def bulk_create(self, objs, *args, **kwargs):
         """
-        Same as the standard `bulk_create` but verifies that, for every row whose
-        parent is an unsaved instance, the parent appears earlier in the same
-        batch. PostgreSQL fires the BEFORE INSERT trigger per row in list order;
-        a child whose parent is unsaved and either (a) appears later in the batch
-        or (b) is not in the batch at all would otherwise be persisted silently
-        with a stale root-level path. Raises ValueError in both cases.
+        Same as the standard `bulk_create` but rejects any row whose parent is an
+        unsaved instance. Django's bulk_create builds the multi-row INSERT VALUES
+        up front from each instance's `parent_id`; an unsaved parent's pk is not
+        assigned until the INSERT's RETURNING clause executes, so a child
+        referencing an unsaved parent (even one earlier in the same batch) goes
+        in with parent_id=NULL and the BEFORE trigger stores it as a root. Save
+        the parents first, then bulk_create their children.
         """
         objs_list = list(objs)
-        seen = set()
         for idx, obj in enumerate(objs_list):
             parent = getattr(obj, 'parent', None)
-            if parent is not None and parent.pk is None and id(parent) not in seen:
-                # Parent is unsaved and has not yet been encountered. It must appear
-                # later in the batch (which is still wrong — children must follow
-                # parents) or not at all; either way the trigger would see
-                # parent_id=NULL and store this row as a root.
-                in_batch_later = any(later is parent for later in objs_list[idx + 1:])
-                if in_batch_later:
-                    raise ValueError(
-                        "bulk_create: child at index {idx} references parent that "
-                        "appears later in the same batch; parents must precede "
-                        "their children or the child's path will be stored as "
-                        "a root.".format(idx=idx)
-                    )
+            if parent is not None and parent.pk is None:
                 raise ValueError(
-                    "bulk_create: child at index {idx} references an unsaved parent "
-                    "that is not in this batch; save the parent first or include "
-                    "it earlier in the batch — otherwise the child would be "
-                    "persisted with a root-level path.".format(idx=idx)
+                    "bulk_create: child at index {idx} references an unsaved parent. "
+                    "Django cannot propagate the parent's RETURNING-assigned pk into "
+                    "the child's parent_id before the INSERT executes, so the child "
+                    "would be persisted with parent_id=NULL and stored as a root. "
+                    "Save the parent first, then bulk_create the children.".format(idx=idx)
                 )
-            seen.add(id(obj))
         return super().bulk_create(objs_list, *args, **kwargs)
 
     def add_related_count(self, queryset, model, rel_field, count_attr, cumulative=False):
@@ -486,19 +474,34 @@ class LtreeModel(models.Model):
     def get_parent(self):
         return self.parent
 
+    @classmethod
+    def _tree_order_field(cls):
+        """
+        Field name to order hierarchical queries by. Models that carry a
+        `sort_path` column (the MPTT `order_insertion_by=('name',)` equivalent)
+        order siblings by name to match the prior MPTT behavior; models
+        without it fall back to `path` (PK-padded, insertion order).
+        """
+        if any(f.attname == 'sort_path' for f in cls._meta.concrete_fields):
+            return 'sort_path'
+        return 'path'
+
     def get_ancestors(self, ascending=False, include_self=False):
         if not self.path:
             return type(self)._default_manager.none()
         qs = type(self)._default_manager.filter(path__ancestor=self.path)
         if not include_self:
             qs = qs.exclude(pk=self.pk)
-        return qs.order_by('-path' if ascending else 'path')
+        order_field = self._tree_order_field()
+        return qs.order_by(f'-{order_field}' if ascending else order_field)
 
     def get_descendants(self, include_self=False):
         if not self.path:
             return type(self)._default_manager.none()
         lookup = 'descendant_or_equal' if include_self else 'descendant'
-        return type(self)._default_manager.filter(**{f'path__{lookup}': self.path}).order_by('path')
+        return type(self)._default_manager.filter(
+            **{f'path__{lookup}': self.path}
+        ).order_by(self._tree_order_field())
 
     def get_descendant_count(self):
         if not self.path:
@@ -506,21 +509,21 @@ class LtreeModel(models.Model):
         return type(self)._default_manager.filter(path__descendant=self.path).count()
 
     def get_children(self):
-        return type(self)._default_manager.filter(parent_id=self.pk)
+        return type(self)._default_manager.filter(parent_id=self.pk).order_by(self._tree_order_field())
 
     def get_family(self):
-        """Ancestors + self + descendants, in path order."""
+        """Ancestors + self + descendants, in tree-order."""
         if not self.path:
             return type(self)._default_manager.none()
         return type(self)._default_manager.filter(
             Q(path__ancestor=self.path) | Q(path__descendant_or_equal=self.path)
-        ).distinct().order_by('path')
+        ).distinct().order_by(self._tree_order_field())
 
     def get_siblings(self, include_self=False):
         qs = type(self)._default_manager.filter(parent_id=self.parent_id)
         if not include_self:
             qs = qs.exclude(pk=self.pk)
-        return qs
+        return qs.order_by(self._tree_order_field())
 
     def move_to(self, target, position='last-child'):
         """
@@ -604,10 +607,11 @@ BEGIN
             INTO parent_path USING NEW.parent_id;
         -- Cycle guard. The Python LtreeModel.save() also rejects cyclic moves,
         -- but a QuerySet.update() / bulk_update() bypasses save() entirely, so
-        -- catch the case here as a last line of defense. lpad(NEW.id,..) @>
-        -- parent_path is TRUE iff parent_path starts with this row's own
-        -- label (i.e. the proposed parent is self or one of self's descendants).
-        IF lpad(NEW.id::text, 19, '0')::ltree @> parent_path THEN
+        -- catch the case here as a last line of defense. A cycle exists iff
+        -- this row's own label appears anywhere in parent_path (the row would
+        -- become its own ancestor). Match the label as any segment via lquery.
+        IF parent_path ~ ('*.' || lpad(NEW.id::text, 19, '0') || '.*')::lquery
+            OR parent_path = lpad(NEW.id::text, 19, '0')::ltree THEN
             RAISE EXCEPTION 'cycle detected: %% cannot be assigned a parent that is itself or one of its descendants', TG_TABLE_NAME
                 USING ERRCODE = 'check_violation';
         END IF;
@@ -663,7 +667,8 @@ BEGIN
             INTO parent_path, parent_sort_path USING NEW.parent_id;
         -- Cycle guard. See _COMPUTE_PATH_ONLY_FN for the rationale; this catches
         -- raw UPDATE / bulk_update paths that bypass LtreeModel.save().
-        IF lpad(NEW.id::text, 19, '0')::ltree @> parent_path THEN
+        IF parent_path ~ ('*.' || lpad(NEW.id::text, 19, '0') || '.*')::lquery
+            OR parent_path = lpad(NEW.id::text, 19, '0')::ltree THEN
             RAISE EXCEPTION 'cycle detected: %% cannot be assigned a parent that is itself or one of its descendants', TG_TABLE_NAME
                 USING ERRCODE = 'check_violation';
         END IF;

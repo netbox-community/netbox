@@ -232,6 +232,35 @@ class SortPathTests(TestCase):
         )
         self.assertEqual(names, ['A', 'B'])
 
+    def test_get_descendants_returns_siblings_in_name_order(self):
+        """
+        For models with a sort_path column, get_descendants() must return
+        descendants with siblings in name order (matching MPTT's
+        order_insertion_by behavior), not insertion/PK order.
+        """
+        root = Region.objects.create(name='Root', slug='root-gdord')
+        # Insert siblings out of name order
+        Region.objects.create(parent=root, name='Zebra', slug='z-gdord')
+        Region.objects.create(parent=root, name='Aardvark', slug='a-gdord')
+        Region.objects.create(parent=root, name='Buffalo', slug='b-gdord')
+        names = list(root.get_descendants().values_list('name', flat=True))
+        self.assertEqual(names, ['Aardvark', 'Buffalo', 'Zebra'])
+
+    def test_get_children_returns_in_name_order(self):
+        root = Region.objects.create(name='Root', slug='root-gcord')
+        Region.objects.create(parent=root, name='Zebra', slug='z-gcord')
+        Region.objects.create(parent=root, name='Aardvark', slug='a-gcord')
+        names = list(root.get_children().values_list('name', flat=True))
+        self.assertEqual(names, ['Aardvark', 'Zebra'])
+
+    def test_get_siblings_returns_in_name_order(self):
+        root = Region.objects.create(name='Root', slug='root-gsord')
+        Region.objects.create(parent=root, name='Zebra', slug='z-gsord')
+        a = Region.objects.create(parent=root, name='Aardvark', slug='a-gsord')
+        Region.objects.create(parent=root, name='Buffalo', slug='b-gsord')
+        names = list(a.get_siblings().values_list('name', flat=True))
+        self.assertEqual(names, ['Buffalo', 'Zebra'])
+
 
 class AddRelatedCountTests(TestCase):
     """add_related_count must cumulate across subtrees via path <@."""
@@ -374,7 +403,22 @@ class BulkCreateOrderingTests(TestCase):
         unsaved_child = Region(parent=unsaved_parent, name='C', slug='c-bcrej')
         with self.assertRaises(ValueError) as ctx:
             Region.objects.bulk_create([unsaved_child, unsaved_parent])
-        self.assertIn('parents must precede', str(ctx.exception))
+        self.assertIn('unsaved parent', str(ctx.exception))
+
+    def test_bulk_create_rejects_unsaved_parent_earlier_in_batch(self):
+        """
+        An unsaved parent placed earlier in the batch must also be rejected:
+        Django binds VALUES from the child's parent_id BEFORE the parent's
+        RETURNING-assigned pk lands, so the child would be inserted with
+        parent_id=NULL and silently stored as a root.
+        """
+        unsaved_parent = Region(name='P', slug='p-bcearly')
+        unsaved_child = Region(parent=unsaved_parent, name='C', slug='c-bcearly')
+        with self.assertRaises(ValueError) as ctx:
+            Region.objects.bulk_create([unsaved_parent, unsaved_child])
+        self.assertIn('unsaved parent', str(ctx.exception))
+        # Nothing should have been written.
+        self.assertFalse(Region.objects.filter(slug__in=('p-bcearly', 'c-bcearly')).exists())
 
     def test_bulk_create_rejects_unsaved_parent_not_in_batch(self):
         """
@@ -751,6 +795,37 @@ class TriggerCycleGuardTests(TestCase):
         child.refresh_from_db()
         self.assertEqual(child.parent_id, b.pk)
         self.assertEqual(child.path, _path(b.pk, child.pk))
+
+    def test_queryset_update_mid_tree_to_own_descendant_blocked(self):
+        """
+        Reparenting a non-root node under one of its own (non-immediate)
+        descendants must raise. The earlier `lpad(NEW.id) @> parent_path`
+        check only fired when NEW was the root of parent_path, missing
+        mid-tree cycles entirely.
+        """
+        from django.db import IntegrityError, transaction
+        a = Region.objects.create(name='A', slug='a-midcyc')
+        b = Region.objects.create(parent=a, name='B', slug='b-midcyc')
+        c = Region.objects.create(parent=b, name='C', slug='c-midcyc')
+        # Try to make B a child of C — B is mid-tree (path A.B), parent_path is A.B.C.
+        with self.assertRaises(IntegrityError) as ctx:
+            with transaction.atomic():
+                Region.objects.filter(pk=b.pk).update(parent_id=c.pk)
+        self.assertIn('cycle detected', str(ctx.exception))
+        b.refresh_from_db()
+        self.assertEqual(b.parent_id, a.pk)
+
+    def test_queryset_update_mid_tree_self_loop_blocked(self):
+        """A non-root node assigning itself as parent must also raise."""
+        from django.db import IntegrityError, transaction
+        a = Region.objects.create(name='A', slug='a-midself')
+        b = Region.objects.create(parent=a, name='B', slug='b-midself')
+        with self.assertRaises(IntegrityError) as ctx:
+            with transaction.atomic():
+                Region.objects.filter(pk=b.pk).update(parent_id=b.pk)
+        self.assertIn('cycle detected', str(ctx.exception))
+        b.refresh_from_db()
+        self.assertEqual(b.parent_id, a.pk)
 
 
 class NaturalSortSortPathTests(TestCase):
