@@ -675,7 +675,10 @@ class CableTermination(ChangeLoggedModel):
         Cache objects related to the termination (e.g. device, rack, site) directly on the object to
         enable efficient filtering.
         """
-        assert self.termination is not None
+        if self.termination is None:
+            raise ValueError(
+                _("Invalid cable termination: the assigned termination object does not exist.")
+            )
 
         # Device components
         if getattr(self.termination, 'device', None):

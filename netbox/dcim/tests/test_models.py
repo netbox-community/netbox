@@ -2189,6 +2189,18 @@ class CableTestCase(TestCase):
         self.assertIsNone(interface.path)
 
 
+class CableTerminationTestCase(TestCase):
+
+    def test_cache_related_objects_requires_resolvable_termination(self):
+        """cache_related_objects raises ValueError when the termination cannot be resolved."""
+        cable_termination = CableTermination(
+            termination_type=ObjectType.objects.get_for_model(Interface),
+            termination_id=0,
+        )
+        with self.assertRaises(ValueError):
+            cable_termination.cache_related_objects()
+
+
 class VirtualDeviceContextTestCase(TestCase):
 
     @classmethod

@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRel
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ImproperlyConfigured, ObjectDoesNotExist, ValidationError
 from django.db import IntegrityError, router, transaction
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
@@ -731,7 +731,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
             # Update custom fields
             for name, customfield in custom_fields.items():
-                assert name.startswith('cf_')
+                if not name.startswith('cf_'):
+                    raise ImproperlyConfigured(
+                        _("Custom field form field name must begin with 'cf_': {name}").format(name=name)
+                    )
                 cf_name = name[3:]  # Strip cf_ prefix
                 if name in form.nullable_fields and name in nullified_fields:
                     obj.custom_field_data[cf_name] = None

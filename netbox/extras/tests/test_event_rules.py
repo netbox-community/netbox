@@ -39,6 +39,16 @@ class EventRuleTestCase(APITestCase):
         # Clear the queue so leftover jobs do not leak to the next test suite
         self.queue.empty()
 
+    def test_enqueue_event_requires_saved_instance(self):
+        """enqueue_event raises ValueError for an unsaved instance."""
+        request = RequestFactory().get('/')
+        request.id = uuid.uuid4()
+        request.user = self.user
+        site = Site(name='Site 1', slug='site-1')
+        with patch('extras.events.has_feature', return_value=True):
+            with self.assertRaises(ValueError):
+                enqueue_event({}, site, request, OBJECT_CREATED)
+
     @classmethod
     def setUpTestData(cls):
 
