@@ -168,6 +168,12 @@ class ObjectChange(models.Model):
         if issubclass(model, LtreeModel):
             attrs.update({'path', 'sort_path'})
 
+        # Exclude MPTT bookkeeping columns for the deprecated MPTT-backed
+        # NestedGroupModel still shipped for plugin compatibility.
+        from mptt.models import MPTTModel
+        if issubclass(model, MPTTModel):
+            attrs.update({'lft', 'rght', 'tree_id', 'level'})
+
         return attrs
 
     def get_clean_data(self, prefix):

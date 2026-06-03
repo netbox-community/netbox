@@ -14,6 +14,7 @@ __all__ = (
     'ContentTypeType',
     'LtreeNodeMixin',
     'NestedGroupObjectType',
+    'NestedLtreeGroupObjectType',
     'NetBoxObjectType',
     'ObjectType',
     'OrganizationalObjectType',
@@ -107,6 +108,22 @@ class LtreeNodeMixin:
 
 
 class NestedGroupObjectType(
+    ChangelogMixin,
+    CustomFieldsMixin,
+    JournalEntriesMixin,
+    TagsMixin,
+    OwnerMixin,
+    BaseObjectType
+):
+    """
+    Base GraphQL type for the deprecated MPTT-backed NestedGroupModel, kept for
+    plugin compatibility. MPTT exposes `level` as a real column, so no annotation
+    mixin is needed. New code should use NestedLtreeGroupObjectType.
+    """
+    pass
+
+
+class NestedLtreeGroupObjectType(
     LtreeNodeMixin,
     ChangelogMixin,
     CustomFieldsMixin,
@@ -116,7 +133,8 @@ class NestedGroupObjectType(
     BaseObjectType
 ):
     """
-    Base GraphQL type for models which inherit from NestedGroupModel.
+    Base GraphQL type for models which inherit from NestedLtreeGroupModel.
+    Adds a `level` field annotated via `nlevel(path)`.
     """
     pass
 

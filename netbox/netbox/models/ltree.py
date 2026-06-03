@@ -11,7 +11,7 @@ InstallLtreeTriggers migration operation. The Python layer never computes or
 mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import connection, migrations, models
 from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
@@ -167,13 +167,12 @@ class LtreeQuerySet(RestrictedQuerySet):
             and not has_direct_fk and not is_many_to_many
         )
 
-        # The FK branches below dereference field.column, so fail loudly here if the
-        # field could not be resolved and this isn't the scope GenericFK pattern —
-        # rather than raising an opaque AttributeError deep in the SQL builder.
-        if field is None and not has_generic_fk:
-            raise FieldDoesNotExist(
-                f"{model._meta.label} has no field '{rel_field}' for add_related_count()"
-            )
+        # Many call sites bind add_related_count() as a class attribute, so it
+        # runs at module import. Raising FieldDoesNotExist here would block app
+        # startup whenever an unrelated field is renamed; fall back to the
+        # Django default column name (`{rel_field}_id`) instead, matching MPTT's
+        # add_related_count behavior.
+        rel_field_col_default = f'{rel_field}_id'
 
         qn = connection.ops.quote_name
         parent_table = qn(queryset.model._meta.db_table)
@@ -220,8 +219,9 @@ class LtreeQuerySet(RestrictedQuerySet):
                 return queryset.annotate(**{
                     count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
                 })
-            # Use field.column (not f'{rel_field}_id') so custom db_column works.
-            rel_field_col = qn(field.column)
+            # Use field.column (not f'{rel_field}_id') so custom db_column works;
+            # fall back to default naming if the field was not resolved.
+            rel_field_col = qn(field.column if field is not None else rel_field_col_default)
             sql = f'''(
                     SELECT COUNT(DISTINCT {related_table}."id")
                     FROM {related_table}
@@ -265,7 +265,7 @@ class LtreeQuerySet(RestrictedQuerySet):
             return queryset.annotate(**{
                 count_attr: RawSQL(sql, [ct_app, ct_model], output_field=models.IntegerField())
             })
-        rel_field_col = qn(field.column)
+        rel_field_col = qn(field.column if field is not None else rel_field_col_default)
         sql = f'''(
             SELECT COUNT(DISTINCT {related_table}."id")
             FROM {related_table}

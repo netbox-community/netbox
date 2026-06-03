@@ -574,17 +574,18 @@ class ReapplyModelOrderingTests(TestCase):
 
 
 class AddRelatedCountErrorTests(TestCase):
-    """add_related_count() must fail clearly on an unresolvable rel_field."""
+    """
+    add_related_count() must not raise at queryset-build time for unresolvable
+    rel_field — many call sites bind the annotation as a class attribute at
+    module import. The annotation is still attached using the Django default
+    column naming, and any error surfaces at evaluation time.
+    """
 
-    def test_unknown_field_raises_fielddoesnotexist(self):
-        from django.core.exceptions import FieldDoesNotExist
-        # Region has no scope_type/scope_id, so an unknown rel_field cannot resolve
-        # to a FK/M2M or the GenericFK scope pattern -> explicit FieldDoesNotExist
-        # rather than an opaque NameError deep in the SQL builder.
-        with self.assertRaises(FieldDoesNotExist):
-            Region.objects.add_related_count(
-                Region.objects.all(), Region, 'not_a_field', 'bogus_count', cumulative=True
-            )
+    def test_unknown_field_does_not_raise_at_build(self):
+        qs = Region.objects.add_related_count(
+            Region.objects.all(), Region, 'not_a_field', 'bogus_count', cumulative=True
+        )
+        self.assertIn('bogus_count', qs.query.annotations)
 
 
 class ChangeLogExclusionTests(TestCase):
@@ -615,6 +616,57 @@ class ChangeLogExclusionTests(TestCase):
         # path/sort_path are excluded, so they must not surface in the cleaned diff data.
         self.assertNotIn('sort_path', oc.postchange_data_clean)
         self.assertNotIn('path', oc.postchange_data_clean)
+
+
+class MPTTChangeLogExclusionTests(TestCase):
+    """
+    ObjectChange.diff_exclude_fields must hide MPTT bookkeeping columns
+    (lft/rght/tree_id/level) for plugin models still using the deprecated
+    MPTT-backed NestedGroupModel, in addition to ltree's path/sort_path.
+    """
+
+    def test_diff_exclude_fields_for_mptt_subclass(self):
+        from unittest.mock import MagicMock
+        from mptt.models import MPTTModel
+
+        class _FakeMPTT(MPTTModel):
+            class Meta:
+                abstract = True
+                app_label = 'tests'
+
+        oc = ObjectChange()
+        fake_ct = MagicMock()
+        fake_ct.model_class.return_value = _FakeMPTT
+        # Prime the FK descriptor's cache so accessing changed_object_type
+        # returns our mock without hitting the DB or invoking type checks.
+        ObjectChange._meta.get_field('changed_object_type').set_cached_value(oc, fake_ct)
+
+        excluded = oc.diff_exclude_fields
+        self.assertIn('lft', excluded)
+        self.assertIn('rght', excluded)
+        self.assertIn('tree_id', excluded)
+        self.assertIn('level', excluded)
+
+
+class AddRelatedCountResilienceTests(TestCase):
+    """
+    add_related_count() must not raise FieldDoesNotExist at queryset-build
+    time so that view modules (which bind it as a class attribute) can be
+    imported even if a referenced field has been renamed.
+    """
+
+    def test_unknown_field_does_not_raise(self):
+        # Bare manager call equivalent to a view class body using a stale name.
+        qs = Region.objects.add_related_count(
+            Region.objects.all(),
+            Region,  # any model; the field name is what matters
+            'this_field_does_not_exist',
+            'noop_count',
+            cumulative=True,
+        )
+        # The annotation was attached; evaluating it would fail at the DB
+        # (column doesn't exist) but importing the view module must succeed.
+        self.assertIn('noop_count', qs.query.annotations)
 
 
 class CascadeTriggerScopeTests(TestCase):

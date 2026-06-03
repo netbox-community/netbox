@@ -40,11 +40,12 @@ from netbox.forms.model_forms import (
 )
 from netbox.graphql.types import (
     NestedGroupObjectType,
+    NestedLtreeGroupObjectType,
     NetBoxObjectType,
     OrganizationalObjectType,
     PrimaryObjectType,
 )
-from netbox.models import NestedGroupModelMixin, NetBoxModel, OrganizationalModel, PrimaryModel
+from netbox.models import NestedGroupModelMixin, NestedLtreeGroupModel, NetBoxModel, OrganizationalModel, PrimaryModel
 from netbox.registry import registry
 from netbox.tables import (
     NestedGroupModelTable,
@@ -365,6 +366,8 @@ class GraphQLTypeClassesTestCase(TestCase):
             return PrimaryObjectType
         if issubclass(model, OrganizationalModel):
             return OrganizationalObjectType
+        if issubclass(model, NestedLtreeGroupModel):
+            return NestedLtreeGroupObjectType
         if issubclass(model, NestedGroupModelMixin):
             return NestedGroupObjectType
         if issubclass(model, NetBoxModel):

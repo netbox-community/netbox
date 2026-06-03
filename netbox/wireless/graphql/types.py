@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Annotated
 import strawberry
 import strawberry_django
 
-from netbox.graphql.types import NestedGroupObjectType, PrimaryObjectType
+from netbox.graphql.types import NestedLtreeGroupObjectType, PrimaryObjectType
 from wireless import models
 
 from .filters import *
@@ -26,7 +26,7 @@ __all__ = (
     filters=WirelessLANGroupFilter,
     pagination=True
 )
-class WirelessLANGroupType(NestedGroupObjectType):
+class WirelessLANGroupType(NestedLtreeGroupObjectType):
     parent: Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')] | None
 
     wireless_lans: list[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]

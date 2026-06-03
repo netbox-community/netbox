@@ -13,7 +13,7 @@ from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
     LtreeNodeMixin,
-    NestedGroupObjectType,
+    NestedLtreeGroupObjectType,
     NetBoxObjectType,
     OrganizationalObjectType,
     PrimaryObjectType,
@@ -355,7 +355,7 @@ class InventoryItemTemplateType(LtreeNodeMixin, ComponentTemplateType):
     filters=DeviceRoleFilter,
     pagination=True
 )
-class DeviceRoleType(NestedGroupObjectType):
+class DeviceRoleType(NestedLtreeGroupObjectType):
     parent: Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')]]
     color: str
@@ -534,7 +534,7 @@ class InventoryItemRoleType(OrganizationalObjectType):
     filters=LocationFilter,
     pagination=True
 )
-class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NestedGroupObjectType):
+class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NestedLtreeGroupObjectType):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     parent: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
@@ -672,7 +672,7 @@ class ModuleTypeType(PrimaryObjectType):
     filters=PlatformFilter,
     pagination=True
 )
-class PlatformType(NestedGroupObjectType):
+class PlatformType(NestedLtreeGroupObjectType):
     parent: Annotated['PlatformType', strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated['PlatformType', strawberry.lazy('dcim.graphql.types')]]
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
@@ -880,7 +880,7 @@ class RearPortTemplateType(ModularComponentTemplateType):
     filters=RegionFilter,
     pagination=True
 )
-class RegionType(VLANGroupsMixin, ContactsMixin, NestedGroupObjectType):
+class RegionType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
 
     sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
     children: list[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]
@@ -957,7 +957,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObj
     filters=SiteGroupFilter,
     pagination=True
 )
-class SiteGroupType(VLANGroupsMixin, ContactsMixin, NestedGroupObjectType):
+class SiteGroupType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
 
     sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
     children: list[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]

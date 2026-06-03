@@ -4,7 +4,7 @@ import strawberry
 import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, NestedGroupObjectType, OrganizationalObjectType, PrimaryObjectType
+from netbox.graphql.types import BaseObjectType, NestedLtreeGroupObjectType, OrganizationalObjectType, PrimaryObjectType
 from tenancy import models
 
 from .filters import *
@@ -92,7 +92,7 @@ class TenantType(ContactsMixin, PrimaryObjectType):
     filters=TenantGroupFilter,
     pagination=True
 )
-class TenantGroupType(NestedGroupObjectType):
+class TenantGroupType(NestedLtreeGroupObjectType):
     parent: Annotated['TenantGroupType', strawberry.lazy('tenancy.graphql.types')] | None
 
     tenants: list[TenantType]
@@ -129,7 +129,7 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
     filters=ContactGroupFilter,
     pagination=True
 )
-class ContactGroupType(NestedGroupObjectType):
+class ContactGroupType(NestedLtreeGroupObjectType):
     parent: Annotated['ContactGroupType', strawberry.lazy('tenancy.graphql.types')] | None
 
     contacts: list[ContactType]
