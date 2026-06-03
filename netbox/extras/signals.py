@@ -193,11 +193,9 @@ def _make_object_save_handler(model_label):
     fields = CC_FIELDS_BY_MODEL[model_label]
 
     def _handler(sender, instance, created, **kwargs):
-        if created:
-            # No cache exists yet; the next read will render on demand. We could pre-render
-            # eagerly via a background job, but lazy rendering is sufficient.
-            return
-        if _changed_fields(instance, fields):
+        # On creation, enqueue a render so the new object's cache is warmed promptly (there is no
+        # recurring sweep). On update, only invalidate when a scope-relevant field actually changed.
+        if created or _changed_fields(instance, fields):
             invalidate_config_context_for_objects(model_label, [instance.pk])
 
     return _handler
@@ -312,7 +310,6 @@ def _connect_upstream_handlers():
         ('dcim', 'SiteGroup', 'site__group__in', 'site__group__in'),
         ('dcim', 'DeviceRole', 'role__in', 'role__in'),
         ('dcim', 'Platform', 'platform__in', 'platform__in'),
-        ('tenancy', 'TenantGroup', 'tenant__group__in', 'tenant__group__in'),
         ('dcim', 'Location', 'location__in', None),
     )
     for app, name, device_attr, vm_attr in mptt_triggers:

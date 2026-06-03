@@ -7,7 +7,7 @@ expressed in exactly one place.
 """
 from django.apps import apps
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import F, Q
 
 from dcim.models import Device
 from extras.jobs import RenderConfigContextJob
@@ -17,7 +17,8 @@ from virtualization.models import VirtualMachine
 
 def invalidate_config_context_for_objects(model_label, pks):
     """
-    Synchronously NULL the `_config_context_data` cache on the given objects, then enqueue a
+    Synchronously NULL the `_config_context_data` cache on the given objects (bumping the
+    generation counter so an in-flight render can't overwrite the invalidation), then enqueue a
     background job to repopulate them once the surrounding transaction commits.
 
     Args:
@@ -29,7 +30,10 @@ def invalidate_config_context_for_objects(model_label, pks):
         return
 
     Model = apps.get_model(model_label)
-    updated = Model.objects.filter(pk__in=pks).update(_config_context_data=None)
+    updated = Model.objects.filter(pk__in=pks).update(
+        _config_context_data=None,
+        _config_context_generation=F('_config_context_generation') + 1,
+    )
     if not updated:
         return
 

@@ -86,7 +86,7 @@ class DeviceSerializer(PrimaryModelSerializer):
     virtual_chassis = VirtualChassisSerializer(nested=True, required=False, allow_null=True, default=None)
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
-    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    config_context = serializers.SerializerMethodField(read_only=True)
 
     # Counter fields
     console_port_count = serializers.IntegerField(read_only=True)

@@ -210,7 +210,6 @@ CC_FIELDS_BY_MODEL = {
         'cluster_id', 'local_context_data',
     ),
     'virtualization.virtualmachine': (
-        'site_id', 'cluster_id', 'device_id', 'tenant_id', 'platform_id', 'role_id',
-        'local_context_data',
+        'site_id', 'cluster_id', 'tenant_id', 'platform_id', 'role_id', 'local_context_data',
     ),
 }

@@ -18,12 +18,22 @@ from .utils import is_report
 
 RENDER_CONFIG_CONTEXT_CHUNK_SIZE = 500
 
+# Safety bound on the number of re-scan passes performed by RenderConfigContextJob.run() (see the
+# loop there). Each pass re-queries for NULL caches, so any finite burst of concurrent
+# invalidations is drained well within this limit; the cap only guards against an object whose
+# cache is being invalidated faster than it can be rendered (pathological, unbounded churn).
+RENDER_CONFIG_CONTEXT_MAX_PASSES = 100
+
 
 class RenderConfigContextJob(JobRunner):
     """
     Recompute the pre-rendered `_config_context_data` cache for a set of Devices or
-    VirtualMachines. Triggered whenever an upstream change (ConfigContext, related object, or the
-    object itself) invalidates the cache.
+    VirtualMachines. Enqueued (coalesced) by the invalidation helpers in extras/cache.py whenever
+    an upstream change (ConfigContext, related object, or the object itself) NULLs a cache.
+
+    This is *not* a recurring system job: the initial post-upgrade population is handled by the
+    `rebuild_config_context_cache` management command, and steady-state freshness is maintained by
+    the invalidation signals.
     """
 
     class Meta:
@@ -35,13 +45,43 @@ class RenderConfigContextJob(JobRunner):
             model_label: 'dcim.device' or 'virtualization.virtualmachine'. If None, both are processed.
             pks: An iterable of object PKs to refresh. If None, refresh all objects whose cache is null.
         """
-        if model_label is None:
-            for label in ('dcim.device', 'virtualization.virtualmachine'):
-                self._render_for_model(label, pks=None)
-            return
-        self._render_for_model(model_label, pks=pks)
+        labels = (model_label,) if model_label is not None else ('dcim.device', 'virtualization.virtualmachine')
+        pks = list(pks) if pks is not None else None
+
+        # Re-scan until a full pass renders nothing. An invalidation that commits while this job is
+        # already RUNNING coalesces into this job — JobRunner.enqueue_once() treats RUNNING as an
+        # enqueued state — so it will NOT schedule a follow-up job. If we rendered in a single pass,
+        # any cache NULLed after the iterator moved past its row (or after the pass for its model
+        # completed) would be left populated by no one, stranding it on the on-demand read path
+        # indefinitely. Looping until a pass finds no renderable NULL caches guarantees those late
+        # invalidations are picked up before this job finishes.
+        total = 0
+        for _pass in range(RENDER_CONFIG_CONTEXT_MAX_PASSES):
+            rendered = sum(self._render_for_model(label, pks=pks) for label in labels)
+            total += rendered
+            # No progress this pass means either nothing is NULL or the only NULL rows are churning
+            # under concurrent invalidation (each such invalidation enqueues its own follow-up), so
+            # there is nothing more for us to safely do.
+            if not rendered:
+                break
+        else:
+            # The loop ran every pass without ever rendering nothing, meaning caches are being
+            # invalidated about as fast as we can render them. This is pathological churn worth
+            # surfacing: each lingering invalidation enqueues its own follow-up job, so the caches
+            # are not stranded, but the sustained rate warrants investigation.
+            self.logger.warning(
+                f"Reached the maximum of {RENDER_CONFIG_CONTEXT_MAX_PASSES} render passes with caches "
+                f"still being invalidated; config context caches may be churning under sustained "
+                f"concurrent invalidation."
+            )
+
+        self.logger.info(f"Rendered config context for {total} object(s)")
 
     def _render_for_model(self, model_label, pks):
+        """
+        Render and cache config context for every object of the given model whose cache is
+        currently NULL (optionally restricted to `pks`). Returns the number of objects written.
+        """
         Model = apps.get_model(model_label)
         qs = Model.objects.filter(_config_context_data__isnull=True)
         if pks is not None:
@@ -52,19 +92,20 @@ class RenderConfigContextJob(JobRunner):
         qs = qs.annotate_config_context_data()
 
         rendered = 0
-        batch = []
         for obj in qs.iterator(chunk_size=RENDER_CONFIG_CONTEXT_CHUNK_SIZE):
-            obj._config_context_data = obj.render_config_context()
-            batch.append(obj)
-            if len(batch) >= RENDER_CONFIG_CONTEXT_CHUNK_SIZE:
-                Model.objects.bulk_update(batch, ['_config_context_data'])
-                rendered += len(batch)
-                batch = []
-        if batch:
-            Model.objects.bulk_update(batch, ['_config_context_data'])
-            rendered += len(batch)
+            # Capture the generation we rendered against, then write the result back only if no
+            # invalidation has bumped it in the meantime (compare-and-set). If a fresh invalidation
+            # won the race, the row stays NULL with a higher generation and the follow-up job it
+            # enqueued will re-render it — we never persist a stale value.
+            generation = obj._config_context_generation
+            data = obj.render_config_context()
+            updated = Model.objects.filter(
+                pk=obj.pk,
+                _config_context_generation=generation,
+            ).update(_config_context_data=data)
+            rendered += updated
 
-        self.logger.info(f"Rendered config context for {rendered} {model_label} object(s)")
+        return rendered
 
 
 class ScriptJob(JobRunner):
