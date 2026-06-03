@@ -400,6 +400,15 @@ class Module(TrackingModelMixin, PrimaryModel, ConfigContextModel):
                 )
 
             update_fields = ['module']
+            # ModuleBay.parent is derived from .module in ModuleBay.save(), and the
+            # path/sort_path trigger only fires on parent_id/name changes. A bare
+            # bulk_update(['module']) bypasses both, leaving the adopted bay rooted
+            # at its pre-adoption location. Set parent in lockstep so the BEFORE
+            # trigger recomputes path/sort_path.
+            if component_model is ModuleBay:
+                for instance in update_instances:
+                    instance.parent = self.module_bay
+                update_fields = ['module', 'parent']
 
             component_model.objects.bulk_update(update_instances, update_fields)
             for component in update_instances:

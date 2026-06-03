@@ -2849,6 +2849,14 @@ class DeviceInventoryView(DeviceComponentsView):
         hide_if_empty=True
     )
 
+    def get_children(self, request, parent):
+        # DeviceInventoryItemTable indents rows by record.level; under MPTT,
+        # TreeManager forced tree-flatten (tree_id, lft) ordering so descendants
+        # were contiguous with their parent. InventoryItem.Meta.ordering is a
+        # flat sort suited to the global list; for the indented device tab,
+        # order by ltree path so the rendered hierarchy is correct.
+        return super().get_children(request, parent).order_by('path')
+
 
 @register_model_view(Device, 'configcontext', path='config-context')
 class DeviceConfigContextView(ObjectConfigContextView):

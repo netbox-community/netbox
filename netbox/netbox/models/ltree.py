@@ -12,7 +12,7 @@ mutates paths directly; it only reads `path` back from the database after
 inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
 from django.core.exceptions import ValidationError
-from django.db import connection, migrations, models
+from django.db import IntegrityError, connection, migrations, models
 from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
 from django.db.models.expressions import RawSQL
 from django.utils.translation import gettext_lazy as _
@@ -413,7 +413,18 @@ class LtreeModel(models.Model):
         if parent_changed and self._parent_creates_cycle():
             raise ValidationError(_("Cannot assign self or a descendant as parent."))
 
-        super().save(*args, **kwargs)
+        try:
+            super().save(*args, **kwargs)
+        except IntegrityError as exc:
+            # A concurrent reparent that races the Python-level _parent_creates_cycle
+            # check can be caught by the BEFORE trigger as a check_violation cycle.
+            # Surface it as a ValidationError so the API/UI returns 400 instead of
+            # the IntegrityError → 500 the trigger would otherwise produce.
+            if 'cycle detected' in str(exc):
+                raise ValidationError(
+                    _("Cannot assign self or a descendant as parent.")
+                ) from None
+            raise
 
         if (parent_changed or name_changed) and not is_insert:
             # The triggers rewrote path/sort_path on this UPDATE; fetch them back.
@@ -461,6 +472,10 @@ class LtreeModel(models.Model):
         return self.parent_id is None
 
     def is_leaf_node(self):
+        if self.pk is None:
+            # Unsaved instance has no children. Without this guard,
+            # filter(parent_id=None) would match every existing root.
+            return True
         return not type(self).objects.filter(parent_id=self.pk).exists()
 
     def is_child_node(self):
@@ -469,6 +484,11 @@ class LtreeModel(models.Model):
     def get_root(self):
         if self.is_root_node():
             return self
+        if not self.path:
+            # Unsaved (no path computed yet). Walk up the in-memory parent
+            # chain if available; otherwise we have no way to resolve the root.
+            parent = getattr(self, 'parent', None)
+            return parent.get_root() if parent is not None else None
         return type(self)._default_manager.get(pk=self._root_pk())
 
     def get_parent(self):
@@ -683,20 +703,23 @@ END
 $$ LANGUAGE plpgsql;
 '''
 
-_CASCADE_PATH_AND_SORT_FN = '''
+_CASCADE_PATH_AND_SORT_FN = """
 CREATE OR REPLACE FUNCTION "{table}_ltree_cascade_path_fn"() RETURNS TRIGGER AS $$
 BEGIN
+    -- COALESCE guards against a NULL sort_path slipping in via a raw write that
+    -- bypassed the BEFORE trigger: without it, length(NULL)/substring(... FROM NULL)
+    -- would cascade NULL to every descendant's sort_path in one shot.
     EXECUTE format(
         'UPDATE %%I SET '
         '  path = $1 || subpath(path, nlevel($2)), '
-        '  sort_path = $4 || substring(sort_path FROM length($5) + 1) '
+        '  sort_path = COALESCE($4, '''') || substring(COALESCE(sort_path, '''') FROM length(COALESCE($5, '''')) + 1) '
         'WHERE path <@ $2 AND id != $3',
         TG_TABLE_NAME
     ) USING NEW.path, OLD.path, NEW.id, NEW.sort_path, OLD.sort_path;
     RETURN NULL;
 END
 $$ LANGUAGE plpgsql;
-'''
+"""
 
 _BEFORE_TRIGGER_PATH_ONLY = '''
 CREATE TRIGGER "{table}_ltree_compute_path"
