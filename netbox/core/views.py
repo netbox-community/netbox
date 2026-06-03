@@ -39,7 +39,6 @@ from netbox.plugins.utils import get_installed_plugins
 from netbox.ui import layout
 from netbox.ui.panels import (
     CommentsPanel,
-    ContextTablePanel,
     JSONPanel,
     ObjectsTablePanel,
     PluginContentPanel,
@@ -269,7 +268,7 @@ class JobLogView(generic.ObjectView):
     layout = layout.Layout(
         layout.Row(
             layout.Column(
-                ContextTablePanel('table', title=_('Log Entries')),
+                TemplatePanel('core/job/log_entries.html', title=_('Log Entries')),
                 PluginContentPanel('left_page'),
             ),
         ),
@@ -280,12 +279,26 @@ class JobLogView(generic.ObjectView):
         ),
     )
 
-    def get_extra_context(self, request, instance):
+    def get_table(self, request, instance):
         table = JobLogEntryTable(instance.log_entries)
+        table.embedded = True
+        table.htmx_url = reverse('core:job_log', kwargs={'pk': instance.pk})
         table.configure(request)
+        return table
+
+    def get_extra_context(self, request, instance):
         return {
-            'table': table,
+            'table': self.get_table(request, instance),
         }
+
+    def get(self, request, **kwargs):
+        if htmx_partial(request):
+            instance = self.get_object(**kwargs)
+            return render(request, 'htmx/table.html', {
+                'object': instance,
+                'table': self.get_table(request, instance),
+            })
+        return super().get(request, **kwargs)
 
 
 @register_model_view(Job, 'delete')
