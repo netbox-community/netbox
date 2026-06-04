@@ -241,6 +241,11 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name='devicerole', options={'ordering': ('sort_path',)},
         ),
+        # InventoryItem has no sort_path; its global list is flat + alphabetical
+        # (the per-device tab renders the hierarchy via get_children().order_by('path')).
+        migrations.AlterModelOptions(
+            name='inventoryitem', options={'ordering': ('name', 'pk')},
+        ),
         migrations.AlterModelOptions(
             name='location', options={'ordering': ('sort_path', 'pk')},
         ),

@@ -1566,7 +1566,11 @@ class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
     objects = LtreeManager()
 
     class Meta:
-        ordering = ('device__id', 'parent__id', 'name')
+        # Global list is flat + alphabetical by name (natural_sort collation). The
+        # per-device Inventory tab renders the hierarchy instead — DeviceInventoryView
+        # .get_children() orders that by `path`. `pk` is a deterministic tie-break for
+        # same-named items on different devices.
+        ordering = ('name', 'pk')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
             GistIndex(fields=['path'], name='dcim_inventoryitem_path_gist'),
