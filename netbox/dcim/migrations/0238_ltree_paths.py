@@ -242,7 +242,7 @@ class Migration(migrations.Migration):
             name='devicerole', options={'ordering': ('sort_path',)},
         ),
         migrations.AlterModelOptions(
-            name='location', options={'ordering': ('site', 'sort_path')},
+            name='location', options={'ordering': ('sort_path', 'pk')},
         ),
         migrations.AlterModelOptions(
             name='modulebay', options={'ordering': ('sort_path', 'pk')},

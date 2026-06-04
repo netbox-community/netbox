@@ -328,7 +328,11 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedLtreeGroupModel):
     )
 
     class Meta:
-        ordering = ('site', 'sort_path')
+        # Alphabetical tree-flatten in the global list: sort_path begins with the
+        # root location's name, so ORDER BY sort_path lists root locations by name
+        # across sites (descendants following their root). `pk` is a deterministic
+        # tie-break for same-named roots in different sites.
+        ordering = ('sort_path', 'pk')
         indexes = (
             GistIndex(fields=['path'], name='dcim_location_path_gist'),
             models.Index(fields=['sort_path'], name='dcim_location_sort_path_idx'),
