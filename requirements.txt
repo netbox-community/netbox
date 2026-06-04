@@ -32,6 +32,7 @@ nh3==0.3.5
 Pillow==12.2.0
 psycopg[c,pool]==3.3.4
 PyYAML==6.0.3
+redis==7.4.0
 requests==2.34.2
 rq==2.9.0
 social-auth-app-django==5.9.0
