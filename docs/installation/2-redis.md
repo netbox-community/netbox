@@ -8,7 +8,7 @@
 sudo apt install -y redis-server
 ```
 
-Before continuing, verify that your installed version of Redis is at least v4.0:
+Before continuing, verify that your installed version of Redis is at least v5.0:
 
 ```no-highlight
 redis-server -v
