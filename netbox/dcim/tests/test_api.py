@@ -20,6 +20,8 @@ from users.models import ObjectPermission, Token, User
 from utilities.testing import (
     APITestCase,
     APIViewTestCases,
+    GraphQLFilterTest,
+    GraphQLQueryTest,
     create_test_device,
     create_test_nat_ip_pair,
     disable_logging,
@@ -146,6 +148,19 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'status': 'planned',
     }
+    graphql_filter_tests = (
+        GraphQLFilterTest(
+            name='tenant__name__exact',
+            filters='tenant: {name: {exact: "Tenant 1"}}',
+            expected=lambda qs: qs.filter(tenant__name='Tenant 1'),
+            permissions=('tenancy.view_tenant',),
+        ),
+    )
+
+    def assert_nested_locations_active(self, data):
+        site_data = data.get('site') or {}
+        location_names = sorted(location['name'] for location in site_data.get('locations', []))
+        self.assertEqual(location_names, ['Site1 Active A', 'Site1 Active B'])
 
     @classmethod
     def setUpTestData(cls):
@@ -160,15 +175,32 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
             SiteGroup.objects.create(name='Site Group 2', slug='site-group-2'),
         )
 
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
+
+        # Site 1's tenant activates the dynamic tenant prefetch (+1 in api_list_objects baseline).
         sites = (
-            Site(region=regions[0], group=groups[0], name='Site 1', slug='site-1'),
+            Site(region=regions[0], group=groups[0], tenant=tenant, name='Site 1', slug='site-1'),
             Site(region=regions[0], group=groups[0], name='Site 2', slug='site-2'),
             Site(region=regions[0], group=groups[0], name='Site 3', slug='site-3'),
         )
         Site.objects.bulk_create(sites)
 
+        nested_site = Site.objects.get(slug='site-1')
+        cls.nested_site_pk = nested_site.pk
+        Location.objects.create(
+            site=nested_site, name='Site1 Active A', slug='site1-active-a',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=nested_site, name='Site1 Active B', slug='site1-active-b',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=nested_site, name='Site1 Planned', slug='site1-planned',
+            status=LocationStatusChoices.STATUS_PLANNED,
+        )
+
         rir = RIR.objects.create(name='RFC 6996', is_private=True)
-        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         asns = [
             ASN(asn=65000 + i, rir=rir) for i in range(8)
@@ -202,6 +234,19 @@ class SiteTestCase(APIViewTestCases.APIViewTestCase):
                 'asns': [asns[4].pk, asns[5].pk],
             },
         ]
+
+        cls.graphql_query_tests = (
+            GraphQLQueryTest(
+                name='nested_locations_by_status',
+                query=(
+                    '{ site(id: ' + str(cls.nested_site_pk) + ') { '
+                    'locations(filters: {status: {exact: STATUS_ACTIVE}}) { name } '
+                    '} }'
+                ),
+                assert_result=cls.assert_nested_locations_active,
+                permissions=('dcim.view_location',),
+            ),
+        )
 
     def test_add_tags(self):
         """
@@ -427,6 +472,16 @@ class LocationTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     user_permissions = ('dcim.view_site',)
+    graphql_filter_tests = (
+        GraphQLFilterTest(
+            name='status__in_list',
+            filters='status: {in_list: [STATUS_PLANNED, STATUS_STAGING]}',
+            expected=lambda qs: qs.filter(status__in=[
+                LocationStatusChoices.STATUS_PLANNED,
+                LocationStatusChoices.STATUS_STAGING,
+            ]),
+        ),
+    )
 
     @classmethod
     def setUpTestData(cls):
@@ -475,6 +530,20 @@ class LocationTestCase(APIViewTestCases.APIViewTestCase):
             slug='location-3',
             parent=parent_locations[0],
             status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=sites[0],
+            name='GraphQL Planned Location',
+            slug='graphql-planned-location',
+            parent=parent_locations[0],
+            status=LocationStatusChoices.STATUS_PLANNED,
+        )
+        Location.objects.create(
+            site=sites[0],
+            name='GraphQL Staging Location',
+            slug='graphql-staging-location',
+            parent=parent_locations[0],
+            status=LocationStatusChoices.STATUS_STAGING,
         )
 
         cls.create_data = [

@@ -10,7 +10,7 @@ from strawberry.schema.config import StrawberryConfig
 
 from dcim.choices import LocationStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
-from extras.models import TableConfig
+from extras.models import TableConfig, Tag
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions
 from utilities.tables import get_table_for_model
@@ -184,6 +184,72 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['site']['locations']), 0)
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_nested_filter_objects(self):
+        """
+        Test filtering of nested GraphQL object lists.
+        """
+        self.add_permissions('dcim.view_site', 'dcim.view_location', 'extras.view_tag')
+
+        site = Site.objects.create(
+            name='Nested Filter Site',
+            slug='nested-filter-site'
+        )
+
+        # Location is MPTT-managed; bulk_create skips tree-init hooks. Use per-instance create.
+        Location.objects.create(
+            site=site,
+            name='Nested Active 1',
+            slug='nested-active-1',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=site,
+            name='Nested Active 2',
+            slug='nested-active-2',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=site,
+            name='Nested Planned',
+            slug='nested-planned',
+            status=LocationStatusChoices.STATUS_PLANNED,
+        )
+
+        planned = Tag.objects.create(name='Planned', slug='planned')
+        production = Tag.objects.create(name='Production', slug='production')
+        staging = Tag.objects.create(name='Staging', slug='staging')
+        site.tags.add(planned, production, staging)
+
+        url = reverse('graphql')
+        query = f"""
+        {{
+          site(id: {site.pk}) {{
+            locations(filters: {{status: {{exact: STATUS_ACTIVE}}}}) {{
+              name
+            }}
+            tags(filters: {{name: {{i_starts_with: "P"}}}}) {{
+              name
+            }}
+          }}
+        }}
+        """
+
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+
+        self.assertEqual(
+            {location['name'] for location in data['data']['site']['locations']},
+            {'Nested Active 1', 'Nested Active 2'}
+        )
+        self.assertEqual(
+            {tag['name'] for tag in data['data']['site']['tags']},
+            {'Planned', 'Production'}
+        )
 
     def test_graphql_integer_range_lookup(self):
         """

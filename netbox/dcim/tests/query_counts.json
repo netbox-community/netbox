@@ -72,7 +72,7 @@
   "rearporttemplate:api_list_objects": 12,
   "region:api_list_objects": 13,
   "region:list_objects_with_permission": 20,
-  "site:api_list_objects": 16,
+  "site:api_list_objects": 17,
   "site:list_objects_with_permission": 22,
   "sitegroup:api_list_objects": 13,
   "sitegroup:list_objects_with_permission": 20,
