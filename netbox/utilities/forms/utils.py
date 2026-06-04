@@ -219,10 +219,30 @@ def restrict_form_fields(form, user, action='view'):
     """
     Restrict all form fields which reference a RestrictedQuerySet. This ensures that users see only permitted objects
     as available choices.
+
+    Forms may optionally expose already-assigned values which were removed by permission filtering as read-only. This
+    is handled by the form: only values already assigned to the current instance are added back (never the rest of the
+    original queryset), they are rendered read-only, and submitted/tampered values for them are ignored.
     """
-    for field in form.fields.values():
+    restricted_fields = {}
+
+    for name, field in form.fields.items():
         if hasattr(field, 'queryset') and issubclass(field.queryset.__class__, RestrictedQuerySet):
-            field.queryset = field.queryset.restrict(user, action)
+            original_queryset = field.queryset
+            restricted_queryset = original_queryset.restrict(user, action)
+            field.queryset = restricted_queryset
+            # restrict() returns the same queryset object only when no restriction applies (e.g. superusers). A
+            # non-superuser with unconstrained permissions gets an equivalent but new queryset; the per-value checks
+            # in prepare_restricted_queryset_fields() ensure nothing is locked when no current value is hidden.
+            if restricted_queryset is not original_queryset:
+                restricted_fields[name] = original_queryset
+
+    if (
+        restricted_fields and
+        getattr(getattr(form, 'instance', None), 'pk', None) and
+        hasattr(form, 'prepare_restricted_queryset_fields')
+    ):
+        form.prepare_restricted_queryset_fields(restricted_fields, user=user, action=action)
 
 
 def parse_csv(reader):

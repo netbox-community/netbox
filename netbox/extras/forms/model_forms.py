@@ -559,6 +559,11 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
     )
 
+    # action_object_type/action_object_id are recomputed in clean() from these two fields.
+    restricted_related_selectors = {
+        'action_choice': {'path': 'action_object', 'lock_fields': ('action_type',)},
+    }
+
     class Meta:
         model = EventRule
         fields = (

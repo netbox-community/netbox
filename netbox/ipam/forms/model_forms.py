@@ -355,6 +355,13 @@ class IPAddressForm(TenancyForm, PrimaryModelForm):
         FieldSet('nat_inside', name=_('NAT IP (Inside)')),
     )
 
+    restricted_related_selectors = {
+        # The selectors are stored as the assigned_object GenericForeignKey; the model picks the matching one.
+        'interface': {'path': 'assigned_object', 'model': Interface},
+        'vminterface': {'path': 'assigned_object', 'model': VMInterface},
+        'fhrpgroup': {'path': 'assigned_object', 'model': FHRPGroup},
+    }
+
     class Meta:
         model = IPAddress
         fields = [
@@ -651,6 +658,10 @@ class VLANGroupForm(TenancyForm, OrganizationalModelForm):
             'tags',
         ]
 
+    restricted_related_selectors = {
+        'scope': {'path': 'scope', 'lock_fields': ('scope_type',)},
+    }
+
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         initial = kwargs.get('initial', {})
@@ -812,6 +823,10 @@ class ServiceForm(PrimaryModelForm):
             'ipaddresses', 'description', 'tags', name=_('Application Service')
         ),
     )
+
+    restricted_related_selectors = {
+        'parent': {'path': 'parent', 'lock_fields': ('parent_object_type',)},
+    }
 
     class Meta:
         model = Service

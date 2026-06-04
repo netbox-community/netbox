@@ -2009,6 +2009,12 @@ class MACAddressForm(PrimaryModelForm):
         ),
     )
 
+    restricted_related_selectors = {
+        # The selectors are stored as the assigned_object GenericForeignKey; the model picks the matching one.
+        'interface': {'path': 'assigned_object', 'model': Interface},
+        'vminterface': {'path': 'assigned_object', 'model': VMInterface},
+    }
+
     class Meta:
         model = MACAddress
         fields = [

@@ -213,6 +213,10 @@ class CircuitTerminationForm(NetBoxModelForm):
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
     )
 
+    restricted_related_selectors = {
+        'termination': {'path': 'termination', 'lock_fields': ('termination_type',)},
+    }
+
     class Meta:
         model = CircuitTermination
         fields = [
@@ -306,6 +310,10 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     fieldsets = (
         FieldSet('group', 'member_type', 'member', 'priority', 'tags', name=_('Group Assignment')),
     )
+
+    restricted_related_selectors = {
+        'member': {'path': 'member', 'lock_fields': ('member_type',)},
+    }
 
     class Meta:
         model = CircuitGroupAssignment
