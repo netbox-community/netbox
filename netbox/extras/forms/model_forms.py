@@ -402,7 +402,7 @@ class SavedFilterForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
         super().__init__(*args, initial=initial, **kwargs)
 
 
-class TableConfigForm(forms.ModelForm):
+class TableConfigForm(ChangelogMessageMixin, forms.ModelForm):
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
         queryset=ObjectType.objects.all()
@@ -438,10 +438,29 @@ class TableConfigForm(forms.ModelForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
-        object_type = ObjectType.objects.get(pk=get_field_value(self, 'object_type'))
+        self.fields['available_columns'].widget.choices = ()
+        self.fields['columns'].widget.choices = ()
+
+        # Table context may be absent e.g. when the add view is requested directly
+        object_type_pk = get_field_value(self, 'object_type')
+        object_type_pk = getattr(object_type_pk, 'pk', object_type_pk)
+        if not object_type_pk:
+            return
+
+        try:
+            object_type = ObjectType.objects.get(pk=object_type_pk)
+        except (ObjectType.DoesNotExist, TypeError, ValueError):
+            return
+
         model = object_type.model_class()
+        if model is None:
+            return
+
         table_name = get_field_value(self, 'table')
         table_class = get_table_for_model(model, table_name)
+        if table_class is None:
+            return
+
         table = table_class([])
 
         if columns := self._get_columns():

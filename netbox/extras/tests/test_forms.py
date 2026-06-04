@@ -10,7 +10,7 @@ from core.models import DataSource, ObjectType
 from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
-from extras.forms import SavedFilterForm
+from extras.forms import SavedFilterForm, TableConfigBulkEditForm, TableConfigForm
 from extras.forms.model_forms import CustomFieldChoiceSetForm
 from extras.forms.scripts import ScriptFileForm
 from extras.models import CustomField, CustomFieldChoiceSet, ScriptModule
@@ -288,3 +288,52 @@ class ScriptFileFormTestCase(TestCase):
         form = ScriptFileForm(files={'upload_file': upload_file}, instance=self._new_module())
 
         self.assertTrue(form.is_valid())
+
+
+class TableConfigFormTestCase(TestCase):
+
+    def test_form_without_table_context(self):
+        """The form must be constructible without an object type."""
+        form = TableConfigForm()
+        self.assertEqual(list(form.fields['available_columns'].widget.choices), [])
+        self.assertEqual(list(form.fields['columns'].widget.choices), [])
+
+    def test_form_with_invalid_object_type(self):
+        """An unknown object type must yield empty column choices."""
+        last_pk = ObjectType.objects.order_by('pk').last().pk
+        form = TableConfigForm(initial={'object_type': last_pk + 1})
+        self.assertEqual(list(form.fields['available_columns'].widget.choices), [])
+        self.assertEqual(list(form.fields['columns'].widget.choices), [])
+
+    def test_form_with_unknown_table(self):
+        """An unresolvable table name must yield empty column choices."""
+        object_type = ObjectType.objects.get_for_model(Site)
+        form = TableConfigForm(initial={'object_type': object_type.pk, 'table': 'NoSuchTable'})
+        self.assertEqual(list(form.fields['columns'].widget.choices), [])
+
+    def test_form_with_table_context(self):
+        """Column choices must be populated from the resolved table."""
+        object_type = ObjectType.objects.get_for_model(Site)
+        form = TableConfigForm(initial={
+            'object_type': object_type.pk,
+            'table': 'SiteTable',
+            'columns': ['name', 'status'],
+        })
+        self.assertEqual(
+            [name for name, _ in form.fields['columns'].widget.choices],
+            ['name', 'status']
+        )
+        self.assertIn('region', dict(form.fields['available_columns'].widget.choices))
+
+    def test_form_includes_changelog_message(self):
+        """The model form must expose the changelog_message meta field."""
+        object_type = ObjectType.objects.get_for_model(Site)
+        form = TableConfigForm(initial={'object_type': object_type.pk, 'table': 'SiteTable'})
+        self.assertIn('changelog_message', form.fields)
+        self.assertIn('changelog_message', form.meta_fields)
+
+    def test_bulk_edit_form_includes_changelog_message(self):
+        """The bulk edit form must expose the changelog_message meta field."""
+        form = TableConfigBulkEditForm()
+        self.assertIn('changelog_message', form.fields)
+        self.assertIn('changelog_message', form.meta_fields)

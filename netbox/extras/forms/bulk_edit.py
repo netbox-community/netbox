@@ -212,7 +212,7 @@ class SavedFilterBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
     nullable_fields = ('description',)
 
 
-class TableConfigBulkEditForm(BulkEditForm):
+class TableConfigBulkEditForm(ChangelogMessageMixin, BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=TableConfig.objects.all(),
         widget=forms.MultipleHiddenInput
