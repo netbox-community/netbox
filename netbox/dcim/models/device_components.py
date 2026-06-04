@@ -1350,7 +1350,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
     objects = LtreeManager()
 
     class Meta(ModularComponentModel.Meta):
-        ordering = ('device', 'sort_path')
+        # Order by sort_path alone (not device-first), reproducing the MPTT
+        # ModuleBayManager's ('_root_name', 'lft'): sort_path begins with the tree's
+        # root-bay name (natural_sort collation), so the global list groups by
+        # root-bay name across devices, descendants following their root. `pk`
+        # gives a deterministic tie-break among same-named roots on different devices
+        # (MPTT's lft=1 left this order arbitrary).
+        ordering = ('sort_path', 'pk')
         indexes = (
             GistIndex(fields=['path'], name='dcim_modulebay_path_gist'),
             models.Index(fields=['sort_path'], name='dcim_modulebay_sort_path_idx'),

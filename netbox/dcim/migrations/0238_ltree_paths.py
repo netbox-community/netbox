@@ -245,7 +245,7 @@ class Migration(migrations.Migration):
             name='location', options={'ordering': ('site', 'sort_path')},
         ),
         migrations.AlterModelOptions(
-            name='modulebay', options={'ordering': ('device', 'sort_path')},
+            name='modulebay', options={'ordering': ('sort_path', 'pk')},
         ),
         migrations.AlterModelOptions(
             name='platform', options={'ordering': ('sort_path',)},
