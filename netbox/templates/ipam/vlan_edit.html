@@ -4,6 +4,10 @@
 {% load helpers %}
 {% load i18n %}
 
+{% block tabs %}
+  {% include 'ipam/inc/vlan_edit_header.html' with active_tab='add' %}
+{% endblock tabs %}
+
 {% block form %}
   {% for field in form.hidden_fields %}
     {{ field }}

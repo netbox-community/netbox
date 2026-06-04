@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory
 from django.urls import reverse
 from netaddr import IPNetwork
@@ -1500,6 +1501,178 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': roles[1].pk,
             'description': 'New description',
         }
+
+    def test_bulk_add_vlans(self):
+        self.add_permissions('ipam.add_vlan')
+
+        group = VLANGroup.objects.get(name='VLAN Group 1')
+        initial_count = VLAN.objects.count()
+        expected_vids = (110, 120, 121, 122)
+
+        form_data = {
+            'pattern': '110,120-122',
+            'group': group.pk,
+            'name': 'Pool-{vid}',
+            'status': VLANStatusChoices.STATUS_RESERVED,
+        }
+
+        response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(VLAN.objects.count(), initial_count + len(expected_vids))
+
+        for vid in expected_vids:
+            self.assertTrue(
+                VLAN.objects.filter(
+                    group=group,
+                    vid=vid,
+                    name=f'Pool-{vid}'
+                ).exists()
+            )
+
+    def test_bulk_add_vlans_rolls_back_on_duplicate_name(self):
+        self.add_permissions('ipam.add_vlan')
+
+        group = VLANGroup.objects.get(name='VLAN Group 1')
+        initial_count = VLAN.objects.count()
+
+        form_data = {
+            'pattern': '110-112',
+            'group': group.pk,
+            'name': 'Duplicate name',
+            'status': VLANStatusChoices.STATUS_RESERVED,
+        }
+
+        response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(VLAN.objects.count(), initial_count)
+        self.assertFalse(VLAN.objects.filter(group=group, vid=110).exists())
+
+    def test_bulk_add_vlans_rolls_back_when_any_id_outside_group_range(self):
+        self.add_permissions('ipam.add_vlan')
+
+        group = VLANGroup.objects.create(
+            name='Restricted VLAN Group',
+            slug='restricted-vlan-group',
+            vid_ranges=[NumericRange(200, 204)]  # Valid VIDs: 200-203
+        )
+        initial_count = VLAN.objects.count()
+
+        form_data = {
+            'pattern': '200-203,500',
+            'group': group.pk,
+            'name': 'Restricted-{vid}',
+            'status': VLANStatusChoices.STATUS_RESERVED,
+        }
+
+        response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(VLAN.objects.count(), initial_count)
+        self.assertFalse(VLAN.objects.filter(group=group, vid=200).exists())
+        self.assertFalse(VLAN.objects.filter(group=group, vid=203).exists())
+        self.assertFalse(VLAN.objects.filter(group=group, vid=500).exists())
+
+    def test_bulk_add_vlans_pattern_shapes(self):
+        """Single values, multiple values, ranges, and combinations create the expected VLANs."""
+        self.add_permissions('ipam.add_vlan')
+        # The combination runs against a second group: subTests share one transaction, and VIDs
+        # 10 & 20 would otherwise collide with the multiple-values case via the (group, vid) constraint.
+        cases = (
+            ('500', (500,), 'VLAN Group 1'),
+            ('5,10,20', (5, 10, 20), 'VLAN Group 1'),
+            ('600-605', tuple(range(600, 606)), 'VLAN Group 1'),
+            ('1,10-20,300-305', (1, *range(10, 21), *range(300, 306)), 'VLAN Group 2'),
+        )
+        for pattern, expected_vids, group_name in cases:
+            with self.subTest(pattern=pattern):
+                group = VLANGroup.objects.get(name=group_name)
+                initial_count = VLAN.objects.count()
+                form_data = {
+                    'pattern': pattern,
+                    'group': group.pk,
+                    'name': 'Pool-{vid}',
+                    'status': VLANStatusChoices.STATUS_ACTIVE,
+                }
+                response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+                self.assertHttpStatus(response, 302)
+                self.assertEqual(VLAN.objects.count(), initial_count + len(expected_vids))
+                for vid in expected_vids:
+                    self.assertTrue(VLAN.objects.filter(group=group, vid=vid, name=f'Pool-{vid}').exists())
+
+    def test_bulk_add_vlans_invalid_pattern(self):
+        """An invalid pattern re-renders the form with a pattern error and creates nothing."""
+        self.add_permissions('ipam.add_vlan')
+        initial_count = VLAN.objects.count()
+
+        for pattern in ('abc', '20-10', '0', '4095', '10-'):
+            with self.subTest(pattern=pattern):
+                form_data = {
+                    'pattern': pattern,
+                    'name': 'Pool-{vid}',
+                    'status': VLANStatusChoices.STATUS_ACTIVE,
+                }
+                response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+                self.assertHttpStatus(response, 200)
+                self.assertIn('pattern', response.context['form'].errors)
+                self.assertEqual(VLAN.objects.count(), initial_count)
+
+    def test_bulk_add_vlans_static_name_without_group(self):
+        """A static name (no {vid} placeholder) is permitted across VLANs not assigned to a group."""
+        self.add_permissions('ipam.add_vlan')
+        initial_count = VLAN.objects.count()
+
+        form_data = {
+            'pattern': '710-712',
+            'name': 'Same name',
+            'status': VLANStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(VLAN.objects.count(), initial_count + 3)
+        self.assertEqual(VLAN.objects.filter(name='Same name').count(), 3)
+
+    def test_bulk_add_vlans_rolls_back_on_constrained_permission(self):
+        """Bulk creation rolls back when a generated VLAN falls outside the user's add constraints."""
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add'],
+            constraints={'vid__lt': 120}
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(VLAN))
+
+        initial_count = VLAN.objects.count()
+        form_data = {
+            'pattern': '110,120-122',
+            'name': 'Pool-{vid}',
+            'status': VLANStatusChoices.STATUS_ACTIVE,
+        }
+        response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(VLAN.objects.count(), initial_count)
+        self.assertTrue(response.context['form'].non_field_errors())
+
+    def test_bulk_add_vlans_propagates_field_errors(self):
+        """A per-object validation error on a non-pattern field is reported on the bulk-create form."""
+        self.add_permissions('ipam.add_vlan')
+        initial_count = VLAN.objects.count()
+
+        form_data = {
+            'pattern': '800',
+            'name': 'Pool-{vid}',
+            'status': VLANStatusChoices.STATUS_ACTIVE,
+            'qinq_role': VLANQinQRoleChoices.ROLE_CUSTOMER,  # Requires an SVLAN
+        }
+        response = self.client.post(reverse('ipam:vlan_bulk_add'), form_data)
+
+        self.assertHttpStatus(response, 200)
+        self.assertEqual(VLAN.objects.count(), initial_count)
+        self.assertTrue(response.context['form'].non_field_errors())
 
 
 class VLANTranslationPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):

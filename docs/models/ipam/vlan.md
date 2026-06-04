@@ -2,6 +2,12 @@
 
 A Virtual LAN (VLAN) represents an isolated layer two domain, identified by a name and a numeric ID (1-4094) as defined in [IEEE 802.1Q](https://en.wikipedia.org/wiki/IEEE_802.1Q). VLANs are arranged into [VLAN groups](./vlangroup.md) to define scope and to enforce uniqueness.
 
+## Bulk Creation
+
+Multiple VLANs can be created at once by selecting the "Bulk Create" tab on the VLAN creation form. Enter the desired VLAN IDs and/or ID ranges as a comma-separated list (e.g. `100,200-210,4000-4010`). The string `{vid}` may be embedded in the name field as a placeholder for each VLAN's ID; for example, `VLAN-{vid}` yields `VLAN-100`, `VLAN-200`, and so on. All other attributes (status, role, tenant, etc.) are applied to every new VLAN.
+
+The operation is atomic: if any VLAN fails validation (for example, a VLAN ID falling outside the assigned group's permitted ranges), no VLANs are created.
+
 ## Fields
 
 ### ID
