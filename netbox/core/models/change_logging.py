@@ -159,6 +159,12 @@ class ObjectChange(models.Model):
         model = self.changed_object_type.model_class()
         attrs = set()
 
+        # model_class() returns None when the model's app is no longer installed
+        # (e.g. a removed plugin); there are no fields to exclude, and the
+        # issubclass() checks below would raise TypeError on None.
+        if model is None:
+            return attrs
+
         # Exclude auto-populated change tracking fields
         if issubclass(model, ChangeLoggingMixin):
             attrs.update({'created', 'last_updated'})

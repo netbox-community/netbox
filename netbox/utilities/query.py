@@ -1,8 +1,6 @@
 from django.db.models import Count, OuterRef, QuerySet, Subquery
 from django.db.models.functions import Coalesce
 
-from netbox.models.ltree import LtreeManager
-
 __all__ = (
     'count_related',
     'dict_to_filter_params',
@@ -64,12 +62,13 @@ def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     Reapply model-level ordering in case it has been lost through .annotate().
     https://code.djangoproject.com/ticket/32811
     """
-    # Hierarchical (ltree) models are exempt; their default ordering by `sort_path`/`path`
-    # must not be clobbered by .annotate(). Use caution when annotating these querysets.
-    # Use `managers` (not `local_managers`): the LtreeManager is declared on the abstract
-    # NestedLtreeGroupModel base, so concrete subclasses inherit it via the MRO rather than
-    # holding it in their own `local_managers`.
-    if any(isinstance(manager, LtreeManager) for manager in queryset.model._meta.managers):
+    # Models ordered by a trigger-maintained ltree column (`sort_path`/`path`) are
+    # exempt. Key the check on the ordering itself, NOT on LtreeManager presence:
+    # InventoryItem/InventoryItemTemplate use an LtreeManager only for path
+    # maintenance but order by a regular column (name), so they DO need their
+    # ordering reapplied after .annotate() strips it (Django #32811).
+    ordering = queryset.model._meta.ordering or ()
+    if any(isinstance(f, str) and f.lstrip('-') in ('sort_path', 'path') for f in ordering):
         return queryset
     if queryset.ordered:
         return queryset

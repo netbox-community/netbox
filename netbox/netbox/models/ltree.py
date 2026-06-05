@@ -255,13 +255,14 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
     InstallLtreeTriggers; do not write to it from Python.
 
     Bulk creates:
-        The BEFORE INSERT trigger resolves a row's parent by SELECTing
-        `path` from the same table by parent_id. In a multi-row INSERT
-        (e.g. `bulk_create`) PostgreSQL fires the BEFORE trigger per row in
-        list order, so any row whose parent is also in the same batch
-        must appear after its parent. A child placed before its parent in
-        the batch will be persisted with a root-level path (the parent
-        row is not yet visible to the lookup).
+        The BEFORE INSERT trigger resolves a row's parent by SELECTing `path`
+        from the same table by parent_id. LtreeQuerySet.bulk_create() rejects any
+        row whose parent is an *unsaved* instance, so in normal use — parents
+        saved before their children are bulk-created — batch order does not matter
+        (each parent row already exists for the lookup). The lone exception is
+        manually pre-assigned PKs: if a child references a same-batch parent by a
+        hand-set pk, that parent must appear earlier in the batch (the BEFORE
+        trigger fires per row in list order), or the child gets a root-level path.
 
     Sort-path on rename:
         For subclasses with the optional `sort_path` column (see
