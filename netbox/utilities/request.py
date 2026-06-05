@@ -66,6 +66,8 @@ def copy_safe_request(request, include_files=True):
     }
     if include_files:
         data['FILES'] = request.FILES
+    else:
+        data['FILES'] = {}
 
     return NetBoxFakeRequest(data)
 
