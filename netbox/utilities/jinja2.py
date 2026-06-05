@@ -7,6 +7,7 @@ from jinja2.meta import find_referenced_templates
 from jinja2.sandbox import SandboxedEnvironment
 
 from netbox.config import get_config
+from netbox.registry import registry
 
 __all__ = (
     'DEFAULT_JINJA2_FILTERS',
@@ -97,9 +98,13 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
 
     environment = SandboxedEnvironment(**environment_params)
 
-    # Register default filters, then apply any user-defined filters. User-defined entries take precedence so that
-    # existing JINJA2_FILTERS configurations are never overridden.
-    filters = {**DEFAULT_JINJA2_FILTERS, **get_config().JINJA2_FILTERS}
+    # Build filter table: default < plugin-registered < instance JINJA2_FILTERS.
+    # Instance-level config always wins so site admins can override anything.
+    filters = {
+        **DEFAULT_JINJA2_FILTERS,
+        **registry['plugins'].get('jinja2_filters', {}),
+        **get_config().JINJA2_FILTERS,
+    }
     environment.filters.update(filters)
 
     if data_file:

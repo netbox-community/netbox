@@ -1,5 +1,6 @@
 import importlib.abc
 import importlib.util
+import logging
 import os
 import sys
 from collections import defaultdict
@@ -20,6 +21,8 @@ __all__ = (
     'PythonModuleMixin',
     'RenderTemplateMixin',
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CustomStoragesLoader(importlib.abc.Loader):
@@ -123,12 +126,24 @@ class RenderTemplateMixin(models.Model):
         abstract = True
 
     def get_context(self, context=None, queryset=None):
+        from django.apps import apps as django_apps
+
+        from netbox.plugins import PluginConfig
+
         _context = defaultdict(dict)
 
         # Populate all public models for reference within the template
         for object_type in ObjectType.objects.public():
             if model := object_type.model_class():
                 _context[object_type.app_label][model.__name__] = model
+
+        # Allow plugins to inject additional context (e.g. friendly-named namespaces)
+        for app_config in django_apps.get_app_configs():
+            if isinstance(app_config, PluginConfig):
+                try:
+                    _context.update(app_config.get_jinja2_context())
+                except Exception:
+                    logger.exception("Plugin %r raised an exception in get_jinja2_context()", app_config.name)
 
         if context is not None:
             _context.update(context)
