@@ -3,31 +3,31 @@ from extras.tables import *
 from utilities.testing import TableTestCases
 
 
-class CustomFieldTableTest(TableTestCases.StandardTableTestCase):
+class CustomFieldTableTestCase(TableTestCases.StandardTableTestCase):
     table = CustomFieldTable
 
 
-class CustomFieldChoiceSetTableTest(TableTestCases.StandardTableTestCase):
+class CustomFieldChoiceSetTableTestCase(TableTestCases.StandardTableTestCase):
     table = CustomFieldChoiceSetTable
 
 
-class CustomLinkTableTest(TableTestCases.StandardTableTestCase):
+class CustomLinkTableTestCase(TableTestCases.StandardTableTestCase):
     table = CustomLinkTable
 
 
-class ExportTemplateTableTest(TableTestCases.StandardTableTestCase):
+class ExportTemplateTableTestCase(TableTestCases.StandardTableTestCase):
     table = ExportTemplateTable
 
 
-class SavedFilterTableTest(TableTestCases.StandardTableTestCase):
+class SavedFilterTableTestCase(TableTestCases.StandardTableTestCase):
     table = SavedFilterTable
 
 
-class TableConfigTableTest(TableTestCases.StandardTableTestCase):
+class TableConfigTableTestCase(TableTestCases.StandardTableTestCase):
     table = TableConfigTable
 
 
-class BookmarkTableTest(TableTestCases.StandardTableTestCase):
+class BookmarkTableTestCase(TableTestCases.StandardTableTestCase):
     table = BookmarkTable
 
     # The list view for this table lives in account.views (not extras.views),
@@ -37,11 +37,11 @@ class BookmarkTableTest(TableTestCases.StandardTableTestCase):
     ]
 
 
-class NotificationGroupTableTest(TableTestCases.StandardTableTestCase):
+class NotificationGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = NotificationGroupTable
 
 
-class NotificationTableTest(TableTestCases.StandardTableTestCase):
+class NotificationTableTestCase(TableTestCases.StandardTableTestCase):
     table = NotificationTable
 
     # The list view for this table lives in account.views (not extras.views),
@@ -51,7 +51,7 @@ class NotificationTableTest(TableTestCases.StandardTableTestCase):
     ]
 
 
-class SubscriptionTableTest(TableTestCases.StandardTableTestCase):
+class SubscriptionTableTestCase(TableTestCases.StandardTableTestCase):
     table = SubscriptionTable
 
     # The list view for this table lives in account.views (not extras.views),
@@ -61,33 +61,33 @@ class SubscriptionTableTest(TableTestCases.StandardTableTestCase):
     ]
 
 
-class WebhookTableTest(TableTestCases.StandardTableTestCase):
+class WebhookTableTestCase(TableTestCases.StandardTableTestCase):
     table = WebhookTable
 
 
-class EventRuleTableTest(TableTestCases.StandardTableTestCase):
+class EventRuleTableTestCase(TableTestCases.StandardTableTestCase):
     table = EventRuleTable
 
 
-class TagTableTest(TableTestCases.StandardTableTestCase):
+class TagTableTestCase(TableTestCases.StandardTableTestCase):
     table = TagTable
 
 
-class ConfigContextProfileTableTest(TableTestCases.StandardTableTestCase):
+class ConfigContextProfileTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConfigContextProfileTable
 
 
-class ConfigContextTableTest(TableTestCases.StandardTableTestCase):
+class ConfigContextTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConfigContextTable
 
 
-class ConfigTemplateTableTest(TableTestCases.StandardTableTestCase):
+class ConfigTemplateTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConfigTemplateTable
 
 
-class ImageAttachmentTableTest(TableTestCases.StandardTableTestCase):
+class ImageAttachmentTableTestCase(TableTestCases.StandardTableTestCase):
     table = ImageAttachmentTable
 
 
-class JournalEntryTableTest(TableTestCases.StandardTableTestCase):
+class JournalEntryTableTestCase(TableTestCases.StandardTableTestCase):
     table = JournalEntryTable

@@ -4,6 +4,9 @@ import strawberry
 import strawberry_django
 from strawberry.types import Info
 
+from extras.models import ImageAttachment, JournalEntry
+from utilities.querysets import RestrictedPrefetch
+
 __all__ = (
     'ConfigContextMixin',
     'ContactsMixin',
@@ -50,16 +53,24 @@ class CustomFieldsMixin:
 @strawberry.type
 class ImageAttachmentsMixin:
 
-    @strawberry_django.field
-    def image_attachments(self, info: Info) -> list[Annotated['ImageAttachmentType', strawberry.lazy('.types')]]:
-        return self.images.restrict(info.context.request.user, 'view')
+    @strawberry_django.field(
+        prefetch_related=lambda info: RestrictedPrefetch(
+            'images', info.context.request.user, 'view', queryset=ImageAttachment.objects.all()
+        ),
+    )
+    def image_attachments(self) -> list[Annotated['ImageAttachmentType', strawberry.lazy('.types')]]:
+        return self.images.all()
 
 
 @strawberry.type
 class JournalEntriesMixin:
 
-    @strawberry_django.field
-    def journal_entries(self, info: Info) -> list[Annotated['JournalEntryType', strawberry.lazy('.types')]]:
+    @strawberry_django.field(
+        prefetch_related=lambda info: RestrictedPrefetch(
+            'journal_entries', info.context.request.user, 'view', queryset=JournalEntry.objects.all()
+        ),
+    )
+    def journal_entries(self) -> list[Annotated['JournalEntryType', strawberry.lazy('.types')]]:
         return self.journal_entries.all()
 
 

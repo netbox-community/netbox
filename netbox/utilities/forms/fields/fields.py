@@ -62,7 +62,7 @@ class CommentField(forms.CharField):
     widget = widgets.MarkdownWidget
     label = _('Comments')
     help_text = _(
-        '<i class="mdi mdi-information-outline"></i> '
+        '<i class="mdi mdi-information-outline" aria-hidden="true"></i> '
         '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
     ).format(url=static('docs/reference/markdown/'))
 

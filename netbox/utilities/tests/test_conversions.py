@@ -6,7 +6,7 @@ from utilities.conversion import to_grams, to_meters
 from utilities.testing.base import TestCase
 
 
-class ConversionsTest(TestCase):
+class ConversionsTestCase(TestCase):
 
     def test_to_grams(self):
         self.assertEqual(

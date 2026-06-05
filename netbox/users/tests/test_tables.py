@@ -2,25 +2,25 @@ from users.tables import *
 from utilities.testing import TableTestCases
 
 
-class TokenTableTest(TableTestCases.StandardTableTestCase):
+class TokenTableTestCase(TableTestCases.StandardTableTestCase):
     table = TokenTable
 
 
-class UserTableTest(TableTestCases.StandardTableTestCase):
+class UserTableTestCase(TableTestCases.StandardTableTestCase):
     table = UserTable
 
 
-class GroupTableTest(TableTestCases.StandardTableTestCase):
+class GroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = GroupTable
 
 
-class ObjectPermissionTableTest(TableTestCases.StandardTableTestCase):
+class ObjectPermissionTableTestCase(TableTestCases.StandardTableTestCase):
     table = ObjectPermissionTable
 
 
-class OwnerGroupTableTest(TableTestCases.StandardTableTestCase):
+class OwnerGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = OwnerGroupTable
 
 
-class OwnerTableTest(TableTestCases.StandardTableTestCase):
+class OwnerTableTestCase(TableTestCases.StandardTableTestCase):
     table = OwnerTable

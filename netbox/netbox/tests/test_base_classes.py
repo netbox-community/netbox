@@ -52,6 +52,7 @@ from netbox.tables import (
     OrganizationalModelTable,
     PrimaryModelTable,
 )
+from utilities.testing import TableTestCases
 
 
 class FormClassesTestCase(TestCase):
@@ -223,6 +224,15 @@ class TableClassesTestCase(TestCase):
         return import_string(f'{app_label}.tables.{model_name}Table')
 
     @staticmethod
+    def get_table_test_for_model(model):
+        """
+        Import and return the table test class for a given model.
+        """
+        app_label = model._meta.app_label
+        model_name = model.__name__
+        return import_string(f'{app_label}.tests.test_tables.{model_name}TableTestCase')
+
+    @staticmethod
     def get_model_table_base_class(model):
         """
         Return the base table class for the given model.
@@ -253,6 +263,42 @@ class TableClassesTestCase(TestCase):
                 self.assertTrue(
                     issubclass(table.Meta, base_class.Meta),
                     f"{table}.Meta does not inherit from {base_class}.Meta",
+                )
+
+    def test_model_table_test_classes(self):
+        """
+        Check that each model-backed table has a standard table test case.
+        """
+        for model in apps.get_models():
+            if self.get_model_table_base_class(model) is None:
+                continue
+
+            with self.subTest(model=model.__name__):
+                app_label = model._meta.app_label
+                model_name = model.__name__
+                try:
+                    table = self.get_table_for_model(model)
+                except ImportError:
+                    self.fail(
+                        f"No table class found for {model_name} "
+                        f"(expected {app_label}.tables.{model_name}Table)"
+                    )
+                try:
+                    table_test = self.get_table_test_for_model(model)
+                except ImportError:
+                    self.fail(
+                        f"No table test case found for {model_name} "
+                        f"(expected {app_label}.tests.test_tables.{model_name}TableTestCase)"
+                    )
+
+                self.assertTrue(
+                    issubclass(table_test, TableTestCases.StandardTableTestCase),
+                    f"{table_test} does not inherit from {TableTestCases.StandardTableTestCase}",
+                )
+                self.assertIs(
+                    table_test.table,
+                    table,
+                    f"{table_test}.table is not set to {table}",
                 )
 
 

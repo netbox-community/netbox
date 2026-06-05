@@ -1,11 +1,19 @@
 import json
 
+import strawberry
+from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
+from strawberry.extensions import QueryDepthLimiter
+from strawberry.schema.config import StrawberryConfig
 
 from dcim.choices import LocationStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
+from extras.models import TableConfig
+from netbox.graphql.scalars import BigInt, BigIntScalar
+from netbox.graphql.schema import Query, get_schema_extensions
+from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, TestCase, disable_warnings
 
 
@@ -19,6 +27,45 @@ class GraphQLTestCase(TestCase):
         url = reverse('graphql')
         response = self.client.get(url)
         self.assertHttpStatus(response, 404)
+
+    def test_graphql_max_query_depth_disabled_by_default(self):
+        """
+        QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is unset.
+        """
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+
+    @override_settings(GRAPHQL_MAX_QUERY_DEPTH=0)
+    def test_graphql_max_query_depth_disabled_when_zero(self):
+        """
+        QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is zero.
+        """
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+
+    @override_settings(GRAPHQL_MAX_QUERY_DEPTH=-1)
+    def test_graphql_max_query_depth_disabled_when_negative(self):
+        """
+        QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is negative.
+        """
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+
+    @override_settings(GRAPHQL_MAX_QUERY_DEPTH=3)
+    def test_graphql_max_query_depth_enforced(self):
+        """
+        Queries exceeding GRAPHQL_MAX_QUERY_DEPTH should be rejected.
+        """
+        extensions = get_schema_extensions()
+        self.assertTrue(any(isinstance(ext, QueryDepthLimiter) for ext in extensions))
+
+        # Build a temporary schema with the configured extensions and execute a deep query
+        test_schema = strawberry.Schema(
+            query=Query,
+            config=StrawberryConfig(auto_camel_case=False, scalar_map={BigInt: BigIntScalar}),
+            extensions=extensions,
+        )
+        deep_query = '{ site_list { tenant { group { parent { parent { parent { name } } } } } } }'
+        result = test_schema.execute_sync(deep_query)
+        self.assertIsNotNone(result.errors)
+        self.assertIn('exceeds maximum operation depth', str(result.errors[0]))
 
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphiql_interface(self):
@@ -171,6 +218,26 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['device_list']), 3)
+
+    def test_graphql_tableconfig_object_type_exposes_id(self):
+        """TableConfigType.object_type must expose ContentType fields (e.g. id)."""
+        self.add_permissions('extras.view_tableconfig')
+        url = reverse('graphql')
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        table_config = TableConfig.objects.create(
+            object_type=site_ct,
+            table=get_table_for_model(Site).__name__,
+            name='Test config',
+            columns=['name'],
+        )
+
+        query = '{ table_config(id: ' + str(table_config.pk) + ') { object_type { id } } }'
+        response = self.client.post(url, data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(int(data['data']['table_config']['object_type']['id']), site_ct.pk)
 
     def test_offset_pagination(self):
         self.add_permissions('dcim.view_site')

@@ -84,3 +84,9 @@ Devices and virtual machines may also have a local context data defined. This lo
 
 !!! warning
     If you find that you're routinely defining local context data for many individual devices or virtual machines, [custom fields](./customization.md#custom-fields) may offer a more effective solution.
+
+## Profiles & Schema Validation
+
+A [config context profile](../models/extras/configcontextprofile.md) provides an organizational grouping for related config contexts and may optionally enforce a [JSON schema](https://json-schema.org/) describing the shape of their data. When a profile is assigned to a config context, NetBox validates the context's data against the profile's schema on save and rejects any context that fails validation. This makes it possible to constrain which keys may appear in a context, require certain keys to be present, or limit values to a defined enumeration — guarding against typos and drift as contexts proliferate.
+
+A profile's schema may be authored directly in NetBox or populated from an external [data source](../models/core/datasource.md), enabling teams to maintain schemas alongside the code or configurations that consume them.

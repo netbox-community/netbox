@@ -4,7 +4,7 @@
 {% if settings.RELEASE.features.help_center %}
   {# Help center control #}
   <a href="#" class="nav-link px-1" aria-label="{% trans "Help center" %}">
-    <i class="mdi mdi-forum-outline"></i>
+    <i class="mdi mdi-forum-outline" aria-hidden="true"></i>
   </a>
 {% endif %}
 
@@ -21,7 +21,7 @@
 
   {# User menu #}
   <div class="nav-item dropdown">
-    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="{% trans "Open user menu" %}" aria-expanded="false" role="button">
       <div class="d-xl-block ps-2">
         <div>{{ request.user }}</div>
         <div class="mt-1 small text-secondary">
@@ -35,30 +35,30 @@
     </a>
     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
       <a href="{% url 'account:profile' %}" class="dropdown-item">
-        <i class="dropdown-item-icon mdi mdi-account"></i> {% trans "Profile" %}
+        <i class="dropdown-item-icon mdi mdi-account" aria-hidden="true"></i> {% trans "Profile" %}
       </a>
       <a href="{% url 'account:bookmarks' %}" class="dropdown-item">
-        <i class="dropdown-item-icon mdi mdi-bookmark"></i> {% trans "Bookmarks" %}
+        <i class="dropdown-item-icon mdi mdi-bookmark" aria-hidden="true"></i> {% trans "Bookmarks" %}
       </a>
       <a href="{% url 'account:subscriptions' %}" class="dropdown-item">
-        <i class="dropdown-item-icon mdi mdi-bell"></i> {% trans "Subscriptions" %}
+        <i class="dropdown-item-icon mdi mdi-bell" aria-hidden="true"></i> {% trans "Subscriptions" %}
       </a>
       <a href="{% url 'account:preferences' %}" class="dropdown-item">
-        <i class="dropdown-item-icon mdi mdi-wrench"></i> {% trans "Preferences" %}
+        <i class="dropdown-item-icon mdi mdi-wrench" aria-hidden="true"></i> {% trans "Preferences" %}
       </a>
       <a href="{% url 'account:usertoken_list' %}" class="dropdown-item">
-        <i class="dropdown-item-icon mdi mdi-key"></i> {% trans "API Tokens" %}
+        <i class="dropdown-item-icon mdi mdi-key" aria-hidden="true"></i> {% trans "API Tokens" %}
       </a>
       <hr class="dropdown-divider" />
       <a href="{% url 'logout' %}" hx-disable="true" class="dropdown-item">
-        <i class="dropdown-item-icon mdi mdi-logout-variant"></i> {% trans "Log Out" %}
+        <i class="dropdown-item-icon mdi mdi-logout-variant" aria-hidden="true"></i> {% trans "Log Out" %}
       </a>
     </div>
   </div>
 {% else %}
   <div class="btn-group align-items-center ps-2">
     <a class="btn btn-primary" type="button" href="{% url 'login' %}?next={{ request.path }}">
-      <i class="mdi mdi-login-variant"></i> {% trans "Log In" %}
+      <i class="mdi mdi-login-variant" aria-hidden="true"></i> {% trans "Log In" %}
     </a>
   </div>
 {% endif %}

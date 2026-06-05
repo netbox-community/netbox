@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 
 from circuits.choices import *
@@ -210,8 +209,13 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertContains(response, circuit_type.name)
         self.assertContains(response, 'background-color: #12ab34')
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_terminations(self):
+        self.add_permissions(
+            'circuits.view_circuit',
+            'circuits.view_provider',
+            'circuits.view_circuittype',
+            'dcim.view_site',
+        )
         site = Site.objects.first()
         json_data = f"""
             [
@@ -420,8 +424,13 @@ class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_trace(self):
+        self.add_permissions(
+            'circuits.view_circuittermination',
+            'dcim.view_cable',
+            'dcim.view_interface',
+            'dcim.view_device',
+        )
         device = create_test_device('Device 1')
 
         circuittermination = CircuitTermination.objects.first()
@@ -711,8 +720,13 @@ class VirtualCircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'comments': 'New comments',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_import_objects_with_terminations(self):
+        self.add_permissions(
+            'circuits.view_virtualcircuit',
+            'circuits.view_providernetwork',
+            'circuits.view_virtualcircuittype',
+            'dcim.view_interface',
+        )
         interfaces = Interface.objects.filter(type=InterfaceTypeChoices.TYPE_VIRTUAL)
         json_data = f"""
             [

@@ -20,6 +20,10 @@ _thread_locals = threading.local()
 
 logger = logging.getLogger('netbox.config')
 
+# Sentinel used to distinguish a cache miss from a cached "empty" config (an empty dict is a
+# legitimate cached value when no ConfigRevision exists).
+_MISSING = object()
+
 
 def get_config():
     """
@@ -47,7 +51,9 @@ class Config:
     """
     def __init__(self):
         self._populate_from_cache()
-        if not self.config or not self.version:
+        # Only consult the database when the cache has genuinely never been populated. A cached
+        # empty config (no ConfigRevision) is authoritative and must not trigger a re-query.
+        if self._cache_miss:
             self._populate_from_db()
         self.defaults = {param.name: param.default for param in PARAMS}
 
@@ -69,8 +75,19 @@ class Config:
 
     def _populate_from_cache(self):
         """Populate config data from Redis cache"""
-        self.config = cache.get('config') or {}
-        self.version = cache.get('config_version')
+        cached_config = cache.get('config', _MISSING)
+        cached_version = cache.get('config_version', _MISSING)
+
+        # Treat the cache as warm only when both keys are present. A missing 'config_version'
+        # (e.g. evicted or never written) must re-query the database, even if 'config' is cached.
+        # The no-revision branch writes both keys (config={}, config_version=None), so the
+        # intentional empty state is still a cache hit.
+        self._cache_miss = cached_config is _MISSING or cached_version is _MISSING
+
+        # A cached value of None (ConfigRevision.data is nullable) or {} is a legitimate empty
+        # config and must not crash attribute access; normalize it to an empty dict.
+        self.config = {} if cached_config is _MISSING else (cached_config or {})
+        self.version = None if cached_version is _MISSING else cached_version
         if self.config:
             logger.debug("Loaded configuration data from cache")
 
@@ -86,10 +103,17 @@ class Config:
             revision = ConfigRevision.objects.order_by('-created').first()
             if revision is None:
                 logger.debug("No configuration found in database; proceeding with default values")
+                # Cache the empty state so subsequent requests are served from the cache rather than
+                # re-querying the database on every request (#22158). Creating the first
+                # ConfigRevision overwrites this via the post_save handler.
+                cache.set('config', {}, None)
+                cache.set('config_version', None, None)
+                self._populate_from_cache()
                 return
             logger.debug(f"No active configuration revision found; falling back to most recent (#{revision.pk})")
         except DatabaseError:
-            # The database may not be available yet (e.g. when running a management command)
+            # The database may not be available yet (e.g. when running a management command). Do NOT
+            # cache anything here, so the next instantiation re-queries once the database is reachable.
             logger.warning("Skipping config initialization (database unavailable)")
             return
 

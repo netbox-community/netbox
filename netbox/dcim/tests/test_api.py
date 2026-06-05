@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.test import override_settings, tag
+from django.test import tag
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_framework import status
@@ -29,7 +29,7 @@ from wireless.choices import WirelessChannelChoices
 from wireless.models import WirelessLAN
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
 
@@ -76,7 +76,7 @@ class Mixins:
             self.assertEqual(segment1[2][0]['name'], peer_obj.name)
 
 
-class RegionTest(APIViewTestCases.APIViewTestCase):
+class RegionTestCase(APIViewTestCases.APIViewTestCase):
     model = Region
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'site_count', 'slug', 'url']
     create_data = [
@@ -107,7 +107,7 @@ class RegionTest(APIViewTestCases.APIViewTestCase):
         Region.objects.create(name='Region 3', slug='region-3')
 
 
-class SiteGroupTest(APIViewTestCases.APIViewTestCase):
+class SiteGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = SiteGroup
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'site_count', 'slug', 'url']
     create_data = [
@@ -140,7 +140,7 @@ class SiteGroupTest(APIViewTestCases.APIViewTestCase):
         SiteGroup.objects.create(name='Site Group 3', slug='site-group-3', comments='Hi!')
 
 
-class SiteTest(APIViewTestCases.APIViewTestCase):
+class SiteTestCase(APIViewTestCases.APIViewTestCase):
     model = Site
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
@@ -420,7 +420,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class LocationTest(APIViewTestCases.APIViewTestCase):
+class LocationTestCase(APIViewTestCases.APIViewTestCase):
     model = Location
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     bulk_update_data = {
@@ -504,7 +504,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class RackGroupTest(APIViewTestCases.APIViewTestCase):
+class RackGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = RackGroup
     brief_fields = ['description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     create_data = [
@@ -536,7 +536,7 @@ class RackGroupTest(APIViewTestCases.APIViewTestCase):
         RackGroup.objects.bulk_create(rack_groups)
 
 
-class RackRoleTest(APIViewTestCases.APIViewTestCase):
+class RackRoleTestCase(APIViewTestCases.APIViewTestCase):
     model = RackRole
     brief_fields = ['description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     create_data = [
@@ -571,7 +571,7 @@ class RackRoleTest(APIViewTestCases.APIViewTestCase):
         RackRole.objects.bulk_create(rack_roles)
 
 
-class RackTypeTest(APIViewTestCases.APIViewTestCase):
+class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = RackType
     brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'rack_count', 'slug', 'url']
     bulk_update_data = {
@@ -631,7 +631,7 @@ class RackTypeTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class RackTest(APIViewTestCases.APIViewTestCase):
+class RackTestCase(APIViewTestCases.APIViewTestCase):
     model = Rack
     brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -716,6 +716,34 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         response = self.client.get(f'{url}?q=U10', **self.header)
         self.assertEqual(response.data['count'], 2)
 
+    def test_get_rack_elevation_description_is_occupying_device_name(self):
+        """
+        Verify occupied rack units include the occupying device in their description.
+        """
+        rack = Rack.objects.first()
+        self.add_permissions('dcim.view_rack', 'dcim.view_device')
+        url = reverse('dcim-api:rack-elevation', kwargs={'pk': rack.pk})
+
+        device = create_test_device(
+            name='Device A',
+            site=rack.site,
+            rack=rack,
+            position=40,
+            face=DeviceFaceChoices.FACE_FRONT,
+        )
+
+        # Retrieve all units
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        occupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U40')
+        self.assertEqual(occupied_unit['device']['id'], device.pk)
+        self.assertEqual(occupied_unit['description'], f'{device}')
+
+        unoccupied_unit = next(unit for unit in response.data['results'] if unit['name'] == 'U39')
+        self.assertEqual(unoccupied_unit['device'], None)
+        self.assertEqual(unoccupied_unit['description'], None)
+
     def test_get_rack_elevation_svg(self):
         """
         GET a single rack elevation in SVG format.
@@ -729,7 +757,7 @@ class RackTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.get('Content-Type'), 'image/svg+xml')
 
 
-class RackReservationTest(APIViewTestCases.APIViewTestCase):
+class RackReservationTestCase(APIViewTestCases.APIViewTestCase):
     model = RackReservation
     brief_fields = ['description', 'display', 'id', 'status', 'units', 'url', 'user']
     bulk_update_data = {
@@ -804,7 +832,7 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
             self.assertEqual(result['unit_count'], len(result['units']))
 
 
-class ManufacturerTest(APIViewTestCases.APIViewTestCase):
+class ManufacturerTestCase(APIViewTestCases.APIViewTestCase):
     model = Manufacturer
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -836,7 +864,7 @@ class ManufacturerTest(APIViewTestCases.APIViewTestCase):
         Manufacturer.objects.bulk_create(manufacturers)
 
 
-class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
+class DeviceTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = DeviceType
     brief_fields = ['description', 'device_count', 'display', 'id', 'manufacturer', 'model', 'slug', 'url']
     bulk_update_data = {
@@ -882,7 +910,7 @@ class DeviceTypeTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
+class ModuleTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = ModuleType
     brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'module_count', 'profile', 'url']
     bulk_update_data = {
@@ -922,7 +950,7 @@ class ModuleTypeTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ModuleTypeProfileTest(APIViewTestCases.APIViewTestCase):
+class ModuleTypeProfileTestCase(APIViewTestCases.APIViewTestCase):
     model = ModuleTypeProfile
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     SCHEMAS = [
@@ -986,7 +1014,7 @@ class ModuleTypeProfileTest(APIViewTestCases.APIViewTestCase):
         ModuleTypeProfile.objects.bulk_create(module_type_profiles)
 
 
-class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
+class ConsolePortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ConsolePortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1030,7 +1058,7 @@ class ConsolePortTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1074,7 +1102,7 @@ class ConsoleServerPortTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
+class PowerPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerPortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1118,7 +1146,7 @@ class PowerPortTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
+class PowerOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerOutletTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1176,7 +1204,7 @@ class PowerOutletTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
+class InterfaceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = InterfaceTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1224,7 +1252,7 @@ class InterfaceTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
+class FrontPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = FrontPortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1341,7 +1369,7 @@ class FrontPortTemplateTest(APIViewTestCases.APIViewTestCase):
         )
 
 
-class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
+class RearPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = RearPortTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1457,7 +1485,7 @@ class RearPortTemplateTest(APIViewTestCases.APIViewTestCase):
         )
 
 
-class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
+class ModuleBayTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ModuleBayTemplate
     brief_fields = ['description', 'display', 'enabled', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1499,7 +1527,7 @@ class ModuleBayTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
+class DeviceBayTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = DeviceBayTemplate
     brief_fields = ['description', 'display', 'enabled', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1541,7 +1569,7 @@ class DeviceBayTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
+class InventoryItemTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = InventoryItemTemplate
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -1601,7 +1629,7 @@ class InventoryItemTemplateTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
+class DeviceRoleTestCase(APIViewTestCases.APIViewTestCase):
     model = DeviceRole
     brief_fields = [
         '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count'
@@ -1635,7 +1663,7 @@ class DeviceRoleTest(APIViewTestCases.APIViewTestCase):
         DeviceRole.objects.create(name='Device Role 3', slug='device-role-3', color='0000ff')
 
 
-class PlatformTest(APIViewTestCases.APIViewTestCase):
+class PlatformTestCase(APIViewTestCases.APIViewTestCase):
     model = Platform
     brief_fields = [
         '_depth', 'description', 'device_count', 'display', 'id', 'name', 'slug', 'url', 'virtualmachine_count',
@@ -1670,7 +1698,7 @@ class PlatformTest(APIViewTestCases.APIViewTestCase):
             platform.save()
 
 
-class DeviceTest(APIViewTestCases.APIViewTestCase):
+class DeviceTestCase(APIViewTestCases.APIViewTestCase):
     model = Device
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2020,7 +2048,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class ModuleTest(APIViewTestCases.APIViewTestCase):
+class ModuleTestCase(APIViewTestCases.APIViewTestCase):
     model = Module
     brief_fields = ['description', 'device', 'display', 'id', 'module_bay', 'module_type', 'url']
     bulk_update_data = {
@@ -2355,7 +2383,7 @@ class ModuleTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(len(response.data['results']), 1)
 
 
-class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsolePortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsolePort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2398,7 +2426,7 @@ class ConsolePortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
         ]
 
 
-class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class ConsoleServerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = ConsoleServerPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2441,7 +2469,7 @@ class ConsoleServerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
         ]
 
 
-class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2481,7 +2509,7 @@ class PowerPortTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         ]
 
 
-class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class PowerOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = PowerOutlet
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2530,7 +2558,7 @@ class PowerOutletTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCa
         ]
 
 
-class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
     model = Interface
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2739,7 +2767,7 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
         self._perform_interface_test_with_invalid_data(InterfaceModeChoices.MODE_TAGGED_ALL, invalid_data)
 
 
-class FrontPortTest(APIViewTestCases.APIViewTestCase):
+class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
     model = FrontPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2858,7 +2886,7 @@ class FrontPortTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class RearPortTest(APIViewTestCases.APIViewTestCase):
+class RearPortTestCase(APIViewTestCases.APIViewTestCase):
     model = RearPort
     brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -2974,7 +3002,7 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class ModuleBayTest(APIViewTestCases.APIViewTestCase):
+class ModuleBayTestCase(APIViewTestCases.APIViewTestCase):
     model = ModuleBay
     brief_fields = ['_occupied', 'description', 'display', 'enabled', 'id', 'installed_module', 'name', 'url']
     bulk_update_data = {
@@ -3016,7 +3044,7 @@ class ModuleBayTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class DeviceBayTest(APIViewTestCases.APIViewTestCase):
+class DeviceBayTestCase(APIViewTestCases.APIViewTestCase):
     model = DeviceBay
     brief_fields = ['_occupied', 'description', 'device', 'display', 'enabled', 'id', 'name', 'url']
     bulk_update_data = {
@@ -3080,7 +3108,7 @@ class DeviceBayTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class InventoryItemTest(APIViewTestCases.APIViewTestCase):
+class InventoryItemTestCase(APIViewTestCases.APIViewTestCase):
     model = InventoryItem
     brief_fields = ['_depth', 'description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -3147,7 +3175,7 @@ class InventoryItemTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
+class InventoryItemRoleTestCase(APIViewTestCases.APIViewTestCase):
     model = InventoryItemRole
     brief_fields = ['description', 'display', 'id', 'inventoryitem_count', 'name', 'slug', 'url']
     create_data = [
@@ -3182,7 +3210,7 @@ class InventoryItemRoleTest(APIViewTestCases.APIViewTestCase):
         InventoryItemRole.objects.bulk_create(roles)
 
 
-class CableBundleTest(APIViewTestCases.APIViewTestCase):
+class CableBundleTestCase(APIViewTestCases.APIViewTestCase):
     model = CableBundle
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -3236,7 +3264,7 @@ class CableBundleTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data['cable_count'], 2)
 
 
-class CableTest(APIViewTestCases.APIViewTestCase):
+class CableTestCase(APIViewTestCases.APIViewTestCase):
     model = Cable
     brief_fields = ['description', 'display', 'id', 'label', 'url']
     bulk_update_data = {
@@ -3445,7 +3473,7 @@ class CableTest(APIViewTestCases.APIViewTestCase):
                 self.assertSetEqual(set(ids), expected)
 
 
-class CableTerminationTest(
+class CableTerminationTestCase(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
 ):
@@ -3474,7 +3502,7 @@ class CableTerminationTest(
             cable.save()
 
 
-class ConnectedDeviceTest(APITestCase):
+class ConnectedDeviceTestCase(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -3497,8 +3525,8 @@ class ConnectedDeviceTest(APITestCase):
         cable = Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[1]])
         cable.save()
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_get_connected_device(self):
+        self.add_permissions('dcim.view_device', 'dcim.view_interface')
         url = reverse('dcim-api:connected-device-list')
 
         url_params = '?peer_device=TestDevice1&peer_interface=eth0'
@@ -3511,7 +3539,7 @@ class ConnectedDeviceTest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
 
 
-class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
+class VirtualChassisTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualChassis
     brief_fields = ['description', 'display', 'id', 'master', 'member_count', 'name', 'url']
 
@@ -3592,7 +3620,7 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class PowerPanelTest(APIViewTestCases.APIViewTestCase):
+class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
     brief_fields = ['description', 'display', 'id', 'name', 'powerfeed_count', 'url']
     user_permissions = ('dcim.view_site', )
@@ -3642,7 +3670,7 @@ class PowerPanelTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class PowerFeedTest(APIViewTestCases.APIViewTestCase):
+class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerFeed
     brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -3698,7 +3726,7 @@ class PowerFeedTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class VirtualDeviceContextTest(APIViewTestCases.APIViewTestCase):
+class VirtualDeviceContextTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualDeviceContext
     brief_fields = ['description', 'device', 'display', 'id', 'identifier', 'name', 'url']
     bulk_update_data = {
@@ -3752,7 +3780,7 @@ class VirtualDeviceContextTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class MACAddressTest(APIViewTestCases.APIViewTestCase):
+class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
     model = MACAddress
     brief_fields = ['description', 'display', 'id', 'mac_address', 'url']
     bulk_update_data = {

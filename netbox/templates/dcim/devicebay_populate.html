@@ -13,15 +13,15 @@
                 <h2 class="card-header">{% block title %}{% trans "Populate" %} {{ device_bay }}{% endblock %}</h2>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label text-lg-end">{% trans "Parent Device" %}</label>
+                        <label for="id_parent_device" class="col-sm-3 col-form-label text-lg-end">{% trans "Parent Device" %}</label>
                         <div class="col">
-                            <input class="form-control" value="{{ device_bay.device }}" disabled />
+                            <input id="id_parent_device" class="form-control" value="{{ device_bay.device }}" disabled />
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label text-lg-end">{% trans "Bay" %}</label>
+                        <label for="id_bay" class="col-sm-3 col-form-label text-lg-end">{% trans "Bay" %}</label>
                         <div class="col">
-                            <input class="form-control" value="{{ device_bay }}" disabled />
+                            <input id="id_bay" class="form-control" value="{{ device_bay }}" disabled />
                         </div>
                     </div>
                     {% render_form form %}

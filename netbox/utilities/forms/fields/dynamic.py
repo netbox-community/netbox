@@ -44,6 +44,8 @@ class DynamicMultipleChoiceField(forms.MultipleChoiceField):
             self.choices = [
                 choice for choice in self.choices if choice[0] and choice[0] in data
             ]
+        else:
+            self.choices = []
 
         return bound_field
 

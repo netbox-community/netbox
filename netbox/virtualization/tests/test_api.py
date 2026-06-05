@@ -26,7 +26,7 @@ from virtualization.choices import *
 from virtualization.models import *
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
 
@@ -36,7 +36,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
+class ClusterTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = ClusterType
     brief_fields = ['cluster_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -68,7 +68,7 @@ class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
         ClusterType.objects.bulk_create(cluster_types)
 
 
-class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
+class ClusterGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = ClusterGroup
     brief_fields = ['cluster_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -100,7 +100,7 @@ class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
         ClusterGroup.objects.bulk_create(cluster_Groups)
 
 
-class ClusterTest(APIViewTestCases.APIViewTestCase):
+class ClusterTestCase(APIViewTestCases.APIViewTestCase):
     model = Cluster
     brief_fields = ['description', 'display', 'id', 'name', 'url', 'virtualmachine_count']
     bulk_update_data = {
@@ -168,7 +168,7 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class VirtualMachineTypeTest(APIViewTestCases.APIViewTestCase):
+class VirtualMachineTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualMachineType
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     user_permissions = ('dcim.view_platform', 'virtualization.view_virtualmachine')
@@ -237,7 +237,7 @@ class VirtualMachineTypeTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
+class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualMachine
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -596,7 +596,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
 
 
-class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
+class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
     model = VMInterface
     brief_fields = ['description', 'display', 'id', 'name', 'url', 'virtual_machine']
     bulk_update_data = {
@@ -727,7 +727,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(virtual_machine.interfaces.count(), 2)  # Child & parent were both deleted
 
 
-class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
+class VirtualDiskTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualDisk
     brief_fields = ['description', 'display', 'id', 'name', 'size', 'url', 'virtual_machine']
     bulk_update_data = {

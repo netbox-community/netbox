@@ -9,6 +9,10 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
 from netbox.settings import DISK_BASE_UNIT, RAM_BASE_UNIT
+from netbox.ui.attrs import (
+    compute_distance_display,
+    compute_weight_display,
+)
 from utilities.forms import TableConfigForm, get_selected_values
 from utilities.forms.mixins import FORM_FIELD_LOOKUPS
 from utilities.views import get_action_url, get_viewname
@@ -17,6 +21,8 @@ __all__ = (
     'action_url',
     'applied_filters',
     'as_range',
+    'display_distance',
+    'display_weight',
     'divide',
     'get_item',
     'get_key',
@@ -328,6 +334,30 @@ def kg_to_pounds(n):
     Convert a weight from kilograms to pounds.
     """
     return float(n) * 2.204623
+
+
+@register.simple_tag(takes_context=True)
+def display_weight(context, weight, weight_unit, abs_weight):
+    """
+    Render a weight value respecting the user's ui.measurement_system preference.
+    """
+    if weight is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    value, unit = compute_weight_display(weight, weight_unit, abs_weight, system)
+    return f'{value:g} {unit}'
+
+
+@register.simple_tag(takes_context=True)
+def display_distance(context, distance, distance_unit, abs_distance):
+    """
+    Render a distance value respecting the user's ui.measurement_system preference.
+    """
+    if distance is None:
+        return ''
+    system = (context.get('preferences') or {}).get('ui.measurement_system') or ''
+    value, unit = compute_distance_display(distance, distance_unit, abs_distance, system)
+    return f'{value:g} {unit}'
 
 
 @register.filter("startswith")

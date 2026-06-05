@@ -11,7 +11,7 @@ from tenancy.models import ContactGroup, TenantGroup
 from wireless.models import WirelessLANGroup
 
 
-class FilenameFromModelTests(TestCase):
+class FilenameFromModelTestCase(TestCase):
     def test_expected_output(self):
         cases = (
             (ExportTemplate, 'netbox_export_templates'),
@@ -43,7 +43,7 @@ class OverwriteStyleStorage(Storage):
         return f'{file_root}_sdmmer4{file_ext}'
 
 
-class ImageUploadTests(TestCase):
+class ImageUploadTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         # We only need a ContentType with model="rack" for the prefix;

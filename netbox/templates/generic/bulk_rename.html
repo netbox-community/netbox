@@ -10,10 +10,12 @@ Blocks:
   - content:  Primary page content
 
 Context:
-  - form:              The bulk edit form class
-  - obj_type_plural:   The plural form of the object type
-  - selected_objects:  A queryset matching the objects selected for bulk renaming
-  - return_url:        The URL to which the user is redirected after submitting the form
+  - form:                 The bulk rename form class
+  - obj_type_plural:      The plural form of the object type
+  - rename_fields:        Tuple of all renameable field names on the view (may be empty)
+  - selected_field_names: List of field names currently selected for renaming
+  - selected_objects:     A queryset matching the objects selected for bulk renaming
+  - return_url:           The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}
@@ -36,18 +38,22 @@ Context:
         <table class="table">
             <thead>
                 <tr>
-                    <th>{% trans "Current Name" %}</th>
-                    <th>{% trans "New Name" %}</th>
+                    {% for field in selected_field_names %}
+                        {% with field_label=field|title %}
+                            <th>{% blocktrans %}Current {{ field_label }}{% endblocktrans %}</th>
+                            <th>{% blocktrans %}New {{ field_label }}{% endblocktrans %}</th>
+                        {% endwith %}
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
                 {% for obj in selected_objects %}
-                    {% with obj_name=obj|getattr:field_name %}
-                        <tr{% if obj.new_name and obj_name != obj.new_name %} class="success"{% endif %}>
-                            <td>{{ obj_name }}</td>
-                            <td>{{ obj.new_name }}</td>
-                        </tr>
-                    {% endwith %}
+                    <tr{% if obj.has_changes %} class="success"{% endif %}>
+                        {% for field in selected_field_names %}
+                            <td>{{ obj|getattr:field }}</td>
+                            <td>{{ obj.new_names|getattr:field|default:'' }}</td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -58,7 +64,37 @@ Context:
             <div class="card">
                 <h2 class="card-header">{% trans "Rename" %}</h2>
                 <div class="card-body">
-                    {% render_form form %}
+                    {# Hidden fields #}
+                    {% for field in form.hidden_fields %}{{ field }}{% endfor %}
+                    {# Per-field checkboxes first, so they aren't confused with "use regex" #}
+                    {% if rename_fields %}
+                        <div class="row mb-3">
+                            <label class="col-sm-3 col-form-label pt-0 text-lg-end">{% trans "Fields" %}</label>
+                            <div class="col">
+                                {% for field in rename_fields %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="field_names"
+                                       id="id_field_names_{{ field }}" value="{{ field }}"
+                                       {% if field in selected_field_names %}checked{% endif %}>
+                                    <label class="form-check-label" for="id_field_names_{{ field }}">{{ field|title }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    {# Standard fields (find, replace, use_regex) #}
+                    {% for field in form.visible_fields %}
+                        {% if not form.meta_fields or field.name not in form.meta_fields %}
+                            {% render_field field %}
+                        {% endif %}
+                    {% endfor %}
+                    {# Changelog / meta fields #}
+                    {% if form.meta_fields %}
+                    <div class="bg-primary-subtle border border-primary rounded-1 pt-3 px-3 mb-3">
+                        {% if form.changelog_message %}{% render_field form.changelog_message %}{% endif %}
+                        {% if form.background_job %}{% render_field form.background_job %}{% endif %}
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="col col-md-12 my-3 text-end">

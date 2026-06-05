@@ -663,6 +663,51 @@ Note that there is no requirement for the attributes to be identical among objec
 !!! note
     The bulk update of objects is an all-or-none operation, meaning that if NetBox fails to successfully update any of the specified objects (e.g. due a validation error), the entire operation will be aborted and none of the objects will be updated.
 
+### Concurrent Update Protection
+
+!!! info "This feature was introduced in NetBox v4.6."
+
+To guard against the lost-update problem when multiple clients modify the same object, NetBox returns a weak `ETag` response header on detail-view responses (`GET`, `POST`, `PATCH`, `PUT`) for individual objects. Clients may supply this value back on a subsequent `PATCH` or `PUT` request via the `If-Match` request header. If the object's current ETag does not match any of the values supplied, the server rejects the request with a `412 Precondition Failed` response and includes the current ETag in the response so the client can retry.
+
+```no-highlight
+# Capture the ETag returned with the object
+$ curl -s -i -H "Authorization: Bearer $TOKEN" http://netbox/api/dcim/sites/1/ | grep -i ^etag
+ETag: W/"2026-05-01T17:42:11.123456+00:00"
+
+# Submit an update with If-Match referencing that ETag
+$ curl -s -X PATCH \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Content-Type: application/json" \
+    -H 'If-Match: W/"2026-05-01T17:42:11.123456+00:00"' \
+    http://netbox/api/dcim/sites/1/ \
+    --data '{"status": "decommissioning"}'
+```
+
+A literal `If-Match: *` value matches any current ETag and may be used to assert simply that the object exists. Submitting `If-Match` is optional; requests without the header retain prior (last-write-wins) behavior.
+
+### Adding and Removing Tags
+
+!!! info "This feature was introduced in NetBox v4.6."
+
+In addition to replacing an object's tag set wholesale via the `tags` field, taggable models accept two write-only fields, `add_tags` and `remove_tags`, which apply only the specified additions or removals without disturbing existing tags. This is convenient when concurrent clients each manage a distinct subset of an object's tags.
+
+```no-highlight
+curl -s -X PATCH \
+-H "Authorization: Bearer $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/1/ \
+--data '{
+    "add_tags": [{"name": "production"}],
+    "remove_tags": [{"name": "staging"}]
+}'
+```
+
+Constraints:
+
+* `tags` may not be combined with `add_tags` or `remove_tags` in the same request.
+* `remove_tags` is only valid on updates; it cannot be used when creating a new object.
+* The same tag may not appear in both `add_tags` and `remove_tags`.
+
 ### Deleting an Object
 
 To delete an object from NetBox, make a `DELETE` request to the model's _detail_ endpoint specifying its unique numeric ID. The `Authorization` header must be included to specify an authorization token, however this type of request does not support passing any data in the body.
@@ -747,7 +792,10 @@ Additionally, a token can be set to expire at a specific time. This can be usefu
 
 #### v1 and v2 Tokens
 
-Beginning with NetBox v4.5, two versions of API token are supported, denoted as v1 and v2. Users are strongly encouraged to create only v2 tokens and to discontinue the use of v1 tokens. Support for v1 tokens will be removed in a future NetBox release.
+!!! warning "v1 Tokens Are Deprecated"
+    v1 API tokens are deprecated as of NetBox v4.6 and will be removed in NetBox v5.0. All users should migrate to v2 tokens.
+
+Beginning with NetBox v4.5, two versions of API token are supported, denoted as v1 and v2. Users are strongly encouraged to create only v2 tokens and to discontinue the use of v1 tokens.
 
 v2 API tokens offer much stronger security. The token plaintext given at creation time is hashed together with a configured [cryptographic pepper](../configuration/required-parameters.md#api_token_peppers) to generate a unique checksum. This checksum is irreversible; the token plaintext is never stored on the server and thus cannot be retrieved even with database-level access.
 
@@ -871,3 +919,11 @@ GET /api/dcim/sites/?created_by_request=e39c84bc-f169-4d5f-bc1c-94487a1b18b5
 
 !!! note
     This header is included with _all_ NetBox responses, although it is most practical when working with an API.
+
+### `ETag`
+
+A weak entity tag (e.g. `W/"2026-05-01T17:42:11.123456+00:00"`) returned on detail-view responses for individual objects. The value is derived from the object's `last_updated` timestamp (or `created`, if the object has no `last_updated`). Clients may supply this value on a subsequent write request via the `If-Match` header to perform a conditional update. See [Concurrent Update Protection](#concurrent-update-protection) for details.
+
+### `If-Match`
+
+A request header which may be supplied on `PATCH` or `PUT` requests targeting a single object. If the object's current ETag does not match any value supplied, the request is rejected with a `412 Precondition Failed` response. A literal value of `*` matches any existing object. See [Concurrent Update Protection](#concurrent-update-protection) for details.

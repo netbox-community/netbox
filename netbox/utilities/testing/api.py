@@ -22,6 +22,7 @@ from users.models import ObjectPermission, Token, User
 from utilities.api import get_graphql_type_for_model
 
 from .base import ModelTestCase
+from .query_counts import assert_expected_query_count
 from .utils import disable_logging, disable_warnings, get_random_string
 
 __all__ = (
@@ -193,7 +194,8 @@ class APIViewTestCases:
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try GET to permitted objects
-            response = self.client.get(self._get_list_url(), **self.header)
+            with assert_expected_query_count(self, 'api_list_objects'):
+                response = self.client.get(self._get_list_url(), **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             self.assertEqual(len(response.data['results']), 2)
 

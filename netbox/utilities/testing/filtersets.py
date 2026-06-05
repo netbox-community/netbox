@@ -82,7 +82,7 @@ class BaseFilterSetTests:
             return [(f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter)]
 
         # Tag manager
-        if type(field) is TaggableManager:
+        if isinstance(field, TaggableManager):
             return [('tag', TagFilter)]
 
         # Unable to determine the correct filter class

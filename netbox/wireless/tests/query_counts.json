@@ -1,0 +1,8 @@
+{
+  "wirelesslan:api_list_objects": 13,
+  "wirelesslan:list_objects_with_permission": 21,
+  "wirelesslangroup:api_list_objects": 13,
+  "wirelesslangroup:list_objects_with_permission": 21,
+  "wirelesslink:api_list_objects": 18,
+  "wirelesslink:list_objects_with_permission": 24
+}

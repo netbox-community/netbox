@@ -1,12 +1,17 @@
-from django import template
+import warnings
+
+from django import forms, template
+from django.conf import settings
 
 from utilities.forms.rendering import InlineFields, M2MAddRemoveFields, ObjectAttribute, TabbedGroups
 
 __all__ = (
+    'any_required',
     'getfield',
     'render_custom_fields',
     'render_errors',
     'render_field',
+    'render_field_with_aria',
     'render_form',
     'widget_type',
 )
@@ -30,6 +35,14 @@ def getfield(form, fieldname):
         return None
 
 
+@register.filter()
+def any_required(fields):
+    """
+    Return True if any of the given bound form fields is required.
+    """
+    return any(getattr(f, 'field', None) and f.field.required for f in fields)
+
+
 @register.filter(name='widget_type')
 def widget_type(field):
     """
@@ -40,6 +53,56 @@ def widget_type(field):
     if hasattr(field, 'field'):
         return field.field.widget.__class__.__name__.lower()
     return None
+
+
+@register.simple_tag
+def render_field_with_aria(field, has_helptext=None):
+    """Render a bound form field with aria-describedby/aria-invalid/aria-label wired up."""
+    if has_helptext is None:
+        has_helptext = bool(field.help_text)
+    widget_attrs = field.field.widget.attrs
+    described_by = []
+    if field.errors:
+        described_by.append(f'{field.auto_id}_errors')
+    if has_helptext:
+        described_by.append(f'{field.auto_id}_helptext')
+    extra_attrs = {}
+    if described_by:
+        # Merge with any aria-describedby already set on the widget so we
+        # append to (rather than clobber) descriptions defined elsewhere.
+        existing = widget_attrs.get('aria-describedby', '').strip()
+        extra_attrs['aria-describedby'] = ' '.join(
+            filter(None, [existing, *described_by])
+        )
+    if field.errors:
+        extra_attrs['aria-invalid'] = 'true'
+    # Mirror field.label onto <select> widgets hidden by Tom Select
+    # (ts-hidden-accessible, tabindex=-1), where scanners drop the <label for=>
+    # association. Skip selects opted out of Tom Select (``.no-ts`` class or a
+    # ``size`` attribute) since they stay visible and keep their association.
+    #
+    # When a field has no label at all (label=''), we deliberately do NOT
+    # synthesize one from the field name: that would inject an untranslated
+    # English string into the rendered DOM and degrade the experience for
+    # non-English locales. In DEBUG we emit a warning so developers add a
+    # proper translated label on the field.
+    if 'aria-label' not in widget_attrs:
+        if isinstance(field.field.widget, forms.Select) and field.label:
+            tom_select_excluded = (
+                'no-ts' in widget_attrs.get('class', '').split()
+                or 'size' in widget_attrs
+            )
+            if not tom_select_excluded:
+                extra_attrs['aria-label'] = str(field.label)
+        elif not field.label and settings.DEBUG:
+            form_name = getattr(getattr(field, 'form', None), '__class__', type(None)).__name__
+            warnings.warn(
+                f"Form field {form_name}.{field.name} has no label; no aria-label "
+                "will be set. Add a translated label to the field for proper "
+                "accessibility.",
+                stacklevel=2,
+            )
+    return field.as_widget(attrs=extra_attrs)
 
 
 #

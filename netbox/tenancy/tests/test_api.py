@@ -6,7 +6,7 @@ from tenancy.models import *
 from utilities.testing import APITestCase, APIViewTestCases
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
 
@@ -16,7 +16,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TenantGroupTest(APIViewTestCases.APIViewTestCase):
+class TenantGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = TenantGroup
     brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'tenant_count', 'url']
     bulk_update_data = {
@@ -61,7 +61,7 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class TenantTest(APIViewTestCases.APIViewTestCase):
+class TenantTestCase(APIViewTestCases.APIViewTestCase):
     model = Tenant
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
@@ -103,7 +103,7 @@ class TenantTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ContactGroupTest(APIViewTestCases.APIViewTestCase):
+class ContactGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = ContactGroup
     brief_fields = ['_depth', 'contact_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
@@ -148,7 +148,7 @@ class ContactGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ContactRoleTest(APIViewTestCases.APIViewTestCase):
+class ContactRoleTestCase(APIViewTestCases.APIViewTestCase):
     model = ContactRole
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -180,7 +180,7 @@ class ContactRoleTest(APIViewTestCases.APIViewTestCase):
         ContactRole.objects.bulk_create(contact_roles)
 
 
-class ContactTest(APIViewTestCases.APIViewTestCase):
+class ContactTestCase(APIViewTestCases.APIViewTestCase):
     model = Contact
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -220,7 +220,7 @@ class ContactTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
+class ContactAssignmentTestCase(APIViewTestCases.APIViewTestCase):
     model = ContactAssignment
     brief_fields = ['contact', 'display', 'id', 'priority', 'role', 'url']
     bulk_update_data = {

@@ -6,18 +6,23 @@ NetBox uses device types to represent unique real-world device models. This allo
 
 ```mermaid
 flowchart TD
-    Manufacturer -.-> Platform & DeviceType & ModuleType
+    Manufacturer -.-> Platform
     Manufacturer --> DeviceType & ModuleType
+    ModuleTypeProfile -.-> ModuleType
     DeviceRole & Platform & DeviceType --> Device
     Device & ModuleType ---> Module
     Device & Module --> Interface & ConsolePort & PowerPort & ...
+    Interface --> MACAddress
 
 click Device "../../models/dcim/device/"
 click DeviceRole "../../models/dcim/devicerole/"
 click DeviceType "../../models/dcim/devicetype/"
+click Interface "../../models/dcim/interface/"
+click MACAddress "../../models/dcim/macaddress/"
 click Manufacturer "../../models/dcim/manufacturer/"
 click Module "../../models/dcim/module/"
 click ModuleType "../../models/dcim/moduletype/"
+click ModuleTypeProfile "../../models/dcim/moduletypeprofile/"
 click Platform "../../models/dcim/platform/"
 ```
 
@@ -69,14 +74,22 @@ Sometimes it is necessary to model a set of physical devices as sharing a single
 
 A virtual device context (VDC) is a logical partition within a device. Each VDC operates autonomously but shares a common pool of resources. Each interface can be assigned to one or more VDCs on its device.
 
-## Module Types & Modules
+## Module Types, Profiles & Modules
 
 Much like device types and devices, module types can instantiate discrete modules, which are hardware components installed within devices. Modules often have their own child components, which become available to the parent device. For example, when modeling a chassis-based switch with multiple line cards in NetBox, the chassis would be created (from a device type) as a device, and each of its line cards would be instantiated from a module type as a module installed in one of the device's module bays.
+
+### Module Type Profiles
+
+A [module type profile](../models/dcim/moduletypeprofile.md) classifies module types (e.g. `Power Supply`, `Disk`) and may optionally define a [JSON schema](https://json-schema.org/) describing custom attributes that module types of that profile may carry. This is useful for tracking domain-specific specifications such as a power supply's input voltage, a CPU's clock speed, or a disk's capacity, without needing to add a custom field to every module type in NetBox.
 
 !!! tip "Device Bays vs. Module Bays"
     What's the difference between device bays and module bays? Device bays are appropriate when the installed hardware has its own management plane, isolated from the parent device. A common example is a blade server chassis in which the blades share power but operate independently. In contrast, a module bay holds a module which does _not_ operate independently of its parent device, as with the chassis switch line card example mentioned above.
 
 One especially nice feature of modules is that templated components can be automatically renamed according to the module bay into which the parent module is installed. For example, if we create a module type with interfaces named `Gi{module}/0/1-48` and install a module of this type into module bay 7 of a device, NetBox will create interfaces named `Gi7/0/1-48`.
+
+## MAC Addresses
+
+[MAC addresses](../models/dcim/macaddress.md) are modeled as first-class objects in NetBox so that an interface may have multiple MAC addresses assigned to it, with one optionally designated as the interface's primary MAC. This accommodates virtual interfaces and modular hardware where the link-layer address is not necessarily fixed at the factory. MAC addresses can be assigned to both [device interfaces](../models/dcim/interface.md) and [virtual machine interfaces](../models/virtualization/vminterface.md).
 
 ## Cables
 
@@ -89,3 +102,7 @@ flowchart LR
     Interface --> Cable
     Cable --> fp1[Front Port] & fp2[Front Port]
 ```
+
+### Cable Bundles
+
+Related cables can optionally be grouped into a [cable bundle](../models/dcim/cablebundle.md), representing a logical collection such as a conduit, trunk, or wiring harness. Bundle membership is purely organizational: it does not affect cable tracing or connectivity. Deleting a cable removes it from its bundle but does not delete the bundle itself, allowing bundles to outlive any specific member cable.

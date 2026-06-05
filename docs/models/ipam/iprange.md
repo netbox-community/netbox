@@ -21,6 +21,13 @@ The [Virtual Routing and Forwarding](./vrf.md) instance in which this IP range e
 
 The beginning and ending IP addresses (inclusive) which define the boundaries of the range. Both IP addresses must specify the correct mask.
 
+A range may contain a single IP address by setting the start and end address to the same value, including the same mask length. This is useful when a pool-like construct, such as a DHCP or NAT pool, contains only one usable address.
+
+!!! note
+    A single-address IP range is not a replacement for an [IP address](./ipaddress.md). Use an IP address object when modeling an address configured on an interface, assigned as a primary IP, or otherwise participating in IP-address-specific relationships. Use an IP range only when the address is being modeled as a pool, reservation range, or similar range-oriented construct.
+
+    The end address is still required. To create a single-address range, enter the same address and mask for both the start and end address.
+
 !!! note
     The maximum supported size of an IP range is 2^32 - 1.
 

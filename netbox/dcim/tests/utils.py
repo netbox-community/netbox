@@ -5,11 +5,11 @@ from dcim.models import *
 from dcim.utils import object_to_path_node
 
 __all__ = (
-    'CablePathTestCase',
+    'BaseCablePathTestCase',
 )
 
 
-class CablePathTestCase(TestCase):
+class BaseCablePathTestCase(TestCase):
     """
     Base class for test cases for cable paths.
     """

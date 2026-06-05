@@ -352,6 +352,7 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
         ),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('device_id', 'virtual_machine_id', name=_('Device/VM')),
+        FieldSet('nat_inside_id', name=_('NAT')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -396,6 +397,11 @@ class IPAddressFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryMode
         queryset=VirtualMachine.objects.all(),
         required=False,
         label=_('Assigned VM'),
+    )
+    nat_inside_id = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label=_('NAT inside'),
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),

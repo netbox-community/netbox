@@ -7,19 +7,19 @@ from utilities.testing import TableTestCases
 #
 
 
-class RegionTableTest(TableTestCases.StandardTableTestCase):
+class RegionTableTestCase(TableTestCases.StandardTableTestCase):
     table = RegionTable
 
 
-class SiteGroupTableTest(TableTestCases.StandardTableTestCase):
+class SiteGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = SiteGroupTable
 
 
-class SiteTableTest(TableTestCases.StandardTableTestCase):
+class SiteTableTestCase(TableTestCases.StandardTableTestCase):
     table = SiteTable
 
 
-class LocationTableTest(TableTestCases.StandardTableTestCase):
+class LocationTableTestCase(TableTestCases.StandardTableTestCase):
     table = LocationTable
 
 
@@ -27,19 +27,23 @@ class LocationTableTest(TableTestCases.StandardTableTestCase):
 # Racks
 #
 
-class RackRoleTableTest(TableTestCases.StandardTableTestCase):
+class RackRoleTableTestCase(TableTestCases.StandardTableTestCase):
     table = RackRoleTable
 
 
-class RackTypeTableTest(TableTestCases.StandardTableTestCase):
+class RackGroupTableTestCase(TableTestCases.StandardTableTestCase):
+    table = RackGroupTable
+
+
+class RackTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = RackTypeTable
 
 
-class RackTableTest(TableTestCases.StandardTableTestCase):
+class RackTableTestCase(TableTestCases.StandardTableTestCase):
     table = RackTable
 
 
-class RackReservationTableTest(TableTestCases.StandardTableTestCase):
+class RackReservationTableTestCase(TableTestCases.StandardTableTestCase):
     table = RackReservationTable
 
 
@@ -47,11 +51,11 @@ class RackReservationTableTest(TableTestCases.StandardTableTestCase):
 # Device types
 #
 
-class ManufacturerTableTest(TableTestCases.StandardTableTestCase):
+class ManufacturerTableTestCase(TableTestCases.StandardTableTestCase):
     table = ManufacturerTable
 
 
-class DeviceTypeTableTest(TableTestCases.StandardTableTestCase):
+class DeviceTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = DeviceTypeTable
 
 
@@ -59,15 +63,15 @@ class DeviceTypeTableTest(TableTestCases.StandardTableTestCase):
 # Module types
 #
 
-class ModuleTypeProfileTableTest(TableTestCases.StandardTableTestCase):
+class ModuleTypeProfileTableTestCase(TableTestCases.StandardTableTestCase):
     table = ModuleTypeProfileTable
 
 
-class ModuleTypeTableTest(TableTestCases.StandardTableTestCase):
+class ModuleTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = ModuleTypeTable
 
 
-class ModuleTableTest(TableTestCases.StandardTableTestCase):
+class ModuleTableTestCase(TableTestCases.StandardTableTestCase):
     table = ModuleTable
 
     def test_profile_column_available(self):
@@ -78,15 +82,15 @@ class ModuleTableTest(TableTestCases.StandardTableTestCase):
 # Devices
 #
 
-class DeviceRoleTableTest(TableTestCases.StandardTableTestCase):
+class DeviceRoleTableTestCase(TableTestCases.StandardTableTestCase):
     table = DeviceRoleTable
 
 
-class PlatformTableTest(TableTestCases.StandardTableTestCase):
+class PlatformTableTestCase(TableTestCases.StandardTableTestCase):
     table = PlatformTable
 
 
-class DeviceTableTest(TableTestCases.StandardTableTestCase):
+class DeviceTableTestCase(TableTestCases.StandardTableTestCase):
     table = DeviceTable
 
 
@@ -94,47 +98,47 @@ class DeviceTableTest(TableTestCases.StandardTableTestCase):
 # Device components
 #
 
-class ConsolePortTableTest(TableTestCases.StandardTableTestCase):
+class ConsolePortTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConsolePortTable
 
 
-class ConsoleServerPortTableTest(TableTestCases.StandardTableTestCase):
+class ConsoleServerPortTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConsoleServerPortTable
 
 
-class PowerPortTableTest(TableTestCases.StandardTableTestCase):
+class PowerPortTableTestCase(TableTestCases.StandardTableTestCase):
     table = PowerPortTable
 
 
-class PowerOutletTableTest(TableTestCases.StandardTableTestCase):
+class PowerOutletTableTestCase(TableTestCases.StandardTableTestCase):
     table = PowerOutletTable
 
 
-class InterfaceTableTest(TableTestCases.StandardTableTestCase):
+class InterfaceTableTestCase(TableTestCases.StandardTableTestCase):
     table = InterfaceTable
 
 
-class FrontPortTableTest(TableTestCases.StandardTableTestCase):
+class FrontPortTableTestCase(TableTestCases.StandardTableTestCase):
     table = FrontPortTable
 
 
-class RearPortTableTest(TableTestCases.StandardTableTestCase):
+class RearPortTableTestCase(TableTestCases.StandardTableTestCase):
     table = RearPortTable
 
 
-class ModuleBayTableTest(TableTestCases.StandardTableTestCase):
+class ModuleBayTableTestCase(TableTestCases.StandardTableTestCase):
     table = ModuleBayTable
 
 
-class DeviceBayTableTest(TableTestCases.StandardTableTestCase):
+class DeviceBayTableTestCase(TableTestCases.StandardTableTestCase):
     table = DeviceBayTable
 
 
-class InventoryItemTableTest(TableTestCases.StandardTableTestCase):
+class InventoryItemTableTestCase(TableTestCases.StandardTableTestCase):
     table = InventoryItemTable
 
 
-class InventoryItemRoleTableTest(TableTestCases.StandardTableTestCase):
+class InventoryItemRoleTableTestCase(TableTestCases.StandardTableTestCase):
     table = InventoryItemRoleTable
 
 
@@ -142,21 +146,21 @@ class InventoryItemRoleTableTest(TableTestCases.StandardTableTestCase):
 # Connections
 #
 
-class ConsoleConnectionTableTest(TableTestCases.StandardTableTestCase):
+class ConsoleConnectionTableTestCase(TableTestCases.StandardTableTestCase):
     table = ConsoleConnectionTable
     queryset_sources = [
         ('ConsoleConnectionsListView', ConsolePort.objects.filter(_path__is_complete=True)),
     ]
 
 
-class PowerConnectionTableTest(TableTestCases.StandardTableTestCase):
+class PowerConnectionTableTestCase(TableTestCases.StandardTableTestCase):
     table = PowerConnectionTable
     queryset_sources = [
         ('PowerConnectionsListView', PowerPort.objects.filter(_path__is_complete=True)),
     ]
 
 
-class InterfaceConnectionTableTest(TableTestCases.StandardTableTestCase):
+class InterfaceConnectionTableTestCase(TableTestCases.StandardTableTestCase):
     table = InterfaceConnectionTable
     queryset_sources = [
         ('InterfaceConnectionsListView', Interface.objects.filter(_path__is_complete=True)),
@@ -167,19 +171,23 @@ class InterfaceConnectionTableTest(TableTestCases.StandardTableTestCase):
 # Cables
 #
 
-class CableTableTest(TableTestCases.StandardTableTestCase):
+class CableTableTestCase(TableTestCases.StandardTableTestCase):
     table = CableTable
+
+
+class CableBundleTableTestCase(TableTestCases.StandardTableTestCase):
+    table = CableBundleTable
 
 
 #
 # Power
 #
 
-class PowerPanelTableTest(TableTestCases.StandardTableTestCase):
+class PowerPanelTableTestCase(TableTestCases.StandardTableTestCase):
     table = PowerPanelTable
 
 
-class PowerFeedTableTest(TableTestCases.StandardTableTestCase):
+class PowerFeedTableTestCase(TableTestCases.StandardTableTestCase):
     table = PowerFeedTable
 
 
@@ -187,7 +195,7 @@ class PowerFeedTableTest(TableTestCases.StandardTableTestCase):
 # Virtual chassis
 #
 
-class VirtualChassisTableTest(TableTestCases.StandardTableTestCase):
+class VirtualChassisTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualChassisTable
 
 
@@ -195,7 +203,7 @@ class VirtualChassisTableTest(TableTestCases.StandardTableTestCase):
 # Virtual device contexts
 #
 
-class VirtualDeviceContextTableTest(TableTestCases.StandardTableTestCase):
+class VirtualDeviceContextTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualDeviceContextTable
 
 
@@ -203,5 +211,5 @@ class VirtualDeviceContextTableTest(TableTestCases.StandardTableTestCase):
 # MAC addresses
 #
 
-class MACAddressTableTest(TableTestCases.StandardTableTestCase):
+class MACAddressTableTestCase(TableTestCases.StandardTableTestCase):
     table = MACAddressTable

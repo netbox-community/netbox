@@ -72,7 +72,7 @@ class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
             'locale.language', 'ui.copilot_enabled', 'pagination.per_page', 'pagination.placement',
-            'ui.tables.striping', name=_('User Interface')
+            'ui.tables.striping', 'ui.measurement_system', name=_('User Interface')
         ),
         FieldSet('data_format', 'csv_delimiter', name=_('Miscellaneous')),
     )
@@ -184,6 +184,23 @@ class TokenForm(UserTokenForm):
         # If not creating a new Token, disable the user field
         if self.instance and not self.instance._state.adding:
             self.fields['user'].disabled = True
+
+    def clean(self):
+        super().clean()
+
+        # Creating a Token on behalf of another user requires the grant_token permission. This is enforced only on
+        # creation; the user field is disabled when editing an existing Token.
+        if self.instance._state.adding and (token_user := self.cleaned_data.get('user')):
+            request = getattr(self.instance, '_request', None)
+            if request is None:
+                # Fail closed: we cannot verify that the acting user is authorized.
+                raise forms.ValidationError(_("Unable to verify permission to create tokens."))
+            if token_user != request.user and not request.user.has_perm('users.grant_token'):
+                raise forms.ValidationError(
+                    _("This user does not have permission to create tokens for other users.")
+                )
+
+        return self.cleaned_data
 
 
 class UserForm(forms.ModelForm):

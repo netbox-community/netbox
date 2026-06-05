@@ -168,7 +168,7 @@ LOGGING = {}
 LOGIN_PERSISTENCE = False
 
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
-# re-authenticate. (Default: 1209600 [14 days])
+# re-authenticate. If set to None (the default), Django's SESSION_COOKIE_AGE is used (two weeks).
 LOGIN_TIMEOUT = None
 
 # Hide the login form. Useful when only allowing SSO authentication.

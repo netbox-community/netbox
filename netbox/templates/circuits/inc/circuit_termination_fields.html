@@ -5,7 +5,11 @@
     <th scope="row">{% trans "Termination point" %}</th>
     {% if termination.termination %}
       <td>
-        {{ termination.termination|linkify }}
+        {% if termination_nodes %}
+          {% include 'ui/attrs/nested_object.html' with nodes=termination_nodes linkify=True colored=False only %}
+        {% else %}
+          {{ termination.termination|linkify }}
+        {% endif %}
         <div class="fs-5 text-muted">{% trans termination.termination_type.name|bettertitle %}</div>
       </td>
     {% else %}

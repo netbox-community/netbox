@@ -1,5 +1,88 @@
 # NetBox v4.6
 
+## v4.6.2 (2026-06-02)
+
+### Enhancements
+
+* [#17127](https://github.com/netbox-community/netbox/issues/17127) - Add a user preference for selecting metric or imperial units of measurement
+* [#19336](https://github.com/netbox-community/netbox/issues/19336) - Convert the filtering of tabbed list views from JavaScript to HTMX
+* [#19460](https://github.com/netbox-community/netbox/issues/19460) - Support additional template variables for greater flexibility when constructing map URLs
+* [#20804](https://github.com/netbox-community/netbox/issues/20804) - Support bulk renaming of the `label` field on device components
+* [#21261](https://github.com/netbox-community/netbox/issues/21261) - Allow setting `quick_add` on an `ObjectVar` in custom scripts
+* [#21952](https://github.com/netbox-community/netbox/issues/21952) - Improve robustness of the RQ worker liveness check
+* [#22109](https://github.com/netbox-community/netbox/issues/22109) - Include child dependency counts in the module type REST API representation
+* [#22212](https://github.com/netbox-community/netbox/issues/22212) - Make designated environment parameters available within Jinja2 templates via the new `env()` filter
+* [#22239](https://github.com/netbox-community/netbox/issues/22239) - Rename the "Save" button on the table configuration form to "Apply" for clarity
+* [#22255](https://github.com/netbox-community/netbox/issues/22255) - Allow plugins to register custom serializer resolvers for `get_serializer_for_model()`
+
+### Bug Fixes
+
+* [#21091](https://github.com/netbox-community/netbox/issues/21091) - Declare proper request & response schema types for the device/VM config rendering API endpoints
+* [#22158](https://github.com/netbox-community/netbox/issues/22158) - Cache empty config revision state to avoid per-request queries polluting database connections
+* [#22163](https://github.com/netbox-community/netbox/issues/22163) - Fix `ValueError` raised by CircuitTerminationForm when a termination type is set but the target object is blank
+* [#22180](https://github.com/netbox-community/netbox/issues/22180) - Ensure custom scripts added via a remote data source are validated
+* [#22187](https://github.com/netbox-community/netbox/issues/22187) - Fix erroneous cable path retracing when using a cable profile
+* [#22219](https://github.com/netbox-community/netbox/issues/22219) - Add missing required form field indicator to InlineFields rows
+* [#22228](https://github.com/netbox-community/netbox/issues/22228) - Validate `vid_ranges` bounds metadata in `VLANGroup.save()` to avoid miscounts and a crash on singleton ranges
+* [#22232](https://github.com/netbox-community/netbox/issues/22232) - Prevent duplicate scheduled background jobs from being created
+* [#22233](https://github.com/netbox-community/netbox/issues/22233) - Fix `site_id` filter on the cables REST API returning no results when both endpoints are circuit terminations
+* [#22247](https://github.com/netbox-community/netbox/issues/22247) - Display the verbose name instead of the internal model name for the related object type on the custom field detail page
+* [#22270](https://github.com/netbox-community/netbox/issues/22270) - Avoid recording a spurious UPDATE change record after DELETE for objects with reverse SET_NULL relations
+* [#22282](https://github.com/netbox-community/netbox/issues/22282) - Fix `fetch()` on S3Backend to reliably resolve object keys
+* [#22283](https://github.com/netbox-community/netbox/issues/22283) - Restrict the Job queryset in ScriptResultView to authorized objects
+* [#22286](https://github.com/netbox-community/netbox/issues/22286) - Mark the `name` and `description` fields on the GraphQL ConfigContextProfileFilter as optional
+* [#22287](https://github.com/netbox-community/netbox/issues/22287) - Fix GraphQL `EventRuleFilter.action_object_type` being typed as a string lookup against a ContentType foreign key
+* [#22301](https://github.com/netbox-community/netbox/issues/22301) - Avoid name conflict when multiple plugins introduce taggable models of the same name
+* [#22307](https://github.com/netbox-community/netbox/issues/22307) - Fix inconsistent enforcement of `grant_token` permissions between the UI and REST API
+* [#22325](https://github.com/netbox-community/netbox/issues/22325) - Fix `AttributeError` when creating a custom field choice set with base choices
+* [#22328](https://github.com/netbox-community/netbox/issues/22328) - Avoid out-of-memory crash in DynamicMultipleChoiceField with large choice sets
+
+---
+
+## v4.6.1 (2026-05-19)
+
+### Enhancements
+
+* [#16851](https://github.com/netbox-community/netbox/issues/16851) - Correct errant and missing ARIA labels throughout the UI
+* [#20776](https://github.com/netbox-community/netbox/issues/20776) - Add changelog message support for bulk rename operations
+* [#20808](https://github.com/netbox-community/netbox/issues/20808) - Display the names of installed devices when selecting a rack position
+* [#21938](https://github.com/netbox-community/netbox/issues/21938) - Display geographic hierarchy for circuit terminations assigned to sites, locations, or regions
+* [#21993](https://github.com/netbox-community/netbox/issues/21993) - Allow IP ranges comprising a single IP address
+* [#22057](https://github.com/netbox-community/netbox/issues/22057) - Add filter support for notifications and subscriptions to GraphQL API
+* [#22192](https://github.com/netbox-community/netbox/issues/22192) - Introduce `HTTP_CLIENT_IP_HEADERS` configuration parameter to customize HTTP headers used to determine client IP address
+
+### Performance Improvements
+
+* [#22060](https://github.com/netbox-community/netbox/issues/22060) - Implement GraphQL query depth limiting (via `GRAPHQL_MAX_QUERY_DEPTH`) to guard against excessively complex queries
+* [#22061](https://github.com/netbox-community/netbox/issues/22061) - Add prefetch hints to various GraphQL type mixins to improve query efficiency
+* [#22102](https://github.com/netbox-community/netbox/issues/22102) - Add GIN index on CablePath to optimize filtering of cable paths by node
+* [#22104](https://github.com/netbox-community/netbox/issues/22104) - Avoid retracing cable paths during cable deletion
+* [#22146](https://github.com/netbox-community/netbox/issues/22146) - Avoid renumbering MPTT trees when creating module bays
+
+### Bug Fixes
+
+* [#21934](https://github.com/netbox-community/netbox/issues/21934) - Fix striped table rows overriding conditional row color highlighting for virtual/LAG interfaces
+* [#22055](https://github.com/netbox-community/netbox/issues/22055) - Fix API exceptions being silently consumed by middleware without reporting to Sentry
+* [#22079](https://github.com/netbox-community/netbox/issues/22079) - Fix security vulnerability allowing arbitrary code execution via ExportTemplate `environment_params` (CVE-2026-29514)
+* [#22081](https://github.com/netbox-community/netbox/issues/22081) - REST API should return plaintext for new v2 tokens upon creation
+* [#22183](https://github.com/netbox-community/netbox/issues/22183) - Fix spurious changelog entries for `interface_b` generated when saving an unchanged wireless link
+* [#22190](https://github.com/netbox-community/netbox/issues/22190) - Restore tenant and tenant group column options for circuits group table configuration
+* [#22198](https://github.com/netbox-community/netbox/issues/22198) - Restrict export template queryset to authorized objects in REST API and list views
+* [#22202](https://github.com/netbox-community/netbox/issues/22202) - Fix crash in system housekeeping job when no stable releases are available
+* [#22206](https://github.com/netbox-community/netbox/issues/22206) - Fix `TypeError` exception raised by table config validation when `ordering` attribute is null
+* [#22207](https://github.com/netbox-community/netbox/issues/22207) - Fix missing explicit `object_type` field annotation on TableConfigType GraphQL type
+* [#22208](https://github.com/netbox-community/netbox/issues/22208) - Add missing `user_id` FK filter on job filterset
+* [#22209](https://github.com/netbox-community/netbox/issues/22209) - Add missing `cable_id` FK filter on cable termination filterset
+* [#22227](https://github.com/netbox-community/netbox/issues/22227) - Fix display of IP address detail view when multiple NAT assignments exist
+* [#22236](https://github.com/netbox-community/netbox/issues/22236) - Fix support for user changelog message when saving table configurations via the REST API
+
+### Deprecations
+
+* [#22128](https://github.com/netbox-community/netbox/issues/22128) - Deprecate support for v1 API tokens (to be removed in v5.0)
+* [#22141](https://github.com/netbox-community/netbox/issues/22141) - Deprecate support for PostgreSQL 14 (to be removed in v4.7)
+
+---
+
 ## v4.6.0 (2026-05-05)
 
 ### New Features

@@ -658,7 +658,7 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
         table = self.table_class([])
 
         # Validate ordering columns
-        for name in self.ordering:
+        for name in self.ordering or []:
             if name.startswith('-'):
                 name = name[1:]  # Strip leading hyphen
             if name not in table.columns:

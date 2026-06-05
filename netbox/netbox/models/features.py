@@ -9,13 +9,12 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices, ObjectChangeActionChoices
 from core.models import ObjectType
 from extras.choices import *
 from extras.constants import CUSTOMFIELD_EMPTY_VALUES
-from extras.managers import NetBoxTaggableManager
+from extras.managers import NetBoxTaggableManager, NetBoxTaggableManagerField
 from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.constants import CORE_APPS
@@ -489,12 +488,15 @@ class JournalingMixin(models.Model):
 class TagsMixin(models.Model):
     """
     Enables support for tag assignment. Assigned tags can be managed via the `tags` attribute,
-    which is a `NetBoxTaggableManager` instance.
+    which is a `NetBoxTaggableManager` instance. The field is a `NetBoxTaggableManagerField`,
+    which performs `%(app_label)s` / `%(class)s` interpolation on `related_name` to avoid
+    reverse-accessor collisions between same-named models in different apps (e.g. plugins).
     """
-    tags = TaggableManager(
+    tags = NetBoxTaggableManagerField(
         through='extras.TaggedItem',
         ordering=('weight', 'name'),
         manager=NetBoxTaggableManager,
+        related_name='%(app_label)s_%(class)s_tagged+',
     )
 
     class Meta:

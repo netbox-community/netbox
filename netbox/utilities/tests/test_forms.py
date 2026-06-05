@@ -5,6 +5,7 @@ from dcim.models import Site
 from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
+from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
@@ -16,7 +17,7 @@ from utilities.forms.utils import (
 from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, SelectedOptions
 
 
-class ExpandIPNetwork(TestCase):
+class ExpandIPNetworkTestCase(TestCase):
     """
     Validate the operation of expand_ipnetwork_pattern().
     """
@@ -176,7 +177,7 @@ class ExpandIPNetwork(TestCase):
             sorted(expand_ipnetwork_pattern('1.2.3.[4,,5]/32', 4))
 
 
-class ExpandAlphanumeric(TestCase):
+class ExpandAlphanumericTestCase(TestCase):
     """
     Validate the operation of expand_alphanumeric_pattern().
     """
@@ -305,7 +306,7 @@ class ExpandAlphanumeric(TestCase):
             sorted(expand_alphanumeric_pattern('r[a,,b]a'))
 
 
-class ImportFormTest(TestCase):
+class ImportFormTestCase(TestCase):
 
     def test_format_detection(self):
         form = BulkImportForm()
@@ -385,7 +386,7 @@ class ImportFormTest(TestCase):
         ])
 
 
-class BulkRenameFormTest(TestCase):
+class BulkRenameFormTestCase(TestCase):
     def test_no_strip_whitespace(self):
         # Tests to make sure Bulk Rename Form isn't stripping whitespaces
         # See: https://github.com/netbox-community/netbox/issues/13791
@@ -398,7 +399,7 @@ class BulkRenameFormTest(TestCase):
         self.assertEqual(form.cleaned_data["replace"], " world ")
 
 
-class GetFieldValueTest(TestCase):
+class GetFieldValueTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -458,7 +459,7 @@ class GetFieldValueTest(TestCase):
         )
 
 
-class CSVSelectWidgetTest(TestCase):
+class CSVSelectWidgetTestCase(TestCase):
     """
     Validate that CSVSelectWidget treats blank values as omitted.
     This allows model defaults to be applied when CSV fields are present but empty.
@@ -490,7 +491,7 @@ class CSVSelectWidgetTest(TestCase):
         self.assertFalse(widget.value_omitted_from_data(data, {}, 'test_field'))
 
 
-class SelectMultipleWidgetTest(TestCase):
+class SelectMultipleWidgetTestCase(TestCase):
     """
     Validate filtering behavior of AvailableOptions and SelectedOptions widgets.
     """
@@ -558,7 +559,64 @@ class SelectMultipleWidgetTest(TestCase):
         self.assertEqual(widget.choices[1][1], [(3, 'Option 3')])
 
 
-class GetCapacityUnitLabelTest(TestCase):
+class DynamicChoiceFieldTestCase(TestCase):
+    """
+    Validate that DynamicChoiceField.get_bound_field() limits choices to the current
+    selection and clears them when nothing is selected.
+    """
+    CHOICES = [('a', 'Option A'), ('b', 'Option B'), ('c', 'Option C')]
+
+    def _make_form(self, data=None):
+        class TestForm(forms.Form):
+            field = DynamicChoiceField(choices=self.CHOICES, required=False)
+        return TestForm(data=data)
+
+    def test_unbound_clears_choices(self):
+        form = self._make_form()
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+    def test_bound_with_value_filters_to_selection(self):
+        form = self._make_form(data={'field': 'b'})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [('b', 'Option B')])
+
+    def test_bound_with_no_value_clears_choices(self):
+        form = self._make_form(data={})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+
+class DynamicMultipleChoiceFieldTestCase(TestCase):
+    """
+    Validate that DynamicMultipleChoiceField.get_bound_field() limits choices to
+    the current selection and clears them when nothing is selected.
+    """
+    CHOICES = [('a', 'Option A'), ('b', 'Option B'), ('c', 'Option C')]
+
+    def _make_form(self, data=None):
+        class TestForm(forms.Form):
+            field = DynamicMultipleChoiceField(choices=self.CHOICES, required=False)
+        return TestForm(data=data)
+
+    def test_unbound_clears_choices(self):
+        """Regression test for #22328: unbound form must not retain the full choices list."""
+        form = self._make_form()
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+    def test_bound_with_values_filters_to_selection(self):
+        form = self._make_form(data={'field': ['a', 'c']})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [('a', 'Option A'), ('c', 'Option C')])
+
+    def test_bound_with_no_values_clears_choices(self):
+        form = self._make_form(data={})
+        form.fields['field'].get_bound_field(form, 'field')
+        self.assertEqual(form.fields['field'].choices, [])
+
+
+class GetCapacityUnitLabelTestCase(TestCase):
     """
     Test the get_capacity_unit_label function for correct base unit label.
     """

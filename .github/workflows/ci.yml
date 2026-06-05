@@ -1,23 +1,26 @@
+---
 name: CI
 
 on:
   push:
+    branches:
+      - main
+      - feature
     paths-ignore:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/PULL_REQUEST_TEMPLATE.md'
       - 'contrib/**'
-      - 'docs/**'
       - 'netbox/translations/**'
   pull_request:
     paths-ignore:
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/PULL_REQUEST_TEMPLATE.md'
       - 'contrib/**'
-      - 'docs/**'
       - 'netbox/translations/**'
 
 permissions:
   contents: read
+  pull-requests: read
 
 # Add concurrency group to control job running
 concurrency:
@@ -25,14 +28,68 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+
+  # Detect which areas of the codebase changed so downstream jobs can be skipped
+  # when their inputs haven't changed. Jobs that don't match any filter are shown
+  # as "skipped" in GitHub's check list, which satisfies required-status-checks.
+  changes:
+    name: Detect changed files
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Detect changed files
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d  # v4.0.1
+        id: filter
+        with:
+          filters: |
+            python:
+              - 'netbox/**/*.py'
+              - 'requirements*.txt'
+              - 'pyproject.toml'
+            frontend:
+              - 'netbox/project-static/**'
+            docs:
+              - 'docs/**'
+              - 'mkdocs.yml'
+
+  lint:
+    name: Lint (Python)
+    needs: changes
+    if: needs.changes.result == 'success' && needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Check Python linting & PEP8 compliance
+        uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b  # v4.0.0
+        with:
+          version: "0.15.10"
+          args: "check --output-format=github"
+          src: "netbox/"
+
+  test:
+    name: >-
+      Tests (Python ${{ matrix.python-version }}${{ matrix.coverage && ', coverage' || '' }})
+    needs: changes
+    if: needs.changes.result == 'success' && needs.changes.outputs.python == 'true'
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
-        node-version: ['20.x']
+        include:
+          - coverage: false
+          # Run coverage only once, using the Python 3.14 job.
+          - python-version: '3.14'
+            coverage: true
     services:
       redis:
         image: redis
@@ -52,62 +109,98 @@ jobs:
           - 5432:5432
 
     steps:
-    - name: Check out repo
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-    - name: Check Python linting & PEP8 compliance
-      uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b # v4.0.0
-      with:
-        version: "0.15.10"
-        args: "check --output-format=github"
-        src: "netbox/"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage tblib
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-      with:
-        node-version: ${{ matrix.node-version }}
-    
-    - name: Install Yarn Package Manager
-      run: npm install -g yarn
-    
-    - name: Setup Node.js with Yarn Caching
-      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: yarn
-        cache-dependency-path: netbox/project-static/yarn.lock
-    
-    - name: Install Frontend Dependencies
-      run: yarn --cwd netbox/project-static
+      - name: Check for missing migrations
+        run: python netbox/manage.py makemigrations --check
 
-    - name: Install dependencies & set up configuration
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install coverage tblib
+      # Copy frontend-generated files into STATIC_ROOT before SVG rendering
+      # tests read their CSS directly.
+      - name: Collect static files
+        run: python netbox/manage.py collectstatic --no-input
 
-    - name: Build documentation
-      run: zensical build
+      - name: Run tests
+        if: ${{ ! matrix.coverage }}
+        run: python netbox/manage.py test netbox/ --parallel
 
-    - name: Collect static files
-      run: python netbox/manage.py collectstatic --no-input
+      - name: Run tests with coverage
+        if: ${{ matrix.coverage }}
+        run: coverage run netbox/manage.py test netbox/ --parallel
 
-    - name: Check for missing migrations
-      run: python netbox/manage.py makemigrations --check
+      - name: Combine coverage data
+        if: ${{ matrix.coverage }}
+        run: coverage combine
 
-    - name: Check UI ESLint, TypeScript, and Prettier Compliance
-      run: yarn --cwd netbox/project-static validate
-    
-    - name: Validate Static Asset Integrity
-      run: scripts/verify-bundles.sh
+      - name: Show coverage report
+        if: ${{ matrix.coverage }}
+        run: coverage report
 
-    - name: Run tests
-      run: coverage run --source="netbox/" netbox/manage.py test netbox/ --parallel
+  frontend:
+    name: Frontend
+    needs: changes
+    if: needs.changes.result == 'success' && needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-    - name: Show coverage report
-      run: coverage report --skip-covered --omit '*/migrations/*,*/tests/*'
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20.x'
+
+      - name: Install Yarn Package Manager
+        run: npm install -g yarn
+
+      - name: Setup Node.js with Yarn Caching
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f  # v6.3.0
+        with:
+          node-version: '20.x'
+          cache: yarn
+          cache-dependency-path: netbox/project-static/yarn.lock
+
+      - name: Install Frontend Dependencies
+        run: yarn --cwd netbox/project-static
+
+      - name: Validate TypeScript and run ESLint
+        run: yarn --cwd netbox/project-static validate
+
+      - name: Validate formatting
+        run: yarn --cwd netbox/project-static validate:formatting
+
+      - name: Validate Static Asset Integrity
+        run: scripts/verify-bundles.sh
+
+  docs:
+    name: Documentation
+    needs: changes
+    if: needs.changes.result == 'success' && needs.changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build documentation
+        run: zensical build

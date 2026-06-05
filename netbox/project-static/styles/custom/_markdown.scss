@@ -1,6 +1,5 @@
 // Rendered Markdown
 .rendered-markdown {
-
   table {
     width: 100%;
 
@@ -15,17 +14,16 @@
     }
 
     // Map "align" attr of column headings
-    th[align="left"] {
+    th[align='left'] {
       text-align: left;
     }
-    th[align="center"] {
+    th[align='center'] {
       text-align: center;
     }
-    th[align="right"] {
+    th[align='right'] {
       text-align: right;
     }
   }
-
 }
 
 // Remove the bottom margin of the last <p> elements in markdown

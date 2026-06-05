@@ -147,6 +147,7 @@ nav:
             - UI Components: 'plugins/development/ui-components.md'
             - Navigation: 'plugins/development/navigation.md'
             - Templates: 'plugins/development/templates.md'
+            - Config Templates: 'plugins/development/config-templates.md'
             - Tables: 'plugins/development/tables.md'
             - Forms: 'plugins/development/forms.md'
             - Filters & Filter Sets: 'plugins/development/filtersets.md'
@@ -189,6 +190,8 @@ nav:
             - DataFile: 'models/core/datafile.md'
             - DataSource: 'models/core/datasource.md'
             - Job: 'models/core/job.md'
+            - ObjectChange: 'models/core/objectchange.md'
+            - ObjectType: 'models/core/objecttype.md'
         - DCIM:
             - Cable: 'models/dcim/cable.md'
             - CableBundle: 'models/dcim/cablebundle.md'
@@ -280,8 +283,12 @@ nav:
             - Tenant: 'models/tenancy/tenant.md'
             - TenantGroup: 'models/tenancy/tenantgroup.md'
         - Users:
+            - Group: 'models/users/group.md'
+            - ObjectPermission: 'models/users/objectpermission.md'
             - Owner: 'models/users/owner.md'
             - OwnerGroup: 'models/users/ownergroup.md'
+            - Token: 'models/users/token.md'
+            - User: 'models/users/user.md'
         - Virtualization:
             - Cluster: 'models/virtualization/cluster.md'
             - ClusterGroup: 'models/virtualization/clustergroup.md'

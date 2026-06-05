@@ -5,7 +5,6 @@
 
 // Object list tables
 table.object-list {
-
   // Hide border of last row
   tbody > tr:last-child > td {
     border-bottom-width: 0;
@@ -20,12 +19,10 @@ table.object-list {
     content: '\f0143';
     font-family: 'Material Design Icons';
   }
-
 }
 
 // Object attribute tables
 table.attr-table {
-
   // Restyle row header
   th {
     font-weight: $font-weight-base;
@@ -33,7 +30,8 @@ table.attr-table {
   }
 
   // Restyle row border
-  th, td {
+  th,
+  td {
     border-bottom-style: dashed;
   }
 
@@ -46,7 +44,6 @@ table.attr-table {
   td {
     overflow-wrap: anywhere;
   }
-
 }
 
 // Remove bottom margin from <pre> elements inside table cells
@@ -59,9 +56,10 @@ table th.orderable a {
   color: var(--#{$prefix}body-color);
 }
 
-html[data-bs-theme=dark] {
+html[data-bs-theme='dark'] {
   // Adjust table header background color
-  .table thead th, .markdown>table thead th {
+  .table thead th,
+  .markdown > table thead th {
     background: $rich-black !important;
   }
 }

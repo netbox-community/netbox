@@ -2,25 +2,25 @@ from tenancy.tables import *
 from utilities.testing import TableTestCases
 
 
-class TenantGroupTableTest(TableTestCases.StandardTableTestCase):
+class TenantGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = TenantGroupTable
 
 
-class TenantTableTest(TableTestCases.StandardTableTestCase):
+class TenantTableTestCase(TableTestCases.StandardTableTestCase):
     table = TenantTable
 
 
-class ContactGroupTableTest(TableTestCases.StandardTableTestCase):
+class ContactGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = ContactGroupTable
 
 
-class ContactRoleTableTest(TableTestCases.StandardTableTestCase):
+class ContactRoleTableTestCase(TableTestCases.StandardTableTestCase):
     table = ContactRoleTable
 
 
-class ContactTableTest(TableTestCases.StandardTableTestCase):
+class ContactTableTestCase(TableTestCases.StandardTableTestCase):
     table = ContactTable
 
 
-class ContactAssignmentTableTest(TableTestCases.StandardTableTestCase):
+class ContactAssignmentTableTestCase(TableTestCases.StandardTableTestCase):
     table = ContactAssignmentTable

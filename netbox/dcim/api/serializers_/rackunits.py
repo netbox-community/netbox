@@ -26,7 +26,12 @@ class RackUnitSerializer(serializers.Serializer):
     device = DeviceSerializer(nested=True, read_only=True)
     occupied = serializers.BooleanField(read_only=True)
     display = serializers.SerializerMethodField(read_only=True)
+    description = serializers.SerializerMethodField(read_only=True)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
         return obj['name']
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_description(self, obj):
+        return f'{obj["device"]}' if obj['device'] else None

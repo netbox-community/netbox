@@ -5,6 +5,9 @@ This section entails the installation and configuration of a local PostgreSQL da
 !!! warning "PostgreSQL 15 or later required"
     NetBox requires PostgreSQL 15 or later. Please note that MySQL and other relational databases are **not** supported.
 
+!!! warning "PostgreSQL 14 deprecation notice"
+    Support for PostgreSQL 14 is deprecated as of NetBox v4.6 and will be removed in NetBox v4.7. Please plan to upgrade to PostgreSQL 15 or later.
+
 ## Installation
 
 ```no-highlight

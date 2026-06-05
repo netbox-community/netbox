@@ -1,18 +1,19 @@
+import uuid
 from unittest.mock import PropertyMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import tag
 from django.urls import reverse
 
-from core.choices import ManagedFileRootPathChoices
+from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.events import *
-from core.models import ObjectType
+from core.models import Job, ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar
 from extras.scripts import Script as PythonClass
-from users.models import Group, User
+from users.models import Group, ObjectPermission, User
 from utilities.testing import TestCase, ViewTestCases
 
 
@@ -181,6 +182,27 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class CustomLinkRenderingTestCase(TestCase):
+    user_permissions = ['dcim.view_site']
+
+    def test_view_object_with_custom_link(self):
+        customlink = CustomLink(
+            name='Test',
+            link_text='FOO {{ object.name }} BAR',
+            link_url='http://example.com/?site={{ object.slug }}',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        response = self.client.get(site.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'FOO {site.name} BAR', str(response.content))
+
+
 class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = SavedFilter
 
@@ -252,6 +274,53 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class TableConfigTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.GetObjectChangelogViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    # Add/Edit/BulkEdit views require an object_type pre-context from the source
+    # table view, so they are not exercised here.
+    model = TableConfig
+
+    @classmethod
+    def setUpTestData(cls):
+        site_type = ObjectType.objects.get_for_model(Site)
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        table_configs = (
+            TableConfig(
+                name='Table Config 1',
+                object_type=site_type,
+                table='SiteTable',
+                user=users[0],
+                columns=['name', 'status'],
+            ),
+            TableConfig(
+                name='Table Config 2',
+                object_type=site_type,
+                table='SiteTable',
+                user=users[1],
+                columns=['name', 'region'],
+            ),
+            TableConfig(
+                name='Table Config 3',
+                object_type=site_type,
+                table='SiteTable',
+                user=users[2],
+                columns=['name', 'tenant'],
+            ),
+        )
+        TableConfig.objects.bulk_create(table_configs)
+
+
 class BookmarkTestCase(
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
@@ -298,6 +367,52 @@ class BookmarkTestCase(
 
     def test_list_objects_with_constrained_permission(self):
         return
+
+
+class ImageAttachmentTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    # Add/Edit/BulkEdit are omitted: ImageField.save() re-reads the file to
+    # populate image_height / image_width, which fails when fixtures use
+    # placeholder URLs instead of real images on disk.
+    model = ImageAttachment
+
+    @classmethod
+    def setUpTestData(cls):
+        ct = ContentType.objects.get_for_model(Site)
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        ImageAttachment.objects.bulk_create(
+            [
+                ImageAttachment(
+                    object_type=ct,
+                    object_id=site.pk,
+                    name='Image Attachment 1',
+                    image='http://example.com/image1.png',
+                    image_height=100,
+                    image_width=100,
+                ),
+                ImageAttachment(
+                    object_type=ct,
+                    object_id=site.pk,
+                    name='Image Attachment 2',
+                    image='http://example.com/image2.png',
+                    image_height=100,
+                    image_width=100,
+                ),
+                ImageAttachment(
+                    object_type=ct,
+                    object_id=site.pk,
+                    name='Image Attachment 3',
+                    image='http://example.com/image3.png',
+                    image_height=100,
+                    image_width=100,
+                ),
+            ]
+        )
 
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -347,6 +462,59 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'file_extension': 'html',
             'as_attachment': True,
         }
+
+
+class ExportTemplateExportFlowTestCase(TestCase):
+    """
+    End-to-end test for ExportTemplate invocation via a list view's ?export=<name> query param.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        Site.objects.bulk_create([
+            Site(name='Site A', slug='site-a'),
+            Site(name='Site B', slug='site-b'),
+        ])
+
+        site_type = ObjectType.objects.get_for_model(Site)
+
+        ok_template = ExportTemplate.objects.create(
+            name='Sites Export',
+            template_code='{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
+            mime_type='text/plain',
+            file_extension='txt',
+        )
+        ok_template.object_types.set([site_type])
+
+        broken_template = ExportTemplate.objects.create(
+            name='Broken Export',
+            template_code='{% for obj in queryset %}{{ obj.name ',  # unterminated expression
+        )
+        broken_template.object_types.set([site_type])
+
+    def test_export_template_invocation(self):
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
+        url = reverse('dcim:site_list')
+
+        response = self.client.get(f'{url}?export=Sites Export')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/plain')
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename="netbox_sites.txt"')
+        # The rendered queryset reflects whatever ordering the list view applies. Assert on set
+        # membership rather than line order so the test isn't coupled to Site's natural ordering.
+        rendered_names = set(filter(None, response.content.decode().split('\n')))
+        self.assertEqual(rendered_names, {'Site A', 'Site B'})
+
+    def test_export_template_render_error_redirects(self):
+        self.add_permissions('dcim.view_site', 'extras.view_exporttemplate')
+        url = reverse('dcim:site_list')
+
+        # A broken template surfaces an exception during render; the view catches it and redirects
+        # back to the (filtered) list view rather than returning a 500.
+        response = self.client.get(f'{url}?export=Broken Export')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].startswith(url))
+        self.assertNotIn('export=', response['Location'])
 
 
 class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -703,27 +871,6 @@ class JournalEntryTestCase(
         }
 
 
-class CustomLinkTest(TestCase):
-    user_permissions = ['dcim.view_site']
-
-    def test_view_object_with_custom_link(self):
-        customlink = CustomLink(
-            name='Test',
-            link_text='FOO {{ object.name }} BAR',
-            link_url='http://example.com/?site={{ object.slug }}',
-            new_window=False
-        )
-        customlink.save()
-        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
-
-        site = Site(name='Test Site', slug='test-site')
-        site.save()
-
-        response = self.client.get(site.get_absolute_url(), follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(f'FOO {site.name} BAR', str(response.content))
-
-
 class SubscriptionTestCase(
     ViewTestCases.CreateObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
@@ -887,7 +1034,7 @@ class NotificationTestCase(
         return
 
 
-class ScriptListViewTest(TestCase):
+class ScriptListViewTestCase(TestCase):
     user_permissions = ['extras.view_script']
 
     def test_script_list_embedded_parameter(self):
@@ -905,7 +1052,7 @@ class ScriptListViewTest(TestCase):
         self.assertTemplateUsed(response, 'extras/inc/script_list_content.html')
 
 
-class ScriptValidationErrorTest(TestCase):
+class ScriptValidationErrorTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptMixin:
@@ -936,13 +1083,13 @@ class ScriptValidationErrorTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptValidationErrorTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptValidationErrorTestCase.TestScriptClass)
 
     @tag('regression')
     def test_script_validation_error_displays_message(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
 
-        with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+        with patch('extras.views.any_workers_for_queue', return_value=True):
             response = self.client.post(url, {'debug_mode': 'true', '_commit': 'true'})
 
         self.assertEqual(response.status_code, 200)
@@ -967,7 +1114,7 @@ class ScriptValidationErrorTest(TestCase):
 
         with patch.object(Script, 'python_class', new_callable=PropertyMock) as mock_python_class:
             mock_python_class.return_value = FieldsetScript
-            with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+            with patch('extras.views.any_workers_for_queue', return_value=True):
                 response = self.client.post(url, {'required_field': '5', '_commit': 'true'})
 
         self.assertEqual(response.status_code, 200)
@@ -975,7 +1122,7 @@ class ScriptValidationErrorTest(TestCase):
         self.assertEqual(len(messages), 0)
 
 
-class ScriptDefaultValuesTest(TestCase):
+class ScriptDefaultValuesTestCase(TestCase):
     user_permissions = ['extras.view_script', 'extras.run_script']
 
     class TestScriptClass(PythonClass):
@@ -1005,12 +1152,12 @@ class ScriptDefaultValuesTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        Script.python_class = property(lambda self: ScriptDefaultValuesTest.TestScriptClass)
+        Script.python_class = property(lambda self: ScriptDefaultValuesTestCase.TestScriptClass)
 
     def test_default_values_are_used(self):
         url = reverse('extras:script', kwargs={'pk': self.script.pk})
 
-        with patch('extras.views.get_workers_for_queue', return_value=['worker']):
+        with patch('extras.views.any_workers_for_queue', return_value=True):
             with patch('extras.jobs.ScriptJob.enqueue') as mock_enqueue:
                 mock_enqueue.return_value.pk = 1
                 self.client.post(url, {})
@@ -1019,3 +1166,88 @@ class ScriptDefaultValuesTest(TestCase):
                 self.assertEqual(call_kwargs['data']['bool_default_false'], False)
                 self.assertEqual(call_kwargs['data']['int_with_default'], 0)
                 self.assertIsNone(call_kwargs['data']['int_without_default'])
+
+
+class ScriptResultViewTestCase(TestCase):
+    SECRET_OUTPUT = 'my secret script output'
+
+    @classmethod
+    def setUpTestData(cls):
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='test_script.py',
+            )
+        cls.allowed_script = Script.objects.create(
+            module=module, name='Allowed script', is_executable=True
+        )
+        cls.secret_script = Script.objects.create(
+            module=module, name='Secret script', is_executable=True
+        )
+
+        script_type = ObjectType.objects.get_for_model(Script)
+        cls.allowed_job = Job.objects.create(
+            object_type=script_type,
+            object_id=cls.allowed_script.pk,
+            name='allowed-job',
+            job_id=uuid.uuid4(),
+            status=JobStatusChoices.STATUS_COMPLETED,
+            data={'log': [], 'output': 'benign output'},
+        )
+        cls.secret_job = Job.objects.create(
+            object_type=script_type,
+            object_id=cls.secret_script.pk,
+            name='secret-job',
+            job_id=uuid.uuid4(),
+            status=JobStatusChoices.STATUS_COMPLETED,
+            data={'log': [], 'output': cls.SECRET_OUTPUT},
+        )
+
+    def test_get_without_view_job_permission_returns_404(self):
+        """
+        A user with extras.view_script but no core.view_job must not retrieve any job result
+        via ScriptResultView, even for the script whose object-level permission they hold.
+        """
+        self.add_permissions('extras.view_script')
+
+        url = reverse('extras:script_result', kwargs={'job_pk': self.allowed_job.pk})
+        self.assertHttpStatus(self.client.get(url), 404)
+
+        url = reverse('extras:script_result', kwargs={'job_pk': self.secret_job.pk})
+        self.assertHttpStatus(self.client.get(url), 404)
+
+    def test_get_export_output_without_view_job_permission_returns_404(self):
+        """
+        Regression for the PoC: the ?export=output path must not leak job.data['output']
+        when the user lacks core.view_job.
+        """
+        self.add_permissions('extras.view_script')
+
+        url = reverse('extras:script_result', kwargs={'job_pk': self.secret_job.pk})
+        response = self.client.get(url, {'export': 'output'})
+
+        self.assertHttpStatus(response, 404)
+        self.assertNotIn(self.SECRET_OUTPUT.encode(), response.content)
+
+    def test_get_with_constrained_view_job_permission(self):
+        """
+        With core.view_job constrained to the allowed job only, the user can fetch the allowed
+        result but the secret result is hidden (404).
+        """
+        self.add_permissions('extras.view_script')
+        obj_perm = ObjectPermission(
+            name='View allowed job only',
+            constraints={'pk': self.allowed_job.pk},
+            actions=['view'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Job))
+
+        url = reverse('extras:script_result', kwargs={'job_pk': self.allowed_job.pk})
+        self.assertHttpStatus(self.client.get(url), 200)
+
+        url = reverse('extras:script_result', kwargs={'job_pk': self.secret_job.pk})
+        response = self.client.get(url, {'export': 'output'})
+        self.assertHttpStatus(response, 404)
+        self.assertNotIn(self.SECRET_OUTPUT.encode(), response.content)

@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="markdown-widget">
-  <ul class="nav nav-pills mb-1">
+  <ul class="nav nav-pills mb-1" role="tablist" aria-label="{% trans "Markdown editor mode" %}">
     <li class="nav-item" role="presentation">
       <button class="nav-link active " id="{{ widget.name }}-input-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-input" type="button" role="tab" aria-controls="{{ widget.name }}-input" aria-selected="true">
         {% trans "Write" %}
@@ -17,7 +17,7 @@
       {% include "django/forms/widgets/textarea.html" %}
     </div>
     <div class="tab-pane show" id="{{ widget.name }}-markdown-preview" role="tabpanel" aria-labelledby="{{ widget.name }}-markdown-preview-tab">
-      <div id="{{ widget.name }}-preview" class="preview px-3 py-2 border-1"></div>
+      <div id="{{ widget.name }}-preview" class="preview px-3 py-2 border-1" aria-live="polite"></div>
     </div>
   </div>
 </div>

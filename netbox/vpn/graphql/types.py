@@ -145,7 +145,7 @@ class L2VPNType(ContactsMixin, PrimaryObjectType):
 class L2VPNTerminationType(NetBoxObjectType):
     l2vpn: Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='assigned_object')
     def assigned_object(self) -> Annotated[
         Annotated['InterfaceType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['VLANType', strawberry.lazy('ipam.graphql.types')]

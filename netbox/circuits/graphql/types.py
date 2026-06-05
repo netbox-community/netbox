@@ -74,7 +74,7 @@ class ProviderNetworkType(PrimaryObjectType):
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
     circuit: Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='termination')
     def termination(self) -> Annotated[
         Annotated['LocationType', strawberry.lazy('dcim.graphql.types')]
         | Annotated['RegionType', strawberry.lazy('dcim.graphql.types')]
@@ -133,7 +133,7 @@ class CircuitGroupType(OrganizationalObjectType):
 class CircuitGroupAssignmentType(TagsMixin, BaseObjectType):
     group: Annotated['CircuitGroupType', strawberry.lazy('circuits.graphql.types')]
 
-    @strawberry_django.field
+    @strawberry_django.field(prefetch_related='member')
     def member(self) -> Annotated[
         Annotated['CircuitType', strawberry.lazy('circuits.graphql.types')]
         | Annotated['VirtualCircuitType', strawberry.lazy('circuits.graphql.types')],

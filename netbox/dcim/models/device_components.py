@@ -1313,6 +1313,29 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
+class ModuleBayManager(TreeManager):
+    """
+    Order ModuleBays by the natural-sort name of each tree's root, then by MPTT
+    left value within the tree. Combined with the root-insert bypass in
+    ModuleBay.save(), this lets us keep MPTTMeta.order_insertion_by for cheap
+    intra-tree sibling placement while skipping the global tree_id renumbering
+    it would otherwise perform on every root insert.
+    """
+    def get_queryset(self, *args, **kwargs):
+        # Use the raw manager to avoid recursing through this get_queryset() when
+        # building the annotation subquery.
+        root_name = self.model._objects_raw.filter(
+            tree_id=models.OuterRef('tree_id'),
+            level=0,
+        ).values('name')[:1]
+        return super().get_queryset(*args, **kwargs).annotate(
+            _root_name=models.Subquery(
+                root_name,
+                output_field=models.CharField(db_collation='natural_sort'),
+            )
+        ).order_by('_root_name', 'lft')
+
+
 class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
     """
     An empty space within a Device which can house a child device
@@ -1337,7 +1360,10 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         default=True,
     )
 
-    objects = TreeManager()
+    objects = ModuleBayManager()
+    # Plain TreeManager used by ModuleBayManager to build the _root_name subquery
+    # without recursing through our annotated get_queryset().
+    _objects_raw = TreeManager()
 
     clone_fields = ('device', 'enabled')
 
@@ -1355,6 +1381,9 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         verbose_name_plural = _('module bays')
 
     class MPTTMeta:
+        # Used for placing siblings within a single tree at insert time. Costs
+        # are bounded to that tree's rows. Cross-tree (root) insertion is
+        # handled in save() to avoid the O(N) tree_id shift this would trigger.
         order_insertion_by = ('name',)
 
     def clean(self):
@@ -1376,6 +1405,36 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
             self.parent = self.module.module_bay
         else:
             self.parent = None
+        opts = self._mptt_meta
+        # For new root nodes, allocate the next tree_id and pre-set MPTT fields
+        # so super().save() skips MPTT's order_insertion_by-driven insertion
+        # path. That path would otherwise UPDATE every later tree_id on each
+        # root insert (NB-2800). Children still go through MPTT, which keeps
+        # siblings in name order via the same order_insertion_by setting.
+        if self._state.adding and self.parent_id is None and not self.lft and not self.rght:
+            max_tree_id = ModuleBay._objects_raw.aggregate(
+                models.Max('tree_id')
+            )['tree_id__max'] or 0
+            self.tree_id = max_tree_id + 1
+            self.lft = 1
+            self.rght = 2
+            self.level = 0
+        elif (
+            not self._state.adding
+            and self.parent_id is None
+            and self._mptt_cached_fields.get(opts.parent_attr) is None
+        ):
+            # Existing root being updated. Spoof the cached order_insertion_by
+            # values so MPTT's same_order check passes and it skips its reorder
+            # path, which would UPDATE every later tree_id on each root rename.
+            # ModuleBayManager._root_name recovers display order at query time,
+            # so the tree_id reshuffling would be wasted work. Child renames
+            # and root<->child transitions intentionally fall through to MPTT.
+            for field_name in opts.order_insertion_by:
+                field_name = field_name.lstrip('-')
+                self._mptt_cached_fields[field_name] = opts.get_raw_field_value(
+                    self, field_name
+                )
         super().save(*args, **kwargs)
 
     @property

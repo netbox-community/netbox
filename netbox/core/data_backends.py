@@ -1,9 +1,8 @@
 import logging
-import os
 import re
 import tempfile
 from contextlib import contextmanager
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
 from django import forms
@@ -171,6 +170,7 @@ class S3Backend(DataBackend):
         import boto3
 
         local_path = tempfile.TemporaryDirectory()
+        local_root = Path(local_path.name).resolve()
 
         # Initialize the S3 resource and bucket
         aws_access_key_id = self.params.get('aws_access_key_id')
@@ -185,16 +185,31 @@ class S3Backend(DataBackend):
         )
         bucket = s3.Bucket(self._bucket_name)
 
-        # Download all files within the specified path
-        for obj in bucket.objects.filter(Prefix=self._remote_path):
-            local_filename = os.path.join(local_path.name, obj.key)
-            # Build local path
-            Path(os.path.dirname(local_filename)).mkdir(parents=True, exist_ok=True)
-            bucket.download_file(obj.key, local_filename)
+        try:
+            # Download all files within the specified path
+            for obj in bucket.objects.filter(Prefix=self._remote_path):
+                local_filename = self._resolve_local_path(local_root, obj.key)
+                # Build local path
+                local_filename.parent.mkdir(parents=True, exist_ok=True)
+                bucket.download_file(obj.key, str(local_filename))
 
-        yield local_path.name
+            yield local_path.name
+        finally:
+            local_path.cleanup()
 
-        local_path.cleanup()
+    @staticmethod
+    def _resolve_local_path(local_root, key):
+        # S3 object keys are POSIX-style paths. Strip any leading separator so the key
+        # joins onto the temp directory rather than replacing it, then ensure the
+        # resolved destination remains within the temp directory to prevent path
+        # traversal via crafted object keys.
+        key_parts = PurePosixPath(key.lstrip('/')).parts
+        local_filename = local_root.joinpath(*key_parts).resolve()
+        if not local_filename.is_relative_to(local_root) or local_filename == local_root:
+            raise SyncError(
+                _("Invalid S3 object key '{key}': resolves outside of the local data directory").format(key=key)
+            )
+        return local_filename
 
     @property
     def _region_name(self):

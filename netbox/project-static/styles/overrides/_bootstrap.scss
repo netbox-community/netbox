@@ -11,7 +11,9 @@ mark {
 
 // Prevent dropdown menus from being clipped inside responsive tables
 .table-responsive {
-  .dropdown, .btn-group, .btn-group-vertical {
+  .dropdown,
+  .btn-group,
+  .btn-group-vertical {
     position: static;
   }
 }

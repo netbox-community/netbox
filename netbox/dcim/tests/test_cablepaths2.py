@@ -4,10 +4,10 @@ from circuits.models import CircuitTermination
 from dcim.choices import CableProfileChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from dcim.tests.utils import CablePathTestCase
+from dcim.tests.utils import BaseCablePathTestCase
 
 
-class CablePathTests(CablePathTestCase):
+class CablePathTestCase(BaseCablePathTestCase):
     """
     Test the creation of CablePaths for Cables with different profiles applied.
 
@@ -1856,6 +1856,103 @@ class CablePathTests(CablePathTestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 4)
+
+    def test_225_breakout_1c2p_2c1p_to_single_position_passthroughs(self):
+        """
+        Regression test for #22187: a 1C2P:2C1P breakout cable terminating on two
+        single-position FrontPorts (each mapping 1:1 to a single-position RearPort)
+        which are then connected to PathEndpoints via unprofiled cables.
+
+        [IF1] --C1 (1C2P:2C1P)-- [FP1] [RP1] --C2 (unprofiled)-- [IF2]
+                                 [FP2] [RP2] --C3 (unprofiled)-- [IF3]
+        """
+        interfaces = [
+            Interface.objects.create(device=self.device, name='Interface 1'),
+            Interface.objects.create(device=self.device, name='Interface 2'),
+            Interface.objects.create(device=self.device, name='Interface 3'),
+        ]
+        rear_ports = [
+            RearPort.objects.create(device=self.device, name='Rear Port 1'),
+            RearPort.objects.create(device=self.device, name='Rear Port 2'),
+        ]
+        front_ports = [
+            FrontPort.objects.create(device=self.device, name='Front Port 1'),
+            FrontPort.objects.create(device=self.device, name='Front Port 2'),
+        ]
+        PortMapping.objects.bulk_create([
+            PortMapping(
+                device=self.device,
+                front_port=front_ports[0],
+                front_port_position=1,
+                rear_port=rear_ports[0],
+                rear_port_position=1,
+            ),
+            PortMapping(
+                device=self.device,
+                front_port=front_ports[1],
+                front_port_position=1,
+                rear_port=rear_ports[1],
+                rear_port_position=1,
+            ),
+        ])
+
+        # Create cables
+        cable1 = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C2P_2C1P,
+            a_terminations=[interfaces[0]],
+            b_terminations=[front_ports[0], front_ports[1]],
+        )
+        cable1.clean()
+        cable1.save()
+        cable2 = Cable(
+            a_terminations=[rear_ports[0]],
+            b_terminations=[interfaces[1]],
+        )
+        cable2.clean()
+        cable2.save()
+        cable3 = Cable(
+            a_terminations=[rear_ports[1]],
+            b_terminations=[interfaces[2]],
+        )
+        cable3.clean()
+        cable3.save()
+
+        # The breakout splits IF1's two positions into separate downstream cables,
+        # so the forward path has FP1/FP2, RP1/RP2, and the two unprofiled cables
+        # at the corresponding hops.
+        path1 = self.assertPathExists(
+            (
+                interfaces[0],
+                cable1,
+                [front_ports[0], front_ports[1]],
+                [rear_ports[0], rear_ports[1]],
+                [cable2, cable3],
+                [interfaces[1], interfaces[2]],
+            ),
+            is_complete=True,
+            is_active=True,
+        )
+        path2 = self.assertPathExists(
+            (interfaces[1], cable2, rear_ports[0], front_ports[0], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True,
+        )
+        path3 = self.assertPathExists(
+            (interfaces[2], cable3, rear_ports[1], front_ports[1], cable1, interfaces[0]),
+            is_complete=True,
+            is_active=True,
+        )
+        self.assertEqual(CablePath.objects.count(), 3)
+        for interface in interfaces:
+            interface.refresh_from_db()
+        self.assertPathIsSet(interfaces[0], path1)
+        self.assertPathIsSet(interfaces[1], path2)
+        self.assertPathIsSet(interfaces[2], path3)
+
+        # Test SVG generation from both directions
+        CableTraceSVG(interfaces[0]).render()
+        CableTraceSVG(interfaces[1]).render()
+        CableTraceSVG(interfaces[2]).render()
 
     def test_304_add_port_mapping_between_connected_ports(self):
         """

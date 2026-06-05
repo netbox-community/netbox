@@ -150,7 +150,7 @@ class Command(BaseCommand):
         try:
             import readline
             import rlcompleter
-        except ModuleNotFoundError:
+        except ModuleNotFoundError:  # pragma: no cover
             pass
         else:
             readline.set_completer(rlcompleter.Completer(namespace).complete)

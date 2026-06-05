@@ -3,7 +3,7 @@ from django.test import TestCase
 from dcim.models import Site
 
 
-class NaturalOrderByManagerTest(TestCase):
+class NaturalOrderByManagerTestCase(TestCase):
     """
     Ensure consistent natural ordering given myriad sample data. We use dcim.Site as our guinea pig because it's simple.
     """

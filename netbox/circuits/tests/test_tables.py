@@ -2,45 +2,45 @@ from circuits.tables import *
 from utilities.testing import TableTestCases
 
 
-class CircuitTypeTableTest(TableTestCases.StandardTableTestCase):
+class CircuitTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = CircuitTypeTable
 
 
-class CircuitTableTest(TableTestCases.StandardTableTestCase):
+class CircuitTableTestCase(TableTestCases.StandardTableTestCase):
     table = CircuitTable
 
 
-class CircuitTerminationTableTest(TableTestCases.StandardTableTestCase):
+class CircuitTerminationTableTestCase(TableTestCases.StandardTableTestCase):
     table = CircuitTerminationTable
 
 
-class CircuitGroupTableTest(TableTestCases.StandardTableTestCase):
+class CircuitGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = CircuitGroupTable
 
 
-class CircuitGroupAssignmentTableTest(TableTestCases.StandardTableTestCase):
+class CircuitGroupAssignmentTableTestCase(TableTestCases.StandardTableTestCase):
     table = CircuitGroupAssignmentTable
 
 
-class ProviderTableTest(TableTestCases.StandardTableTestCase):
+class ProviderTableTestCase(TableTestCases.StandardTableTestCase):
     table = ProviderTable
 
 
-class ProviderAccountTableTest(TableTestCases.StandardTableTestCase):
+class ProviderAccountTableTestCase(TableTestCases.StandardTableTestCase):
     table = ProviderAccountTable
 
 
-class ProviderNetworkTableTest(TableTestCases.StandardTableTestCase):
+class ProviderNetworkTableTestCase(TableTestCases.StandardTableTestCase):
     table = ProviderNetworkTable
 
 
-class VirtualCircuitTypeTableTest(TableTestCases.StandardTableTestCase):
+class VirtualCircuitTypeTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualCircuitTypeTable
 
 
-class VirtualCircuitTableTest(TableTestCases.StandardTableTestCase):
+class VirtualCircuitTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualCircuitTable
 
 
-class VirtualCircuitTerminationTableTest(TableTestCases.StandardTableTestCase):
+class VirtualCircuitTerminationTableTestCase(TableTestCases.StandardTableTestCase):
     table = VirtualCircuitTerminationTable

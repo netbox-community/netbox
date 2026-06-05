@@ -68,7 +68,7 @@ class Command(BaseCommand):
                 'info': logging.INFO,
                 'warning': logging.WARNING,
             }[loglevel])
-        except KeyError:
+        except KeyError:  # pragma: no cover
             raise CommandError(f"Invalid log level: {loglevel}")
 
         # Initialize the script form

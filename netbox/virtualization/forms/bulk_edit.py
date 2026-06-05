@@ -11,7 +11,7 @@ from ipam.models import VLAN, VRF, VLANGroup, VLANTranslationPolicy
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from netbox.forms.mixins import OwnerMixin
 from tenancy.models import Tenant
-from utilities.forms import BulkRenameForm, add_blank_choice
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import get_capacity_unit_label
@@ -25,9 +25,7 @@ __all__ = (
     'ClusterGroupBulkEditForm',
     'ClusterTypeBulkEditForm',
     'VMInterfaceBulkEditForm',
-    'VMInterfaceBulkRenameForm',
     'VirtualDiskBulkEditForm',
-    'VirtualDiskBulkRenameForm',
     'VirtualMachineBulkEditForm',
     'VirtualMachineTypeBulkEditForm',
 )
@@ -343,13 +341,6 @@ class VMInterfaceBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
             self.fields['bridge'].widget.attrs['disabled'] = True
 
 
-class VMInterfaceBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VMInterface.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )
-
-
 class VirtualDiskBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
         label=_('Virtual machine'),
@@ -379,10 +370,3 @@ class VirtualDiskBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
 
         # Set unit label based on configured DISK_BASE_UNIT (MB vs MiB)
         self.fields['size'].label = _('Size ({unit})').format(unit=get_capacity_unit_label(settings.DISK_BASE_UNIT))
-
-
-class VirtualDiskBulkRenameForm(BulkRenameForm):
-    pk = forms.ModelMultipleChoiceField(
-        queryset=VirtualDisk.objects.all(),
-        widget=forms.MultipleHiddenInput()
-    )

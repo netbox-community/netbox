@@ -605,11 +605,12 @@ class IPRange(ContactsMixin, PrimaryModel):
                     'end_address': _("Starting and ending IP address masks must match")
                 })
 
-            # Check that the ending address is greater than the starting address
-            if not self.end_address > self.start_address:
+            # Equal start/end addresses are permitted for single-address ranges.
+            # Use .ip (host portion) rather than the IPNetwork object to avoid comparing prefix lengths again.
+            if self.end_address.ip < self.start_address.ip:
                 raise ValidationError({
                     'end_address': _(
-                        "Ending address must be greater than the starting address ({start_address})"
+                        "Ending address must be greater than or equal to the starting address ({start_address})"
                     ).format(start_address=self.start_address)
                 })
 
@@ -677,6 +678,10 @@ class IPRange(ContactsMixin, PrimaryModel):
         """
         Return an efficient string representation of the IP range.
         """
+        # Single-address ranges render both endpoints to stay distinct from IPAddress rows.
+        if self.start_address.ip == self.end_address.ip:
+            return f'{self.start_address.ip}-{self.end_address.ip}/{self.start_address.prefixlen}'
+
         separator = ':' if self.family == 6 else '.'
         start_chunks = str(self.start_address.ip).split(separator)
         end_chunks = str(self.end_address.ip).split(separator)

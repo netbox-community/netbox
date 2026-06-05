@@ -73,6 +73,18 @@ PREFERENCES = {
         description=_('Render table rows with alternating colors to increase readability'),
     ),
 
+    # Measurements
+    'ui.measurement_system': UserPreference(
+        label=_('Measurement units'),
+        choices=(
+            ('', _('Inherited')),
+            ('metric', _('Metric')),
+            ('imperial', _('Imperial')),
+        ),
+        default='',
+        description=_('Preferred unit system for displaying weight and distance measurements'),
+    ),
+
     # Miscellaneous
     'data_format': UserPreference(
         label=_('Data format'),

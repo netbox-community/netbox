@@ -1,17 +1,19 @@
 import uuid
 
+from django.db.backends.postgresql.psycopg_any import NumericRange
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 
 from netbox.api.exceptions import QuerySetNotOrdered
+from netbox.api.fields import IntegerRangeSerializer
 from netbox.api.pagination import NetBoxPagination
 from users.models import Token
 from utilities.testing import APITestCase
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_http_headers(self):
         response = self.client.get(reverse('api-root'), **self.header)
@@ -46,7 +48,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.data['id'], self.user.pk)
 
 
-class NetBoxPaginationTest(TestCase):
+class NetBoxPaginationTestCase(TestCase):
 
     def setUp(self):
         self.paginator = NetBoxPagination()
@@ -111,3 +113,44 @@ class NetBoxPaginationTest(TestCase):
         request = self._make_drf_request(query_params={'start': '1', 'ordering': 'created'})
         with self.assertRaises(ValidationError):
             self.paginator.paginate_queryset(queryset, request)
+
+
+class IntegerRangeSerializerTestCase(TestCase):
+
+    def test_to_representation_emits_inclusive_bounds_for_non_canonical_range(self):
+        """A NumericRange with bounds='[]' must serialize to its inclusive (lower, upper) pair."""
+        serializer = IntegerRangeSerializer()
+        self.assertEqual(
+            serializer.to_representation(NumericRange(100, 199, bounds='[]')),
+            (100, 199)
+        )
+        self.assertEqual(
+            serializer.to_representation(NumericRange(100, 200, bounds='[)')),
+            (100, 199)
+        )
+
+    def test_to_internal_value_produces_canonical_half_open_range(self):
+        """An inclusive [lo, hi] pair is normalized to NumericRange(lo, hi+1, '[)')."""
+        serializer = IntegerRangeSerializer()
+        self.assertEqual(
+            serializer.to_internal_value([100, 199]),
+            NumericRange(100, 200, bounds='[)')
+        )
+
+    def test_to_internal_value_rejects_malformed_input(self):
+        """Input must be a two-element list or tuple of ints."""
+        serializer = IntegerRangeSerializer()
+        with self.assertRaises(ValidationError):
+            serializer.to_internal_value('100-200')
+        with self.assertRaises(ValidationError):
+            serializer.to_internal_value([100])
+        with self.assertRaises(ValidationError):
+            serializer.to_internal_value([100, 200, 300])
+
+    def test_to_internal_value_rejects_non_integer_bounds(self):
+        """Range boundaries must be integers, not strings or floats."""
+        serializer = IntegerRangeSerializer()
+        with self.assertRaises(ValidationError):
+            serializer.to_internal_value(['100', '200'])
+        with self.assertRaises(ValidationError):
+            serializer.to_internal_value([100.5, 200.5])

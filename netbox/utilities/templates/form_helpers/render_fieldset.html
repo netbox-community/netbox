@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load form_helpers %}
-<div class="field-group mb-5"{% if fieldset_id %} id="{{ fieldset_id }}"{% endif %}>
+<div class="field-group mb-5"{% if fieldset_id %} id="{{ fieldset_id }}"{% endif %}{% if heading %} role="group" aria-label="{{ heading }}"{% endif %}>
   {% if heading %}
     <div class="row">
       <h2 class="col-9 offset-3">{{ heading }}</h2>
@@ -25,14 +25,14 @@
 
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
-      <div class="row mb-3">
-        <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
+      <div class="row mb-3"{% if title %} role="group" aria-label="{{ title }}"{% endif %}>
+        <label class="col col-3 col-form-label text-lg-end{% if items|any_required %} required{% endif %}">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1">
-            {{ field }}
-            <div class="form-text">{% trans field.label %}</div>
+            {% render_field_with_aria field has_helptext=True %}
+            <div class="form-text" id="{{ field.auto_id }}_helptext">{% trans field.label %}</div>
             {% if field.errors %}
-              <div class="form-text text-danger">
+              <div class="form-text text-danger" id="{{ field.auto_id }}_errors" role="alert">
                 {% for error in field.errors %}{{ error }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
               </div>
             {% endif %}
@@ -47,7 +47,7 @@
           <ul class="nav nav-pills mb-1" role="tablist">
             {% for tab in items %}
               <li role="presentation" class="nav-item">
-                <button role="tab" type="button" id="{{ tab.id }}_tab" data-bs-toggle="tab" aria-controls="{{ tab.id }}" data-bs-target="#{{ tab.id }}" class="nav-link {% if tab.active %}active{% endif %}">
+                <button role="tab" type="button" id="{{ tab.id }}_tab" data-bs-toggle="tab" aria-controls="{{ tab.id }}" aria-selected="{% if tab.active %}true{% else %}false{% endif %}" data-bs-target="#{{ tab.id }}" class="nav-link {% if tab.active %}active{% endif %}">
                   {% trans tab.title %}
                 </button>
               </li>
@@ -57,7 +57,7 @@
       </div>
       <div class="tab-content p-0 border-0">
         {% for tab in items %}
-          <div class="tab-pane {% if tab.active %}active{% endif %}" id="{{ tab.id }}" role="tabpanel" aria-labeled-by="{{ tab.id }}_tab">
+          <div class="tab-pane {% if tab.active %}active{% endif %}" id="{{ tab.id }}" role="tabpanel" aria-labelledby="{{ tab.id }}_tab">
             {% for field in tab.fields %}
               {% render_field field %}
             {% endfor %}

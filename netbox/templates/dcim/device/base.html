@@ -20,7 +20,7 @@
             <button id="add-components" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Components" %}
             </button>
-            <ul class="dropdown-menu" aria-labeled-by="add-components">
+            <ul class="dropdown-menu" aria-labelledby="add-components">
                 {% if perms.dcim.add_consoleport %}
                     <li><a class="dropdown-item" href="{% url 'dcim:consoleport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.pk %}">{% trans "Console Ports" %}</a></li>
                 {% endif %}

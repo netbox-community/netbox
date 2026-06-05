@@ -1,0 +1,22 @@
+{
+  "ikepolicy:api_list_objects": 14,
+  "ikepolicy:list_objects_with_permission": 21,
+  "ikeproposal:api_list_objects": 13,
+  "ikeproposal:list_objects_with_permission": 20,
+  "ipsecpolicy:api_list_objects": 14,
+  "ipsecpolicy:list_objects_with_permission": 21,
+  "ipsecprofile:api_list_objects": 15,
+  "ipsecprofile:list_objects_with_permission": 22,
+  "ipsecproposal:api_list_objects": 13,
+  "ipsecproposal:list_objects_with_permission": 20,
+  "l2vpn:api_list_objects": 15,
+  "l2vpn:list_objects_with_permission": 20,
+  "l2vpntermination:api_list_objects": 16,
+  "l2vpntermination:list_objects_with_permission": 25,
+  "tunnel:api_list_objects": 14,
+  "tunnel:list_objects_with_permission": 21,
+  "tunnelgroup:api_list_objects": 13,
+  "tunnelgroup:list_objects_with_permission": 20,
+  "tunneltermination:api_list_objects": 18,
+  "tunneltermination:list_objects_with_permission": 28
+}

@@ -38,7 +38,7 @@ from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
-from utilities.rqworker import get_workers_for_queue
+from utilities.rqworker import any_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_action_url, register_model_view
 from virtualization.models import VirtualMachine
@@ -1729,7 +1729,7 @@ class ScriptView(BaseScriptView):
         form = script_class.as_form(post_data, request.FILES)
 
         # Allow execution only if RQ worker process is running
-        if not get_workers_for_queue('default'):
+        if not any_workers_for_queue('default'):
             messages.error(request, _("Unable to run script: RQ worker process not running."))
         elif form.is_valid():
             ScriptJob = import_string("extras.jobs.ScriptJob")
@@ -1803,6 +1803,9 @@ class ScriptResultView(TableMixin, generic.ObjectView):
     def get_required_permission(self):
         return 'extras.view_script'
 
+    def get_queryset(self, request):
+        return Job.objects.restrict(request.user, 'view')
+
     def get_table(self, job, request, bulk_actions=True):
         data = []
         tests = None
@@ -1863,7 +1866,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
 
     def get(self, request, **kwargs):
         table = None
-        job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
+        job = get_object_or_404(self.queryset, pk=kwargs.get('job_pk'))
 
         # If a direct export output has been requested, return the job data content as a
         # downloadable file.

@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase
 
 from circuits.models import Circuit, CircuitTermination, CircuitType, Provider, ProviderNetwork
@@ -146,3 +148,21 @@ class CircuitTerminationTestCase(TestCase):
 
         # Cache should be cleared (SET_NULL behavior)
         self.assertIsNone(self.circuits[0].termination_a)
+
+    def test_termination_required_when_termination_type_is_selected(self):
+        """Model rejects type-without-target before generic GFK validation hits termination_id."""
+        provider_network_type = ContentType.objects.get_for_model(ProviderNetwork)
+
+        termination = CircuitTermination(
+            circuit=self.circuits[0],
+            term_side='A',
+            termination_type=provider_network_type,
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            termination.full_clean()
+
+        errors = cm.exception.message_dict
+        self.assertIn(NON_FIELD_ERRORS, errors)
+        self.assertIn('Please select a Provider Network.', errors[NON_FIELD_ERRORS])
+        self.assertNotIn('termination_id', errors)

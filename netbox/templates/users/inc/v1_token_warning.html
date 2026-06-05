@@ -1,0 +1,17 @@
+{% load i18n %}
+<div id="v1-deprecation-warning" class="alert alert-warning bg-warning-subtle mx-3 my-2" role="alert" style="display: none;">
+  <div class="d-flex">
+    <div>
+      <i class="mdi mdi-alert p-2"></i>
+    </div>
+    <div>
+      <h4 class="alert-title">{% trans "v1 API Tokens Are Deprecated" %}</h4>
+      <div class="text-secondary">
+        {% blocktrans trimmed %}
+          v1 API tokens are deprecated and will be removed in a future NetBox release.
+          Please use v2 tokens instead.
+        {% endblocktrans %}
+      </div>
+    </div>
+  </div>
+</div>

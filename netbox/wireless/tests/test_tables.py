@@ -2,13 +2,13 @@ from utilities.testing import TableTestCases
 from wireless.tables import *
 
 
-class WirelessLANGroupTableTest(TableTestCases.StandardTableTestCase):
+class WirelessLANGroupTableTestCase(TableTestCases.StandardTableTestCase):
     table = WirelessLANGroupTable
 
 
-class WirelessLANTableTest(TableTestCases.StandardTableTestCase):
+class WirelessLANTableTestCase(TableTestCases.StandardTableTestCase):
     table = WirelessLANTable
 
 
-class WirelessLinkTableTest(TableTestCases.StandardTableTestCase):
+class WirelessLinkTableTestCase(TableTestCases.StandardTableTestCase):
     table = WirelessLinkTable

@@ -690,7 +690,8 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
     )
     local_context_data = JSONField(
         required=False,
-        label=''
+        label='',
+        widget=forms.Textarea(attrs={'aria-label': _('Local config context data')})
     )
     virtual_chassis = DynamicModelChoiceField(
         label=_('Virtual chassis'),

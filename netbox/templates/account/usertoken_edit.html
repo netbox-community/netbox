@@ -1,6 +1,28 @@
 {% extends 'generic/object_edit.html' %}
 {% load i18n %}
 
+{% block content %}
+  {% include 'users/inc/v1_token_warning.html' %}
+  {{ block.super }}
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+<script>
+  (function () {
+    const versionField = document.getElementById('id_version');
+    const v1Warning = document.getElementById('v1-deprecation-warning');
+    if (versionField && v1Warning) {
+      function updateV1Warning() {
+        v1Warning.style.display = versionField.value === '1' ? '' : 'none';
+      }
+      versionField.addEventListener('change', updateV1Warning);
+      updateV1Warning();
+    }
+  })();
+</script>
+{% endblock javascript %}
+
 {% block buttons %}
   {# Omit the "Create & Add Another" button: that flow would redirect away from the detail page before the #}
   {# one-time plaintext can be displayed, leaving the new token unrecoverable. #}

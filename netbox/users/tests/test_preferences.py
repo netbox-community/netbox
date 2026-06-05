@@ -15,7 +15,7 @@ DEFAULT_USER_PREFERENCES = {
 }
 
 
-class UserPreferencesTest(TestCase):
+class UserPreferencesTestCase(TestCase):
     user_permissions = ['dcim.view_site']
 
     def test_userpreference(self):

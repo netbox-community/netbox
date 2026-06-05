@@ -24,7 +24,7 @@
   </h2>
   {% if termination %}
     <table class="table table-hover attr-table">
-      {% include 'circuits/inc/circuit_termination_fields.html' with termination=termination %}
+      {% include 'circuits/inc/circuit_termination_fields.html' with termination=termination termination_nodes=termination_nodes %}
       <tr>
         <th scope="row">{% trans "Tags" %}</th>
         <td>

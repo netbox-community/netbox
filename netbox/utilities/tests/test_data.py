@@ -5,6 +5,8 @@ from utilities.data import (
     check_ranges_overlap,
     deep_compare_dict,
     get_config_value_ci,
+    get_inclusive_integer_range_bounds,
+    normalize_integer_range,
     ranges_to_string,
     ranges_to_string_list,
     string_to_ranges,
@@ -52,6 +54,54 @@ class RangeFunctionsTestCase(TestCase):
                 NumericRange(10, 21, bounds='[)'),  # 10-20
                 NumericRange(20, 31, bounds='[)'),  # 10-30
             ])
+        )
+
+    def test_check_ranges_overlap_does_not_mutate_input(self):
+        """Verify check_ranges_overlap does not reorder the caller's list."""
+        ranges = [
+            NumericRange(10, 20, bounds='[)'),
+            NumericRange(1, 5, bounds='[)'),
+        ]
+        expected = [
+            NumericRange(10, 20, bounds='[)'),
+            NumericRange(1, 5, bounds='[)'),
+        ]
+        check_ranges_overlap(ranges)
+        self.assertEqual(ranges, expected)
+
+    def test_check_ranges_overlap_with_non_canonical_bounds(self):
+        # Both ranges share raw .lower=1 but different inclusive lowers (2 vs. 1).
+        # The pre-fix sort key (raw .lower) would order them as written and report
+        # a false overlap; sorting by inclusive lower catches this.
+        self.assertFalse(check_ranges_overlap([
+            NumericRange(1, 10, bounds='(]'),  # 2-10
+            NumericRange(1, 1, bounds='[]'),   # 1
+        ]))
+
+        self.assertTrue(check_ranges_overlap([
+            NumericRange(1, 10, bounds='(]'),  # 2-10
+            NumericRange(2, 2, bounds='[]'),   # 2
+        ]))
+
+    def test_get_inclusive_integer_range_bounds(self):
+        self.assertEqual(get_inclusive_integer_range_bounds(NumericRange(10, 20, bounds='[)')), (10, 19))
+        self.assertEqual(get_inclusive_integer_range_bounds(NumericRange(10, 20, bounds='[]')), (10, 20))
+        self.assertEqual(get_inclusive_integer_range_bounds(NumericRange(10, 20, bounds='(]')), (11, 20))
+        self.assertEqual(get_inclusive_integer_range_bounds(NumericRange(10, 20, bounds='()')), (11, 19))
+        self.assertEqual(get_inclusive_integer_range_bounds(NumericRange(10, 10, bounds='[]')), (10, 10))
+
+    def test_normalize_integer_range(self):
+        self.assertEqual(
+            normalize_integer_range(NumericRange(10, 20, bounds='[)')),
+            NumericRange(10, 20, bounds='[)')
+        )
+        self.assertEqual(
+            normalize_integer_range(NumericRange(10, 20, bounds='[]')),
+            NumericRange(10, 21, bounds='[)')
+        )
+        self.assertEqual(
+            normalize_integer_range(NumericRange(10, 10, bounds='[]')),
+            NumericRange(10, 11, bounds='[)')
         )
 
     def test_ranges_to_string_list(self):

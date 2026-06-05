@@ -60,9 +60,9 @@ class RackPanel(panels.ObjectAttributesPanel):
 
 
 class RackWeightPanel(panels.ObjectAttributesPanel):
-    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
-    max_weight = attrs.NumericAttr('max_weight', unit_accessor='get_weight_unit_display', label=_('Maximum weight'))
-    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/rack/attrs/total_weight.html')
+    weight = attrs.WeightAttr('weight')
+    max_weight = attrs.WeightAttr('max_weight', label=_('Maximum weight'))
+    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/attrs/total_weight.html')
 
 
 class RackRolePanel(panels.OrganizationalObjectPanel):
@@ -137,7 +137,7 @@ class DeviceDeviceTypePanel(panels.ObjectAttributesPanel):
 class DeviceDimensionsPanel(panels.ObjectAttributesPanel):
     title = _('Dimensions')
 
-    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/device/attrs/total_weight.html')
+    total_weight = attrs.TemplatedAttr('total_weight', template_name='dcim/attrs/total_weight.html')
 
 
 class DeviceRolePanel(panels.NestedGroupObjectPanel):
@@ -155,7 +155,7 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     height = attrs.TemplatedAttr('u_height', template_name='dcim/devicetype/attrs/height.html')
     exclude_from_utilization = attrs.BooleanAttr('exclude_from_utilization')
     full_depth = attrs.BooleanAttr('is_full_depth')
-    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
+    weight = attrs.WeightAttr('weight')
     subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
     airflow = attrs.ChoiceAttr('airflow')
     front_image = attrs.ImageAttr('front_image')
@@ -184,7 +184,7 @@ class ModuleTypePanel(panels.ObjectAttributesPanel):
     part_number = attrs.TextAttr('part_number')
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
-    weight = attrs.NumericAttr('weight', unit_accessor='get_weight_unit_display')
+    weight = attrs.WeightAttr('weight')
 
 
 class PlatformPanel(panels.NestedGroupObjectPanel):

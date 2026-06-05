@@ -251,7 +251,8 @@ class VirtualMachineForm(TenancyForm, PrimaryModelForm):
     )
     local_context_data = JSONField(
         required=False,
-        label=''
+        label='',
+        widget=forms.Textarea(attrs={'aria-label': _('Local config context data')})
     )
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),

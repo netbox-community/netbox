@@ -33,7 +33,7 @@ from utilities.testing.utils import create_tags, create_test_device, post_data
 from utilities.testing.views import ModelViewTestCase
 
 
-class ChangeLogViewTest(ModelViewTestCase):
+class ChangeLogViewTestCase(ModelViewTestCase):
     model = Site
 
     @classmethod
@@ -397,7 +397,7 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(objectchanges.count(), 2)
 
 
-class ChangeLogAPITest(APITestCase):
+class ChangeLogAPITestCase(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -703,7 +703,7 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(changes[3].action, ObjectChangeActionChoices.ACTION_DELETE)
 
 
-class ChangelogPruneRetentionTest(TestCase):
+class ChangelogPruneRetentionTestCase(TestCase):
     """Test suite for Changelog pruning retention settings."""
 
     @staticmethod

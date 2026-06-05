@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
@@ -339,8 +338,8 @@ class AggregateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_aggregate_prefixes(self):
+        self.add_permissions('ipam.view_aggregate', 'ipam.view_prefix')
         rir = RIR.objects.first()
         aggregate = Aggregate.objects.create(prefix=IPNetwork('192.168.0.0/16'), rir=rir)
         prefixes = (
@@ -476,9 +475,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_add_ipv4_prefixes(self):
         """Test bulk creating IPv4 prefixes using a pattern."""
+        self.add_permissions('ipam.view_prefix')
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -497,9 +496,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for i in range(3):
             self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'10.0.{i}.0/24')).exists())
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_add_ipv6_prefixes(self):
         """Test bulk creating IPv6 prefixes using a pattern."""
+        self.add_permissions('ipam.view_prefix')
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -518,9 +517,9 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for i in range(4):
             self.assertTrue(Prefix.objects.filter(prefix=IPNetwork(f'fd00:db8:{i}::/48')).exists())
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_add_ipv6_prefixes_uppercase_hex(self):
         """Test bulk creating IPv6 prefixes using uppercase hex in the pattern."""
+        self.add_permissions('ipam.view_prefix')
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -544,8 +543,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 f'Expected prefix {prefix_str} was not created'
             )
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_add_prefixes_with_changelog_message(self):
+        self.add_permissions('ipam.view_prefix')
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -575,8 +574,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for objectchange in objectchanges:
             self.assertEqual(objectchange.message, changelog_message)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_prefixes(self):
+        self.add_permissions('ipam.view_prefix')
         prefixes = (
             Prefix(prefix=IPNetwork('192.168.0.0/16')),
             Prefix(prefix=IPNetwork('192.168.1.0/24')),
@@ -589,8 +588,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_ipranges(self):
+        self.add_permissions('ipam.view_prefix', 'ipam.view_iprange')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_ranges = (
             IPRange(start_address='192.168.0.1/24', end_address='192.168.0.100/24', size=99),
@@ -603,8 +602,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_ipranges', kwargs={'pk': prefix.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_ipaddresses(self):
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress', 'ipam.view_iprange')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
         ip_addresses = (
             IPAddress(address=IPNetwork('192.168.0.1/16')),
@@ -617,11 +616,33 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_ipaddresses_with_single_address_range(self):
+        self.add_permissions('ipam.view_prefix', 'ipam.view_ipaddress', 'ipam.view_iprange')
+        # The IP Addresses tab annotates child IP addresses alongside any
+        # mark-populated child IP ranges. Make sure a single-address range
+        # (start_address == end_address) renders without errors and is shown
+        # in its range-like display form rather than as a plain IP address.
+        prefix = Prefix.objects.create(prefix=IPNetwork('192.168.0.0/16'))
+        IPAddress.objects.create(address=IPNetwork('192.168.0.1/16'))
+        IPRange.objects.create(
+            start_address=IPNetwork('192.168.0.50/16'),
+            end_address=IPNetwork('192.168.0.50/16'),
+            mark_populated=True,
+        )
+
+        url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+        # The single-address range is rendered with both endpoints, not as
+        # 192.168.0.50/16 (which would make it indistinguishable from an
+        # IPAddress row in this mixed-record view).
+        self.assertContains(response, '192.168.0.50-192.168.0.50/16')
+
     def test_prefix_import(self):
         """
         Custom import test for YAML-based imports (versus CSV)
         """
+        self.add_permissions('dcim.view_site', 'ipam.view_vlan')
         site = Site.objects.get(name='Site 1')
         IMPORT_DATA = f"""
 prefix: 10.1.1.0/24
@@ -648,11 +669,11 @@ scope_id: {site.pk}
         self.assertEqual(prefix.vlan.vid, 101)
         self.assertEqual(prefix.scope, site)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_import_with_scope_name(self):
         """
         Test YAML-based import using scope_name instead of scope_id.
         """
+        self.add_permissions('dcim.view_site')
         site = Site.objects.get(name='Site 1')
         IMPORT_DATA = """
 prefix: 10.1.3.0/24
@@ -674,11 +695,11 @@ scope_name: Site 1
         self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
         self.assertEqual(prefix.scope, site)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_import_with_vlan_group(self):
         """
         This test covers a unique import edge case where VLAN group is specified during the import.
         """
+        self.add_permissions('dcim.view_site', 'ipam.view_vlan', 'ipam.view_vlangroup')
         site = Site.objects.get(name='Site 1')
         IMPORT_DATA = f"""
 prefix: 10.1.2.0/24
@@ -706,12 +727,12 @@ vlan: 102
         self.assertEqual(prefix.vlan.vid, 102)
         self.assertEqual(prefix.scope, site)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_import_with_vlan_site_multiple_vlans_same_vid(self):
         """
         Test import when multiple VLANs exist with the same vid but different sites.
         Ref: #20560
         """
+        self.add_permissions('dcim.view_site', 'ipam.view_vlan')
         site1 = Site.objects.get(name='Site 1')
         site2 = Site.objects.get(name='Site 2')
 
@@ -744,13 +765,13 @@ description: LOC02-MGMT
         prefix = Prefix.objects.get(prefix='10.11.0.0/22')
         self.assertEqual(prefix.vlan, vlan1)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_prefix_import_with_vlan_site_and_global_vlan(self):
         """
         Test import when a global VLAN (no site) and site-specific VLAN exist with same vid.
         When vlan_site is specified, should prefer the site-specific VLAN.
         Ref: #20560
         """
+        self.add_permissions('dcim.view_site', 'ipam.view_vlan')
         site1 = Site.objects.get(name='Site 1')
 
         # Create a global VLAN (no site) and a site-specific VLAN with the same vid
@@ -830,6 +851,8 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             "VRF 1,10.1.0.1/16,10.1.9.254/16,active",
             "VRF 1,10.2.0.1/16,10.2.9.254/16,active",
             "VRF 1,10.3.0.1/16,10.3.9.254/16,active",
+            # Single-address range (start == end)
+            "VRF 1,10.4.0.1/16,10.4.0.1/16,active",
         )
 
         cls.csv_update_data = (
@@ -847,8 +870,8 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_iprange_ipaddresses(self):
+        self.add_permissions('ipam.view_iprange', 'ipam.view_ipaddress')
         iprange = IPRange.objects.create(
             start_address=IPNetwork('192.168.0.1/24'),
             end_address=IPNetwork('192.168.0.100/24'),
@@ -864,6 +887,28 @@ class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         url = reverse('ipam:iprange_ipaddresses', kwargs={'pk': iprange.pk})
         self.assertHttpStatus(self.client.get(url), 200)
+
+    def test_create_single_address_range(self):
+        # Exercise the UI form path with start_address == end_address. The
+        # generic test_create_object_with_permission covers the multi-address
+        # case via cls.form_data; this test mirrors that flow for the single-
+        # address case so both paths stay covered.
+        self.add_permissions('ipam.add_iprange')
+        form_data = {
+            'start_address': '192.0.6.10/24',
+            'end_address': '192.0.6.10/24',
+            'status': IPRangeStatusChoices.STATUS_ACTIVE,
+        }
+        initial_count = IPRange.objects.count()
+
+        response = self.client.post(reverse('ipam:iprange_add'), data=form_data)
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(IPRange.objects.count(), initial_count + 1)
+
+        iprange = IPRange.objects.order_by('pk').last()
+        self.assertEqual(str(iprange.start_address), '192.0.6.10/24')
+        self.assertEqual(str(iprange.end_address), '192.0.6.10/24')
+        self.assertEqual(iprange.size, 1)
 
 
 class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -940,8 +985,8 @@ class IPAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_bulk_add_ipaddresses_with_changelog_message(self):
+        self.add_permissions('ipam.view_ipaddress', 'ipam.view_vrf')
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
@@ -1379,8 +1424,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_unassigned_ip_addresses(self):
+        self.add_permissions('ipam.view_service', 'dcim.view_device', 'ipam.view_ipaddress')
         device = Device.objects.first()
         addr = IPAddress.objects.create(address='192.0.2.4/24')
         csv_data = (
@@ -1409,8 +1454,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIn(addr.address, form_errors['__all__'][0])
         self.assertEqual(self._get_queryset().count(), initial_count)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
     def test_alternate_csv_import(self):
+        self.add_permissions('ipam.view_service', 'dcim.view_device', 'ipam.view_ipaddress')
         device = Device.objects.first()
         interface = device.interfaces.first()
         addr = IPAddress.objects.create(assigned_object=interface, address='192.0.2.3/24')
@@ -1439,9 +1484,13 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(self._get_queryset().count(), initial_count + len(csv_data) - 1)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_create_from_template(self):
-        self.add_permissions('ipam.add_service')
+        self.add_permissions(
+            'ipam.view_service',
+            'ipam.add_service',
+            'dcim.view_device',
+            'ipam.view_servicetemplate',
+        )
 
         device = Device.objects.first()
         service_template = ServiceTemplate.objects.create(

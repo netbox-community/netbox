@@ -3,6 +3,7 @@ import urllib.parse
 import uuid
 from datetime import datetime
 
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils import timezone
 from django_rq import get_queue
@@ -17,6 +18,7 @@ from core.models import *
 from dcim.models import Site
 from users.models import User
 from utilities.testing import TestCase, ViewTestCases, create_tags, disable_logging
+from utilities.testing.mixins import RQQueueTestMixin
 
 
 class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -104,6 +106,52 @@ class DataFileTestCase(
         DataFile.objects.bulk_create(data_files)
 
 
+class JobTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    model = Job
+
+    @classmethod
+    def setUpTestData(cls):
+        datasource = DataSource.objects.create(
+            name='Data Source 1',
+            type='local',
+            source_url='file:///var/tmp/source1/',
+        )
+        ct = ContentType.objects.get_for_model(DataSource)
+        Job.objects.bulk_create(
+            [
+                Job(
+                    name='Job 1',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='pending',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+                Job(
+                    name='Job 2',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='running',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+                Job(
+                    name='Job 3',
+                    object_type=ct,
+                    object_id=datasource.pk,
+                    status='completed',
+                    queue_name='default',
+                    job_id=uuid.uuid4(),
+                ),
+            ]
+        )
+
+
 # TODO: Convert to StandardTestCases.Views
 class ObjectChangeTestCase(TestCase):
     user_permissions = (
@@ -141,7 +189,7 @@ class ObjectChangeTestCase(TestCase):
         self.assertHttpStatus(response, 200)
 
 
-class BackgroundTaskTestCase(TestCase):
+class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
     user_permissions = ()
 
     # Dummy worker functions
@@ -162,11 +210,6 @@ class BackgroundTaskTestCase(TestCase):
         self.user.is_superuser = True
         self.user.is_active = True
         self.user.save()
-
-        # Clear all queues prior to running each test
-        get_queue('default').connection.flushall()
-        get_queue('high').connection.flushall()
-        get_queue('low').connection.flushall()
 
     def test_background_queue_list(self):
         url = reverse('core:background_queue_list')

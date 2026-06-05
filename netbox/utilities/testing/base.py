@@ -165,7 +165,9 @@ class ModelTestCase(TestCase):
                 continue
 
             # Handle ManyToManyFields
-            if value and type(field) in (ManyToManyField, ManyToManyRel, TaggableManager):
+            if value and (
+                type(field) in (ManyToManyField, ManyToManyRel) or isinstance(field, TaggableManager)
+            ):
                 # Resolve reverse M2M relationships
                 if isinstance(field, ManyToManyRel):
                     value = getattr(instance, field.related_name).all()

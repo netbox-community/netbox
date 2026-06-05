@@ -3,12 +3,35 @@
 
 {% block extra_table_controls %}
   <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="mdi mdi-eye"></i>
+    <i class="mdi mdi-eye" aria-hidden="true"></i>
   </button>
   <ul class="dropdown-menu">
-    <button type="button" class="dropdown-item toggle-enabled" data-state="show">{% trans "Hide Enabled" %}</button>
-    <button type="button" class="dropdown-item toggle-disabled" data-state="show">{% trans "Hide Disabled" %}</button>
-    <button type="button" class="dropdown-item toggle-virtual" data-state="show">{% trans "Hide Virtual" %}</button>
-    <button type="button" class="dropdown-item toggle-disconnected" data-state="show">{% trans "Hide Disconnected" %}</button>
+    {# enabled filter: True = show only enabled (hide disabled), False = show only disabled (hide enabled) #}
+    <li>
+      <a class="dropdown-item{% if request.GET.enabled == 'True' %} active{% endif %}"
+         href="{{ request.path }}{% if request.GET.enabled == 'True' %}{% querystring enabled=None %}{% else %}{% querystring enabled='True' %}{% endif %}">
+        {% if request.GET.enabled == 'True' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Disabled" %}
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item{% if request.GET.enabled == 'False' %} active{% endif %}"
+         href="{{ request.path }}{% if request.GET.enabled == 'False' %}{% querystring enabled=None %}{% else %}{% querystring enabled='False' %}{% endif %}">
+        {% if request.GET.enabled == 'False' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Enabled" %}
+      </a>
+    </li>
+    {# kind filter: physical = show only physical (hide virtual/wireless) #}
+    <li>
+      <a class="dropdown-item{% if request.GET.kind == 'physical' %} active{% endif %}"
+         href="{{ request.path }}{% if request.GET.kind == 'physical' %}{% querystring kind=None %}{% else %}{% querystring kind='physical' %}{% endif %}">
+        {% if request.GET.kind == 'physical' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Virtual" %}
+      </a>
+    </li>
+    {# connected filter: True = show only connected (hide disconnected) #}
+    <li>
+      <a class="dropdown-item{% if request.GET.connected == 'True' %} active{% endif %}"
+         href="{{ request.path }}{% if request.GET.connected == 'True' %}{% querystring connected=None %}{% else %}{% querystring connected='True' %}{% endif %}">
+        {% if request.GET.connected == 'True' %}<i class="mdi mdi-check" aria-hidden="true"></i> {% endif %}{% trans "Hide Disconnected" %}
+      </a>
+    </li>
   </ul>
 {% endblock extra_table_controls %}

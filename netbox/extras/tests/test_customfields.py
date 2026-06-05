@@ -19,7 +19,7 @@ from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
 
-class CustomFieldTest(TestCase):
+class CustomFieldTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -466,6 +466,15 @@ class CustomFieldTest(TestCase):
 
         self.assertIn('choice_colors', cm.exception.message_dict)
 
+    @tag('regression')
+    def test_choice_set_with_base_choices_validates_without_error(self):
+        """Regression test for #22325: base-only choice sets must validate."""
+        for base in ('IATA', 'ISO_3166', 'UN_LOCODE'):
+            with self.subTest(base=base):
+                choice_set = CustomFieldChoiceSet(name=f'Test {base}', base_choices=base, order_alphabetically=True)
+                choice_set.full_clean()  # must not raise
+                choice_set.save()        # must not raise (extra_choices is None)
+
     def test_remove_selected_choice(self):
         """
         Removing a ChoiceSet choice that is referenced by an object should raise
@@ -762,7 +771,7 @@ class CustomFieldTest(TestCase):
             ).full_clean()
 
 
-class CustomFieldManagerTest(TestCase):
+class CustomFieldManagerTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -776,7 +785,7 @@ class CustomFieldManagerTest(TestCase):
         self.assertEqual(CustomField.objects.get_for_model(VirtualMachine).count(), 0)
 
 
-class CustomFieldAPITest(APITestCase):
+class CustomFieldAPITestCase(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -1564,7 +1573,7 @@ class CustomFieldAPITest(APITestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class CustomFieldImportTest(TestCase):
+class CustomFieldImportTestCase(TestCase):
     user_permissions = (
         'dcim.view_site',
         'dcim.add_site',
@@ -1694,7 +1703,7 @@ class CustomFieldImportTest(TestCase):
         self.assertIn('cf_select', form.errors)
 
 
-class CustomFieldModelTest(TestCase):
+class CustomFieldModelTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -1755,7 +1764,7 @@ class CustomFieldModelTest(TestCase):
         site.clean()
 
 
-class CustomFieldModelFilterTest(TestCase):
+class CustomFieldModelFilterTestCase(TestCase):
     queryset = Site.objects.all()
     filterset = SiteFilterSet
 

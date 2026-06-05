@@ -1110,6 +1110,25 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mark_populated': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
+    def test_single_address_range(self):
+        # A range with start_address == end_address must be discoverable by the
+        # start, end, and contains filters.
+        iprange = IPRange(
+            start_address=IPNetwork('10.0.5.1/24'),
+            end_address=IPNetwork('10.0.5.1/24'),
+        )
+        iprange.clean()
+        iprange.save()
+
+        params = {'start_address': ['10.0.5.1']}
+        self.assertIn(iprange, self.filterset(params, self.queryset).qs)
+
+        params = {'end_address': ['10.0.5.1']}
+        self.assertIn(iprange, self.filterset(params, self.queryset).qs)
+
+        params = {'contains': '10.0.5.1/24'}
+        self.assertIn(iprange, self.filterset(params, self.queryset).qs)
+
 
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()
@@ -1288,6 +1307,10 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
+        IPAddress.objects.filter(pk__in=[ipaddresses[1].pk, ipaddresses[2].pk]).update(
+            nat_inside=ipaddresses[0]
+        )
+
         services = (
             Service(
                 parent=devices[0],
@@ -1455,6 +1478,11 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_service(self):
         services = Service.objects.all()[:2]
         params = {'service_id': [services[0].pk, services[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_nat_inside(self):
+        inside = IPAddress.objects.filter(nat_outside__isnull=False).distinct().first()
+        params = {'nat_inside_id': [inside.pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

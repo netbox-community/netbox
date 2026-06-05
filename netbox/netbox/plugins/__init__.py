@@ -20,6 +20,7 @@ from .utils import *
 registry['plugins'].update({
     'installed': [],
     'graphql_schemas': [],
+    'jinja2_filters': {},
     'menus': [],
     'menu_items': {},
     'preferences': {},
@@ -30,6 +31,7 @@ DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
     'data_backends': 'data_backends.backends',
     'graphql_schema': 'graphql.schema',
+    'jinja2_filters': 'jinja2_env.filters',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
     'template_extensions': 'template_content.template_extensions',
@@ -78,11 +80,26 @@ class PluginConfig(AppConfig):
     search_indexes = None
     data_backends = None
     graphql_schema = None
+    jinja2_filters = None
     menu = None
     menu_items = None
+    serializer_resolver = None
     template_extensions = None
     user_preferences = None
     events_pipeline = []
+
+    def get_jinja2_context(self):
+        """
+        Return a dict of additional variables to inject into the Jinja2 template context
+        when rendering ConfigTemplates. Override this in a PluginConfig subclass to expose
+        plugin-managed data to config templates without requiring template authors to know
+        internal model names.
+
+        The returned dict is merged into the template context after the standard
+        ObjectType-based model population, so keys here can shadow the auto-populated
+        entries if needed.
+        """
+        return {}
 
     def _load_resource(self, name):
         # Import from the configured path, if defined.
@@ -116,6 +133,10 @@ class PluginConfig(AppConfig):
         for backend in data_backends:
             register_data_backend()(backend)
 
+        # Register Jinja2 filters (if defined)
+        if jinja2_filters := self._load_resource('jinja2_filters'):
+            register_jinja2_filters(jinja2_filters)
+
         # Register template content (if defined)
         if template_extensions := self._load_resource('template_extensions'):
             register_template_extensions(template_extensions)
@@ -133,6 +154,17 @@ class PluginConfig(AppConfig):
         # Register user preferences (if defined)
         if user_preferences := self._load_resource('user_preferences'):
             register_user_preferences(plugin_name, user_preferences)
+
+        # Register serializer resolver (if defined)
+        if self.serializer_resolver:
+            resolver_path = f"{self.__module__}.{self.serializer_resolver}"
+            try:
+                resolver = import_string(resolver_path)
+            except ImportError as e:
+                raise ImproperlyConfigured(
+                    f"Invalid serializer resolver path for plugin {self.__module__}: {resolver_path}"
+                ) from e
+            register_serializer_resolver(self.label, resolver)
 
     @classmethod
     def validate(cls, user_config, netbox_version):

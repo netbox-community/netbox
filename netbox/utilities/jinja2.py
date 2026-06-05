@@ -1,14 +1,37 @@
+import fnmatch
+import os
+
 from django.apps import apps
 from jinja2 import BaseLoader, TemplateNotFound
 from jinja2.meta import find_referenced_templates
 from jinja2.sandbox import SandboxedEnvironment
 
 from netbox.config import get_config
+from netbox.registry import registry
 
 __all__ = (
+    'DEFAULT_JINJA2_FILTERS',
     'DataFileLoader',
+    'env_filter',
     'render_jinja2',
 )
+
+
+def env_filter(name):
+    """
+    Jinja2 filter which returns the value of an environment variable, provided its name matches one of the patterns
+    listed in the JINJA_ENVIRONMENT_PARAMS configuration parameter. Patterns may include wildcards. Returns None if the
+    variable is not defined or its name does not match an allowed pattern.
+    """
+    patterns = get_config().JINJA_ENVIRONMENT_PARAMS or []
+    if not any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns):
+        return None
+    return os.environ.get(name)
+
+
+DEFAULT_JINJA2_FILTERS = {
+    'env': env_filter,
+}
 
 
 class DataFileLoader(BaseLoader):
@@ -74,7 +97,15 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
         environment_params['loader'] = loader
 
     environment = SandboxedEnvironment(**environment_params)
-    environment.filters.update(get_config().JINJA2_FILTERS)
+
+    # Build filter table: default < plugin-registered < instance JINJA2_FILTERS.
+    # Instance-level config always wins so site admins can override anything.
+    filters = {
+        **DEFAULT_JINJA2_FILTERS,
+        **registry['plugins'].get('jinja2_filters', {}),
+        **get_config().JINJA2_FILTERS,
+    }
+    environment.filters.update(filters)
 
     if data_file:
         template = environment.get_template(data_file.path)

@@ -44,7 +44,7 @@
                 <thead>
                   <tr>
                     <th>
-                      <input type="checkbox" class="toggle form-check-input" title="{% trans "Toggle All" %}">
+                      <input type="checkbox" class="toggle form-check-input" title="{% trans "Toggle All" %}" aria-label="{% trans "Toggle All" %}">
                     </th>
                     <th>{% trans "Table" %}</th>
                     <th>{% trans "Ordering" %}</th>
@@ -55,7 +55,7 @@
                   {% for table, prefs in request.user.config.data.tables.items %}
                     <tr>
                       <td>
-                        <input type="checkbox" name="pk" value="tables.{{ table }}" class="form-check-input" />
+                        <input type="checkbox" name="pk" value="tables.{{ table }}" class="form-check-input" aria-label="{% blocktrans with name=table %}Select {{ name }}{% endblocktrans %}" />
                       </td>
                       <td>{{ table }}</td>
                       <td>{{ prefs.ordering|join:", "|placeholder }}</td>

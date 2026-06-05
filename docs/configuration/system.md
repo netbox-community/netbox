@@ -57,7 +57,7 @@ In order to send email, NetBox needs an email server configured. The following i
 Email is sent from NetBox only for critical events or if configured for [logging](#logging). If you would like to test the email server configuration, Django provides a convenient [send_mail()](https://docs.djangoproject.com/en/stable/topics/email/#send-mail) function accessible within the NetBox shell:
 
 ```no-highlight
-# python ./manage.py nbshell
+(venv) $ python3 ./manage.py nbshell
 >>> from django.core.mail import send_mail
 >>> send_mail(
   'Test Email Subject',
@@ -77,6 +77,26 @@ Email is sent from NetBox only for critical events or if configured for [logging
 Default: System hostname
 
 The hostname displayed in the user interface identifying the system on which NetBox is running. If not defined, this defaults to the system hostname as reported by Python's `platform.node()`.
+
+---
+
+## HTTP_CLIENT_IP_HEADERS
+
+!!! info "This parameter was introduced in NetBox v4.6.1."
+
+Default:
+
+```python
+(
+    'HTTP_X_REAL_IP',
+    'HTTP_X_FORWARDED_FOR',
+    'REMOTE_ADDR',
+)
+```
+
+An ordered list of HTTP request headers inspected to determine the source IP address of a client request. The first header in the list which is present on the request is used; if none are found, the client IP cannot be determined. This is most commonly required when NetBox is deployed behind a reverse proxy which injects a proprietary client IP header (e.g. `HTTP_CF_CONNECTING_IP` for Cloudflare).
+
+The client IP is used for source-address restrictions on API tokens and for logging failed login attempts.
 
 ---
 
@@ -125,6 +145,24 @@ Set this configuration parameter to `True` for NetBox deployments which do not h
 
 ---
 
+## JINJA_ENVIRONMENT_PARAMS
+
+Default: `[]`
+
+A list of system environment variable names which may be referenced from within Jinja2 templates via the built-in [`env`](#jinja2_filters) filter. Patterns may include wildcards (matched using Python's `fnmatch` syntax). Any variable whose name does not match an entry in this list cannot be referenced from a template. For example:
+
+```python
+JINJA_ENVIRONMENT_PARAMS = [
+    'WEBHOOK_TOKEN_*',
+    'DEFAULT_SECRET_ID',
+]
+```
+
+!!! info "Parameter names are case-sensitive"
+    For example, `FOO_*` will match `FOO_BAR` but `foo_*` will not.
+
+---
+
 ## JINJA2_FILTERS
 
 Default: `{}`
@@ -139,6 +177,21 @@ JINJA2_FILTERS = {
     'uppercase': uppercase,
 }
 ```
+
+NetBox also registers the following filters by default. Any entry defined in `JINJA2_FILTERS` with the same name will override the default.
+
+| Filter | Description |
+|---|---|
+| `env` | Returns the value of the system environment variable with the given name, provided its name matches an entry in [`JINJA_ENVIRONMENT_PARAMS`](#jinja_environment_params). Returns `None` if the variable is not defined or its name is not whitelisted. |
+
+For example, given `JINJA_ENVIRONMENT_PARAMS = ['WEBHOOK_TOKEN_*']`, a Jinja2 template may reference an environment variable as:
+
+```
+Authorization: Bearer {{ 'WEBHOOK_TOKEN_3' | env }}
+```
+
+!!! tip "Plugin-provided filters"
+    Plugins can also register Jinja2 filters without requiring instance configuration. See [Jinja2 Config Templates](../plugins/development/config-templates.md) in the plugin development documentation. Instance-level `JINJA2_FILTERS` always takes precedence over plugin-registered filters of the same name.
 
 ---
 

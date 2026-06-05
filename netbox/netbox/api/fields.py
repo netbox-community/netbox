@@ -9,6 +9,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.relations import PrimaryKeyRelatedField, RelatedField
 
+from utilities.data import get_inclusive_integer_range_bounds
+
 __all__ = (
     'AttributesField',
     'ChoiceField',
@@ -173,7 +175,7 @@ class IntegerRangeSerializer(serializers.Serializer):
         return NumericRange(data[0], data[1] + 1, bounds='[)')
 
     def to_representation(self, instance):
-        return instance.lower, instance.upper - 1
+        return get_inclusive_integer_range_bounds(instance)
 
 
 class AttributesField(serializers.JSONField):

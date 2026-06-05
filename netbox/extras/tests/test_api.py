@@ -19,10 +19,11 @@ from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
 from users.models import Group, Token, User
+from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases
 
 
-class AppTest(APITestCase):
+class AppTestCase(APITestCase):
 
     def test_root(self):
 
@@ -32,7 +33,7 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class WebhookTest(APIViewTestCases.APIViewTestCase):
+class WebhookTestCase(APIViewTestCases.APIViewTestCase):
     model = Webhook
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -74,7 +75,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
         Webhook.objects.bulk_create(webhooks)
 
 
-class EventRuleTest(APIViewTestCases.APIViewTestCase):
+class EventRuleTestCase(APIViewTestCases.APIViewTestCase):
     model = EventRule
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
@@ -152,7 +153,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CustomFieldTest(APIViewTestCases.APIViewTestCase):
+class CustomFieldTestCase(APIViewTestCases.APIViewTestCase):
     model = CustomField
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -204,7 +205,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
             cf.object_types.add(site_ct)
 
 
-class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
+class CustomFieldChoiceSetTestCase(APIViewTestCases.APIViewTestCase):
     model = CustomFieldChoiceSet
     brief_fields = ['choices_count', 'description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -325,7 +326,7 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.status_code, 400)
 
 
-class CustomLinkTest(APIViewTestCases.APIViewTestCase):
+class CustomLinkTestCase(APIViewTestCases.APIViewTestCase):
     model = CustomLink
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
@@ -385,7 +386,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
             custom_link.object_types.set([site_type])
 
 
-class SavedFilterTest(APIViewTestCases.APIViewTestCase):
+class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
     model = SavedFilter
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -458,7 +459,78 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             savedfilter.object_types.set([site_type])
 
 
-class BookmarkTest(
+class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
+    model = TableConfig
+    brief_fields = ['description', 'display', 'id', 'name', 'object_type', 'table', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+        'weight': 999,
+        'enabled': False,
+        'shared': False,
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site_type = ObjectType.objects.get_for_model(Site)
+        site_table_name = get_table_for_model(Site).__name__
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        table_configs = (
+            TableConfig(
+                name='Table Config 1',
+                object_type=site_type,
+                table=site_table_name,
+                user=users[0],
+                columns=['name', 'status'],
+            ),
+            TableConfig(
+                name='Table Config 2',
+                object_type=site_type,
+                table=site_table_name,
+                user=users[1],
+                columns=['name', 'region'],
+            ),
+            TableConfig(
+                name='Table Config 3',
+                object_type=site_type,
+                table=site_table_name,
+                user=users[2],
+                columns=['name', 'tenant'],
+            ),
+        )
+        TableConfig.objects.bulk_create(table_configs)
+
+        cls.create_data = [
+            {
+                'object_type': 'dcim.site',
+                'table': site_table_name,
+                'name': 'Table Config 4',
+                'columns': ['name', 'status'],
+                'ordering': ['name'],
+            },
+            {
+                'object_type': 'dcim.site',
+                'table': site_table_name,
+                'name': 'Table Config 5',
+                'columns': ['name', 'region'],
+                'ordering': ['-name'],
+            },
+            {
+                'object_type': 'dcim.site',
+                'table': site_table_name,
+                'name': 'Table Config 6',
+                'columns': ['name', 'tenant'],
+            },
+        ]
+
+
+class BookmarkTestCase(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
     APIViewTestCases.CreateObjectViewTestCase,
@@ -510,7 +582,7 @@ class BookmarkTest(
         ]
 
 
-class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
+class ExportTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -560,7 +632,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
             et.object_types.set([device_object_type])
 
 
-class TagTest(APIViewTestCases.APIViewTestCase):
+class TagTestCase(APIViewTestCases.APIViewTestCase):
     model = Tag
     brief_fields = ['color', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -593,7 +665,7 @@ class TagTest(APIViewTestCases.APIViewTestCase):
         Tag.objects.bulk_create(tags)
 
 
-class TaggedItemTest(
+class TaggedItemTestCase(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase
 ):
@@ -622,7 +694,7 @@ class TaggedItemTest(
 
 
 # TODO: Standardize to APIViewTestCase (needs create & update tests)
-class ImageAttachmentTest(
+class ImageAttachmentTestCase(
     APIViewTestCases.GetObjectViewTestCase,
     APIViewTestCases.ListObjectsViewTestCase,
     APIViewTestCases.DeleteObjectViewTestCase,
@@ -666,7 +738,7 @@ class ImageAttachmentTest(
         ImageAttachment.objects.bulk_create(image_attachments)
 
 
-class JournalEntryTest(APIViewTestCases.APIViewTestCase):
+class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
     model = JournalEntry
     brief_fields = ['created', 'display', 'id', 'url']
     bulk_update_data = {
@@ -716,7 +788,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
+class ConfigContextProfileTestCase(APIViewTestCases.APIViewTestCase):
     model = ConfigContextProfile
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -825,7 +897,7 @@ class ConfigContextProfileTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data['data_file']['id'], datafile.pk)
 
 
-class ConfigContextTest(APIViewTestCases.APIViewTestCase):
+class ConfigContextTestCase(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -951,7 +1023,7 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data['data_file']['id'], datafile.pk)
 
 
-class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
+class ConfigTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ConfigTemplate
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -1036,7 +1108,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
 
-class ScriptTest(APITestCase):
+class ScriptTestCase(APITestCase):
 
     class TestScriptClass(PythonClass):
         class Meta:
@@ -1082,6 +1154,12 @@ class ScriptTest(APITestCase):
 
         # Monkey-patch the Script model to return our TestScriptClass above
         Script.python_class = self.python_class
+
+        # The script-run endpoint gates on a live RQ worker. Tests run without
+        # one, so bypass the check to exercise validation and the enqueue path.
+        worker_patch = patch('extras.api.views.any_workers_for_queue', return_value=True)
+        worker_patch.start()
+        self.addCleanup(worker_patch.stop)
 
     def test_get_script(self):
         response = self.client.get(self.url, **self.header)
@@ -1162,7 +1240,7 @@ class ScriptTest(APITestCase):
             self.TestScriptClass.Meta.scheduling_enabled = original
 
 
-class CreatedUpdatedFilterTest(APITestCase):
+class CreatedUpdatedFilterTestCase(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -1236,9 +1314,12 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
 
-class SubscriptionTest(APIViewTestCases.APIViewTestCase):
+class SubscriptionTestCase(APIViewTestCases.APIViewTestCase):
     model = Subscription
     brief_fields = ['display', 'id', 'object_id', 'object_type', 'url', 'user']
+    graphql_filter = {
+        'id': {'lookup': 'gt', 'value': '0'},
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -1295,7 +1376,7 @@ class SubscriptionTest(APIViewTestCases.APIViewTestCase):
         }
 
 
-class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
+class NotificationGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = NotificationGroup
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
@@ -1372,11 +1453,14 @@ class NotificationGroupTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class NotificationTest(APIViewTestCases.APIViewTestCase):
+class NotificationTestCase(APIViewTestCases.APIViewTestCase):
     model = Notification
     brief_fields = ['display', 'event_type', 'id', 'object_id', 'object_type', 'read', 'url', 'user']
     bulk_update_data = {
         'read': now(),
+    }
+    graphql_filter = {
+        'event_type': {'lookup': 'exact', 'value': OBJECT_CREATED},
     }
 
     @classmethod
@@ -1436,7 +1520,7 @@ class NotificationTest(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class ScriptModuleTest(APITestCase):
+class ScriptModuleTestCase(APITestCase):
     """
     Tests for the POST /api/extras/scripts/upload/ endpoint.
 

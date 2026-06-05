@@ -98,7 +98,7 @@ request_validator = CustomValidator({
 custom_validator = MyValidator()
 
 
-class CustomValidatorTest(TestCase):
+class CustomValidatorTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -207,7 +207,7 @@ class CustomValidatorTest(TestCase):
         request_validator(site, request)
 
 
-class CustomValidatorConfigTest(TestCase):
+class CustomValidatorConfigTestCase(TestCase):
 
     @override_settings(
         CUSTOM_VALIDATORS={
@@ -242,7 +242,7 @@ class CustomValidatorConfigTest(TestCase):
             Site(name='bar', slug='bar').clean()
 
 
-class ProtectionRulesConfigTest(TestCase):
+class ProtectionRulesConfigTestCase(TestCase):
 
     @override_settings(
         PROTECTION_RULES={

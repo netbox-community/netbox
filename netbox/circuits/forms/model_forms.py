@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import (
@@ -24,7 +24,7 @@ from utilities.forms.fields import (
 from utilities.forms.mixins import DistanceValidationMixin
 from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields
 from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
-from utilities.templatetags.builtins.filters import bettertitle
+from utilities.string import title
 
 __all__ = (
     'CircuitForm',
@@ -201,7 +201,6 @@ class CircuitTerminationForm(NetBoxModelForm):
     termination = DynamicModelChoiceField(
         label=_('Termination'),
         queryset=Site.objects.none(),  # Initial queryset
-        required=False,
         disabled=True,
         selector=True
     )
@@ -248,15 +247,27 @@ class CircuitTerminationForm(NetBoxModelForm):
                 self.fields['termination'].queryset = model.objects.all()
                 self.fields['termination'].widget.attrs['selector'] = model._meta.label_lower
                 self.fields['termination'].disabled = False
-                self.fields['termination'].label = _(bettertitle(model._meta.verbose_name))
+                self.fields['termination'].label = _(title(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
 
             if self.instance and termination_type_id != self.instance.termination_type_id:
                 self.initial['termination'] = None
+        else:
+            # Clear the initial termination value if termination_type is not set
+            self.initial['termination'] = None
 
     def clean(self):
         super().clean()
+
+        termination = self.cleaned_data.get('termination')
+        termination_type = self.cleaned_data.get('termination_type')
+        if termination_type and not termination:
+            raise ValidationError({
+                'termination': _('Please select a {termination_type}.').format(
+                    termination_type=_(title(termination_type.model_class()._meta.verbose_name))
+                )
+            })
 
         # Assign the selected termination (if any)
         self.instance.termination = self.cleaned_data.get('termination')
@@ -323,7 +334,7 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
                 self.fields['member'].queryset = model.objects.all()
                 self.fields['member'].widget.attrs['selector'] = model._meta.label_lower
                 self.fields['member'].disabled = False
-                self.fields['member'].label = _(bettertitle(model._meta.verbose_name))
+                self.fields['member'].label = _(title(model._meta.verbose_name))
             except ObjectDoesNotExist:
                 pass
 

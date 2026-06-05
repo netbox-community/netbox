@@ -1,10 +1,12 @@
+{% load i18n %}
 {% if notifications %}
   <span class="text-primary" id="notifications-alert" hx-swap-oob="true">
-    <i class="mdi mdi-bell-ring"></i>
-    <span class="badge bg-red"></span>
+    <i class="mdi mdi-bell-ring" aria-hidden="true"></i>
+    <span class="badge bg-red" aria-hidden="true"></span>
+    <span class="visually-hidden">{% trans "You have unread notifications" %}</span>
   </span>
 {% else %}
   <span class="text-muted" id="notifications-alert" hx-swap-oob="true">
-    <i class="mdi mdi-bell"></i>
+    <i class="mdi mdi-bell" aria-hidden="true"></i>
   </span>
 {% endif %}

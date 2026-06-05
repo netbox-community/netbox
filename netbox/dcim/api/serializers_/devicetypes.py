@@ -101,11 +101,24 @@ class ModuleTypeSerializer(PrimaryModelSerializer):
     )
     module_count = serializers.IntegerField(read_only=True)
 
+    # Counter fields
+    console_port_template_count = serializers.IntegerField(read_only=True)
+    console_server_port_template_count = serializers.IntegerField(read_only=True)
+    power_port_template_count = serializers.IntegerField(read_only=True)
+    power_outlet_template_count = serializers.IntegerField(read_only=True)
+    interface_template_count = serializers.IntegerField(read_only=True)
+    front_port_template_count = serializers.IntegerField(read_only=True)
+    rear_port_template_count = serializers.IntegerField(read_only=True)
+    module_bay_template_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = ModuleType
         fields = [
             'id', 'url', 'display_url', 'display', 'profile', 'manufacturer', 'model', 'part_number', 'airflow',
             'weight', 'weight_unit', 'description', 'attributes', 'owner', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'module_count',
+            'created', 'last_updated', 'module_count', 'console_port_template_count',
+            'console_server_port_template_count', 'power_port_template_count', 'power_outlet_template_count',
+            'interface_template_count', 'front_port_template_count', 'rear_port_template_count',
+            'module_bay_template_count',
         ]
         brief_fields = ('id', 'url', 'display', 'profile', 'manufacturer', 'model', 'description', 'module_count')

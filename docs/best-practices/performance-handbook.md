@@ -40,6 +40,10 @@ NetBox paginates large result sets to reduce the overall response size. The [`MA
 
 By default, NetBox restricts a GraphQL query to 10 aliases. Consider reducing this number by setting [`GRAPHQL_MAX_ALIASES`](../configuration/graphql-api.md#graphql_max_aliases) to a lower value.
 
+#### Limit GraphQL Query Depth
+
+Deeply nested GraphQL queries can impose substantial overhead, consuming undue server resources and increasing response times. Consider setting [`GRAPHQL_MAX_QUERY_DEPTH`](../configuration/graphql-api.md#graphql_max_query_depth) to limit the maximum nesting depth for any GraphQL query.
+
 #### Designate Isolated Deployments
 
 If your NetBox installation does not have Internet access, set [`ISOLATED_DEPLOYMENT`](../configuration/system.md#isolated_deployment) to True. This will prevent the application from attempting routine external requests.

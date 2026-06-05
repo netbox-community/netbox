@@ -1,2 +1,17 @@
 {% load helpers %}
-{% for ip in value.all %}{{ ip|linkify }}{% if ip.assigned_object %} ({{ ip.assigned_object.parent_object|linkify }}){% endif %}<br/>{% empty %}<span class="text-muted">&mdash;</span>{% endfor %}
+{% with ips=value.all|slice:":11" %}
+  {% if ips %}
+    <ul class="list-unstyled mb-0">
+      {% for ip in ips|slice:":10" %}
+        <li>{{ ip|linkify }}{% if ip.assigned_object %} ({{ ip.assigned_object.parent_object|linkify }}){% endif %}</li>
+      {% endfor %}
+      {% if ips|length > 10 %}
+        <li>
+          <a href="{% url 'ipam:ipaddress_list' %}?nat_inside_id={{ object.pk }}" class="text-muted">…</a>
+        </li>
+      {% endif %}
+    </ul>
+  {% else %}
+    <span class="text-muted">&mdash;</span>
+  {% endif %}
+{% endwith %}

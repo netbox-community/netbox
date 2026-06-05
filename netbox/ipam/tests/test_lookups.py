@@ -4,7 +4,7 @@ from django.test import TestCase
 from ipam.models import VLANGroup
 
 
-class VLANGroupRangeContainsLookupTests(TestCase):
+class VLANGroupRangeContainsLookupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Two ranges: [1,11) and [20,31)
