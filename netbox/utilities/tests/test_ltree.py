@@ -110,18 +110,6 @@ class LtreeAPIParityTests(TestCase):
         self.assertEqual(self.leaf.level, 2)
         self.assertEqual(self.leaf.get_level(), 2)
 
-    def test_is_root_leaf_child(self):
-        self.assertTrue(self.root.is_root_node())
-        self.assertFalse(self.root.is_leaf_node())
-        self.assertFalse(self.root.is_child_node())
-        self.assertFalse(self.leaf.is_root_node())
-        self.assertTrue(self.leaf.is_leaf_node())
-        self.assertTrue(self.leaf.is_child_node())
-
-    def test_get_root(self):
-        self.assertEqual(self.leaf.get_root(), self.root)
-        self.assertEqual(self.root.get_root(), self.root)
-
     def test_get_ancestors(self):
         ancestors = list(self.leaf.get_ancestors().values_list('name', flat=True))
         self.assertEqual(ancestors, ['Root', 'Mid'])
@@ -131,26 +119,10 @@ class LtreeAPIParityTests(TestCase):
     def test_get_descendants(self):
         descendants = sorted(self.root.get_descendants().values_list('name', flat=True))
         self.assertEqual(descendants, ['Leaf', 'Leaf2', 'Mid'])
-        self.assertEqual(self.root.get_descendant_count(), 3)
 
     def test_get_children(self):
         children = sorted(self.root.get_children().values_list('name', flat=True))
         self.assertEqual(children, ['Mid'])
-
-    def test_get_siblings(self):
-        siblings = list(self.leaf.get_siblings().values_list('name', flat=True))
-        self.assertEqual(siblings, ['Leaf2'])
-
-    def test_get_family(self):
-        family = sorted(self.mid.get_family().values_list('name', flat=True))
-        self.assertEqual(family, ['Leaf', 'Leaf2', 'Mid', 'Root'])
-
-    def test_move_to(self):
-        new_root = Region.objects.create(name='New', slug='new-api')
-        self.leaf.move_to(new_root)
-        self.leaf.refresh_from_db()
-        self.assertEqual(self.leaf.parent, new_root)
-        self.assertEqual(self.leaf.path, _path(new_root.pk, self.leaf.pk))
 
 
 class CycleValidationTests(TestCase):
@@ -252,14 +224,6 @@ class SortPathTests(TestCase):
         Region.objects.create(parent=root, name='Aardvark', slug='a-gcord')
         names = list(root.get_children().values_list('name', flat=True))
         self.assertEqual(names, ['Aardvark', 'Zebra'])
-
-    def test_get_siblings_returns_in_name_order(self):
-        root = Region.objects.create(name='Root', slug='root-gsord')
-        Region.objects.create(parent=root, name='Zebra', slug='z-gsord')
-        a = Region.objects.create(parent=root, name='Aardvark', slug='a-gsord')
-        Region.objects.create(parent=root, name='Buffalo', slug='b-gsord')
-        names = list(a.get_siblings().values_list('name', flat=True))
-        self.assertEqual(names, ['Buffalo', 'Zebra'])
 
 
 class AddRelatedCountTests(TestCase):

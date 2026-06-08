@@ -247,7 +247,7 @@ class Migration(migrations.Migration):
             name='inventoryitem', options={'ordering': ('name', 'pk')},
         ),
         migrations.AlterModelOptions(
-            name='location', options={'ordering': ('sort_path', 'pk')},
+            name='location', options={'ordering': ('site', 'sort_path')},
         ),
         migrations.AlterModelOptions(
             name='modulebay', options={'ordering': ('sort_path', 'pk')},

@@ -1057,18 +1057,17 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(names, ['Bay 1', 'Bay 1.1', 'Bay 1.2', 'Bay 1.3'])
 
     @tag('regression')  # #22146
-    def test_root_module_bay_rename_preserves_tree_ids(self):
+    def test_root_module_bay_rename_preserves_paths(self):
         """
-        Renaming a root module bay must not renumber any other root tree's
-        tree_id. The renamed bay's own tree_id is also expected to remain
-        stable, but the load-bearing assertion is that the *other* bays are
-        not shifted.
+        Renaming a root module bay must not rewrite any tree's path. Renaming
+        touches only sort_path (the display-ordering column), so every bay's
+        path — including the renamed bay's own — must be unchanged afterward.
         """
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
         site = Site.objects.first()
         device = Device.objects.create(
-            name='Rename TreeID Device',
+            name='Rename Path Device',
             device_type=device_type,
             role=device_role,
             site=site,
@@ -1076,8 +1075,8 @@ class ModuleBayTestCase(TestCase):
         for name in ('Bay 1', 'Bay 2', 'Bay 3', 'Bay 4'):
             ModuleBay.objects.create(device=device, name=name)
 
-        tree_ids_before = {
-            bay.name: bay.tree_id
+        paths_before = {
+            bay.pk: str(bay.path)
             for bay in ModuleBay.objects.filter(device=device)
         }
 
@@ -1085,18 +1084,16 @@ class ModuleBayTestCase(TestCase):
         bay.name = 'Bay 99'
         bay.save()
 
-        tree_ids_after = {
-            bay.name: bay.tree_id
+        paths_after = {
+            bay.pk: str(bay.path)
             for bay in ModuleBay.objects.filter(device=device)
         }
-        for name in ('Bay 1', 'Bay 3', 'Bay 4'):
-            self.assertEqual(tree_ids_after[name], tree_ids_before[name])
-        self.assertEqual(tree_ids_after['Bay 99'], tree_ids_before['Bay 2'])
+        self.assertEqual(paths_after, paths_before)
 
     @tag('regression')  # #22146
     def test_root_module_bay_rename_updates_display_order(self):
         """
-        Even though renaming a root module bay does not renumber tree_ids,
+        Even though renaming a root module bay does not rewrite its path,
         the manager's _root_name annotation must reflect the new name so the
         display ordering is correct.
         """
@@ -1186,7 +1183,9 @@ class ModuleBayTestCase(TestCase):
         movable_bay.refresh_from_db()
         host_bay.refresh_from_db()
         self.assertEqual(movable_bay.parent_id, host_bay.pk)
-        self.assertEqual(movable_bay.tree_id, host_bay.tree_id)
+        # The trigger cascade must have re-rooted the moved bay into host_bay's
+        # tree: its path is now a strict descendant of host_bay's path.
+        self.assertTrue(str(movable_bay.path).startswith(f'{host_bay.path}.'))
 
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()

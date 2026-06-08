@@ -1,10 +1,11 @@
 """
-Ltree-based hierarchical model support - drop-in replacement for django-mptt.
+Ltree-based hierarchical model support - a replacement for django-mptt backed by
+a PostgreSQL ltree column.
 
-LtreeModel provides the same public API as django-mptt's MPTTModel (get_ancestors,
-get_descendants, get_children, get_root, get_family, get_siblings,
-get_descendant_count, get_level, level, is_root_node, is_leaf_node, is_child_node,
-move_to, insert_at) backed by a PostgreSQL ltree column.
+LtreeModel covers the subset of django-mptt's MPTTModel API that NetBox actually
+uses. It is deliberately NOT a full reimplementation of MPTT's surface — methods
+NetBox does not rely on (e.g. get_leafnodes(), get_next_sibling(),
+get_previous_sibling()) are intentionally omitted.
 
 Paths are maintained entirely by PostgreSQL triggers installed via the
 InstallLtreeTriggers migration operation. The Python layer never computes or
@@ -13,7 +14,7 @@ inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import IntegrityError, OperationalError, connection, migrations, models
-from django.db.models import ForeignKey, Lookup, ManyToManyField, Q
+from django.db.models import ForeignKey, Lookup, ManyToManyField
 from django.db.models.expressions import RawSQL
 from django.utils.translation import gettext_lazy as _
 
@@ -484,46 +485,6 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
     def get_level(self):
         return self.level
 
-    def _root_pk(self):
-        """
-        Integer PK of the root node, parsed from the first (zero-padded) path label.
-        Returns None for a node with no path.
-        """
-        if not self.path:
-            return None
-        return int(str(self.path).split('.', 1)[0].lstrip('0') or '0')
-
-    @property
-    def tree_id(self):
-        """Integer PK of the root, mirroring django-mptt's `tree_id`."""
-        return self._root_pk()
-
-    def is_root_node(self):
-        return self.parent_id is None
-
-    def is_leaf_node(self):
-        if self.pk is None:
-            # Unsaved instance has no children. Without this guard,
-            # filter(parent_id=None) would match every existing root.
-            return True
-        return not type(self).objects.filter(parent_id=self.pk).exists()
-
-    def is_child_node(self):
-        return self.parent_id is not None
-
-    def get_root(self):
-        if self.is_root_node():
-            return self
-        if not self.path:
-            # Unsaved (no path computed yet). Walk up the in-memory parent
-            # chain if available; otherwise we have no way to resolve the root.
-            parent = getattr(self, 'parent', None)
-            return parent.get_root() if parent is not None else None
-        return type(self)._default_manager.get(pk=self._root_pk())
-
-    def get_parent(self):
-        return self.parent
-
     @classmethod
     def _tree_order_field(cls):
         """
@@ -551,56 +512,8 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
             **{f'path__{lookup}': self.path}
         ).order_by(self._tree_order_field())
 
-    def get_descendant_count(self):
-        if not self.path:
-            return 0
-        return type(self)._default_manager.filter(path__descendant=self.path).count()
-
     def get_children(self):
         return type(self)._default_manager.filter(parent_id=self.pk).order_by(self._tree_order_field())
-
-    def get_family(self):
-        """Ancestors + self + descendants, in tree-order."""
-        if not self.path:
-            return type(self)._default_manager.none()
-        # No .distinct() needed: this is a single-table OR with no joins, so a row
-        # (self, which matches both branches) is still returned only once.
-        return type(self)._default_manager.filter(
-            Q(path__ancestor=self.path) | Q(path__descendant_or_equal=self.path)
-        ).order_by(self._tree_order_field())
-
-    def get_siblings(self, include_self=False):
-        qs = type(self)._default_manager.filter(parent_id=self.parent_id)
-        if not include_self:
-            qs = qs.exclude(pk=self.pk)
-        return qs.order_by(self._tree_order_field())
-
-    def move_to(self, target, position='last-child'):
-        """
-        Re-parent this node under `target`. Triggers handle path recomputation
-        for self and all descendants. `position` is accepted for django-mptt
-        compatibility; first-/last-child both mean "child of target" and
-        left/right mean "sibling of target".
-        """
-        if position in ('first-child', 'last-child', None):
-            new_parent = target
-        elif position in ('left', 'right'):
-            new_parent = target.parent if target else None
-        else:
-            raise ValueError(f"Unsupported move_to position: {position!r}")
-        self.parent = new_parent
-        self.save()
-
-    def insert_at(self, target, position='last-child', save=False):
-        """Set parent (optionally save). Mirrors django-mptt's insert_at."""
-        if position in ('first-child', 'last-child', None):
-            self.parent = target
-        elif position in ('left', 'right'):
-            self.parent = target.parent if target else None
-        else:
-            raise ValueError(f"Unsupported insert_at position: {position!r}")
-        if save:
-            self.save()
 
     @classmethod
     def rebuild_sort_paths(cls, name_column='name'):

@@ -1585,7 +1585,7 @@ class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
         verbose_name_plural = _('inventory items')
 
     def clean(self):
-        super().clean()  # LtreeModel.clean() rejects self/descendant-as-parent cycles
+        super().clean()
 
         # Validation for moving InventoryItems
         if not self._state.adding:
