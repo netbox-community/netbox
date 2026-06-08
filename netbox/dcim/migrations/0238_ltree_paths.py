@@ -38,7 +38,7 @@ from django.contrib.postgres.operations import CreateExtension
 from django.db import migrations, models
 
 import netbox.models.ltree
-from netbox.models.ltree import InstallLtreeTriggers
+from utilities.ltree import InstallLtreeTriggers
 
 # All models getting an ltree `path` column.
 ALL_MODELS = (
