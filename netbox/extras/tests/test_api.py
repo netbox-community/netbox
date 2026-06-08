@@ -1239,6 +1239,29 @@ class ScriptTestCase(APITestCase):
             # Restore the original setting for other tests
             self.TestScriptClass.Meta.scheduling_enabled = original
 
+    def test_run_token_write_enabled(self):
+        """
+        Running a script is an unsafe (state-changing) action and must be rejected when the calling token has
+        write_enabled=False, even if the user holds the run_script permission.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {
+            'data': {'var1': 'hello', 'var2': 1, 'var3': False},
+            'commit': True,
+        }
+
+        # A token with write_enabled=False should be rejected
+        token = Token.objects.create(version=2, user=self.user, write_enabled=False)
+        token_header = f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'
+        response = self.client.post(self.url, payload, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_403_FORBIDDEN)
+
+        # Enabling write ability on the token should allow the script to run
+        token.write_enabled = True
+        token.save()
+        response = self.client.post(self.url, payload, format='json', HTTP_AUTHORIZATION=token_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
 
 class CreatedUpdatedFilterTestCase(APITestCase):
 

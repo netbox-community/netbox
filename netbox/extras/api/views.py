@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -299,6 +300,13 @@ class ScriptViewSet(ModelViewSet):
 
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
+
+    def get_permissions(self):
+        # Running a script is an unsafe action which does not map to a standard CRUD operation; enforce the
+        # calling token's write ability (in addition to the run_script check performed in post()).
+        if self.request.method not in SAFE_METHODS:
+            return [TokenWritePermission()]
+        return super().get_permissions()
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
