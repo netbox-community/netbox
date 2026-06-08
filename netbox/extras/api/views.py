@@ -333,12 +333,13 @@ class ScriptViewSet(ModelViewSet):
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
 
-        script = self._get_script(pk)
-
         # Running a script is a state-changing operation. If token authentication is in use, enforce the token's
-        # write ability. Session-authenticated requests are unaffected (request.auth is not a Token).
+        # write ability before performing any object lookup. Session-authenticated requests are unaffected
+        # (request.auth is not a Token).
         if isinstance(request.auth, Token) and not request.auth.write_enabled:
             raise PermissionDenied("This token does not permit write operations.")
+
+        script = self._get_script(pk)
 
         if not request.user.has_perm('extras.run_script', obj=script):
             raise PermissionDenied("This user does not have permission to run this script.")
