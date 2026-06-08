@@ -181,7 +181,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             if request.GET['export'] == 'table':
                 table = self.get_table(self.queryset, request, has_table_actions)
                 columns = [name for name, _ in table.selected_columns]
-                delimiter = request.user.config.get('csv_delimiter')
+                delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
                 return self.export_table(table, columns, delimiter=delimiter)
 
             # Render an ExportTemplate
@@ -202,7 +202,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Fall back to default table/YAML export
             table = self.get_table(self.queryset, request, has_table_actions)
-            delimiter = request.user.config.get('csv_delimiter')
+            delimiter = request.user.config.get('csv_delimiter') if request.user.is_authenticated else None
             return self.export_table(table, delimiter=delimiter)
 
         # Render the objects table
