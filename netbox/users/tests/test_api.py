@@ -357,6 +357,43 @@ class TokenTestCase(
         # Each token should be unique
         self.assertEqual(len(plaintexts), len(data))
 
+    def test_create_token_ignores_client_supplied_plaintext(self):
+        """
+        A client must not be able to choose a Token's plaintext value. Any `token` value supplied in a
+        create request must be ignored in favor of a randomly-generated value (for both v1 and v2 tokens).
+        """
+        self.add_permissions('users.add_token')
+        url = reverse('users-api:token-list')
+        chosen_plaintext = 'a' * TOKEN_DEFAULT_LENGTH
+
+        for version in (1, 2):
+            user = User.objects.create_user(username=f'chosen_plaintext_user_v{version}')
+            data = {
+                'user': user.pk,
+                'version': version,
+                'token': chosen_plaintext,
+            }
+            response = self.client.post(url, data, format='json', **self.header)
+            self.assertEqual(response.status_code, 201)
+
+            # The returned plaintext must not match the client-supplied value
+            returned = response.data['token']
+            self.assertIsNotNone(returned)
+            self.assertEqual(len(returned), TOKEN_DEFAULT_LENGTH)
+            self.assertNotEqual(returned, chosen_plaintext)
+
+            # The stored secret must be the randomly-generated value, not the client-supplied one
+            token = Token.objects.get(pk=response.data['id'])
+            self.assertEqual(token.version, version)
+            if version == 1:
+                # v1 tokens are authenticated by direct plaintext lookup
+                self.assertEqual(token.plaintext, returned)
+                self.assertNotEqual(token.plaintext, chosen_plaintext)
+            else:
+                # v2 tokens are authenticated by validating the plaintext against the stored HMAC digest
+                self.assertTrue(token.validate(returned))
+                self.assertFalse(token.validate(chosen_plaintext))
+
     def test_reassign_token(self):
         """
         Check that a Token cannot be reassigned to another User.
