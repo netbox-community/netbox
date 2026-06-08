@@ -7,7 +7,6 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
-from rest_framework.permissions import SAFE_METHODS
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -22,6 +21,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
+from users.models import Token
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
@@ -301,13 +301,6 @@ class ScriptViewSet(ModelViewSet):
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
 
-    def get_permissions(self):
-        # Running a script is an unsafe action which does not map to a standard CRUD operation; enforce the
-        # calling token's write ability (in addition to the run_script check performed in post()).
-        if self.request.method not in SAFE_METHODS:
-            return [TokenWritePermission()]
-        return super().get_permissions()
-
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
@@ -341,6 +334,11 @@ class ScriptViewSet(ModelViewSet):
         """
 
         script = self._get_script(pk)
+
+        # Running a script is a state-changing operation. If token authentication is in use, enforce the token's
+        # write ability. Session-authenticated requests are unaffected (request.auth is not a Token).
+        if isinstance(request.auth, Token) and not request.auth.write_enabled:
+            raise PermissionDenied("This token does not permit write operations.")
 
         if not request.user.has_perm('extras.run_script', obj=script):
             raise PermissionDenied("This user does not have permission to run this script.")

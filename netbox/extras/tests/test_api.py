@@ -1262,6 +1262,22 @@ class ScriptTestCase(APITestCase):
         response = self.client.post(self.url, payload, format='json', HTTP_AUTHORIZATION=token_header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
+    def test_run_session_auth(self):
+        """
+        The token write-ability check applies only to token authentication. Session-authenticated requests
+        (where request.auth is not a Token) must still be allowed to run scripts.
+        """
+        self.add_permissions('extras.run_script')
+        payload = {
+            'data': {'var1': 'hello', 'var2': 1, 'var3': False},
+            'commit': True,
+        }
+
+        # Authenticate via session rather than a token; request.auth is None
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url, payload, format='json')
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
 
 class CreatedUpdatedFilterTestCase(APITestCase):
 
