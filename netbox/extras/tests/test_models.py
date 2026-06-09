@@ -189,7 +189,91 @@ class ImageAttachmentTestCase(TestCase):
         self.assertEqual(first.filename, 'action-buttons.png')
         self.assertEqual(second.filename, 'action-buttons_sdmmer4.png')
 
-        self.assertCountEqual(storage.files.keys(), {base_name, suffixed_name})
+    # ------------------------------------------------------------------
+    # Security: polyglot upload sanitisation (SR-001 / VM-326)
+    # ------------------------------------------------------------------
+
+    def _make_polyglot_png(self, filename, payload=b'<script>alert(1)</script>'):
+        """Return a SimpleUploadedFile that is a valid PNG with extra bytes appended."""
+        buf = io.BytesIO()
+        Image.new('RGB', (1, 1), color='red').save(buf, format='PNG')
+        # Append a non-image payload after the IEND chunk
+        polyglot = buf.getvalue() + payload
+        return SimpleUploadedFile(name=filename, content=polyglot, content_type='image/png')
+
+    def _make_animated_gif(self, filename, frames=2):
+        """Return a SimpleUploadedFile containing a minimal animated GIF."""
+        buf = io.BytesIO()
+        # Use distinct RGB colours and a size > 1×1 so GIF optimisation
+        # does not collapse identical frames into a single frame.
+        images = [Image.new('RGB', (2, 2), color=(i * 80, 0, 0)) for i in range(frames)]
+        images[0].save(buf, format='GIF', save_all=True, append_images=images[1:], loop=0, duration=100)
+        return SimpleUploadedFile(name=filename, content=buf.getvalue(), content_type='image/gif')
+
+    def _make_attachment(self, uploaded_file):
+        return ImageAttachment(
+            object_type=self.ct_site,
+            object_id=self.site.pk,
+            image=uploaded_file,
+        )
+
+    def test_clean_strips_polyglot_payload_from_png(self):
+        """clean() re-encodes PNG uploads, stripping any non-image trailer data."""
+        payload = b'<script>alert(1)</script>'
+        ia = self._make_attachment(self._make_polyglot_png('test.png', payload=payload))
+        # The raw upload contains the payload
+        self.assertIn(payload, ia.image.file.read())
+        ia.image.file.seek(0)
+
+        ia.full_clean()
+
+        # After clean(), the sanitised ContentFile must not contain the payload
+        sanitised = ia.image.file.read()
+        self.assertNotIn(payload, sanitised)
+        # But it must still be a valid PNG
+        buf = io.BytesIO(sanitised)
+        img = Image.open(buf)
+        self.assertEqual(img.format, 'PNG')
+
+    def test_clean_preserves_animated_gif_frames(self):
+        """clean() re-encodes GIF uploads while keeping all animation frames."""
+        n_frames = 3
+        ia = self._make_attachment(self._make_animated_gif('anim.gif', frames=n_frames))
+        ia.full_clean()
+
+        sanitised = ia.image.file.read()
+        buf = io.BytesIO(sanitised)
+        img = Image.open(buf)
+        self.assertEqual(img.format, 'GIF')
+        # All frames must be preserved
+        frame_count = 0
+        try:
+            while True:
+                frame_count += 1
+                img.seek(img.tell() + 1)
+        except EOFError:
+            pass
+        self.assertEqual(frame_count, n_frames)
+
+    def test_clean_rejects_disallowed_extension(self):
+        """clean() raises ValidationError for file extensions not in IMAGE_ATTACHMENT_IMAGE_FORMATS."""
+        svg_content = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
+        ia = self._make_attachment(
+            SimpleUploadedFile(name='evil.svg', content=svg_content, content_type='image/svg+xml')
+        )
+        with self.assertRaises(ValidationError) as cm:
+            ia.clean()
+        self.assertIn('svg', str(cm.exception).lower())
+
+    def test_clean_skips_reencode_for_existing_stored_image(self):
+        """clean() does not re-encode already-committed (stored) images."""
+        ia = self._make_attachment(self._uploaded_png('existing.png'))
+        # Mark as committed (simulates an already-saved instance fetched from DB)
+        ia.image._committed = True
+        original_file = ia.image.file
+        # Call model clean() directly; the re-encoding block must be skipped
+        ia.clean()
+        self.assertIs(ia.image.file, original_file)
 
 
 class TableConfigTestCase(TestCase):

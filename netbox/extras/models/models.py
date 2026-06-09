@@ -6,6 +6,7 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
+from django.core.files.base import ContentFile
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -743,30 +744,47 @@ class ImageAttachment(ChangeLoggedModel):
                 _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
 
-        # Re-encode the image through Pillow to strip any embedded non-image
-        # payloads (e.g. polyglot HTML/PNG files). This must be done after the
-        # ImageField's own Pillow dimension check has already run.
-        if self.image and hasattr(self.image, 'file'):
+        # Re-encode new image uploads through Pillow to strip any embedded
+        # non-image payloads (e.g. polyglot HTML/PNG files).
+        # Only process uncommitted (new) uploads; skip already-stored images.
+        if self.image and not self.image._committed:
             try:
-                self.image.file.seek(0)
-                img = PillowImage.open(self.image.file)
-                img_format = img.format or 'PNG'
-                # Validate extension against allowed formats
+                # Validate extension before attempting to open with Pillow so
+                # that disallowed types (e.g. SVG) get a clear error message
+                # rather than a generic "unable to process" one.
                 ext = Path(self.image.name).suffix.lstrip('.').lower()
                 if ext not in IMAGE_ATTACHMENT_IMAGE_FORMATS:
                     raise ValidationError(
                         _("Unsupported image format: {ext}").format(ext=ext)
                     )
-                # Re-encode to a new buffer; this strips any non-image trailer data
-                buf = io.BytesIO()
-                img.save(buf, format=img_format)
-                buf.seek(0)
-                self.image.file = buf
                 self.image.file.seek(0)
+                img = PillowImage.open(self.image.file)
+                img_format = img.format or 'PNG'
+                # Re-encode into a fresh buffer; any non-image trailer bytes
+                # are discarded. For animated GIFs, iterate through all frames
+                # via ImageSequence so animation is preserved.
+                buf = io.BytesIO()
+                if img_format == 'GIF':
+                    from PIL import ImageSequence  # noqa: PLC0415
+                    frames = [frame.copy() for frame in ImageSequence.Iterator(img)]
+                    if frames:
+                        frames[0].save(
+                            buf, format='GIF', save_all=True,
+                            append_images=frames[1:] if len(frames) > 1 else [],
+                            duration=img.info.get('duration', 100),
+                            loop=img.info.get('loop', 0),
+                        )
+                    else:
+                        img.save(buf, format='GIF')
+                else:
+                    img.save(buf, format=img_format)
+                # Replace the in-memory upload with the sanitised content so
+                # Django writes the clean version to storage on model save.
+                self.image.file = ContentFile(buf.getvalue(), name=self.image.name)
             except ValidationError:
                 raise
-            except Exception:
-                raise ValidationError(_("Unable to process the uploaded image."))
+            except (OSError, PillowImage.UnidentifiedImageError, PillowImage.DecompressionBombError) as e:
+                raise ValidationError(_("Unable to process the uploaded image.")) from e
 
     def delete(self, *args, **kwargs):
 
