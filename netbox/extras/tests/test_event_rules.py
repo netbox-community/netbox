@@ -1,5 +1,7 @@
 import json
+import logging
 import uuid
+from io import BytesIO
 from unittest import skipIf
 from unittest.mock import Mock, patch
 
@@ -8,16 +10,19 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.test import RequestFactory, tag
 from django.urls import reverse
+from PIL import Image
 from requests import Session
 from rest_framework import status
 
+from core.choices import ManagedFileRootPathChoices
 from core.events import *
-from core.models import ObjectType
+from core.models import Job, ObjectType
 from dcim.choices import SiteStatusChoices
-from dcim.models import Interface, Site
+from dcim.models import DeviceType, Interface, Manufacturer, Site
 from extras.choices import EventRuleActionChoices
 from extras.events import enqueue_event, flush_events, serialize_for_event
-from extras.models import EventRule, Script, Tag, Webhook
+from extras.models import EventRule, Script, ScriptModule, Tag, Webhook
+from extras.scripts import Script as ScriptBase
 from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
 from netbox.context_managers import event_tracking
@@ -653,3 +658,145 @@ class EventRuleTestCase(APITestCase):
         self.add_permissions('dcim.add_site')
         response = self.client.post(url, {'name': 'Site X', 'slug': 'site-x'}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+    @tag('regression')
+    def test_eventrule_script_action_with_object_image_files(self):
+        """
+        Verify that a Script event-rule action can be enqueued and executed cleanly when the
+        triggering object carries uploaded files (e.g. DeviceType images).
+        This is a regression test for issue #22376.
+
+        """
+        # Create a dummy script class and an instance of it
+        class DummyScript(ScriptBase):
+            class Meta:
+                name = "Dummy Script"
+
+            def run(self, data, commit=True):
+                return "finished successfully"
+
+        dummy_script = DummyScript()
+
+        # Create ScriptModule and Script
+        with patch.object(ScriptModule, 'sync_classes'):
+            module = ScriptModule.objects.create(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='dummy_script.py',
+            )
+        script = Script.objects.create(
+            module=module,
+            name='Dummy Script',
+            is_executable=True,
+        )
+        script_type = ObjectType.objects.get_for_model(Script)
+
+        # Create an event rule that triggers on DeviceType update with Script action
+        devicetype_type = ObjectType.objects.get_for_model(DeviceType)
+        event_rule = EventRule.objects.create(
+            name='Test Script Event Rule with Files',
+            event_types=[OBJECT_UPDATED],
+            action_type=EventRuleActionChoices.SCRIPT,
+            action_object_type=script_type,
+            action_object_id=script.pk,
+        )
+        event_rule.object_types.set([devicetype_type])
+
+        # Create a manufacturer and DeviceType
+        manufacturer = Manufacturer.objects.create(
+            name='Test Manufacturer',
+            slug='test-manufacturer',
+        )
+        devicetype = DeviceType.objects.create(
+            model='Test DeviceType',
+            slug="test-devicetype",
+            manufacturer=manufacturer,
+        )
+
+        # Create an image file
+        image = BytesIO()
+        Image.new('RGB', (1, 1)).save(image, format='PNG')
+        image.name = 'test_image.png'
+        image.seek(0)
+
+        # PATCH the DeviceType via REST API to add the image
+        data = {
+            'front_image': image,
+        }
+        url = reverse('dcim-api:devicetype-detail', kwargs={'pk': devicetype.pk})
+        self.add_permissions('dcim.change_devicetype')
+
+        # Mock the script's python_class to prevent the test from trying to load from disk
+        with patch.object(Script, 'python_class') as mock:
+            mock.return_value = dummy_script
+            # Since in core/models/jobs.py Jobs are enqueued with a transaction.on_commit-handler
+            # we simulate commit by using captureOnCommitCallbacks context manager
+            with self.captureOnCommitCallbacks(execute=True):
+                response = self.client.patch(url, data, format='multipart', **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+
+            # Assert that the script job was enqueued cleanly and is waiting for execution
+            self.assertEqual(self.queue.count, 1)
+            script_job = Job.objects.filter(name=dummy_script.name).last()
+            self.assertEqual(script_job.status, "pending")
+
+            # silence rqworker (cleaner output) and trigger job execution
+            logging.getLogger('rq.worker').setLevel(logging.ERROR)
+            django_rq.get_worker().work(burst=True)
+
+        # Assert that our script was executed without any errors
+        script_job.refresh_from_db()
+        self.assertEqual(script_job.status, "completed")
+        self.assertEqual(script_job.data.get('output', ''), "finished successfully")
+
+    @tag('regression')
+    def test_eventrule_webhook_action_with_object_image_files(self):
+        """
+        Verify that a Webhook event-rule action can be enqueued and executed cleanly when
+        the triggering object carries uploaded files (e.g. DeviceType images).
+        This is a regression test for issue #20873.
+        """
+        # Create an event rule that triggers on DeviceType update with Script action
+        webhook = Webhook.objects.get(name='Webhook 1')
+        webhook_type = ObjectType.objects.get_for_model(Webhook)
+        devicetype_type = ObjectType.objects.get_for_model(DeviceType)
+        event_rule = EventRule.objects.create(
+            name='Test Webhook Event Rule with Files',
+            event_types=[OBJECT_UPDATED],
+            action_type=EventRuleActionChoices.WEBHOOK,
+            action_object_type=webhook_type,
+            action_object_id=webhook.pk,
+        )
+        event_rule.object_types.set([devicetype_type])
+
+        # Create a manufacturer and DeviceType
+        manufacturer = Manufacturer.objects.create(
+            name='Test Manufacturer',
+            slug='test-manufacturer',
+        )
+        devicetype = DeviceType.objects.create(
+            model='Test DeviceType',
+            slug="test-devicetype",
+            manufacturer=manufacturer,
+        )
+
+        # Create an image file
+        image = BytesIO()
+        Image.new('RGB', (1, 1)).save(image, format='PNG')
+        image.name = 'test_image.png'
+        image.seek(0)
+
+        # PATCH the DeviceType via REST API to add the image
+        data = {
+            'front_image': image,
+        }
+        url = reverse('dcim-api:devicetype-detail', kwargs={'pk': devicetype.pk})
+        self.add_permissions('dcim.change_devicetype')
+
+        response = self.client.patch(url, data, format='multipart', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # Assert that the webhook job was enqueued cleanly
+        self.assertEqual(self.queue.count, 1)
+        job = self.queue.jobs[0]
+        self.assertEqual(job.kwargs['event_rule'], event_rule)
+        self.assertEqual(job.kwargs['event_type'], OBJECT_UPDATED)

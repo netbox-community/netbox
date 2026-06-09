@@ -257,7 +257,7 @@ def process_event_rules(event_rules, object_type, event):
             if 'snapshots' in event:
                 params['snapshots'] = event['snapshots']
             if 'request' in event:
-                params['request'] = copy_safe_request(event['request'])
+                params['request'] = copy_safe_request(event['request'], include_files=False)
 
             # Enqueue the job
             ScriptJob.enqueue(**params)
