@@ -3,8 +3,6 @@ import json
 import urllib.parse
 from pathlib import Path
 
-from PIL import Image as PillowImage
-
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
@@ -15,6 +13,7 @@ from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from PIL import Image as PillowImage
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
