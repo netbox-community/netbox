@@ -244,7 +244,7 @@ class RouteTargetType(PrimaryObjectType):
 
 @strawberry_django.type(
     models.Service,
-    exclude=('parent_object_type', 'parent_object_id'),
+    exclude=('_min_port', 'parent_object_type', 'parent_object_id'),
     filters=ServiceFilter,
     pagination=True
 )
