@@ -27,7 +27,7 @@ from netbox.forms.bulk_rename import NetBoxModelBulkRenameForm
 from netbox.models.features import ChangeLoggingMixin
 from netbox.object_actions import AddObject, BulkDelete, BulkEdit, BulkExport, BulkImport, BulkRename
 from utilities.error_handlers import handle_protectederror
-from utilities.exceptions import AbortRequest, PermissionsViolation
+from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.export import TableExport, stream_table_csv_response
 from utilities.forms import BulkDeleteForm, BulkRenameForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
@@ -245,10 +245,95 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
     form = None
     model_form = None
     pattern_target = ''
+    pattern_template_fields = ()
     htmx_template_name = 'htmx/bulk_add_form.html'
 
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'add')
+
+    def get_pattern_context(self, value):
+        """
+        Return a context mapping for substituting the generated pattern value into
+        model form fields.
+
+        By default, the field named by ``pattern_target`` is supported as a
+        placeholder, e.g. ``{vid}``.
+        """
+        if not self.pattern_target:
+            return {}
+
+        return {
+            self.pattern_target: str(value),
+        }
+
+    def render_pattern_template(self, template, value):
+        """
+        Replace pattern placeholders in a single form field value.
+        """
+        rendered = str(template)
+
+        for key, replacement in self.get_pattern_context(value).items():
+            rendered = rendered.replace(f'{{{key}}}', replacement)
+
+        return rendered
+
+    def apply_pattern_template_fields(self, data, value):
+        """
+        Apply the generated pattern value to any configured template fields.
+        """
+        for field_name in self.pattern_template_fields:
+            if field_name not in data:
+                continue
+
+            # QueryDict values may be multi-valued; preserve that behavior.
+            if hasattr(data, 'getlist') and hasattr(data, 'setlist'):
+                data.setlist(field_name, [
+                    self.render_pattern_template(field_value, value)
+                    for field_value in data.getlist(field_name)
+                ])
+            else:
+                data[field_name] = self.render_pattern_template(data[field_name], value)
+
+        return data
+
+    def get_model_form_data(self, form, request, value):
+        """
+        Return the submitted data to use when instantiating the model form for a
+        single generated pattern value.
+        """
+        data = request.POST.copy()
+        data[self.pattern_target] = value
+
+        return self.apply_pattern_template_fields(data, value)
+
+    def add_model_form_errors(self, form, model_form, value):
+        """
+        Copy validation errors from the generated object's model form back onto
+        the pattern form for display.
+        """
+        errors = model_form.errors.as_data()
+
+        if errors.get(self.pattern_target):
+            form.add_error('pattern', errors.pop(self.pattern_target))
+
+        for field_name, field_errors in errors.items():
+            if field_name == '__all__':
+                field_label = _('General')
+            elif field_name in model_form.fields:
+                field_label = model_form.fields[field_name].label
+            else:
+                field_label = field_name
+
+            for error in field_errors:
+                for message in error.messages:
+                    form.add_error(
+                        None,
+                        _('{value}: {field}: {error}').format(
+                            value=value,
+                            field=field_label,
+                            error=message,
+                        )
+                    )
 
     def _create_objects(self, form, request):
         new_objects = []
@@ -258,8 +343,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
 
             # Reinstantiate the model form each time to avoid overwriting the same instance. Use a mutable
             # copy of the POST QueryDict so that we can update the target field value.
-            model_form = self.model_form(request.POST.copy())
-            model_form.data[self.pattern_target] = value
+            model_form = self.model_form(self.get_model_form_data(form, request, value))
 
             # Validate each new object independently.
             if model_form.is_valid():
@@ -267,12 +351,10 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
                 obj = model_form.save()
                 new_objects.append(obj)
             else:
-                # Copy any errors on the pattern target field to the pattern form.
-                errors = model_form.errors.as_data()
-                if errors.get(self.pattern_target):
-                    form.add_error('pattern', errors[self.pattern_target])
-                # Raise an IntegrityError to break the for loop and abort the transaction.
-                raise IntegrityError()
+                self.add_model_form_errors(form, model_form, value)
+
+                # Abort the transaction and break out of the loop.
+                raise AbortTransaction()
 
         return new_objects
 
@@ -343,7 +425,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
                     return redirect(request.path)
                 return redirect(self.get_return_url(request))
 
-            except IntegrityError:
+            except (AbortTransaction, IntegrityError):
                 pass
 
             except (AbortRequest, PermissionsViolation) as e:

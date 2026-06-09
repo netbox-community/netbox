@@ -1793,6 +1793,16 @@ class VLANDeleteView(generic.ObjectDeleteView):
     queryset = VLAN.objects.all()
 
 
+@register_model_view(VLAN, 'bulk_add', path='bulk-add', detail=False)
+class VLANBulkCreateView(generic.BulkCreateView):
+    queryset = VLAN.objects.all()
+    form = forms.VLANIDBulkCreateForm
+    model_form = forms.VLANBulkAddForm
+    pattern_target = 'vid'
+    pattern_template_fields = ('name',)
+    template_name = 'ipam/vlan_bulk_add.html'
+
+
 @register_model_view(VLAN, 'bulk_import', path='import', detail=False)
 class VLANBulkImportView(generic.BulkImportView):
     queryset = VLAN.objects.all()

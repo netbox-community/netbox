@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Region, Site, SiteGroup
-from ipam.forms import PrefixForm
+from ipam.forms import PrefixForm, VLANIDBulkCreateForm
 from ipam.forms.bulk_import import IPAddressImportForm
 
 
@@ -96,3 +96,31 @@ class IPAddressImportFormTestCase(TestCase):
 
         self.device.refresh_from_db()
         self.assertEqual(self.device.oob_ip, ip1, "OOB IP was incorrectly cleared by a row with is_oob=False")
+
+
+class VLANFormTestCase(TestCase):
+
+    def test_bulk_create_valid_patterns(self):
+        """Single values, ranges, and combinations expand to sorted, deduplicated VLAN IDs."""
+        cases = (
+            ('100', [100]),
+            ('5,10,20', [5, 10, 20]),
+            ('10-20', list(range(10, 21))),
+            ('1,10-20,300-305', [1, *range(10, 21), *range(300, 306)]),
+            (' 5 , 7 - 9 ', [5, 7, 8, 9]),
+            ('5,5,4-6', [4, 5, 6]),
+        )
+        for pattern, expected in cases:
+            with self.subTest(pattern=pattern):
+                form = VLANIDBulkCreateForm({'pattern': pattern})
+                self.assertTrue(form.is_valid(), form.errors)
+                self.assertEqual(form.cleaned_data['pattern'], expected)
+
+    def test_bulk_create_invalid_patterns(self):
+        """Malformed, descending, or out-of-range patterns are rejected with an error on the pattern field."""
+        cases = ('', 'abc', '10,abc', '20-10', '10-', '5,', '-5', '0', '4095')
+        for pattern in cases:
+            with self.subTest(pattern=pattern):
+                form = VLANIDBulkCreateForm({'pattern': pattern})
+                self.assertFalse(form.is_valid())
+                self.assertIn('pattern', form.errors)

@@ -926,3 +926,10 @@ class VLANTestCase(TestCase):
         vlan.group = vlangroups[2]
         with self.assertRaises(ValidationError):
             vlan.full_clean()
+
+    def test_vlan_group_vid_validation_with_null_vid(self):
+        """A missing VID on a grouped VLAN raises a ValidationError, not a TypeError."""
+        group = VLANGroup.objects.create(name='VLAN Group 1', slug='vlan-group-1')
+        vlan = VLAN(name='VLAN X', vid=None, group=group)
+        with self.assertRaises(ValidationError):
+            vlan.full_clean()
