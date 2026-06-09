@@ -1010,7 +1010,7 @@ class JinjaEnvFilterTestCase(TestCase):
             self.assertEqual(output, 'secret')
 
     def test_user_defined_filter_overrides_default(self):
-        with self.settings(JINJA2_FILTERS={'env': lambda name: 'overridden'}):
+        with self.settings(JINJA_FILTERS={'env': lambda name: 'overridden'}):
             output = render_jinja2("{{ 'NETBOX_TEST_TOKEN' | env }}", {})
             self.assertEqual(output, 'overridden')
 

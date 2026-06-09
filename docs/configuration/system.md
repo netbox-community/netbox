@@ -149,7 +149,7 @@ Set this configuration parameter to `True` for NetBox deployments which do not h
 
 Default: `[]`
 
-A list of system environment variable names which may be referenced from within Jinja2 templates via the built-in [`env`](#jinja2_filters) filter. Patterns may include wildcards (matched using Python's `fnmatch` syntax). Any variable whose name does not match an entry in this list cannot be referenced from a template. For example:
+A list of system environment variable names which may be referenced from within Jinja templates via the built-in [`env`](#jinja_filters) filter. Patterns may include wildcards (matched using Python's `fnmatch` syntax). Any variable whose name does not match an entry in this list cannot be referenced from a template. For example:
 
 ```python
 JINJA_ENVIRONMENT_PARAMS = [
@@ -163,35 +163,38 @@ JINJA_ENVIRONMENT_PARAMS = [
 
 ---
 
-## JINJA2_FILTERS
+## JINJA_FILTERS
+
+!!! info "Renamed in NetBox v4.7"
+    This parameter was formerly named `JINJA2_FILTERS`. The old name is still supported for backward compatibility but is deprecated and will be removed in NetBox v5.0.
 
 Default: `{}`
 
-A dictionary of custom Jinja2 filters with the key being the filter name and the value being a callable. For more information see the [Jinja2 documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
+A dictionary of custom Jinja filters with the key being the filter name and the value being a callable. For more information see the [Jinja documentation](https://jinja.palletsprojects.com/en/3.1.x/api/#custom-filters). For example:
 
 ```python
 def uppercase(x):
     return str(x).upper()
 
-JINJA2_FILTERS = {
+JINJA_FILTERS = {
     'uppercase': uppercase,
 }
 ```
 
-NetBox also registers the following filters by default. Any entry defined in `JINJA2_FILTERS` with the same name will override the default.
+NetBox also registers the following filters by default. Any entry defined in `JINJA_FILTERS` with the same name will override the default.
 
 | Filter | Description |
 |---|---|
 | `env` | Returns the value of the system environment variable with the given name, provided its name matches an entry in [`JINJA_ENVIRONMENT_PARAMS`](#jinja_environment_params). Returns `None` if the variable is not defined or its name is not whitelisted. |
 
-For example, given `JINJA_ENVIRONMENT_PARAMS = ['WEBHOOK_TOKEN_*']`, a Jinja2 template may reference an environment variable as:
+For example, given `JINJA_ENVIRONMENT_PARAMS = ['WEBHOOK_TOKEN_*']`, a Jinja template may reference an environment variable as:
 
 ```
 Authorization: Bearer {{ 'WEBHOOK_TOKEN_3' | env }}
 ```
 
 !!! tip "Plugin-provided filters"
-    Plugins can also register Jinja2 filters without requiring instance configuration. See [Jinja2 Config Templates](../plugins/development/config-templates.md) in the plugin development documentation. Instance-level `JINJA2_FILTERS` always takes precedence over plugin-registered filters of the same name.
+    Plugins can also register Jinja filters without requiring instance configuration. See [Jinja Config Templates](../plugins/development/config-templates.md) in the plugin development documentation. Instance-level `JINJA_FILTERS` always takes precedence over plugin-registered filters of the same name.
 
 ---
 

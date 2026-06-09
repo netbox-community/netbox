@@ -141,7 +141,7 @@ HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', {})
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 ISOLATED_DEPLOYMENT = getattr(configuration, 'ISOLATED_DEPLOYMENT', False)
 JINJA_ENVIRONMENT_PARAMS = getattr(configuration, 'JINJA_ENVIRONMENT_PARAMS', [])
-JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
+JINJA_FILTERS = getattr(configuration, 'JINJA_FILTERS', getattr(configuration, 'JINJA2_FILTERS', {}))
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
 LOGGING = getattr(configuration, 'LOGGING', {})
@@ -261,6 +261,12 @@ elif hasattr(configuration, 'LOGIN_REQUIRED'):
     warnings.warn(
         "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. This parameter can be removed from your "
         "configuration file.",
+        DeprecationWarning,
+    )
+if hasattr(configuration, 'JINJA2_FILTERS'):
+    warnings.warn(
+        "JINJA2_FILTERS has been renamed to JINJA_FILTERS and the old name will be removed in NetBox v5.0. Please "
+        "update your configuration file to use JINJA_FILTERS instead.",
         DeprecationWarning,
     )
 

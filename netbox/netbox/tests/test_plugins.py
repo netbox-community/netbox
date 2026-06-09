@@ -281,12 +281,12 @@ class PluginTestCase(TestCase):
 
     def test_instance_jinja2_filters_override_plugin_filters(self):
         """
-        Instance-level JINJA2_FILTERS must take precedence over plugin-registered filters
+        Instance-level JINJA_FILTERS must take precedence over plugin-registered filters
         of the same name.
         """
         from utilities.jinja2 import render_jinja2
         override = {'dummy_upper': lambda v: 'overridden'}
-        with self.settings(JINJA2_FILTERS=override):
+        with self.settings(JINJA_FILTERS=override):
             result = render_jinja2("{{ 'hello' | dummy_upper }}", {})
         self.assertEqual(result, 'overridden')
 
