@@ -98,12 +98,12 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
 
     environment = SandboxedEnvironment(**environment_params)
 
-    # Build filter table: default < plugin-registered < instance JINJA2_FILTERS.
+    # Build filter table: default < plugin-registered < instance JINJA_FILTERS.
     # Instance-level config always wins so site admins can override anything.
     filters = {
         **DEFAULT_JINJA2_FILTERS,
         **registry['plugins'].get('jinja2_filters', {}),
-        **get_config().JINJA2_FILTERS,
+        **get_config().JINJA_FILTERS,
     }
     environment.filters.update(filters)
 

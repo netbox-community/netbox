@@ -1,13 +1,13 @@
-# Jinja2 Config Templates
+# Jinja Config Templates
 
-NetBox uses [Jinja2](https://jinja.palletsprojects.com/) to render [configuration templates](../../features/config-templates.md). Plugins can extend this rendering pipeline in two complementary ways:
+NetBox uses [Jinja](https://jinja.palletsprojects.com/) to render [configuration templates](../../features/config-templates.md). Plugins can extend this rendering pipeline in two complementary ways:
 
 1. **Register custom filters** — make new template filters available by name in every config template.
 2. **Inject context variables** — add extra variables that are available inside every config template render.
 
 ---
 
-## Registering Jinja2 Filters
+## Registering Jinja Filters
 
 ### Via `jinja2_env.py` (auto-discovery)
 
@@ -57,7 +57,7 @@ class MyPluginConfig(PluginConfig):
 
 ### Precedence
 
-The full filter precedence from lowest to highest is: **NetBox built-in filters** (e.g. `env`) → **plugin-registered filters** → **instance [`JINJA2_FILTERS`](../../configuration/system.md#jinja2_filters)**. Instance-level filters always win, so site admins can override anything without touching a plugin.
+The full filter precedence from lowest to highest is: **NetBox built-in filters** (e.g. `env`) → **plugin-registered filters** → **instance [`JINJA_FILTERS`](../../configuration/system.md#jinja_filters)**. Instance-level filters always win, so site admins can override anything without touching a plugin.
 
 If two plugins register a filter with the same name, the later-loaded plugin's version wins and NetBox will log a warning.
 
@@ -72,7 +72,7 @@ def prefix_list(device):
         for ip in iface.ip_addresses.all()
     ]
 
-JINJA2_FILTERS = {
+JINJA_FILTERS = {
     'prefix_list': prefix_list,
 }
 ```

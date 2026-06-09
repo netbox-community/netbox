@@ -25,7 +25,7 @@ def register_jinja2_filters(filters):
     """
     Register a dict of Jinja2 filter functions provided by a plugin. Each key is the
     filter name as it will appear in templates; the value is the callable implementing it.
-    Plugin-registered filters have lower precedence than instance-level JINJA2_FILTERS
+    Plugin-registered filters have lower precedence than instance-level JINJA_FILTERS
     so that site admins can always override them in configuration.py.
     """
     if not isinstance(filters, dict):
