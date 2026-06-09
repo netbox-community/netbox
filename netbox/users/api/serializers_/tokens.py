@@ -16,8 +16,7 @@ __all__ = (
 
 class TokenSerializer(ValidatedModelSerializer):
     token = serializers.CharField(
-        required=False,
-        default=Token.generate,
+        read_only=True,
     )
     user = UserSerializer(
         nested=True
