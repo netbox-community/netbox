@@ -930,6 +930,46 @@ class VLANTestCase(TestCase):
             vlan.full_clean()
 
 
+class ServiceTemplateTestCase(TestCase):
+
+    def test_servicetemplate_lowest_port(self):
+        """
+        Test lowest port setting for servicetemplate
+        """
+        template = ServiceTemplate(
+            name='Template 1',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80, 443, 22, 8080],  # small test list
+        )
+        template.full_clean()
+        template.save()
+        self.assertEqual(template._ports_lowest, 22)
+
+    def test_servicetemplate_single_port(self):
+        """
+        Test with a single port
+        """
+        template = ServiceTemplate(
+            name='Template 2',
+            protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+            ports=[53],
+        )
+        template.full_clean()
+        template.save()
+        self.assertEqual(template._ports_lowest, 53)
+
+    def test_servicetemplate_empty_ports(self):
+        """
+        Test with empty ports list
+        """
+        template = ServiceTemplate(
+            name='Template 3',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[],
+        )
+        self.assertRaises(ValidationError, template.full_clean)
+
+
 class ServiceTestCase(TestCase):
 
     @classmethod
@@ -955,4 +995,6 @@ class ServiceTestCase(TestCase):
             parent=VirtualMachine.objects.first(),
         )
         service.full_clean()
+        # Testing .save() is the important part, to check for database problems
         service.save()
+        self.assertEqual(service._ports_lowest, SERVICE_PORT_MIN)
