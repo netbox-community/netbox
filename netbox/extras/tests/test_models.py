@@ -235,6 +235,13 @@ class ImageAttachmentTestCase(TestCase):
         img = Image.open(buf)
         self.assertEqual(img.format, 'PNG')
 
+    def _make_animated_webp(self, filename, frames=2):
+        """Return a SimpleUploadedFile containing a minimal animated WebP."""
+        buf = io.BytesIO()
+        images = [Image.new('RGB', (2, 2), color=(i * 80, 0, 0)) for i in range(frames)]
+        images[0].save(buf, format='WEBP', save_all=True, append_images=images[1:], loop=0, duration=100)
+        return SimpleUploadedFile(name=filename, content=buf.getvalue(), content_type='image/webp')
+
     def test_clean_preserves_animated_gif_frames(self):
         """clean() re-encodes GIF uploads while keeping all animation frames."""
         n_frames = 3
@@ -242,21 +249,25 @@ class ImageAttachmentTestCase(TestCase):
         ia.full_clean()
 
         sanitised = ia.image.file.read()
-        buf = io.BytesIO(sanitised)
-        img = Image.open(buf)
+        img = Image.open(io.BytesIO(sanitised))
         self.assertEqual(img.format, 'GIF')
-        # All frames must be preserved
-        frame_count = 0
-        try:
-            while True:
-                frame_count += 1
-                img.seek(img.tell() + 1)
-        except EOFError:
-            pass
-        self.assertEqual(frame_count, n_frames)
+        self.assertEqual(img.n_frames, n_frames)
+
+    def test_clean_preserves_animated_webp_frames(self):
+        """clean() re-encodes animated WebP uploads while keeping all animation frames."""
+        n_frames = 3
+        ia = self._make_attachment(self._make_animated_webp('anim.webp', frames=n_frames))
+        ia.full_clean()
+
+        sanitised = ia.image.file.read()
+        img = Image.open(io.BytesIO(sanitised))
+        self.assertEqual(img.format, 'WEBP')
+        self.assertEqual(img.n_frames, n_frames)
 
     def test_clean_rejects_disallowed_extension(self):
-        """clean() raises ValidationError for file extensions not in IMAGE_ATTACHMENT_IMAGE_FORMATS."""
+        """clean() raises ValidationError for file extensions not in IMAGE_ATTACHMENT_IMAGE_FORMATS.
+        Note: clean() is called directly (not full_clean()) for focused unit testing of this
+        specific validation path without triggering unrelated field-level validators."""
         svg_content = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
         ia = self._make_attachment(
             SimpleUploadedFile(name='evil.svg', content=svg_content, content_type='image/svg+xml')

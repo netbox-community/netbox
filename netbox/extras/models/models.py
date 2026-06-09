@@ -15,6 +15,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from PIL import Image as PillowImage
+from PIL import ImageSequence
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
@@ -759,25 +760,42 @@ class ImageAttachment(ChangeLoggedModel):
                     )
                 self.image.file.seek(0)
                 img = PillowImage.open(self.image.file)
-                img_format = img.format or 'PNG'
-                # Re-encode into a fresh buffer; any non-image trailer bytes
-                # are discarded. For animated GIFs, iterate through all frames
-                # via ImageSequence so animation is preserved.
+                img_format = img.format
+                # Validate that the detected format matches the declared extension to
+                # prevent silent content-type drift (e.g. PNG data with a .jpg extension).
+                detected_mime = PillowImage.MIME.get(img_format, '').lower()
+                expected_mime = IMAGE_ATTACHMENT_IMAGE_FORMATS.get(ext, '').lower()
+                if detected_mime and expected_mime and detected_mime != expected_mime:
+                    raise ValidationError(
+                        _("File content does not match the declared extension (.{ext}).").format(ext=ext)
+                    )
+                # Re-encode into a fresh buffer; any non-image trailer bytes are discarded.
+                # Animated formats (GIF, WebP) use ImageSequence to preserve all frames.
                 buf = io.BytesIO()
-                if img_format == 'GIF':
-                    from PIL import ImageSequence  # noqa: PLC0415
+                if img_format in ('GIF', 'WEBP') and getattr(img, 'n_frames', 1) > 1:
                     frames = [frame.copy() for frame in ImageSequence.Iterator(img)]
                     if frames:
                         frames[0].save(
-                            buf, format='GIF', save_all=True,
+                            buf, format=img_format, save_all=True,
                             append_images=frames[1:] if len(frames) > 1 else [],
                             duration=img.info.get('duration', 100),
                             loop=img.info.get('loop', 0),
                         )
                     else:
-                        img.save(buf, format='GIF')
+                        img.save(buf, format=img_format)
                 else:
-                    img.save(buf, format=img_format)
+                    try:
+                        img.save(buf, format=img_format)
+                    except OSError as e:
+                        # AVIF and JPEG 2000 require optional native codec libraries.
+                        # Surface a specific message instead of the generic fallback.
+                        if img_format in ('AVIF', 'JPEG2000'):
+                            raise ValidationError(
+                                _("{fmt} images require additional codec libraries that are not installed.").format(
+                                    fmt=img_format
+                                )
+                            ) from e
+                        raise
                 # Replace the in-memory upload with the sanitised content so
                 # Django writes the clean version to storage on model save.
                 self.image.file = ContentFile(buf.getvalue(), name=self.image.name)
