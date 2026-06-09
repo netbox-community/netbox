@@ -96,10 +96,7 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
 
     def save(self, *args, **kwargs):
         # On saving find the smallest port and save for default ordering
-        if self.ports:
-            self._min_port = min(self.ports)
-        else:
-            self._min_port = None
+        self._min_port = min(self.ports) if self.ports else None
 
         super().save(*args, **kwargs)
 
