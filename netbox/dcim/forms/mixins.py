@@ -30,8 +30,8 @@ __all__ = (
 class ScopedForm(forms.Form):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
-        # hx_fieldset_id='scope' — all ScopedForm consumers must declare a FieldSet with fieldset_id='scope'
-        widget=HTMXSelect(hx_fieldset_id='scope'),
+        # hx_target_id='scope' — all ScopedForm consumers must declare a FieldSet with html_id='scope'
+        widget=HTMXSelect(hx_target_id='scope'),
         required=False,
         label=_('Scope type')
     )
@@ -56,13 +56,13 @@ class ScopedForm(forms.Form):
 
         if settings.DEBUG:
             has_scope_fieldset = any(
-                getattr(fs, 'fieldset_id', None) == 'scope'
+                getattr(fs, 'html_id', None) == 'scope'
                 for fs in getattr(self, 'fieldsets', [])
             )
             if not has_scope_fieldset:
                 warnings.warn(
                     f"{self.__class__.__name__} uses ScopedForm but declares no "
-                    "FieldSet with fieldset_id='scope'; HTMX partial swap will fail silently.",
+                    "FieldSet with html_id='scope'; HTMX partial swap will fail silently.",
                     stacklevel=2,
                 )
 

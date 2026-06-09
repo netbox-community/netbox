@@ -194,7 +194,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     )
     termination_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
-        widget=HTMXSelect(hx_fieldset_id='circuit-termination'),
+        widget=HTMXSelect(hx_target_id='circuit-termination'),
         required=False,
         label=_('Termination type')
     )
@@ -210,7 +210,7 @@ class CircuitTerminationForm(NetBoxModelForm):
             'circuit', 'term_side', 'description', 'tags',
             'termination_type', 'termination',
             'mark_connected', name=_('Circuit Termination'),
-            fieldset_id='circuit-termination',
+            html_id='circuit-termination',
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
     )
@@ -293,7 +293,7 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     )
     member_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS),
-        widget=HTMXSelect(hx_fieldset_id='circuit-group-assignment'),
+        widget=HTMXSelect(hx_target_id='circuit-group-assignment'),
         required=False,
         label=_('Circuit type')
     )
@@ -308,7 +308,7 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     fieldsets = (
         FieldSet(
             'group', 'member_type', 'member', 'priority', 'tags',
-            name=_('Group Assignment'), fieldset_id='circuit-group-assignment',
+            name=_('Group Assignment'), html_id='circuit-group-assignment',
         ),
     )
 
@@ -400,7 +400,7 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     )
     role = forms.ChoiceField(
         choices=VirtualCircuitTerminationRoleChoices,
-        widget=HTMXSelect(hx_fieldset_id='virtual-circuit-termination'),
+        widget=HTMXSelect(hx_target_id='virtual-circuit-termination'),
         label=_('Role')
     )
     interface = DynamicModelChoiceField(
@@ -419,7 +419,7 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     fieldsets = (
         FieldSet(
             'virtual_circuit', 'role', 'interface', 'description', 'tags',
-            fieldset_id='virtual-circuit-termination',
+            html_id='virtual-circuit-termination',
         ),
     )
 

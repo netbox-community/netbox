@@ -557,7 +557,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
         FieldSet('event_types', 'conditions', name=_('Triggers')),
-        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action'), fieldset_id='event-rule-action'),
+        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action'), html_id='event-rule-action'),
     )
 
     class Meta:
@@ -568,7 +568,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         )
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'action_type': HTMXSelect(hx_fieldset_id='event-rule-action'),
+            'action_type': HTMXSelect(hx_target_id='event-rule-action'),
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
         }

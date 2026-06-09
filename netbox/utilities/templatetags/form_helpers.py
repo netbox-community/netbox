@@ -176,7 +176,7 @@ def render_fieldset(form, fieldset):
 
     return {
         'heading': fieldset.name,
-        'fieldset_id': fieldset.fieldset_id,
+        'html_id': fieldset.html_id,
         'rows': rows,
     }
 

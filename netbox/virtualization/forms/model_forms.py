@@ -74,7 +74,7 @@ class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
-        FieldSet('scope_type', 'scope', name=_('Scope'), fieldset_id='scope'),
+        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
@@ -456,7 +456,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
             name=_('802.1Q Switching'),
-            fieldset_id='dot1q-switching',
+            html_id='dot1q-switching',
         ),
     )
 
@@ -471,7 +471,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
             'mode': _('802.1Q Mode'),
         }
         widgets = {
-            'mode': HTMXSelect(hx_fieldset_id='dot1q-switching'),
+            'mode': HTMXSelect(hx_target_id='dot1q-switching'),
         }
 
 

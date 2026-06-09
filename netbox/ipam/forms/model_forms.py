@@ -229,7 +229,7 @@ class PrefixForm(TenancyForm, ScopedForm, PrimaryModelForm):
         FieldSet(
             'prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('scope_type', 'scope', name=_('Scope'), fieldset_id='scope'),
+        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
         FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -625,7 +625,7 @@ class VLANGroupForm(TenancyForm, OrganizationalModelForm):
     )
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
-        widget=HTMXSelect(hx_fieldset_id='scope'),
+        widget=HTMXSelect(hx_target_id='scope'),
         required=False,
         label=_('Scope type')
     )
@@ -640,7 +640,7 @@ class VLANGroupForm(TenancyForm, OrganizationalModelForm):
     fieldsets = (
         FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
         FieldSet('vid_ranges', name=_('Child VLANs')),
-        FieldSet('scope_type', 'scope', name=_('Scope'), fieldset_id='scope'),
+        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
@@ -780,7 +780,7 @@ class ServiceTemplateForm(PrimaryModelForm):
 class ServiceForm(PrimaryModelForm):
     parent_object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
-        widget=HTMXSelect(hx_fieldset_id='service'),
+        widget=HTMXSelect(hx_target_id='service'),
         required=True,
         label=_('Parent type')
     )
@@ -810,7 +810,7 @@ class ServiceForm(PrimaryModelForm):
             'parent_object_type', 'parent', 'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
             'ipaddresses', 'description', 'tags', name=_('Application Service'),
-            fieldset_id='service',
+            html_id='service',
         ),
     )
 

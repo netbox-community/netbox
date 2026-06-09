@@ -28,16 +28,16 @@ class FieldSet:
     Parameters:
         items: An iterable of items to be rendered (one per row)
         name: The fieldset's name, displayed as a heading (optional)
-        fieldset_id: An HTML id for the rendered fieldset div, enabling HTMX partial swaps (optional).
+        html_id: An HTML id for the rendered fieldset div, enabling HTMX partial swaps (optional).
             Must be a valid CSS identifier: start with a letter, use only letters, digits, hyphens, underscores.
     """
-    def __init__(self, *items, name=None, fieldset_id=None):
-        if fieldset_id is not None and settings.DEBUG:
-            if not re.match(r'^[a-zA-Z][a-zA-Z0-9_-]*$', fieldset_id):
-                raise ValueError(f"fieldset_id {fieldset_id!r} is not a valid CSS identifier")
+    def __init__(self, *items, name=None, html_id=None):
+        if html_id is not None and settings.DEBUG:
+            if not re.match(r'^[a-zA-Z][a-zA-Z0-9_-]*$', html_id):
+                raise ValueError(f"html_id {html_id!r} is not a valid CSS identifier")
         self.items = items
         self.name = name
-        self.fieldset_id = fieldset_id
+        self.html_id = html_id
 
 
 class InlineFields:

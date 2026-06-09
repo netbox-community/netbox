@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load form_helpers %}
-<div class="field-group mb-5"{% if fieldset_id %} id="{{ fieldset_id }}"{% endif %}{% if heading %} role="group" aria-label="{{ heading }}"{% endif %}>
+<div class="field-group mb-5"{% if html_id %} id="{{ html_id }}"{% endif %}{% if heading %} role="group" aria-label="{{ heading }}"{% endif %}>
   {% if heading %}
     <div class="row">
       <h2 class="col-9 offset-3">{{ heading }}</h2>

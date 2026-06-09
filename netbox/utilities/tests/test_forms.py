@@ -630,23 +630,23 @@ class GetCapacityUnitLabelTestCase(TestCase):
 
 class FieldSetTestCase(TestCase):
 
-    def test_fieldset_id_defaults_to_none(self):
+    def test_html_id_defaults_to_none(self):
         fs = FieldSet('field1', 'field2', name='Test')
-        self.assertIsNone(fs.fieldset_id)
+        self.assertIsNone(fs.html_id)
 
-    def test_fieldset_id_stored(self):
-        fs = FieldSet('field1', 'field2', name='Test', fieldset_id='my-fieldset')
-        self.assertEqual(fs.fieldset_id, 'my-fieldset')
+    def test_html_id_stored(self):
+        fs = FieldSet('field1', 'field2', name='Test', html_id='my-fieldset')
+        self.assertEqual(fs.html_id, 'my-fieldset')
 
     @override_settings(DEBUG=True)
-    def test_fieldset_id_invalid_css_identifier_raises(self):
+    def test_html_id_invalid_css_identifier_raises(self):
         with self.assertRaises(ValueError):
-            FieldSet('field1', fieldset_id='123-bad')
+            FieldSet('field1', html_id='123-bad')
 
     @override_settings(DEBUG=False)
-    def test_fieldset_id_invalid_css_identifier_ignored_outside_debug(self):
-        fs = FieldSet('field1', fieldset_id='123-bad')
-        self.assertEqual(fs.fieldset_id, '123-bad')
+    def test_html_id_invalid_css_identifier_ignored_outside_debug(self):
+        fs = FieldSet('field1', html_id='123-bad')
+        self.assertEqual(fs.html_id, '123-bad')
 
 
 class HTMXSelectTestCase(TestCase):
@@ -658,12 +658,12 @@ class HTMXSelectTestCase(TestCase):
         self.assertNotIn('hx-select', widget.attrs)
         self.assertNotIn('hx-swap', widget.attrs)
 
-    def test_hx_fieldset_id_sets_target_select_and_swap(self):
-        widget = HTMXSelect(hx_fieldset_id='my-fieldset')
+    def test_hx_target_id_sets_target_select_and_swap(self):
+        widget = HTMXSelect(hx_target_id='my-fieldset')
         self.assertEqual(widget.attrs['hx-target'], '#my-fieldset')
         self.assertEqual(widget.attrs['hx-select'], '#my-fieldset')
         self.assertEqual(widget.attrs['hx-swap'], 'outerHTML')
 
-    def test_hx_fieldset_id_include_stays_on_form_fields(self):
-        widget = HTMXSelect(hx_fieldset_id='my-fieldset')
+    def test_hx_target_id_include_stays_on_form_fields(self):
+        widget = HTMXSelect(hx_target_id='my-fieldset')
         self.assertEqual(widget.attrs['hx-include'], '#form_fields')
