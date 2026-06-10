@@ -264,7 +264,7 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
 @strawberry_django.type(
     models.ServiceTemplate,
-    exclude=('_ports_lowest'),
+    exclude=('_ports_lowest',),
     filters=ServiceTemplateFilter,
     pagination=True
 )

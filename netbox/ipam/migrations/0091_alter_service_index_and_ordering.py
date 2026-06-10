@@ -2,36 +2,22 @@ from django.db import migrations, models
 
 
 def populate__ports_lowest(apps, schema_editor):
-    # Populate Service
     Service = apps.get_model('ipam', 'Service')
-    CHUNK_SIZE = 500
-    chunk = []
-    service_objects = Service.objects.filter(_ports_lowest__isnull=True).only('id', 'ports', '_ports_lowest')
-    for service in service_objects.iterator(chunk_size=CHUNK_SIZE):
-        if service.ports:
-            service._ports_lowest = min(service.ports)
-            chunk.append(service)
-
-        if len(chunk) >= CHUNK_SIZE:
-            Service.objects.bulk_update(chunk, ['_ports_lowest'])
-            chunk = []
-    if chunk:
-        Service.objects.bulk_update(chunk, ['_ports_lowest'])
-
-    # Populate ServiceTemplate
     ServiceTemplate = apps.get_model('ipam', 'ServiceTemplate')
-    chunk = []
-    template_objects = ServiceTemplate.objects.filter(_ports_lowest__isnull=True).only('id', 'ports', '_ports_lowest')
-    for template in template_objects.iterator(chunk_size=CHUNK_SIZE):
-        if template.ports:
-            template._ports_lowest = min(template.ports)
-            chunk.append(template)
+    CHUNK_SIZE = 500
 
-        if len(chunk) >= CHUNK_SIZE:
-            ServiceTemplate.objects.bulk_update(chunk, ['_ports_lowest'])
-            chunk = []
-    if chunk:
-        ServiceTemplate.objects.bulk_update(chunk, ['_ports_lowest'])
+    for model in (Service, ServiceTemplate):
+        chunk = []
+        qs = model.objects.filter(_ports_lowest__isnull=True).only('id', 'ports', '_ports_lowest')
+        for obj in qs.iterator(chunk_size=CHUNK_SIZE):
+            if obj.ports:
+                obj._ports_lowest = min(service.ports)
+                chunk.append(obj)
+            if len(chunk) >= CHUNK_SIZE:
+                model.objects.bulk_update(chunk, ['_ports_lowest'])
+                chunk = []
+        if chunk:
+            model.objects.bulk_update(chunk, ['_ports_lowest'])
 
 
 class Migration(migrations.Migration):
