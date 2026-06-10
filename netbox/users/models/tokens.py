@@ -1,6 +1,6 @@
 import hashlib
 import hmac
-import random
+import secrets
 import zoneinfo
 
 from django.conf import settings
@@ -260,7 +260,7 @@ class Token(models.Model):
         """
         Generate and return a random token value of the given length.
         """
-        return ''.join(random.choice(TOKEN_CHARSET) for _ in range(length))
+        return ''.join(secrets.choice(TOKEN_CHARSET) for _ in range(length))
 
     def update_digest(self):
         """
