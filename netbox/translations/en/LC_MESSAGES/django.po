@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-09 06:20+0000\n"
+"POT-Creation-Date: 2026-06-10 06:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16699,7 +16699,7 @@ msgstr ""
 msgid "Unknown app_label/model_name for {name}"
 msgstr ""
 
-#: netbox/utilities/request.py:95
+#: netbox/utilities/request.py:98
 #, python-brace-format
 msgid "Invalid IP address set for {header}: {ip}"
 msgstr ""
