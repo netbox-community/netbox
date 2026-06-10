@@ -531,9 +531,31 @@ class JSONPathValidationTestCase(TestCase):
         with self.assertRaises(ValueError):
             self.validate('key__Regex')
 
-    def test_rejects_empty_path_after_strip(self):
+    def test_rejects_empty_string(self):
+        with self.assertRaises(ValueError):
+            self.validate('')
+
+    def test_rejects_all_underscores(self):
+        # Was previously silently stripped to ''; now rejected by segment regex
         with self.assertRaises(ValueError):
             self.validate('___')
+
+    def test_rejects_leading_underscore(self):
+        # Previously strip('_') would silently rewrite '_key' to 'key'; now rejected
+        with self.assertRaises(ValueError):
+            self.validate('_key')
+
+    def test_accepts_trailing_single_underscore(self):
+        # A single trailing underscore is a valid JSON key character
+        self.assertEqual(self.validate('key_'), 'key_')
+
+    def test_rejects_trailing_double_underscore(self):
+        with self.assertRaises(ValueError):
+            self.validate('key__')
+
+    def test_rejects_leading_double_underscore(self):
+        with self.assertRaises(ValueError):
+            self.validate('__key')
 
     def test_rejects_consecutive_double_underscores(self):
         with self.assertRaises(ValueError):
@@ -565,5 +587,6 @@ class JSONStringLookupTestCase(TestCase):
         from netbox.graphql.filter_lookups import JSONStringLookup
         field_names = {f.name for f in JSONStringLookup.__strawberry_definition__.fields}
         for expected in ('exact', 'i_exact', 'contains', 'i_contains',
-                         'starts_with', 'ends_with', 'in_', 'isnull'):
+                         'starts_with', 'i_starts_with', 'ends_with', 'i_ends_with',
+                         'in_', 'isnull'):
             self.assertIn(expected, field_names, f"{expected!r} must be present on JSONStringLookup")

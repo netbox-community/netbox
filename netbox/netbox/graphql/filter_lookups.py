@@ -33,27 +33,25 @@ _JSON_PATH_SEGMENT_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_-]*$')
 # Django ORM lookup operator names that must not appear as JSON path segments.
 # An attacker supplying path="key__regex" would otherwise suffix the ORM
 # lookup with a regex operator, turning it into a per-character boolean oracle.
+# NOTE: Update this set when new Django ORM operators are added (e.g. after
+# Django upgrades) to maintain defense-in-depth.
 _ORM_OPERATOR_NAMES = frozenset({
     'exact', 'iexact', 'contains', 'icontains', 'in', 'gt', 'gte', 'lt', 'lte',
     'startswith', 'istartswith', 'endswith', 'iendswith', 'range', 'date',
     'year', 'iso_year', 'month', 'day', 'week', 'week_day', 'iso_week_day',
     'quarter', 'time', 'hour', 'minute', 'second', 'isnull', 'regex', 'iregex',
     'has_key', 'has_any_keys', 'has_keys', 'contained_by', 'overlap',
+    'search', 'trigram_similar', 'trigram_word_similar', 'trigram_strict_word_similar',
+    'unaccent',
 })
 
 
 def _validate_json_path(path: str) -> str:
-    """
-    Validate and return a safe JSON traversal path for use in ORM lookups.
+    """Validate a JSON traversal path for use in ORM lookups.
 
-    The path may be a single key or a ``__``-separated sequence for nested
-    traversal.  Each segment must consist only of alphanumerics, hyphens, and
-    underscores, and must not be a Django ORM operator keyword (which would
-    otherwise permit regex-oracle or operator-injection attacks).
-
-    Returns the sanitised path string.  Raises ``ValueError`` on any violation.
+    Each ``__``-separated segment must match ``[A-Za-z0-9][A-Za-z0-9_-]*`` and
+    must not be a Django ORM operator keyword.  Raises ``ValueError`` otherwise.
     """
-    path = path.strip('_')
     if not path:
         raise ValueError("JSON path cannot be empty")
 
