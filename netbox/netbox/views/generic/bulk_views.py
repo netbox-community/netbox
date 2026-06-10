@@ -1,6 +1,7 @@
 import logging
 import re
 from collections import Counter
+from contextlib import contextmanager
 from copy import deepcopy
 from types import SimpleNamespace
 
@@ -52,6 +53,35 @@ __all__ = (
     'BulkRenameView',
     'ObjectListView',
 )
+
+
+# TODO: Remove in NetBox v5.0.
+# MPTT support is retained only for plugins whose tree models still derive from the
+# deprecated MPTT-backed bases. NetBox core uses netbox.models.ltree.LtreeModel, whose
+# database triggers maintain the tree on every write, so ltree (and non-tree) models
+# need no special bulk handling. These two helpers confine all MPTT-specific bulk
+# bookkeeping so it can be deleted in one place; for non-MPTT models they are no-ops.
+@contextmanager
+def _delay_mptt_updates(model):
+    """
+    Defer tree (lft/rght/tree_id) recomputation until the end of a bulk write for
+    legacy MPTT models. A no-op context manager for ltree and non-tree models.
+    """
+    from mptt.models import MPTTModel
+
+    if issubclass(model, MPTTModel):
+        with model.objects.delay_mptt_updates():
+            yield
+    else:
+        yield
+
+
+def _rebuild_mptt_tree(model):
+    """Rebuild the MPTT tree after a bulk edit for legacy MPTT models; else a no-op."""
+    from mptt.models import MPTTModel
+
+    if issubclass(model, MPTTModel):
+        model.objects.rebuild()
 
 
 class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
@@ -562,7 +592,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             for obj in self.queryset.model.objects.filter(id__in=prefetch_ids)
         } if prefetch_ids else {}
 
-        saved_objects = self._process_import_records(form, request, records, prefetched_objects)
+        # Delay tree updates until all saves are complete (MPTT plugin models only;
+        # no-op for ltree). TODO: Remove the wrapper in v5.0 (see _delay_mptt_updates).
+        with _delay_mptt_updates(self.queryset.model):
+            saved_objects = self._process_import_records(form, request, records, prefetched_objects)
 
         return saved_objects
 
@@ -755,6 +788,10 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
             if is_background_request(request):
                 request.job.logger.info(f"Updated {obj}")
+
+        # Rebuild the tree for MPTT plugin models (no-op for ltree; its triggers keep
+        # the tree current). TODO: Remove in v5.0 (see _rebuild_mptt_tree).
+        _rebuild_mptt_tree(self.queryset.model)
 
         return updated_objects
 
@@ -964,11 +1001,15 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                             renamed_pks = self._rename_objects(form, selected_objects, field_names)
 
                             if '_apply' in request.POST:
-                                for obj in selected_objects:
-                                    for field in field_names:
-                                        setattr(obj, field, getattr(obj.new_names, field))
-                                    obj._changelog_message = form.cleaned_data.get('changelog_message', '')
-                                    obj.save()
+                                # Delay tree updates until all saves are complete (MPTT
+                                # plugin models only; no-op for ltree).
+                                # TODO: Remove the wrapper in v5.0 (see _delay_mptt_updates).
+                                with _delay_mptt_updates(self.queryset.model):
+                                    for obj in selected_objects:
+                                        for field in field_names:
+                                            setattr(obj, field, getattr(obj.new_names, field))
+                                        obj._changelog_message = form.cleaned_data.get('changelog_message', '')
+                                        obj.save()
 
                                 # Enforce constrained permissions
                                 if self.queryset.filter(pk__in=renamed_pks).count() != len(selected_objects):
