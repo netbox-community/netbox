@@ -39,6 +39,7 @@ from django.db import migrations, models
 
 import netbox.models.ltree
 from utilities.ltree import InstallLtreeTriggers
+from utilities.mptt_to_ltree import assert_paths_populated_sql, populate_paths_sql
 
 # All models getting an ltree `path` column.
 ALL_MODELS = (
@@ -73,70 +74,6 @@ SORT_TABLES = (
 LEGACY_FIELDS = ('lft', 'rght', 'tree_id', 'level')
 
 
-def _populate_paths_sql():
-    """
-    Build the recursive CTE that walks each table from roots downward, computing
-    the new path (PK-based, zero-padded) and — for models with sort_path — the
-    chr(9)-separated chain of ancestor names.
-    """
-    blocks = []
-    for table in ALL_TABLES:
-        if table in SORT_TABLES:
-            blocks.append(f"""
-WITH RECURSIVE t(id, parent_id, path, sort_path) AS (
-    SELECT id, parent_id,
-           lpad(id::text, 19, '0')::ltree,
-           name::text
-    FROM "{table}" WHERE parent_id IS NULL
-    UNION ALL
-    SELECT r.id, r.parent_id,
-           t.path || lpad(r.id::text, 19, '0')::ltree,
-           t.sort_path || chr(9) || r.name
-    FROM "{table}" r JOIN t ON r.parent_id = t.id
-)
-UPDATE "{table}" SET path = t.path, sort_path = t.sort_path
-FROM t WHERE "{table}".id = t.id;
-""")
-        else:
-            blocks.append(f"""
-WITH RECURSIVE t(id, parent_id, path) AS (
-    SELECT id, parent_id, lpad(id::text, 19, '0')::ltree FROM "{table}" WHERE parent_id IS NULL
-    UNION ALL
-    SELECT r.id, r.parent_id, t.path || lpad(r.id::text, 19, '0')::ltree
-    FROM "{table}" r JOIN t ON r.parent_id = t.id
-)
-UPDATE "{table}" SET path = t.path FROM t WHERE "{table}".id = t.id;
-""")
-    return '\n'.join(blocks)
-
-
-def _assert_paths_populated_sql():
-    """
-    After the recursive CTE backfills paths from `parent_id IS NULL` roots, any
-    row whose parent_id points to a row that the CTE could not reach (orphan FK,
-    stray cycle left by a prior raw write) will still have path IS NULL. The
-    immediately following AlterField that sets path to NOT NULL would then abort
-    inside ALTER COLUMN with an opaque message. Fail fast here instead so the
-    operator sees the offending table and row counts.
-    """
-    checks = []
-    for table in ALL_TABLES:
-        checks.append(f"""
-DO $$
-DECLARE missing bigint;
-BEGIN
-    SELECT count(*) INTO missing FROM "{table}" WHERE path IS NULL;
-    IF missing > 0 THEN
-        RAISE EXCEPTION
-            'ltree backfill left % rows in "{table}" with NULL path; '
-            'likely orphan parent_id references — resolve before re-running '
-            'this migration', missing;
-    END IF;
-END $$;
-""")
-    return '\n'.join(checks)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -144,6 +81,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Enable the ltree extension first so the migration fails fast if it is missing.
+        CreateExtension('ltree'),
+
         # Switch parent from mptt.fields.TreeForeignKey to django.db.models.ForeignKey
         # (no-op at the SQL level; reconciles migration state with model definitions).
         migrations.AlterField(
@@ -188,9 +128,6 @@ class Migration(migrations.Migration):
                                     related_name='children', to='dcim.sitegroup'),
         ),
 
-        # 1. Enable the ltree extension (idempotent).
-        CreateExtension('ltree'),
-
         # 2. Add nullable path column on all tree models.
         *[
             migrations.AddField(
@@ -221,12 +158,19 @@ class Migration(migrations.Migration):
         InstallLtreeTriggers('dcim_inventoryitem'),
         InstallLtreeTriggers('dcim_inventoryitemtemplate'),
 
-        # 4. Populate existing rows via per-table recursive CTE.
-        migrations.RunSQL(_populate_paths_sql(), reverse_sql=migrations.RunSQL.noop),
+        # 4. Populate existing rows via per-table recursive CTE (sort_path only
+        #    for the models that carry it).
+        migrations.RunSQL(
+            '\n'.join(populate_paths_sql(t, sort_path=t in SORT_TABLES) for t in ALL_TABLES),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
 
         # 4b. Fail fast (with a useful message) if any row still has NULL path —
         #     otherwise the AlterField below aborts opaquely inside ALTER COLUMN.
-        migrations.RunSQL(_assert_paths_populated_sql(), reverse_sql=migrations.RunSQL.noop),
+        migrations.RunSQL(
+            '\n'.join(assert_paths_populated_sql(t) for t in ALL_TABLES),
+            reverse_sql=migrations.RunSQL.noop,
+        ),
 
         # 5. Tighten path to NOT NULL with empty-string default.
         *[
