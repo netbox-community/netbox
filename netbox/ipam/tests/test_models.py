@@ -6,8 +6,10 @@ from netaddr import IPNetwork, IPSet
 
 from dcim.models import Site, SiteGroup
 from ipam.choices import *
+from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import *
 from utilities.data import string_to_ranges
+from virtualization.models import VirtualMachine
 
 
 class AggregateTestCase(TestCase):
@@ -926,3 +928,73 @@ class VLANTestCase(TestCase):
         vlan.group = vlangroups[2]
         with self.assertRaises(ValidationError):
             vlan.full_clean()
+
+
+class ServiceTemplateTestCase(TestCase):
+
+    def test_servicetemplate_lowest_port(self):
+        """
+        Test lowest port setting for servicetemplate
+        """
+        template = ServiceTemplate(
+            name='Template 1',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[80, 443, 22, 8080],  # small test list
+        )
+        template.full_clean()
+        template.save()
+        self.assertEqual(template._ports_lowest, 22)
+
+    def test_servicetemplate_single_port(self):
+        """
+        Test with a single port
+        """
+        template = ServiceTemplate(
+            name='Template 2',
+            protocol=ServiceProtocolChoices.PROTOCOL_UDP,
+            ports=[53],
+        )
+        template.full_clean()
+        template.save()
+        self.assertEqual(template._ports_lowest, 53)
+
+    def test_servicetemplate_empty_ports(self):
+        """
+        Test with empty ports list
+        """
+        template = ServiceTemplate(
+            name='Template 3',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=[],
+        )
+        self.assertRaises(ValidationError, template.full_clean)
+
+
+class ServiceTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+        )
+        VirtualMachine.objects.create(
+            name='virtual machine 1',
+            site=site,
+        )
+
+    def test_large_service(self):
+        """
+        Test creation of service with large number of ports.
+        Related to issue #22273
+        """
+        service = Service(
+            name='Service 1',
+            protocol=ServiceProtocolChoices.PROTOCOL_TCP,
+            ports=list(range(SERVICE_PORT_MIN, SERVICE_PORT_MAX)),
+            parent=VirtualMachine.objects.first(),
+        )
+        service.full_clean()
+        # Testing .save() is the important part, to check for database problems
+        service.save()
+        self.assertEqual(service._ports_lowest, SERVICE_PORT_MIN)

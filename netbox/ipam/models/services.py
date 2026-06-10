@@ -31,9 +31,21 @@ class ServiceBase(models.Model):
         ),
         verbose_name=_('port numbers')
     )
+    _ports_lowest = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+    )
 
     class Meta:
         abstract = True
+
+    def save(self, *args, **kwargs):
+        # On saving find the smallest port and save for default ordering
+        self._ports_lowest = min(self.ports) if self.ports else None
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and '_ports_lowest' not in update_fields:
+            kwargs['update_fields'] = list(update_fields) + ['_ports_lowest']
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name} ({self.get_protocol_display()}/{self.port_list})'
@@ -74,7 +86,6 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
         ct_field='parent_object_type',
         fk_field='parent_object_id'
     )
-
     name = models.CharField(
         max_length=100,
         verbose_name=_('name')
@@ -93,9 +104,9 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
 
     class Meta:
         indexes = (
-            models.Index(fields=('protocol', 'ports', 'id')),  # Default ordering
+            models.Index(fields=('protocol', '_ports_lowest', 'id')),  # Default ordering
             models.Index(fields=('parent_object_type', 'parent_object_id')),
         )
-        ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
+        ordering = ('protocol', '_ports_lowest', 'id')
         verbose_name = _('application service')
         verbose_name_plural = _('application services')

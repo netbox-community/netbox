@@ -244,7 +244,7 @@ class RouteTargetType(PrimaryObjectType):
 
 @strawberry_django.type(
     models.Service,
-    exclude=('parent_object_type', 'parent_object_id'),
+    exclude=('_ports_lowest', 'parent_object_type', 'parent_object_id'),
     filters=ServiceFilter,
     pagination=True
 )
@@ -264,7 +264,7 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
 
 @strawberry_django.type(
     models.ServiceTemplate,
-    fields='__all__',
+    exclude=('_ports_lowest',),
     filters=ServiceTemplateFilter,
     pagination=True
 )
