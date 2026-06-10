@@ -312,7 +312,7 @@ class TokenTestCase(
 
     def test_grant_token_constrained_permission_is_enforced(self):
         """
-        Regression: SR-001 / VM-326 — constrained grant_token ObjectPermissions must not be
+        Regression: SR-001 / VM-322 — constrained grant_token ObjectPermissions must not be
         bypassed. has_perm('users.grant_token', obj=None) short-circuits to True without
         evaluating constraints; the fix uses _user_may_grant_token() which applies them.
         """
