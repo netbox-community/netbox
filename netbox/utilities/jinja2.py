@@ -102,7 +102,7 @@ def render_jinja2(template_code, context, environment_params=None, data_file=Non
     # Instance-level config always wins so site admins can override anything.
     filters = {
         **DEFAULT_JINJA2_FILTERS,
-        **registry['plugins'].get('jinja2_filters', {}),
+        **registry['plugins'].get('jinja_filters', {}),
         **get_config().JINJA_FILTERS,
     }
     environment.filters.update(filters)

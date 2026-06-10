@@ -141,9 +141,9 @@ class RenderTemplateMixin(models.Model):
         for app_config in django_apps.get_app_configs():
             if isinstance(app_config, PluginConfig):
                 try:
-                    _context.update(app_config.get_jinja2_context())
+                    _context.update(app_config.get_jinja_context())
                 except Exception:
-                    logger.exception("Plugin %r raised an exception in get_jinja2_context()", app_config.name)
+                    logger.exception("Plugin %r raised an exception in get_jinja_context()", app_config.name)
 
         if context is not None:
             _context.update(context)

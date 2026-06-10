@@ -21,7 +21,7 @@ class DummyPluginConfig(PluginConfig):
         'netbox.tests.dummy_plugin.events.process_events_queue'
     ]
 
-    def get_jinja2_context(self):
+    def get_jinja_context(self):
         return {'dummy_plugin_var': 'hello_from_dummy'}
 
     def ready(self):

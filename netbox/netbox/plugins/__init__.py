@@ -20,7 +20,7 @@ from .utils import *
 registry['plugins'].update({
     'installed': [],
     'graphql_schemas': [],
-    'jinja2_filters': {},
+    'jinja_filters': {},
     'menus': [],
     'menu_items': {},
     'preferences': {},
@@ -31,7 +31,7 @@ DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
     'data_backends': 'data_backends.backends',
     'graphql_schema': 'graphql.schema',
-    'jinja2_filters': 'jinja2_env.filters',
+    'jinja_filters': 'jinja_env.filters',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
     'template_extensions': 'template_content.template_extensions',
@@ -80,7 +80,7 @@ class PluginConfig(AppConfig):
     search_indexes = None
     data_backends = None
     graphql_schema = None
-    jinja2_filters = None
+    jinja_filters = None
     menu = None
     menu_items = None
     serializer_resolver = None
@@ -88,9 +88,9 @@ class PluginConfig(AppConfig):
     user_preferences = None
     events_pipeline = []
 
-    def get_jinja2_context(self):
+    def get_jinja_context(self):
         """
-        Return a dict of additional variables to inject into the Jinja2 template context
+        Return a dict of additional variables to inject into the Jinja template context
         when rendering ConfigTemplates. Override this in a PluginConfig subclass to expose
         plugin-managed data to config templates without requiring template authors to know
         internal model names.
@@ -133,9 +133,9 @@ class PluginConfig(AppConfig):
         for backend in data_backends:
             register_data_backend()(backend)
 
-        # Register Jinja2 filters (if defined)
-        if jinja2_filters := self._load_resource('jinja2_filters'):
-            register_jinja2_filters(jinja2_filters)
+        # Register Jinja filters (if defined)
+        if jinja_filters := self._load_resource('jinja_filters'):
+            register_jinja_filters(jinja_filters)
 
         # Register template content (if defined)
         if template_extensions := self._load_resource('template_extensions'):
