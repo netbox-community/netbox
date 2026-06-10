@@ -18,9 +18,12 @@ from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.expressions import RawSQL
 from django.utils.translation import gettext_lazy as _
 
+# Import lookup classes by their fully-qualified path rather than `from . import
+# lookups`: this module is imported by netbox/models/__init__.py before that package
+# finishes initializing, so a package-relative import would fail the attribute lookup
+# on the partially-initialized `netbox.models` package (circular import).
+from netbox.models.lookups import Ancestor, AncestorOrEqual, Descendant, DescendantOrEqual
 from utilities.querysets import RestrictedQuerySet
-
-from . import lookups
 
 __all__ = (
     'LtreeField',
@@ -58,10 +61,10 @@ class LtreeField(models.TextField):
         return str(value)
 
 
-LtreeField.register_lookup(lookups.Ancestor)
-LtreeField.register_lookup(lookups.AncestorOrEqual)
-LtreeField.register_lookup(lookups.Descendant)
-LtreeField.register_lookup(lookups.DescendantOrEqual)
+LtreeField.register_lookup(Ancestor)
+LtreeField.register_lookup(AncestorOrEqual)
+LtreeField.register_lookup(Descendant)
+LtreeField.register_lookup(DescendantOrEqual)
 
 
 class SortPathField(models.TextField):
