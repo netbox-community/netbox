@@ -471,6 +471,27 @@ class DescendantLookupSemanticsTests(TestCase):
         self.assertEqual(sorted(inclusive), ['Kid', 'Root'])
 
 
+class AncestorLookupSemanticsTests(TestCase):
+    """
+    path__ancestor is strict (path @> rhs AND path != rhs); the inclusive form
+    is path__ancestor_or_equal.
+    """
+
+    def test_strict_ancestor_excludes_self(self):
+        root = Region.objects.create(name='Root', slug='root-als')
+        kid = Region.objects.create(parent=root, name='Kid', slug='kid-als')
+        strict = list(
+            Region.objects.filter(path__ancestor=kid.path)
+            .values_list('name', flat=True)
+        )
+        self.assertEqual(sorted(strict), ['Root'])
+        inclusive = list(
+            Region.objects.filter(path__ancestor_or_equal=kid.path)
+            .values_list('name', flat=True)
+        )
+        self.assertEqual(sorted(inclusive), ['Kid', 'Root'])
+
+
 class RenameCascadesSortPathTests(TestCase):
     """
     Renaming a node updates its own sort_path AND cascades into descendants'

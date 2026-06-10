@@ -130,7 +130,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         if self.model._meta.model_name == 'device':
             base_query.add(
                 (Q(
-                    locations__path__ancestor=OuterRef('location__path'),
+                    locations__path__ancestor_or_equal=OuterRef('location__path'),
                 ) | Q(locations=None)),
                 Q.AND
             )
@@ -143,25 +143,25 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         # (or equal to) the device/VM-side tree node, i.e. `cc_node.path @> obj_node.path`.
         base_query.add(
             (Q(
-                regions__path__ancestor=OuterRef('site__region__path'),
+                regions__path__ancestor_or_equal=OuterRef('site__region__path'),
             ) | Q(regions=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                site_groups__path__ancestor=OuterRef('site__group__path'),
+                site_groups__path__ancestor_or_equal=OuterRef('site__group__path'),
             ) | Q(site_groups=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                roles__path__ancestor=OuterRef('role__path'),
+                roles__path__ancestor_or_equal=OuterRef('role__path'),
             ) | Q(roles=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                platforms__path__ancestor=OuterRef('platform__path'),
+                platforms__path__ancestor_or_equal=OuterRef('platform__path'),
             ) | Q(platforms=None)),
             Q.AND
         )

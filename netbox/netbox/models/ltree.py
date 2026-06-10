@@ -59,6 +59,7 @@ class LtreeField(models.TextField):
 
 
 LtreeField.register_lookup(lookups.Ancestor)
+LtreeField.register_lookup(lookups.AncestorOrEqual)
 LtreeField.register_lookup(lookups.Descendant)
 LtreeField.register_lookup(lookups.DescendantOrEqual)
 
@@ -467,9 +468,8 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
     def get_ancestors(self, ascending=False, include_self=False):
         if not self.path:
             return type(self)._default_manager.none()
-        qs = type(self)._default_manager.filter(path__ancestor=self.path)
-        if not include_self:
-            qs = qs.exclude(pk=self.pk)
+        lookup = 'ancestor_or_equal' if include_self else 'ancestor'
+        qs = type(self)._default_manager.filter(**{f'path__{lookup}': self.path})
         order_field = self._tree_order_field()
         return qs.order_by(f'-{order_field}' if ascending else order_field)
 
