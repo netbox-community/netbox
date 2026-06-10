@@ -9,11 +9,11 @@ NetBox uses [Jinja](https://jinja.palletsprojects.com/) to render [configuration
 
 ## Registering Jinja Filters
 
-### Via `jinja2_env.py` (auto-discovery)
+### Via `jinja_env.py` (auto-discovery)
 
-Create a file named `jinja2_env.py` in your plugin root and expose a dict called `filters`. NetBox will auto-discover and register it when the plugin loads.
+Create a file named `jinja_env.py` in your plugin root and expose a dict called `filters`. NetBox will auto-discover and register it when the plugin loads.
 
-```python title="my_plugin/jinja2_env.py"
+```python title="my_plugin/jinja_env.py"
 def prefix_list(device):
     """Return all prefixes assigned to a device's interfaces."""
     return [
@@ -35,7 +35,7 @@ The filter is then available in any config template:
 {% endfor %}
 ```
 
-### Via `register_jinja2_filters()`
+### Via `register_jinja_filters()`
 
 You can also register filters programmatically inside your plugin's `ready()` method:
 
@@ -48,12 +48,12 @@ class MyPluginConfig(PluginConfig):
 
     def ready(self):
         super().ready()
-        from netbox.plugins.registration import register_jinja2_filters
-        from .jinja2_env import filters
-        register_jinja2_filters(filters)
+        from netbox.plugins.registration import register_jinja_filters
+        from .jinja_env import filters
+        register_jinja_filters(filters)
 ```
 
-`register_jinja2_filters()` accepts a `dict` mapping filter names to callables. It raises `TypeError` if passed a non-dict or if any value is not callable.
+`register_jinja_filters()` accepts a `dict` mapping filter names to callables. It raises `TypeError` if passed a non-dict or if any value is not callable.
 
 ### Precedence
 
@@ -81,7 +81,7 @@ JINJA_FILTERS = {
 
 ## Injecting Context Variables
 
-Override `get_jinja2_context()` in your `PluginConfig` subclass to inject additional variables into every config template render context.
+Override `get_jinja_context()` in your `PluginConfig` subclass to inject additional variables into every config template render context.
 
 ```python title="my_plugin/__init__.py"
 from netbox.plugins import PluginConfig
@@ -90,7 +90,7 @@ class MyPluginConfig(PluginConfig):
     name = 'my_plugin'
     # ...
 
-    def get_jinja2_context(self):
+    def get_jinja_context(self):
         from .utils import MyNamespace
         return {
             'my_plugin': MyNamespace(),
@@ -104,12 +104,12 @@ The returned dict is merged into the template context, so `my_plugin` becomes av
 ```
 
 !!! warning "Startup cost"
-    `get_jinja2_context()` is called on **every** config template render, not once at startup. Keep it fast. Defer expensive lookups to the object you return rather than performing them in `get_jinja2_context()` itself.
+    `get_jinja_context()` is called on **every** config template render, not once at startup. Keep it fast. Defer expensive lookups to the object you return rather than performing them in `get_jinja_context()` itself.
 
 !!! note "Conflict avoidance"
     Choose context variable names that are unlikely to collide with NetBox's built-in template variables (`device`, `queryset`, etc.) or with those contributed by other plugins. Prefixing with your plugin name is strongly recommended.
 
-    In addition, avoid top-level app-label names (`dcim`, `ipam`, `virtualization`, etc.). The auto-populated template context maps each app label to a dict of its public model classes; returning a key like `'dcim'` from `get_jinja2_context()` will silently replace that entire namespace.
+    In addition, avoid top-level app-label names (`dcim`, `ipam`, `virtualization`, etc.). The auto-populated template context maps each app label to a dict of its public model classes; returning a key like `'dcim'` from `get_jinja_context()` will silently replace that entire namespace.
 
 !!! note "No per-render context"
-    `get_jinja2_context()` receives no arguments — it has no access to the object being rendered or the caller-supplied context. It is intended for plugin-global namespaces (e.g. a lazily-evaluated query helper). Per-object logic belongs in the template itself or in a custom filter.
+    `get_jinja_context()` receives no arguments — it has no access to the object being rendered or the caller-supplied context. It is intended for plugin-global namespaces (e.g. a lazily-evaluated query helper). Per-object logic belongs in the template itself or in a custom filter.

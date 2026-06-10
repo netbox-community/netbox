@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = (
     'register_graphql_schema',
-    'register_jinja2_filters',
+    'register_jinja_filters',
     'register_menu',
     'register_menu_items',
     'register_serializer_resolver',
@@ -21,24 +21,24 @@ __all__ = (
 )
 
 
-def register_jinja2_filters(filters):
+def register_jinja_filters(filters):
     """
-    Register a dict of Jinja2 filter functions provided by a plugin. Each key is the
+    Register a dict of Jinja filter functions provided by a plugin. Each key is the
     filter name as it will appear in templates; the value is the callable implementing it.
     Plugin-registered filters have lower precedence than instance-level JINJA_FILTERS
     so that site admins can always override them in configuration.py.
     """
     if not isinstance(filters, dict):
-        raise TypeError(_("jinja2_filters must be a dict mapping filter names to callables"))
+        raise TypeError(_("jinja_filters must be a dict mapping filter names to callables"))
     for name, fn in filters.items():
         if not callable(fn):
-            raise TypeError(_("Jinja2 filter '{name}' must be callable").format(name=name))
-        if name in registry['plugins']['jinja2_filters']:
+            raise TypeError(_("Jinja filter '{name}' must be callable").format(name=name))
+        if name in registry['plugins']['jinja_filters']:
             logger.warning(
-                "Jinja2 filter '%s' registered by a plugin is being overridden by a later-loaded plugin",
+                "Jinja filter '%s' registered by a plugin is being overridden by a later-loaded plugin",
                 name,
             )
-    registry['plugins']['jinja2_filters'].update(filters)
+    registry['plugins']['jinja_filters'].update(filters)
 
 
 def register_template_extensions(class_list):
