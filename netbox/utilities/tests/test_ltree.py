@@ -603,6 +603,17 @@ class ReapplyModelOrderingTests(TestCase):
         # local_managers), so the exemption must still apply and return qs as-is.
         self.assertIs(result, qs)
 
+    def test_mptt_model_detection(self):
+        # MPTT support is retained for plugins (NestedGroupModel stays MPTT-backed);
+        # reapply_model_ordering() must keep exempting such models. See _is_mptt_model.
+        # TODO: Remove in NetBox v5.0 alongside MPTT support.
+        from netbox.models import NestedGroupModel
+        from utilities.query import _is_mptt_model
+
+        self.assertTrue(_is_mptt_model(NestedGroupModel))
+        # An ltree-backed model must NOT be misdetected as MPTT.
+        self.assertFalse(_is_mptt_model(Region))
+
 
 class AddRelatedCountErrorTests(TestCase):
     """

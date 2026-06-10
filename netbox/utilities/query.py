@@ -57,6 +57,21 @@ def dict_to_filter_params(d, prefix=''):
     return params
 
 
+# TODO: Remove in NetBox v5.0. MPTT support is retained only for plugins that have
+# not yet migrated their tree models to netbox.models.ltree.LtreeModel; NetBox core
+# no longer uses django-mptt. When MPTT support is dropped, delete this helper and
+# its call in reapply_model_ordering().
+def _is_mptt_model(model) -> bool:
+    """
+    Whether `model` is backed by django-mptt (deprecated). MPTT applies its own
+    tree ordering via the TreeManager, so such querysets must NOT have plain
+    model-level ordering reapplied after .annotate().
+    """
+    from mptt.managers import TreeManager
+
+    return any(isinstance(manager, TreeManager) for manager in model._meta.local_managers)
+
+
 def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     """
     Reapply model-level ordering in case it has been lost through .annotate().
@@ -70,6 +85,12 @@ def reapply_model_ordering(queryset: QuerySet) -> QuerySet:
     ordering = queryset.model._meta.ordering or ()
     if any(isinstance(f, str) and f.lstrip('-') in ('sort_path', 'path') for f in ordering):
         return queryset
+
+    # TODO: Remove in NetBox v5.0 (see _is_mptt_model). Plugins may still use MPTT
+    # via the generic bulk views, so keep exempting MPTT-based models for now.
+    if _is_mptt_model(queryset.model):
+        return queryset
+
     if queryset.ordered:
         return queryset
 

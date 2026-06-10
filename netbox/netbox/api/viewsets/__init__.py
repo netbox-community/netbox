@@ -337,6 +337,7 @@ class NetBoxModelViewSet(
             raise PermissionDenied()
 
 
+# TODO: Remove this in NetBox v5.0
 class MPTTLockedMixin:
     """
     Deprecated no-op mixin retained for backward compatibility.
