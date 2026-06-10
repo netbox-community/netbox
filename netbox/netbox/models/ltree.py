@@ -328,7 +328,11 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         column (the MPTT `order_insertion_by=('name',)` equivalent). Single source
         of truth for clean(), save(), and _tree_order_field().
         """
-        return any(f.attname == 'sort_path' for f in cls._meta.concrete_fields)
+        try:
+            cls._meta.get_field('sort_path')
+            return True
+        except FieldDoesNotExist:
+            return False
 
     def clean(self):
         """
