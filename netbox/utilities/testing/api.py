@@ -16,7 +16,6 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.test import override_settings
 from django.urls import reverse
-from django.utils.module_loading import import_string
 from rest_framework import status
 from rest_framework.test import APIClient
 from strawberry.types.base import StrawberryList, StrawberryOptional
@@ -915,6 +914,7 @@ class APIViewTestCases:
                 return None
 
             lazy_module = None
+            lazy_package = None
             # Cap iterations at 8: typical NetBox annotations nest at most 3 layers
             # (Union > Annotated > ForwardRef). 8 is a generous safety net to
             # prevent infinite loops on pathological / future annotation shapes.
@@ -934,6 +934,9 @@ class APIViewTestCases:
                         module_name = getattr(meta, 'module', None)
                         if module_name:
                             lazy_module = module_name
+                            # strawberry.lazy('.relative') records the anchor package
+                            # needed to resolve the leading-dot module path.
+                            lazy_package = getattr(meta, 'package', None)
                             break
                     inner = args[0] if args else None
                     if inner is None:
@@ -947,9 +950,13 @@ class APIViewTestCases:
                 if lazy_module is None:
                     return None
                 name = annotation.__forward_arg__ if isinstance(annotation, typing.ForwardRef) else annotation
+                # Resolve via import_module(module, package) rather than import_string()
+                # so relative lazy modules (e.g. strawberry.lazy('.filters')) resolve
+                # against their anchor package, as strawberry itself does.
                 try:
-                    return import_string(f'{lazy_module}.{name}')
-                except ImportError:
+                    module = importlib.import_module(lazy_module, lazy_package)
+                    return getattr(module, name)
+                except (ImportError, AttributeError):
                     return None
 
             return annotation
