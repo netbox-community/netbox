@@ -1,4 +1,5 @@
 import logging
+import warnings
 from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -17,6 +18,7 @@ from utilities.query import reapply_model_ordering
 from . import mixins
 
 __all__ = (
+    'MPTTLockedMixin',
     'NetBoxModelViewSet',
     'NetBoxReadOnlyModelViewSet',
 )
@@ -333,3 +335,26 @@ class NetBoxModelViewSet(
                 super().perform_destroy(instance)
         except ObjectDoesNotExist:
             raise PermissionDenied()
+
+
+class MPTTLockedMixin:
+    """
+    Deprecated no-op mixin retained for backward compatibility.
+
+    Historically this acquired a pglock around create/update/destroy to serialize
+    concurrent writes to MPTT-based tree models. NetBox no longer uses MPTT: tree
+    integrity is now maintained by the PostgreSQL ltree triggers (see
+    `utilities.ltree`), which take per-tree advisory locks at the database level.
+    This mixin is therefore now a transparent pass-through and may be removed in a
+    future release. Plugins should stop inheriting from it.
+    """
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        warnings.warn(
+            "MPTTLockedMixin is deprecated and no longer does anything; tree write "
+            "concurrency is now handled by ltree database triggers. Remove it from "
+            f"{cls.__name__}.",
+            DeprecationWarning,
+            stacklevel=2,
+        )

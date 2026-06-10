@@ -14,11 +14,13 @@ inserts and parent_id changes via refresh_from_db(fields=['path']).
 """
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db import IntegrityError, OperationalError, connection, models
-from django.db.models import ForeignKey, Lookup, ManyToManyField
+from django.db.models import ForeignKey, ManyToManyField
 from django.db.models.expressions import RawSQL
 from django.utils.translation import gettext_lazy as _
 
 from utilities.querysets import RestrictedQuerySet
+
+from . import lookups
 
 __all__ = (
     'LtreeField',
@@ -56,41 +58,9 @@ class LtreeField(models.TextField):
         return str(value)
 
 
-@LtreeField.register_lookup
-class Ancestor(Lookup):
-    """`path` is an ancestor of (or equal to) the queried path:  path @> rhs"""
-    lookup_name = 'ancestor'
-
-    def as_sql(self, compiler, connection):
-        lhs, lhs_params = self.process_lhs(compiler, connection)
-        rhs, rhs_params = self.process_rhs(compiler, connection)
-        return f'{lhs} @> {rhs}', lhs_params + rhs_params
-
-
-@LtreeField.register_lookup
-class Descendant(Lookup):
-    """
-    `path` is a strict descendant of the queried path:  path <@ rhs AND path <> rhs.
-
-    Use `descendant_or_equal` for the inclusive form (`<@`).
-    """
-    lookup_name = 'descendant'
-
-    def as_sql(self, compiler, connection):
-        lhs, lhs_params = self.process_lhs(compiler, connection)
-        rhs, rhs_params = self.process_rhs(compiler, connection)
-        return f'({lhs} <@ {rhs} AND {lhs} <> {rhs})', lhs_params + rhs_params + lhs_params + rhs_params
-
-
-@LtreeField.register_lookup
-class DescendantOrEqual(Lookup):
-    """`path` is a descendant of (or equal to) the queried path:  path <@ rhs"""
-    lookup_name = 'descendant_or_equal'
-
-    def as_sql(self, compiler, connection):
-        lhs, lhs_params = self.process_lhs(compiler, connection)
-        rhs, rhs_params = self.process_rhs(compiler, connection)
-        return f'{lhs} <@ {rhs}', lhs_params + rhs_params
+LtreeField.register_lookup(lookups.Ancestor)
+LtreeField.register_lookup(lookups.Descendant)
+LtreeField.register_lookup(lookups.DescendantOrEqual)
 
 
 class SortPathField(models.TextField):
@@ -404,6 +374,12 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         parent_written = update_fields is None or 'parent' in update_fields or 'parent_id' in update_fields
         parent_changed = (not is_insert) and parent_written and self.parent_id != self._loaded_parent_id
 
+        # Reject cyclic moves before writing, mirroring django-mptt's save-time
+        # guard so scripts / bulk callers (which bypass form & serializer clean())
+        # cannot silently corrupt the tree.
+        if parent_changed and self._parent_creates_cycle():
+            raise ValidationError(_("Cannot assign self or a descendant as parent."))
+
         # The sort_path trigger also fires on a name change; detect that so the
         # cascaded sort_path can be refreshed below (path-only models have no
         # sort_path and are unaffected by renames).
@@ -413,12 +389,6 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
             (not is_insert) and has_sort_path and name_written
             and self.__dict__.get('name') != self._loaded_name
         )
-
-        # Reject cyclic moves before writing, mirroring django-mptt's save-time
-        # guard so scripts / bulk callers (which bypass form & serializer clean())
-        # cannot silently corrupt the tree.
-        if parent_changed and self._parent_creates_cycle():
-            raise ValidationError(_("Cannot assign self or a descendant as parent."))
 
         try:
             super().save(*args, **kwargs)
