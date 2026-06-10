@@ -11,7 +11,7 @@ def populate__ports_lowest(apps, schema_editor):
         qs = model.objects.filter(_ports_lowest__isnull=True).only('id', 'ports', '_ports_lowest')
         for obj in qs.iterator(chunk_size=CHUNK_SIZE):
             if obj.ports:
-                obj._ports_lowest = min(service.ports)
+                obj._ports_lowest = min(obj.ports)
                 chunk.append(obj)
             if len(chunk) >= CHUNK_SIZE:
                 model.objects.bulk_update(chunk, ['_ports_lowest'])
