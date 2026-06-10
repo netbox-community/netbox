@@ -310,6 +310,46 @@ class TokenTestCase(
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
 
+    def test_grant_token_constrained_permission_is_enforced(self):
+        """
+        Regression: SR-001 / VM-326 — constrained grant_token ObjectPermissions must not be
+        bypassed. has_perm('users.grant_token', obj=None) short-circuits to True without
+        evaluating constraints; the fix uses _user_may_grant_token() which applies them.
+        """
+        # Clear the unconstrained grant_token added by setUp.
+        ObjectPermission.objects.filter(users=self.user, actions__contains=['grant']).delete()
+        self.add_permissions('users.add_token')
+
+        superuser = User.objects.create_user(username='sec_superuser', is_superuser=True)
+        regular = User.objects.create_user(username='sec_regular')
+
+        # Add a *constrained* grant_token permission: only tokens for non-superusers.
+        token_ct = ObjectType.objects.get_by_natural_key('users', 'token')
+        perm = ObjectPermission(
+            name='constrained_grant_token',
+            constraints={'user__is_superuser': False},
+            actions=['grant'],
+        )
+        perm.save()
+        perm.users.add(self.user)
+        perm.object_types.add(token_ct)
+
+        url = reverse('users-api:token-list')
+
+        # Attempt to create a token for the superuser — must be denied (constraint violation).
+        response = self.client.post(url, {'user': superuser.pk}, format='json', **self.header)
+        self.assertEqual(
+            response.status_code, 403,
+            "Constrained grant_token must deny token creation for users that violate the constraint",
+        )
+
+        # Attempt to create a token for the regular user — must succeed.
+        response = self.client.post(url, {'user': regular.pk}, format='json', **self.header)
+        self.assertEqual(
+            response.status_code, 201,
+            "Constrained grant_token must allow token creation for users that satisfy the constraint",
+        )
+
     def test_create_token_returns_plaintext(self):
         """
         Creating a Token via the REST API must return the usable plaintext value in the response.
