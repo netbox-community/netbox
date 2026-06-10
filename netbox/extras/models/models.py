@@ -1,6 +1,9 @@
+import io
 import json
 import urllib.parse
 from pathlib import Path
+
+from PIL import Image as PillowImage
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -740,6 +743,31 @@ class ImageAttachment(ChangeLoggedModel):
             raise ValidationError(
                 _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
+
+        # Re-encode the image through Pillow to strip any embedded non-image
+        # payloads (e.g. polyglot HTML/PNG files). This must be done after the
+        # ImageField's own Pillow dimension check has already run.
+        if self.image and hasattr(self.image, 'file'):
+            try:
+                self.image.file.seek(0)
+                img = PillowImage.open(self.image.file)
+                img_format = img.format or 'PNG'
+                # Validate extension against allowed formats
+                ext = Path(self.image.name).suffix.lstrip('.').lower()
+                if ext not in IMAGE_ATTACHMENT_IMAGE_FORMATS:
+                    raise ValidationError(
+                        _("Unsupported image format: {ext}").format(ext=ext)
+                    )
+                # Re-encode to a new buffer; this strips any non-image trailer data
+                buf = io.BytesIO()
+                img.save(buf, format=img_format)
+                buf.seek(0)
+                self.image.file = buf
+                self.image.file.seek(0)
+            except ValidationError:
+                raise
+            except Exception:
+                raise ValidationError(_("Unable to process the uploaded image."))
 
     def delete(self, *args, **kwargs):
 
