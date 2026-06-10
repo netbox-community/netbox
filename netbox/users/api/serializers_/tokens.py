@@ -34,13 +34,18 @@ def _user_may_grant_token(requesting_user, token_user):
     Constraints referencing other Token fields cannot be evaluated for an unsaved
     token; the function returns False (deny) for those.
     """
+    # Mirrors ObjectPermissionMixin.has_perm: superusers implicitly have all permissions.
+    if requesting_user.is_active and requesting_user.is_superuser:
+        return True
+
     perm = 'users.grant_token'
 
     # get_all_permissions() populates _object_perm_cache as a side effect.
+    # Guard against missing cache key in case a non-standard backend is in use.
     if perm not in requesting_user.get_all_permissions():
         return False
 
-    constraints = requesting_user._object_perm_cache[perm]
+    constraints = getattr(requesting_user, '_object_perm_cache', {}).get(perm, [])
 
     # An empty/null constraint means "no restriction" — allow any target.
     if any(not c for c in constraints):
@@ -54,14 +59,13 @@ def _user_may_grant_token(requesting_user, token_user):
     for constraint in constraints:
         user_constraint = {}
         for key, raw_val in constraint.items():
-            # Resolve $user placeholder
+            # Resolve $user placeholder; constraint values are JSON primitives so
+            # no .pk extraction is needed.
             val = resolved_user_id if raw_val == user_token else raw_val
-            if hasattr(val, 'pk'):
-                val = val.pk
             if key == 'user':
                 user_constraint['pk'] = val
             elif key.startswith('user__'):
-                user_constraint[key[len('user__'):]] = val
+                user_constraint[key.removeprefix('user__')] = val
             else:
                 # Non-user Token field — cannot evaluate for a new (unsaved) token.
                 # Fail closed.
