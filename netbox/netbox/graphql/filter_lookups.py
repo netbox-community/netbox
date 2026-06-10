@@ -104,6 +104,8 @@ class JSONStringLookup:
     i_starts_with: str | None = strawberry_django.filter_field()
     ends_with: str | None = strawberry_django.filter_field()
     i_ends_with: str | None = strawberry_django.filter_field()
+    in_: list[str] | None = strawberry_django.filter_field()
+    isnull: bool | None = strawberry_django.filter_field()
     # regex / i_regex intentionally omitted (oracle prevention, VM-323)
 
 
