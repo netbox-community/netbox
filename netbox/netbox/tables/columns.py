@@ -630,6 +630,7 @@ class TreeColumn(tables.TemplateColumn):
 
 
 # Deprecated alias for plugin compatibility; use TreeColumn going forward.
+# TODO: Remove this in NetBox v5.0
 MPTTColumn = TreeColumn
 
 
