@@ -400,7 +400,6 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     )
     role = forms.ChoiceField(
         choices=VirtualCircuitTerminationRoleChoices,
-        widget=HTMXSelect(hx_target_id='virtual-circuit-termination'),
         label=_('Role')
     )
     interface = DynamicModelChoiceField(

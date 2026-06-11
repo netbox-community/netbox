@@ -261,7 +261,7 @@ class PrefixBulkAddForm(PrefixForm):
         FieldSet(
             'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
         ),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
         FieldSet('vlan', name=_('VLAN Assignment')),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
@@ -876,7 +876,8 @@ class ServiceCreateForm(ServiceForm):
                 FieldSet('service_template', name=_('From Template')),
                 FieldSet('name', 'protocol', 'ports', name=_('Custom')),
             ),
-            'ipaddresses', 'description', 'tags', name=_('Application Service')
+            'ipaddresses', 'description', 'tags', name=_('Application Service'),
+            html_id='service',
         ),
     )
 

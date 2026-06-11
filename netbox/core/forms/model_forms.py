@@ -29,7 +29,7 @@ EMPTY_VALUES = ('', None, [], ())
 class DataSourceForm(PrimaryModelForm):
     type = forms.ChoiceField(
         choices=get_data_backend_choices,
-        # No hx_fieldset_id: changing type adds/removes the Backend Parameters fieldset entirely.
+        # No hx_target_id: changing type adds/removes the Backend Parameters fieldset entirely.
         widget=HTMXSelect()
     )
 
