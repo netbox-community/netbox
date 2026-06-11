@@ -18,6 +18,7 @@ from netbox.registry import registry
 from users.choices import TokenVersionChoices
 from users.constants import *
 from users.models import *
+from users.utils import user_may_grant_token
 from utilities.data import flatten_dict
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField,
@@ -195,7 +196,7 @@ class TokenForm(UserTokenForm):
             if request is None:
                 # Fail closed: we cannot verify that the acting user is authorized.
                 raise forms.ValidationError(_("Unable to verify permission to create tokens."))
-            if token_user != request.user and not request.user.has_perm('users.grant_token'):
+            if token_user != request.user and not user_may_grant_token(request.user, token_user):
                 raise forms.ValidationError(
                     _("This user does not have permission to create tokens for other users.")
                 )

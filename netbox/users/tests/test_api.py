@@ -314,7 +314,7 @@ class TokenTestCase(
         """
         Regression: SR-001 / VM-322 — constrained grant_token ObjectPermissions must not be
         bypassed. has_perm('users.grant_token', obj=None) short-circuits to True without
-        evaluating constraints; the fix uses _user_may_grant_token() which applies them.
+        evaluating constraints; the fix uses user_may_grant_token() which applies them.
         """
         # Clear the unconstrained grant_token added by setUp.
         ObjectPermission.objects.filter(users=self.user, actions__contains=['grant']).delete()
