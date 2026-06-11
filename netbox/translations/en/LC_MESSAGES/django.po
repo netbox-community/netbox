@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-10 06:34+0000\n"
+"POT-Creation-Date: 2026-06-11 06:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1444,7 +1444,7 @@ msgstr ""
 #: netbox/extras/models/models.py:574 netbox/extras/models/models.py:706
 #: netbox/extras/models/notifications.py:127 netbox/extras/models/scripts.py:29
 #: netbox/ipam/models/asns.py:18 netbox/ipam/models/fhrp.py:24
-#: netbox/ipam/models/services.py:51 netbox/ipam/models/services.py:80
+#: netbox/ipam/models/services.py:63 netbox/ipam/models/services.py:91
 #: netbox/ipam/models/vlans.py:42 netbox/ipam/models/vlans.py:231
 #: netbox/ipam/models/vlans.py:380 netbox/ipam/models/vrfs.py:20
 #: netbox/ipam/models/vrfs.py:78 netbox/netbox/models/__init__.py:180
@@ -11575,7 +11575,7 @@ msgstr ""
 msgid "Hostname or FQDN (not case-sensitive)"
 msgstr ""
 
-#: netbox/ipam/models/ip.py:852 netbox/ipam/models/services.py:86
+#: netbox/ipam/models/ip.py:852 netbox/ipam/models/services.py:97
 msgid "IP addresses"
 msgstr ""
 
@@ -11623,24 +11623,24 @@ msgstr ""
 msgid "port numbers"
 msgstr ""
 
-#: netbox/ipam/models/services.py:58
+#: netbox/ipam/models/services.py:70
 msgid "application service template"
 msgstr ""
 
-#: netbox/ipam/models/services.py:59
+#: netbox/ipam/models/services.py:71
 msgid "application service templates"
 msgstr ""
 
-#: netbox/ipam/models/services.py:87
+#: netbox/ipam/models/services.py:98
 msgid ""
 "The specific IP addresses (if any) to which this application service is bound"
 msgstr ""
 
-#: netbox/ipam/models/services.py:100
+#: netbox/ipam/models/services.py:111
 msgid "application service"
 msgstr ""
 
-#: netbox/ipam/models/services.py:101
+#: netbox/ipam/models/services.py:112
 msgid "application services"
 msgstr ""
 
