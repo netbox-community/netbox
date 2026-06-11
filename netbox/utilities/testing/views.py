@@ -517,6 +517,31 @@ class ViewTestCases:
             self.assertHttpStatus(response, 200)
             self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
 
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
+        def test_export_objects_anonymous(self):
+            # Ensure we are logged out.
+            self.client.logout()
+
+            # Some models (e.g. the users model) always require to be logged in, so we skip them here.
+            ct = ContentType.objects.get_for_model(self.model)
+            if (ct.app_label, ct.model) in settings.EXEMPT_EXCLUDE_MODELS:
+                return
+
+            url = self._get_url('list')
+
+            # Test default CSV (or sometimes YAML) export
+            response = self.client.get(f'{url}?export')
+            self.assertHttpStatus(response, 200)
+            if hasattr(self.model, 'to_yaml'):
+                self.assertEqual(response.get('Content-Type'), 'text/yaml')
+            else:
+                self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+
+            # Test table-based export
+            response = self.client.get(f'{url}?export=table')
+            self.assertHttpStatus(response, 200)
+            self.assertEqual(response.get('Content-Type'), 'text/csv; charset=utf-8')
+
     class CreateMultipleObjectsViewTestCase(ModelViewTestCase):
         """
         Create multiple instances using a single form. Expects the creation of three new instances by default.
