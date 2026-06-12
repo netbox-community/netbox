@@ -21,6 +21,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
+from users.models import Token
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
@@ -331,6 +332,12 @@ class ScriptViewSet(ModelViewSet):
         """
         Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
+
+        # Running a script is a state-changing operation. If token authentication is in use, enforce the token's
+        # write ability before performing any object lookup. Session-authenticated requests are unaffected
+        # (request.auth is not a Token).
+        if isinstance(request.auth, Token) and not request.auth.write_enabled:
+            raise PermissionDenied("This token does not permit write operations.")
 
         script = self._get_script(pk)
 
