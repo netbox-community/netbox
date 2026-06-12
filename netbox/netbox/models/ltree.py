@@ -256,14 +256,23 @@ class LtreeModel(models.Model, metaclass=LtreeModelBase):
         tree being written (and, for a cross-tree move, on both the source and
         destination roots, acquired in ascending key order to avoid deadlocks).
 
-        Every insert, move, and reparent of a node in a tree takes the same key,
-        so an insert deep in a subtree and a concurrent reparent of one of its
+        Every child insert, move, and reparent of a node in a tree takes the same
+        key, so an insert deep in a subtree and a concurrent reparent of one of its
         ancestors are serialized — the loser blocks until the winner commits, and
         the winner's AFTER cascade can never miss a row inserted concurrently
         (which a row-level `FOR SHARE` on the parent could not prevent: a set-based
         cascade's snapshot would skip a row inserted after it began). Writes to
         *different* trees use different keys and proceed fully in parallel — e.g.
         inventory ingestion across different devices, each its own tree.
+
+        Inserting a *new root* (parent_id IS NULL) takes no lock: the uncommitted
+        row is invisible to other transactions and has no descendants, so nothing
+        can contend with it. This keeps a bulk import of many top-level objects
+        (the dominant import pattern) lock-free instead of taking one advisory lock
+        per root. The residual case that still scales with volume is inserting
+        children into many *distinct existing* trees in one transaction (one lock
+        per distinct tree touched); if a very large such import hits "out of shared
+        memory", raising the server's `max_locks_per_transaction` is the remedy.
 
         Two residual, retryable cases remain (PostgreSQL aborts one transaction
         with a deadlock error rather than persisting a stale path): crossing

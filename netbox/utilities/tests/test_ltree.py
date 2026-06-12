@@ -92,6 +92,52 @@ class LtreeTriggerTests(TestCase):
         self.assertSetEqual(found, expected)
 
 
+class AdvisoryLockScopeTests(TestCase):
+    """
+    Pin where the BEFORE trigger takes its per-tree advisory lock.
+
+    A new root (INSERT with parent_id IS NULL) is a race-free singleton tree and
+    must take NO lock, so a bulk import of many top-level objects cannot exhaust
+    the shared lock table. Every other write (child insert, reparent-to-root)
+    must still lock per tree — the companion assertions keep the optimization from
+    silently over-broadening to cases that need serialization.
+
+    `pg_locks` is cluster-wide and advisory *xact* locks are held until the
+    TestCase transaction ends, so each test measures the DELTA in this backend's
+    advisory-lock count across a single operation rather than an absolute count.
+    """
+
+    @staticmethod
+    def _advisory_lock_count():
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT count(*) FROM pg_locks "
+                "WHERE locktype = 'advisory' AND pid = pg_backend_pid()"
+            )
+            return cursor.fetchone()[0]
+
+    def test_root_insert_takes_no_lock(self):
+        before = self._advisory_lock_count()
+        Region.objects.create(name='Root', slug='root-lock')
+        self.assertEqual(self._advisory_lock_count() - before, 0)
+
+    def test_child_insert_takes_one_lock(self):
+        root = Region.objects.create(name='Root', slug='root-lock2')
+        before = self._advisory_lock_count()
+        Region.objects.create(parent=root, name='Child', slug='child-lock2')
+        self.assertEqual(self._advisory_lock_count() - before, 1)
+
+    def test_reparent_to_root_takes_lock(self):
+        root = Region.objects.create(name='Root', slug='root-lock3')
+        child = Region.objects.create(parent=root, name='Child', slug='child-lock3')
+        before = self._advisory_lock_count()
+        child.parent = None
+        child.save()
+        # An existing row promoted to root still has a real subtree to rewrite, so
+        # it must lock (its own new root key, plus the old tree's root for the move).
+        self.assertGreaterEqual(self._advisory_lock_count() - before, 1)
+
+
 class LtreeAPIParityTests(TestCase):
     """Verify the MPTTModel-compatible API surface."""
 

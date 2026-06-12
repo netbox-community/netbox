@@ -21,39 +21,56 @@ __all__ = (
 # lexicographic ordering of ltree labels matches numeric PK ordering across digit
 # boundaries (e.g. "0...09" sorts before "0...10").
 # Per-tree advisory locking (see _lock_tree_roots_sql / LtreeModel "Concurrency"):
-# every insert/move/reparent of a node takes a transaction-level advisory lock
-# keyed on the root(s) of the tree(s) it touches, BEFORE reading the parent path.
-# A concurrent reparent of an ancestor takes the same key, so the two serialize
-# and the AFTER cascade can never miss a row inserted concurrently; writes in
-# different trees use different keys and run in parallel.
+# every child insert / move / reparent of a node takes a transaction-level
+# advisory lock keyed on the root(s) of the tree(s) it touches, BEFORE reading the
+# parent path. A concurrent reparent of an ancestor takes the same key, so the two
+# serialize and the AFTER cascade can never miss a row inserted concurrently;
+# writes in different trees use different keys and run in parallel. Inserting a new
+# root (parent_id IS NULL) takes no lock at all -- it is a race-free singleton tree
+# -- so a bulk import of many top-level objects does not accumulate one lock per
+# root and cannot exhaust the shared lock table.
 _LOCK_TREE_ROOTS_SQL = '''
-    -- Destination tree root: the parent's root label, or this row's own label
-    -- when it is (or becomes) a root. The CASE guards against a parent whose path
-    -- is the empty ltree '' (reachable only via a trigger-bypassing raw write):
-    -- subltree('', 0, 1) would raise 'invalid positions', so fall back to the
-    -- child's own label as the lock key rather than aborting the insert/move.
-    IF NEW.parent_id IS NOT NULL THEN
-        EXECUTE format(
-            'SELECT CASE WHEN nlevel(path) > 0 THEN subltree(path, 0, 1)::text END'
-            ' FROM %%I WHERE id = $1',
-            TG_TABLE_NAME
-        ) INTO dest_root USING NEW.parent_id;
-    END IF;
-    dest_root := COALESCE(dest_root, lpad(NEW.id::text, 19, '0'));
-    -- Source tree root (moves only): this row's current root, which the AFTER
-    -- cascade will rewrite.
-    IF TG_OP = 'UPDATE' AND OLD.path IS NOT NULL AND nlevel(OLD.path) > 0 THEN
-        old_root := subltree(OLD.path, 0, 1)::text;
-    END IF;
-    key_dest := hashtextextended(TG_TABLE_NAME || ':' || dest_root, 0);
-    IF old_root IS NOT NULL AND old_root <> dest_root THEN
-        -- Cross-tree move: lock both roots, ascending, to avoid deadlock between
-        -- two concurrent moves that touch the same pair.
-        key_old := hashtextextended(TG_TABLE_NAME || ':' || old_root, 0);
-        PERFORM pg_advisory_xact_lock(LEAST(key_dest, key_old));
-        PERFORM pg_advisory_xact_lock(GREATEST(key_dest, key_old));
-    ELSE
-        PERFORM pg_advisory_xact_lock(key_dest);
+    -- A brand-new root (INSERT with parent_id IS NULL) starts its own singleton
+    -- tree that no concurrent transaction can yet see (MVCC: the uncommitted row
+    -- is invisible) or reference (no other transaction has its PK). For such a
+    -- row this BEFORE function reads no other row (the parent lookup below is
+    -- gated on parent_id) and the AFTER cascade fires only on UPDATE, so the
+    -- insert touches solely its own NEW row -- there is nothing to serialize
+    -- against, and the advisory lock it would otherwise take can never contend.
+    -- Skipping it here is what stops a bulk import of many top-level objects from
+    -- taking one xact-lock per root and exhausting the shared lock table
+    -- (sized by max_locks_per_transaction). Every other case still locks below:
+    -- a child insert, any reparent, and a reparent-to-root (TG_OP = UPDATE, where
+    -- the existing row has a real subtree the AFTER cascade must rewrite).
+    IF NOT (TG_OP = 'INSERT' AND NEW.parent_id IS NULL) THEN
+        -- Destination tree root: the parent's root label, or this row's own label
+        -- when it is (or becomes) a root. The CASE guards against a parent whose path
+        -- is the empty ltree '' (reachable only via a trigger-bypassing raw write):
+        -- subltree('', 0, 1) would raise 'invalid positions', so fall back to the
+        -- child's own label as the lock key rather than aborting the insert/move.
+        IF NEW.parent_id IS NOT NULL THEN
+            EXECUTE format(
+                'SELECT CASE WHEN nlevel(path) > 0 THEN subltree(path, 0, 1)::text END'
+                ' FROM %%I WHERE id = $1',
+                TG_TABLE_NAME
+            ) INTO dest_root USING NEW.parent_id;
+        END IF;
+        dest_root := COALESCE(dest_root, lpad(NEW.id::text, 19, '0'));
+        -- Source tree root (moves only): this row's current root, which the AFTER
+        -- cascade will rewrite.
+        IF TG_OP = 'UPDATE' AND OLD.path IS NOT NULL AND nlevel(OLD.path) > 0 THEN
+            old_root := subltree(OLD.path, 0, 1)::text;
+        END IF;
+        key_dest := hashtextextended(TG_TABLE_NAME || ':' || dest_root, 0);
+        IF old_root IS NOT NULL AND old_root <> dest_root THEN
+            -- Cross-tree move: lock both roots, ascending, to avoid deadlock between
+            -- two concurrent moves that touch the same pair.
+            key_old := hashtextextended(TG_TABLE_NAME || ':' || old_root, 0);
+            PERFORM pg_advisory_xact_lock(LEAST(key_dest, key_old));
+            PERFORM pg_advisory_xact_lock(GREATEST(key_dest, key_old));
+        ELSE
+            PERFORM pg_advisory_xact_lock(key_dest);
+        END IF;
     END IF;
 '''
 
