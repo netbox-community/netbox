@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             index=models.Index(
                 condition=models.Q(('_config_context_data__isnull', True)),
                 fields=['id'],
-                name='virtualization_virtualmachine_cc_null',
+                name='virtualization_vm_cc_null',
             ),
         ),
     ]

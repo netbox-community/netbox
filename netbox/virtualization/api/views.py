@@ -1,7 +1,7 @@
 from django.db.models import Sum
 from rest_framework.routers import APIRootView
 
-from extras.api.mixins import RenderConfigMixin
+from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.query_functions import CollateAsChar
 from virtualization import filtersets
@@ -62,7 +62,7 @@ class VirtualMachineTypeViewSet(NetBoxModelViewSet):
 #
 
 
-class VirtualMachineViewSet(RenderConfigMixin, NetBoxModelViewSet):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.all()
     serializer_class = serializers.VirtualMachineSerializer
     filterset_class = filtersets.VirtualMachineFilterSet

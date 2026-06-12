@@ -662,3 +662,48 @@ class ConfigContextCacheQueryCountTest(TestCase):
 
         self.assertEqual(len(warm.captured_queries), 0)
         self.assertGreaterEqual(len(cold.captured_queries), len(cold_devices))
+
+
+class ConditionalConfigContextAnnotationTest(TestCase):
+    """
+    annotate_config_context_data(only_invalidated=True) is the list/detail read-path optimization:
+    it must compute the aggregation only for rows whose cache is NULL and leave it NULL for warm
+    rows, while a single query still serves a mix of warm and cold objects correctly via
+    get_config_context().
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Mfr', slug='mfr')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='DT', slug='dt')
+        role = DeviceRole.objects.create(name='Role', slug='role')
+        site = Site.objects.create(name='Site', slug='site')
+        cls.warm = Device.objects.create(name='Warm', device_type=devicetype, role=role, site=site)
+        cls.cold = Device.objects.create(name='Cold', device_type=devicetype, role=role, site=site)
+        ConfigContext.objects.create(name='A', weight=100, data={'a': 1})
+        ConfigContext.objects.create(name='B', weight=200, data={'b': 2})
+
+    def setUp(self):
+        # Warm one device with a sentinel cache, leave the other invalidated.
+        _set_cache(self.warm, {'sentinel': True})
+        Device.objects.filter(pk=self.cold.pk).update(_config_context_data=None)
+
+    def test_annotation_skips_warm_rows(self):
+        rows = {
+            d.pk: d
+            for d in Device.objects.annotate_config_context_data(only_invalidated=True)
+        }
+        # Warm row: the aggregation must not have run; the annotated value is NULL.
+        self.assertIsNone(rows[self.warm.pk].config_context_data)
+        # Cold row: the aggregation ran and produced the ordered list of context data.
+        self.assertEqual(rows[self.cold.pk].config_context_data, [{'a': 1}, {'b': 2}])
+
+    def test_single_query_serves_mixed_warm_and_cold(self):
+        qs = Device.objects.annotate_config_context_data(only_invalidated=True)
+        with CaptureQueriesContext(connection) as ctx:
+            rows = {d.pk: d.get_config_context() for d in qs}
+        # The warm row returns its cached sentinel; the cold row is rendered from the annotation.
+        self.assertEqual(rows[self.warm.pk], {'sentinel': True})
+        self.assertEqual(rows[self.cold.pk], {'a': 1, 'b': 2})
+        # A single query backs the whole page — no per-object fallback to get_for_object().
+        self.assertEqual(len(ctx.captured_queries), 1)

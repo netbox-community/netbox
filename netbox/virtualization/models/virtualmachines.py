@@ -256,8 +256,8 @@ class VirtualMachine(
             # tables where the steady state is for nearly every row to be populated.
             models.Index(
                 fields=('id',),
-                name='%(app_label)s_%(class)s_cc_null',
                 condition=Q(_config_context_data__isnull=True),
+                name='virtualization_vm_cc_null',
             ),
         )
         constraints = (
