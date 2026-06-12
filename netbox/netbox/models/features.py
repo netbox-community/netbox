@@ -407,13 +407,13 @@ class ContactsMixin(models.Model):
         """
         from tenancy.models import ContactAssignment
 
-        from . import NestedGroupModel
+        from . import NestedGroupModel, NestedLtreeGroupModel
 
         filter = Q(
             object_type=ObjectType.objects.get_for_model(self),
             object_id__in=(
                 self.get_ancestors(include_self=True)
-                if (isinstance(self, NestedGroupModel) and inherited)
+                if (isinstance(self, (NestedGroupModel, NestedLtreeGroupModel)) and inherited)
                 else [self.pk]
             ),
         )

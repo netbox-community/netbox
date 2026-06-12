@@ -1057,18 +1057,17 @@ class ModuleBayTestCase(TestCase):
         self.assertEqual(names, ['Bay 1', 'Bay 1.1', 'Bay 1.2', 'Bay 1.3'])
 
     @tag('regression')  # #22146
-    def test_root_module_bay_rename_preserves_tree_ids(self):
+    def test_root_module_bay_rename_preserves_paths(self):
         """
-        Renaming a root module bay must not renumber any other root tree's
-        tree_id. The renamed bay's own tree_id is also expected to remain
-        stable, but the load-bearing assertion is that the *other* bays are
-        not shifted.
+        Renaming a root module bay must not rewrite any tree's path. Renaming
+        touches only sort_path (the display-ordering column), so every bay's
+        path — including the renamed bay's own — must be unchanged afterward.
         """
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
         site = Site.objects.first()
         device = Device.objects.create(
-            name='Rename TreeID Device',
+            name='Rename Path Device',
             device_type=device_type,
             role=device_role,
             site=site,
@@ -1076,8 +1075,8 @@ class ModuleBayTestCase(TestCase):
         for name in ('Bay 1', 'Bay 2', 'Bay 3', 'Bay 4'):
             ModuleBay.objects.create(device=device, name=name)
 
-        tree_ids_before = {
-            bay.name: bay.tree_id
+        paths_before = {
+            bay.pk: str(bay.path)
             for bay in ModuleBay.objects.filter(device=device)
         }
 
@@ -1085,18 +1084,16 @@ class ModuleBayTestCase(TestCase):
         bay.name = 'Bay 99'
         bay.save()
 
-        tree_ids_after = {
-            bay.name: bay.tree_id
+        paths_after = {
+            bay.pk: str(bay.path)
             for bay in ModuleBay.objects.filter(device=device)
         }
-        for name in ('Bay 1', 'Bay 3', 'Bay 4'):
-            self.assertEqual(tree_ids_after[name], tree_ids_before[name])
-        self.assertEqual(tree_ids_after['Bay 99'], tree_ids_before['Bay 2'])
+        self.assertEqual(paths_after, paths_before)
 
     @tag('regression')  # #22146
     def test_root_module_bay_rename_updates_display_order(self):
         """
-        Even though renaming a root module bay does not renumber tree_ids,
+        Even though renaming a root module bay does not rewrite its path,
         the manager's _root_name annotation must reflect the new name so the
         display ordering is correct.
         """
@@ -1186,7 +1183,9 @@ class ModuleBayTestCase(TestCase):
         movable_bay.refresh_from_db()
         host_bay.refresh_from_db()
         self.assertEqual(movable_bay.parent_id, host_bay.pk)
-        self.assertEqual(movable_bay.tree_id, host_bay.tree_id)
+        # The trigger cascade must have re-rooted the moved bay into host_bay's
+        # tree: its path is now a strict descendant of host_bay's path.
+        self.assertTrue(str(movable_bay.path).startswith(f'{host_bay.path}.'))
 
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()
@@ -1264,6 +1263,38 @@ class ModuleBayTestCase(TestCase):
         # Verify nested bay label resolves {module} to parent position
         nested_bay = module.modulebays.get(name='SFP A-21')
         self.assertEqual(nested_bay.label, 'A-21')
+
+    @tag('regression')  # #21418
+    def test_module_install_nests_module_bay_parent(self):
+        """
+        A module bay instantiated when a module is installed must be nested under the
+        installing module's bay. bulk_create() bypasses ModuleBay.save(), so the parent
+        is assigned in ModuleBayTemplate.instantiate(); without it the bay would be left
+        a root with a top-level ltree path.
+        """
+        manufacturer = Manufacturer.objects.first()
+        site = Site.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Chassis with Bay', slug='chassis-with-bay'
+        )
+        ModuleBayTemplate.objects.create(device_type=device_type, name='Bay A')
+
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module with Sub-bay')
+        ModuleBayTemplate.objects.create(module_type=module_type, name='Sub-bay 1')
+
+        device = Device.objects.create(
+            name='Nested Bay Parent Device', device_type=device_type, role=device_role, site=site
+        )
+        parent_bay = device.modulebays.get(name='Bay A')
+        module = Module.objects.create(device=device, module_bay=parent_bay, module_type=module_type)
+
+        nested_bay = module.modulebays.get(name='Sub-bay 1')
+        self.assertEqual(nested_bay.parent, parent_bay)
+        # The ltree path/level must reflect the nesting, not a root placement.
+        self.assertEqual(nested_bay.level, parent_bay.level + 1)
+        self.assertTrue(str(nested_bay.path).startswith(f'{parent_bay.path}.'))
 
     @tag('regression')  # #20467
     def test_nested_module_bay_position_resolution(self):
@@ -2529,3 +2560,65 @@ class PowerPortDrawTestCase(TestCase):
         self.assertEqual(legs_by_name['A']['maximum'], 200)
         self.assertEqual(legs_by_name['B']['allocated'], 0)
         self.assertEqual(legs_by_name['C']['allocated'], 0)
+
+
+class InventoryItemCycleTestCase(TestCase):
+    """
+    InventoryItem (ltree-backed, not the nested-group base) must reject assigning
+    self or a descendant as parent — behavior django-mptt previously enforced via
+    InvalidMove on save().
+    """
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='inv-site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='inv-mfr-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='inv-dt-1'
+        )
+        role = DeviceRole.objects.create(name='Role 1', slug='inv-role-1')
+        cls.device = Device.objects.create(
+            name='Device 1', device_type=device_type, role=role, site=site
+        )
+
+    def test_cannot_assign_descendant_as_parent(self):
+        a = InventoryItem.objects.create(device=self.device, name='A')
+        b = InventoryItem.objects.create(device=self.device, name='B', parent=a)
+        c = InventoryItem.objects.create(device=self.device, name='C', parent=b)
+        a.parent = c
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+        # The save()-level guard also rejects the cycle when clean() is bypassed.
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_cannot_assign_self_as_parent(self):
+        a = InventoryItem.objects.create(device=self.device, name='A')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+
+
+class InventoryItemTemplateCycleTestCase(TestCase):
+    """InventoryItemTemplate must likewise reject self/descendant as parent."""
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='iit-mfr-1')
+        cls.device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='iit-dt-1'
+        )
+
+    def test_cannot_assign_descendant_as_parent(self):
+        a = InventoryItemTemplate.objects.create(device_type=self.device_type, name='A')
+        b = InventoryItemTemplate.objects.create(device_type=self.device_type, name='B', parent=a)
+        a.parent = b
+        with self.assertRaises(ValidationError):
+            a.full_clean()
+        with self.assertRaises(ValidationError):
+            a.save()
+
+    def test_cannot_assign_self_as_parent(self):
+        a = InventoryItemTemplate.objects.create(device_type=self.device_type, name='A')
+        a.parent = a
+        with self.assertRaises(ValidationError):
+            a.full_clean()

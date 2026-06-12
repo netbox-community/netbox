@@ -1,3 +1,4 @@
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -5,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
 from dcim.models.mixins import CachedScopeMixin
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.mixins import DistanceMixin
 
 from .choices import *
@@ -46,7 +47,7 @@ class WirelessAuthenticationBase(models.Model):
         abstract = True
 
 
-class WirelessLANGroup(NestedGroupModel):
+class WirelessLANGroup(NestedLtreeGroupModel):
     """
     A nested grouping of WirelessLANs
     """
@@ -61,12 +62,14 @@ class WirelessLANGroup(NestedGroupModel):
         max_length=100,
         unique=True
     )
+    # sort_path inherits natural_sort collation from `name` automatically (LtreeModelBase).
 
     class Meta:
-        ordering = ('name', 'pk')
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='wireless_lan_grp_path_gist'),
+            models.Index(fields=['sort_path'], name='wireless_lan_grp_sort_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),

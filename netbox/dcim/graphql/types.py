@@ -12,7 +12,8 @@ from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import (
     BaseObjectType,
-    NestedGroupObjectType,
+    LtreeNodeMixin,
+    NestedLtreeGroupObjectType,
     NetBoxObjectType,
     OrganizationalObjectType,
     PrimaryObjectType,
@@ -322,11 +323,11 @@ class DeviceBayTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItemTemplate,
-    exclude=['component_type', 'component_id', 'parent'],
+    exclude=['component_type', 'component_id', 'parent', 'path'],
     filters=InventoryItemTemplateFilter,
     pagination=True
 )
-class InventoryItemTemplateType(ComponentTemplateType):
+class InventoryItemTemplateType(LtreeNodeMixin, ComponentTemplateType):
     role: Annotated['InventoryItemRoleType', strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated['ManufacturerType', strawberry.lazy('dcim.graphql.types')]
 
@@ -350,11 +351,11 @@ class InventoryItemTemplateType(ComponentTemplateType):
 
 @strawberry_django.type(
     models.DeviceRole,
-    fields='__all__',
+    exclude=['path', 'sort_path'],
     filters=DeviceRoleFilter,
     pagination=True
 )
-class DeviceRoleType(NestedGroupObjectType):
+class DeviceRoleType(NestedLtreeGroupObjectType):
     parent: Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated['DeviceRoleType', strawberry.lazy('dcim.graphql.types')]]
     color: str
@@ -487,11 +488,11 @@ class InterfaceTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.InventoryItem,
-    exclude=['component_type', 'component_id', 'parent'],
+    exclude=['component_type', 'component_id', 'parent', 'path'],
     filters=InventoryItemFilter,
     pagination=True
 )
-class InventoryItemType(ComponentType):
+class InventoryItemType(LtreeNodeMixin, ComponentType):
     role: Annotated['InventoryItemRoleType', strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated['ManufacturerType', strawberry.lazy('dcim.graphql.types')] | None
 
@@ -529,11 +530,11 @@ class InventoryItemRoleType(OrganizationalObjectType):
 @strawberry_django.type(
     models.Location,
     # fields='__all__',
-    exclude=['parent'],  # bug - temp
+    exclude=['parent', 'path', 'sort_path'],  # bug - temp
     filters=LocationFilter,
     pagination=True
 )
-class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NestedGroupObjectType):
+class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NestedLtreeGroupObjectType):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     parent: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
@@ -602,11 +603,11 @@ class ModuleType(PrimaryObjectType):
 @strawberry_django.type(
     models.ModuleBay,
     # fields='__all__',
-    exclude=['parent'],
+    exclude=['parent', 'path', 'sort_path'],
     filters=ModuleBayFilter,
     pagination=True
 )
-class ModuleBayType(ModularComponentType):
+class ModuleBayType(LtreeNodeMixin, ModularComponentType):
 
     installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
@@ -667,11 +668,11 @@ class ModuleTypeType(PrimaryObjectType):
 
 @strawberry_django.type(
     models.Platform,
-    fields='__all__',
+    exclude=['path', 'sort_path'],
     filters=PlatformFilter,
     pagination=True
 )
-class PlatformType(NestedGroupObjectType):
+class PlatformType(NestedLtreeGroupObjectType):
     parent: Annotated['PlatformType', strawberry.lazy('dcim.graphql.types')] | None
     children: list[Annotated['PlatformType', strawberry.lazy('dcim.graphql.types')]]
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
@@ -875,11 +876,11 @@ class RearPortTemplateType(ModularComponentTemplateType):
 
 @strawberry_django.type(
     models.Region,
-    exclude=['parent'],
+    exclude=['parent', 'path', 'sort_path'],
     filters=RegionFilter,
     pagination=True
 )
-class RegionType(VLANGroupsMixin, ContactsMixin, NestedGroupObjectType):
+class RegionType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
 
     sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
     children: list[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]
@@ -952,11 +953,11 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, PrimaryObj
 
 @strawberry_django.type(
     models.SiteGroup,
-    exclude=['parent'],  # bug - temp
+    exclude=['parent', 'path', 'sort_path'],  # bug - temp
     filters=SiteGroupFilter,
     pagination=True
 )
-class SiteGroupType(VLANGroupsMixin, ContactsMixin, NestedGroupObjectType):
+class SiteGroupType(VLANGroupsMixin, ContactsMixin, NestedLtreeGroupObjectType):
 
     sites: list[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
     children: list[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]

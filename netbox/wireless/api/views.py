@@ -1,6 +1,6 @@
 from rest_framework.routers import APIRootView
 
-from netbox.api.viewsets import MPTTLockedMixin, NetBoxModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet
 from wireless import filtersets
 from wireless.models import *
 
@@ -15,7 +15,7 @@ class WirelessRootView(APIRootView):
         return 'Wireless'
 
 
-class WirelessLANGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class WirelessLANGroupViewSet(NetBoxModelViewSet):
     queryset = WirelessLANGroup.objects.add_related_count(
         WirelessLANGroup.objects.all(),
         WirelessLAN,

@@ -1,17 +1,16 @@
 import logging
+import warnings
 from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
-from django_pglocks import advisory_lock
 from rest_framework import mixins as drf_mixins
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from netbox.api.serializers.features import ChangeLogMessageSerializer
-from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest, PreconditionFailed
 from utilities.query import reapply_model_ordering
@@ -19,6 +18,7 @@ from utilities.query import reapply_model_ordering
 from . import mixins
 
 __all__ = (
+    'MPTTLockedMixin',
     'NetBoxModelViewSet',
     'NetBoxReadOnlyModelViewSet',
 )
@@ -337,20 +337,25 @@ class NetBoxModelViewSet(
             raise PermissionDenied()
 
 
+# TODO: Remove this in NetBox v5.0
 class MPTTLockedMixin:
     """
-    Puts pglock on objects that derive from MPTTModel for parallel API calling.
-    Note: If adding this to a view, must add the model name to ADVISORY_LOCK_KEYS
+    Deprecated no-op mixin retained for backward compatibility.
+
+    Historically this acquired a pglock around create/update/destroy to serialize
+    concurrent writes to MPTT-based tree models. NetBox no longer uses MPTT: tree
+    integrity is now maintained by the PostgreSQL ltree triggers (see
+    `utilities.ltree`), which take per-tree advisory locks at the database level.
+    This mixin is therefore now a transparent pass-through and may be removed in a
+    future release. Plugins should stop inheriting from it.
     """
 
-    def create(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().create(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        with advisory_lock(ADVISORY_LOCK_KEYS[self.queryset.model._meta.model_name]):
-            return super().destroy(request, *args, **kwargs)
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        warnings.warn(
+            "MPTTLockedMixin is deprecated and no longer does anything; tree write "
+            "concurrency is now handled by ltree database triggers. Remove it from "
+            f"{cls.__name__}.",
+            DeprecationWarning,
+            stacklevel=2,
+        )

@@ -4,6 +4,7 @@ from functools import cached_property
 import yaml
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -23,7 +24,7 @@ from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
-from netbox.models import NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from netbox.models.mixins import WeightMixin
 from utilities.exceptions import AbortRequest
@@ -385,7 +386,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 # Devices
 #
 
-class DeviceRole(NestedGroupModel):
+class DeviceRole(NestedLtreeGroupModel):
     """
     Devices are organized by functional role; for example, "Core Switch" or "File Server". Each DeviceRole is assigned a
     color to be used when displaying rack elevations. The vm_role field determines whether the role is applicable to
@@ -411,10 +412,11 @@ class DeviceRole(NestedGroupModel):
     clone_fields = ('parent', 'description')
 
     class Meta:
-        ordering = ('name',)
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_devicerole_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_devicerole_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -441,7 +443,7 @@ class DeviceRole(NestedGroupModel):
         verbose_name_plural = _('device roles')
 
 
-class Platform(NestedGroupModel):
+class Platform(NestedLtreeGroupModel):
     """
     Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
     Platform may optionally be associated with a particular Manufacturer.
@@ -465,10 +467,11 @@ class Platform(NestedGroupModel):
     clone_fields = ('parent', 'description')
 
     class Meta:
-        ordering = ('name',)
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_platform_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_platform_sort_path_idx'),
+        )
         verbose_name = _('platform')
         verbose_name_plural = _('platforms')
         constraints = (

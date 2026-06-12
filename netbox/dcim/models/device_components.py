@@ -2,11 +2,11 @@ from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
@@ -15,9 +15,9 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
+from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from utilities.tracking import TrackingModelMixin
@@ -1313,34 +1313,11 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBayManager(TreeManager):
-    """
-    Order ModuleBays by the natural-sort name of each tree's root, then by MPTT
-    left value within the tree. Combined with the root-insert bypass in
-    ModuleBay.save(), this lets us keep MPTTMeta.order_insertion_by for cheap
-    intra-tree sibling placement while skipping the global tree_id renumbering
-    it would otherwise perform on every root insert.
-    """
-    def get_queryset(self, *args, **kwargs):
-        # Use the raw manager to avoid recursing through this get_queryset() when
-        # building the annotation subquery.
-        root_name = self.model._objects_raw.filter(
-            tree_id=models.OuterRef('tree_id'),
-            level=0,
-        ).values('name')[:1]
-        return super().get_queryset(*args, **kwargs).annotate(
-            _root_name=models.Subquery(
-                root_name,
-                output_field=models.CharField(db_collation='natural_sort'),
-            )
-        ).order_by('_root_name', 'lft')
-
-
-class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
+class ModuleBay(ModularComponentModel, TrackingModelMixin, LtreeModel):
     """
     An empty space within a Device which can house a child device
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='children',
@@ -1359,18 +1336,31 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         verbose_name=_('enabled'),
         default=True,
     )
-
-    objects = ModuleBayManager()
-    # Plain TreeManager used by ModuleBayManager to build the _root_name subquery
-    # without recursing through our annotated get_queryset().
-    _objects_raw = TreeManager()
+    # sort_path inherits `name`'s natural_sort collation automatically (LtreeModelBase),
+    # so ORDER BY sort_path sorts siblings naturally (Slot 0..Slot 13) — as MPTT's
+    # order_insertion_by=('name',) did — rather than lexicographically.
+    sort_path = SortPathField(
+        editable=False,
+        blank=True,
+        default='',
+    )
 
     clone_fields = ('device', 'enabled')
 
+    objects = LtreeManager()
+
     class Meta(ModularComponentModel.Meta):
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        # Order by sort_path alone (not device-first), reproducing the MPTT
+        # ModuleBayManager's ('_root_name', 'lft'): sort_path begins with the tree's
+        # root-bay name (natural_sort collation), so the global list groups by
+        # root-bay name across devices, descendants following their root. `pk`
+        # gives a deterministic tie-break among same-named roots on different devices
+        # (MPTT's lft=1 left this order arbitrary).
+        ordering = ('sort_path', 'pk')
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_modulebay_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_modulebay_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'module', 'name'),
@@ -1379,12 +1369,6 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
         )
         verbose_name = _('module bay')
         verbose_name_plural = _('module bays')
-
-    class MPTTMeta:
-        # Used for placing siblings within a single tree at insert time. Costs
-        # are bounded to that tree's rows. Cross-tree (root) insertion is
-        # handled in save() to avoid the O(N) tree_id shift this would trigger.
-        order_insertion_by = ('name',)
 
     def clean(self):
         super().clean()
@@ -1405,37 +1389,13 @@ class ModuleBay(ModularComponentModel, TrackingModelMixin, MPTTModel):
             self.parent = self.module.module_bay
         else:
             self.parent = None
-        opts = self._mptt_meta
-        # For new root nodes, allocate the next tree_id and pre-set MPTT fields
-        # so super().save() skips MPTT's order_insertion_by-driven insertion
-        # path. That path would otherwise UPDATE every later tree_id on each
-        # root insert (NB-2800). Children still go through MPTT, which keeps
-        # siblings in name order via the same order_insertion_by setting.
-        if self._state.adding and self.parent_id is None and not self.lft and not self.rght:
-            max_tree_id = ModuleBay._objects_raw.aggregate(
-                models.Max('tree_id')
-            )['tree_id__max'] or 0
-            self.tree_id = max_tree_id + 1
-            self.lft = 1
-            self.rght = 2
-            self.level = 0
-        elif (
-            not self._state.adding
-            and self.parent_id is None
-            and self._mptt_cached_fields.get(opts.parent_attr) is None
-        ):
-            # Existing root being updated. Spoof the cached order_insertion_by
-            # values so MPTT's same_order check passes and it skips its reorder
-            # path, which would UPDATE every later tree_id on each root rename.
-            # ModuleBayManager._root_name recovers display order at query time,
-            # so the tree_id reshuffling would be wasted work. Child renames
-            # and root<->child transitions intentionally fall through to MPTT.
-            for field_name in opts.order_insertion_by:
-                field_name = field_name.lstrip('-')
-                self._mptt_cached_fields[field_name] = opts.get_raw_field_value(
-                    self, field_name
-                )
         super().save(*args, **kwargs)
+
+    def _parent_creates_cycle(self):
+        # A ModuleBay's parent is system-derived from its module (see save()), not
+        # user-assigned, and module/bay recursion is validated in clean(); skip the
+        # generic ltree cycle guard.
+        return False
 
     @property
     def _occupied(self):
@@ -1528,12 +1488,12 @@ class InventoryItemRole(OrganizationalModel):
         verbose_name_plural = _('inventory item roles')
 
 
-class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
+class InventoryItem(LtreeModel, ComponentModel, TrackingModelMixin):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='child_items',
@@ -1601,14 +1561,19 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         help_text=_('This item was automatically discovered')
     )
 
-    objects = TreeManager()
-
     clone_fields = ('device', 'parent', 'role', 'manufacturer', 'status', 'part_id')
 
+    objects = LtreeManager()
+
     class Meta:
-        ordering = ('device__id', 'parent__id', 'name')
+        # Global list is flat + alphabetical by name (natural_sort collation). The
+        # per-device Inventory tab renders the hierarchy instead — DeviceInventoryView
+        # .get_children() orders that by `path`. `pk` is a deterministic tie-break for
+        # same-named items on different devices.
+        ordering = ('name', 'pk')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
+            GistIndex(fields=['path'], name='dcim_inventoryitem_path_gist'),
         )
         constraints = (
             models.UniqueConstraint(
@@ -1621,12 +1586,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     def clean(self):
         super().clean()
-
-        # An InventoryItem cannot be its own parent
-        if self.pk and self.parent_id == self.pk:
-            raise ValidationError({
-                "parent": _("Cannot assign self as parent.")
-            })
 
         # Validation for moving InventoryItems
         if not self._state.adding:

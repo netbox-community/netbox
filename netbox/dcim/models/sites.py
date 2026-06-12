@@ -1,6 +1,7 @@
 import decimal
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -9,7 +10,7 @@ from timezone_field import TimeZoneField
 
 from dcim.choices import *
 from dcim.constants import *
-from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models import NestedLtreeGroupModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 
 __all__ = (
@@ -24,7 +25,7 @@ __all__ = (
 # Regions
 #
 
-class Region(ContactsMixin, NestedGroupModel):
+class Region(ContactsMixin, NestedLtreeGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
     states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
@@ -44,9 +45,11 @@ class Region(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_region_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_region_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -83,7 +86,7 @@ class Region(ContactsMixin, NestedGroupModel):
 # Site groups
 #
 
-class SiteGroup(ContactsMixin, NestedGroupModel):
+class SiteGroup(ContactsMixin, NestedLtreeGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
     within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
@@ -103,9 +106,11 @@ class SiteGroup(ContactsMixin, NestedGroupModel):
     )
 
     class Meta:
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        ordering = ('sort_path',)
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_sitegroup_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_sitegroup_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
@@ -273,7 +278,7 @@ class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
 # Locations
 #
 
-class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
+class Location(ContactsMixin, ImageAttachmentsMixin, NestedLtreeGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
     site, or a room within a building, for example.
@@ -323,10 +328,16 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
     )
 
     class Meta:
-        ordering = ['site', 'name']
-        # Empty tuple triggers Django migration detection for MPTT indexes
-        # (see #21016, django-mptt/django-mptt#682)
-        indexes = ()
+        # Group by site, then tree-flatten within each site. This mirrors the prior
+        # MPTT behavior (Meta.ordering = ['site', 'name']) while upgrading the
+        # within-site ordering to sort_path, so descendants follow their parent in
+        # name order. sort_path is unique within a site (root names are unique per
+        # site, child names unique per parent), so no further tie-break is needed.
+        ordering = ('site', 'sort_path')
+        indexes = (
+            GistIndex(fields=['path'], name='dcim_location_path_gist'),
+            models.Index(fields=['sort_path'], name='dcim_location_sort_path_idx'),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('site', 'parent', 'name'),
