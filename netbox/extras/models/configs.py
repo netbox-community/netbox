@@ -1,3 +1,4 @@
+import copy
 import traceback
 
 import jsonschema
@@ -355,11 +356,16 @@ class ConfigContextModel(models.Model):
     def get_config_context(self):
         """
         Return the merged config context for this object. If a pre-rendered cache is present
-        (`_config_context_data`), return it directly. Otherwise, fall back to rendering on demand.
+        (`_config_context_data`), return a copy of it. Otherwise, fall back to rendering on demand.
+
+        The returned dict is always safe for callers to mutate (e.g. ObjectRenderConfigView merges
+        in additional context with .update()): the cached blob is deep-copied so mutations cannot
+        leak back into this instance's in-memory cache, matching the fresh-dict guarantee of the
+        on-demand render path.
         """
         cached = getattr(self, '_config_context_data', None)
         if cached is not None:
-            return cached
+            return copy.deepcopy(cached)
         return self.render_config_context()
 
     def render_config_context(self):
