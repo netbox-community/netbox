@@ -1,1 +1,5 @@
+{% comment %}
+A RestrictedChoiceLabel (netbox.forms.model_forms) sets label.disabled=True to render its single <option> as
+disabled, marking a restricted current value read-only. Preservation is enforced server-side, not by this attribute.
+{% endcomment %}
 <option value="{{ widget.value }}"{% include "django/forms/widgets/attrs.html" %}{% if widget.label.disabled %} disabled="disabled"{% endif %}>{{ widget.label.label|default:widget.label }}</option>

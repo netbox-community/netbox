@@ -113,3 +113,7 @@ Device.objects.filter(
 ### Creating and Modifying Objects
 
 The same sort of logic is in play when a user attempts to create or modify an object in NetBox, with a twist. Once validation has completed, NetBox starts an atomic database transaction to facilitate the change, and the object is created or saved normally. Next, still within the transaction, NetBox issues a second query to retrieve the newly created/updated object, filtering the restricted queryset with the object's primary key. If this query fails to return the object, NetBox knows that the new revision does not match the constraints imposed by the permission. The transaction is then rolled back, leaving the database in its original state prior to the change, and the user is informed of the violation.
+
+#### Preserving Restricted Related Values
+
+When editing an object that references related objects the user is not permitted to view (for example a tag, tenant, or custom field value constrained away by a permission), those current values are shown read-only on the edit form and preserved when the form is saved. Single-value fields are disabled entirely; multi-value fields (such as tags) remain editable for the values the user can see, while the restricted current values are rendered as disabled options. This prevents a user from unintentionally clearing related objects they cannot see, without exposing any other restricted objects or allowing the restricted values to be replaced.
