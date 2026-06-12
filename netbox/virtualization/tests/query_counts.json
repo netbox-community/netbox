@@ -7,7 +7,7 @@
   "clustertype:list_objects_with_permission": 20,
   "virtualdisk:api_list_objects": 14,
   "virtualdisk:list_objects_with_permission": 21,
-  "virtualmachine:api_list_objects": 22,
+  "virtualmachine:api_list_objects": 18,
   "virtualmachine:list_objects_with_permission": 24,
   "virtualmachinetype:api_list_objects": 14,
   "virtualmachinetype:list_objects_with_permission": 21,
