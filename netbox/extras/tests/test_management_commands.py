@@ -5,14 +5,17 @@ from unittest.mock import MagicMock, patch
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db.models import F
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.management.commands import renaturalize, webhook_receiver
 from extras.management.commands.webhook_receiver import WebhookHandler
+from extras.models import ConfigContext
 from users.models import User
 from utilities.fields import NaturalOrderingField
+from virtualization.models import VirtualMachine
 
 
 class ReindexTestCase(TestCase):
@@ -410,6 +413,87 @@ class RunScriptTestCase(TestCase):
             call_command('runscript', 'test.Script', stdout=StringIO())
 
         self.assertEqual(enqueue.call_args.kwargs['user'], self.user)
+
+
+class RebuildConfigContextCacheCommandTest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Mfr', slug='mfr')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='DT', slug='dt')
+        role = DeviceRole.objects.create(name='Role', slug='role')
+        site = Site.objects.create(name='Site', slug='site')
+        cls.device = Device.objects.create(name='Device', device_type=devicetype, role=role, site=site)
+        cls.vm = VirtualMachine.objects.create(name='VM', site=site, role=role)
+        ConfigContext.objects.create(name='CC', weight=100, data={'foo': 'bar'})
+
+    def test_command_populates_null_caches(self):
+        Device.objects.update(_config_context_data=None)
+        VirtualMachine.objects.update(_config_context_data=None)
+
+        call_command('rebuild_config_context_cache')
+
+        self.device.refresh_from_db()
+        self.vm.refresh_from_db()
+        self.assertEqual(self.device._config_context_data, {'foo': 'bar'})
+        self.assertEqual(self.vm._config_context_data, {'foo': 'bar'})
+
+    def test_command_skips_populated_caches_by_default(self):
+        # Seed a stale value; without --force the command must leave already-populated caches alone.
+        Device.objects.update(_config_context_data={'stale': True})
+        VirtualMachine.objects.update(_config_context_data={'stale': True})
+
+        call_command('rebuild_config_context_cache')
+
+        self.device.refresh_from_db()
+        self.vm.refresh_from_db()
+        self.assertEqual(self.device._config_context_data, {'stale': True})
+        self.assertEqual(self.vm._config_context_data, {'stale': True})
+
+    def test_command_force_rerenders_populated_caches(self):
+        # A stale cache must be re-rendered from scratch when --force is given.
+        Device.objects.update(_config_context_data={'stale': True})
+        VirtualMachine.objects.update(_config_context_data={'stale': True})
+
+        call_command('rebuild_config_context_cache', '--force')
+
+        self.device.refresh_from_db()
+        self.vm.refresh_from_db()
+        self.assertEqual(self.device._config_context_data, {'foo': 'bar'})
+        self.assertEqual(self.vm._config_context_data, {'foo': 'bar'})
+
+    def test_command_reports_rendered_counts(self):
+        Device.objects.update(_config_context_data=None)
+        VirtualMachine.objects.update(_config_context_data=None)
+
+        out = StringIO()
+        call_command('rebuild_config_context_cache', stdout=out)
+        output = out.getvalue()
+
+        self.assertIn('Rendered 1 dcim.device object(s).', output)
+        self.assertIn('Rendered 1 virtualization.virtualmachine object(s).', output)
+        self.assertIn('Finished.', output)
+
+    def test_command_respects_generation_guard(self):
+        """
+        Running the command on a live system must not clobber a concurrent invalidation: if the
+        generation counter is bumped while an object is being rendered, the compare-and-set write
+        is rejected and the cache stays NULL for the background sweep to repopulate.
+        """
+        Device.objects.update(_config_context_data=None)
+
+        def racing_render(device_self):
+            # Simulate a concurrent invalidation committing mid-render.
+            Device.objects.filter(pk=device_self.pk).update(
+                _config_context_generation=F('_config_context_generation') + 1
+            )
+            return {'stale': True}
+
+        with patch.object(Device, 'render_config_context', autospec=True, side_effect=racing_render):
+            call_command('rebuild_config_context_cache')
+
+        self.device.refresh_from_db()
+        self.assertIsNone(self.device._config_context_data)
 
 
 class WebhookReceiverTestCase(TestCase):

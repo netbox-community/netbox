@@ -418,16 +418,6 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
         response = self.client.get(url, **self.header)
         self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
 
-    def test_config_context_excluded(self):
-        """
-        Check that config context data can be excluded by passing ?exclude=config_context.
-        """
-        url = reverse('virtualization-api:virtualmachine-list') + '?exclude=config_context'
-        self.add_permissions('virtualization.view_virtualmachine')
-
-        response = self.client.get(url, **self.header)
-        self.assertFalse('config_context' in response.data['results'][0])
-
     def test_unique_name_per_cluster_constraint(self):
         """
         Check that creating a virtual machine with a duplicate name fails.
@@ -544,7 +534,7 @@ class VirtualMachineTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('virtualization.view_virtualmachine', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(virtualmachine)}?exclude=config_context',
+            self._get_detail_url(virtualmachine),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)

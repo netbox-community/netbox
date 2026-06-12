@@ -20,24 +20,22 @@ __all__ = (
 
 class ConfigContextQuerySetMixin:
     """
-    Used by views that work with config context models (device and virtual machine).
-    Provides a get_queryset() method which deals with adding the config context
-    data annotation or not.
+    Used by viewsets for config context models (Device, VirtualMachine).
+
+    For non-brief requests, annotates the queryset so that config context data is computed in a
+    single query for any object whose pre-rendered cache (`_config_context_data`) has been
+    invalidated (NULL). Objects with a warm cache are served directly from it by
+    ConfigContextModel.get_config_context() and incur no subquery — PostgreSQL short-circuits the
+    CASE, so the correlated aggregation runs only for the invalidated rows. This avoids the
+    per-object fallback query that would otherwise occur when listing objects with cold caches
+    (e.g. immediately following an upgrade or a broad invalidation).
     """
     def get_queryset(self):
-        """
-        Build the proper queryset based on the request context
-
-        If the `brief` query param equates to True or the `exclude` query param
-        includes `config_context` as a value, return the base queryset.
-
-        Else, return the queryset annotated with config context data
-        """
         queryset = super().get_queryset()
-        request = self.get_serializer_context()['request']
-        if self.brief or 'config_context' in request.query_params.get('exclude', []):
+        # Brief responses omit config_context entirely, so the annotation would be pure overhead.
+        if self.brief:
             return queryset
-        return queryset.annotate_config_context_data()
+        return queryset.annotate_config_context_data(only_invalidated=True)
 
 
 class ConfigTemplateRenderMixin:

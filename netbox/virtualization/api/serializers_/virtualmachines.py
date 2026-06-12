@@ -27,7 +27,6 @@ __all__ = (
     'VirtualDiskSerializer',
     'VirtualMachineSerializer',
     'VirtualMachineTypeSerializer',
-    'VirtualMachineWithConfigContextSerializer',
 )
 
 
@@ -76,6 +75,7 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
         fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
     )
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
+    config_context = serializers.SerializerMethodField(read_only=True)
 
     # Counter fields
     interface_count = serializers.IntegerField(read_only=True)
@@ -88,21 +88,9 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
             'site', 'cluster', 'device', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
             'disk', 'description', 'serial', 'tenant', 'owner', 'comments', 'tags', 'local_context_data',
             'config_template', 'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
-        ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
-
-
-class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
-    config_context = serializers.SerializerMethodField()
-
-    class Meta(VirtualMachineSerializer.Meta):
-        fields = [
-            'id', 'url', 'display_url', 'display', 'name', 'virtual_machine_type', 'role', 'status', 'start_on_boot',
-            'site', 'cluster', 'device', 'platform', 'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory',
-            'disk', 'description', 'serial', 'tenant', 'owner', 'comments', 'tags', 'local_context_data',
-            'config_template', 'custom_fields', 'created', 'last_updated', 'interface_count', 'virtual_disk_count',
             'config_context',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_config_context(self, obj):

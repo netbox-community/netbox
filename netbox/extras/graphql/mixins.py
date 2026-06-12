@@ -29,15 +29,20 @@ class ConfigContextMixin:
     def get_queryset(cls, queryset, info: Info, **kwargs):
         queryset = super().get_queryset(queryset, info, **kwargs)
 
-        # If `config_context` is requested, call annotate_config_context_data() on the queryset
+        # When `config_context` is requested, annotate the aggregated context data — but only for
+        # rows whose pre-rendered cache (`_config_context_data`) is invalidated (NULL). Warm rows
+        # are served from the cache by get_config_context() and skip the subquery entirely
+        # (PostgreSQL short-circuits the CASE), so resolving config_context across a list of objects
+        # with cold caches no longer incurs a per-object fallback query.
         selected = {f.name for f in info.selected_fields[0].selections}
         if 'config_context' in selected and hasattr(queryset, 'annotate_config_context_data'):
-            return queryset.annotate_config_context_data()
+            return queryset.annotate_config_context_data(only_invalidated=True)
 
         return queryset
 
-    # Ensure `local_context_data` is fetched when `config_context` is requested
-    @strawberry_django.field(only=['local_context_data'])
+    # Ensure both the pre-rendered cache and `local_context_data` are fetched when `config_context`
+    # is requested, so the warm-cache read path requires no additional queries.
+    @strawberry_django.field(only=['_config_context_data', 'local_context_data'])
     def config_context(self) -> strawberry.scalars.JSON:
         return self.get_config_context()
 

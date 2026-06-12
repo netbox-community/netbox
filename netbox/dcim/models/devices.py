@@ -748,6 +748,15 @@ class Device(
         ordering = ('name', 'pk')  # Name may be null
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
+            # Partial index supporting the background renderer's scan for objects whose config
+            # context cache has been invalidated (see extras.jobs.RenderConfigContextJob and
+            # extras.cache). Indexing only the NULL-cache rows keeps that lookup cheap on large
+            # tables where the steady state is for nearly every row to be populated.
+            models.Index(
+                fields=('id',),
+                condition=Q(_config_context_data__isnull=True),
+                name='dcim_device_cc_null',
+            ),
         )
         constraints = (
             models.UniqueConstraint(
