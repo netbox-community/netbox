@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from typing import Generic, TypeVar
 
@@ -15,12 +16,55 @@ from strawberry_django import (
     DatetimeFilterLookup,
     FilterLookup,
     RangeLookup,
-    StrFilterLookup,
     TimeFilterLookup,
     process_filters,
 )
 
 from netbox.graphql.scalars import BigInt
+
+# ------------------------------------------------------------------
+# JSON path validation (VM-323)
+# ------------------------------------------------------------------
+
+# Each segment of a JSON path may only contain alphanumerics, hyphens, and
+# underscores.  Hyphens are included because JSON keys commonly use them.
+_JSON_PATH_SEGMENT_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9_-]*$')
+
+# Django ORM lookup operator names that must not appear as JSON path segments.
+# An attacker supplying path="key__regex" would otherwise suffix the ORM
+# lookup with a regex operator, turning it into a per-character boolean oracle.
+# NOTE: Update this set when new Django ORM operators are added (e.g. after
+# Django upgrades) to maintain defense-in-depth.
+_ORM_OPERATOR_NAMES = frozenset({
+    'exact', 'iexact', 'contains', 'icontains', 'in', 'gt', 'gte', 'lt', 'lte',
+    'startswith', 'istartswith', 'endswith', 'iendswith', 'range', 'date',
+    'year', 'iso_year', 'month', 'day', 'week', 'week_day', 'iso_week_day',
+    'quarter', 'time', 'hour', 'minute', 'second', 'isnull', 'regex', 'iregex',
+    'has_key', 'has_any_keys', 'has_keys', 'contained_by', 'overlap',
+    'search', 'trigram_similar', 'trigram_word_similar', 'trigram_strict_word_similar',
+    'unaccent',
+})
+
+
+def _validate_json_path(path: str) -> str:
+    """Validate a JSON traversal path for use in ORM lookups.
+
+    Each ``__``-separated segment must match ``[A-Za-z0-9][A-Za-z0-9_-]*`` and
+    must not be a Django ORM operator keyword.  Raises ``ValueError`` otherwise.
+    """
+    if not path:
+        raise ValueError("JSON path cannot be empty")
+
+    for segment in path.split('__'):
+        if not segment:
+            raise ValueError("JSON path contains consecutive or trailing '__'")
+        if not _JSON_PATH_SEGMENT_RE.match(segment):
+            raise ValueError(f"Invalid JSON path segment: {segment!r}")
+        if segment.lower() in _ORM_OPERATOR_NAMES:
+            raise ValueError(f"JSON path segment is a reserved ORM operator: {segment!r}")
+
+    return path
+
 
 __all__ = (
     'ArrayLookup',
@@ -31,6 +75,8 @@ __all__ = (
     'IntegerLookup',
     'IntegerRangeArrayLookup',
     'JSONFilter',
+    'JSONLookup',
+    'JSONStringLookup',
     'StringArrayLookup',
     'TreeNodeFilter',
 )
@@ -39,9 +85,31 @@ T = TypeVar('T')
 SKIP_MSG = 'Filter will be skipped on `null` value'
 
 
+@strawberry.input(description='String lookups for JSON field values. Regex excluded to prevent oracle attacks.')
+class JSONStringLookup:
+    """
+    Restricted string-filter type for use inside JSONLookup.
+
+    ``StrFilterLookup`` includes ``regex`` and ``i_regex`` operators, which
+    combined with JSONFilter.path form a per-character boolean oracle over any
+    JSONField the querying user can read.  This type omits those operators.
+    """
+    exact: str | None = strawberry_django.filter_field()
+    i_exact: str | None = strawberry_django.filter_field()
+    contains: str | None = strawberry_django.filter_field()
+    i_contains: str | None = strawberry_django.filter_field()
+    starts_with: str | None = strawberry_django.filter_field()
+    i_starts_with: str | None = strawberry_django.filter_field()
+    ends_with: str | None = strawberry_django.filter_field()
+    i_ends_with: str | None = strawberry_django.filter_field()
+    in_: list[str] | None = strawberry_django.filter_field()
+    isnull: bool | None = strawberry_django.filter_field()
+    # regex / i_regex intentionally omitted (oracle prevention, VM-323)
+
+
 @strawberry.input(one_of=True, description='Lookup for JSON field. Only one of the lookup fields can be set.')
 class JSONLookup:
-    string_lookup: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    string_lookup: JSONStringLookup | None = strawberry_django.filter_field()
     int_range_lookup: RangeLookup[int] | None = strawberry_django.filter_field()
     int_comparison_lookup: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
     float_range_lookup: RangeLookup[float] | None = strawberry_django.filter_field()
@@ -119,7 +187,14 @@ class JSONFilter:
         if not filters:
             return queryset, Q()
 
-        json_path = f'{prefix}{self.path}__'
+        try:
+            safe_path = _validate_json_path(self.path)
+        except ValueError:
+            # Invalid path — return no results rather than propagating user input
+            # into the ORM lookup.
+            return queryset, Q(pk__in=[])
+
+        json_path = f'{prefix}{safe_path}__'
         return process_filters(filters=filters, queryset=queryset, info=info, prefix=json_path)
 
 
