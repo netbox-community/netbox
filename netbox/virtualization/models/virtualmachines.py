@@ -250,6 +250,15 @@ class VirtualMachine(
         ordering = ('name', 'pk')  # Name may be non-unique
         indexes = (
             models.Index(fields=('name', 'id')),  # Default ordering
+            # Partial index supporting the background renderer's scan for objects whose config
+            # context cache has been invalidated (see extras.jobs.RenderConfigContextJob and
+            # extras.cache). Indexing only the NULL-cache rows keeps that lookup cheap on large
+            # tables where the steady state is for nearly every row to be populated.
+            models.Index(
+                fields=('id',),
+                name='%(app_label)s_%(class)s_cc_null',
+                condition=Q(_config_context_data__isnull=True),
+            ),
         )
         constraints = (
             models.UniqueConstraint(
