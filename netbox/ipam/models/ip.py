@@ -15,7 +15,7 @@ from ipam.constants import *
 from ipam.fields import IPAddressField, IPNetworkField
 from ipam.lookups import Host
 from ipam.managers import IPAddressManager
-from ipam.querysets import PrefixQuerySet
+from ipam.querysets import IPRangeQuerySet, PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -425,14 +425,63 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             return Prefix.objects.filter(prefix__net_contained=str(self.prefix))
         return Prefix.objects.filter(prefix__net_contained=str(self.prefix), vrf=self.vrf)
 
+    @property
+    def usable_ip_bounds(self):
+        """
+        Return the first and last IPs considered usable for available-IP calculations.
+
+        Pools and IPv4 /31-/32 / IPv6 /127-/128 are fully usable; otherwise IPv4 excludes
+        network and broadcast, IPv6 excludes the subnet-router anycast address.
+        """
+        network = netaddr.IPNetwork(self.prefix)
+        family = network.version
+        first = network.first
+        last = network.last
+        mask_length = network.prefixlen
+
+        if (
+            self.is_pool
+            or (family == 4 and mask_length >= 31)
+            or (family == 6 and mask_length >= 127)
+        ):
+            return (
+                netaddr.IPAddress(first, version=family),
+                netaddr.IPAddress(last, version=family),
+            )
+
+        if family == 4:
+            return (
+                netaddr.IPAddress(first + 1, version=family),
+                netaddr.IPAddress(last - 1, version=family),
+            )
+
+        return (
+            netaddr.IPAddress(first + 1, version=family),
+            netaddr.IPAddress(last, version=family),
+        )
+
+    @property
+    def usable_size(self):
+        """
+        The number of usable host addresses within the prefix (excludes reserved addresses).
+        """
+        first_ip, last_ip = self.usable_ip_bounds
+        return int(last_ip) - int(first_ip) + 1
+
     def get_child_ranges(self, **kwargs):
         """
         Return all IPRanges within this Prefix and VRF.
         """
+        # A host BETWEEN over the prefix span uses the ipam_iprange_*_host btree indexes.
+        prefix = netaddr.IPNetwork(self.prefix)
+        bounds = (
+            netaddr.IPAddress(prefix.first, version=prefix.version),
+            netaddr.IPAddress(prefix.last, version=prefix.version),
+        )
         return IPRange.objects.filter(
             vrf=self.vrf,
-            start_address__net_host_contained=str(self.prefix),
-            end_address__net_host_contained=str(self.prefix),
+            start_address__host_between=bounds,
+            end_address__host_between=bounds,
             **kwargs
         )
 
@@ -441,52 +490,106 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
         Return all IPAddresses within this Prefix and VRF. If this Prefix is a container in the global table, return
         child IPAddresses belonging to any VRF.
         """
+        # A host BETWEEN over the prefix span is index-sargable without the <<= containment recheck.
+        prefix = netaddr.IPNetwork(self.prefix)
+        bounds = (
+            netaddr.IPAddress(prefix.first, version=prefix.version),
+            netaddr.IPAddress(prefix.last, version=prefix.version),
+        )
         if self.vrf is None and self.status == PrefixStatusChoices.STATUS_CONTAINER:
-            return IPAddress.objects.filter(address__net_host_contained=str(self.prefix))
-        return IPAddress.objects.filter(address__net_host_contained=str(self.prefix), vrf=self.vrf)
+            return IPAddress.objects.filter(address__host_between=bounds)
+        return IPAddress.objects.filter(address__host_between=bounds, vrf=self.vrf)
 
     def get_available_ips(self):
         """
         Return all available IPs within this prefix as an IPSet.
         """
-        prefix = netaddr.IPSet(self.prefix)
-        child_ips = netaddr.IPSet([
-            ip.address.ip for ip in self.get_child_ips()
-        ])
-        child_ranges = netaddr.IPSet([
-            iprange.range for iprange in self.get_child_ranges().filter(mark_populated=True)
-        ])
-        available_ips = prefix - child_ips - child_ranges
+        return netaddr.IPSet(
+            cidr
+            for start, end in self._available_intervals()
+            for cidr in netaddr.iprange_to_cidrs(start, end)
+        )
 
-        # Pool, IPv4 /31-/32 or IPv6 /127-/128 sets are fully usable
-        if (
-            self.is_pool
-            or (self.family == 4 and self.prefix.prefixlen >= 31)
-            or (self.family == 6 and self.prefix.prefixlen >= 127)
-        ):
-            return available_ips
+    def iter_available_ips(self):
+        """
+        Yield the available IPs within this prefix as netaddr.IPAddress objects, in
+        ascending order. Unlike get_available_ips(), consumption is lazy: stopping
+        early stops reading from the database.
+        """
+        for start, end in self._available_intervals():
+            yield from netaddr.iter_iprange(start, end)
 
-        if self.family == 4:
-            # For "normal" IPv4 prefixes, omit first and last addresses
-            available_ips -= netaddr.IPSet([
-                netaddr.IPAddress(self.prefix.first),
-                netaddr.IPAddress(self.prefix.last),
-            ])
-        else:
-            # For IPv6 prefixes, omit the Subnet-Router anycast address
-            # per RFC 4291
-            available_ips -= netaddr.IPSet([netaddr.IPAddress(self.prefix.first)])
+    def get_available_ip_count(self):
+        """
+        Return the number of available IPs within the prefix.
+        """
+        first_ip, last_ip = self.usable_ip_bounds
+        usable_size = int(last_ip) - int(first_ip) + 1
 
-        return available_ips
+        populated_intervals = self.get_child_ranges(mark_populated=True).get_intervals(first_ip, last_ip)
+        populated_count = sum(int(end) - int(start) + 1 for start, end in populated_intervals)
+
+        # Populated ranges already cover the usable span; skip the child-IP count entirely.
+        if populated_count >= usable_size:
+            return 0
+
+        child_ip_count = (
+            self.get_child_ips()
+            .filter(address__host_between=(first_ip, last_ip))
+            .count_distinct_hosts(exclude_intervals=populated_intervals)
+        )
+
+        return max(usable_size - populated_count - child_ip_count, 0)
+
+    def get_ip_usage_summary(self):
+        """
+        Return the available IP count and utilization together as a dict, sharing a
+        single distinct-host scan. Intended for detail views rendering both values;
+        list views should call get_utilization() alone, which is cheaper per row.
+        """
+        # Marked-utilized and container utilization need no host scan; delegate.
+        if self.mark_utilized or self.status == PrefixStatusChoices.STATUS_CONTAINER:
+            return {
+                'available_ip_count': self.get_available_ip_count(),
+                'utilization': self.get_utilization(),
+            }
+
+        first_ip, last_ip = self.usable_ip_bounds
+        usable_size = int(last_ip) - int(first_ip) + 1
+
+        populated_intervals = self.get_child_ranges(mark_populated=True).get_intervals(first_ip, last_ip)
+        utilized_intervals = self.get_child_ranges(mark_utilized=True).get_intervals()
+
+        counts = self.get_child_ips().count_distinct_hosts_pair(
+            bounds=(first_ip, last_ip),
+            bounded_exclude=populated_intervals,
+            total_exclude=utilized_intervals,
+        )
+
+        populated_count = sum(int(end) - int(start) + 1 for start, end in populated_intervals)
+        utilized_range_count = sum(int(end) - int(start) + 1 for start, end in utilized_intervals)
+
+        prefix_size = self._get_utilization_denominator()
+
+        return {
+            'available_ip_count': max(usable_size - populated_count - counts['bounded'], 0),
+            'utilization': min(float(utilized_range_count + counts['total']) / prefix_size * 100, 100),
+        }
 
     def get_first_available_ip(self):
         """
         Return the first available IP within the prefix (or None).
         """
-        available_ips = self.get_available_ips()
-        if not available_ips:
+        first_ip, last_ip = self.usable_ip_bounds
+        populated_intervals = self.get_child_ranges(mark_populated=True).get_intervals(first_ip, last_ip)
+
+        first_available_ip = self.get_child_ips().first_available_host(
+            first_ip, last_ip, exclude_intervals=populated_intervals,
+        )
+
+        if first_available_ip is None:
             return None
-        return '{}/{}'.format(next(available_ips.__iter__()), self.prefix.prefixlen)
+        return f'{first_available_ip}/{self.prefix.prefixlen}'
 
     def get_utilization(self):
         """
@@ -504,19 +607,42 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, CachedScopeMixin, Primary
             child_prefixes = netaddr.IPSet([p.prefix for p in queryset])
             utilization = float(child_prefixes.size) / self.prefix.size * 100
         else:
-            # Compile an IPSet to avoid counting duplicate IPs
-            child_ips = netaddr.IPSet()
-            for iprange in self.get_child_ranges().filter(mark_utilized=True):
-                child_ips.add(iprange.range)
-            for ip in self.get_child_ips():
-                child_ips.add(ip.address.ip)
+            prefix_size = self._get_utilization_denominator()
+            utilized_intervals = self.get_child_ranges(mark_utilized=True).get_intervals()
+            utilized_range_count = sum(int(end) - int(start) + 1 for start, end in utilized_intervals)
 
-            prefix_size = self.prefix.size
-            if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
-                prefix_size -= 2
-            utilization = float(child_ips.size) / prefix_size * 100
+            # Utilized ranges already saturate the prefix; skip the child-IP count.
+            if utilized_range_count >= prefix_size:
+                return 100
+
+            child_ip_count = self.get_child_ips().count_distinct_hosts(
+                exclude_intervals=utilized_intervals,
+            )
+
+            utilization = float(utilized_range_count + child_ip_count) / prefix_size * 100
 
         return min(utilization, 100)
+
+    def _available_intervals(self):
+        """
+        Yield the available (start, end) host intervals within the prefix.
+        """
+        first_ip, last_ip = self.usable_ip_bounds
+        populated_intervals = self.get_child_ranges(mark_populated=True).get_intervals(first_ip, last_ip)
+
+        return self.get_child_ips().available_intervals(
+            first_ip, last_ip, exclude_intervals=populated_intervals,
+        )
+
+    def _get_utilization_denominator(self):
+        """
+        The address count utilization is measured against (IPv4 non-pool prefixes
+        exclude the network and broadcast addresses; IPv6 uses the full prefix size).
+        """
+        prefix_size = self.prefix.size
+        if self.prefix.version == 4 and self.prefix.prefixlen < 31 and not self.is_pool:
+            return prefix_size - 2
+        return prefix_size
 
 
 class IPRange(ContactsMixin, PrimaryModel):
@@ -576,12 +702,24 @@ class IPRange(ContactsMixin, PrimaryModel):
         help_text=_("Report space as fully utilized")
     )
 
+    objects = IPRangeQuerySet.as_manager()
+
     clone_fields = (
         'vrf', 'tenant', 'status', 'role', 'description', 'mark_populated', 'mark_utilized',
     )
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'start_address', 'pk')  # (vrf, start_address) may be non-unique
+        indexes = (
+            models.Index(
+                Cast(Host('start_address'), output_field=IPAddressField()),
+                name='ipam_iprange_start_host',
+            ),
+            models.Index(
+                Cast(Host('end_address'), output_field=IPAddressField()),
+                name='ipam_iprange_end_host',
+            ),
+        )
         verbose_name = _('IP range')
         verbose_name_plural = _('IP ranges')
 
@@ -709,40 +847,14 @@ class IPRange(ContactsMixin, PrimaryModel):
     def get_status_color(self):
         return IPRangeStatusChoices.colors.get(self.status)
 
-    def get_child_ips(self):
-        """
-        Return all IPAddresses within this IPRange and VRF.
-        """
-        return IPAddress.objects.filter(
-            address__gte=self.start_address,
-            address__lte=self.end_address,
-            vrf=self.vrf
-        )
-
-    def get_available_ips(self):
-        """
-        Return all available IPs within this range as an IPSet.
-        """
-        if self.mark_populated:
-            return netaddr.IPSet()
-
-        range = netaddr.IPRange(self.start_address.ip, self.end_address.ip)
-        child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
-
-        return netaddr.IPSet(range) - child_ips
-
     @cached_property
     def first_available_ip(self):
         """
         Return the first available IP within the range (or None).
         """
-        available_ips = self.get_available_ips()
-        if not available_ips:
-            return None
+        return self.get_first_available_ip()
 
-        return '{}/{}'.format(next(available_ips.__iter__()), self.start_address.prefixlen)
-
-    @cached_property
+    @property
     def utilization(self):
         """
         Determine the utilization of the range and return it as a percentage.
@@ -750,12 +862,79 @@ class IPRange(ContactsMixin, PrimaryModel):
         if self.mark_utilized:
             return 100
 
-        # Compile an IPSet to avoid counting duplicate IPs
-        child_count = netaddr.IPSet([
-            ip.address.ip for ip in self.get_child_ips()
-        ]).size
+        return min(float(self._occupied_host_count) / self.size * 100, 100)
 
-        return min(float(child_count) / self.size * 100, 100)
+    def get_child_ips(self):
+        """
+        Return all IPAddresses within this IPRange and VRF.
+        """
+        return IPAddress.objects.filter(
+            vrf=self.vrf,
+            address__host_between=(self.start_address.ip, self.end_address.ip),
+        )
+
+    def get_available_ips(self):
+        """
+        Return all available IPs within this range as an IPSet.
+        """
+        return netaddr.IPSet(
+            cidr
+            for start, end in self._available_intervals()
+            for cidr in netaddr.iprange_to_cidrs(start, end)
+        )
+
+    def iter_available_ips(self):
+        """
+        Yield the available IPs within this range as netaddr.IPAddress objects, in
+        ascending order. Unlike get_available_ips(), consumption is lazy: stopping
+        early stops reading from the database.
+        """
+        for start, end in self._available_intervals():
+            yield from netaddr.iter_iprange(start, end)
+
+    def get_available_ip_count(self):
+        """
+        Return the number of available IPs within the range.
+        """
+        if self.mark_populated:
+            return 0
+
+        return max(self.size - self._occupied_host_count, 0)
+
+    def get_first_available_ip(self):
+        """
+        Return the first available IP within the range (or None).
+        """
+        if self.mark_populated:
+            return None
+
+        first_available_ip = self.get_child_ips().first_available_host(
+            self.start_address.ip, self.end_address.ip,
+        )
+
+        if first_available_ip is None:
+            return None
+
+        return f'{first_available_ip}/{self.start_address.prefixlen}'
+
+    def _available_intervals(self):
+        """
+        Yield the available (start, end) host intervals within the range.
+        """
+        if self.mark_populated:
+            return iter(())
+
+        return self.get_child_ips().available_intervals(
+            self.start_address.ip, self.end_address.ip,
+        )
+
+    @cached_property
+    def _occupied_host_count(self):
+        """
+        The number of distinct occupied hosts within the range, cached for the
+        lifetime of the instance.
+        """
+        return self.get_child_ips().count_distinct_hosts()
 
 
 class IPAddress(ContactsMixin, PrimaryModel):
@@ -948,10 +1127,10 @@ class IPAddress(ContactsMixin, PrimaryModel):
 
             # Disallow the creation of IPAddresses within an IPRange with mark_populated=True
             parent_range_qs = IPRange.objects.filter(
-                start_address__lte=self.address,
-                end_address__gte=self.address,
+                start_address__host__inet__lte=self.address.ip,
+                end_address__host__inet__gte=self.address.ip,
                 vrf=self.vrf,
-                mark_populated=True
+                mark_populated=True,
             )
             if not self.pk and (parent_range := parent_range_qs.first()):
                 raise ValidationError({
