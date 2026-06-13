@@ -1039,13 +1039,6 @@ class CablePath(models.Model):
                     for rt in remote_terminations:
                         q_filter |= Q(front_port=rt, front_port_position__in=positions)
                     port_mappings = PortMapping.objects.filter(q_filter)
-                elif remote_terminations[0].positions > 1:
-                    is_split = True
-                    logger.debug(
-                        'Encountered front port mapped to multiple rear ports but position stack is empty; aborting '
-                        'trace.'
-                    )
-                    break
                 else:
                     port_mappings = PortMapping.objects.filter(front_port__in=remote_terminations)
                 if not port_mappings:
