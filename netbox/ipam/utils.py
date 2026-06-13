@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 import netaddr
+from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
 from .constants import *
-from .models import VLAN, Prefix
 
 __all__ = (
     'AvailableIPSpace',
@@ -39,7 +39,7 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
     requested, create fake Prefix objects for all unallocated space within a prefix.
 
     :param parent: Parent Prefix instance
-    :param prefix_list: Child prefixes list
+    :param prefix_list: Child prefixes list (or queryset)
     :param show_available: Include available prefixes.
     :param show_assigned: Show assigned prefixes.
     """
@@ -47,6 +47,7 @@ def add_requested_prefixes(parent, prefix_list, show_available=True, show_assign
 
     # Add available prefixes to the table if requested
     if prefix_list and show_available:
+        Prefix = apps.get_model('ipam', 'Prefix')
 
         # Find all unallocated space, add fake Prefix objects to child_prefixes.
         # IMPORTANT: These are unsaved Prefix instances (pk=None). If this is ever changed to use
@@ -78,22 +79,7 @@ def annotate_ip_space(prefix):
     records = sorted(records, key=lambda x: x[0])
 
     # Determine the first & last valid IP addresses in the prefix
-    if (
-        prefix.is_pool
-        or (prefix.family == 4 and prefix.mask_length >= 31)
-        or (prefix.family == 6 and prefix.mask_length >= 127)
-    ):
-        # Pool, IPv4 /31-/32 or IPv6 /127-/128 sets are fully usable
-        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first)
-        last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last)
-    elif prefix.family == 4:
-        # Ignore the network and broadcast addresses for non-pool IPv4 prefixes larger than /31
-        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first + 1)
-        last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last - 1)
-    else:
-        # For IPv6 prefixes, omit the Subnet-Router anycast address (RFC 4291)
-        first_ip_in_prefix = netaddr.IPAddress(prefix.prefix.first + 1)
-        last_ip_in_prefix = netaddr.IPAddress(prefix.prefix.last)
+    first_ip_in_prefix, last_ip_in_prefix = prefix.usable_ip_bounds
 
     if not records:
         return [
@@ -195,7 +181,7 @@ def add_available_vlans(vlans, vlan_group):
         new_vlans.extend(available_vlans_from_range(vlans, vlan_group, vid_range))
 
     vlans = list(vlans) + new_vlans
-    vlans.sort(key=lambda v: v.vid if type(v) is VLAN else v['vid'])
+    vlans.sort(key=lambda v: v['vid'] if isinstance(v, dict) else v.vid)
 
     return vlans
 
@@ -204,6 +190,9 @@ def rebuild_prefixes(vrf):
     """
     Rebuild the prefix hierarchy for all prefixes in the specified VRF (or global table).
     """
+    Prefix = apps.get_model('ipam', 'Prefix')
+    prefix_queryset = Prefix.objects.filter(vrf=vrf)
+
     def contains(parent, child):
         return child in parent and child != parent
 
@@ -219,10 +208,10 @@ def rebuild_prefixes(vrf):
 
     stack = []
     update_queue = []
-    prefixes = Prefix.objects.filter(vrf=vrf).values('pk', 'prefix')
+    prefixes = prefix_queryset.order_by('prefix', 'pk').values('pk', 'prefix')
 
-    # Iterate through all Prefixes in the VRF, growing and shrinking the stack as we go
-    for i, p in enumerate(prefixes):
+    # Iterate through all Prefixes in the table, growing and shrinking the stack as we go
+    for p in prefixes:
 
         # Grow the stack if this is a child of the most recent prefix
         if not stack or contains(stack[-1]['prefix'], p['prefix']):
