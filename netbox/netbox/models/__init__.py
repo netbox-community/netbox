@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from netbox.models.features import *
+from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
 from netbox.models.mixins import OwnerMixin
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
@@ -16,6 +17,8 @@ __all__ = (
     'AdminModel',
     'ChangeLoggedModel',
     'NestedGroupModel',
+    'NestedGroupModelMixin',
+    'NestedLtreeGroupModel',
     'NetBoxModel',
     'OrganizationalModel',
     'PrimaryModel',
@@ -159,23 +162,11 @@ class PrimaryModel(OwnerMixin, NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
+class NestedGroupModelMixin(OwnerMixin, NetBoxModel):
     """
-    Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
-    recursively using MPTT. Within each parent, each child instance must have a unique name.
-
-    Note: django-mptt injects the (tree_id, lft) index dynamically, but Django's migration autodetector won't
-    detect it unless concrete subclasses explicitly declare Meta.indexes (even as an empty tuple). See #21016
-    and django-mptt/django-mptt#682.
+    Shared field set and behavior for hierarchical group models. Concrete bases supply the
+    tree backend (MPTT or ltree) and the corresponding `parent` ForeignKey / manager.
     """
-    parent = TreeForeignKey(
-        to='self',
-        on_delete=models.CASCADE,
-        related_name='children',
-        blank=True,
-        null=True,
-        db_index=True
-    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -194,6 +185,29 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
         blank=True
     )
 
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+
+class NestedGroupModel(NestedGroupModelMixin, MPTTModel):
+    """
+    Deprecated MPTT-backed nested group base, retained for backwards compatibility with plugins.
+
+    New code (in NetBox core and in plugins) should use `NestedLtreeGroupModel` instead. This
+    class will be removed in a future release once the deprecation period has elapsed.
+    """
+    parent = TreeForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+
     objects = TreeManager()
 
     class Meta:
@@ -202,17 +216,50 @@ class NestedGroupModel(OwnerMixin, NetBoxModel, MPTTModel):
     class MPTTMeta:
         order_insertion_by = ('name',)
 
-    def __str__(self):
-        return self.name
-
     def clean(self):
         super().clean()
 
-        # An MPTT model cannot be its own parent
+        # A nested group cannot be its own parent or a descendant of itself. The ltree
+        # base (NestedLtreeGroupModel) enforces this via LtreeModel.clean(); this MPTT
+        # variant keeps the original get_descendants()-based check.
         if not self._state.adding and self.parent and self.parent in self.get_descendants(include_self=True):
             raise ValidationError({
-                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
+                "parent": _("Cannot assign self or a descendant as parent.")
             })
+
+
+class NestedLtreeGroupModel(NestedGroupModelMixin, LtreeModel):
+    """
+    Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
+    recursively using PostgreSQL ltree. Within each parent, each child instance must have a unique name.
+
+    `sort_path` is a trigger-maintained text column holding a chr(9)-separated chain of ancestor
+    names; ordering by it yields tree-flatten output with siblings in name (collation) order.
+    Inserts, reparents, AND renames all update `sort_path` (a rename cascades to descendants), so
+    list ordering reflects renames immediately — unlike django-mptt's `order_insertion_by`, which
+    left descendants stale until a manual rebuild.
+    """
+    parent = models.ForeignKey(
+        to='self',
+        on_delete=models.CASCADE,
+        related_name='children',
+        blank=True,
+        null=True,
+        db_index=True
+    )
+    sort_path = SortPathField(
+        editable=False,
+        blank=True,
+        default='',
+    )
+
+    # Re-declare so the LtreeManager wins over BaseModel's RestrictedQuerySet
+    # default manager via MRO resolution.
+    objects = LtreeManager()
+
+    class Meta:
+        abstract = True
+        ordering = ('sort_path',)
 
 
 class OrganizationalModel(OwnerMixin, NetBoxModel):

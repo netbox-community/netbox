@@ -45,6 +45,7 @@ __all__ = (
     'TagColumn',
     'TemplateColumn',
     'ToggleColumn',
+    'TreeColumn',
     'UtilizationColumn',
 )
 
@@ -604,9 +605,9 @@ class CustomLinkColumn(tables.Column):
         return None
 
 
-class MPTTColumn(tables.TemplateColumn):
+class TreeColumn(tables.TemplateColumn):
     """
-    Display a nested hierarchy for MPTT-enabled models.
+    Display a nested hierarchy for tree-enabled models (Region, Location, etc.).
     """
     template_code = """
         {% load helpers %}
@@ -626,6 +627,11 @@ class MPTTColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
+
+
+# Deprecated alias for plugin compatibility; use TreeColumn going forward.
+# TODO: Remove this in NetBox v5.0
+MPTTColumn = TreeColumn
 
 
 class UtilizationColumn(tables.TemplateColumn):

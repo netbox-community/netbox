@@ -16,7 +16,7 @@ from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
-from netbox.api.viewsets import MPTTLockedMixin, NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from utilities.api import get_serializer_for_model
 from utilities.query import count_related
@@ -95,7 +95,7 @@ class PassThroughPortMixin:
 # Regions
 #
 
-class RegionViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class RegionViewSet(NetBoxModelViewSet):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -111,7 +111,7 @@ class RegionViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 # Site groups
 #
 
-class SiteGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class SiteGroupViewSet(NetBoxModelViewSet):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
         Site,
@@ -137,7 +137,7 @@ class SiteViewSet(NetBoxModelViewSet):
 # Locations
 #
 
-class LocationViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class LocationViewSet(NetBoxModelViewSet):
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(
             Location.objects.all(),
@@ -356,7 +356,7 @@ class DeviceBayTemplateViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceBayTemplateFilterSet
 
 
-class InventoryItemTemplateViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class InventoryItemTemplateViewSet(NetBoxModelViewSet):
     queryset = InventoryItemTemplate.objects.all()
     serializer_class = serializers.InventoryItemTemplateSerializer
     filterset_class = filtersets.InventoryItemTemplateFilterSet
@@ -388,7 +388,7 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 # Platforms
 #
 
-class PlatformViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class PlatformViewSet(NetBoxModelViewSet):
     queryset = Platform.objects.add_related_count(
         Platform.objects.add_related_count(
             Platform.objects.all(),
@@ -543,7 +543,7 @@ class DeviceBayViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceBayFilterSet
 
 
-class InventoryItemViewSet(MPTTLockedMixin, NetBoxModelViewSet):
+class InventoryItemViewSet(NetBoxModelViewSet):
     queryset = InventoryItem.objects.all()
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filtersets.InventoryItemFilterSet

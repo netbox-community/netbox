@@ -5,7 +5,6 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 from jsonschema.exceptions import ValidationError as JSONValidationError
-from mptt.models import MPTTModel
 
 from dcim.choices import *
 from dcim.utils import create_port_mappings, update_interface_bridges
@@ -386,29 +385,32 @@ class Module(TrackingModelMixin, PrimaryModel):
                 component._location = self.device.location
                 component._rack = self.device.rack
 
-            # we handle create and update separately - this is for create
-            if not issubclass(component_model, MPTTModel):
-                component_model.objects.bulk_create(create_instances)
-                # Emit the post_save signal for each newly created object
-                for component in create_instances:
-                    post_save.send(
-                        sender=component_model,
-                        instance=component,
-                        created=True,
-                        raw=False,
-                        using='default',
-                        update_fields=None
-                    )
-            else:
-                # MPTT models must be saved individually to maintain tree structure
-                for instance in create_instances:
-                    instance.save()
+            # Bulk-create new instances. ModuleBay is ltree-backed: its parent is set
+            # in ModuleBayTemplate.instantiate() (bulk_create bypasses ModuleBay.save()),
+            # and the BEFORE INSERT trigger derives path/sort_path from parent_id per row.
+            component_model.objects.bulk_create(create_instances)
+            for component in create_instances:
+                post_save.send(
+                    sender=component_model,
+                    instance=component,
+                    created=True,
+                    raw=False,
+                    using='default',
+                    update_fields=None
+                )
 
             update_fields = ['module']
+            # ModuleBay.parent is derived from .module in ModuleBay.save(), and the
+            # path/sort_path trigger only fires on parent_id/name changes. A bare
+            # bulk_update(['module']) bypasses both, leaving the adopted bay rooted
+            # at its pre-adoption location. Set parent in lockstep so the BEFORE
+            # trigger recomputes path/sort_path.
+            if component_model is ModuleBay:
+                for instance in update_instances:
+                    instance.parent = self.module_bay
+                update_fields = ['module', 'parent']
 
-            # we handle create and update separately - this is for update
             component_model.objects.bulk_update(update_instances, update_fields)
-            # Emit the post_save signal for each updated object
             for component in update_instances:
                 post_save.send(
                     sender=component_model,
@@ -418,10 +420,6 @@ class Module(TrackingModelMixin, PrimaryModel):
                     using='default',
                     update_fields=update_fields
                 )
-
-            # Rebuild MPTT tree if needed (bulk_update bypasses model save)
-            if issubclass(component_model, MPTTModel) and update_instances:
-                component_model.objects.rebuild()
 
         # Replicate any front/rear port mappings from the ModuleType
         create_port_mappings(self.device, self.module_type, self)

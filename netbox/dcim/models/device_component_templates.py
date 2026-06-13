@@ -1,9 +1,9 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel, TreeForeignKey
 
 from dcim.choices import *
 from dcim.constants import *
@@ -11,8 +11,8 @@ from dcim.models.base import PortMappingBase
 from dcim.models.mixins import InterfaceValidationMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
+from netbox.models.ltree import LtreeManager, LtreeModel
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.tracking import TrackingModelMixin
 from wireless.choices import WirelessRoleChoices
@@ -752,11 +752,18 @@ class ModuleBayTemplate(ModularComponentTemplateModel):
         verbose_name_plural = _('module bay templates')
 
     def instantiate(self, **kwargs):
+        module = kwargs.get('module')
         return self.component_model(
-            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
-            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
-            position=self.resolve_position(kwargs.get('module'), kwargs.get('device')),
+            name=self.resolve_name(module, kwargs.get('device')),
+            label=self.resolve_label(module, kwargs.get('device')),
+            position=self.resolve_position(module, kwargs.get('device')),
             enabled=self.enabled,
+            # A module bay created for an installed module nests under that module's
+            # bay. bulk_create() bypasses ModuleBay.save() (which would otherwise set
+            # this), so the parent must be assigned here for the path trigger to nest
+            # it correctly. Device-level bays are instantiated without a module and
+            # remain roots (parent=None).
+            parent=module.module_bay if module else None,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -812,11 +819,11 @@ class DeviceBayTemplate(ComponentTemplateModel):
         }
 
 
-class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
+class InventoryItemTemplate(LtreeModel, ComponentTemplateModel):
     """
     A template for an InventoryItem to be created for a new parent Device.
     """
-    parent = TreeForeignKey(
+    parent = models.ForeignKey(
         to='self',
         on_delete=models.CASCADE,
         related_name='child_items',
@@ -860,13 +867,14 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
         help_text=_('Manufacturer-assigned part identifier')
     )
 
-    objects = TreeManager()
+    objects = LtreeManager()
     component_model = InventoryItem
 
     class Meta:
         ordering = ('device_type__id', 'parent__id', 'name')
         indexes = (
             models.Index(fields=('component_type', 'component_id')),
+            GistIndex(fields=['path'], name='dcim_inv_item_tmpl_path_gist'),
         )
         constraints = (
             models.UniqueConstraint(

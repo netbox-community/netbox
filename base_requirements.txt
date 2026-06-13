@@ -27,6 +27,10 @@ django-graphiql-debug-toolbar
 django-htmx
 
 # Modified Preorder Tree Traversal (recursive nesting of objects)
+# Retained primarily for plugin backward compatibility: the deprecated
+# NestedGroupModel base remains MPTT-backed for plugins still using it. Also
+# required by historical migrations that pre-date the switch to PostgreSQL ltree.
+# NetBox core runtime uses netbox.models.ltree.LtreeModel instead.
 django-mptt
 
 # Context managers for PostgreSQL advisory locks

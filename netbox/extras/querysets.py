@@ -130,10 +130,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         if self.model._meta.model_name == 'device':
             base_query.add(
                 (Q(
-                    locations__tree_id=OuterRef('location__tree_id'),
-                    locations__level__lte=OuterRef('location__level'),
-                    locations__lft__lte=OuterRef('location__lft'),
-                    locations__rght__gte=OuterRef('location__rght'),
+                    locations__path__ancestor_or_equal=OuterRef('location__path'),
                 ) | Q(locations=None)),
                 Q.AND
             )
@@ -142,40 +139,29 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
             base_query.add(Q(locations=None), Q.AND)
             base_query.add(Q(device_types=None), Q.AND)
 
-        # MPTT-based filters
+        # Ltree-based filters: the ConfigContext-side tree node must be an ancestor
+        # (or equal to) the device/VM-side tree node, i.e. `cc_node.path @> obj_node.path`.
         base_query.add(
             (Q(
-                regions__tree_id=OuterRef('site__region__tree_id'),
-                regions__level__lte=OuterRef('site__region__level'),
-                regions__lft__lte=OuterRef('site__region__lft'),
-                regions__rght__gte=OuterRef('site__region__rght'),
+                regions__path__ancestor_or_equal=OuterRef('site__region__path'),
             ) | Q(regions=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                site_groups__tree_id=OuterRef('site__group__tree_id'),
-                site_groups__level__lte=OuterRef('site__group__level'),
-                site_groups__lft__lte=OuterRef('site__group__lft'),
-                site_groups__rght__gte=OuterRef('site__group__rght'),
+                site_groups__path__ancestor_or_equal=OuterRef('site__group__path'),
             ) | Q(site_groups=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                roles__tree_id=OuterRef('role__tree_id'),
-                roles__level__lte=OuterRef('role__level'),
-                roles__lft__lte=OuterRef('role__lft'),
-                roles__rght__gte=OuterRef('role__rght'),
+                roles__path__ancestor_or_equal=OuterRef('role__path'),
             ) | Q(roles=None)),
             Q.AND
         )
         base_query.add(
             (Q(
-                platforms__tree_id=OuterRef('platform__tree_id'),
-                platforms__level__lte=OuterRef('platform__level'),
-                platforms__lft__lte=OuterRef('platform__lft'),
-                platforms__rght__gte=OuterRef('platform__rght'),
+                platforms__path__ancestor_or_equal=OuterRef('platform__path'),
             ) | Q(platforms=None)),
             Q.AND
         )

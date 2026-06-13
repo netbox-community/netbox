@@ -126,7 +126,7 @@ class JSONFilter:
 @strawberry.enum
 class TreeNodeMatch(Enum):
     EXACT = 'exact'  # Just the node itself
-    DESCENDANTS = 'descendants'  # Node and all descendants
+    DESCENDANTS = 'descendants'  # All descendants, excluding the node itself
     SELF_AND_DESCENDANTS = 'self_and_descendants'  # Node and all descendants
     CHILDREN = 'children'  # Just immediate children
     SIBLINGS = 'siblings'  # Nodes with same parent
@@ -159,37 +159,39 @@ class TreeNodeFilter:
         # Generate base Q filter for the related model without prefix
         q_filter = generate_tree_node_q_filter(related_model, self)
 
-        # Handle different relationship types
-        if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
-            return queryset, Q(**{f'{model_field_name}__in': related_model.objects.filter(q_filter)})
-        if isinstance(model_field, ForeignKey):
-            return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
-        if isinstance(model_field, ManyToOneRel):
+        # Handle different relationship types. All variants resolve the related
+        # rows against the q_filter (which may be a compound Q for DESCENDANTS,
+        # ANCESTORS, SIBLINGS, SELF_AND_DESCENDANTS) and join via __in. Destructuring
+        # q_filter.children into kwargs would crash on compound match types.
+        if isinstance(model_field, (ManyToManyField, ManyToManyRel, ForeignKey, ManyToOneRel)):
             return queryset, Q(**{f'{model_field_name}__in': related_model.objects.filter(q_filter)})
         return queryset, Q(**{f'{model_field_name}__{k}': v for k, v in q_filter.children})
 
 
 def generate_tree_node_q_filter(model_class, filter_value: TreeNodeFilter) -> Q:
     """
-    Generate appropriate Q filter for MPTT tree filtering based on match type
+    Generate Q filter for ltree-backed hierarchical models based on match type.
     """
     try:
         node = model_class.objects.get(id=filter_value.id)
     except model_class.DoesNotExist:
         return Q(pk__in=[])
 
+    if not getattr(node, 'path', None):
+        return Q(id=filter_value.id)
+
     if filter_value.match_type == TreeNodeMatch.EXACT:
         return Q(id=filter_value.id)
     if filter_value.match_type == TreeNodeMatch.DESCENDANTS:
-        return Q(tree_id=node.tree_id, lft__gt=node.lft, rght__lt=node.rght)
+        return Q(path__descendant=node.path) & ~Q(id=node.id)
     if filter_value.match_type == TreeNodeMatch.SELF_AND_DESCENDANTS:
-        return Q(tree_id=node.tree_id, lft__gte=node.lft, rght__lte=node.rght)
+        return Q(path__descendant_or_equal=node.path)
     if filter_value.match_type == TreeNodeMatch.CHILDREN:
-        return Q(tree_id=node.tree_id, level=node.level + 1, lft__gt=node.lft, rght__lt=node.rght)
+        return Q(parent_id=node.id)
     if filter_value.match_type == TreeNodeMatch.SIBLINGS:
-        return Q(tree_id=node.tree_id, level=node.level, parent=node.parent) & ~Q(id=node.id)
+        return Q(parent_id=node.parent_id) & ~Q(id=node.id)
     if filter_value.match_type == TreeNodeMatch.ANCESTORS:
-        return Q(tree_id=node.tree_id, lft__lt=node.lft, rght__gt=node.rght)
+        return Q(path__ancestor=node.path) & ~Q(id=node.id)
     if filter_value.match_type == TreeNodeMatch.PARENT:
         return Q(id=node.parent_id) if node.parent_id else Q(pk__in=[])
     return Q()
