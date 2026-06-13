@@ -107,7 +107,8 @@ class CustomFieldForm(ChangelogMessageMixin, OwnerMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Mimic HTMXSelect()
+        # Mimic HTMXSelect() — no hx_target_id because changing type adds/removes
+        # Validation, Related Object, and Choices fieldsets dynamically.
         self.fields['type'].widget.attrs.update({
             'hx-get': '.',
             'hx-include': '#form_fields',
@@ -556,7 +557,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
         FieldSet('event_types', 'conditions', name=_('Triggers')),
-        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
+        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action'), html_id='event-rule-action'),
     )
 
     class Meta:
@@ -567,7 +568,7 @@ class EventRuleForm(OwnerMixin, NetBoxModelForm):
         )
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'action_type': HTMXSelect(),
+            'action_type': HTMXSelect(hx_target_id='event-rule-action'),
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
         }

@@ -1,6 +1,9 @@
 import random
+import re
 import string
 from functools import cached_property
+
+from django.conf import settings
 
 __all__ = (
     'FieldSet',
@@ -25,10 +28,16 @@ class FieldSet:
     Parameters:
         items: An iterable of items to be rendered (one per row)
         name: The fieldset's name, displayed as a heading (optional)
+        html_id: An HTML id for the rendered fieldset div, enabling HTMX partial swaps (optional).
+            Must be a valid CSS identifier: start with a letter, use only letters, digits, hyphens, underscores.
     """
-    def __init__(self, *items, name=None):
+    def __init__(self, *items, name=None, html_id=None):
+        if html_id is not None and settings.DEBUG:
+            if not re.match(r'^[a-zA-Z][a-zA-Z0-9_-]*$', html_id):
+                raise ValueError(f"html_id {html_id!r} is not a valid CSS identifier")
         self.items = items
         self.name = name
+        self.html_id = html_id
 
 
 class InlineFields:

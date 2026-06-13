@@ -78,7 +78,7 @@ class TunnelCreateForm(TunnelForm):
     termination1_type = forms.ChoiceField(
         choices=TunnelTerminationTypeChoices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='tunnel-termination1'),
         label=_('Type')
     )
     termination1_parent = DynamicModelChoiceField(
@@ -113,7 +113,7 @@ class TunnelCreateForm(TunnelForm):
     termination2_type = forms.ChoiceField(
         choices=TunnelTerminationTypeChoices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='tunnel-termination2'),
         label=_('Type')
     )
     termination2_parent = DynamicModelChoiceField(
@@ -145,10 +145,10 @@ class TunnelCreateForm(TunnelForm):
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet(
             'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_termination',
-            'termination1_outside_ip', name=_('First Termination')),
+            'termination1_outside_ip', name=_('First Termination'), html_id='tunnel-termination1'),
         FieldSet(
             'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_termination',
-            'termination2_outside_ip', name=_('Second Termination')),
+            'termination2_outside_ip', name=_('Second Termination'), html_id='tunnel-termination2'),
     )
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -225,7 +225,7 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
     type = forms.ChoiceField(
         choices=TunnelTerminationTypeChoices,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='tunnel-termination'),
         label=_('Type')
     )
     parent = DynamicModelChoiceField(
@@ -250,7 +250,10 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags'),
+        FieldSet(
+            'tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags',
+            html_id='tunnel-termination',
+        ),
     )
 
     class Meta:

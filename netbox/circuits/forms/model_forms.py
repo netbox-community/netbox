@@ -194,7 +194,7 @@ class CircuitTerminationForm(NetBoxModelForm):
     )
     termination_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='circuit-termination'),
         label=_('Termination type')
     )
     termination = DynamicModelChoiceField(
@@ -208,7 +208,8 @@ class CircuitTerminationForm(NetBoxModelForm):
         FieldSet(
             'circuit', 'term_side', 'description', 'tags',
             'termination_type', 'termination',
-            'mark_connected', name=_('Circuit Termination')
+            'mark_connected', name=_('Circuit Termination'),
+            html_id='circuit-termination',
         ),
         FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
     )
@@ -291,7 +292,7 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     )
     member_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(CIRCUIT_GROUP_ASSIGNMENT_MEMBER_MODELS),
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='circuit-group-assignment'),
         required=False,
         label=_('Circuit type')
     )
@@ -304,7 +305,10 @@ class CircuitGroupAssignmentForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('group', 'member_type', 'member', 'priority', 'tags', name=_('Group Assignment')),
+        FieldSet(
+            'group', 'member_type', 'member', 'priority', 'tags',
+            name=_('Group Assignment'), html_id='circuit-group-assignment',
+        ),
     )
 
     class Meta:
@@ -395,7 +399,6 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     )
     role = forms.ChoiceField(
         choices=VirtualCircuitTerminationRoleChoices,
-        widget=HTMXSelect(),
         label=_('Role')
     )
     interface = DynamicModelChoiceField(
@@ -412,7 +415,9 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        FieldSet('virtual_circuit', 'role', 'interface', 'description', 'tags'),
+        FieldSet(
+            'virtual_circuit', 'role', 'interface', 'description', 'tags',
+        ),
     )
 
     class Meta:
