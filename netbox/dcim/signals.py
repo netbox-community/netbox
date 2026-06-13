@@ -166,6 +166,20 @@ def retrace_cable_paths(instance, **kwargs):
         cablepath.retrace()
 
 
+@receiver(post_save, sender=Cable)
+def retrace_cable_paths_on_raw_create(sender, instance, raw=False, **kwargs):
+    """
+    Trigger cable path retracing for a Cable instance when dependencies need to be
+    recalculated. Callers should fire post_save with post_raw_create=True after
+    all CableTerminations are in place.
+    """
+    post_raw_create = kwargs.get('post_raw_create', False)
+    if not post_raw_create:
+        return
+    instance._terminations_modified = True
+    trace_paths.send(Cable, instance=instance, created=True)
+
+
 @receiver((post_delete, post_save), sender=PortMapping)
 def update_passthrough_port_paths(instance, **kwargs):
     """
