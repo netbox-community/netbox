@@ -1,5 +1,5 @@
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
@@ -7,13 +7,14 @@ from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
 from utilities.forms.forms import BulkRenameForm
+from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
     expand_alphanumeric_pattern,
     expand_ipnetwork_pattern,
     get_capacity_unit_label,
     get_field_value,
 )
-from utilities.forms.widgets.select import AvailableOptions, SelectedOptions
+from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, SelectedOptions
 
 
 class ExpandIPNetworkTestCase(TestCase):
@@ -625,3 +626,44 @@ class GetCapacityUnitLabelTestCase(TestCase):
 
     def test_iec_label(self):
         self.assertEqual(get_capacity_unit_label(1024), 'MiB')
+
+
+class FieldSetTestCase(TestCase):
+
+    def test_html_id_defaults_to_none(self):
+        fs = FieldSet('field1', 'field2', name='Test')
+        self.assertIsNone(fs.html_id)
+
+    def test_html_id_stored(self):
+        fs = FieldSet('field1', 'field2', name='Test', html_id='my-fieldset')
+        self.assertEqual(fs.html_id, 'my-fieldset')
+
+    @override_settings(DEBUG=True)
+    def test_html_id_invalid_css_identifier_raises(self):
+        with self.assertRaises(ValueError):
+            FieldSet('field1', html_id='123-bad')
+
+    @override_settings(DEBUG=False)
+    def test_html_id_invalid_css_identifier_ignored_outside_debug(self):
+        fs = FieldSet('field1', html_id='123-bad')
+        self.assertEqual(fs.html_id, '123-bad')
+
+
+class HTMXSelectTestCase(TestCase):
+
+    def test_default_targets_form_fields(self):
+        widget = HTMXSelect()
+        self.assertEqual(widget.attrs['hx-target'], '#form_fields')
+        self.assertEqual(widget.attrs['hx-include'], '#form_fields')
+        self.assertNotIn('hx-select', widget.attrs)
+        self.assertNotIn('hx-swap', widget.attrs)
+
+    def test_hx_target_id_sets_target_select_and_swap(self):
+        widget = HTMXSelect(hx_target_id='my-fieldset')
+        self.assertEqual(widget.attrs['hx-target'], '#my-fieldset')
+        self.assertEqual(widget.attrs['hx-select'], '#my-fieldset')
+        self.assertEqual(widget.attrs['hx-swap'], 'outerHTML')
+
+    def test_hx_target_id_include_stays_on_form_fields(self):
+        widget = HTMXSelect(hx_target_id='my-fieldset')
+        self.assertEqual(widget.attrs['hx-include'], '#form_fields')

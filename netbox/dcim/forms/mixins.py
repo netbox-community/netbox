@@ -1,4 +1,7 @@
+import warnings
+
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import connection
@@ -27,7 +30,8 @@ __all__ = (
 class ScopedForm(forms.Form):
     scope_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
-        widget=HTMXSelect(),
+        # hx_target_id='scope' — all ScopedForm consumers must declare a FieldSet with html_id='scope'
+        widget=HTMXSelect(hx_target_id='scope'),
         required=False,
         label=_('Scope type')
     )
@@ -49,6 +53,18 @@ class ScopedForm(forms.Form):
 
         super().__init__(*args, **kwargs)
         self._set_scoped_values()
+
+        if settings.DEBUG:
+            has_scope_fieldset = any(
+                getattr(fs, 'html_id', None) == 'scope'
+                for fs in getattr(self, 'fieldsets', [])
+            )
+            if not has_scope_fieldset:
+                warnings.warn(
+                    f"{self.__class__.__name__} uses ScopedForm but declares no "
+                    "FieldSet with html_id='scope'; HTMX partial swap will fail silently.",
+                    stacklevel=2,
+                )
 
     def clean(self):
         super().clean()

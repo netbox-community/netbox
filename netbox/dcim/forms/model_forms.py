@@ -475,7 +475,7 @@ class ModuleTypeForm(PrimaryModelForm):
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile'),
         required=False,
-        widget=HTMXSelect()
+        widget=HTMXSelect(hx_target_id='profile-attributes')
     )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
@@ -487,7 +487,7 @@ class ModuleTypeForm(PrimaryModelForm):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
             FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
-            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'))
+            FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
         ]
 
     class Meta:
@@ -873,13 +873,13 @@ class CableForm(TenancyForm, PrimaryModelForm):
     a_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='cable-side-a'),
         label=_('Type')
     )
     b_terminations_type = forms.ChoiceField(
         choices=get_termination_type_choices,
         required=False,
-        widget=HTMXSelect(),
+        widget=HTMXSelect(hx_target_id='cable-side-b'),
         label=_('Type')
     )
     bundle = DynamicModelChoiceField(
@@ -1646,7 +1646,8 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         FieldSet('poe_mode', 'poe_type', name=_('PoE')),
         FieldSet(
             'mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', 'qinq_svlan', 'vlan_translation_policy',
-            name=_('802.1Q Switching')
+            name=_('802.1Q Switching'),
+            html_id='dot1q-switching',
         ),
         FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
@@ -1667,7 +1668,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
             'speed': NumberWithOptions(
                 options=InterfaceSpeedChoices
             ),
-            'mode': HTMXSelect(),
+            'mode': HTMXSelect(hx_target_id='dot1q-switching'),
         }
         labels = {
             'mode': '802.1Q Mode',
