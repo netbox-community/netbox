@@ -1,17 +1,50 @@
+import heapq
+
+import netaddr
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, F, OuterRef, Q, Subquery, Value
 from django.db.models.expressions import RawSQL
-from django.db.models.functions import NullIf, Round
+from django.db.models.functions import Cast, NullIf, Round
 
 from utilities.query import count_related
 from utilities.querysets import RestrictedQuerySet
 
+from .fields import IPAddressField
+from .lookups import Host
+
 __all__ = (
     'ASNRangeQuerySet',
+    'IPAddressQuerySet',
+    'IPRangeQuerySet',
     'PrefixQuerySet',
     'VLANGroupQuerySet',
     'VLANQuerySet',
 )
+
+# The host portion of an IP address (mask ignored), in the same form as the
+# ipam_ipaddress_host expression index.
+HOST_ADDRESS = Cast(Host('address'), output_field=IPAddressField())
+
+
+def _merge_intervals(intervals):
+    """
+    Return the union of (start, end) netaddr.IPAddress intervals, merged and sorted.
+    """
+    if not intervals:
+        return []
+
+    intervals = sorted(intervals)
+    merged = [intervals[0]]
+
+    for start, end in intervals[1:]:
+        current_start, current_end = merged[-1]
+        # Adjacency math in int space; netaddr raises at the address-space maximum.
+        if start.version == current_end.version and int(start) <= int(current_end) + 1:
+            merged[-1] = (current_start, max(current_end, end))
+        else:
+            merged.append((start, end))
+
+    return merged
 
 
 class ASNRangeQuerySet(RestrictedQuerySet):
@@ -30,6 +63,162 @@ class ASNRangeQuerySet(RestrictedQuerySet):
         ).order_by().annotate(_=Value(1)).values('_').annotate(c=Count('*')).values('c')
 
         return self.annotate(asn_count=Subquery(asns))
+
+
+class IPAddressQuerySet(RestrictedQuerySet):
+
+    def count_distinct_hosts(self, exclude_intervals=()):
+        """
+        Count distinct host addresses, optionally excluding (start, end) netaddr.IPAddress intervals.
+        """
+        queryset = self
+        for start, end in exclude_intervals:
+            queryset = queryset.exclude(address__host_between=(start, end))
+
+        return queryset.aggregate(count=Count(HOST_ADDRESS, distinct=True))['count']
+
+    def count_distinct_hosts_pair(self, bounds, bounded_exclude=(), total_exclude=()):
+        """
+        Return two distinct host counts computed in a single scan, as a dict:
+        'bounded' counts hosts within the (first_ip, last_ip) bounds excluding the
+        bounded_exclude intervals; 'total' counts all hosts excluding the
+        total_exclude intervals. Interval arguments match the output of
+        IPRangeQuerySet.get_intervals(). Avoids a second scan of the host expression
+        index when both counts are needed. Use only when both counts are needed (e.g.
+        Prefix.get_ip_usage_summary()); single-purpose callers should prefer
+        count_distinct_hosts().
+        """
+        # The deduplicated column is already a bare host; plain comparisons beat
+        # the host_between lookup here, which would re-wrap it in HOST()::inet.
+        bounded_q = Q(host_address__range=(str(bounds[0]), str(bounds[1])))
+        for start, end in bounded_exclude:
+            bounded_q &= ~Q(host_address__range=(str(start), str(end)))
+        total_q = Q()
+        for start, end in total_exclude:
+            total_q &= ~Q(host_address__range=(str(start), str(end)))
+
+        hosts = self.order_by().annotate(host_address=HOST_ADDRESS).values('host_address').distinct()
+        return hosts.aggregate(
+            bounded=Count('host_address', filter=bounded_q),
+            # An empty Q is falsy; fall back to a plain count of all hosts.
+            total=Count('host_address', filter=total_q or None),
+        )
+
+    def _iter_distinct_hosts(self, first_ip, last_ip, batch_size):
+        """
+        Yield the distinct occupied hosts in [first_ip, last_ip] in ascending order,
+        fetched in LIMIT batches that resume just past the last seen host. (A
+        server-side cursor is unsuitable here: on autocommit connections Django
+        declares it WITH HOLD, which materializes the full result at DECLARE.)
+        """
+        resume = first_ip
+        while True:
+            # order_by() first clears the default ordering, which would otherwise
+            # leak into SELECT and break distinct().
+            hosts = list(
+                self.filter(address__host_between=(resume, last_ip))
+                .order_by()
+                .annotate(host_address=HOST_ADDRESS)
+                .values_list('host_address', flat=True)
+                .distinct()
+                .order_by('host_address')[:batch_size]
+            )
+            for host in hosts:
+                yield host.ip
+            if len(hosts) < batch_size:
+                return
+            last_host = hosts[-1].ip
+            if int(last_host) >= int(last_ip):
+                return
+            resume = netaddr.IPAddress(int(last_host) + 1, version=last_host.version)
+
+    def available_intervals(self, first_ip, last_ip, exclude_intervals=(), batch_size=5000):
+        """
+        Yield the unoccupied (start, end) netaddr.IPAddress intervals (inclusive)
+        within [first_ip, last_ip], in ascending order. exclude_intervals are
+        (start, end) netaddr.IPAddress pairs; they are merged and sorted internally,
+        intervals of a foreign address family are ignored, and addresses they cover
+        count as occupied. Consumption is lazy: a caller that stops early stops
+        fetching host batches.
+        """
+        if batch_size < 1:
+            raise ValueError('batch_size must be greater than zero')
+
+        first_int, last_int = int(first_ip), int(last_ip)
+        version = first_ip.version
+
+        if first_int > last_int:
+            return
+        # Normalize: the sweep below requires sorted, non-overlapping, same-family intervals.
+        exclude_intervals = _merge_intervals([
+            (start, end)
+            for start, end in exclude_intervals
+            if start.version == end.version == version
+        ])
+        intervals = [(int(start), int(end)) for start, end in exclude_intervals]
+
+        # Fast path: one merged excluded interval covers the entire span.
+        if intervals and intervals[0][0] <= first_int and intervals[0][1] >= last_int:
+            return
+
+        hosts = (
+            (int(host), int(host))
+            for host in self._iter_distinct_hosts(first_ip, last_ip, batch_size)
+        )
+
+        candidate = first_int
+        # Ties on `start` are harmless; the sweep handles overlapping intervals.
+        for start, end in heapq.merge(intervals, hosts):
+            if end < candidate:
+                continue
+            if start > candidate:
+                yield (
+                    netaddr.IPAddress(candidate, version=version),
+                    netaddr.IPAddress(min(start - 1, last_int), version=version),
+                )
+            candidate = max(candidate, end + 1)
+            if candidate > last_int:
+                return
+
+        if candidate <= last_int:
+            yield (
+                netaddr.IPAddress(candidate, version=version),
+                netaddr.IPAddress(last_int, version=version),
+            )
+
+    def first_available_host(self, first_ip, last_ip, exclude_intervals=()):
+        """
+        Return the first host in [first_ip, last_ip] neither present nor in an excluded interval (or None).
+        """
+        interval = next(self.available_intervals(first_ip, last_ip, exclude_intervals), None)
+        return interval[0] if interval else None
+
+
+class IPRangeQuerySet(RestrictedQuerySet):
+
+    def get_intervals(self, first_ip=None, last_ip=None):
+        """
+        Return ranges as merged (start, end) netaddr.IPAddress intervals, optionally clipped to the bounds.
+        """
+        intervals = []
+
+        # order_by() clears the default ordering; _merge_intervals() sorts anyway.
+        for start_address, end_address in self.order_by().values_list('start_address', 'end_address'):
+            start, end = start_address.ip, end_address.ip
+
+            if first_ip is not None:
+                if end < first_ip:
+                    continue
+                start = max(start, first_ip)
+
+            if last_ip is not None:
+                if start > last_ip:
+                    continue
+                end = min(end, last_ip)
+
+            intervals.append((start, end))
+
+        return _merge_intervals(intervals)
 
 
 class PrefixQuerySet(RestrictedQuerySet):

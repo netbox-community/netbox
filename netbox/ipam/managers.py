@@ -1,10 +1,10 @@
 from django.db.models import Manager
 
 from ipam.lookups import Host, Inet
-from utilities.querysets import RestrictedQuerySet
+from ipam.querysets import IPAddressQuerySet
 
 
-class IPAddressManager(Manager.from_queryset(RestrictedQuerySet)):
+class IPAddressManager(Manager.from_queryset(IPAddressQuerySet)):
 
     def get_queryset(self):
         """

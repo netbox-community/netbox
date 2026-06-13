@@ -1,3 +1,4 @@
+import netaddr
 from django.db.models import IntegerField, Lookup, Transform, lookups
 
 
@@ -99,7 +100,8 @@ class NetHost(Lookup):
         if rhs_params:
             rhs_params[0] = rhs_params[0].split('/')[0]
         params = list(lhs_params) + rhs_params
-        return f'HOST({lhs}) = {rhs}', params
+        # Cast to INET so the predicate matches the inet ipam_ipaddress_host index.
+        return f'CAST(HOST({lhs}) AS INET) = {rhs}', params
 
 
 class NetIn(Lookup):
@@ -120,7 +122,8 @@ class NetIn(Lookup):
                 without_mask.append(address)
 
         address_in_clause = self.create_in_clause('{} IN ('.format(lhs), len(with_mask))
-        host_in_clause = self.create_in_clause('HOST({}) IN ('.format(lhs), len(without_mask))
+        # Cast to INET so the predicate matches the inet ipam_ipaddress_host index.
+        host_in_clause = self.create_in_clause('CAST(HOST({}) AS INET) IN ('.format(lhs), len(without_mask))
 
         if with_mask and not without_mask:
             return address_in_clause, with_mask
@@ -154,6 +157,34 @@ class NetHostContained(Lookup):
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
         return f'CAST(HOST({lhs}) AS INET) <<= {rhs}', params
+
+
+class NetHostBetween(Lookup):
+    """
+    Match host addresses (mask ignored) falling inclusively between two bounds. The left-hand
+    side is kept as an inet-typed host expression so PostgreSQL can use the host expression
+    indexes on the IPAM address and range tables; the CAST(HOST(...) AS INET) spelling matches
+    NetHost/NetIn for consistency (PostgreSQL canonicalizes the INET(HOST(...)) function form
+    to the same expression).
+    """
+    lookup_name = 'host_between'
+
+    def get_prep_lookup(self):
+        if not isinstance(self.rhs, (list, tuple)) or len(self.rhs) != 2:
+            raise ValueError('The host_between lookup requires a (lower, upper) pair of bounds')
+        try:
+            # Normalize to bare hosts; reject malformed values before they reach SQL.
+            lower, upper = (netaddr.IPNetwork(str(bound)).ip for bound in self.rhs)
+        except (netaddr.AddrFormatError, ValueError) as e:
+            raise ValueError(f'Invalid host_between bound: {e}') from e
+        if lower.version != upper.version:
+            raise ValueError('host_between bounds must not mix address families')
+        return lower, upper
+
+    def as_sql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+        params = list(lhs_params) + [str(bound) for bound in self.rhs]
+        return f'CAST(HOST({lhs}) AS INET) BETWEEN %s AND %s', params
 
 
 class NetFamily(Transform):
