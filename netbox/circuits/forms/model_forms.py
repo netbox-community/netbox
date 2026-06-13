@@ -195,7 +195,6 @@ class CircuitTerminationForm(NetBoxModelForm):
     termination_type = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
         widget=HTMXSelect(hx_target_id='circuit-termination'),
-        required=False,
         label=_('Termination type')
     )
     termination = DynamicModelChoiceField(
@@ -418,7 +417,6 @@ class VirtualCircuitTerminationForm(NetBoxModelForm):
     fieldsets = (
         FieldSet(
             'virtual_circuit', 'role', 'interface', 'description', 'tags',
-            html_id='virtual-circuit-termination',
         ),
     )
 
