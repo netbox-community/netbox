@@ -408,6 +408,9 @@ class BookmarkTestCase(
     def test_list_objects_anonymous(self):
         return
 
+    def test_export_objects_anonymous(self):
+        return
+
     def test_list_objects_with_constrained_permission(self):
         return
 
@@ -962,6 +965,9 @@ class SubscriptionTestCase(
         login_url = reverse('login')
         self.assertRedirects(self.client.get(url), f'{login_url}?next={url}')
 
+    def test_export_objects_anonymous(self):
+        return
+
     def test_list_objects_with_permission(self):
         return
 
@@ -1069,6 +1075,9 @@ class NotificationTestCase(
         url = reverse('account:notifications')
         login_url = reverse('login')
         self.assertRedirects(self.client.get(url), f'{login_url}?next={url}')
+
+    def test_export_objects_anonymous(self):
+        return
 
     def test_list_objects_with_permission(self):
         return
