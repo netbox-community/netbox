@@ -32,7 +32,7 @@ class RackDimensionsPanel(panels.ObjectAttributesPanel):
     outer_width = attrs.NumericAttr('outer_width', unit_accessor='get_outer_unit_display')
     outer_height = attrs.NumericAttr('outer_height', unit_accessor='get_outer_unit_display')
     outer_depth = attrs.NumericAttr('outer_depth', unit_accessor='get_outer_unit_display')
-    mounting_depth = attrs.TextAttr('mounting_depth', format_string=_('{} millimeters'))
+    mounting_depth = attrs.TextAttr('mounting_depth', format_string=_('{0} millimeters'))
 
 
 class RackNumberingPanel(panels.ObjectAttributesPanel):
@@ -355,8 +355,8 @@ class PowerFeedElectricalPanel(panels.ObjectAttributesPanel):
     title = _('Electrical Characteristics')
 
     supply = attrs.ChoiceAttr('supply')
-    voltage = attrs.TextAttr('voltage', format_string=_('{}V'))
-    amperage = attrs.TextAttr('amperage', format_string=_('{}A'))
+    voltage = attrs.TextAttr('voltage', format_string='{}V')
+    amperage = attrs.TextAttr('amperage', format_string='{}A')
     phase = attrs.ChoiceAttr('phase')
     max_utilization = attrs.TextAttr('max_utilization', format_string='{}%')
 
