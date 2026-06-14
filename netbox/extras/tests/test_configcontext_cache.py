@@ -421,7 +421,7 @@ class VirtualMachineInvalidationTest(TestCase):
 class ConfigContextUpstreamChangeInvalidationTest(TestCase):
     """
     Changes to intermediate/hierarchical objects (not the Device/VM itself) must invalidate the
-    affected caches: direct FK changes on an intermediate model, and MPTT reparents.
+    affected caches: direct FK changes on an intermediate model, and ltree reparents.
     """
 
     @classmethod
@@ -449,7 +449,7 @@ class ConfigContextUpstreamChangeInvalidationTest(TestCase):
 
         self.assertIsNone(_get_cache(device))
 
-    def test_mptt_region_reparent_invalidates(self):
+    def test_region_reparent_invalidates(self):
         region_a = Region.objects.create(name='A', slug='a')
         region_b = Region.objects.create(name='B', slug='b')
         site = Site.objects.create(name='Site', slug='site', region=region_b)

@@ -83,14 +83,14 @@ def invalidate_for_scope_delta(scope_field, scope_pks):
     device_q = None
     vm_q = None
 
-    # MPTT-based scopes: any device/VM whose corresponding attribute is a descendant
-    # of any of the changed items.
-    mptt_attrs = {
-        'regions': ('dcim', 'Region', 'site__region__in'),
-        'site_groups': ('dcim', 'SiteGroup', 'site__group__in'),
-        'roles': ('dcim', 'DeviceRole', 'role__in'),
-        'platforms': ('dcim', 'Platform', 'platform__in'),
-        'locations': ('dcim', 'Location', 'location__in'),  # Devices only
+    # Nested (ltree) scopes: any device/VM whose corresponding attribute resolves into the subtree
+    # of any of the changed items (descendant-or-equal).
+    nested_attrs = {
+        'regions': ('dcim', 'Region', 'site__region__path'),
+        'site_groups': ('dcim', 'SiteGroup', 'site__group__path'),
+        'roles': ('dcim', 'DeviceRole', 'role__path'),
+        'platforms': ('dcim', 'Platform', 'platform__path'),
+        'locations': ('dcim', 'Location', 'location__path'),  # Devices only
     }
     direct_attrs = {
         'sites': 'site__in',
@@ -102,17 +102,17 @@ def invalidate_for_scope_delta(scope_field, scope_pks):
         'device_types': 'device_type__in',  # Devices only
     }
 
-    if scope_field in mptt_attrs:
-        app, model_name, attr_path = mptt_attrs[scope_field]
+    if scope_field in nested_attrs:
+        app, model_name, object_path = nested_attrs[scope_field]
         Model = apps.get_model(app, model_name)
-        descendant_pks = list(
-            Model.objects.filter(pk__in=scope_pks)
-            .get_descendants(include_self=True)
-            .values_list('pk', flat=True)
-        )
-        device_q = Q(**{attr_path: descendant_pks})
+        subtree_q = Q()
+        for path in Model.objects.filter(pk__in=scope_pks).values_list('path', flat=True):
+            subtree_q |= Q(**{f'{object_path}__descendant_or_equal': path})
+        if not subtree_q:
+            return
+        device_q = subtree_q
         if scope_field != 'locations':
-            vm_q = Q(**{attr_path: descendant_pks})
+            vm_q = subtree_q
     elif scope_field in direct_attrs:
         attr_path = direct_attrs[scope_field]
         device_q = Q(**{attr_path: scope_pks})

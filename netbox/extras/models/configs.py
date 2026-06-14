@@ -242,17 +242,19 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         """
         from extras.models.tags import TaggedItem
 
-        def _mptt_descendants(m2m):
-            # Return the PKs of all descendants (incl. self) of the items in this MPTT m2m,
-            # or None if the m2m is empty (meaning: no scope restriction).
-            scope_pks = list(m2m.values_list('pk', flat=True))
-            if not scope_pks:
+        def _nested_scope_q(m2m, object_path):
+            # Match objects whose `object_path` ltree column is a descendant-or-equal of any node
+            # selected in this nested-group m2m (regions, locations, etc.). This is the inverse of
+            # the forward `<object>__path__ancestor_or_equal` match in ConfigContextQuerySet: there
+            # a CC's node must be an ancestor of the object's node; here the object's node must fall
+            # within a CC node's subtree. Returns None if the m2m is empty (no scope restriction).
+            paths = list(m2m.values_list('path', flat=True))
+            if not paths:
                 return None
-            return list(
-                m2m.model.objects.filter(pk__in=scope_pks)
-                .get_descendants(include_self=True)
-                .values_list('pk', flat=True)
-            )
+            q = Q()
+            for path in paths:
+                q |= Q(**{f'{object_path}__descendant_or_equal': path})
+            return q
 
         def _direct_pks(m2m):
             pks = list(m2m.values_list('pk', flat=True))
@@ -261,21 +263,21 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         # Shared filters (applicable to both Device and VirtualMachine)
         shared = Q()
 
-        region_pks = _mptt_descendants(self.regions)
-        if region_pks is not None:
-            shared &= Q(site__region__in=region_pks)
+        region_q = _nested_scope_q(self.regions, 'site__region__path')
+        if region_q is not None:
+            shared &= region_q
 
-        site_group_pks = _mptt_descendants(self.site_groups)
-        if site_group_pks is not None:
-            shared &= Q(site__group__in=site_group_pks)
+        site_group_q = _nested_scope_q(self.site_groups, 'site__group__path')
+        if site_group_q is not None:
+            shared &= site_group_q
 
-        role_pks = _mptt_descendants(self.roles)
-        if role_pks is not None:
-            shared &= Q(role__in=role_pks)
+        role_q = _nested_scope_q(self.roles, 'role__path')
+        if role_q is not None:
+            shared &= role_q
 
-        platform_pks = _mptt_descendants(self.platforms)
-        if platform_pks is not None:
-            shared &= Q(platform__in=platform_pks)
+        platform_q = _nested_scope_q(self.platforms, 'platform__path')
+        if platform_q is not None:
+            shared &= platform_q
 
         for m2m, path in (
             (self.sites, 'site'),
@@ -295,15 +297,15 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         device_q = Q(shared)
         vm_q = Q(shared)
 
-        # Device-only filters: location (MPTT) and device_type (direct)
-        location_pks = _mptt_descendants(self.locations)
-        if location_pks is not None:
-            device_q &= Q(location__in=location_pks)
+        # Device-only filters: location (nested/ltree) and device_type (direct)
+        location_q = _nested_scope_q(self.locations, 'location__path')
+        if location_q is not None:
+            device_q &= location_q
         device_type_pks = _direct_pks(self.device_types)
         if device_type_pks is not None:
             device_q &= Q(device_type__in=device_type_pks)
         # For VMs, locations and device_types must be empty for the context to apply
-        if location_pks is not None or device_type_pks is not None:
+        if location_q is not None or device_type_pks is not None:
             vm_q &= Q(pk__in=())
 
         if tag_pks is not None:

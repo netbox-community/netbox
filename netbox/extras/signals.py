@@ -233,7 +233,7 @@ def invalidate_on_device_vm_tag_change(sender, instance, action, **kwargs):
 #
 #   1. Direct FK changes (Site.region, Cluster.type, Tenant.group, ...): invalidate the caches of
 #      Devices/VMs that reference the changed object.
-#   2. MPTT reparents (Region.parent, SiteGroup.parent, ...): invalidate every Device/VM whose
+#   2. Ltree reparents (Region.parent, SiteGroup.parent, ...): invalidate every Device/VM whose
 #      attribute resolves into the changed node's subtree, because the ancestor list used by the
 #      matching query has shifted.
 
@@ -259,17 +259,24 @@ def _make_direct_upstream_handler(fields, device_lookup, vm_lookup):
     return _handler
 
 
-def _make_mptt_reparent_handler(device_attr, vm_attr):
+def _make_reparent_handler(device_attr, vm_attr):
     def _handler(sender, instance, created, **kwargs):
         if created or not _changed_fields(instance, ('parent_id',)):
             return
         from dcim.models import Device
         from virtualization.models import VirtualMachine
 
+        # The ltree triggers rewrite `path` server-side during the UPDATE, but LtreeModel.save()
+        # only refreshes the in-memory value AFTER post_save fires — so `instance.path` is still
+        # the pre-move value here. Re-read the node's current path from the DB to enumerate its
+        # (post-move) subtree. The set of node PKs is invariant under a move; only their paths
+        # shift, so this matches the same Devices/VMs regardless of timing.
+        model = type(instance)
+        node_path = model.objects.filter(pk=instance.pk).values_list('path', flat=True).first()
+        if node_path is None:
+            return
         subtree_pks = list(
-            type(instance).objects.filter(pk=instance.pk)
-            .get_descendants(include_self=True)
-            .values_list('pk', flat=True)
+            model.objects.filter(path__descendant_or_equal=node_path).values_list('pk', flat=True)
         )
 
         if device_attr:
@@ -305,17 +312,17 @@ def _connect_upstream_handlers():
         )
 
     # (app, model, device_attr_path__in, vm_attr_path__in)
-    mptt_triggers = (
+    reparent_triggers = (
         ('dcim', 'Region', 'site__region__in', 'site__region__in'),
         ('dcim', 'SiteGroup', 'site__group__in', 'site__group__in'),
         ('dcim', 'DeviceRole', 'role__in', 'role__in'),
         ('dcim', 'Platform', 'platform__in', 'platform__in'),
         ('dcim', 'Location', 'location__in', None),
     )
-    for app, name, device_attr, vm_attr in mptt_triggers:
+    for app, name, device_attr, vm_attr in reparent_triggers:
         Model = django_apps.get_model(app, name)
         post_save.connect(
-            _make_mptt_reparent_handler(device_attr, vm_attr),
+            _make_reparent_handler(device_attr, vm_attr),
             sender=Model,
             weak=False,
         )
@@ -339,7 +346,7 @@ _connect_upstream_handlers()
 #   - TenantGroup     (Tenant.group)
 #
 # We reuse invalidate_for_scope_delta(), which resolves the full set of Devices/VMs reachable via
-# the given scope dimension (descendants included for MPTT models), exactly matching the objects
+# the given scope dimension (descendants included for nested/ltree models), exactly matching the objects
 # whose FK is about to be nulled.
 
 def _make_upstream_delete_handler(scope_field):
