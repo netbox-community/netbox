@@ -1,14 +1,22 @@
+import json
 import logging
 import os
 import traceback
 from abc import ABC, abstractmethod
 from datetime import timedelta
+from io import BytesIO
 from pathlib import Path
 
-from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
+from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import ProtectedError, RestrictedError
+from django.http import Http404
 from django.utils import timezone
 from django.utils.functional import classproperty
+from django.utils.module_loading import import_string
 from django_pglocks import advisory_lock
+from rest_framework.exceptions import APIException
 from rq.timeouts import JobTimeoutException
 
 from core.choices import JobStatusChoices
@@ -16,9 +24,11 @@ from core.exceptions import JobFailed
 from core.models import Job, ObjectType
 from netbox.constants import ADVISORY_LOCK_KEYS
 from netbox.registry import registry
+from utilities.exceptions import AbortRequest
 from utilities.request import apply_request_processors
 
 __all__ = (
+    'AsyncAPIJob',
     'AsyncViewJob',
     'JobRunner',
     'system_job',
@@ -243,3 +253,110 @@ class AsyncViewJob(JobRunner):
 
         if self.job.error:
             raise JobFailed()
+
+
+class AsyncAPIJob(JobRunner):
+    """
+    Execute a REST API bulk write (create/update/delete) as a background job.
+
+    The viewset's action method is re-invoked inside the worker against a reconstructed
+    request, so the synchronous and background code paths are identical (validation,
+    transaction semantics, object permissions, and change logging all behave the same).
+    The action's serialized Response is captured into the job's data.
+    """
+    class Meta:
+        name = 'Async API Request'
+
+    def run(self, viewset_class, action, payload, user_pk, request_id, method, action_kwargs=None, **kwargs):
+        # Imported here to avoid a circular import (netbox.api.viewsets imports from this module).
+        from netbox.api.viewsets import HTTP_ACTIONS
+
+        action_kwargs = action_kwargs or {}
+        viewset_class = import_string(viewset_class)
+
+        # Re-fetch the requesting user. If the user no longer exists or is inactive, fail
+        # the job rather than running with stale identity (execution-time identity check).
+        User = get_user_model()
+        try:
+            user = User.objects.get(pk=user_pk)
+        except User.DoesNotExist:
+            self.job.error = "The requesting user no longer exists."
+            self.job.save()
+            raise JobFailed()
+        if not user.is_active:
+            self.job.error = "The requesting user is no longer active."
+            self.job.save()
+            raise JobFailed()
+
+        # Build a real HttpRequest carrying the original JSON payload. DRF's Request wrapper
+        # requires an actual HttpRequest, so we construct a minimal WSGIRequest from an environ.
+        body = json.dumps(payload).encode('utf-8')
+        environ = {
+            'REQUEST_METHOD': method.upper(),
+            'PATH_INFO': '/',
+            'CONTENT_TYPE': 'application/json',
+            'CONTENT_LENGTH': str(len(body)),
+            'wsgi.input': BytesIO(body),
+            'wsgi.url_scheme': 'http',
+            'SERVER_NAME': 'localhost',
+            'SERVER_PORT': '80',
+            'SERVER_PROTOCOL': 'HTTP/1.1',
+        }
+        django_request = WSGIRequest(environ)
+        django_request.id = request_id
+
+        # Instantiate the viewset and apply the minimal scaffolding that DRF's as_view()
+        # normally sets, so initialize_request() can wire up parsers, etc.
+        viewset = viewset_class()
+        viewset.action_map = {method.lower(): action}
+        viewset.kwargs = {}
+        viewset.args = ()
+        viewset.action = action
+        viewset.format_kwarg = None
+
+        drf_request = viewset.initialize_request(django_request)
+        # Carry the authenticated user forward; we do not re-authenticate in the worker.
+        drf_request.user = user
+        drf_request._authenticator = None
+        drf_request.id = request_id
+        viewset.request = drf_request
+
+        # Re-apply object-level permission restriction exactly as BaseViewSet.initial() does.
+        if perm_action := HTTP_ACTIONS[method.upper()]:
+            viewset.queryset = viewset.queryset.restrict(user, perm_action)
+
+        # Execute the action method within the registered request processors so change
+        # logging and event rules fire (and are attributed to the original request_id).
+        #
+        # The synchronous path relies on NetBoxModelViewSet.dispatch() and DRF's
+        # handle_exception() to translate exceptions into HTTP responses. Because we invoke
+        # the action method directly (bypassing dispatch), we reproduce that translation here
+        # so the captured result matches what the synchronous API would have returned:
+        #   - APIException (incl. ValidationError, PermissionDenied, Http404) -> handle_exception()
+        #   - AbortRequest / ProtectedError / RestrictedError -> exception_to_response()
+        with apply_request_processors(drf_request):
+            try:
+                response = getattr(viewset, action)(drf_request, **action_kwargs)
+            except (APIException, Http404, PermissionDenied) as e:
+                response = viewset.handle_exception(e)
+            except (AbortRequest, ProtectedError, RestrictedError) as e:
+                response = viewset.exception_to_response(e)
+                if response is None:
+                    raise
+
+        # Capture the action's result for the polling client, in the same shape for both
+        # success and failure.
+        self.job.data = {
+            'status_code': response.status_code,
+            'data': response.data,
+        }
+
+        if response.status_code >= 400:
+            # A handled rejection (4xx), not a worker crash: record a concise summary and
+            # mark the job failed (JobRunner.handle reserves "errored" for unhandled crashes).
+            detail = response.data.get('detail') if isinstance(response.data, dict) else None
+            self.job.error = str(detail) if detail else f"Request failed with status {response.status_code}."
+            self.job.save()
+            raise JobFailed()
+
+        self.job.save()

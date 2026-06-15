@@ -151,6 +151,7 @@ class NetBoxReadOnlyModelViewSet(
 
 class NetBoxModelViewSet(
     ETagMixin,
+    mixins.BackgroundOperationMixin,
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
     mixins.ObjectValidationMixin,
@@ -215,9 +216,37 @@ class NetBoxModelViewSet(
                 **kwargs
             )
 
+    def exception_to_response(self, exc):
+        """
+        Translate a NetBox/Django exception that is not a DRF APIException into the same
+        Response that dispatch() would return for it. Returns None if the exception is not
+        one this method handles (the caller should then re-raise or defer to DRF).
+
+        This mirrors the except clauses in dispatch(); it is also called by the background
+        job runner (netbox.jobs.AsyncAPIJob), which executes action methods directly and so
+        bypasses dispatch(). NOTE: dispatch() does not yet call this helper itself — see the
+        PR description for the proposed consolidation.
+        """
+        if isinstance(exc, (ProtectedError, RestrictedError)):
+            if type(exc) is ProtectedError:
+                protected_objects = list(exc.protected_objects)
+            else:
+                protected_objects = list(exc.restricted_objects)
+            msg = f'Unable to delete object. {len(protected_objects)} dependent objects were found: '
+            msg += ', '.join([f'{obj} ({obj.pk})' for obj in protected_objects])
+            return Response({'detail': msg}, status=409)
+        if isinstance(exc, AbortRequest):
+            return Response({'detail': exc.message}, status=400)
+        return None
+
     # Creates
 
     def create(self, request, *args, **kwargs):
+        # If background processing was requested for a bulk (list) create, validate and enqueue.
+        # Single-object creates always run synchronously.
+        if (response := self._maybe_background_bulk_create(request)) is not None:
+            return response
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         bulk_create = getattr(serializer, 'many', False)
