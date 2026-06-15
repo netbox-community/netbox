@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -267,6 +268,34 @@ class AsyncAPIJob(JobRunner):
     class Meta:
         name = 'Async API Request'
 
+    @staticmethod
+    def _build_request(payload, method, request_id, scheme, host):
+        """
+        Reconstruct a minimal WSGIRequest carrying the original JSON payload. DRF's Request
+        wrapper requires a real HttpRequest, and the original scheme/host are applied so that
+        absolute URLs in the captured result (serializer hyperlink fields) point at the real
+        server. The host is passed via HTTP_HOST verbatim (request.get_host() already formats
+        it correctly, including bracketed IPv6, and Django's get_host() prefers it);
+        SERVER_NAME/SERVER_PORT are populated only to satisfy WSGI, parsed via urlsplit so
+        host:port and [::1]:port split correctly.
+        """
+        parsed_host = urlsplit(f'//{host}')
+        body = json.dumps(payload).encode('utf-8')
+        request = WSGIRequest({
+            'REQUEST_METHOD': method.upper(),
+            'PATH_INFO': '/',
+            'CONTENT_TYPE': 'application/json',
+            'CONTENT_LENGTH': str(len(body)),
+            'wsgi.input': BytesIO(body),
+            'wsgi.url_scheme': scheme,
+            'HTTP_HOST': host,
+            'SERVER_NAME': parsed_host.hostname or 'localhost',
+            'SERVER_PORT': str(parsed_host.port) if parsed_host.port else ('443' if scheme == 'https' else '80'),
+            'SERVER_PROTOCOL': 'HTTP/1.1',
+        })
+        request.id = request_id
+        return request
+
     def run(
         self, viewset_class, action, payload, user_pk, request_id, method,
         action_kwargs=None, scheme='http', host='localhost', **kwargs
@@ -291,25 +320,7 @@ class AsyncAPIJob(JobRunner):
             self.job.save()
             raise JobFailed()
 
-        # Build a real HttpRequest carrying the original JSON payload. DRF's Request wrapper
-        # requires an actual HttpRequest, so we construct a minimal WSGIRequest from an environ.
-        # The scheme/host from the original request are applied so that absolute URLs in the
-        # captured result (e.g. serializer hyperlink fields) point at the real server.
-        server_name, _, server_port = host.partition(':')
-        body = json.dumps(payload).encode('utf-8')
-        environ = {
-            'REQUEST_METHOD': method.upper(),
-            'PATH_INFO': '/',
-            'CONTENT_TYPE': 'application/json',
-            'CONTENT_LENGTH': str(len(body)),
-            'wsgi.input': BytesIO(body),
-            'wsgi.url_scheme': scheme,
-            'SERVER_NAME': server_name or 'localhost',
-            'SERVER_PORT': server_port or ('443' if scheme == 'https' else '80'),
-            'SERVER_PROTOCOL': 'HTTP/1.1',
-        }
-        django_request = WSGIRequest(environ)
-        django_request.id = request_id
+        django_request = self._build_request(payload, method, request_id, scheme, host)
 
         # Instantiate the viewset and apply the minimal scaffolding that DRF's as_view()
         # normally sets, so initialize_request() can wire up parsers, etc.

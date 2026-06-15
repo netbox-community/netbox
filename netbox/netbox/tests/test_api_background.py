@@ -282,6 +282,24 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.regions[0].refresh_from_db()
         self.assertNotEqual(self.regions[0].description, 'x')
 
+    # ------------------------------------------------------------------ host parsing
+
+    def test_ipv6_host_builds_correct_request(self):
+        # A bracketed IPv6 host:port must not be split on its inner colons. Assert directly on
+        # the request the worker reconstructs: get_host() must round-trip the bracketed host,
+        # and SERVER_NAME/SERVER_PORT must be the IPv6 literal and port (a host.partition(':')
+        # implementation would yield SERVER_NAME='[' here).
+        from netbox.jobs import AsyncAPIJob
+
+        request = AsyncAPIJob._build_request(
+            payload=[], method='PATCH', request_id=str(uuid.uuid4()),
+            scheme='https', host='[::1]:8443',
+        )
+        self.assertEqual(request.get_host(), '[::1]:8443')
+        self.assertEqual(request.META['SERVER_NAME'], '::1')
+        self.assertEqual(request.META['SERVER_PORT'], '8443')
+        self.assertEqual(request.scheme, 'https')
+
     # ------------------------------------------------------------------ change logging
 
     def test_background_update_changelog_fidelity(self):
