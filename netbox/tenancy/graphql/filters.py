@@ -60,8 +60,8 @@ __all__ = (
 
 @strawberry_django.filter_type(models.Tenant, lookups=True)
 class TenantFilter(ContactFilterMixin, PrimaryModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    slug: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    slug: StrFilterLookup | None = strawberry_django.filter_field()
     group: Annotated['TenantGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -153,12 +153,12 @@ class TenantGroupFilter(OrganizationalModelFilter):
 
 @strawberry_django.filter_type(models.Contact, lookups=True)
 class ContactFilter(PrimaryModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    title: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    phone: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    email: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    address: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    link: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    title: StrFilterLookup | None = strawberry_django.filter_field()
+    phone: StrFilterLookup | None = strawberry_django.filter_field()
+    email: StrFilterLookup | None = strawberry_django.filter_field()
+    address: StrFilterLookup | None = strawberry_django.filter_field()
+    link: StrFilterLookup | None = strawberry_django.filter_field()
     groups: Annotated['ContactGroupFilter', strawberry.lazy('tenancy.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )

@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TYPE_CHECKING, Annotated
 
 import strawberry
@@ -20,5 +19,5 @@ class ChangeLoggingMixin:
     changelog: Annotated['ObjectChangeFilter', strawberry.lazy('core.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
-    created: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
-    last_updated: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    created: DatetimeFilterLookup | None = strawberry_django.filter_field()
+    last_updated: DatetimeFilterLookup | None = strawberry_django.filter_field()

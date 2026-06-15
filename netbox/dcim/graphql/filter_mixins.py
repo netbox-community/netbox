@@ -66,9 +66,9 @@ class ComponentModelFilterMixin:
     )
     device: Annotated['DeviceFilter', strawberry.lazy('dcim.graphql.filters')] | None = strawberry_django.filter_field()
     device_id: ID | None = strawberry_django.filter_field()
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    label: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    label: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
 
 
 @dataclass
@@ -96,9 +96,9 @@ class ComponentTemplateFilterMixin:
         strawberry_django.filter_field()
     )
     device_type_id: ID | None = strawberry_django.filter_field()
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    label: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    label: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
 
 
 @dataclass

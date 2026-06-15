@@ -21,4 +21,4 @@ class WirelessAuthenticationFilterMixin:
     auth_cipher: Annotated['WirelessAuthCipherEnum', strawberry.lazy('wireless.graphql.enums')] | None = (
         strawberry_django.filter_field()
     )
-    auth_psk: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    auth_psk: StrFilterLookup | None = strawberry_django.filter_field()

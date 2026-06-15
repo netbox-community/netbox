@@ -42,21 +42,21 @@ class NetBoxModelFilter(
 
 @dataclass
 class NestedGroupModelFilter(NetBoxModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    slug: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    slug: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
     parent_id: ID | None = strawberry_django.filter_field()
 
 
 @dataclass
 class OrganizationalModelFilter(NetBoxModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    slug: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    comments: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    slug: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
+    comments: StrFilterLookup | None = strawberry_django.filter_field()
 
 
 @dataclass
 class PrimaryModelFilter(NetBoxModelFilter):
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    comments: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
+    comments: StrFilterLookup | None = strawberry_django.filter_field()

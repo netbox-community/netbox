@@ -1,4 +1,5 @@
 import json
+import re
 
 import strawberry
 from django.contrib.contenttypes.models import ContentType
@@ -12,7 +13,7 @@ from dcim.choices import LocationStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
 from extras.models import TableConfig, Tag
 from netbox.graphql.scalars import BigInt, BigIntScalar
-from netbox.graphql.schema import Query, get_schema_extensions
+from netbox.graphql.schema import Query, get_schema_extensions, schema
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, TestCase, disable_warnings
 
@@ -89,6 +90,30 @@ class GraphQLTestCase(TestCase):
         response = self.client.get(url, **header)
         with disable_warnings('django.request'):
             self.assertHttpStatus(response, 302)  # Redirect to login page
+
+    def test_json_lookup_schema_is_string_backed(self):
+        """JSONLookup date/time lookups keep the legacy string-backed input types and fields."""
+        sdl = schema.as_str()
+
+        def input_block(name):
+            match = re.search(rf'^input {re.escape(name)}\b.*?^\}}', sdl, re.DOTALL | re.MULTILINE)
+            self.assertIsNotNone(match, f'{name} not found in schema')
+            return match.group(0)
+
+        # JSONLookup points at the legacy string-backed lookup type names
+        json_lookup = input_block('JSONLookup')
+        self.assertIn('date_lookup: StrDateFilterLookup', json_lookup)
+        self.assertIn('datetime_lookup: StrDatetimeFilterLookup', json_lookup)
+        self.assertIn('time_lookup: StrTimeFilterLookup', json_lookup)
+
+        # Value fields are string-backed, not Date/DateTime/Time scalars
+        self.assertIn('exact: String', input_block('StrDateFilterLookup'))
+
+        # Legacy date/time sub-lookups remain integer comparison lookups
+        for name in ('StrTimeFilterLookup', 'StrDatetimeFilterLookup'):
+            block = input_block(name)
+            self.assertIn('date: IntComparisonFilterLookup', block)
+            self.assertIn('time: IntComparisonFilterLookup', block)
 
 
 class GraphQLAPITestCase(APITestCase):
