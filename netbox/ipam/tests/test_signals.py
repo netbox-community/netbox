@@ -264,8 +264,12 @@ class PrefixDenormalizationTriggerTestCase(TestCase):
         self.assertEqual(prefix._site_group, group_b)
 
     def test_location_site_change_propagates_to_prefix(self):
-        site_a = Site.objects.create(name='Site A', slug='site-a')
-        site_b = Site.objects.create(name='Site B', slug='site-b')
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site_a = Site.objects.create(name='Site A', slug='site-a', region=region_a, group=group_a)
+        site_b = Site.objects.create(name='Site B', slug='site-b', region=region_b, group=group_b)
         location = Location.objects.create(name='Loc', slug='loc', site=site_a)
         prefix = Prefix.objects.create(
             prefix='10.0.0.0/24',
@@ -274,11 +278,15 @@ class PrefixDenormalizationTriggerTestCase(TestCase):
         )
         self.assertEqual(prefix._site, site_a)
 
+        # Move the Location to a different Site; the trigger updates _site and pulls the new
+        # site's region/group through in the same statement.
         location.site = site_b
         location.save()
 
         prefix.refresh_from_db()
         self.assertEqual(prefix._site, site_b)
+        self.assertEqual(prefix._region, region_b)
+        self.assertEqual(prefix._site_group, group_b)
 
     def test_bulk_update_of_site_propagates_to_prefix(self):
         """

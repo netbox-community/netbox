@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.test import SimpleTestCase, TestCase
 
 from dcim import signals
@@ -26,6 +27,8 @@ from dcim.models import (
     SiteGroup,
     VirtualChassis,
 )
+from dcim.models.device_components import ComponentModel
+from dcim.models.mixins import CachedScopeMixin
 from ipam.models import Prefix
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
@@ -117,10 +120,11 @@ class RackSiteChangeSignalTestCase(TestCase):
         self.assertEqual(interface._location, self.location_b)
 
 
-class DeviceSiteChangeSignalTestCase(TestCase):
+class DeviceComponentScopeTriggerTestCase(TestCase):
     """
-    Verify dcim.signals.handle_device_site_change propagates a Device's site/location/rack
-    to its components on save.
+    Verify the PostgreSQL trigger (dcim migration 0239) that propagates a Device's site/location/rack
+    onto its components' denormalized _site/_location/_rack columns. This replaces the former
+    dcim.signals.handle_device_site_change handler.
     """
 
     @classmethod
@@ -143,6 +147,25 @@ class DeviceSiteChangeSignalTestCase(TestCase):
 
         device.site = self.site_b
         device.save()
+
+        interface.refresh_from_db()
+        self.assertEqual(interface._site, self.site_b)
+
+    def test_bulk_update_of_device_updates_components_cached_scope(self):
+        """
+        A bulk QuerySet.update() bypasses post_save (the old handler never fired for it); the DB
+        trigger fires regardless. This is also the path the Rack/Location cascades take.
+        """
+        device = Device.objects.create(
+            name='Device',
+            site=self.site_a,
+            device_type=self.device_type,
+            role=self.device_role,
+        )
+        interface = Interface.objects.create(device=device, name='Interface 1')
+        self.assertEqual(interface._site, self.site_a)
+
+        Device.objects.filter(pk=device.pk).update(site=self.site_b)
 
         interface.refresh_from_db()
         self.assertEqual(interface._site, self.site_b)
@@ -386,10 +409,12 @@ class MACAddressInterfaceSignalTestCase(TestCase):
         self.assertIsNone(mac.assigned_object)
 
 
-class SyncCachedScopeFieldsSignalTestCase(TestCase):
+class CachedScopeFieldTriggerTestCase(TestCase):
     """
-    Verify dcim.signals.sync_cached_scope_fields recomputes cached scope fields on
-    Prefix, Cluster, and WirelessLAN when a Site or Location is modified.
+    Verify the PostgreSQL triggers (ipam/virtualization/wireless denormalization migrations) that keep
+    the CachedScopeMixin scope columns (_site/_location/_region/_site_group) on Prefix, Cluster, and
+    WirelessLAN in sync when a scoped Site or Location is modified. These replace the former
+    dcim.signals.sync_cached_scope_fields handler.
     """
 
     def test_site_group_change_updates_prefix_cached_scope(self):
@@ -429,11 +454,9 @@ class SyncCachedScopeFieldsSignalTestCase(TestCase):
         self.assertEqual(prefix._location, location)
         self.assertEqual(prefix._site, site_b)
 
-    def test_signal_updates_cluster_and_wirelesslan_cached_scope(self):
-        # Lock down the explicit (Prefix, Cluster, WirelessLAN) tuple in the
-        # signal by exercising Cluster and WirelessLAN alongside Prefix. If a
-        # future change drops Cluster or WirelessLAN from that tuple, this test
-        # will catch it.
+    def test_triggers_update_cluster_and_wirelesslan_cached_scope(self):
+        # Cluster and WirelessLAN each carry their own Site/Location triggers (installed by the
+        # virtualization and wireless denormalization migrations); exercise both alongside Prefix.
         group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
         group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
         site = Site.objects.create(name='Site', slug='site', group=group_a)
@@ -547,3 +570,48 @@ class CableTerminationDenormalizationTriggerTestCase(TestCase):
 
         termination.refresh_from_db()
         self.assertEqual(termination._site, self.site_b)
+
+
+def _concrete_subclasses(base):
+    """Yield every non-abstract model descending from an abstract base model."""
+    for subclass in base.__subclasses__():
+        if subclass._meta.abstract:
+            yield from _concrete_subclasses(subclass)
+        else:
+            yield subclass
+
+
+def _installed_triggers():
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT tgname FROM pg_trigger WHERE NOT tgisinternal')
+        return {row[0] for row in cursor.fetchall()}
+
+
+class DenormalizationTriggerCoverageTestCase(TestCase):
+    """
+    Guard against a new model silently shipping without its denormalization triggers. The set of
+    device-component tables and CachedScopeMixin dependents is hand-listed in migrations; this test
+    derives those sets from the model layer and asserts the expected triggers are installed, so adding
+    a new component / scoped model without a matching trigger migration fails CI.
+    """
+
+    def test_device_components_have_device_trigger(self):
+        triggers = _installed_triggers()
+        for model in _concrete_subclasses(ComponentModel):
+            table = model._meta.db_table
+            self.assertIn(
+                f'{table}_denorm_from_dcim_device', triggers,
+                msg=f'{model.__name__} has no dcim_device denormalization trigger (add it to '
+                    f'dcim migration 0239 COMPONENT_TABLES)',
+            )
+
+    def test_cached_scope_models_have_site_and_location_triggers(self):
+        triggers = _installed_triggers()
+        for model in _concrete_subclasses(CachedScopeMixin):
+            table = model._meta.db_table
+            for source in ('dcim_site', 'dcim_location'):
+                self.assertIn(
+                    f'{table}_denorm_from_{source}', triggers,
+                    msg=f'{model.__name__} (CachedScopeMixin) has no {source} denormalization trigger; '
+                        f'add cached_scope_triggers({table!r}) in a migration for its app',
+                )
