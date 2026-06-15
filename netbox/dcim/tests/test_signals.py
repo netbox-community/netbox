@@ -9,6 +9,7 @@ from dcim.choices import CableEndChoices, LinkStatusChoices
 from dcim.models import (
     Cable,
     CablePath,
+    CableTermination,
     Device,
     DeviceRole,
     DeviceType,
@@ -486,3 +487,63 @@ class CableSignalDirectHandlerTestCase(SimpleTestCase):
         signals.update_mac_address_interface(instance=interface, created=True, raw=True)
 
         primary_mac.save.assert_not_called()
+
+
+class CableTerminationDenormalizationTriggerTestCase(TestCase):
+    """
+    Verify the PostgreSQL triggers (installed by dcim migration 0239) that keep a
+    CableTermination's denormalized _device/_rack/_location/_site columns in sync with the
+    parent Device/Rack/Location.
+
+    These replace the former Python `post_save` handler in netbox.denormalized. Crucially,
+    the triggers also fire for bulk QuerySet.update() writes — which the handler (a post_save
+    receiver) never saw — so this exercises that path explicitly.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site_a = Site.objects.create(name='Site A', slug='site-a')
+        cls.site_b = Site.objects.create(name='Site B', slug='site-b')
+        cls.location_b = Location.objects.create(name='Loc B', slug='loc-b', site=cls.site_b)
+        cls.rack_b = Rack.objects.create(name='Rack B', site=cls.site_b, location=cls.location_b)
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
+        cls.device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type')
+        cls.device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+
+    def _connected_termination(self):
+        device = Device.objects.create(
+            name='Device', site=self.site_a, device_type=self.device_type, role=self.device_role,
+        )
+        interface_a = Interface.objects.create(device=device, name='Interface A')
+        interface_b = Interface.objects.create(device=device, name='Interface B')
+        cable = Cable(a_terminations=[interface_a], b_terminations=[interface_b])
+        cable.save()
+        termination = CableTermination.objects.filter(_device=device).first()
+        self.assertIsNotNone(termination)
+        self.assertEqual(termination._site, self.site_a)
+        return device, termination
+
+    def test_device_move_propagates_to_cable_termination(self):
+        device, termination = self._connected_termination()
+
+        device.site = self.site_b
+        device.location = self.location_b
+        device.rack = self.rack_b
+        device.save()
+
+        termination.refresh_from_db()
+        self.assertEqual(termination._site, self.site_b)
+        self.assertEqual(termination._location, self.location_b)
+        self.assertEqual(termination._rack, self.rack_b)
+
+    def test_bulk_update_of_device_propagates_to_cable_termination(self):
+        """
+        A bulk QuerySet.update() bypasses post_save (the old handler never fired for it);
+        the DB trigger fires regardless.
+        """
+        device, termination = self._connected_termination()
+
+        Device.objects.filter(pk=device.pk).update(site=self.site_b)
+
+        termination.refresh_from_db()
+        self.assertEqual(termination._site, self.site_b)

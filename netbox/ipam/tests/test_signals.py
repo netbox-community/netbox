@@ -5,6 +5,7 @@ from django.test import RequestFactory, TestCase
 
 from core.choices import ObjectChangeActionChoices
 from core.models import ObjectChange
+from dcim.models import Location, Region, Site, SiteGroup
 from ipam.models import IPAddress, Prefix
 from netbox.context_managers import event_tracking
 from users.models import User
@@ -229,3 +230,72 @@ class ClearOOBIPSignalTestCase(TestCase):
                 action=ObjectChangeActionChoices.ACTION_UPDATE,
             ).exists()
         )
+
+
+class PrefixDenormalizationTriggerTestCase(TestCase):
+    """
+    Verify the PostgreSQL triggers (installed by ipam migration 0091) that keep a Prefix's
+    denormalized scope columns in sync with its Site/Location.
+
+    These replace the former Python `post_save` handler in netbox.denormalized. Unlike that
+    handler, the triggers also fire for bulk QuerySet.update() writes (exercised below).
+    """
+
+    def test_site_region_group_change_propagates_to_prefix(self):
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        group_a = SiteGroup.objects.create(name='Group A', slug='group-a')
+        group_b = SiteGroup.objects.create(name='Group B', slug='group-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a, group=group_a)
+        prefix = Prefix.objects.create(
+            prefix='10.0.0.0/24',
+            scope_type=ContentType.objects.get_for_model(Site),
+            scope_id=site.pk,
+        )
+        self.assertEqual(prefix._region, region_a)
+        self.assertEqual(prefix._site_group, group_a)
+
+        site.region = region_b
+        site.group = group_b
+        site.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._region, region_b)
+        self.assertEqual(prefix._site_group, group_b)
+
+    def test_location_site_change_propagates_to_prefix(self):
+        site_a = Site.objects.create(name='Site A', slug='site-a')
+        site_b = Site.objects.create(name='Site B', slug='site-b')
+        location = Location.objects.create(name='Loc', slug='loc', site=site_a)
+        prefix = Prefix.objects.create(
+            prefix='10.0.0.0/24',
+            scope_type=ContentType.objects.get_for_model(Location),
+            scope_id=location.pk,
+        )
+        self.assertEqual(prefix._site, site_a)
+
+        location.site = site_b
+        location.save()
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._site, site_b)
+
+    def test_bulk_update_of_site_propagates_to_prefix(self):
+        """
+        A bulk QuerySet.update() bypasses post_save (the old handler never fired for it);
+        the DB trigger fires regardless.
+        """
+        region_a = Region.objects.create(name='Region A', slug='region-a')
+        region_b = Region.objects.create(name='Region B', slug='region-b')
+        site = Site.objects.create(name='Site', slug='site', region=region_a)
+        prefix = Prefix.objects.create(
+            prefix='10.0.0.0/24',
+            scope_type=ContentType.objects.get_for_model(Site),
+            scope_id=site.pk,
+        )
+        self.assertEqual(prefix._region, region_a)
+
+        Site.objects.filter(pk=site.pk).update(region=region_b)
+
+        prefix.refresh_from_db()
+        self.assertEqual(prefix._region, region_b)
