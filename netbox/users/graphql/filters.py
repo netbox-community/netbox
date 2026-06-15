@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Annotated
 
 import strawberry
@@ -18,27 +17,27 @@ __all__ = (
 
 @strawberry_django.filter_type(models.Group, lookups=True)
 class GroupFilter(BaseModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.User, lookups=True)
 class UserFilter(BaseModelFilter):
-    username: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    first_name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    last_name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    email: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    username: StrFilterLookup | None = strawberry_django.filter_field()
+    first_name: StrFilterLookup | None = strawberry_django.filter_field()
+    last_name: StrFilterLookup | None = strawberry_django.filter_field()
+    email: StrFilterLookup | None = strawberry_django.filter_field()
     is_superuser: FilterLookup[bool] | None = strawberry_django.filter_field()
     is_active: FilterLookup[bool] | None = strawberry_django.filter_field()
-    date_joined: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
-    last_login: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    date_joined: DatetimeFilterLookup | None = strawberry_django.filter_field()
+    last_login: DatetimeFilterLookup | None = strawberry_django.filter_field()
     groups: Annotated['GroupFilter', strawberry.lazy('users.graphql.filters')] | None = strawberry_django.filter_field()
 
 
 @strawberry_django.filter_type(models.Owner, lookups=True)
 class OwnerFilter(BaseModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()
     group: Annotated['OwnerGroupFilter', strawberry.lazy('users.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -50,5 +49,5 @@ class OwnerFilter(BaseModelFilter):
 
 @strawberry_django.filter_type(models.OwnerGroup, lookups=True)
 class OwnerGroupFilter(BaseModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()

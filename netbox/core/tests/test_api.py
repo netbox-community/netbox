@@ -12,7 +12,7 @@ from rq.registry import FailedJobRegistry, StartedJobRegistry
 
 from users.constants import TOKEN_PREFIX
 from users.models import Token
-from utilities.testing import APITestCase, APIViewTestCases, TestCase
+from utilities.testing import APITestCase, APIViewTestCases, GraphQLQueryTest, TestCase
 from utilities.testing.mixins import RQQueueTestMixin
 from utilities.testing.utils import disable_logging
 
@@ -39,11 +39,48 @@ class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         data_sources = (
-            DataSource(name='Data Source 1', type='local', source_url='file:///var/tmp/source1/'),
+            DataSource(
+                name='Data Source 1', type='local', source_url='file:///var/tmp/source1/',
+                parameters={
+                    'sync_date': '2024-01-01',
+                    'sync_datetime': '2024-01-01T12:30:00+00:00',
+                    'sync_time': '12:30:00',
+                },
+            ),
             DataSource(name='Data Source 2', type='local', source_url='file:///var/tmp/source2/'),
             DataSource(name='Data Source 3', type='local', source_url='file:///var/tmp/source3/'),
         )
         DataSource.objects.bulk_create(data_sources)
+
+        cls.graphql_query_tests = (
+            GraphQLQueryTest(
+                name='parameters_json_date_lookup',
+                query=(
+                    '{ data_source_list(filters: {parameters: '
+                    '{path: "sync_date", lookup: {date_lookup: {exact: "2024-01-01"}}}}) '
+                    '{ id } }'
+                ),
+                assert_result=cls.assert_only_source_1,
+            ),
+            GraphQLQueryTest(
+                name='parameters_json_datetime_lookup',
+                query=(
+                    '{ data_source_list(filters: {parameters: '
+                    '{path: "sync_datetime", lookup: {datetime_lookup: {exact: "2024-01-01T12:30:00+00:00"}}}}) '
+                    '{ id } }'
+                ),
+                assert_result=cls.assert_only_source_1,
+            ),
+            GraphQLQueryTest(
+                name='parameters_json_time_lookup',
+                query=(
+                    '{ data_source_list(filters: {parameters: '
+                    '{path: "sync_time", lookup: {time_lookup: {exact: "12:30:00"}}}}) '
+                    '{ id } }'
+                ),
+                assert_result=cls.assert_only_source_1,
+            ),
+        )
 
         cls.create_data = [
             {
@@ -62,6 +99,11 @@ class DataSourceTestCase(APIViewTestCases.APIViewTestCase):
                 'source_url': 'https://example.com/git/source6'
             },
         ]
+
+    def assert_only_source_1(self, data):
+        """The JSON lookup returns exactly the source carrying the matching value."""
+        ids = sorted(result['id'] for result in data['data_source_list'])
+        self.assertEqual(ids, [str(DataSource.objects.get(name='Data Source 1').pk)])
 
 
 class DataFileTestCase(

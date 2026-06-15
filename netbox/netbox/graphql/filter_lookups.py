@@ -11,12 +11,9 @@ from strawberry.directive import DirectiveValue
 from strawberry.types import Info
 from strawberry_django import (
     ComparisonFilterLookup,
-    DateFilterLookup,
-    DatetimeFilterLookup,
     FilterLookup,
     RangeLookup,
     StrFilterLookup,
-    TimeFilterLookup,
     process_filters,
 )
 
@@ -39,16 +36,58 @@ T = TypeVar('T')
 SKIP_MSG = 'Filter will be skipped on `null` value'
 
 
+# These JSON lookup types intentionally mirror the legacy DateFilterLookup[str],
+# TimeFilterLookup[str], and DatetimeFilterLookup[str] schema. JSON values are
+# string-backed, so the concrete strawberry-django date/time lookup classes
+# (which now ignore type parameters and warn) are deliberately not used here.
+@strawberry.input(name='StrDateFilterLookup')
+class JSONDateFilterLookup(ComparisonFilterLookup[str]):
+    year: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    month: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    day: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    week_day: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    iso_week_day: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    week: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    iso_year: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    quarter: ComparisonFilterLookup[int] | None = strawberry.UNSET
+
+
+@strawberry.input(name='StrTimeFilterLookup')
+class JSONTimeFilterLookup(ComparisonFilterLookup[str]):
+    hour: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    minute: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    second: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    date: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    time: ComparisonFilterLookup[int] | None = strawberry.UNSET
+
+
+@strawberry.input(name='StrDatetimeFilterLookup')
+class JSONDatetimeFilterLookup(ComparisonFilterLookup[str]):
+    year: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    month: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    day: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    week_day: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    iso_week_day: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    week: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    iso_year: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    quarter: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    hour: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    minute: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    second: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    date: ComparisonFilterLookup[int] | None = strawberry.UNSET
+    time: ComparisonFilterLookup[int] | None = strawberry.UNSET
+
+
 @strawberry.input(one_of=True, description='Lookup for JSON field. Only one of the lookup fields can be set.')
 class JSONLookup:
-    string_lookup: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    string_lookup: StrFilterLookup | None = strawberry_django.filter_field()
     int_range_lookup: RangeLookup[int] | None = strawberry_django.filter_field()
     int_comparison_lookup: ComparisonFilterLookup[int] | None = strawberry_django.filter_field()
     float_range_lookup: RangeLookup[float] | None = strawberry_django.filter_field()
     float_comparison_lookup: ComparisonFilterLookup[float] | None = strawberry_django.filter_field()
-    date_lookup: DateFilterLookup[str] | None = strawberry_django.filter_field()
-    datetime_lookup: DatetimeFilterLookup[str] | None = strawberry_django.filter_field()
-    time_lookup: TimeFilterLookup[str] | None = strawberry_django.filter_field()
+    date_lookup: JSONDateFilterLookup | None = strawberry_django.filter_field()
+    datetime_lookup: JSONDatetimeFilterLookup | None = strawberry_django.filter_field()
+    time_lookup: JSONTimeFilterLookup | None = strawberry_django.filter_field()
     boolean_lookup: FilterLookup[bool] | None = strawberry_django.filter_field()
 
     def get_filter(self):
