@@ -19,6 +19,9 @@ from utilities.testing import APITestCase, TestCase, disable_warnings
 
 class GraphQLTestCase(TestCase):
 
+    def _schema_extension_instances(self):
+        return [factory() for factory in get_schema_extensions()]
+
     @override_settings(GRAPHQL_ENABLED=False)
     def test_graphql_enabled(self):
         """
@@ -32,21 +35,21 @@ class GraphQLTestCase(TestCase):
         """
         QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is unset.
         """
-        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
     @override_settings(GRAPHQL_MAX_QUERY_DEPTH=0)
     def test_graphql_max_query_depth_disabled_when_zero(self):
         """
         QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is zero.
         """
-        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
     @override_settings(GRAPHQL_MAX_QUERY_DEPTH=-1)
     def test_graphql_max_query_depth_disabled_when_negative(self):
         """
         QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is negative.
         """
-        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
     @override_settings(GRAPHQL_MAX_QUERY_DEPTH=3)
     def test_graphql_max_query_depth_enforced(self):
@@ -54,9 +57,9 @@ class GraphQLTestCase(TestCase):
         Queries exceeding GRAPHQL_MAX_QUERY_DEPTH should be rejected.
         """
         extensions = get_schema_extensions()
-        self.assertTrue(any(isinstance(ext, QueryDepthLimiter) for ext in extensions))
+        self.assertTrue(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
-        # Build a temporary schema with the configured extensions and execute a deep query
+        # Build a temporary schema with the configured extension factories and execute a deep query
         test_schema = strawberry.Schema(
             query=Query,
             config=StrawberryConfig(auto_camel_case=False, scalar_map={BigInt: BigIntScalar}),
