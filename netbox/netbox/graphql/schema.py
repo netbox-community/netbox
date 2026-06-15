@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 import strawberry
 from django.conf import settings
 from strawberry.extensions import MaxAliasesLimiter, QueryDepthLimiter, SchemaExtension
@@ -18,6 +20,8 @@ from wireless.graphql.schema import WirelessQuery
 
 from .scalars import BigInt, BigIntScalar
 
+SchemaExtensionFactory = type[SchemaExtension] | Callable[[], SchemaExtension]
+
 
 @strawberry.type
 class Query(
@@ -36,14 +40,16 @@ class Query(
     pass
 
 
-def get_schema_extensions() -> list[SchemaExtension]:
-    extensions: list[SchemaExtension] = [
-        DjangoOptimizerExtension(prefetch_custom_queryset=True),
-        MaxAliasesLimiter(max_alias_count=settings.GRAPHQL_MAX_ALIASES),
-    ]
+def get_schema_extensions() -> list[SchemaExtensionFactory]:
+    max_aliases = settings.GRAPHQL_MAX_ALIASES
     max_depth = settings.GRAPHQL_MAX_QUERY_DEPTH
+
+    extensions: list[SchemaExtensionFactory] = [
+        lambda: DjangoOptimizerExtension(prefetch_custom_queryset=True),
+        lambda: MaxAliasesLimiter(max_alias_count=max_aliases),
+    ]
     if max_depth and max_depth > 0:
-        extensions.append(QueryDepthLimiter(max_depth=max_depth))
+        extensions.append(lambda: QueryDepthLimiter(max_depth=max_depth))
     return extensions
 
 
