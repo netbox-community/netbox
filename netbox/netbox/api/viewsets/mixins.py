@@ -10,6 +10,7 @@ from rest_framework.reverse import reverse
 from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
+from netbox.jobs import AsyncAPIJob
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.rqworker import any_workers_for_queue
 
@@ -63,8 +64,6 @@ class BackgroundOperationMixin:
         Enqueue an AsyncAPIJob to perform the given bulk action in the background and return
         a 202 response containing the job ID and polling URL.
         """
-        from netbox.jobs import AsyncAPIJob
-
         # Reject conditional requests: an If-Match precondition cannot be meaningfully
         # honored when the write is deferred to a worker (the TOCTOU window is unbounded).
         if request.META.get('HTTP_IF_MATCH'):
@@ -95,6 +94,10 @@ class BackgroundOperationMixin:
             request_id=str(getattr(request, 'id', '')),
             method=request.method,
             action_kwargs=action_kwargs or {},
+            # Carry the request's scheme/host so URLs in the captured result are absolute
+            # and followable (the worker has no real request to derive them from).
+            scheme=request.scheme,
+            host=request.get_host(),
         )
 
         job_url = reverse('core-api:job-detail', kwargs={'pk': job.pk}, request=request)

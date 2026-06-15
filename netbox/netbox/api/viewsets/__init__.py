@@ -227,6 +227,7 @@ class NetBoxModelViewSet(
         bypasses dispatch(). NOTE: dispatch() does not yet call this helper itself — see the
         PR description for the proposed consolidation.
         """
+        logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
         if isinstance(exc, (ProtectedError, RestrictedError)):
             if type(exc) is ProtectedError:
                 protected_objects = list(exc.protected_objects)
@@ -234,8 +235,10 @@ class NetBoxModelViewSet(
                 protected_objects = list(exc.restricted_objects)
             msg = f'Unable to delete object. {len(protected_objects)} dependent objects were found: '
             msg += ', '.join([f'{obj} ({obj.pk})' for obj in protected_objects])
+            logger.warning(msg)
             return Response({'detail': msg}, status=409)
         if isinstance(exc, AbortRequest):
+            logger.debug(exc.message)
             return Response({'detail': exc.message}, status=400)
         return None
 

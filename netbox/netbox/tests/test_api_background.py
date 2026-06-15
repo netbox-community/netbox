@@ -94,6 +94,10 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         # Result captured on the job.
         self.assertEqual(job.data['status_code'], status.HTTP_201_CREATED)
         self.assertEqual(len(job.data['data']), 2)
+        # URLs in the captured result are absolute and derived from the request host
+        # (the worker carries the request's scheme/host forward), not hardcoded localhost.
+        for obj in job.data['data']:
+            self.assertTrue(obj['url'].startswith('http://testserver/'), obj['url'])
 
     # ------------------------------------------------------------------ update
 

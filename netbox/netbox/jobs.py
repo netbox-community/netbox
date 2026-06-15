@@ -267,7 +267,10 @@ class AsyncAPIJob(JobRunner):
     class Meta:
         name = 'Async API Request'
 
-    def run(self, viewset_class, action, payload, user_pk, request_id, method, action_kwargs=None, **kwargs):
+    def run(
+        self, viewset_class, action, payload, user_pk, request_id, method,
+        action_kwargs=None, scheme='http', host='localhost', **kwargs
+    ):
         # Imported here to avoid a circular import (netbox.api.viewsets imports from this module).
         from netbox.api.viewsets import HTTP_ACTIONS
 
@@ -290,6 +293,9 @@ class AsyncAPIJob(JobRunner):
 
         # Build a real HttpRequest carrying the original JSON payload. DRF's Request wrapper
         # requires an actual HttpRequest, so we construct a minimal WSGIRequest from an environ.
+        # The scheme/host from the original request are applied so that absolute URLs in the
+        # captured result (e.g. serializer hyperlink fields) point at the real server.
+        server_name, _, server_port = host.partition(':')
         body = json.dumps(payload).encode('utf-8')
         environ = {
             'REQUEST_METHOD': method.upper(),
@@ -297,9 +303,9 @@ class AsyncAPIJob(JobRunner):
             'CONTENT_TYPE': 'application/json',
             'CONTENT_LENGTH': str(len(body)),
             'wsgi.input': BytesIO(body),
-            'wsgi.url_scheme': 'http',
-            'SERVER_NAME': 'localhost',
-            'SERVER_PORT': '80',
+            'wsgi.url_scheme': scheme,
+            'SERVER_NAME': server_name or 'localhost',
+            'SERVER_PORT': server_port or ('443' if scheme == 'https' else '80'),
             'SERVER_PROTOCOL': 'HTTP/1.1',
         }
         django_request = WSGIRequest(environ)
@@ -316,8 +322,9 @@ class AsyncAPIJob(JobRunner):
 
         drf_request = viewset.initialize_request(django_request)
         # Carry the authenticated user forward; we do not re-authenticate in the worker.
+        # Setting .user populates the request's user cache, so DRF never lazily invokes
+        # authentication (and nothing on the action path reads the authenticator/auth).
         drf_request.user = user
-        drf_request._authenticator = None
         drf_request.id = request_id
         viewset.request = drf_request
 
@@ -359,4 +366,4 @@ class AsyncAPIJob(JobRunner):
             self.job.save()
             raise JobFailed()
 
-        self.job.save()
+        # On success, job.data is persisted by JobRunner.handle() -> job.terminate().
