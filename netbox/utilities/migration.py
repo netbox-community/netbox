@@ -41,34 +41,34 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
     Install a PostgreSQL trigger that keeps denormalized columns on a dependent table in sync with their
     source object.
 
-    When rows in `source_table` are updated, the trigger copies the values of the mapped source columns into
-    the corresponding denormalized columns on every `dependent_table` row that references them via
-    `fk_column`. This replaces the Python `post_save` handlers formerly defined in `netbox.denormalized` and
-    `dcim.signals`.
-
-    The trigger is statement-level (`FOR EACH STATEMENT`) and uses transition tables: a single bulk source
-    update (`UPDATE ... WHERE ...`, `QuerySet.update()`, `bulk_update()`) fires the trigger once and is
-    propagated with a single set-based UPDATE joining the changed rows, rather than once per affected row.
+    When a row in `source_table` is updated, the trigger copies the values of the mapped source columns into
+    the corresponding denormalized columns on every `dependent_table` row that references it via `fk_column`.
+    This replaces the Python `post_save` handlers formerly defined in `netbox.denormalized` and `dcim.signals`.
 
     Args:
         dependent_table: The table carrying the denormalized columns (e.g. 'ipam_prefix').
         source_table: The table whose changes are propagated (e.g. 'dcim_site').
         fk_column: The column on `dependent_table` referencing `source_table` (e.g. '_site_id').
         mappings: A mapping of {dependent_column: source_column}, using actual database column names
-            (e.g. {'_region_id': 'region_id', '_site_group_id': 'group_id'}). Each is copied directly
-            from the changed source row.
+            (e.g. {'_region_id': 'region_id', '_site_group_id': 'group_id'}). Each is copied directly:
+            `dependent_column = NEW.source_column`.
         related_mappings: An optional iterable of related-table lookups for columns that live one hop
             beyond `source_table`. Each entry is a dict with keys `table` (the related table), `source_fk`
             (a column on `source_table` referencing `related_table.id`), and `mappings`
-            ({dependent_column: related_column}). Each is resolved by joining the related table once.
+            ({dependent_column: related_column}). Each is resolved with a single multi-column subquery
+            (`(cols) = (SELECT cols FROM table WHERE id = NEW.source_fk)`), so the related row is read once.
             This closes the chain gap when a denormalized column is derived through an intermediate object
             (e.g. a Location's Site change must refresh the dependent's region/site-group, not just its site).
 
     The trigger fires AFTER UPDATE of the watched source columns (the direct `mappings` sources plus each
-    related `source_fk`), and only propagates to rows whose watched column(s) actually changed (the body
-    joins the OLD/NEW transition tables and filters with IS DISTINCT FROM). It does not fire on INSERT (a
+    related `source_fk`), and only when at least one of them actually changed. It does not fire on INSERT (a
     newly created source row has no dependents yet) and it does not recurse: the dependent tables carry no
     triggers of their own.
+
+    Note: this is a row-level trigger, so a bulk source update of N rows fires it N times. A statement-level
+    trigger with transition tables would batch this, but PostgreSQL forbids transition tables on a trigger
+    with an `UPDATE OF <columns>` list, and dropping that column list would fire the trigger on every source
+    update (including unrelated columns) — a worse trade on hot-write tables like dcim_device.
     """
     reversible = True
 
@@ -92,16 +92,14 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        # `n`/`o` are the NEW/OLD transition tables (all rows changed by the source statement). Direct
-        # mappings copy from the new source row; related mappings join the related table once.
-        set_parts = [f'"{dest}" = n."{src}"' for dest, src in self.mappings.items()]
+        # Direct column copies from the changed source row.
+        set_parts = [f'"{dest}" = NEW."{src}"' for dest, src in self.mappings.items()]
         watched = list(self.mappings.values())
-        related_joins = []
-        for i, rel in enumerate(self.related_mappings):
-            alias = f'r{i}'
-            related_joins.append(f'LEFT JOIN "{rel["table"]}" AS {alias} ON {alias}.id = n."{rel["source_fk"]}"')
-            for dest, rel_col in rel['mappings'].items():
-                set_parts.append(f'"{dest}" = {alias}."{rel_col}"')
+        # One-hop lookups: a single multi-column subquery per related table reads its row only once.
+        for rel in self.related_mappings:
+            dests = ', '.join(f'"{d}"' for d in rel['mappings'].keys())
+            cols = ', '.join(f'"{c}"' for c in rel['mappings'].values())
+            set_parts.append(f'({dests}) = (SELECT {cols} FROM "{rel["table"]}" WHERE id = NEW."{rel["source_fk"]}")')
             watched.append(rel['source_fk'])
 
         # Deduplicate watched columns while preserving order (a direct mapping and a related lookup may
@@ -110,18 +108,14 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
 
         set_clause = ', '.join(set_parts)
         update_of = ', '.join(f'"{col}"' for col in watched_columns)
-        change_filter = ' OR '.join(f'o."{col}" IS DISTINCT FROM n."{col}"' for col in watched_columns)
-        joins = ('\n              ' + '\n              '.join(related_joins)) if related_joins else ''
+        when_clause = ' OR '.join(f'OLD."{col}" IS DISTINCT FROM NEW."{col}"' for col in watched_columns)
 
         schema_editor.execute(f'''
             CREATE OR REPLACE FUNCTION "{self.function_name}"() RETURNS TRIGGER AS $$
             BEGIN
-                UPDATE "{self.dependent_table}" AS dep
+                UPDATE "{self.dependent_table}"
                    SET {set_clause}
-                  FROM new_rows AS n
-                  JOIN old_rows AS o ON o.id = n.id{joins}
-                 WHERE dep."{self.fk_column}" = n.id
-                   AND ({change_filter});
+                 WHERE "{self.fk_column}" = NEW.id;
                 RETURN NULL;
             END
             $$ LANGUAGE plpgsql;
@@ -129,8 +123,8 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
         schema_editor.execute(f'''
             CREATE TRIGGER "{self.trigger_name}"
                 AFTER UPDATE OF {update_of} ON "{self.source_table}"
-                REFERENCING OLD TABLE AS old_rows NEW TABLE AS new_rows
-                FOR EACH STATEMENT EXECUTE FUNCTION "{self.function_name}"();
+                FOR EACH ROW WHEN ({when_clause})
+                EXECUTE FUNCTION "{self.function_name}"();
         ''')
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
