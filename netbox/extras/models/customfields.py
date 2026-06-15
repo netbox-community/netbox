@@ -461,6 +461,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         if value is None:
             return value
+        if self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
+            return float(value)
         if self.type == CustomFieldTypeChoices.TYPE_DATE and type(value) is date:
             return value.isoformat()
         if self.type == CustomFieldTypeChoices.TYPE_DATETIME and type(value) is datetime:
