@@ -59,6 +59,9 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
             (`(cols) = (SELECT cols FROM table WHERE id = NEW.source_fk)`), so the related row is read once.
             This closes the chain gap when a denormalized column is derived through an intermediate object
             (e.g. a Location's Site change must refresh the dependent's region/site-group, not just its site).
+            If `source_fk` is NULL the subquery returns no row and all its target columns are set to NULL,
+            which is the correct result (the source object has no related object); current callers use a
+            non-nullable `source_fk` (Location.site), so this does not arise in practice.
 
     The trigger fires AFTER UPDATE of the watched source columns (the direct `mappings` sources plus each
     related `source_fk`), and only when at least one of them actually changed. It does not fire on INSERT (a
@@ -120,6 +123,9 @@ class InstallDenormalizationTrigger(migrations.operations.base.Operation):
             END
             $$ LANGUAGE plpgsql;
         ''')
+        # Drop first so the operation is idempotent (re-run / partially-applied migration, or a
+        # trigger pre-installed during testing); CREATE TRIGGER alone errors if one already exists.
+        schema_editor.execute(f'DROP TRIGGER IF EXISTS "{self.trigger_name}" ON "{self.source_table}";')
         schema_editor.execute(f'''
             CREATE TRIGGER "{self.trigger_name}"
                 AFTER UPDATE OF {update_of} ON "{self.source_table}"

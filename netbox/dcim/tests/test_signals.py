@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection
 from django.test import SimpleTestCase, TestCase
@@ -30,6 +31,7 @@ from dcim.models import (
 from dcim.models.device_components import ComponentModel
 from dcim.models.mixins import CachedScopeMixin
 from ipam.models import Prefix
+from netbox.plugins import PluginConfig
 from virtualization.models import Cluster, ClusterType
 from wireless.models import WirelessLAN
 
@@ -573,11 +575,15 @@ class CableTerminationDenormalizationTriggerTestCase(TestCase):
 
 
 def _concrete_subclasses(base):
-    """Yield every non-abstract model descending from an abstract base model."""
+    """
+    Yield every non-abstract, non-plugin model descending from an abstract base model. Plugin-contributed
+    models are skipped: a plugin that adds a ComponentModel/CachedScopeMixin subclass is responsible for
+    its own trigger migration, and must not fail core's coverage check just by being installed.
+    """
     for subclass in base.__subclasses__():
         if subclass._meta.abstract:
             yield from _concrete_subclasses(subclass)
-        else:
+        elif not isinstance(apps.get_app_config(subclass._meta.app_label), PluginConfig):
             yield subclass
 
 
@@ -589,10 +595,11 @@ def _installed_triggers():
 
 class DenormalizationTriggerCoverageTestCase(TestCase):
     """
-    Guard against a new model silently shipping without its denormalization triggers. The set of
+    Guard against a new core model silently shipping without its denormalization triggers. The set of
     device-component tables and CachedScopeMixin dependents is hand-listed in migrations; this test
     derives those sets from the model layer and asserts the expected triggers are installed, so adding
-    a new component / scoped model without a matching trigger migration fails CI.
+    a new component / scoped model without a matching trigger migration fails CI. Plugin-contributed
+    models are excluded (see _concrete_subclasses).
     """
 
     def test_device_components_have_device_trigger(self):
