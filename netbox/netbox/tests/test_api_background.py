@@ -17,7 +17,7 @@ from rest_framework import status
 from core.choices import JobStatusChoices
 from core.exceptions import JobFailed
 from core.models import Job, ObjectChange
-from dcim.models import Region
+from dcim.models import DeviceType, Manufacturer, Region
 from users.models import ObjectPermission
 from utilities.testing.api import APITestCase
 from utilities.testing.mixins import RQQueueTestMixin
@@ -180,6 +180,29 @@ class BackgroundBulkWriteTests(RQQueueTestMixin, APITestCase):
         self.assertEqual(job.status, JobStatusChoices.STATUS_COMPLETED)
         self.assertEqual(job.data['status_code'], status.HTTP_204_NO_CONTENT)
         self.assertFalse(Region.objects.filter(pk__in=[r.pk for r in self.regions]).exists())
+
+    def test_background_bulk_delete_protected_dependent(self):
+        # A protected dependency makes the delete fail. The worker must capture this as the
+        # same 409 the synchronous API returns (via exception_to_response), terminating the
+        # job as "failed" with the dependent listed, NOT as an unexpected "errored" job.
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
+
+        perm = ObjectPermission.objects.create(name='Delete manufacturers', actions=['delete'])
+        perm.users.add(self.user)
+        perm.object_types.add(ContentType.objects.get_for_model(Manufacturer))
+
+        response = self.client.delete(
+            '/api/dcim/manufacturers/?background=true',
+            [{'id': manufacturer.pk}], format='json', **self.header
+        )
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+
+        job = Job.objects.get(pk=response.data['job']['id'])
+        self.assertEqual(job.status, JobStatusChoices.STATUS_FAILED)
+        self.assertEqual(job.data['status_code'], status.HTTP_409_CONFLICT)
+        # The protected object was not deleted.
+        self.assertTrue(Manufacturer.objects.filter(pk=manufacturer.pk).exists())
 
     # ------------------------------------------------------------------ contract guards
 

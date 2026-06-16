@@ -152,7 +152,10 @@ class SequentialBulkCreatesMixin:
     """
     def create(self, request, *args, **kwargs):
         # If background processing was requested for a bulk (list) create, validate and enqueue.
-        if (response := self._maybe_background_bulk_create(request)) is not None:
+        # _maybe_background_bulk_create() comes from BackgroundOperationMixin; fall back to "no
+        # background" so this mixin remains usable on its own (e.g. in custom viewsets).
+        maybe_background = getattr(self, '_maybe_background_bulk_create', lambda request: None)
+        if (response := maybe_background(request)) is not None:
             return response
 
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
@@ -200,7 +203,9 @@ class BulkUpdateModelMixin:
 
         # If background processing was requested, enqueue a job and return immediately.
         # The payload is captured here, before the request.data mutation below.
-        if self._background_requested(request):
+        # _background_requested() comes from BackgroundOperationMixin; fall back to "no
+        # background" so this mixin remains usable on its own (e.g. in custom viewsets).
+        if getattr(self, '_background_requested', lambda request: False)(request):
             action = 'bulk_partial_update' if partial else 'bulk_update'
             return self._enqueue_bulk_job(request, action, payload=list(request.data))
 
@@ -259,7 +264,9 @@ class BulkDestroyModelMixin:
         serializer.is_valid(raise_exception=True)
 
         # If background processing was requested, enqueue a job and return immediately.
-        if self._background_requested(request):
+        # _background_requested() comes from BackgroundOperationMixin; fall back to "no
+        # background" so this mixin remains usable on its own (e.g. in custom viewsets).
+        if getattr(self, '_background_requested', lambda request: False)(request):
             return self._enqueue_bulk_job(request, 'bulk_destroy', payload=list(request.data))
 
         qs = self.get_bulk_destroy_queryset().filter(
