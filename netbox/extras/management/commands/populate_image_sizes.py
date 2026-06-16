@@ -30,7 +30,9 @@ class Command(BaseCommand):
         batch = []
 
         for processed, attachment in enumerate(queryset.iterator(chunk_size=BATCH_SIZE), start=1):
-            size = attachment._read_image_size()
+            # These rows have image_size=NULL, so the size property reads the file from storage (returning None if
+            # it's inaccessible) rather than returning a cached value.
+            size = attachment.size
             if size is None:
                 # File is inaccessible; leave image_size NULL so a future run can retry.
                 skipped += 1
