@@ -33,8 +33,9 @@ def custom_links(context, obj):
     """
     Render all applicable links for the given object.
     """
+    user = context['request'].user
     object_type = ObjectType.objects.get_for_model(obj)
-    custom_links = CustomLink.objects.filter(object_types=object_type, enabled=True)
+    custom_links = CustomLink.objects.restrict(user, 'view').filter(object_types=object_type, enabled=True)
     if not custom_links:
         return ''
 
