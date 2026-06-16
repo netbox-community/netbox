@@ -1049,6 +1049,36 @@ class CustomFieldAPITestCase(APITestCase):
             'label': 'stale',
         })
 
+    @tag('regression')
+    def test_update_selection_field_rejects_read_format(self):
+        """
+        Selection fields are written by passing the raw value; submitting the {value, label} read
+        representation must be rejected with a clean 400, not a 500 (see #20897).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        # A single selection submitted as an object is rejected
+        response = self.client.patch(
+            url, {'custom_fields': {'select_field': {'value': 'foo', 'label': 'Foo'}}}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # A multiple selection submitted as a list of objects is rejected (must not raise a TypeError/500)
+        response = self.client.patch(
+            url,
+            {'custom_fields': {'multiselect_field': [{'value': 'foo', 'label': 'Foo'}]}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # The stored values are unchanged
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data['select_field'], 'bar')
+        self.assertEqual(site2.custom_field_data['multiselect_field'], ['bar', 'baz'])
+
     def test_create_single_object_with_defaults(self):
         """
         Create a new site with no specified custom field values and check that it received the default values.
