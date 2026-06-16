@@ -154,6 +154,7 @@ class CustomFieldBehaviorPanel(panels.ObjectAttributesPanel):
     weight = attrs.NumericAttr('weight', label=_('Display weight'))
     ui_visible = attrs.ChoiceAttr('ui_visible', label=_('UI visible'))
     ui_editable = attrs.ChoiceAttr('ui_editable', label=_('UI editable'))
+    nulls_first = attrs.BooleanAttr('nulls_first', label=_('Nulls first'))
 
 
 class CustomFieldValidationPanel(panels.ObjectAttributesPanel):
