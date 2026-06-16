@@ -76,6 +76,11 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
+    nulls_first = forms.NullBooleanField(
+        label=_('Nulls first'),
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
     validation_minimum = forms.DecimalField(
         label=_('Minimum value'),
         required=False,
@@ -96,7 +101,7 @@ class CustomFieldBulkEditForm(ChangelogMessageMixin, OwnerMixin, BulkEditForm):
 
     fieldsets = (
         FieldSet('group_name', 'description', 'weight', 'required', 'unique', 'choice_set', name=_('Attributes')),
-        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', name=_('Behavior')),
+        FieldSet('ui_visible', 'ui_editable', 'is_cloneable', 'nulls_first', name=_('Behavior')),
         FieldSet(
             'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_schema',
             name=_('Validation')

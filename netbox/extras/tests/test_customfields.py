@@ -15,6 +15,7 @@ from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.tables.columns import CustomFieldColumn
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
@@ -67,6 +68,39 @@ class CustomFieldTestCase(TestCase):
         instance.save()
         instance.refresh_from_db()
         self.assertIsNone(instance.custom_field_data.get(cf.name))
+
+    def test_nulls_first_ordering(self):
+        """
+        Verify that CustomFieldColumn.order() places null values first or last according to the
+        custom field's nulls_first attribute.
+        """
+        cf = CustomField.objects.create(
+            name='order_field',
+            type=CustomFieldTypeChoices.TYPE_INTEGER,
+            required=False
+        )
+        cf.object_types.set([self.object_type])
+
+        # Assign values to two of the three sites, leaving the third null
+        site_a = Site.objects.get(name='Site A')
+        site_a.custom_field_data[cf.name] = 1
+        site_a.save()
+        site_b = Site.objects.get(name='Site B')
+        site_b.custom_field_data[cf.name] = 2
+        site_b.save()
+        site_c = Site.objects.get(name='Site C')  # no value (null)
+
+        column = CustomFieldColumn(cf)
+
+        # nulls_first=True (default): null value sorts before populated values when ascending
+        cf.nulls_first = True
+        queryset, _ = column.order(Site.objects.all(), is_descending=False)
+        self.assertEqual(list(queryset), [site_c, site_a, site_b])
+
+        # nulls_first=False: null value sorts after populated values when ascending
+        cf.nulls_first = False
+        queryset, _ = column.order(Site.objects.all(), is_descending=False)
+        self.assertEqual(list(queryset), [site_a, site_b, site_c])
 
     def test_longtext_field(self):
         value = 'A' * 256

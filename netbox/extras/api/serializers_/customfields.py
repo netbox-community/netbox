@@ -68,7 +68,7 @@ class CustomFieldSerializer(OwnerMixin, ChangeLogMessageSerializer, ValidatedMod
         fields = [
             'id', 'url', 'display_url', 'display', 'object_types', 'type', 'related_object_type', 'data_type',
             'name', 'label', 'group_name', 'description', 'required', 'unique', 'search_weight', 'filter_logic',
-            'ui_visible', 'ui_editable', 'is_cloneable', 'default', 'related_object_filter', 'weight',
+            'ui_visible', 'ui_editable', 'is_cloneable', 'nulls_first', 'default', 'related_object_filter', 'weight',
             'validation_minimum', 'validation_maximum', 'validation_regex', 'validation_schema', 'choice_set',
             'owner', 'comments', 'created', 'last_updated',
         ]

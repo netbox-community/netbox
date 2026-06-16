@@ -51,7 +51,8 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT,
                 ui_visible=CustomFieldUIVisibleChoices.IF_SET,
                 ui_editable=CustomFieldUIEditableChoices.NO,
-                description='foobar2'
+                description='foobar2',
+                nulls_first=False
             ),
             CustomField(
                 name='Custom Field 3',
@@ -61,7 +62,8 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
                 ui_visible=CustomFieldUIVisibleChoices.HIDDEN,
                 ui_editable=CustomFieldUIEditableChoices.HIDDEN,
-                description='foobar3'
+                description='foobar3',
+                nulls_first=False
             ),
             CustomField(
                 name='Custom Field 4',
@@ -149,6 +151,12 @@ class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_nulls_first(self):
+        params = {'nulls_first': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'nulls_first': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
