@@ -321,9 +321,8 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
         # Enqueue & run a job that will fail
         queue = get_queue('default')
         job = queue.enqueue(self.dummy_job_failing)
-        worker = get_worker('default')
         with disable_logging():
-            worker.work(burst=True)
+            self.run_rq_jobs('default')
         self.assertTrue(job.is_failed)
         url = reverse('core-api:rqtask-requeue', args=[job.id])
 

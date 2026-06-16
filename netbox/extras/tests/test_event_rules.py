@@ -27,9 +27,10 @@ from extras.signals import process_job_end_event_rules
 from extras.webhooks import generate_signature, send_webhook
 from netbox.context_managers import event_tracking
 from utilities.testing import APITestCase, create_test_device
+from utilities.testing.mixins import RQQueueTestMixin
 
 
-class EventRuleTestCase(APITestCase):
+class EventRuleTestCase(RQQueueTestMixin, APITestCase):
 
     def setUp(self):
         super().setUp()
@@ -741,7 +742,7 @@ class EventRuleTestCase(APITestCase):
 
             # silence rqworker (cleaner output) and trigger job execution
             logging.getLogger('rq.worker').setLevel(logging.ERROR)
-            django_rq.get_worker().work(burst=True)
+            self.run_rq_jobs('default')
 
         # Assert that our script was executed without any errors
         script_job.refresh_from_db()
