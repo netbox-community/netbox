@@ -275,7 +275,8 @@ class ImageAttachmentTestCase(TestCase):
         with patch.object(field, 'storage', UnreadableSizeMemoryStorage()):
             reloaded = ImageAttachment.objects.get(pk=ia.pk)
             self.assertIsNone(reloaded._read_image_size())  # the read genuinely fails (returns None)
-            reloaded._orig_image_name = 'image-attachments/site_1_old.png'  # make the image look replaced
+            # Make the image look replaced by perturbing the cached identity (different name component).
+            reloaded._orig_image_key = ('image-attachments/site_1_old.png', reloaded.image_height, reloaded.image_width)
             reloaded.save()
 
             # In-memory value is preserved, and the persisted value is unchanged.
@@ -311,6 +312,48 @@ class ImageAttachmentTestCase(TestCase):
             self.assertEqual(ia.image_size, ia.image.size)
             self.assertNotEqual(ia.image_size, original_size)
 
+    def test_image_identity_includes_dimensions(self):
+        """
+        The change-detection key combines the image name with its dimensions, so a replacement that reuses the
+        same name but changes dimensions produces a different key (which name alone would not).
+        """
+        ia = self._stub_image_attachment(self.site.pk, 'image-attachments/site_1_same.png')
+        ia.image_height, ia.image_width = 10, 10
+        key_small = ia._image_identity()
+
+        # Same name, different dimensions (as Django would set when a same-named file is replaced).
+        ia.image_height, ia.image_width = 40, 40
+        key_large = ia._image_identity()
+
+        self.assertEqual(key_small[0], key_large[0])   # name component unchanged
+        self.assertNotEqual(key_small, key_large)      # but the key differs, so save() will recompute
+
+    def test_save_recomputes_image_size_when_dimensions_change_under_same_name(self):
+        """
+        When the image is replaced by a file with the same stored name but different dimensions, save()
+        recomputes image_size. Name-only detection would miss this; the dimension component catches it.
+        Simulates the same-name case by priming the cached identity with the old dimensions.
+        """
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('same-name.png'),
+            )
+            ia.save()
+            name = ia.image.name
+
+            # Force the cached identity to reflect the SAME name but different (old) dimensions, then bump the
+            # current dimensions to mimic a same-name replacement with a differently-sized image.
+            ia._orig_image_key = (name, ia.image_height + 5, ia.image_width + 5)
+            ia.save()
+
+            self.assertEqual(ia.image.name, name)                 # name unchanged
+            self.assertEqual(ia.image_size, ia.image.size)        # size recomputed despite same name
+
     def test_save_without_touching_image_does_not_recompute_or_read_storage(self):
         """
         Editing an existing row without replacing the image leaves image_size untouched and does not
@@ -329,7 +372,7 @@ class ImageAttachmentTestCase(TestCase):
             ia.save()
             stored_size = ia.image_size
 
-            # Reload from the DB so _orig_image_name is set from the persisted value, then edit only the name.
+            # Reload from the DB so the cached image identity is set from the persisted value, then edit only the name.
             reloaded = ImageAttachment.objects.get(pk=ia.pk)
             reloaded.name = 'Renamed'
             with patch.object(ImageAttachment, '_read_image_size', side_effect=AssertionError('storage accessed')):
@@ -340,7 +383,7 @@ class ImageAttachmentTestCase(TestCase):
     def test_save_populates_image_size_via_constructor_kwarg(self):
         """
         The non-UI create path (constructor kwarg / REST / bulk) populates image_size correctly,
-        confirming the name-string comparison behaves when image is passed as a FieldFile.
+        confirming change detection behaves when image is passed as a FieldFile.
         """
         storage = OverwriteStyleMemoryStorage()
         field = ImageAttachment._meta.get_field('image')

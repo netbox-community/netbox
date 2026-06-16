@@ -728,11 +728,23 @@ class ImageAttachment(ChangeLoggedModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Cache the original image name so we can detect on save() whether the file has been replaced and the
-        # cached image_size needs to be recomputed. Read the raw value from __dict__ to avoid triggering the
-        # ImageField descriptor here (doing so during ORM/GraphQL instantiation can recurse).
+        # Cache an identity for the current image so save() can detect a new/replaced file and recompute the cached
+        # image_size. We combine the file name with the (auto-populated) dimensions: a replacement that reuses the
+        # same name is still caught when its dimensions differ. Read the raw image value from __dict__ to avoid
+        # triggering the ImageField descriptor here (doing so during ORM/GraphQL instantiation can recurse).
+        self._orig_image_key = self._image_identity()
+
+    def _image_identity(self):
+        """
+        Return a tuple identifying the current image file for change detection: its name plus the dimensions Django
+        populates from it. All three are read raw from __dict__ to avoid triggering the ImageField descriptor
+        (accessing `self.image` during ORM/GraphQL instantiation can recurse). Not a content fingerprint: a
+        replacement with an identical name AND identical dimensions is not distinguished (would require reading the
+        file, the storage round-trip this caching avoids).
+        """
         original = self.__dict__.get('image')
-        self._orig_image_name = getattr(original, 'name', original)
+        name = getattr(original, 'name', original)
+        return (name, self.__dict__.get('image_height'), self.__dict__.get('image_width'))
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
@@ -822,21 +834,21 @@ class ImageAttachment(ChangeLoggedModel):
         return self._read_image_size()
 
     def save(self, *args, **kwargs):
-        # Populate image_size on creation or when the image file has been replaced. Reading the size may touch the
-        # storage backend, so we only do it when necessary, and we never overwrite a good value with None (e.g. on a
-        # transient storage error).
-        # If the read fails while replacing a file, image_size keeps the prior file's size until the next
-        # successful save. That stale-but-non-crashing outcome is preferred over storing None.
-        orig_image_name = getattr(self, '_orig_image_name', None)
-        if self._state.adding or (self.image and self.image.name != orig_image_name):
+        # Populate image_size on creation or when the image file has changed. Reading the size may touch the storage
+        # backend (e.g. a HEAD request to S3), so we only do it when necessary: bulk operations that don't alter the
+        # image (bulk edit, rename) leave the identity unchanged and skip the read entirely. We never overwrite a good
+        # value with None (e.g. on a transient storage error); a failed read while replacing a file keeps the prior
+        # size until the next successful save, which is preferred over storing None.
+        orig_image_key = getattr(self, '_orig_image_key', None)
+        if self._state.adding or self._image_identity() != orig_image_key:
             size = self._read_image_size()
             if size is not None:
                 self.image_size = size
 
         super().save(*args, **kwargs)
 
-        # Update the cached original name so subsequent saves on this instance detect further changes correctly.
-        self._orig_image_name = self.image.name if self.image else None
+        # Refresh the cached identity so subsequent saves on this instance detect further changes correctly.
+        self._orig_image_key = self._image_identity()
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
