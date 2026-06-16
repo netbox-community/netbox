@@ -1407,9 +1407,10 @@ class MACAddress(PrimaryModel):
 
     @cached_property
     def is_primary(self):
-        if self.assigned_object and hasattr(self.assigned_object, 'primary_mac_address'):
-            if self.assigned_object.primary_mac_address and self.assigned_object.primary_mac_address.pk == self.pk:
-                return True
+        # Compare against primary_mac_address_id (a column already loaded on the assigned object) rather than
+        # dereferencing primary_mac_address, to avoid an extra query per object in list responses.
+        if (obj := self.assigned_object) is not None and hasattr(obj, 'primary_mac_address_id'):
+            return obj.primary_mac_address_id == self.pk
         return False
 
     def clean(self, *args, **kwargs):
