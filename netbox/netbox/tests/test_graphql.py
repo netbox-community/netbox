@@ -505,3 +505,97 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertIn('errors', data)
         self.assertEqual(data['errors'][0]['message'], 'Cannot specify both `start` and `offset` in pagination.')
+
+
+class JSONPathValidationTestCase(TestCase):
+    """Unit tests for _validate_json_path (VM-323 security fix)."""
+
+    def setUp(self):
+        from netbox.graphql.filter_lookups import _validate_json_path
+        self.validate = _validate_json_path
+
+    # --- Valid paths ---
+
+    def test_single_key(self):
+        self.assertEqual(self.validate('key'), 'key')
+
+    def test_nested_key(self):
+        self.assertEqual(self.validate('parent__child'), 'parent__child')
+
+    def test_deeply_nested(self):
+        self.assertEqual(self.validate('a__b__c'), 'a__b__c')
+
+    def test_key_with_underscores(self):
+        self.assertEqual(self.validate('my_key'), 'my_key')
+
+    def test_key_with_hyphens(self):
+        self.assertEqual(self.validate('my-key'), 'my-key')
+
+    def test_numeric_array_index(self):
+        self.assertEqual(self.validate('items__0'), 'items__0')
+
+    def test_alphanumeric_segment(self):
+        self.assertEqual(self.validate('key123'), 'key123')
+
+    def test_key_with_leading_underscore(self):
+        # JSON keys may start with underscore (e.g. _foo)
+        self.assertEqual(self.validate('_key'), '_key')
+
+    def test_orm_operator_name_as_key(self):
+        # 'date', 'regex' etc. are valid JSON key names; the path validator
+        # must not block them.  The ORM injection risk is neutralised by the
+        # trailing __ that JSONFilter always appends before process_filters.
+        self.assertEqual(self.validate('date'), 'date')
+        self.assertEqual(self.validate('key__regex'), 'key__regex')
+        self.assertEqual(self.validate('key__exact'), 'key__exact')
+
+    # --- Invalid paths ---
+
+    def test_rejects_empty_string(self):
+        with self.assertRaises(ValueError):
+            self.validate('')
+
+    def test_rejects_all_underscores(self):
+        # '___' splits into segments ['', '', ''] via '__' — empty segments rejected
+        with self.assertRaises(ValueError):
+            self.validate('___')
+
+    def test_accepts_trailing_single_underscore(self):
+        # A single trailing underscore is a valid JSON key character
+        self.assertEqual(self.validate('key_'), 'key_')
+
+    def test_rejects_trailing_double_underscore(self):
+        with self.assertRaises(ValueError):
+            self.validate('key__')
+
+    def test_rejects_leading_double_underscore(self):
+        with self.assertRaises(ValueError):
+            self.validate('__key')
+
+    def test_rejects_consecutive_double_underscores(self):
+        with self.assertRaises(ValueError):
+            self.validate('key1____key2')
+
+    def test_rejects_segment_starting_with_special_char(self):
+        with self.assertRaises(ValueError):
+            self.validate('$secret')
+
+    def test_rejects_path_with_spaces(self):
+        with self.assertRaises(ValueError):
+            self.validate('key one')
+
+    def test_rejects_path_with_dot(self):
+        with self.assertRaises(ValueError):
+            self.validate('key.subkey')
+
+
+class JSONStringLookupTestCase(TestCase):
+    """Verify JSONStringLookup exposes the expected set of string operators."""
+
+    def test_string_operators_present(self):
+        from netbox.graphql.filter_lookups import JSONStringLookup
+        field_names = {f.name for f in JSONStringLookup.__strawberry_definition__.fields}
+        for expected in ('exact', 'i_exact', 'contains', 'i_contains',
+                         'starts_with', 'i_starts_with', 'ends_with', 'i_ends_with',
+                         'in_', 'isnull', 'regex', 'i_regex'):
+            self.assertIn(expected, field_names, f"{expected!r} must be present on JSONStringLookup")
