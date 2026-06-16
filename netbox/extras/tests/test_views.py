@@ -184,7 +184,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 
 class CustomLinkRenderingTestCase(TestCase):
-    user_permissions = ['dcim.view_site']
+    user_permissions = ['dcim.view_site', 'extras.view_customlink']
 
     def test_view_object_with_custom_link(self):
         customlink = CustomLink(
