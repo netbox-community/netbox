@@ -1,5 +1,5 @@
 colorama==0.4.6
-Django==6.0.5
+Django==6.0.6
 django-cors-headers==4.9.0
 django-debug-toolbar==6.3.0
 django-filter==25.2
@@ -8,13 +8,13 @@ django-htmx==1.27.0
 django-mptt==0.18.0
 django-pglocks==1.0.4
 django-prometheus==2.4.0
-django-redis==6.0.0
+django-redis==7.0.0
 django-rich==2.2.0
 django-rq==4.1.0
 django-storages==1.14.6
 django-tables2==2.8.0
 django-taggit==6.1.0
-django-timezone-field==7.2.1
+django-timezone-field==7.2.2
 djangorestframework==3.17.1
 drf-spectacular==0.29.0
 drf-spectacular-sidecar==2026.6.1
@@ -26,15 +26,15 @@ Markdown==3.10.2
 mkdocs==1.6.1
 mkdocs-material==9.7.6
 mkdocstrings==1.0.4
-mkdocstrings-python==2.0.3
+mkdocstrings-python==2.0.4
 netaddr==1.3.0
 nh3==0.3.5
 Pillow==12.2.0
 psycopg[c,pool]==3.3.4
 PyYAML==6.0.3
-redis==7.4.0
+redis==7.4.1
 requests==2.34.2
-rq==2.9.0
+rq==2.9.1
 social-auth-app-django==5.9.0
 social-auth-core==4.8.7
 sorl-thumbnail==13.0.0
@@ -43,4 +43,4 @@ strawberry-graphql-django==0.86.1
 svgwrite==1.4.3
 tablib==3.9.0
 tzdata==2026.2
-zensical==0.0.43
+zensical==0.0.45
