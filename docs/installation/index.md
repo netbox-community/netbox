@@ -29,7 +29,7 @@ The following sections detail how to set up a new instance of NetBox:
 |------------|--------------------|
 | Python     | 3.12, 3.13, 3.14   |
 | PostgreSQL | 15+                |
-| Redis      | 4.0+               |
+| Redis      | 6.0+               |
 
 Below is a simplified overview of the NetBox application stack for reference:
 
