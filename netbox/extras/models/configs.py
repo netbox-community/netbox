@@ -1,9 +1,11 @@
+import copy
 import traceback
 
 import jsonschema
 from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from jinja2.exceptions import TemplateError
@@ -215,12 +217,133 @@ class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, OwnerMixin,
         self.data = self.data_file.get_data()
     sync_data.alters_data = True
 
+    def get_affected_objects(self):
+        """
+        Return a (device_qs, vm_qs) tuple of all Devices and VirtualMachines that fall within this
+        ConfigContext's scope. This is the inverse of ConfigContextQuerySet.get_for_object().
+        Used to determine which pre-rendered context caches must be invalidated when this
+        ConfigContext changes.
+        """
+        from dcim.models import Device
+        from virtualization.models import VirtualMachine
+
+        device_q, vm_q = self._get_affected_object_filters()
+        return (
+            Device.objects.filter(device_q),
+            VirtualMachine.objects.filter(vm_q),
+        )
+
+    def _get_affected_object_filters(self):
+        """
+        Build the Q expressions matching Devices and VirtualMachines in this context's scope.
+        Returns (device_q, vm_q). Does NOT consider `is_active` — callers that need that should
+        check it separately. For invalidation purposes, we want the scope set regardless of
+        whether the context is currently active (toggling is_active also requires invalidation).
+        """
+        from extras.models.tags import TaggedItem
+
+        def _nested_scope_q(m2m, object_path):
+            # Match objects whose `object_path` ltree column is a descendant-or-equal of any node
+            # selected in this nested-group m2m (regions, locations, etc.). This is the inverse of
+            # the forward `<object>__path__ancestor_or_equal` match in ConfigContextQuerySet: there
+            # a CC's node must be an ancestor of the object's node; here the object's node must fall
+            # within a CC node's subtree. Returns None if the m2m is empty (no scope restriction).
+            paths = list(m2m.values_list('path', flat=True))
+            if not paths:
+                return None
+            q = Q()
+            for path in paths:
+                q |= Q(**{f'{object_path}__descendant_or_equal': path})
+            return q
+
+        def _direct_pks(m2m):
+            pks = list(m2m.values_list('pk', flat=True))
+            return pks or None
+
+        # Shared filters (applicable to both Device and VirtualMachine)
+        shared = Q()
+
+        region_q = _nested_scope_q(self.regions, 'site__region__path')
+        if region_q is not None:
+            shared &= region_q
+
+        site_group_q = _nested_scope_q(self.site_groups, 'site__group__path')
+        if site_group_q is not None:
+            shared &= site_group_q
+
+        role_q = _nested_scope_q(self.roles, 'role__path')
+        if role_q is not None:
+            shared &= role_q
+
+        platform_q = _nested_scope_q(self.platforms, 'platform__path')
+        if platform_q is not None:
+            shared &= platform_q
+
+        for m2m, path in (
+            (self.sites, 'site'),
+            (self.cluster_types, 'cluster__type'),
+            (self.cluster_groups, 'cluster__group'),
+            (self.clusters, 'cluster'),
+            (self.tenant_groups, 'tenant__group'),
+            (self.tenants, 'tenant'),
+        ):
+            pks = _direct_pks(m2m)
+            if pks is not None:
+                shared &= Q(**{f'{path}__in': pks})
+
+        # Tag-scoped contexts: object must be tagged with at least one of the context's tags
+        tag_pks = _direct_pks(self.tags)
+
+        device_q = Q(shared)
+        vm_q = Q(shared)
+
+        # Device-only filters: location (nested/ltree) and device_type (direct)
+        location_q = _nested_scope_q(self.locations, 'location__path')
+        if location_q is not None:
+            device_q &= location_q
+        device_type_pks = _direct_pks(self.device_types)
+        if device_type_pks is not None:
+            device_q &= Q(device_type__in=device_type_pks)
+        # For VMs, locations and device_types must be empty for the context to apply
+        if location_q is not None or device_type_pks is not None:
+            vm_q &= Q(pk__in=())
+
+        if tag_pks is not None:
+            device_tagged = TaggedItem.objects.filter(
+                tag_id__in=tag_pks,
+                content_type__app_label='dcim',
+                content_type__model='device',
+            ).values_list('object_id', flat=True)
+            vm_tagged = TaggedItem.objects.filter(
+                tag_id__in=tag_pks,
+                content_type__app_label='virtualization',
+                content_type__model='virtualmachine',
+            ).values_list('object_id', flat=True)
+            device_q &= Q(pk__in=device_tagged)
+            vm_q &= Q(pk__in=vm_tagged)
+
+        return device_q, vm_q
+
 
 class ConfigContextModel(models.Model):
     """
     A model which includes local configuration context data. This local data will override any inherited data from
     ConfigContexts.
     """
+    # Pre-rendered config context cache. NULL means "invalidated; render on demand". Populated by
+    # extras.jobs.RenderConfigContextJob in the background.
+    _config_context_data = models.JSONField(
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    # Monotonic counter bumped each time the cache is invalidated. The background renderer captures
+    # this value before rendering and only writes the result back if it is unchanged, so a fresh
+    # invalidation that lands mid-render is never overwritten by a stale value (compare-and-set).
+    _config_context_generation = models.PositiveBigIntegerField(
+        default=0,
+        editable=False,
+    )
     local_context_data = models.JSONField(
         blank=True,
         null=True,
@@ -234,8 +357,24 @@ class ConfigContextModel(models.Model):
 
     def get_config_context(self):
         """
+        Return the merged config context for this object. If a pre-rendered cache is present
+        (`_config_context_data`), return a copy of it. Otherwise, fall back to rendering on demand.
+
+        The returned dict is always safe for callers to mutate (e.g. ObjectRenderConfigView merges
+        in additional context with .update()): the cached blob is deep-copied so mutations cannot
+        leak back into this instance's in-memory cache, matching the fresh-dict guarantee of the
+        on-demand render path.
+        """
+        cached = getattr(self, '_config_context_data', None)
+        if cached is not None:
+            return copy.deepcopy(cached)
+        return self.render_config_context()
+
+    def render_config_context(self):
+        """
         Compile all config data, overwriting lower-weight values with higher-weight values where a collision occurs.
-        Return the rendered configuration context for a device or VM.
+        Return the rendered configuration context for a device or VM. This bypasses the pre-rendered cache
+        (`_config_context_data`); use get_config_context() for the cached read path.
         """
         data = {}
 
@@ -263,6 +402,15 @@ class ConfigContextModel(models.Model):
             raise ValidationError(
                 {'local_context_data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
             )
+
+    def serialize_object(self, exclude=None):
+        # Exclude the pre-rendered cache and its generation counter from change-log snapshots;
+        # they are derived fields and would otherwise produce noisy diffs.
+        exclude = list(exclude or [])
+        for field in ('_config_context_data', '_config_context_generation'):
+            if field not in exclude:
+                exclude.append(field)
+        return super().serialize_object(exclude=exclude)
 
 
 #

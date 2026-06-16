@@ -1,5 +1,5 @@
 from django.contrib.postgres.aggregates import JSONBAgg
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import Case, JSONField, OuterRef, Q, Subquery, When
 
 from extras.models.tags import TaggedItem
 from utilities.query_functions import EmptyGroupByJSONBAgg
@@ -17,6 +17,10 @@ class ConfigContextQuerySet(RestrictedQuerySet):
     def get_for_object(self, obj, aggregate_data=False):
         """
         Return all applicable ConfigContexts for a given object. Only active ConfigContexts will be included.
+
+        WARNING: This method's scope-matching logic is mirrored (inverted) by ConfigContext.get_affected_objects(),
+        which powers cache invalidation. Any change to the matching criteria here MUST be applied there as well, or
+        pre-rendered config context caches will go stale. See extras/models/configs.py.
 
         Args:
           aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
@@ -84,20 +88,39 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
     This offers a substantial performance gain over ConfigContextQuerySet.get_for_object() when dealing with
     multiple objects. This allows the annotation to be entirely optional.
     """
-    def annotate_config_context_data(self):
+    def annotate_config_context_data(self, only_invalidated=False):
         """
-        Attach the subquery annotation to the base queryset
+        Attach the subquery annotation to the base queryset.
+
+        Args:
+            only_invalidated: If True, evaluate the (expensive) aggregation subquery only for rows
+                whose pre-rendered cache (`_config_context_data`) is NULL, returning NULL for rows
+                that already have a populated cache. This is the list/detail read-path optimization:
+                warm rows are served from the cache by ConfigContextModel.get_config_context() and
+                never consult this annotation, so computing it for them is wasted work. PostgreSQL
+                short-circuits CASE branches, so the correlated SubPlan is not executed for warm
+                rows.
+
+                NOTE: With only_invalidated=True the annotation is NULL for warm rows. It is only
+                safe to read via get_config_context() (which short-circuits on the cache before
+                touching the annotation). Do NOT call render_config_context() directly on a row
+                annotated this way, or a warm row would render an empty context.
         """
         from extras.models import ConfigContext
-        return self.annotate(
-            config_context_data=Subquery(
-                ConfigContext.objects.filter(
-                    self._get_config_context_filters()
-                ).annotate(
-                    _data=EmptyGroupByJSONBAgg('data', order_by=['weight', 'name'])
-                ).values("_data").order_by()
-            )
+        subquery = Subquery(
+            ConfigContext.objects.filter(
+                self._get_config_context_filters()
+            ).annotate(
+                _data=EmptyGroupByJSONBAgg('data', order_by=['weight', 'name'])
+            ).values("_data").order_by()
         )
+        if only_invalidated:
+            subquery = Case(
+                When(_config_context_data__isnull=True, then=subquery),
+                default=None,
+                output_field=JSONField(),
+            )
+        return self.annotate(config_context_data=subquery)
 
     def _get_config_context_filters(self):
         # Construct the set of Q objects for the specific object types

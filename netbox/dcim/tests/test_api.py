@@ -1814,16 +1814,6 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertEqual(response.data['results'][0].get('config_context', {}).get('A'), 1)
 
-    def test_config_context_excluded(self):
-        """
-        Check that config context data can be excluded by passing ?exclude=config_context.
-        """
-        self.add_permissions('dcim.view_device')
-        url = reverse('dcim-api:device-list') + '?exclude=config_context'
-        response = self.client.get(url, **self.header)
-
-        self.assertFalse('config_context' in response.data['results'][0])
-
     def test_unique_name_per_site_constraint(self):
         """
         Check that creating a device with a duplicate name within a site fails.
@@ -1975,7 +1965,7 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(device)}?exclude=config_context',
+            self._get_detail_url(device),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -2003,7 +1993,7 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
 
         self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
         response = self.client.get(
-            f'{self._get_detail_url(device)}?exclude=config_context',
+            self._get_detail_url(device),
             **self.header,
         )
         self.assertHttpStatus(response, status.HTTP_200_OK)

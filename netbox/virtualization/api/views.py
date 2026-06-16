@@ -64,23 +64,8 @@ class VirtualMachineTypeViewSet(NetBoxModelViewSet):
 
 class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.all()
+    serializer_class = serializers.VirtualMachineSerializer
     filterset_class = filtersets.VirtualMachineFilterSet
-
-    def get_serializer_class(self):
-        """
-        Select the specific serializer based on the request context.
-
-        If the `brief` query param equates to True, return the NestedVirtualMachineSerializer
-
-        If the `exclude` query param includes `config_context` as a value, return the VirtualMachineSerializer
-
-        Else, return the VirtualMachineWithConfigContextSerializer
-        """
-        request = self.get_serializer_context()['request']
-        if self.brief or 'config_context' in request.query_params.get('exclude', []):
-            return serializers.VirtualMachineSerializer
-
-        return serializers.VirtualMachineWithConfigContextSerializer
 
 
 class VMInterfaceViewSet(NetBoxModelViewSet):
