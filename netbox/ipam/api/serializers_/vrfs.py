@@ -47,4 +47,4 @@ class VRFSerializer(PrimaryModelSerializer):
             'comments', 'import_targets', 'export_targets', 'tags', 'custom_fields', 'created', 'last_updated',
             'ipaddress_count', 'prefix_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'rd', 'description', 'prefix_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'rd', 'description')

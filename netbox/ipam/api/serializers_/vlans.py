@@ -51,7 +51,7 @@ class VLANGroupSerializer(OrganizationalModelSerializer):
             'created', 'last_updated',
             'vlan_count', 'utilization',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
         validators = []
 
 

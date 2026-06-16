@@ -32,7 +32,7 @@ class TunnelGroupSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'tunnel_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tunnel_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class TunnelSerializer(PrimaryModelSerializer):

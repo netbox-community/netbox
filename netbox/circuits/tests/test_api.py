@@ -19,7 +19,7 @@ class AppTestCase(APITestCase):
 
 class ProviderTestCase(APIViewTestCases.APIViewTestCase):
     model = Provider
-    brief_fields = ['circuit_count', 'description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'comments': 'New comments',
     }
@@ -61,7 +61,7 @@ class ProviderTestCase(APIViewTestCases.APIViewTestCase):
 
 class CircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = CircuitType
-    brief_fields = ['circuit_count', 'description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = (
         {
             'name': 'Circuit Type 4',
@@ -411,7 +411,7 @@ class ProviderNetworkTestCase(APIViewTestCases.APIViewTestCase):
 
 class VirtualCircuitTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualCircuitType
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url', 'virtual_circuit_count']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = (
         {
             'name': 'Virtual Circuit Type 4',

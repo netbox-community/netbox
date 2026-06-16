@@ -37,7 +37,7 @@ class RackGroupSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'rack_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class RackRoleSerializer(OrganizationalModelSerializer):
@@ -51,7 +51,7 @@ class RackRoleSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'rack_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class RackBaseSerializer(PrimaryModelSerializer):
@@ -155,7 +155,7 @@ class RackSerializer(RackBaseSerializer):
             'outer_unit', 'mounting_depth', 'airflow', 'description', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description', 'device_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class RackReservationSerializer(PrimaryModelSerializer):

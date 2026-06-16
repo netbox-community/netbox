@@ -38,7 +38,7 @@ class AppTestCase(APITestCase):
 
 class ClusterTypeTestCase(APIViewTestCases.APIViewTestCase):
     model = ClusterType
-    brief_fields = ['cluster_count', 'description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Cluster Type 4',
@@ -70,7 +70,7 @@ class ClusterTypeTestCase(APIViewTestCases.APIViewTestCase):
 
 class ClusterGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = ClusterGroup
-    brief_fields = ['cluster_count', 'description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Cluster Group 4',
@@ -102,7 +102,7 @@ class ClusterGroupTestCase(APIViewTestCases.APIViewTestCase):
 
 class ClusterTestCase(APIViewTestCases.APIViewTestCase):
     model = Cluster
-    brief_fields = ['description', 'display', 'id', 'name', 'url', 'virtualmachine_count']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'offline',
         'comments': 'New comment',

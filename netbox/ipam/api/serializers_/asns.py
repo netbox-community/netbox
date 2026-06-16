@@ -28,7 +28,7 @@ class RIRSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'is_private', 'description', 'owner', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated', 'aggregate_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'aggregate_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class ASNRangeSerializer(OrganizationalModelSerializer):
