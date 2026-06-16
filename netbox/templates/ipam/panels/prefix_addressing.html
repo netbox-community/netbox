@@ -11,6 +11,7 @@
     {% endif %}
   </h2>
   <table class="table table-hover attr-table">
+    {% with usage=object.get_ip_usage_summary %}
     <tr>
       <th scope="row">{% trans "Utilization" %}</th>
       <td>
@@ -18,7 +19,7 @@
           {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
           <small>({% trans "Marked fully utilized" %})</small>
         {% else %}
-          {% utilization_graph object.get_utilization %}
+          {% utilization_graph usage.utilization %}
         {% endif %}
       </td>
     </tr>
@@ -30,33 +31,36 @@
         </td>
       </tr>
     {% endwith %}
-    {% with available_count=object.get_available_ips.size %}
-      <tr>
-        <th scope="row">{% trans "Available IPs" %}</th>
-        <td>
-          {% if available_count > 1000000 %}
-            {{ available_count|intword }}
-          {% else %}
-            {{ available_count|intcomma }}
-          {% endif %}
-        </td>
-      </tr>
-    {% endwith %}
+    <tr>
+      <th scope="row">{% trans "Available IPs" %}</th>
+      <td>
+        {% if usage.available_ip_count > 1000000 %}
+          {{ usage.available_ip_count|intword }}
+        {% else %}
+          {{ usage.available_ip_count|intcomma }}
+        {% endif %}
+      </td>
+    </tr>
     <tr>
       <th scope="row">{% trans "First available IP" %}</th>
       <td>
-        {% with first_available_ip=object.get_first_available_ip %}
-          {% if first_available_ip %}
-            {% if perms.ipam.add_ipaddress %}
-              <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}">{{ first_available_ip }}</a>
+        {% if usage.available_ip_count %}
+          {% with first_available_ip=object.get_first_available_ip %}
+            {% if first_available_ip %}
+              {% if perms.ipam.add_ipaddress %}
+                <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}">{{ first_available_ip }}</a>
+              {% else %}
+                {{ first_available_ip }}
+              {% endif %}
             {% else %}
-              {{ first_available_ip }}
+              {{ ''|placeholder }}
             {% endif %}
-          {% else %}
-            {{ ''|placeholder }}
-          {% endif %}
-        {% endwith %}
+          {% endwith %}
+        {% else %}
+          {{ ''|placeholder }}
+        {% endif %}
       </td>
     </tr>
+    {% endwith %}
   </table>
 </div>

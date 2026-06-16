@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import TYPE_CHECKING, Annotated, TypeVar
 
 import strawberry
@@ -48,9 +47,9 @@ class SyncedDataFilterMixin:
         strawberry_django.filter_field()
     )
     data_file_id: FilterLookup[int] | None = strawberry_django.filter_field()
-    data_path: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    data_path: StrFilterLookup | None = strawberry_django.filter_field()
     auto_sync_enabled: FilterLookup[bool] | None = strawberry_django.filter_field()
-    data_synced: DatetimeFilterLookup[datetime] | None = strawberry_django.filter_field()
+    data_synced: DatetimeFilterLookup | None = strawberry_django.filter_field()
 
 
 @dataclass

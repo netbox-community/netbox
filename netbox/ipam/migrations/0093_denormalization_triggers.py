@@ -10,7 +10,7 @@ from utilities.migration import cached_scope_triggers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ipam', '0090_vlangroup_recompute_total_vlan_ids'),
+        ('ipam', '0092_iprange_host_indexes'),
         # Source tables (dcim_site, dcim_location) must already exist.
         ('dcim', '0238_ltree_paths'),
     ]

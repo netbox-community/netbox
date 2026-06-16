@@ -45,6 +45,7 @@ __all__ = (
     'ServiceCreateForm',
     'ServiceForm',
     'ServiceTemplateForm',
+    'VLANBulkAddForm',
     'VLANForm',
     'VLANGroupForm',
     'VLANTranslationPolicyForm',
@@ -725,6 +726,26 @@ class VLANForm(TenancyForm, PrimaryModelForm):
             'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'qinq_role', 'qinq_svlan',
             'description', 'owner', 'comments', 'tags',
         ]
+
+
+class VLANBulkAddForm(VLANForm):
+    """
+    Subclass of VLANForm for bulk creation.
+
+    The VID field is inherited but excluded from the visible fieldsets, as it is
+    populated programmatically by BulkCreateView from the expanded pattern.
+    """
+    fieldsets = (
+        FieldSet('group', 'site', 'name', 'status', 'role', 'description', 'tags', name=_('VLAN')),
+        FieldSet('qinq_role', 'qinq_svlan', name=_('Q-in-Q/802.1ad')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].help_text = _(
+            'Use {vid} as a placeholder for the VLAN ID. Example: VLAN-{vid}.'
+        )
 
 
 class VLANTranslationPolicyForm(PrimaryModelForm):

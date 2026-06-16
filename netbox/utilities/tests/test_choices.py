@@ -1,3 +1,4 @@
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
 
 from utilities.choices import ChoiceSet
@@ -30,6 +31,19 @@ class ChoiceSetTestCase(TestCase):
 
     def test_values(self):
         self.assertListEqual(ExampleChoices.values(), ['a', 'b', 'c', 1, 2, 3])
+
+    def test_key_with_non_list_choices_raises(self):
+        """A ChoiceSet declaring a key must define CHOICES as a list."""
+        with self.assertRaises(ImproperlyConfigured):
+            type(
+                'InvalidChoices',
+                (ChoiceSet,),
+                {
+                    '__module__': __name__,
+                    'key': 'invalid_choices',
+                    'CHOICES': (('foo', 'Foo'),),
+                },
+            )
 
 
 class FieldChoicesCaseInsensitiveTestCase(TestCase):

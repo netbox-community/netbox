@@ -547,8 +547,64 @@ class AggregateView(generic.ObjectView):
     )
 
 
+class ChildAvailabilityMixin:
+    """
+    Mixin for ObjectChildrenView subclasses that render synthetic "available" rows
+    (available IP space, prefixes, or VLANs) and must suppress them when the child
+    queryset has been narrowed by a direct or saved filter.
+    """
+
+    @staticmethod
+    def _where_signature(queryset):
+        # query.where is Django-internal, but it is the closest signal for "narrowed by a filter".
+        return str(queryset.query.where)
+
+    def _set_children_filtered(self, is_filtered):
+        self._child_queryset_is_filtered = is_filtered
+        return is_filtered
+
+    def _queryset_is_filtered(self, request, queryset, parent):
+        """
+        Return True if the filtered child queryset differs from the unfiltered one.
+
+        Compares WHERE clauses rather than testing queryset.query.where for truthiness,
+        because child querysets are already scoped to their parent object and carry WHERE
+        clauses before any user filter is applied. The result is cached on the view instance
+        so get_extra_context() can reuse it without rebuilding the queryset.
+        """
+        if self.filterset is None:
+            return self._set_children_filtered(False)
+
+        unfiltered = self.get_children(request, parent)
+
+        return self._set_children_filtered(
+            self._where_signature(queryset) != self._where_signature(unfiltered)
+        )
+
+    def _children_are_filtered(self, request, parent):
+        """
+        Return whether child objects are filtered.
+
+        In the normal ObjectChildrenView flow prep_table_data() runs first and caches the
+        result, so this returns the cached value. Fall back to rebuilding the queryset for
+        direct calls where prep_table_data() has not run.
+        """
+        if hasattr(self, '_child_queryset_is_filtered'):
+            return self._child_queryset_is_filtered
+
+        if self.filterset is None:
+            return self._set_children_filtered(False)
+
+        unfiltered = self.get_children(request, parent)
+        filtered = self.filterset(request.GET, unfiltered, request=request).qs
+
+        return self._set_children_filtered(
+            self._where_signature(filtered) != self._where_signature(unfiltered)
+        )
+
+
 @register_model_view(Aggregate, 'prefixes')
-class AggregatePrefixesView(generic.ObjectChildrenView):
+class AggregatePrefixesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
     queryset = Aggregate.objects.all()
     child_model = Prefix
     table = tables.PrefixTable
@@ -572,13 +628,21 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
 
+        if self._queryset_is_filtered(request, queryset, parent):
+            show_available = False
+
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
+        show_available = (
+            bool(request.GET.get('show_available', 'true') == 'true') and
+            not self._children_are_filtered(request, instance)
+        )
+
         return {
             'bulk_querystring': f'within={instance.prefix}',
             'first_available_prefix': instance.get_first_available_prefix(),
-            'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
+            'show_available': show_available,
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
@@ -770,7 +834,7 @@ class PrefixView(generic.ObjectView):
 
 
 @register_model_view(Prefix, 'prefixes')
-class PrefixPrefixesView(generic.ObjectChildrenView):
+class PrefixPrefixesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = Prefix
     table = tables.PrefixTable
@@ -794,13 +858,21 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
         show_available = bool(request.GET.get('show_available', 'true') == 'true')
         show_assigned = bool(request.GET.get('show_assigned', 'true') == 'true')
 
+        if self._queryset_is_filtered(request, queryset, parent):
+            show_available = False
+
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
+        show_available = (
+            bool(request.GET.get('show_available', 'true') == 'true') and
+            not self._children_are_filtered(request, instance)
+        )
+
         return {
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&within={instance.prefix}",
             'first_available_prefix': instance.get_first_available_prefix(),
-            'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
+            'show_available': show_available,
             'show_assigned': bool(request.GET.get('show_assigned', 'true') == 'true'),
         }
 
@@ -833,7 +905,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
 
 
 @register_model_view(Prefix, 'ipaddresses', path='ip-addresses')
-class PrefixIPAddressesView(generic.ObjectChildrenView):
+class PrefixIPAddressesView(ChildAvailabilityMixin, generic.ObjectChildrenView):
     queryset = Prefix.objects.all()
     child_model = IPAddress
     table = tables.AnnotatedIPAddressTable
@@ -851,9 +923,10 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        if not request.GET.get('q') and not get_table_ordering(request, self.table):
+        if not self._queryset_is_filtered(request, queryset, parent) and not get_table_ordering(request, self.table):
             return annotate_ip_space(parent)
-        return queryset
+
+        return super().prep_table_data(request, queryset, parent)
 
     def get_extra_context(self, request, instance):
         return {
@@ -1292,7 +1365,7 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(VLANGroup, 'vlans')
-class VLANGroupVLANsView(generic.ObjectChildrenView):
+class VLANGroupVLANsView(ChildAvailabilityMixin, generic.ObjectChildrenView):
     queryset = VLANGroup.objects.all()
     child_model = VLAN
     table = tables.VLANTable
@@ -1312,9 +1385,11 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
         )
 
     def prep_table_data(self, request, queryset, parent):
-        if not get_table_ordering(request, self.table):
+        # Skip synthetic available rows under active filters: filtered-out VLANs would otherwise look available.
+        if not self._queryset_is_filtered(request, queryset, parent) and not get_table_ordering(request, self.table):
             return add_available_vlans(queryset, parent)
-        return queryset
+
+        return super().prep_table_data(request, queryset, parent)
 
 
 #
@@ -1716,6 +1791,16 @@ class VLANEditView(generic.ObjectEditView):
 @register_model_view(VLAN, 'delete')
 class VLANDeleteView(generic.ObjectDeleteView):
     queryset = VLAN.objects.all()
+
+
+@register_model_view(VLAN, 'bulk_add', path='bulk-add', detail=False)
+class VLANBulkCreateView(generic.BulkCreateView):
+    queryset = VLAN.objects.all()
+    form = forms.VLANIDBulkCreateForm
+    model_form = forms.VLANBulkAddForm
+    pattern_target = 'vid'
+    pattern_template_fields = ('name',)
+    template_name = 'ipam/vlan_bulk_add.html'
 
 
 @register_model_view(VLAN, 'bulk_import', path='import', detail=False)

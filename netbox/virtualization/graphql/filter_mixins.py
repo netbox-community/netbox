@@ -20,5 +20,5 @@ class VMComponentFilterMixin:
         strawberry_django.filter_field()
     )
     virtual_machine_id: ID | None = strawberry_django.filter_field()
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
-    description: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
+    description: StrFilterLookup | None = strawberry_django.filter_field()

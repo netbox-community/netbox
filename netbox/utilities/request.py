@@ -3,6 +3,7 @@ from contextlib import ExitStack, contextmanager
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.utils.datastructures import MultiValueDict
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
@@ -66,6 +67,8 @@ def copy_safe_request(request, include_files=True):
     }
     if include_files:
         data['FILES'] = request.FILES
+    else:
+        data['FILES'] = MultiValueDict()
 
     return NetBoxFakeRequest(data)
 

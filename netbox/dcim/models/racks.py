@@ -638,9 +638,6 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, TrackingModelMixin, RackBase):
 
         return elevation.render(face)
 
-    def get_0u_devices(self):
-        return self.devices.filter(position=0)
-
     def get_utilization(self):
         """
         Determine the utilization rate of the rack and return it as a percentage. Occupied and reserved units both count

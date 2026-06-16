@@ -38,7 +38,7 @@ class WirelessLANFilter(
     TenancyFilterMixin,
     PrimaryModelFilter
 ):
-    ssid: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    ssid: StrFilterLookup | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -65,7 +65,7 @@ class WirelessLinkFilter(
         strawberry_django.filter_field()
     )
     interface_b_id: ID | None = strawberry_django.filter_field()
-    ssid: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    ssid: StrFilterLookup | None = strawberry_django.filter_field()
     status: BaseFilterLookup[Annotated['WirelessLANStatusEnum', strawberry.lazy('wireless.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )

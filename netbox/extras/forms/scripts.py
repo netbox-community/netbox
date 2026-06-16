@@ -112,5 +112,4 @@ class ScriptFileForm(ManagedFileForm):
             data = self.cleaned_data['upload_file']
             storage.save(filename, data)
 
-        # need to skip ManagedFileForm save method
-        return super(ManagedFileForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

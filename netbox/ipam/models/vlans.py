@@ -330,7 +330,7 @@ class VLAN(PrimaryModel):
                 )
 
         # Check that the VLAN ID is permitted in the assigned group (if any)
-        if self.group:
+        if self.group and self.vid is not None:
             if not any([self.vid in r for r in self.group.vid_ranges]):
                 raise ValidationError({
                     'vid': _(

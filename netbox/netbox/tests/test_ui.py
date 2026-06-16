@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 from django.template import Context, Template
 from django.test import RequestFactory, SimpleTestCase, TestCase
+from netaddr import IPNetwork
 
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.models import (
@@ -248,6 +249,29 @@ class TextAttrTestCase(TestCase):
         context = attr.get_context(obj, 'name', 'bar', {})
         self.assertEqual(context['style'], 'text-monospace')
         self.assertTrue(context['copy_button'])
+
+
+class ArrayAttrTestCase(TestCase):
+
+    def test_get_value(self):
+        attr = attrs.ArrayAttr('allowed_ips')
+        obj = SimpleNamespace(allowed_ips=[IPNetwork('192.168.1.1/32'), IPNetwork('2001:db8::/64')])
+        self.assertEqual(attr.get_value(obj), '192.168.1.1/32, 2001:db8::/64')
+
+    def test_get_value_empty(self):
+        attr = attrs.ArrayAttr('allowed_ips')
+        obj = SimpleNamespace(allowed_ips=[])
+        self.assertIsNone(attr.get_value(obj))
+
+    def test_get_value_none(self):
+        attr = attrs.ArrayAttr('allowed_ips')
+        obj = SimpleNamespace(allowed_ips=None)
+        self.assertIsNone(attr.get_value(obj))
+
+    def test_get_value_with_format_string(self):
+        attr = attrs.ArrayAttr('ports', format_string='{}/tcp')
+        obj = SimpleNamespace(ports=[80, 443])
+        self.assertEqual(attr.get_value(obj), '80/tcp, 443/tcp')
 
 
 class NumericAttrTestCase(TestCase):

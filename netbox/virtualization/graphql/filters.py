@@ -40,7 +40,7 @@ __all__ = (
 
 @strawberry_django.filter_type(models.Cluster, lookups=True)
 class ClusterFilter(ContactFilterMixin, ScopedFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
     type: Annotated['ClusterTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -96,7 +96,7 @@ class VirtualMachineFilter(
     TenancyFilterMixin,
     PrimaryModelFilter,
 ):
-    name: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    name: StrFilterLookup | None = strawberry_django.filter_field()
     virtual_machine_type: (
         Annotated['VirtualMachineTypeFilter', strawberry.lazy('virtualization.graphql.filters')] | None
     ) = strawberry_django.filter_field()
@@ -138,7 +138,7 @@ class VirtualMachineFilter(
     disk: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
-    serial: StrFilterLookup[str] | None = strawberry_django.filter_field()
+    serial: StrFilterLookup | None = strawberry_django.filter_field()
     interface_count: FilterLookup[int] | None = strawberry_django.filter_field()
     virtual_disk_count: FilterLookup[int] | None = strawberry_django.filter_field()
     interfaces: Annotated['VMInterfaceFilter', strawberry.lazy('virtualization.graphql.filters')] | None = (

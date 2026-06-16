@@ -1,7 +1,7 @@
 import json
 import urllib.parse
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -150,6 +150,77 @@ class JobTestCase(
                 ),
             ]
         )
+
+
+class JobLogViewTestCase(TestCase):
+    user_permissions = (
+        'core.view_job',
+    )
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.job = Job.objects.create(
+            name='Test Job',
+            job_id=uuid.uuid4(),
+        )
+        cls.job.log_entries = [
+            {
+                'level': 'info',
+                'message': f'log line {i}',
+                'timestamp': datetime(2026, 1, 1, tzinfo=UTC),
+            }
+            for i in range(120)
+        ]
+        cls.job.save()
+
+    def setUp(self):
+        super().setUp()
+        # UserConfig.set() mutates self.data in place, which can mutate DEFAULT_USER_PREFERENCES
+        # (the signal in users/signals.py initializes data with a shared reference). Assign a
+        # fresh literal instead. Pin per_page so page-boundary assertions don't depend on PAGINATE_COUNT.
+        self.user.config.data = {'pagination': {'per_page': 50}}
+        self.user.config.save()
+
+    def test_log_page_renders_table_inline(self):
+        """The full page renders the first log page inside an HTMX container."""
+        url = reverse('core:job_log', kwargs={'pk': self.job.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'htmx-container')
+        self.assertContains(response, 'log line 0')
+        self.assertContains(response, 'Showing 1-50 of 120')
+
+    def test_log_page_table_is_embedded(self):
+        """The embedded table never pushes page/per_page into the browser URL."""
+        url = reverse('core:job_log', kwargs={'pk': self.job.pk})
+        response = self.client.get(url)
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, 'hx-push-url="true"')
+
+    def test_log_table_htmx_renders_partial(self):
+        """An HTMX request returns the paginated table partial."""
+        url = reverse('core:job_log', kwargs={'pk': self.job.pk})
+        response = self.client.get(url, headers={'hx-request': 'true'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'log line 0')
+        self.assertContains(response, 'Showing 1-50 of 120')
+        self.assertContains(response, 'Per Page')
+
+    def test_log_table_htmx_page_navigation(self):
+        """`?page=2` advances the embedded table to the second page."""
+        url = reverse('core:job_log', kwargs={'pk': self.job.pk})
+        response = self.client.get(f'{url}?page=2', headers={'hx-request': 'true'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'log line 50')
+        self.assertNotContains(response, 'log line 49')
+
+    def test_log_table_htmx_per_page(self):
+        """`?per_page=100` widens the embedded table page size."""
+        url = reverse('core:job_log', kwargs={'pk': self.job.pk})
+        response = self.client.get(f'{url}?per_page=100', headers={'hx-request': 'true'})
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'log line 99')
+        self.assertNotContains(response, 'log line 100')
 
 
 # TODO: Convert to StandardTestCases.Views
@@ -315,9 +386,8 @@ class BackgroundTaskTestCase(RQQueueTestMixin, TestCase):
 
         # Enqueue & run a job that will fail
         job = queue.enqueue(self.dummy_job_failing)
-        worker = get_worker('default')
         with disable_logging():
-            worker.work(burst=True)
+            self.run_rq_jobs('default')
         self.assertTrue(job.is_failed)
 
         # Re-enqueue the failed job and check that its status has been reset

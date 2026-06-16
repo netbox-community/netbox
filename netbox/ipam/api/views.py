@@ -407,7 +407,7 @@ class AvailableIPAddressesView(AvailableObjectsView):
     def get_available_objects(self, parent, limit=None):
         # Calculate available IPs within the parent
         ip_list = []
-        for index, ip in enumerate(parent.get_available_ips(), start=1):
+        for index, ip in enumerate(parent.iter_available_ips(), start=1):
             ip_list.append(ip)
             if index == limit:
                 break

@@ -1,0 +1,21 @@
+name: Enforce issue templates
+
+on:
+  issues:
+    types:
+      - opened
+      - reopened
+
+permissions:
+  issues: write
+
+jobs:
+  no-blank-issue:
+    name: No Blank Issue
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Close new issues without labels
+        uses: ldez/no-blank-issue@800e2d0c81c9e0ca7bdb58f3e7480a74602d91e0  # v1.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,6 +1,7 @@
 import enum
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
 
 from utilities.data import get_config_value_ci
@@ -20,9 +21,10 @@ class ChoiceSetMeta(type):
 
         # Extend static choices with any configured choices
         if key := attrs.get('key'):
-            assert type(attrs['CHOICES']) is list, _(
-                "{name} has a key defined but CHOICES is not a list"
-            ).format(name=name)
+            if type(attrs['CHOICES']) is not list:
+                raise ImproperlyConfigured(
+                    _("{name} has a key defined but CHOICES is not a list").format(name=name)
+                )
             app = attrs['__module__'].split('.', 1)[0]
             replace_key = f'{app}.{key}'
             replace_choices = get_config_value_ci(settings.FIELD_CHOICES, replace_key)

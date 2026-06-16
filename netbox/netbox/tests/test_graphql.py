@@ -1,4 +1,5 @@
 import json
+import re
 
 import strawberry
 from django.contrib.contenttypes.models import ContentType
@@ -10,14 +11,17 @@ from strawberry.schema.config import StrawberryConfig
 
 from dcim.choices import LocationStatusChoices
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Site, VirtualChassis
-from extras.models import TableConfig
+from extras.models import TableConfig, Tag
 from netbox.graphql.scalars import BigInt, BigIntScalar
-from netbox.graphql.schema import Query, get_schema_extensions
+from netbox.graphql.schema import Query, get_schema_extensions, schema
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, TestCase, disable_warnings
 
 
 class GraphQLTestCase(TestCase):
+
+    def _schema_extension_instances(self):
+        return [factory() for factory in get_schema_extensions()]
 
     @override_settings(GRAPHQL_ENABLED=False)
     def test_graphql_enabled(self):
@@ -32,21 +36,21 @@ class GraphQLTestCase(TestCase):
         """
         QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is unset.
         """
-        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
     @override_settings(GRAPHQL_MAX_QUERY_DEPTH=0)
     def test_graphql_max_query_depth_disabled_when_zero(self):
         """
         QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is zero.
         """
-        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
     @override_settings(GRAPHQL_MAX_QUERY_DEPTH=-1)
     def test_graphql_max_query_depth_disabled_when_negative(self):
         """
         QueryDepthLimiter should not be installed when GRAPHQL_MAX_QUERY_DEPTH is negative.
         """
-        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in get_schema_extensions()))
+        self.assertFalse(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
     @override_settings(GRAPHQL_MAX_QUERY_DEPTH=3)
     def test_graphql_max_query_depth_enforced(self):
@@ -54,9 +58,9 @@ class GraphQLTestCase(TestCase):
         Queries exceeding GRAPHQL_MAX_QUERY_DEPTH should be rejected.
         """
         extensions = get_schema_extensions()
-        self.assertTrue(any(isinstance(ext, QueryDepthLimiter) for ext in extensions))
+        self.assertTrue(any(isinstance(ext, QueryDepthLimiter) for ext in self._schema_extension_instances()))
 
-        # Build a temporary schema with the configured extensions and execute a deep query
+        # Build a temporary schema with the configured extension factories and execute a deep query
         test_schema = strawberry.Schema(
             query=Query,
             config=StrawberryConfig(auto_camel_case=False, scalar_map={BigInt: BigIntScalar}),
@@ -86,6 +90,30 @@ class GraphQLTestCase(TestCase):
         response = self.client.get(url, **header)
         with disable_warnings('django.request'):
             self.assertHttpStatus(response, 302)  # Redirect to login page
+
+    def test_json_lookup_schema_is_string_backed(self):
+        """JSONLookup date/time lookups keep the legacy string-backed input types and fields."""
+        sdl = schema.as_str()
+
+        def input_block(name):
+            match = re.search(rf'^input {re.escape(name)}\b.*?^\}}', sdl, re.DOTALL | re.MULTILINE)
+            self.assertIsNotNone(match, f'{name} not found in schema')
+            return match.group(0)
+
+        # JSONLookup points at the legacy string-backed lookup type names
+        json_lookup = input_block('JSONLookup')
+        self.assertIn('date_lookup: StrDateFilterLookup', json_lookup)
+        self.assertIn('datetime_lookup: StrDatetimeFilterLookup', json_lookup)
+        self.assertIn('time_lookup: StrTimeFilterLookup', json_lookup)
+
+        # Value fields are string-backed, not Date/DateTime/Time scalars
+        self.assertIn('exact: String', input_block('StrDateFilterLookup'))
+
+        # Legacy date/time sub-lookups remain integer comparison lookups
+        for name in ('StrTimeFilterLookup', 'StrDatetimeFilterLookup'):
+            block = input_block(name)
+            self.assertIn('date: IntComparisonFilterLookup', block)
+            self.assertIn('time: IntComparisonFilterLookup', block)
 
 
 class GraphQLAPITestCase(APITestCase):
@@ -184,6 +212,72 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(len(data['data']['site']['locations']), 0)
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_nested_filter_objects(self):
+        """
+        Test filtering of nested GraphQL object lists.
+        """
+        self.add_permissions('dcim.view_site', 'dcim.view_location', 'extras.view_tag')
+
+        site = Site.objects.create(
+            name='Nested Filter Site',
+            slug='nested-filter-site'
+        )
+
+        # Location is MPTT-managed; bulk_create skips tree-init hooks. Use per-instance create.
+        Location.objects.create(
+            site=site,
+            name='Nested Active 1',
+            slug='nested-active-1',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=site,
+            name='Nested Active 2',
+            slug='nested-active-2',
+            status=LocationStatusChoices.STATUS_ACTIVE,
+        )
+        Location.objects.create(
+            site=site,
+            name='Nested Planned',
+            slug='nested-planned',
+            status=LocationStatusChoices.STATUS_PLANNED,
+        )
+
+        planned = Tag.objects.create(name='Planned', slug='planned')
+        production = Tag.objects.create(name='Production', slug='production')
+        staging = Tag.objects.create(name='Staging', slug='staging')
+        site.tags.add(planned, production, staging)
+
+        url = reverse('graphql')
+        query = f"""
+        {{
+          site(id: {site.pk}) {{
+            locations(filters: {{status: {{exact: STATUS_ACTIVE}}}}) {{
+              name
+            }}
+            tags(filters: {{name: {{i_starts_with: "P"}}}}) {{
+              name
+            }}
+          }}
+        }}
+        """
+
+        response = self.client.post(url, data={'query': query}, format="json", **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+
+        self.assertEqual(
+            {location['name'] for location in data['data']['site']['locations']},
+            {'Nested Active 1', 'Nested Active 2'}
+        )
+        self.assertEqual(
+            {tag['name'] for tag in data['data']['site']['tags']},
+            {'Planned', 'Production'}
+        )
 
     def test_graphql_integer_range_lookup(self):
         """
@@ -411,3 +505,97 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertIn('errors', data)
         self.assertEqual(data['errors'][0]['message'], 'Cannot specify both `start` and `offset` in pagination.')
+
+
+class JSONPathValidationTestCase(TestCase):
+    """Unit tests for _validate_json_path (VM-323 security fix)."""
+
+    def setUp(self):
+        from netbox.graphql.filter_lookups import _validate_json_path
+        self.validate = _validate_json_path
+
+    # --- Valid paths ---
+
+    def test_single_key(self):
+        self.assertEqual(self.validate('key'), 'key')
+
+    def test_nested_key(self):
+        self.assertEqual(self.validate('parent__child'), 'parent__child')
+
+    def test_deeply_nested(self):
+        self.assertEqual(self.validate('a__b__c'), 'a__b__c')
+
+    def test_key_with_underscores(self):
+        self.assertEqual(self.validate('my_key'), 'my_key')
+
+    def test_key_with_hyphens(self):
+        self.assertEqual(self.validate('my-key'), 'my-key')
+
+    def test_numeric_array_index(self):
+        self.assertEqual(self.validate('items__0'), 'items__0')
+
+    def test_alphanumeric_segment(self):
+        self.assertEqual(self.validate('key123'), 'key123')
+
+    def test_key_with_leading_underscore(self):
+        # JSON keys may start with underscore (e.g. _foo)
+        self.assertEqual(self.validate('_key'), '_key')
+
+    def test_orm_operator_name_as_key(self):
+        # 'date', 'regex' etc. are valid JSON key names; the path validator
+        # must not block them.  The ORM injection risk is neutralised by the
+        # trailing __ that JSONFilter always appends before process_filters.
+        self.assertEqual(self.validate('date'), 'date')
+        self.assertEqual(self.validate('key__regex'), 'key__regex')
+        self.assertEqual(self.validate('key__exact'), 'key__exact')
+
+    # --- Invalid paths ---
+
+    def test_rejects_empty_string(self):
+        with self.assertRaises(ValueError):
+            self.validate('')
+
+    def test_rejects_all_underscores(self):
+        # '___' splits into segments ['', '', ''] via '__' — empty segments rejected
+        with self.assertRaises(ValueError):
+            self.validate('___')
+
+    def test_accepts_trailing_single_underscore(self):
+        # A single trailing underscore is a valid JSON key character
+        self.assertEqual(self.validate('key_'), 'key_')
+
+    def test_rejects_trailing_double_underscore(self):
+        with self.assertRaises(ValueError):
+            self.validate('key__')
+
+    def test_rejects_leading_double_underscore(self):
+        with self.assertRaises(ValueError):
+            self.validate('__key')
+
+    def test_rejects_consecutive_double_underscores(self):
+        with self.assertRaises(ValueError):
+            self.validate('key1____key2')
+
+    def test_rejects_segment_starting_with_special_char(self):
+        with self.assertRaises(ValueError):
+            self.validate('$secret')
+
+    def test_rejects_path_with_spaces(self):
+        with self.assertRaises(ValueError):
+            self.validate('key one')
+
+    def test_rejects_path_with_dot(self):
+        with self.assertRaises(ValueError):
+            self.validate('key.subkey')
+
+
+class JSONStringLookupTestCase(TestCase):
+    """Verify JSONStringLookup exposes the expected set of string operators."""
+
+    def test_string_operators_present(self):
+        from netbox.graphql.filter_lookups import JSONStringLookup
+        field_names = {f.name for f in JSONStringLookup.__strawberry_definition__.fields}
+        for expected in ('exact', 'i_exact', 'contains', 'i_contains',
+                         'starts_with', 'i_starts_with', 'ends_with', 'i_ends_with',
+                         'in_', 'isnull', 'regex', 'i_regex'):
+            self.assertIn(expected, field_names, f"{expected!r} must be present on JSONStringLookup")

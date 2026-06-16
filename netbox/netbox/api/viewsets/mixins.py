@@ -10,6 +10,7 @@ from rest_framework.reverse import reverse
 from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
+from netbox.api.serializers.bulk import get_bulk_update_serializer_class
 from netbox.jobs import AsyncAPIJob
 from utilities.exceptions import RQWorkerNotRunningException
 from utilities.rqworker import any_workers_for_queue
@@ -239,6 +240,20 @@ class BulkUpdateModelMixin:
                 updated_pks.append(obj.pk)
 
         return updated_pks
+
+    def get_bulk_update_serializer_class(self, *, partial=False):
+        return get_bulk_update_serializer_class(
+                self.get_serializer_class(),
+                partial=partial,
+            )
+
+    def get_bulk_update_request_serializer(self, *, partial=False):
+        serializer_class = self.get_bulk_update_serializer_class(partial=partial)
+
+        # Important: do NOT pass partial=True here. The partial schema class already
+        # makes non-id fields optional, and passing partial=True would also make id
+        # appear optional in OpenAPI.
+        return serializer_class(many=True)
 
     def bulk_partial_update(self, request, *args, **kwargs):
         kwargs['partial'] = True

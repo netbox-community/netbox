@@ -1,13 +1,16 @@
 import datetime
 
 from django.conf import settings
-from django.test import Client
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test import Client, RequestFactory, SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.test import APIClient
+from social_core.exceptions import AuthFailed
 
 from core.models import ObjectType
 from dcim.models import Rack, Site
+from netbox.middleware import SocialAuthExceptionMiddleware
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
 from utilities.testing import TestCase
@@ -697,3 +700,56 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         url = reverse('dcim-api:rack-detail', kwargs={'pk': self.racks[0].pk})
         response = self.client.delete(url, format='json', **self.header)
         self.assertEqual(response.status_code, 204)
+
+
+class SocialAuthExceptionMiddlewareTestCase(SimpleTestCase):
+    """
+    Verify that SSO/SAML authentication failures are surfaced as a login-page message rather than
+    bubbling up as an HTTP 500 (see #22346).
+    """
+    GENERIC_MESSAGE = "Single sign-on failed. Please try again or contact your administrator."
+
+    class FakeStrategy:
+        # Mirror social_core's DjangoStrategy.setting(), which reads SOCIAL_AUTH_<NAME> from Django
+        # settings. This ensures the test exercises the real configured values (e.g.
+        # SOCIAL_AUTH_LOGIN_ERROR_URL) rather than hardcoded stand-ins.
+        def setting(self, name, default=None, backend=None):
+            return getattr(settings, f'SOCIAL_AUTH_{name}', default)
+
+    class FakeBackend:
+        name = 'saml'
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = SocialAuthExceptionMiddleware(lambda request: None)
+
+    def _make_request(self):
+        request = self.factory.get('/')
+        request.social_strategy = self.FakeStrategy()
+        request.backend = self.FakeBackend()
+        # Attach message storage (normally provided by MessageMiddleware)
+        setattr(request, 'session', {})
+        request._messages = FallbackStorage(request)
+        return request
+
+    def test_generic_message(self):
+        """
+        The raw exception text should never be surfaced to the user.
+        """
+        request = self._make_request()
+        exception = AuthFailed(self.FakeBackend(), 'raw internal SAML detail')
+        self.assertEqual(self.middleware.get_message(request, exception), self.GENERIC_MESSAGE)
+
+    def test_redirect_on_failure(self):
+        """
+        A SocialAuthBaseException should redirect to the login page with the generic message set.
+        """
+        request = self._make_request()
+        exception = AuthFailed(self.FakeBackend(), 'raw internal SAML detail')
+        response = self.middleware.process_exception(request, exception)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, settings.SOCIAL_AUTH_LOGIN_ERROR_URL)
+        self.assertEqual(response.url, settings.LOGIN_URL)
+        messages = [str(m) for m in request._messages]
+        self.assertEqual(messages, [self.GENERIC_MESSAGE])

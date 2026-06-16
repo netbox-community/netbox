@@ -503,6 +503,15 @@ class InterfaceTestCase(TestCase):
         self.assertNotIn('qinq_svlan', form.cleaned_data.keys())
 
 
+class CableTestCase(TestCase):
+
+    def test_invalid_side_designation_raises_value_error(self):
+        """_clean_side rejects a side other than 'a' or 'b' with ValueError."""
+        form = CableImportForm.__new__(CableImportForm)
+        with self.assertRaisesMessage(ValueError, "Invalid side designation: c"):
+            form._clean_side('c')
+
+
 class SiteFormTestCase(TestCase):
     """
     Tests for M2MAddRemoveFields using Site ASN assignments as the test case.

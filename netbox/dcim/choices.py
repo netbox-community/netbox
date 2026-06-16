@@ -1637,6 +1637,10 @@ class PortTypeChoices(ChoiceSet):
     TYPE_LC_PC = 'lc-pc'
     TYPE_LC_UPC = 'lc-upc'
     TYPE_LC_APC = 'lc-apc'
+    TYPE_MU = 'mu'
+    TYPE_MU_PC = 'mu-pc'
+    TYPE_MU_UPC = 'mu-upc'
+    TYPE_MU_APC = 'mu-apc'
     TYPE_MTRJ = 'mtrj'
     TYPE_MPO = 'mpo'
     TYPE_LSH = 'lsh'
@@ -1700,6 +1704,10 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_LC_PC, 'LC/PC'),
                 (TYPE_LC_UPC, 'LC/UPC'),
                 (TYPE_LC_APC, 'LC/APC'),
+                (TYPE_MU, 'MU'),
+                (TYPE_MU_PC, 'MU/PC'),
+                (TYPE_MU_UPC, 'MU/UPC'),
+                (TYPE_MU_APC, 'MU/APC'),
                 (TYPE_LSH, 'LSH'),
                 (TYPE_LSH_PC, 'LSH/PC'),
                 (TYPE_LSH_UPC, 'LSH/UPC'),

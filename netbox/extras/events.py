@@ -125,7 +125,13 @@ def enqueue_event(queue, instance, request, event_type):
     app_label = instance._meta.app_label
     model_name = instance._meta.model_name
 
-    assert instance.pk is not None
+    if instance.pk is None:
+        raise ValueError(
+            _("Cannot enqueue an event for an unsaved {app_label}.{model} instance.").format(
+                app_label=app_label,
+                model=model_name,
+            )
+        )
     key = f'{app_label}.{model_name}:{instance.pk}'
 
     if key in queue:
@@ -251,7 +257,7 @@ def process_event_rules(event_rules, object_type, event):
             if 'snapshots' in event:
                 params['snapshots'] = event['snapshots']
             if 'request' in event:
-                params['request'] = copy_safe_request(event['request'])
+                params['request'] = copy_safe_request(event['request'], include_files=False)
 
             # Enqueue the job
             ScriptJob.enqueue(**params)

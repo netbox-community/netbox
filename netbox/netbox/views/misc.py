@@ -1,4 +1,5 @@
 import logging
+import posixpath
 import re
 from collections import namedtuple
 
@@ -6,6 +7,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
@@ -13,8 +16,10 @@ from django.views.static import serve
 from django_tables2 import RequestConfig
 from packaging import version
 
+from dcim.models import DeviceType
 from extras.constants import DEFAULT_DASHBOARD
 from extras.dashboard.utils import get_dashboard, get_default_dashboard
+from extras.models import ImageAttachment
 from netbox.forms import SearchForm
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
@@ -131,7 +136,29 @@ class SearchView(ConditionalLoginRequiredMixin, View):
 
 class MediaView(TokenConditionalLoginRequiredMixin, View):
     """
-    Wrap Django's serve() view to enforce LOGIN_REQUIRED for static media.
+    Serve uploaded media files, enforcing authentication and view permission on the associated object.
     """
     def get(self, request, path):
-        return serve(request, path, document_root=settings.MEDIA_ROOT)
+
+        # Normalize the path to prevent traversal sequences (e.g. "foo/../image-attachments/...")
+        # from bypassing the directory checks below.
+        path = posixpath.normpath(path).lstrip('/')
+
+        # For known upload directories, resolve the path to an owning record and
+        # enforce object-level view permission. restrict() returns .none() when the
+        # user lacks permission, so a denial and a missing file are both 404s.
+        # Paths outside these directories (e.g. plugin uploads) fall through
+        # to the original behaviour.
+        if path.startswith('image-attachments/'):
+            if not ImageAttachment.objects.restrict(request.user, 'view').filter(image=path).exists():
+                raise Http404
+        elif path.startswith('devicetype-images/'):
+            if not DeviceType.objects.restrict(request.user, 'view').filter(
+                Q(front_image=path) | Q(rear_image=path)
+            ).exists():
+                raise Http404
+
+        response = serve(request, path, document_root=settings.MEDIA_ROOT)
+        response['Content-Disposition'] = 'attachment'
+        response['X-Content-Type-Options'] = 'nosniff'
+        return response

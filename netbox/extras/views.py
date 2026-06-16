@@ -481,6 +481,14 @@ class TableConfigEditView(SharedObjectViewMixin, generic.ObjectEditView):
     form = forms.TableConfigForm
     template_name = 'extras/tableconfig_edit.html'
 
+    def get(self, request, *args, **kwargs):
+        # The add view requires the object_type & table parameters from the source table view
+        if not kwargs and not (request.GET.get('object_type') and request.GET.get('table')):
+            messages.warning(request, _('Table configurations must be created from an object list view.'))
+            return redirect('home')
+
+        return super().get(request, *args, **kwargs)
+
     def alter_object(self, obj, request, url_args, url_kwargs):
         if not obj.pk:
             obj.user = request.user

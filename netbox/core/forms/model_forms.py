@@ -115,15 +115,6 @@ class ManagedFileForm(SyncedDataMixin, NetBoxModelForm):
 
         return self.cleaned_data
 
-    def save(self, *args, **kwargs):
-        # If a file was uploaded, save it to disk
-        if self.cleaned_data['upload_file']:
-            self.instance.file_path = self.cleaned_data['upload_file'].name
-            with open(self.instance.full_path, 'wb+') as new_file:
-                new_file.write(self.cleaned_data['upload_file'].read())
-
-        return super().save(*args, **kwargs)
-
 
 class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
 

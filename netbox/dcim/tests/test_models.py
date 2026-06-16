@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
 from django.test import TestCase, tag
 
 from circuits.models import *
@@ -1187,6 +1188,105 @@ class ModuleBayTestCase(TestCase):
         # tree: its path is now a strict descendant of host_bay's path.
         self.assertTrue(str(movable_bay.path).startswith(f'{host_bay.path}.'))
 
+    @tag('regression')  # #22251
+    def test_moving_module_reparents_child_module_bays(self):
+        """
+        When a module is moved to a different module bay, each child ModuleBay
+        (a bay that belongs to the module) must have its parent updated to the
+        new host bay. Without the fix the children stay parented to the old bay
+        even though Module.module_bay_id has changed.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Move Module Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        bay_a = ModuleBay.objects.create(device=device, name='Bay A')
+        bay_b = ModuleBay.objects.create(device=device, name='Bay B')
+
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Move Module Type'
+        )
+        module = Module.objects.create(
+            device=device, module_bay=bay_a, module_type=module_type
+        )
+
+        child_1 = ModuleBay.objects.create(device=device, module=module, name='Child Bay 1')
+        child_2 = ModuleBay.objects.create(device=device, module=module, name='Child Bay 2')
+        self.assertEqual(child_1.parent_id, bay_a.pk)
+        self.assertEqual(child_2.parent_id, bay_a.pk)
+
+        # Move the module to bay_b.
+        module.module_bay = bay_b
+        module.save()
+
+        child_1.refresh_from_db()
+        child_2.refresh_from_db()
+        self.assertEqual(child_1.parent_id, bay_b.pk)
+        self.assertEqual(child_2.parent_id, bay_b.pk)
+        # Children must be re-rooted under bay_b in the ltree hierarchy.
+        bay_b.refresh_from_db()
+        self.assertTrue(str(child_1.path).startswith(f'{bay_b.path}.'))
+        self.assertTrue(str(child_2.path).startswith(f'{bay_b.path}.'))
+
+    @tag('regression')  # #22251
+    def test_moving_module_reparents_grandchild_module_bays(self):
+        """
+        When a module is moved, grandchild ModuleBays (bays inside a module
+        that is itself installed inside a child bay of the moved module) must
+        also land in the new ltree subtree. The trigger cascade moves subtrees
+        atomically, so calling save() only on direct children is sufficient —
+        this test documents and preserves that invariant for future tree-backend
+        changes.
+        """
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+        site = Site.objects.first()
+        device = Device.objects.create(
+            name='Grandchild Move Device',
+            device_type=device_type,
+            role=device_role,
+            site=site,
+        )
+        bay_a = ModuleBay.objects.create(device=device, name='Bay A')
+        bay_b = ModuleBay.objects.create(device=device, name='Bay B')
+
+        manufacturer = Manufacturer.objects.first()
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Grandchild Move Type'
+        )
+        # Depth-1: module installed in bay_a, with one child bay.
+        module_1 = Module.objects.create(device=device, module_bay=bay_a, module_type=module_type)
+        child_bay = ModuleBay.objects.create(device=device, module=module_1, name='Child Bay')
+
+        # Depth-2: module installed in child_bay, with one grandchild bay.
+        module_2 = Module.objects.create(device=device, module_bay=child_bay, module_type=module_type)
+        grandchild_bay = ModuleBay.objects.create(device=device, module=module_2, name='Grandchild Bay')
+
+        self.assertEqual(child_bay.parent_id, bay_a.pk)
+        self.assertEqual(grandchild_bay.parent_id, child_bay.pk)
+        bay_a.refresh_from_db()
+        self.assertTrue(str(grandchild_bay.path).startswith(f'{bay_a.path}.'))
+
+        # Move the top-level module to bay_b.
+        module_1.module_bay = bay_b
+        module_1.save()
+
+        child_bay.refresh_from_db()
+        grandchild_bay.refresh_from_db()
+        bay_b.refresh_from_db()
+
+        self.assertEqual(child_bay.parent_id, bay_b.pk)
+        self.assertTrue(str(child_bay.path).startswith(f'{bay_b.path}.'))
+        # Grandchild's direct parent (child_bay) is unchanged; only tree placement moves.
+        self.assertEqual(grandchild_bay.parent_id, child_bay.pk)
+        self.assertTrue(str(grandchild_bay.path).startswith(f'{bay_b.path}.'))
+
     def test_single_module_token(self):
         device_type = DeviceType.objects.first()
         device_role = DeviceRole.objects.first()
@@ -2065,6 +2165,73 @@ class CableTestCase(TestCase):
         self.assertIsNone(data['connected_endpoints'])
         self.assertIsNone(data['connected_endpoints_type'])
         self.assertFalse(data['connected_endpoints_reachable'])
+
+    @tag('regression')  # #21338
+    def test_path_refreshes_unset_cablepath_reference(self):
+        """
+        An endpoint instance saved during cable creation, before path tracing,
+        should resolve its path and connected endpoints.
+
+        The stale-instance preconditions rely on Cable.save() saving each
+        CableTermination (which re-saves the endpoint) before trace_paths
+        creates the CablePath records.
+        """
+        device = Device.objects.get(name='TestDevice2')
+        interface_a = Interface.objects.create(device=device, name='eth2')
+        interface_b = Interface.objects.create(device=device, name='eth3')
+
+        # Capture the instances handed to the event machinery on save
+        saved_instances = []
+
+        def capture(sender, instance, **kwargs):
+            saved_instances.append(instance)
+
+        post_save.connect(capture, sender=Interface)
+        try:
+            Cable(a_terminations=[interface_a], b_terminations=[interface_b]).save()
+        finally:
+            post_save.disconnect(capture, sender=Interface)
+
+        self.assertEqual(len(saved_instances), 2)
+        captured_a = next(i for i in saved_instances if i.pk == interface_a.pk)
+        captured_b = next(i for i in saved_instances if i.pk == interface_b.pk)
+
+        # The captured instances predate path tracing: cabled, but no path yet
+        self.assertIsNotNone(captured_a.cable_id)
+        self.assertIsNone(captured_a._path_id)
+        self.assertIsNone(captured_b._path_id)
+
+        # The accessor must repair the unset denormalized reference
+        self.assertIsNotNone(captured_a.path)
+        self.assertEqual(captured_a.connected_endpoints, [interface_b])
+
+        # Serialization as performed by the event queue must see the peer
+        data = serialize_for_event(captured_b)
+        self.assertEqual([endpoint['id'] for endpoint in data['connected_endpoints']], [interface_a.pk])
+        self.assertEqual([peer['id'] for peer in data['link_peers']], [interface_a.pk])
+        self.assertTrue(data['connected_endpoints_reachable'])
+
+    def test_path_returns_none_for_unsaved_endpoint(self):
+        """
+        An unsaved endpoint with a link assigned should report no path rather
+        than attempting a database refresh.
+        """
+        device = Device.objects.get(name='TestDevice1')
+        cable = Cable.objects.first()
+        interface = Interface(device=device, name='tmp', cable=cable)
+        self.assertIsNone(interface.path)
+
+
+class CableTerminationTestCase(TestCase):
+
+    def test_cache_related_objects_requires_resolvable_termination(self):
+        """cache_related_objects raises ValueError when the termination cannot be resolved."""
+        cable_termination = CableTermination(
+            termination_type=ObjectType.objects.get_for_model(Interface),
+            termination_id=0,
+        )
+        with self.assertRaises(ValueError):
+            cable_termination.cache_related_objects()
 
 
 class VirtualDeviceContextTestCase(TestCase):

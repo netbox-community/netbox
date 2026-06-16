@@ -1583,7 +1583,8 @@ class CableImportForm(PrimaryModelImportForm):
 
         :param side: 'a' or 'b'
         """
-        assert side in 'ab', f"Invalid side designation: {side}"
+        if side not in ('a', 'b'):
+            raise ValueError(_("Invalid side designation: {side}").format(side=side))
 
         device = self.cleaned_data.get(f'side_{side}_device')
         power_panel = self.cleaned_data.get(f'side_{side}_power_panel')

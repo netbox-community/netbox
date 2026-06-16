@@ -514,6 +514,7 @@ MIDDLEWARE = [
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
+    'netbox.middleware.SocialAuthExceptionMiddleware',
 ]
 
 if DEBUG:
@@ -712,6 +713,13 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+
+# Redirect users back to the login page (surfacing the error via the messages framework) when an
+# SSO/SAML authentication failure occurs, rather than raising an HTTP 500. Full exceptions are still
+# raised when DEBUG is enabled. LOGIN_URL is an absolute path which respects BASE_PATH; the social
+# auth middleware passes this value directly to an HttpResponseRedirect without reversing it.
+SOCIAL_AUTH_LOGIN_ERROR_URL = LOGIN_URL
+SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
 
 # Load all SOCIAL_AUTH_* settings from the user configuration
 for param in dir(configuration):

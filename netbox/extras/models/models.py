@@ -649,6 +649,10 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
     def clean(self):
         super().clean()
 
+        # Skip table validation until the object type and table have been set
+        if not self.object_type_id or not self.table:
+            return
+
         # Validate table
         if self.table_class is None:
             raise ValidationError({
@@ -667,7 +671,7 @@ class TableConfig(CloningMixin, ChangeLoggedModel):
                 })
 
         # Validate selected columns
-        for name in self.columns:
+        for name in self.columns or []:
             if name not in table.columns:
                 raise ValidationError({
                     'columns': _('Unknown column: {name}').format(name=name)

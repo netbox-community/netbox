@@ -463,6 +463,78 @@ class TokenGrantPermissionTestCase(TestCase):
         self.assertEqual(token.user, owner)
         self.assertEqual(token.description, 'updated')
 
+    def _add_constrained_grant_permission(self, constraints):
+        """Add a constrained grant_token ObjectPermission to self.user."""
+        token_ct = ObjectType.objects.get_by_natural_key('users', 'token')
+        perm = ObjectPermission(
+            name='constrained_grant_token',
+            constraints=constraints,
+            actions=['grant'],
+        )
+        perm.save()
+        perm.users.add(self.user)
+        perm.object_types.add(token_ct)
+
+    def test_create_token_via_form_constrained_grant_is_enforced(self):
+        """
+        Regression: SR-001 / VM-322 — constrained grant_token ObjectPermissions must not
+        be bypassed via the UI create form. has_perm(obj=None) short-circuits to True
+        without evaluating constraints; user_may_grant_token() applies them correctly.
+        """
+        superuser = User.objects.create_user(username='form_constrained_super', is_superuser=True)
+        regular = User.objects.create_user(username='form_constrained_regular')
+        self._add_constrained_grant_permission({'user__is_superuser': False})
+
+        # Constrained grant must deny token creation for a superuser.
+        response = self.client.post(reverse('users:token_add'), data={
+            'version': 2,
+            'user': superuser.pk,
+            'description': 'constrained denied',
+            'enabled': 'on',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Token.objects.filter(user=superuser).exists())
+
+        # Constrained grant must allow token creation for a non-superuser.
+        response = self.client.post(reverse('users:token_add'), data={
+            'version': 2,
+            'user': regular.pk,
+            'description': 'constrained allowed',
+            'enabled': 'on',
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Token.objects.filter(description='constrained allowed', user=regular).exists())
+
+    def test_bulk_import_token_constrained_grant_is_enforced(self):
+        """
+        Regression: SR-001 / VM-322 — constrained grant_token ObjectPermissions must not
+        be bypassed via bulk CSV import. has_perm(obj=None) short-circuits to True
+        without evaluating constraints; user_may_grant_token() applies them correctly.
+        """
+        superuser = User.objects.create_user(username='bulk_constrained_super', is_superuser=True)
+        regular = User.objects.create_user(username='bulk_constrained_regular')
+        self._add_constrained_grant_permission({'user__is_superuser': False})
+
+        # Constrained grant must deny bulk import for a superuser.
+        csv_data = '\n'.join(('user,description', f"{superuser.pk},bulk denied"))
+        response = self.client.post(reverse('users:token_bulk_import'), data={
+            'data': csv_data,
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Token.objects.filter(user=superuser).exists())
+
+        # Constrained grant must allow bulk import for a non-superuser.
+        csv_data = '\n'.join(('user,description', f"{regular.pk},bulk allowed"))
+        response = self.client.post(reverse('users:token_bulk_import'), data={
+            'data': csv_data,
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Token.objects.filter(description='bulk allowed', user=regular).exists())
+
 
 class OwnerGroupTestCase(ViewTestCases.AdminModelViewTestCase):
     model = OwnerGroup

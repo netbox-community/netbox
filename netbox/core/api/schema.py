@@ -14,7 +14,7 @@ from drf_spectacular.plumbing import (
     get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import Direction
+from drf_spectacular.utils import Direction, OpenApiParameter
 
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import WritableNestedSerializer
@@ -138,14 +138,30 @@ class NetBoxAutoSchema(AutoSchema):
         return super().get_operation_id()
 
     def get_request_serializer(self) -> typing.Any:
-        # bulk operations should specify a list
         serializer = super().get_request_serializer()
 
+        # Bulk update/partial-update has a special request shape: a list of
+        # writable objects plus a required `id` field. The normal writable
+        # serializer omits `id` because it is read-only, so don't use the generic
+        # bulk handling for these actions.
+        action = getattr(self.view, 'action', None)
+        if action in ('bulk_update', 'bulk_partial_update'):
+            get_bulk_update_request_serializer = getattr(
+                self.view,
+                'get_bulk_update_request_serializer',
+                None,
+            )
+            if get_bulk_update_request_serializer is not None:
+                return get_bulk_update_request_serializer(
+                    partial=(action == 'bulk_partial_update' or self.method == 'PATCH')
+                )
+
+        # Bulk creates/deletes should specify a list.
         if self.is_bulk_action:
             return type(serializer)(many=True)
 
-        # handle mapping for Writable serializers - adapted from dansheps original code
-        # for drf-yasg
+        # handle mapping for Writable serializers - adapted from dansheps original
+        # code for drf-yasg.
         if serializer is not None and self.method in WRITABLE_ACTIONS:
             writable_class = self.get_writable_class(serializer)
             if writable_class is not None:
@@ -257,6 +273,37 @@ class NetBoxAutoSchema(AutoSchema):
 
         writable_class = self.writable_serializers[type(serializer)]
         return writable_class
+
+    def get_override_parameters(self):
+        params = super().get_override_parameters()
+        # Expose the ?fields, ?omit, and ?brief query parameters supported by NetBoxModelViewSet
+        # for all non-bulk GET operations (both list and detail).
+        if not self.is_bulk_action and self.method == 'GET':
+            params = list(params) + [
+                OpenApiParameter(
+                    name='fields',
+                    location=OpenApiParameter.QUERY,
+                    required=False,
+                    type=OpenApiTypes.STR,
+                    description='Comma-separated list of fields to include in the response. Example: `fields=id,name`.',
+                ),
+                OpenApiParameter(
+                    name='omit',
+                    location=OpenApiParameter.QUERY,
+                    required=False,
+                    type=OpenApiTypes.STR,
+                    description='Comma-separated list of fields to exclude from the response. '
+                                'Example: `omit=description,tags`.',
+                ),
+                OpenApiParameter(
+                    name='brief',
+                    location=OpenApiParameter.QUERY,
+                    required=False,
+                    type=OpenApiTypes.BOOL,
+                    description='Return only brief fields for each object.',
+                ),
+            ]
+        return params
 
     def get_filter_backends(self):
         # bulk operations don't have filter params

@@ -1,6 +1,6 @@
 import hashlib
 import hmac
-import random
+import secrets
 import zoneinfo
 
 from django.conf import settings
@@ -267,7 +267,7 @@ class Token(models.Model):
         """
         Generate and return a random token value of the given length.
         """
-        return ''.join(random.choice(TOKEN_CHARSET) for _ in range(length))
+        return ''.join(secrets.choice(TOKEN_CHARSET) for _ in range(length))
 
     def update_digest(self):
         """
@@ -289,7 +289,7 @@ class Token(models.Model):
         digest.
         """
         if self.v1:
-            return token == self.token
+            return hmac.compare_digest(token, self.plaintext)
         if self.v2:
             token = token.removeprefix(TOKEN_PREFIX)
             try:
@@ -298,7 +298,7 @@ class Token(models.Model):
                 # Invalid pepper ID
                 return False
             digest = hmac.new(pepper.encode('utf-8'), token.encode('utf-8'), hashlib.sha256).hexdigest()
-            return digest == self.hmac_digest
+            return hmac.compare_digest(digest, self.hmac_digest)
         return False
 
     def validate_client_ip(self, client_ip):

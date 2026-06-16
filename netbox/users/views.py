@@ -16,6 +16,7 @@ from netbox.ui.panels import (
 )
 from netbox.views import generic
 from users.ui import panels
+from users.utils import user_may_grant_token
 from utilities.query import count_related
 from utilities.views import GetRelatedModelsMixin, register_model_view
 
@@ -86,7 +87,7 @@ class TokenBulkImportView(generic.BulkImportView):
         # creation; TokenImportForm disables the user field on update, so an existing Token's owner cannot change.
         token_user = object_form.cleaned_data.get('user')
         if object_form.instance._state.adding and token_user and token_user != request.user \
-                and not request.user.has_perm('users.grant_token'):
+                and not user_may_grant_token(request.user, token_user):
             raise ValidationError(_("This user does not have permission to create tokens for other users."))
         return super().save_object(object_form, request)
 

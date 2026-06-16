@@ -210,6 +210,26 @@ class TableConfigTestCase(TestCase):
         # Must not raise TypeError: 'NoneType' object is not iterable
         tc.full_clean()
 
+    def test_clean_without_object_type(self):
+        """full_clean() on an instance missing its object type must raise ValidationError."""
+        tc = TableConfig(
+            table=self.table_name,
+            name='No object type',
+            columns=['name'],
+        )
+        with self.assertRaises(ValidationError):
+            tc.full_clean()
+
+    def test_clean_accepts_columns_none(self):
+        """full_clean() must report missing columns rather than raise TypeError."""
+        tc = TableConfig(
+            object_type=self.site_ct,
+            table=self.table_name,
+            name='No columns',
+        )
+        with self.assertRaises(ValidationError):
+            tc.full_clean()
+
 
 class TagTestCase(TestCase):
 

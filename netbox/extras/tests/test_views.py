@@ -2,6 +2,7 @@ import uuid
 from unittest.mock import PropertyMock, patch
 
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.messages import get_messages
 from django.test import tag
 from django.urls import reverse
 
@@ -277,13 +278,16 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class TableConfigTestCase(
     ViewTestCases.GetObjectViewTestCase,
     ViewTestCases.GetObjectChangelogViewTestCase,
-    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
     ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
-    # Add/Edit/BulkEdit views require an object_type pre-context from the source
-    # table view, so they are not exercised here.
     model = TableConfig
+    # Selected columns are POSTed as a list but compared as a CSV string
+    validation_excluded_fields = ('columns',)
 
     @classmethod
     def setUpTestData(cls):
@@ -319,6 +323,45 @@ class TableConfigTestCase(
             ),
         )
         TableConfig.objects.bulk_create(table_configs)
+
+        cls.form_data = {
+            'name': 'Table Config X',
+            'object_type': site_type.pk,
+            'table': 'SiteTable',
+            'description': 'A table config',
+            'weight': 100,
+            'enabled': True,
+            'shared': True,
+            'columns': ['name', 'status'],
+            'ordering': 'name',
+        }
+        cls.bulk_edit_data = {
+            'weight': 999,
+        }
+
+    def _get_url(self, action, instance=None):
+        url = super()._get_url(action, instance)
+        # The add view requires the table context from the source table view
+        if action == 'add':
+            site_type = ObjectType.objects.get_for_model(Site)
+            url = f'{url}?object_type={site_type.pk}&table=SiteTable'
+        return url
+
+    def test_add_view_without_table_context(self):
+        """A GET without the table context params must redirect to the home page."""
+        self.add_permissions('extras.add_tableconfig')
+        response = self.client.get(reverse('extras:tableconfig_add'))
+        self.assertRedirects(response, reverse('home'))
+
+        messages_list = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages_list), 1)
+        self.assertEqual(str(messages_list[0]), 'Table configurations must be created from an object list view.')
+
+    def test_add_view_post_without_table_context(self):
+        """A POST without the table context must return form errors rather than a server error."""
+        self.add_permissions('extras.add_tableconfig')
+        response = self.client.post(reverse('extras:tableconfig_add'), data={})
+        self.assertHttpStatus(response, 200)
 
 
 class BookmarkTestCase(
@@ -363,6 +406,9 @@ class BookmarkTestCase(
         return super()._get_url(action, instance)
 
     def test_list_objects_anonymous(self):
+        return
+
+    def test_export_objects_anonymous(self):
         return
 
     def test_list_objects_with_constrained_permission(self):
@@ -919,6 +965,9 @@ class SubscriptionTestCase(
         login_url = reverse('login')
         self.assertRedirects(self.client.get(url), f'{login_url}?next={url}')
 
+    def test_export_objects_anonymous(self):
+        return
+
     def test_list_objects_with_permission(self):
         return
 
@@ -1026,6 +1075,9 @@ class NotificationTestCase(
         url = reverse('account:notifications')
         login_url = reverse('login')
         self.assertRedirects(self.client.get(url), f'{login_url}?next={url}')
+
+    def test_export_objects_anonymous(self):
+        return
 
     def test_list_objects_with_permission(self):
         return

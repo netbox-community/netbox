@@ -4,7 +4,7 @@ from django.test import TestCase
 from netaddr import IPNetwork
 
 from circuits.models import Provider
-from dcim.choices import InterfaceTypeChoices
+from dcim.choices import InterfaceModeChoices, InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Rack, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.filtersets import *
@@ -2206,10 +2206,49 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'interface_id': interface_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
+        # An interface untagged on one VLAN and tagged on a different VLAN should return both (UNION across paths)
+        vlans = self.queryset.all()[:2]
+        interface = Interface.objects.create(
+            device=Device.objects.first(),
+            name='Interface X',
+            type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+            mode=InterfaceModeChoices.MODE_TAGGED,
+            untagged_vlan=vlans[0],
+        )
+        interface.tagged_vlans.add(vlans[1])
+        params = {'interface_id': interface.pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # A VLAN that is both untagged and tagged on the same interface should be returned only once (deduplication)
+        interface.tagged_vlans.add(vlans[0])
+        params = {'interface_id': interface.pk}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 2)
+        self.assertEqual(len(qs), len(set(qs.values_list('pk', flat=True))))
+
     def test_vminterface(self):
         vminterface_id = VMInterface.objects.first().pk
         params = {'vminterface_id': vminterface_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        # A VM interface untagged on one VLAN and tagged on a different VLAN should return both (UNION across paths)
+        vlans = self.queryset.all()[:2]
+        vminterface = VMInterface.objects.create(
+            virtual_machine=VirtualMachine.objects.first(),
+            name='VM Interface X',
+            mode=InterfaceModeChoices.MODE_TAGGED,
+            untagged_vlan=vlans[0],
+        )
+        vminterface.tagged_vlans.add(vlans[1])
+        params = {'vminterface_id': vminterface.pk}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+        # A VLAN that is both untagged and tagged on the same interface should be returned only once (deduplication)
+        vminterface.tagged_vlans.add(vlans[0])
+        params = {'vminterface_id': vminterface.pk}
+        qs = self.filterset(params, self.queryset).qs
+        self.assertEqual(qs.count(), 2)
+        self.assertEqual(len(qs), len(set(qs.values_list('pk', flat=True))))
 
     def test_qinq_role(self):
         params = {'qinq_role': [VLANQinQRoleChoices.ROLE_SERVICE, VLANQinQRoleChoices.ROLE_CUSTOMER]}
