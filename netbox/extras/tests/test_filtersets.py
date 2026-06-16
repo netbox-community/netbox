@@ -741,7 +741,8 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Image Attachment 1',
                 image='http://example.com/image1.png',
                 image_height=100,
-                image_width=100
+                image_width=100,
+                image_size=1024
             ),
             ImageAttachment(
                 object_type=site_ct,
@@ -749,7 +750,8 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Image Attachment 2',
                 image='http://example.com/image2.png',
                 image_height=100,
-                image_width=100
+                image_width=100,
+                image_size=2048
             ),
             ImageAttachment(
                 object_type=rack_ct,
@@ -757,7 +759,8 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Image Attachment 3',
                 image='http://example.com/image3.png',
                 image_height=100,
-                image_width=100
+                image_width=100,
+                image_size=4096
             ),
             ImageAttachment(
                 object_type=rack_ct,
@@ -765,7 +768,8 @@ class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Image Attachment 4',
                 image='http://example.com/image4.png',
                 image_height=100,
-                image_width=100
+                image_width=100,
+                image_size=8192
             )
         )
         ImageAttachment.objects.bulk_create(image_attachments)

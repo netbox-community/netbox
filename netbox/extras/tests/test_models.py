@@ -74,6 +74,16 @@ class OverwriteStyleMemoryStorage(Storage):
         return f'https://example.invalid/{name}'
 
 
+class UnreadableSizeMemoryStorage(OverwriteStyleMemoryStorage):
+    """
+    Like OverwriteStyleMemoryStorage, but size() raises OSError to model a storage backend that is
+    transiently unavailable (e.g. an S3 outage) when reading file size.
+    """
+
+    def size(self, name):
+        raise OSError('storage unavailable')
+
+
 class ImageAttachmentTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -190,6 +200,161 @@ class ImageAttachmentTestCase(TestCase):
         self.assertEqual(second.filename, 'action-buttons_sdmmer4.png')
 
         self.assertCountEqual(storage.files.keys(), {base_name, suffixed_name})
+
+    def test_save_populates_image_size_on_create(self):
+        """
+        save() populates image_size from the uploaded file on creation.
+        """
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('size-on-create.png'),
+            )
+            ia.save()
+
+            self.assertIsNotNone(ia.image_size)
+            self.assertEqual(ia.image_size, ia.image.size)
+
+    def test_size_property_returns_stored_value_without_storage_access(self):
+        """
+        The size property returns the cached image_size rather than the file's actual size. The stub's empty
+        file reports size 0, so asserting the distinct stored value proves the property used the cached value.
+        """
+        ia = self._stub_image_attachment(self.site.pk, 'image-attachments/site_1_no-file.png')
+        self.assertEqual(ia._read_image_size(), 0)  # the stub's empty file genuinely reports 0
+        ia.image_size = 9999
+
+        self.assertEqual(ia.size, 9999)
+
+    def test_size_property_falls_back_to_storage_when_unset(self):
+        """
+        For legacy rows where image_size is NULL, the size property falls back to reading storage
+        (rather than reporting 0 bytes).
+        """
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('fallback.png'),
+            )
+            ia.save()
+
+            # Simulate a legacy row that predates the image_size field.
+            ia.image_size = None
+            self.assertEqual(ia.size, ia.image.size)
+            self.assertGreater(ia.size, 0)
+
+    def test_save_does_not_clobber_existing_size_on_storage_error(self):
+        """
+        When the storage backend raises on a size read (modeled by a real Storage subclass, not a mock),
+        save() must not overwrite an existing image_size with None.
+        """
+        field = ImageAttachment._meta.get_field('image')
+
+        # Create a row with a real, readable size.
+        with patch.object(field, 'storage', OverwriteStyleMemoryStorage()):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('keep-size.png'),
+            )
+            ia.save()
+            original_size = ia.image_size
+            self.assertIsNotNone(original_size)
+
+        # Reload from the DB so the FieldFile has no cached size and must consult storage (as it would for a
+        # row loaded fresh in production). With the backend unable to report size, the read fails (returns None),
+        # and save() must keep the previously-stored value rather than clobbering it with None.
+        with patch.object(field, 'storage', UnreadableSizeMemoryStorage()):
+            reloaded = ImageAttachment.objects.get(pk=ia.pk)
+            self.assertIsNone(reloaded._read_image_size())  # the read genuinely fails (returns None)
+            reloaded._orig_image_name = 'image-attachments/site_1_old.png'  # make the image look replaced
+            reloaded.save()
+
+            # In-memory value is preserved, and the persisted value is unchanged.
+            self.assertEqual(reloaded.image_size, original_size)
+            self.assertEqual(ImageAttachment.objects.get(pk=ia.pk).image_size, original_size)
+
+    def test_save_recomputes_image_size_when_image_replaced(self):
+        """
+        Replacing the image on an existing row recomputes image_size (Cable-style change detection).
+        """
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('original.png'),
+            )
+            ia.save()
+            original_size = ia.image_size
+            self.assertIsNotNone(original_size)
+
+            # Replace the image with a larger file and save again.
+            larger = SimpleUploadedFile(
+                name='replacement.png',
+                content=self._uploaded_png('replacement.png').read() + b'\x00' * 100,
+                content_type='image/png',
+            )
+            ia.image = larger
+            ia.save()
+
+            self.assertEqual(ia.image_size, ia.image.size)
+            self.assertNotEqual(ia.image_size, original_size)
+
+    def test_save_without_touching_image_does_not_recompute_or_read_storage(self):
+        """
+        Editing an existing row without replacing the image leaves image_size untouched and does not
+        hit storage. Directly guards against the change-detection comparison misfiring.
+        """
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                name='Original',
+                image=self._uploaded_png('untouched.png'),
+            )
+            ia.save()
+            stored_size = ia.image_size
+
+            # Reload from the DB so _orig_image_name is set from the persisted value, then edit only the name.
+            reloaded = ImageAttachment.objects.get(pk=ia.pk)
+            reloaded.name = 'Renamed'
+            with patch.object(ImageAttachment, '_read_image_size', side_effect=AssertionError('storage accessed')):
+                reloaded.save()
+
+            self.assertEqual(reloaded.image_size, stored_size)
+
+    def test_save_populates_image_size_via_constructor_kwarg(self):
+        """
+        The non-UI create path (constructor kwarg / REST / bulk) populates image_size correctly,
+        confirming the name-string comparison behaves when image is passed as a FieldFile.
+        """
+        storage = OverwriteStyleMemoryStorage()
+        field = ImageAttachment._meta.get_field('image')
+
+        with patch.object(field, 'storage', storage):
+            ia = ImageAttachment(
+                object_type=self.ct_site,
+                object_id=self.site.pk,
+                image=self._uploaded_png('kwarg.png'),
+            )
+            ia.save()
+
+            self.assertIsNotNone(ia.image_size)
+            self.assertEqual(ia.image_size, ia.image.size)
 
 
 class TableConfigTestCase(TestCase):

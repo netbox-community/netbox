@@ -440,6 +440,7 @@ class ImageAttachmentTestCase(
                     image='http://example.com/image1.png',
                     image_height=100,
                     image_width=100,
+                    image_size=1024,
                 ),
                 ImageAttachment(
                     object_type=ct,
@@ -448,6 +449,7 @@ class ImageAttachmentTestCase(
                     image='http://example.com/image2.png',
                     image_height=100,
                     image_width=100,
+                    image_size=2048,
                 ),
                 ImageAttachment(
                     object_type=ct,
@@ -456,6 +458,7 @@ class ImageAttachmentTestCase(
                     image='http://example.com/image3.png',
                     image_height=100,
                     image_width=100,
+                    image_size=4096,
                 ),
             ]
         )

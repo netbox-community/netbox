@@ -702,6 +702,14 @@ class ImageAttachment(ChangeLoggedModel):
     image_width = models.PositiveSmallIntegerField(
         verbose_name=_('image width'),
     )
+    # Unlike image_height/image_width (populated automatically by ImageField), there is no native size_field, so
+    # this is populated in save(). It is nullable because existing rows predate the field and storage reads can
+    # fail; a null value means "not yet computed" and the size property falls back to reading storage.
+    image_size = models.PositiveBigIntegerField(
+        verbose_name=_('image size'),
+        blank=True,
+        null=True,
+    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=50,
@@ -716,6 +724,15 @@ class ImageAttachment(ChangeLoggedModel):
     objects = RestrictedQuerySet.as_manager()
 
     clone_fields = ('object_type', 'object_id')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Cache the original image name so we can detect on save() whether the file has been replaced and the
+        # cached image_size needs to be recomputed. Read the raw value from __dict__ to avoid triggering the
+        # ImageField descriptor here (doing so during ORM/GraphQL instantiation can recurse).
+        original = self.__dict__.get('image')
+        self._orig_image_name = getattr(original, 'name', original)
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
@@ -772,12 +789,15 @@ class ImageAttachment(ChangeLoggedModel):
             alt_text=escape(self.description or self.name),
         ))
 
-    @property
-    def size(self):
+    def _read_image_size(self):
         """
-        Wrapper around `image.size` to suppress an OSError in case the file is inaccessible. Also opportunistically
-        catch other exceptions that we know other storage back-ends to throw.
+        Read the image file's size from storage, suppressing an OSError in case the file is inaccessible. Also
+        opportunistically catch other exceptions that we know other storage back-ends to throw. Returns None if the
+        size cannot be determined. This may issue a request to the storage backend (e.g. a HEAD request to S3).
         """
+        if not self.image:
+            return None
+
         expected_exceptions = [OSError]
 
         try:
@@ -790,6 +810,33 @@ class ImageAttachment(ChangeLoggedModel):
             return self.image.size
         except tuple(expected_exceptions):
             return None
+
+    @property
+    def size(self):
+        """
+        Return the size of the image file in bytes. Prefer the cached `image_size` value to avoid a storage request;
+        fall back to reading from storage for legacy rows where `image_size` has not yet been populated.
+        """
+        if self.image_size is not None:
+            return self.image_size
+        return self._read_image_size()
+
+    def save(self, *args, **kwargs):
+        # Populate image_size on creation or when the image file has been replaced. Reading the size may touch the
+        # storage backend, so we only do it when necessary, and we never overwrite a good value with None (e.g. on a
+        # transient storage error).
+        # If the read fails while replacing a file, image_size keeps the prior file's size until the next
+        # successful save. That stale-but-non-crashing outcome is preferred over storing None.
+        orig_image_name = getattr(self, '_orig_image_name', None)
+        if self._state.adding or (self.image and self.image.name != orig_image_name):
+            size = self._read_image_size()
+            if size is not None:
+                self.image_size = size
+
+        super().save(*args, **kwargs)
+
+        # Update the cached original name so subsequent saves on this instance detect further changes correctly.
+        self._orig_image_name = self.image.name if self.image else None
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
