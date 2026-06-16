@@ -1,5 +1,51 @@
 # NetBox v4.6
 
+## v4.6.3 (2026-06-16)
+
+### Enhancements
+
+* [#17598](https://github.com/netbox-community/netbox/issues/17598) - Add bulk creation support for VLANs
+* [#21666](https://github.com/netbox-community/netbox/issues/21666) - Add MU connector type for fiber ports and cables
+* [#22361](https://github.com/netbox-community/netbox/issues/22361) - Introduce an `ArrayAttr` UI panel attribute for rendering array field values
+* [#22457](https://github.com/netbox-community/netbox/issues/22457) - Use `hmac.compare_digest()` for constant-time authentication of API tokens
+
+### Performance Improvements
+
+* [#21870](https://github.com/netbox-community/netbox/issues/21870) - Optimize prefix availability calculations
+* [#22375](https://github.com/netbox-community/netbox/issues/22375) - Improve efficiency of filtering VLANs by interface
+
+### Bug Fixes
+
+* [#21338](https://github.com/netbox-community/netbox/issues/21338) - Include connected endpoint data in interface webhooks generated during cable creation
+* [#21895](https://github.com/netbox-community/netbox/issues/21895) - Restore pagination controls for job log entries (previously limited to 50 rows)
+* [#22210](https://github.com/netbox-community/netbox/issues/22210) - Respect saved filters when rendering IPAM child availability views in additional tabs
+* [#22237](https://github.com/netbox-community/netbox/issues/22237) - Fix server error when opening the standalone "Add Table Configuration" page
+* [#22245](https://github.com/netbox-community/netbox/issues/22245) - Include the `id` field in the OpenAPI request schemas for bulk PATCH/PUT endpoints
+* [#22251](https://github.com/netbox-community/netbox/issues/22251) - Re-parent child module bays when a multi-bay module is moved to a new bay
+* [#22273](https://github.com/netbox-community/netbox/issues/22273) - Fix migration failure when a service has several thousand ports defined
+* [#22303](https://github.com/netbox-community/netbox/issues/22303) - Add the missing `fields` parameter to the OpenAPI schema
+* [#22324](https://github.com/netbox-community/netbox/issues/22324) - Fix GraphQL filtering of custom field choice set extra choices
+* [#22340](https://github.com/netbox-community/netbox/issues/22340) - Display a token's allowed IPs as comma-separated strings rather than `IPNetwork` objects
+* [#22346](https://github.com/netbox-community/netbox/issues/22346) - Render SSO/SAML authentication failures as a login page message instead of an HTTP 500 error
+* [#22357](https://github.com/netbox-community/netbox/issues/22357) - Remove the unused `local_context_data` field from `dcim.Module` (which no longer inherits from `ConfigContextModel`)
+* [#22376](https://github.com/netbox-community/netbox/issues/22376) - Fix `AssertionError` in event rule script jobs when a device type has an image attached
+* [#22388](https://github.com/netbox-community/netbox/issues/22388) - Pin redis-py to <8.0 to avoid a startup failure on older Redis releases
+* [#22397](https://github.com/netbox-community/netbox/issues/22397) - Fix `AttributeError` exception when an unauthenticated user attempts to export devices
+* [#22399](https://github.com/netbox-community/netbox/issues/22399) - Enforce object permissions on the related object when serving static media
+* [#22427](https://github.com/netbox-community/netbox/issues/22427) - Validate `JSONFilter.path` to prevent ORM operator injection over JSONField contents in the GraphQL API
+* [#22429](https://github.com/netbox-community/netbox/issues/22429) - Enforce `ObjectPermission` constraints on `grant_token` in the REST API
+* [#22431](https://github.com/netbox-community/netbox/issues/22431) - Use a cryptographically secure random number generator when generating API tokens
+* [#22444](https://github.com/netbox-community/netbox/issues/22444) - Fix `KeyError` exception on the power feed detail view when the locale is not English
+* [#22448](https://github.com/netbox-community/netbox/issues/22448) - Ensure all object representations are escaped under `handle_protectederror()`
+* [#22454](https://github.com/netbox-community/netbox/issues/22454) - Fix serialization of decimal custom field values to avoid spurious changelog entries
+* [#22466](https://github.com/netbox-community/netbox/issues/22466) - Fix test failure against SSL-enabled PosgtreSQL
+
+### Deprecations
+
+* [#22392](https://github.com/netbox-community/netbox/issues/22392) - Deprecate support for Redis 5.x (to be removed in v4.7)
+
+---
+
 ## v4.6.2 (2026-06-02)
 
 ### Enhancements
