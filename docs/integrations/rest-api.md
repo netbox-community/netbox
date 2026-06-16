@@ -738,6 +738,53 @@ http://netbox/api/dcim/sites/ \
 !!! note
     The bulk deletion of objects is an all-or-none operation, meaning that if NetBox fails to delete any of the specified objects (e.g. due a dependency by a related object), the entire operation will be aborted and none of the objects will be deleted.
 
+## Background Processing
+
+!!! info "This feature was introduced in NetBox v4.7."
+
+Bulk write operations (creating, updating, or deleting multiple objects via a model's list endpoint) can optionally be processed as a [background job](../features/background-jobs.md) rather than synchronously. This is useful for large batches that would otherwise hold the connection open long enough to risk a proxy or gateway timeout.
+
+To request background processing, append the `background=true` query parameter to a bulk write request. NetBox validates the request immediately and, if it is well-formed and authorized, enqueues a job and returns an `HTTP 202 Accepted` response containing the job's ID and URL. The actual write is performed later by a worker, running the same logic (and preserving the same all-or-none transaction semantics) as the synchronous path.
+
+```no-highlight
+curl -s -X PATCH \
+-H "Authorization: Token $TOKEN" \
+-H "Content-Type: application/json" \
+http://netbox/api/dcim/sites/?background=true \
+--data '[{"id": 10, "status": "active"}, {"id": 11, "status": "active"}]'
+```
+
+The response identifies the enqueued job:
+
+```json
+{
+    "job": {
+        "id": 42,
+        "url": "http://netbox/api/core/jobs/42/",
+        "status": "pending"
+    }
+}
+```
+
+Poll the job's URL to track its progress. When the job reaches a terminal status, its `data` field holds the result and its `error` field describes any failure. The `data` field mirrors the response the synchronous request would have returned, as an object with the HTTP `status_code` and the response `data`. For example, a completed bulk update records:
+
+```json
+{
+    "status_code": 200,
+    "data": [
+        {"id": 10, "url": "http://netbox/api/dcim/sites/10/", "status": {"value": "active"}, "...": "..."}
+    ]
+}
+```
+
+A failed job records the equivalent error response, for instance `{"status_code": 400, "data": {"slug": ["This field may not be blank."]}}`, with a short summary also placed in the job's `error` field.
+
+A `202` response indicates that the request was accepted and queued, not that it succeeded: object-level validation and the database write occur when the job runs. Always inspect the job's final status to confirm the outcome. Because the result is stored on the job, any user permitted to view jobs (`core.view_job`, subject to object permissions) can read the serialized objects it contains.
+
+Background processing applies only to bulk operations (a JSON list) on a model's list endpoint. For a single-object write the `background` parameter is ignored and the request is processed synchronously. It cannot be combined with an [`If-Match`](#if-match) precondition (which cannot be evaluated reliably once execution is deferred); such a request is rejected with an `HTTP 400` response. If no background worker is running to service the queue, the request is rejected with an `HTTP 503` response rather than enqueuing a job that would never run.
+
+Two behaviors differ from a synchronous request and may change in a future release: field selection via [`fields`/`omit`](#specifying-fields) (and brief mode) is not applied to the stored result, and the authorization captured when the request is accepted is not re-checked if the token is later disabled or expires before the job runs.
+
 ## Changelog Messages
 
 Most objects in NetBox support [change logging](../features/change-logging.md), which generates a detailed record each time an object is created, modified, or deleted. Additionally, users can attach a message to the change record as well. This is accomplished via the REST API by including a `changelog_message` field in the object representation.

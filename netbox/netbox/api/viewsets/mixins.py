@@ -1,14 +1,21 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import router, transaction
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
+from netbox.jobs import AsyncAPIJob
+from utilities.exceptions import RQWorkerNotRunningException
+from utilities.rqworker import any_workers_for_queue
 
 __all__ = (
+    'BackgroundOperationMixin',
     'BulkDestroyModelMixin',
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
@@ -16,6 +23,90 @@ __all__ = (
     'ObjectValidationMixin',
     'SequentialBulkCreatesMixin',
 )
+
+
+class BackgroundOperationMixin:
+    """
+    Enable optional background processing of REST API bulk write operations. When a write
+    request to a list endpoint includes ``?background=true``, the bulk action validates the
+    payload synchronously, enqueues an ``AsyncAPIJob`` to perform the work, and immediately
+    returns ``202 Accepted`` with the job's ID and polling URL. The actual write runs in a
+    worker via the same action method, so behavior is identical to the synchronous path.
+
+    This mixin overrides no framework methods; the bulk action methods call its helpers.
+    """
+
+    def _background_requested(self, request):
+        """Return True if background processing was requested for this write."""
+        if request.method not in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            return False
+        return request.query_params.get('background', '').lower() == 'true'
+
+    def _maybe_background_bulk_create(self, request):
+        """
+        Shared entry point for the create() overrides. If background processing was requested
+        for a bulk (list) create, validate the payload synchronously and return a 202 Response;
+        otherwise return None so the caller proceeds with synchronous creation.
+        """
+        if not (isinstance(request.data, list) and self._background_requested(request)):
+            return None
+
+        # Validate synchronously before enqueuing so a malformed payload is rejected with a
+        # 400 now, rather than producing a 202 for work that can never succeed. (Constraints
+        # that depend on other items in the batch are still evaluated when the job runs.)
+        serializer = self.get_serializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        return self._enqueue_bulk_job(request, 'create', payload=list(request.data))
+
+    def _enqueue_bulk_job(self, request, action, payload, action_kwargs=None):
+        """
+        Enqueue an AsyncAPIJob to perform the given bulk action in the background and return
+        a 202 response containing the job ID and polling URL.
+        """
+        # Reject conditional requests: an If-Match precondition cannot be meaningfully
+        # honored when the write is deferred to a worker (the TOCTOU window is unbounded).
+        if request.META.get('HTTP_IF_MATCH'):
+            raise ValidationError(
+                _("The If-Match header is not supported with background processing.")
+            )
+
+        # Don't accept work that no worker can perform (mirrors the scripts API; AsyncAPIJob
+        # is enqueued without an instance, so it always lands on the default queue).
+        if not any_workers_for_queue('default'):
+            raise RQWorkerNotRunningException()
+
+        model = self.queryset.model
+        verb = _("delete") if action == 'bulk_destroy' else (
+            _("create") if action == 'create' else _("update")
+        )
+        job_name = _("Bulk {verb} {object_type}").format(
+            verb=verb,
+            object_type=model._meta.verbose_name_plural,
+        )
+        job = AsyncAPIJob.enqueue(
+            name=job_name,
+            user=request.user,
+            viewset_class=f'{type(self).__module__}.{type(self).__qualname__}',
+            action=action,
+            payload=payload,
+            user_pk=request.user.pk,
+            request_id=str(getattr(request, 'id', '')),
+            method=request.method,
+            action_kwargs=action_kwargs or {},
+            # Carry the request's scheme/host so URLs in the captured result are absolute
+            # and followable (the worker has no real request to derive them from).
+            scheme=request.scheme,
+            host=request.get_host(),
+        )
+
+        job_url = reverse('core-api:job-detail', kwargs={'pk': job.pk}, request=request)
+        response = Response(
+            {'job': {'id': job.pk, 'url': job_url, 'status': job.status}},
+            status=status.HTTP_202_ACCEPTED,
+        )
+        response['Location'] = job_url
+        return response
 
 
 class CustomFieldsMixin:
@@ -60,6 +151,13 @@ class SequentialBulkCreatesMixin:
     appropriately.
     """
     def create(self, request, *args, **kwargs):
+        # If background processing was requested for a bulk (list) create, validate and enqueue.
+        # _maybe_background_bulk_create() comes from BackgroundOperationMixin; fall back to "no
+        # background" so this mixin remains usable on its own (e.g. in custom viewsets).
+        maybe_background = getattr(self, '_maybe_background_bulk_create', lambda request: None)
+        if (response := maybe_background(request)) is not None:
+            return response
+
         with transaction.atomic(using=router.db_for_write(self.queryset.model)):
             if not isinstance(request.data, list):
                 # Creating a single object
@@ -102,6 +200,15 @@ class BulkUpdateModelMixin:
         partial = kwargs.pop('partial', False)
         serializer = BulkOperationSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
+
+        # If background processing was requested, enqueue a job and return immediately.
+        # The payload is captured here, before the request.data mutation below.
+        # _background_requested() comes from BackgroundOperationMixin; fall back to "no
+        # background" so this mixin remains usable on its own (e.g. in custom viewsets).
+        if getattr(self, '_background_requested', lambda request: False)(request):
+            action = 'bulk_partial_update' if partial else 'bulk_update'
+            return self._enqueue_bulk_job(request, action, payload=list(request.data))
+
         qs = self.get_bulk_update_queryset().filter(
             pk__in=[o['id'] for o in serializer.data]
         )
@@ -155,6 +262,13 @@ class BulkDestroyModelMixin:
     def bulk_destroy(self, request, *args, **kwargs):
         serializer = BulkOperationSerializer(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
+
+        # If background processing was requested, enqueue a job and return immediately.
+        # _background_requested() comes from BackgroundOperationMixin; fall back to "no
+        # background" so this mixin remains usable on its own (e.g. in custom viewsets).
+        if getattr(self, '_background_requested', lambda request: False)(request):
+            return self._enqueue_bulk_job(request, 'bulk_destroy', payload=list(request.data))
+
         qs = self.get_bulk_destroy_queryset().filter(
             pk__in=[o['id'] for o in serializer.validated_data]
         )
