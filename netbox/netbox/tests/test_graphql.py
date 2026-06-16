@@ -15,7 +15,7 @@ from extras.models import TableConfig, Tag
 from netbox.graphql.scalars import BigInt, BigIntScalar
 from netbox.graphql.schema import Query, get_schema_extensions, schema
 from utilities.tables import get_table_for_model
-from utilities.testing import APITestCase, TestCase, disable_warnings
+from utilities.testing import APITestCase, APIViewTestCases, TestCase, disable_warnings
 
 
 class GraphQLTestCase(TestCase):
@@ -505,6 +505,10 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertIn('errors', data)
         self.assertEqual(data['errors'][0]['message'], 'Cannot specify both `start` and `offset` in pagination.')
+
+
+class GraphQLSchemaCoverageTestCase(APIViewTestCases.GraphQLSchemaCoverageTestCase):
+    pass
 
 
 class JSONPathValidationTestCase(TestCase):
