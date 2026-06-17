@@ -203,6 +203,47 @@ class CustomLinkRenderingTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(f'FOO {site.name} BAR', str(response.content))
 
+    def test_list_view_custom_link_column(self):
+        # A custom link column must render in the list view when the user can view the CustomLink.
+        customlink = CustomLink(
+            name='Test',
+            link_text='FOO {{ object.name }} BAR',
+            link_url='http://example.com/?site={{ object.slug }}',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        # Custom link columns are hidden by default; explicitly include the column
+        response = self.client.get(f"{reverse('dcim:site_list')}?include_columns=cl_Test")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f'FOO {site.name} BAR', str(response.content))
+
+    def test_list_view_custom_link_column_hidden_without_permission(self):
+        # A custom link column must be excluded from the list view when the user cannot view the
+        # CustomLink, even if explicitly requested (#22439).
+        customlink = CustomLink(
+            name='Test',
+            link_text='FOO {{ object.name }} BAR',
+            link_url='http://example.com/?site={{ object.slug }}',
+            new_window=False
+        )
+        customlink.save()
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+        site = Site(name='Test Site', slug='test-site')
+        site.save()
+
+        # Revoke permission to view custom links
+        self.remove_permissions('extras.view_customlink')
+
+        response = self.client.get(f"{reverse('dcim:site_list')}?include_columns=cl_Test")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(f'FOO {site.name} BAR', str(response.content))
+
 
 class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = SavedFilter
