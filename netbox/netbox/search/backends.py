@@ -3,7 +3,6 @@ from collections import defaultdict
 
 import netaddr
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db import ProgrammingError
 from django.db.models import F, Q, Window, prefetch_related_objects
@@ -63,22 +62,41 @@ class SearchBackend:
         """
         raise NotImplementedError
 
-    def caching_handler(self, sender, instance, created, **kwargs):
+    def caching_handler(self, sender, instance, created, using=None, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
+        from netbox.search.deferred import OP_CACHE, mark_dirty
+
+        # Skip non-cacheable objects without scheduling any deferred work.
         try:
-            self.cache(instance, remove_existing=not created)
+            indexer = get_indexer(instance)
+        except KeyError:
+            return
+
+        try:
+            object_type = ObjectType.objects.get_for_model(indexer.model)
         except ProgrammingError as e:
             # The schema may be incomplete during migrations; skip caching.
             logger.warning(f"Skipping search cache update due to schema error: {e}")
-            pass
+            return
 
-    def removal_handler(self, sender, instance, **kwargs):
+        mark_dirty(object_type.pk, instance.pk, OP_CACHE, using=using)
+
+    def removal_handler(self, sender, instance, using=None, **kwargs):
         """
         Receiver for the post_delete signal, responsible for caching object deletion.
         """
-        self.remove(instance)
+        from netbox.search.deferred import OP_REMOVE, mark_dirty
+
+        # Skip non-cacheable objects without scheduling any deferred work.
+        try:
+            indexer = get_indexer(instance)
+        except KeyError:
+            return
+
+        object_type = ObjectType.objects.get_for_model(indexer.model)
+        mark_dirty(object_type.pk, instance.pk, OP_REMOVE, using=using)
 
     def cache(self, instances, indexer=None, remove_existing=True):
         """
@@ -196,12 +214,20 @@ class CachedValueSearchBackend(SearchBackend):
 
         return ret
 
-    def cache(self, instances, indexer=None, remove_existing=True):
+    def cache(self, instances, indexer=None, remove_existing=True, using=None):
         custom_fields = None
 
         # Convert a single instance to an iterable
         if not hasattr(instances, '__iter__'):
             instances = [instances]
+
+        # Determine the queryset manager used to write cache entries. When a
+        # database alias is provided (e.g. by a deferred task replaying the alias
+        # the originating write used), entries are written to that connection;
+        # otherwise the configured router decides. `using` is expected to be a
+        # concrete alias or falsy (None) per the caller's contract; a falsy value
+        # defers to the router, which is the correct behavior either way.
+        manager = CachedValue.objects.using(using) if using else CachedValue.objects
 
         buffer = []
         counter = 0
@@ -225,7 +251,7 @@ class CachedValueSearchBackend(SearchBackend):
 
             # Wipe out any previously cached values for the object
             if remove_existing:
-                self.remove(instance)
+                self.remove(instance, using=using)
 
             # Generate cache data
             object_type = ObjectType.objects.get_for_model(indexer.model)
@@ -243,27 +269,40 @@ class CachedValueSearchBackend(SearchBackend):
 
             # Check whether the buffer needs to be flushed
             if len(buffer) >= 2000:
-                counter += len(CachedValue.objects.bulk_create(buffer))
+                counter += len(manager.bulk_create(buffer))
                 buffer = []
 
         # Final buffer flush
         if buffer:
-            counter += len(CachedValue.objects.bulk_create(buffer))
+            counter += len(manager.bulk_create(buffer))
 
         return counter
 
-    def remove(self, instance):
+    def _remove_by_id(self, object_type_id, object_ids, using=None):
+        """
+        Delete cached values for the given content type and object IDs using a
+        single raw DELETE. Shared by remove() and the deferred search task.
+        """
+        if not object_ids:
+            return None
+
+        qs = CachedValue.objects.filter(object_type_id=object_type_id, object_id__in=object_ids)
+
+        # Call _raw_delete() on the queryset to avoid first loading instances into memory
+        return qs._raw_delete(using=using or qs.db)
+
+    def remove(self, instance, using=None):
         # Avoid attempting to query for non-cacheable objects
         try:
-            get_indexer(instance)
+            indexer = get_indexer(instance)
         except KeyError:
             return None
 
-        ct = ContentType.objects.get_for_model(instance)
-        qs = CachedValue.objects.filter(object_type=ct, object_id=instance.pk)
+        # Use the indexer's (concrete) model to resolve the object type, matching
+        # the content type that cache() writes entries under.
+        object_type = ObjectType.objects.get_for_model(indexer.model)
 
-        # Call _raw_delete() on the queryset to avoid first loading instances into memory
-        return qs._raw_delete(using=qs.db)
+        return self._remove_by_id(object_type.pk, [instance.pk], using=using)
 
     def clear(self, object_types=None):
         qs = CachedValue.objects.all()
