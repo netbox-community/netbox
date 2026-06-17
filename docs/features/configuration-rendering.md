@@ -53,7 +53,7 @@ NetBox provides a REST API endpoint specifically for rendering the default confi
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://netbox:8000/api/dcim/devices/123/render-config/ \
@@ -81,7 +81,7 @@ To render a specific config template against a device's context data - rather th
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://netbox:8000/api/dcim/devices/123/render-config/ \
@@ -114,7 +114,7 @@ NetBox config templates can also be rendered without being tied to any specific 
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://netbox:8000/api/extras/config-templates/123/render/ \

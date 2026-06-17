@@ -7,7 +7,7 @@ NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement it
 GraphQL enables the client to specify an arbitrary nested list of fields to include in the response. All queries are made to the root `/graphql` API endpoint. For example, to return the circuit ID and provider name of each circuit with an active status, you can issue a request such as the following:
 
 ```
-curl -H "Authorization: Token $TOKEN" \
+curl -H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 http://netbox/graphql/ \
