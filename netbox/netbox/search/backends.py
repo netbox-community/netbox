@@ -95,7 +95,13 @@ class SearchBackend:
         except KeyError:
             return
 
-        object_type = ObjectType.objects.get_for_model(indexer.model)
+        try:
+            object_type = ObjectType.objects.get_for_model(indexer.model)
+        except ProgrammingError as e:
+            # The schema may be incomplete during migrations; skip caching.
+            logger.warning(f"Skipping search cache update due to schema error: {e}")
+            return
+
         mark_dirty(object_type.pk, instance.pk, OP_REMOVE, using=using)
 
     def cache(self, instances, indexer=None, remove_existing=True):

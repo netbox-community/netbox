@@ -60,7 +60,11 @@ def mark_dirty(object_type_id, pk, op, using=None):
 
         setattr(flush, _FLUSH_ALIAS_ATTR, alias)
         setattr(flush, _FLUSH_BATCH_ATTR, batch)
-        transaction.on_commit(flush, using=alias)
+        # robust=True so a failure while flushing (e.g. Redis being unreachable
+        # when checking for an available worker) is logged rather than propagated
+        # to the caller. The originating write has already committed; a search
+        # cache update must never turn a successful save into a 500.
+        transaction.on_commit(flush, using=alias, robust=True)
 
     # Coalesce: a deletion supersedes any pending create/update for the object.
     key = (object_type_id, pk)

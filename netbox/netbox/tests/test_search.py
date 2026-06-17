@@ -192,6 +192,31 @@ class DeferredCachingTestCase(TestCase):
             return getattr(func, deferred._FLUSH_BATCH_ATTR)
         return None
 
+    def test_run_on_commit_entry_shape(self):
+        """
+        deferred._pending_batch() relies on Django storing each on_commit
+        callback as a (savepoint_ids, func, robust) tuple in
+        connection.run_on_commit. That structure is a Django internal, not a
+        documented API. Assert its shape explicitly so a change in a future
+        Django release fails here with a clear pointer, rather than surfacing as
+        an opaque unpack error inside the deferred-caching machinery.
+        """
+        with transaction.atomic():
+            transaction.on_commit(lambda: None)
+            entries = connection.run_on_commit
+            self.assertTrue(entries, "expected a registered on_commit callback")
+            entry = entries[-1]
+            self.assertEqual(
+                len(entry), 3,
+                "Django's connection.run_on_commit entry is no longer a 3-tuple; "
+                "netbox.search.deferred._pending_batch() unpacks (sids, func, robust) "
+                "and must be updated to match the new structure."
+            )
+            sids, func, robust = entry
+            self.assertIsInstance(sids, set)
+            self.assertTrue(callable(func))
+            self.assertIsInstance(robust, bool)
+
     def test_bulk_save_schedules_single_flush(self):
         """
         A batch of saves within one transaction coalesces into a single flush
