@@ -138,8 +138,7 @@ def _flush(batch, using):
     # Imported here, not at module load, to avoid an import cycle: backends.py
     # imports this module at module level (for the signal handlers), and
     # netbox.search.tasks imports search_backend from backends.py, which is
-    # defined at the bottom of that module. A proper fix is tracked as a
-    # follow-up (see the search signal-wiring housekeeping issue).
+    # defined at the bottom of that module. A proper fix is tracked in #22485.
     from netbox.search.tasks import SearchCacheJob, update_search_cache
 
     try:
