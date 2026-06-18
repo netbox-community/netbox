@@ -3,6 +3,9 @@ import logging
 from django.db import DEFAULT_DB_ALIAS, connections, transaction
 from redis.exceptions import RedisError
 
+from netbox.constants import RQ_QUEUE_DEFAULT
+from utilities.rqworker import any_workers_for_queue
+
 # This module is internal plumbing for the search signal handlers; nothing here
 # is part of the public/plugin API, so no symbols are exported via __all__.
 
@@ -128,11 +131,12 @@ def _flush(batch, using):
         groups = remove_groups if op == OP_REMOVE else cache_groups
         groups.setdefault(object_type_id, []).append(pk)
 
-    # Imported here (not at module load) to avoid an import cycle: backends.py
-    # connects the search signals at import time, and these pull in netbox.config.
-    from netbox.constants import RQ_QUEUE_DEFAULT
+    # Imported here, not at module load, to avoid an import cycle: backends.py
+    # imports this module at module level (for the signal handlers), and
+    # netbox.search.tasks imports search_backend from backends.py, which is
+    # defined at the bottom of that module. A proper fix is tracked as a
+    # follow-up (see the search signal-wiring housekeeping issue).
     from netbox.search.tasks import SearchCacheJob, update_search_cache
-    from utilities.rqworker import any_workers_for_queue
 
     try:
         # Both the worker-availability check and the job enqueue talk to Redis,

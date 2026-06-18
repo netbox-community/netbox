@@ -335,7 +335,7 @@ class DeferredCachingTestCase(TestCase):
 
         # Patching the worker-availability probe is the established pattern for
         # worker-gated behavior (cf. extras/tests/test_views.py, test_api.py).
-        with mock.patch('utilities.rqworker.any_workers_for_queue', return_value=True):
+        with mock.patch('netbox.search.deferred.any_workers_for_queue', return_value=True):
             with mock.patch.object(SearchCacheJob, 'enqueue') as enqueue:
                 with self.captureOnCommitCallbacks(execute=True):
                     site = Site.objects.create(name='Enqueued', slug='enqueued')
@@ -360,7 +360,7 @@ class DeferredCachingTestCase(TestCase):
         content_type = ContentType.objects.get_for_model(Site)
 
         with mock.patch(
-            'utilities.rqworker.any_workers_for_queue',
+            'netbox.search.deferred.any_workers_for_queue',
             side_effect=RedisConnectionError("broker down"),
         ):
             with self.captureOnCommitCallbacks(execute=True):
@@ -388,7 +388,7 @@ class DeferredCachingTestCase(TestCase):
         """
         content_type = ContentType.objects.get_for_model(Site)
 
-        with mock.patch('utilities.rqworker.any_workers_for_queue', return_value=True):
+        with mock.patch('netbox.search.deferred.any_workers_for_queue', return_value=True):
             with mock.patch.object(
                 SearchCacheJob, 'enqueue', side_effect=RedisConnectionError("broker dropped")
             ):

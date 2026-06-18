@@ -21,6 +21,7 @@ from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
 
 from . import FieldTypes, LookupTypes, get_indexer
+from .deferred import OP_CACHE, OP_REMOVE, mark_dirty
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
 MAX_RESULTS = 1000
@@ -66,8 +67,6 @@ class SearchBackend:
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
         """
-        from netbox.search.deferred import OP_CACHE, mark_dirty
-
         # Skip non-cacheable objects without scheduling any deferred work.
         try:
             indexer = get_indexer(instance)
@@ -87,8 +86,6 @@ class SearchBackend:
         """
         Receiver for the post_delete signal, responsible for caching object deletion.
         """
-        from netbox.search.deferred import OP_REMOVE, mark_dirty
-
         # Skip non-cacheable objects without scheduling any deferred work.
         try:
             indexer = get_indexer(instance)
