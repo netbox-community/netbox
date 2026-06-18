@@ -21,9 +21,9 @@ _FLUSH_ALIAS_ATTR = '_netbox_search_flush_alias'
 _FLUSH_BATCH_ATTR = '_netbox_search_flush_batch'
 
 
-def mark_dirty(object_type_id, pk, op, using=None):
+def mark_for_deferred_indexing(object_type_id, pk, op, using=None):
     """
-    Record a searchable object as dirty for deferred (re)indexing.
+    Schedule a searchable object for deferred (re)indexing.
 
     The work is coalesced per database connection and per transaction: repeated
     operations on the same object collapse to a single entry (a deletion always
@@ -74,9 +74,13 @@ def mark_dirty(object_type_id, pk, op, using=None):
 
         setattr(flush, _FLUSH_ALIAS_ATTR, alias)
         setattr(flush, _FLUSH_BATCH_ATTR, batch)
-        # _flush already contains the Redis fault around dispatch; robust=True is
-        # defense in depth so that, regardless, a flush failure is logged rather
-        # than propagated to the (already-committed) caller.
+        # robust=True is required, not just belt-and-suspenders: Django runs
+        # on_commit callbacks synchronously as the atomic block exits (after the
+        # COMMIT), so an exception escaping the callback would propagate out of
+        # the view's transaction and become a 500 on an already-committed write.
+        # _flush handles the recoverable Redis fault itself; robust=True is the
+        # only thing that keeps any *other* failure here (logged by Django at
+        # ERROR) from surfacing as that post-commit 500.
         transaction.on_commit(flush, using=alias, robust=True)
 
     # Coalesce: a deletion supersedes any pending create/update for the object.

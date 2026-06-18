@@ -21,7 +21,7 @@ from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
 
 from . import FieldTypes, LookupTypes, get_indexer
-from .deferred import OP_CACHE, OP_REMOVE, mark_dirty
+from .deferred import OP_CACHE, OP_REMOVE, mark_for_deferred_indexing
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
 MAX_RESULTS = 1000
@@ -80,7 +80,7 @@ class SearchBackend:
             logger.warning(f"Skipping search cache update due to schema error: {e}")
             return
 
-        mark_dirty(object_type.pk, instance.pk, OP_CACHE, using=using)
+        mark_for_deferred_indexing(object_type.pk, instance.pk, OP_CACHE, using=using)
 
     def removal_handler(self, sender, instance, using=None, **kwargs):
         """
@@ -99,7 +99,7 @@ class SearchBackend:
             logger.warning(f"Skipping search cache update due to schema error: {e}")
             return
 
-        mark_dirty(object_type.pk, instance.pk, OP_REMOVE, using=using)
+        mark_for_deferred_indexing(object_type.pk, instance.pk, OP_REMOVE, using=using)
 
     def cache(self, instances, indexer=None, remove_existing=True):
         """

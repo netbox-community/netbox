@@ -430,7 +430,7 @@ class AutocommitCachingTestCase(TransactionTestCase):
     """
     Tests for the synchronous (autocommit) indexing path. Uses TransactionTestCase
     rather than TestCase so that a save outside an explicit transaction runs in
-    autocommit (connection.in_atomic_block is False), exercising mark_dirty's
+    autocommit (connection.in_atomic_block is False), exercising mark_for_deferred_indexing's
     inline-indexing branch rather than the deferred on_commit path.
     """
 
