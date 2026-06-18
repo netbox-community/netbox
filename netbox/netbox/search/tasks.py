@@ -47,6 +47,12 @@ def update_search_cache(using=None, cache_groups=None, remove_groups=None, log=l
         remove_groups: Mapping of {object_type_id: [pk, ...]} to remove.
         log: Logger to use (the job logger when run as a background job).
     """
+    # Removals are a single DELETE per content type, so (unlike the cache loop
+    # below) there is no multi-step state to wrap in a transaction. A transient
+    # error here propagates and errors the job; the remaining work is dropped
+    # rather than retried (NetBox does not retry these jobs by default) and is
+    # recovered by the next reindex, consistent with how derived state is rebuilt
+    # elsewhere.
     for object_type_id, pks in (remove_groups or {}).items():
         try:
             search_backend._remove_by_id(object_type_id, pks, using=using)

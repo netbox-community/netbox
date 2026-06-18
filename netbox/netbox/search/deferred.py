@@ -1,6 +1,7 @@
 import logging
 
 from django.db import DEFAULT_DB_ALIAS, connections, transaction
+from redis.exceptions import RedisError
 
 # This module is internal plumbing for the search signal handlers; nothing here
 # is part of the public/plugin API, so no symbols are exported via __all__.
@@ -43,8 +44,18 @@ def mark_dirty(object_type_id, pk, op, using=None):
     # nothing to defer past, and transaction.on_commit() in autocommit mode runs
     # its callback immediately at registration (before we could populate the
     # batch), so handle this case explicitly.
+    #
+    # On the transactional path below, transaction.on_commit(..., robust=True)
+    # ensures a flush failure can never propagate to the (already-committed)
+    # caller. The autocommit path has no such backstop, so guard it here: a
+    # broad catch is deliberate, because the originating write has committed and
+    # a search cache update must never turn a successful save into an error. The
+    # error is logged so a genuine indexing defect is still visible.
     if not connection.in_atomic_block:
-        _flush({(object_type_id, pk): op}, alias)
+        try:
+            _flush({(object_type_id, pk): op}, alias)
+        except Exception:
+            logger.exception("Search cache: error while indexing inline")
         return
 
     # Find the batch for a flush already scheduled for this alias in the current
@@ -60,10 +71,9 @@ def mark_dirty(object_type_id, pk, op, using=None):
 
         setattr(flush, _FLUSH_ALIAS_ATTR, alias)
         setattr(flush, _FLUSH_BATCH_ATTR, batch)
-        # robust=True so a failure while flushing (e.g. Redis being unreachable
-        # when checking for an available worker) is logged rather than propagated
-        # to the caller. The originating write has already committed; a search
-        # cache update must never turn a successful save into a 500.
+        # _flush already contains the Redis fault around dispatch; robust=True is
+        # defense in depth so that, regardless, a flush failure is logged rather
+        # than propagated to the (already-committed) caller.
         transaction.on_commit(flush, using=alias, robust=True)
 
     # Coalesce: a deletion supersedes any pending create/update for the object.
@@ -92,15 +102,26 @@ def _pending_batch(connection, alias):
 
 def _flush(batch, using):
     """
-    Dispatch a coalesced batch of dirty objects for (re)indexing. Enqueues a
-    background job when an RQ worker is available, otherwise runs the indexing
-    synchronously inline (preserving pre-deferral behavior on installs without a
-    running worker).
+    Dispatch a coalesced batch of dirty objects for (re)indexing.
+
+    `_flush` is the single guarded entry point for deferred indexing, reached
+    either directly (autocommit) or from a transaction.on_commit callback. By the
+    time it runs the originating write has already committed, so it must never
+    propagate an error back to the caller and turn a successful save into a 500.
+
+    The inline fallback is safe even during a broker outage: the search index
+    lives in PostgreSQL (the extras_cachedvalue table), so a Redis outage only
+    prevents backgrounding, not indexing itself.
+
+    If the broker fails mid-enqueue (after the probe succeeds), Job.enqueue() has
+    already saved a Job row before the Redis dispatch raised, so the fallback can
+    leave behind a PENDING Job that no worker will run. The index is still
+    correct (written inline); the stranded row is cosmetic and ages out via the
+    housekeeping job.
     """
     if not batch:
         return
 
-    # Group object IDs by content type and operation.
     cache_groups = {}
     remove_groups = {}
     for (object_type_id, pk), op in batch.items():
@@ -113,9 +134,15 @@ def _flush(batch, using):
     from netbox.search.tasks import SearchCacheJob, update_search_cache
     from utilities.rqworker import any_workers_for_queue
 
-    if any_workers_for_queue(RQ_QUEUE_DEFAULT):
-        SearchCacheJob.enqueue(using=using, cache_groups=cache_groups, remove_groups=remove_groups)
-    else:
-        # No worker available: index synchronously, bypassing the Job framework
-        # (a Job record would never be picked up without a worker).
-        update_search_cache(using=using, cache_groups=cache_groups, remove_groups=remove_groups)
+    try:
+        # Both the worker-availability check and the job enqueue talk to Redis,
+        # and a worker can die between the two. Treat any Redis failure across the
+        # whole dispatch as "no worker available" and fall back to inline
+        # indexing (a PostgreSQL write that does not depend on Redis).
+        if any_workers_for_queue(RQ_QUEUE_DEFAULT):
+            SearchCacheJob.enqueue(using=using, cache_groups=cache_groups, remove_groups=remove_groups)
+            return
+    except RedisError:
+        logger.warning("Search cache: broker unavailable; indexing inline", exc_info=True)
+
+    update_search_cache(using=using, cache_groups=cache_groups, remove_groups=remove_groups)

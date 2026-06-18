@@ -1,14 +1,16 @@
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
-from django.db import connection, transaction
+from django.db import DEFAULT_DB_ALIAS, connection, transaction
 from django.test import TestCase, TransactionTestCase
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 from dcim.models import Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
 from netbox.search.backends import search_backend
+from netbox.search.tasks import SearchCacheJob, update_search_cache
 
 
 class SearchBackendTestCase(TestCase):
@@ -329,10 +331,6 @@ class DeferredCachingTestCase(TestCase):
         carrying the dirty objects (and the originating database alias) rather
         than indexing inline.
         """
-        from django.db import DEFAULT_DB_ALIAS
-
-        from netbox.search.tasks import SearchCacheJob
-
         site_ct = ContentType.objects.get_for_model(Site)
 
         # Patching the worker-availability probe is the established pattern for
@@ -353,13 +351,68 @@ class DeferredCachingTestCase(TestCase):
         # itself is covered by the netbox-branching test suite.
         self.assertEqual(kwargs['using'], DEFAULT_DB_ALIAS)
 
+    def test_flush_falls_back_inline_when_broker_unreachable(self):
+        """
+        If the broker is unreachable (the worker-availability probe raises a
+        RedisError), the flush must not propagate the error; it falls back to
+        inline indexing, which is a PostgreSQL write with no Redis dependency.
+        """
+        content_type = ContentType.objects.get_for_model(Site)
+
+        with mock.patch(
+            'utilities.rqworker.any_workers_for_queue',
+            side_effect=RedisConnectionError("broker down"),
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                site = Site.objects.create(
+                    name='Broker Down',
+                    slug='broker-down',
+                    facility='Golf',
+                    description='Indexed inline despite broker outage',
+                    physical_address='3 Test Way',
+                    shipping_address='3 Test Way',
+                    comments='Lorem ipsum',
+                )
+
+        # The object was indexed inline (no exception propagated, rows written).
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=content_type, object_id=site.pk).count(),
+            len(SiteIndex.fields)
+        )
+
+    def test_flush_falls_back_inline_when_enqueue_fails(self):
+        """
+        A worker can die (or the broker can drop) between the availability probe
+        and the enqueue. The flush guards the whole dispatch, not just the probe:
+        if enqueue raises a RedisError it still falls back to inline indexing.
+        """
+        content_type = ContentType.objects.get_for_model(Site)
+
+        with mock.patch('utilities.rqworker.any_workers_for_queue', return_value=True):
+            with mock.patch.object(
+                SearchCacheJob, 'enqueue', side_effect=RedisConnectionError("broker dropped")
+            ):
+                with self.captureOnCommitCallbacks(execute=True):
+                    site = Site.objects.create(
+                        name='Enqueue Failed',
+                        slug='enqueue-failed',
+                        facility='Hotel',
+                        description='Indexed inline after enqueue failure',
+                        physical_address='4 Test Way',
+                        shipping_address='4 Test Way',
+                        comments='Lorem ipsum',
+                    )
+
+        self.assertEqual(
+            CachedValue.objects.filter(object_type=content_type, object_id=site.pk).count(),
+            len(SiteIndex.fields)
+        )
+
     def test_cache_update_skips_deleted_object(self):
         """
         update_search_cache tolerates a pk that no longer exists (object deleted
         between enqueue and execution): it must not error or create cache rows.
         """
-        from netbox.search.tasks import update_search_cache
-
         site = Site.objects.create(name='Vanished', slug='vanished')
         site_ct = ContentType.objects.get_for_model(Site)
         pk = site.pk
