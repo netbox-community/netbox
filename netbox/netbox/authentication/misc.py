@@ -31,7 +31,9 @@ def _mirror_groups(self):
     Mirrors the user's LDAP groups in the Django database and updates the
     user's membership.
     """
-    target_group_names = frozenset(self._get_groups().get_group_names())
+    target_group_names = frozenset(
+        filter(None, self._get_groups().get_group_names())
+    )
     current_group_names = frozenset(
         self._user.groups.values_list("name", flat=True).iterator()
     )
