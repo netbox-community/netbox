@@ -159,6 +159,6 @@ class MediaView(TokenConditionalLoginRequiredMixin, View):
                 raise Http404
 
         response = serve(request, path, document_root=settings.MEDIA_ROOT)
-        response['Content-Disposition'] = 'attachment'
-        response['X-Content-Type-Options'] = 'nosniff'
+        response['Content-Security-Policy'] = "sandbox; default-src 'none'"
+        response['X-Content-Type-Options'] = "nosniff"
         return response
