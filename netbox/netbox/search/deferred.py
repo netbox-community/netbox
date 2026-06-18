@@ -19,6 +19,9 @@ OP_REMOVE = 'remove'
 # among those registered on a connection and reach the batch they will flush.
 _FLUSH_ALIAS_ATTR = '_netbox_search_flush_alias'
 _FLUSH_BATCH_ATTR = '_netbox_search_flush_batch'
+# The savepoint stack active when a flush callback was registered; see
+# _pending_batch() for why buffering is scoped to it.
+_FLUSH_SCOPE_ATTR = '_netbox_search_flush_scope'
 
 
 def mark_for_deferred_indexing(object_type_id, pk, op, using=None):
@@ -61,11 +64,12 @@ def mark_for_deferred_indexing(object_type_id, pk, op, using=None):
             logger.exception("Search cache: error while indexing inline")
         return
 
-    # Find the batch for a flush already scheduled for this alias in the current
-    # transaction. Django clears a connection's run_on_commit list on both commit
-    # and rollback, so any callback we find there belongs to the current
-    # (uncommitted) transaction -- no stale state can survive a rollback.
-    batch = _pending_batch(connection, alias)
+    # Scope buffering to the current savepoint stack, not just the alias (see
+    # _pending_batch). May legitimately contain None entries for nested
+    # atomic(savepoint=False) blocks; matching is by equality, so that is fine.
+    scope = tuple(connection.savepoint_ids)
+
+    batch = _pending_batch(connection, alias, scope)
     if batch is None:
         batch = {}
 
@@ -74,6 +78,7 @@ def mark_for_deferred_indexing(object_type_id, pk, op, using=None):
 
         setattr(flush, _FLUSH_ALIAS_ATTR, alias)
         setattr(flush, _FLUSH_BATCH_ATTR, batch)
+        setattr(flush, _FLUSH_SCOPE_ATTR, scope)
         # robust=True is required, not just belt-and-suspenders: Django runs
         # on_commit callbacks synchronously as the atomic block exits (after the
         # COMMIT), so an exception escaping the callback would propagate out of
@@ -89,10 +94,11 @@ def mark_for_deferred_indexing(object_type_id, pk, op, using=None):
         batch[key] = op
 
 
-def _pending_batch(connection, alias):
+def _pending_batch(connection, alias, scope):
     """
     Return the batch dict of a flush callback already scheduled for the given
-    alias on this connection's current transaction, or None if there is none.
+    alias and savepoint scope on this connection's current transaction, or None
+    if there is none.
 
     This scans `connection.run_on_commit` on each call rather than caching the
     lookup elsewhere. That is intentional: the scan is bounded (run_on_commit
@@ -100,9 +106,19 @@ def _pending_batch(connection, alias):
     object), and reading it fresh each time is what keeps the buffer correctly
     scoped to the live transaction. Django clears run_on_commit on both commit
     and rollback, so a rolled-back transaction's batch can never be found here.
+
+    Matching on `scope` (the savepoint stack active when the callback was
+    registered) as well as `alias` keeps each savepoint scope on its own
+    callback. Django prunes a callback when a savepoint in its registration
+    snapshot rolls back, so an op buffered inside a nested savepoint is dropped
+    with its callback if that savepoint rolls back -- it can never be found here
+    and reused by an outer scope.
     """
     for _sids, func, _robust in connection.run_on_commit:
-        if getattr(func, _FLUSH_ALIAS_ATTR, None) == alias:
+        if (
+            getattr(func, _FLUSH_ALIAS_ATTR, None) == alias
+            and getattr(func, _FLUSH_SCOPE_ATTR, None) == scope
+        ):
             return getattr(func, _FLUSH_BATCH_ATTR)
     return None
 
