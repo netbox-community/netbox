@@ -28,15 +28,13 @@ python3 netbox/manage.py nbshell
 
 ## populate_image_sizes
 
-Image attachments cache the size of their file in the database so that list views do not need to query the storage backend for each image when rendered. Attachments created or updated on a recent NetBox release have this value populated automatically; those created on an earlier release do not, and will fall back to querying the storage backend until they are next saved.
+!!! info "This command was introduced in NetBox v4.7."
 
-This command populates the cached size for any image attachments that are missing it. Running it once after upgrading is recommended for deployments with many existing image attachments, particularly when using a remote storage backend (such as S3), where the per-image queries are most expensive.
+Populate the cached file size for image attachments that predate the `image_size` field. Running this once after upgrading is recommended for deployments with many existing attachments on a remote storage backend (such as S3). It is safe to run on a live system and may be re-run; any file that cannot be read is skipped and retried on the next run.
 
 ```
 python3 netbox/manage.py populate_image_sizes
 ```
-
-This command is safe to run on a live system. It reads each file's size from the storage backend, so it may take some time to complete on a deployment with a large number of attachments; progress is reported as it runs. The command may also be run again safely: any attachments whose file could not be read (for example, due to a temporary storage outage) are left unchanged and retried on a subsequent run.
 
 ## rebuild_prefixes
 
@@ -93,4 +91,12 @@ Generate any missing cable paths among all cable termination objects. This is us
 
 ```
 python3 netbox/manage.py trace_paths
+```
+
+## webhook_receiver
+
+Start a simple HTTP listener that prints any requests it receives. This is a debugging aid for testing webhooks: point a webhook at the listener and inspect exactly what NetBox sends. It listens on port 9000 by default; pass `--port` to change it and `--no-headers` to suppress the request headers.
+
+```
+python3 netbox/manage.py webhook_receiver [--port PORT] [--no-headers]
 ```
