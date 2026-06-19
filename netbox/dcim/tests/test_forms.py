@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+from django import forms
 from django.test import TestCase
 
 from dcim.choices import (
@@ -175,6 +178,51 @@ class DeviceTestCase(TestCase):
         })
         self.assertFalse(form.is_valid())
         self.assertIn('position', form.errors)
+
+
+class ModuleTypeFormTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 1',
+            schema={
+                'properties': {
+                    'media': {
+                        'title': 'Media',
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'enum': ['copper', 'sfp', 'qsfp28'],
+                        },
+                    },
+                },
+            },
+        )
+
+    def test_enum_array_attribute_uses_multiselect_field(self):
+        form = ModuleTypeForm(data={
+            'manufacturer': self.manufacturer.pk,
+            'model': 'Module Type 1',
+            'profile': self.profile.pk,
+            'attr_media': ['copper', 'qsfp28'],
+        })
+
+        self.assertIsInstance(form.fields['attr_media'], forms.MultipleChoiceField)
+        self.assertEqual(
+            list(form.fields['attr_media'].choices),
+            [
+                ('copper', 'copper'),
+                ('sfp', 'sfp'),
+                ('qsfp28', 'qsfp28'),
+            ],
+        )
+        with patch('utilities.forms.fields.dynamic.get_action_url', return_value='/'):
+            self.assertTrue(form.is_valid(), form.errors)
+
+            module_type = form.save()
+            self.assertEqual(module_type.attribute_data, {'media': ['copper', 'qsfp28']})
 
 
 class VCPositionTokenFormTestCase(TestCase):

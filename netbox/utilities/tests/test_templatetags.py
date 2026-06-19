@@ -10,6 +10,7 @@ from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet
 from utilities.forms.rendering import FieldSet, InlineFields
+from utilities.templatetags.builtins.filters import is_iterable
 from utilities.templatetags.builtins.tags import badge, customfield_value, static_with_params
 from utilities.templatetags.form_helpers import any_required, render_field_with_aria, render_fieldset
 from utilities.templatetags.helpers import _humanize_capacity, humanize_speed
@@ -105,6 +106,17 @@ class StaticWithParamsTestCase(TestCase):
                 # Check that new parameter value is used
                 self.assertIn('v=new_version', result)
                 self.assertNotIn('v=old_version', result)
+
+
+class IterableFilterTestCase(TestCase):
+
+    def test_is_iterable_matches_lists_and_tuples(self):
+        self.assertTrue(is_iterable(['a', 'b']))
+        self.assertTrue(is_iterable(('a', 'b')))
+
+    def test_is_iterable_excludes_strings_and_mappings(self):
+        self.assertFalse(is_iterable('a,b'))
+        self.assertFalse(is_iterable({'a': 'b'}))
 
 
 class BadgeTestCase(TestCase):

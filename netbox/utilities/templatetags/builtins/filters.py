@@ -1,6 +1,7 @@
 import datetime
 import json
 import re
+from collections.abc import Iterable, Mapping
 
 import yaml
 from django import template
@@ -23,6 +24,7 @@ __all__ = (
     'content_type_id',
     'fgcolor',
     'getattr_',
+    'is_iterable',
     'isodate',
     'isodatetime',
     'isotime',
@@ -119,6 +121,14 @@ def placeholder(value):
         return value
 
     return mark_safe('<span class="text-muted">&mdash;</span>')
+
+
+@register.filter()
+def is_iterable(value):
+    """
+    Return whether the value is an iterable collection suitable for list rendering.
+    """
+    return isinstance(value, Iterable) and not isinstance(value, (str, bytes, Mapping))
 
 
 @register.filter()
