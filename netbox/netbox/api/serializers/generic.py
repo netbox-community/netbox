@@ -4,8 +4,9 @@ from rest_framework import serializers
 
 from core.models import ObjectType
 from netbox.api.fields import ContentTypeField
-from utilities.api import get_serializer_for_model
+from utilities.api import get_related_object_by_attrs, get_serializer_for_model
 from utilities.object_types import object_type_identifier
+from utilities.permissions import restrict_queryset
 
 __all__ = (
     'GenericObjectSerializer',
@@ -25,7 +26,8 @@ class GenericObjectSerializer(serializers.Serializer):
     def to_internal_value(self, data):
         data = super().to_internal_value(data)
         model = data['object_type'].model_class()
-        return model.objects.get(pk=data['object_id'])
+        queryset = restrict_queryset(model.objects.all(), self.context.get('request'))
+        return get_related_object_by_attrs(queryset, data['object_id'])
 
     def to_representation(self, instance):
         object_type = ObjectType.objects.get_for_model(instance)

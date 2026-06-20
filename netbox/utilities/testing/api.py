@@ -302,6 +302,8 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+            self.add_related_view_permissions(self.create_data[0])
+
             data = copy.deepcopy(self.create_data[0])
 
             # If supported, add a changelog message
@@ -342,6 +344,8 @@ class APIViewTestCases:
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.add_related_view_permissions(*self.create_data)
 
             # If supported, add a changelog message
             changelog_message = get_random_string(10)
@@ -418,6 +422,8 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
+            self.add_related_view_permissions(update_data)
+
             data = copy.deepcopy(update_data)
 
             # If supported, add a changelog message
@@ -458,6 +464,7 @@ class APIViewTestCases:
             instance = self._get_queryset().first()
             url = self._get_detail_url(instance)
             update_data = self.update_data or getattr(self, 'create_data')[0]
+            self.add_related_view_permissions(update_data)
 
             # Fetch current ETag
             get_response = self.client.get(url, **self.header)
@@ -498,6 +505,8 @@ class APIViewTestCases:
             obj_perm.save()
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            self.add_related_view_permissions(self.bulk_update_data)
 
             id_list = list(self._get_queryset().values_list('id', flat=True)[:3])
             self.assertEqual(len(id_list), 3, "Insufficient number of objects to test bulk update")

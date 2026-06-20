@@ -6,10 +6,12 @@ from django.urls import reverse
 from netaddr import IPNetwork
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
+from users.models import ObjectPermission
 from utilities.data import string_to_ranges
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device, disable_logging
 
@@ -99,7 +101,7 @@ class ASNRangeTestCase(APIViewTestCases.APIViewTestCase):
         rir = RIR.objects.first()
         asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
         url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
-        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn')
+        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn', 'ipam.view_rir')
 
         data = {
             'description': 'New ASN'
@@ -116,7 +118,7 @@ class ASNRangeTestCase(APIViewTestCases.APIViewTestCase):
         rir = RIR.objects.first()
         asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
         url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
-        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn')
+        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn', 'ipam.view_rir')
 
         # Try to create eleven ASNs (only ten are available)
         data = [
@@ -488,7 +490,7 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
-        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix', 'ipam.view_vrf')
 
         # Create four available prefixes with individual requests
         prefixes_to_be_created = [
@@ -525,7 +527,7 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/28'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-prefixes', kwargs={'pk': prefix.pk})
-        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix', 'ipam.view_vrf')
 
         # Try to create five /30s (only four are available)
         data = [
@@ -576,7 +578,7 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/30'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
-        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress', 'ipam.view_vrf')
 
         # Create all four available IPs with individual requests
         for i in range(1, 5):
@@ -600,7 +602,7 @@ class PrefixTestCase(APIViewTestCases.APIViewTestCase):
         vrf = VRF.objects.create(name='VRF 1')
         prefix = Prefix.objects.create(prefix=IPNetwork('192.0.2.0/29'), vrf=vrf, is_pool=True)
         url = reverse('ipam-api:prefix-available-ips', kwargs={'pk': prefix.pk})
-        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress')
+        self.add_permissions('ipam.view_prefix', 'ipam.add_ipaddress', 'ipam.view_vrf')
 
         # Try to create nine IPs (only eight are available)
         data = [{'description': f'Test IP {i}'} for i in range(1, 10)]  # 9 IPs
@@ -727,7 +729,7 @@ class IPRangeTestCase(APIViewTestCases.APIViewTestCase):
             vrf=vrf
         )
         url = reverse('ipam-api:iprange-available-ips', kwargs={'pk': iprange.pk})
-        self.add_permissions('ipam.view_iprange', 'ipam.add_ipaddress')
+        self.add_permissions('ipam.view_iprange', 'ipam.add_ipaddress', 'ipam.view_vrf')
 
         # Create all three available IPs with individual requests
         for i in range(1, 4):
@@ -1501,3 +1503,43 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
                 'ports': [6],
             },
         ]
+
+
+class NestedObjectPermissionAPITest(APITestCase):
+    """
+    End-to-end: a constrained view permission on a related model is enforced when that object is
+    referenced via a nested serializer on write, so an object outside the user's constraint is
+    rejected as though it did not exist (the #21988 vector).
+    """
+    model = Prefix
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.tenants = Tenant.objects.bulk_create((
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        ))
+
+    def test_create_rejects_related_object_outside_constraint(self):
+        self.add_permissions('ipam.add_prefix')
+        obj_perm = ObjectPermission(
+            name='View Tenant 1 only', actions=['view'], constraints={'pk': self.tenants[0].pk}
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Tenant))
+
+        url = self._get_list_url()
+
+        # The viewable tenant resolves and the prefix is created
+        response = self.client.post(
+            url, {'prefix': '198.51.100.0/24', 'tenant': self.tenants[0].pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+
+        # The tenant outside the constraint fails resolution as a nonexistent object would
+        response = self.client.post(
+            url, {'prefix': '198.51.101.0/24', 'tenant': self.tenants[1].pk}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('tenant', response.data)

@@ -18,7 +18,7 @@ from core.models import ObjectType
 from users.models import ObjectPermission, User
 from utilities.data import ranges_to_string
 from utilities.object_types import object_type_identifier
-from utilities.permissions import resolve_permission_type
+from utilities.permissions import get_permission_for_model, resolve_permission_type
 
 from .utils import DUMMY_CF_DATA, extract_form_failures
 
@@ -137,6 +137,29 @@ class ModelTestCase(TestCase):
         Return a base queryset suitable for use in test methods.
         """
         return self.model.objects.all()
+
+    def add_related_view_permissions(self, *payloads):
+        """
+        Grant the test user view permission on each permission-controlled related model referenced
+        by the given write payload(s), so nested related-object resolution succeeds while object-level
+        permission enforcement stays active (no global view exemption).
+
+        Foreign-key and many-to-many references are derived automatically from the payload. References
+        that cannot be derived from the model fields (e.g. generic-FK targets) should be granted via the
+        test case's user_permissions.
+        """
+        permissions = set()
+        for payload in payloads:
+            if not isinstance(payload, dict):
+                continue
+            for field in self.model._meta.get_fields():
+                related_model = getattr(field, 'related_model', None)
+                if field.name not in payload or related_model is None:
+                    continue
+                if hasattr(related_model.objects, 'restrict'):
+                    permissions.add(get_permission_for_model(related_model, 'view'))
+        if permissions:
+            self.add_permissions(*permissions)
 
     def prepare_instance(self, instance):
         """

@@ -5,6 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from utilities.api import get_related_object_by_attrs
+from utilities.permissions import restrict_queryset
 
 from .fields import NetBoxAPIHyperlinkedIdentityField, NetBoxURLHyperlinkedIdentityField
 
@@ -43,13 +44,21 @@ class BaseModelSerializer(serializers.ModelSerializer):
 
         super().__init__(*args, **kwargs)
 
-    def to_internal_value(self, data):
+    def get_related_object_queryset(self):
+        """
+        Return the queryset used to resolve a related object supplied via nested
+        serializer input.
+        """
+        return restrict_queryset(self.Meta.model.objects.all(), self.context.get('request'))
 
+    def to_internal_value(self, data):
+        """
+        Override to_internal_value() to handle nested serializer input.
+        """
         # If initialized as a nested serializer, we should expect to receive the attrs or PK
         # identifying a related object.
         if self.nested:
-            queryset = self.Meta.model.objects.all()
-            return get_related_object_by_attrs(queryset, data)
+            return get_related_object_by_attrs(self.get_related_object_queryset(), data)
 
         return super().to_internal_value(data)
 

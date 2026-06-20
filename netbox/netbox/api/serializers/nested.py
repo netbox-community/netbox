@@ -16,8 +16,7 @@ class WritableNestedSerializer(BaseModelSerializer):
     subclassed to return a full representation of the related object on read.
     """
     def to_internal_value(self, data):
-        queryset = self.Meta.model.objects.all()
-        return get_related_object_by_attrs(queryset, data)
+        return get_related_object_by_attrs(self.get_related_object_queryset(), data)
 
 
 # Declared here for use by PrimaryModelSerializer
