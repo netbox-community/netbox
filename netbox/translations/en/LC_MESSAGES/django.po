@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-16 06:46+0000\n"
+"POT-Creation-Date: 2026-06-20 06:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -496,7 +496,7 @@ msgstr ""
 #: netbox/dcim/tables/power.py:74 netbox/dcim/tables/racks.py:155
 #: netbox/extras/forms/bulk_import.py:48 netbox/extras/tables/tables.py:515
 #: netbox/extras/tables/tables.py:584 netbox/extras/ui/panels.py:128
-#: netbox/extras/ui/panels.py:377 netbox/netbox/tables/tables.py:358
+#: netbox/extras/ui/panels.py:377 netbox/netbox/tables/tables.py:390
 #: netbox/templates/core/htmx/system_db_schema.html:70
 #: netbox/templates/dcim/panels/interface_connection.html:68
 #: netbox/templates/wireless/panels/wirelesslink_interface.html:16
@@ -719,7 +719,7 @@ msgstr ""
 #: netbox/ipam/forms/filtersets.py:351 netbox/ipam/forms/filtersets.py:434
 #: netbox/ipam/forms/filtersets.py:532 netbox/ipam/forms/filtersets.py:546
 #: netbox/ipam/forms/filtersets.py:571 netbox/ipam/forms/filtersets.py:643
-#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:374
+#: netbox/ipam/forms/filtersets.py:662 netbox/netbox/tables/tables.py:406
 #: netbox/virtualization/forms/filtersets.py:56
 #: netbox/virtualization/forms/filtersets.py:114
 #: netbox/virtualization/forms/filtersets.py:158
@@ -1576,7 +1576,7 @@ msgstr ""
 #: netbox/ipam/tables/services.py:16 netbox/ipam/tables/services.py:38
 #: netbox/ipam/tables/vlans.py:33 netbox/ipam/tables/vlans.py:90
 #: netbox/ipam/tables/vlans.py:209 netbox/ipam/tables/vrfs.py:26
-#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:344
+#: netbox/ipam/tables/vrfs.py:65 netbox/netbox/tables/tables.py:376
 #: netbox/netbox/ui/panels.py:222 netbox/netbox/ui/panels.py:231
 #: netbox/templates/core/htmx/system_db_schema.html:99
 #: netbox/templates/core/plugin.html:54 netbox/templates/core/rq_worker.html:43
@@ -2625,7 +2625,7 @@ msgstr ""
 #: netbox/extras/tables/tables.py:518 netbox/extras/tables/tables.py:589
 #: netbox/extras/tables/tables.py:762 netbox/extras/tables/tables.py:803
 #: netbox/extras/tables/tables.py:857 netbox/extras/ui/panels.py:378
-#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:362
+#: netbox/extras/ui/panels.py:507 netbox/netbox/tables/tables.py:394
 #: netbox/tenancy/tables/contacts.py:87 netbox/vpn/tables/l2vpn.py:64
 msgid "Object"
 msgstr ""
@@ -3093,7 +3093,7 @@ msgstr ""
 #: netbox/dcim/tables/devices.py:1235 netbox/ipam/forms/bulk_import.py:608
 #: netbox/ipam/forms/model_forms.py:809 netbox/ipam/tables/fhrp.py:56
 #: netbox/ipam/tables/ip.py:334 netbox/ipam/tables/services.py:42
-#: netbox/netbox/tables/tables.py:348 netbox/netbox/ui/panels.py:230
+#: netbox/netbox/tables/tables.py:380 netbox/netbox/ui/panels.py:230
 #: netbox/tenancy/forms/bulk_edit.py:33 netbox/tenancy/forms/bulk_edit.py:62
 #: netbox/tenancy/forms/bulk_import.py:31
 #: netbox/tenancy/forms/bulk_import.py:64
@@ -8958,8 +8958,8 @@ msgid "The classification of entry"
 msgstr ""
 
 #: netbox/extras/forms/bulk_import.py:337 netbox/extras/tables/tables.py:768
-#: netbox/netbox/tables/tables.py:314 netbox/netbox/tables/tables.py:329
-#: netbox/netbox/tables/tables.py:352 netbox/netbox/ui/panels.py:243
+#: netbox/netbox/tables/tables.py:346 netbox/netbox/tables/tables.py:361
+#: netbox/netbox/tables/tables.py:384 netbox/netbox/ui/panels.py:243
 #: netbox/templates/dcim/htmx/cable_edit.html:100
 #: netbox/templates/generic/bulk_edit.html:99
 #: netbox/templates/inc/panels/comments.html:5
@@ -10269,8 +10269,8 @@ msgstr ""
 #: netbox/extras/tables/tables.py:535 netbox/extras/tables/tables.py:565
 #: netbox/extras/tables/tables.py:656 netbox/extras/tables/tables.py:712
 #: netbox/netbox/forms/mixins.py:166 netbox/netbox/forms/mixins.py:191
-#: netbox/netbox/tables/tables.py:311 netbox/netbox/tables/tables.py:326
-#: netbox/netbox/tables/tables.py:341 netbox/templates/generic/object.html:61
+#: netbox/netbox/tables/tables.py:343 netbox/netbox/tables/tables.py:358
+#: netbox/netbox/tables/tables.py:373 netbox/templates/generic/object.html:61
 #: netbox/users/forms/model_forms.py:556
 msgid "Owner"
 msgstr ""
@@ -12494,8 +12494,8 @@ msgstr ""
 msgid "Owner group"
 msgstr ""
 
-#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:307
-#: netbox/netbox/tables/tables.py:322 netbox/netbox/tables/tables.py:337
+#: netbox/netbox/forms/mixins.py:182 netbox/netbox/tables/tables.py:339
+#: netbox/netbox/tables/tables.py:354 netbox/netbox/tables/tables.py:369
 #: netbox/users/forms/model_forms.py:544
 msgid "Owner Group"
 msgstr ""
@@ -13268,12 +13268,12 @@ msgstr ""
 msgid "No {model_name} found"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:367
+#: netbox/netbox/tables/tables.py:399
 #: netbox/templates/generic/bulk_import.html:148
 msgid "Field"
 msgstr ""
 
-#: netbox/netbox/tables/tables.py:370
+#: netbox/netbox/tables/tables.py:402
 #: netbox/templates/extras/panels/customfieldchoiceset_choices.html:9
 msgid "Value"
 msgstr ""
