@@ -232,3 +232,29 @@ class UserConfigTestCase(TestCase):
 
         # Clear a non-existing value; should fail silently
         userconfig.clear('invalid')
+
+
+class RestrictedQuerySetTestCase(TestCase):
+    """
+    Test the is_active handling of RestrictedQuerySet.restrict()'s superuser bypass.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Token uses a plain RestrictedQuerySet manager, so its objects() exercises restrict()
+        # directly without requiring any object permissions to be configured.
+        cls.token = Token.objects.create(user=create_test_user('Token Owner'))
+
+    def test_active_superuser_bypasses_restriction(self):
+        user = User.objects.create(username='active_su', is_superuser=True, is_active=True)
+        self.assertIn(self.token, Token.objects.restrict(user, 'view'))
+
+    def test_inactive_superuser_does_not_bypass_restriction(self):
+        """
+        A deactivated superuser must not bypass restrict(). Without an explicit
+        view permission they receive an empty queryset, mirroring the is_active
+        guard in ObjectPermissionMixin.has_perm.
+        """
+        user = User.objects.create(username='inactive_su', is_superuser=True, is_active=False)
+        self.assertNotIn(self.token, Token.objects.restrict(user, 'view'))
+        self.assertEqual(Token.objects.restrict(user, 'view').count(), 0)

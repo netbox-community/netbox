@@ -49,7 +49,7 @@ class RestrictedQuerySet(QuerySet):
         permission_required = get_permission_for_model(self.model, action)
 
         # Bypass restriction for superusers and exempt views
-        if user and user.is_superuser or permission_is_exempt(permission_required):
+        if (user and user.is_active and user.is_superuser) or permission_is_exempt(permission_required):
             return self
 
         # User is anonymous or has not been granted the requisite permission
