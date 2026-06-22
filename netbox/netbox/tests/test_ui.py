@@ -3,8 +3,10 @@ from types import SimpleNamespace
 
 from django.template import Context, Template
 from django.test import RequestFactory, SimpleTestCase, TestCase
+from django.urls import reverse
 from netaddr import IPNetwork
 
+from account.models import UserToken
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
 from circuits.models import (
     Provider,
@@ -13,14 +15,17 @@ from circuits.models import (
     VirtualCircuitTermination,
     VirtualCircuitType,
 )
-from core.models import ObjectType
+from core.models import ConfigRevision, ObjectType
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Interface, Site
+from dcim.models import Interface, Region, Site
 from netbox.ui import attrs
+from netbox.ui.breadcrumbs import Breadcrumb
+from netbox.ui.layout import SimpleLayout
 from netbox.ui.panels import ObjectsTablePanel
 from netbox.ui.utils import build_coords_url
 from users.models import ObjectPermission, User
 from utilities.testing import create_test_device
+from utilities.views import get_view
 from vpn.choices import (
     AuthenticationAlgorithmChoices,
     AuthenticationMethodChoices,
@@ -858,3 +863,246 @@ class ObjectsTablePanelTestCase(TestCase):
         """
         context = self.panel_no_perm.get_context(self._make_context(self.user))
         self.assertFalse(self.panel_no_perm.should_render(context))
+
+
+class BreadcrumbTestCase(SimpleTestCase):
+    """
+    Validate the rendering behavior of the Breadcrumb class.
+    """
+    class _LinkedObject:
+        def __init__(self, label, url, pk=None):
+            self.label = label
+            self._url = url
+            self.pk = pk
+
+        def __str__(self):
+            return self.label
+
+        def get_absolute_url(self):
+            return self._url
+
+    class _PlainObject:
+        def __str__(self):
+            return 'Plain'
+
+    @staticmethod
+    def _render(breadcrumb, instance):
+        return breadcrumb.render({'object': instance})
+
+    def test_accessor_absolute_url(self):
+        """
+        A string accessor resolves the related object, which links to its get_absolute_url() by default.
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/'))
+        html = self._render(Breadcrumb('region'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/region/1/">Region 1</a></li>', html)
+
+    def test_explicit_url_string(self):
+        """
+        An explicit url string overrides the resolved object's get_absolute_url().
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/'))
+        html = self._render(Breadcrumb('region', url='/explicit/'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/explicit/">Region 1</a></li>', html)
+
+    def test_url_callable(self):
+        """
+        A callable url is invoked with the resolved object.
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/', pk=7))
+        html = self._render(Breadcrumb('region', url=lambda o: f'/list/?region_id={o.pk}'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/list/?region_id=7">Region 1</a></li>', html)
+
+    def test_callable_accessor_iterable(self):
+        """
+        A callable accessor resolving to an iterable renders one breadcrumb per object.
+        """
+        a = self._LinkedObject('A', '/a/')
+        b = self._LinkedObject('B', '/b/')
+        html = self._render(Breadcrumb(lambda o: [a, b]), SimpleNamespace())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/a/">A</a></li>', html)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/b/">B</a></li>', html)
+
+    def test_no_link(self):
+        """
+        An object with neither an explicit url nor get_absolute_url() renders as a plain label.
+        """
+        html = self._render(Breadcrumb('thing'), SimpleNamespace(thing=self._PlainObject()))
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">Plain</li>', html)
+
+    def test_unresolved_accessor(self):
+        """
+        A breadcrumb whose accessor resolves to None renders as an empty string (and is therefore omitted).
+        """
+        self.assertEqual(self._render(Breadcrumb('region'), SimpleNamespace(region=None)), '')
+
+    def test_empty_iterable(self):
+        """
+        A callable accessor resolving to an empty iterable renders as an empty string.
+        """
+        self.assertEqual(self._render(Breadcrumb(lambda o: []), SimpleNamespace()), '')
+
+    def test_no_instance(self):
+        """
+        With no object in context, the breadcrumb renders as an empty string.
+        """
+        self.assertEqual(Breadcrumb('region').render({}), '')
+
+    def test_static_label_linked(self):
+        """
+        A breadcrumb with a static label and explicit url renders a single fixed crumb, independent of the object.
+        """
+        html = self._render(Breadcrumb(label='My API Tokens', url='/account/tokens/'), SimpleNamespace())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/account/tokens/">My API Tokens</a></li>', html)
+
+    def test_static_label_no_instance(self):
+        """
+        A static breadcrumb renders even with no object in context.
+        """
+        html = Breadcrumb(label='My API Tokens', url='/account/tokens/').render({})
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/account/tokens/">My API Tokens</a></li>', html)
+
+    def test_static_label_unlinked(self):
+        """
+        A static breadcrumb without a url renders as a plain label and does not fall back to the object's URL.
+        """
+        instance = self._LinkedObject('Token', '/account/tokens/1/')
+        html = self._render(Breadcrumb(label='My API Tokens'), instance)
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">My API Tokens</li>', html)
+
+    def test_callable_label_static(self):
+        """
+        An accessor-less breadcrumb may derive its label from the viewed instance via a callable.
+        """
+        instance = SimpleNamespace(unit_list='1-5')
+        html = self._render(Breadcrumb(label=lambda o: f'Units {o.unit_list}'), instance)
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">Units 1-5</li>', html)
+
+    def test_callable_label_with_accessor(self):
+        """
+        With an accessor, a callable label receives the resolved related object (overriding its string value).
+        """
+        instance = SimpleNamespace(rack=self._LinkedObject('Rack 1', '/rack/1/'))
+        html = self._render(Breadcrumb('rack', label=lambda o: f'Rack: {o}'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/rack/1/">Rack: Rack 1</a></li>', html)
+
+    def test_no_accessor_or_label_raises(self):
+        """
+        A breadcrumb must define either an accessor or a static label.
+        """
+        with self.assertRaises(ValueError):
+            Breadcrumb()
+
+
+class LayoutBreadcrumbsTestCase(SimpleTestCase):
+    """
+    Validate that a layout stores and validates the breadcrumbs declared on it.
+    """
+    def test_breadcrumbs_stored(self):
+        crumbs = [Breadcrumb('region'), Breadcrumb('group')]
+        self.assertEqual(SimpleLayout(breadcrumbs=crumbs).breadcrumbs, crumbs)
+
+    def test_breadcrumbs_default_empty(self):
+        self.assertEqual(SimpleLayout().breadcrumbs, [])
+
+    def test_invalid_breadcrumb_raises(self):
+        with self.assertRaises(TypeError):
+            SimpleLayout(breadcrumbs=['not a breadcrumb'])
+
+    def test_root_breadcrumb_default_true(self):
+        self.assertTrue(SimpleLayout().root_breadcrumb)
+
+    def test_root_breadcrumb_opt_out(self):
+        self.assertFalse(SimpleLayout(root_breadcrumb=False).root_breadcrumb)
+
+
+class GetViewTestCase(SimpleTestCase):
+    """
+    Validate the get_view() utility used to resolve a model's registered views.
+    """
+    def test_base_view(self):
+        view = get_view(Site)
+        self.assertIsNotNone(view)
+        self.assertEqual(view.queryset.model, Site)
+
+    def test_accepts_instance(self):
+        # A model instance resolves to the same view as its class
+        self.assertIs(get_view(Site(name='Site 1')), get_view(Site))
+
+    def test_unknown_name_returns_none(self):
+        self.assertIsNone(get_view(Site, 'this-view-does-not-exist'))
+
+
+class RenderBreadcrumbsTagTestCase(SimpleTestCase):
+    """
+    Validate the render_breadcrumbs template tag's handling of objects without a breadcrumb trail.
+    """
+    @staticmethod
+    def _render(obj):
+        template = Template('{% render_breadcrumbs %}')
+        return template.render(Context({'object': obj}))
+
+    def test_none_object(self):
+        self.assertEqual(self._render(None), '')
+
+    def test_non_model_object(self):
+        # An object lacking _meta (e.g. an RQ worker) must not raise
+        self.assertEqual(self._render(SimpleNamespace(name='not a model')), '')
+
+    def test_default_root_breadcrumb(self):
+        # A model whose base view declares no custom breadcrumbs still renders the default root crumb:
+        # a link to its list view, labeled with the model's plural name.
+        html = self._render(ObjectPermission())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/users/permissions/">Permissions</a></li>', html)
+
+    def test_opt_out_root_breadcrumb(self):
+        # A layout with root_breadcrumb=False suppresses the default root crumb, leaving only its own
+        # breadcrumbs (here UserTokenView's static "My API Tokens" crumb) to stand in its place.
+        html = self._render(UserToken())
+        self.assertEqual(html.count('breadcrumb-item'), 1)
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{reverse("account:usertoken_list")}">My API Tokens</a></li>', html
+        )
+
+    def test_opt_out_without_breadcrumbs(self):
+        # A layout with root_breadcrumb=False and no breadcrumbs of its own (e.g. ConfigRevisionView) renders
+        # an empty trail.
+        self.assertEqual(self._render(ConfigRevision()), '')
+
+
+class RenderBreadcrumbsTagRenderTestCase(TestCase):
+    """
+    Validate that the render_breadcrumbs tag resolves and renders the trail declared on a model's base view layout.
+    """
+    @staticmethod
+    def _render(instance):
+        template = Template('{% render_breadcrumbs %}')
+        return template.render(Context({'object': instance}))
+
+    def test_region_ancestor_breadcrumbs(self):
+        grandparent = Region.objects.create(name='Grandparent Region', slug='grandparent-region')
+        parent = Region.objects.create(name='Parent Region', slug='parent-region', parent=grandparent)
+        child = Region.objects.create(name='Child Region', slug='child-region', parent=parent)
+
+        html = self._render(child)
+        list_url = reverse('dcim:region_list')
+        # The default root crumb is rendered ahead of the layout-defined ancestor crumbs
+        self.assertInHTML(f'<li class="breadcrumb-item"><a href="{list_url}">Regions</a></li>', html)
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{list_url}?parent_id={grandparent.pk}">{grandparent}</a></li>', html
+        )
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{list_url}?parent_id={parent.pk}">{parent}</a></li>', html
+        )
+
+    def test_region_without_ancestors(self):
+        # A top-level object's ancestor accessor resolves to an empty queryset, leaving only the default root crumb
+        region = Region.objects.create(name='Top Region', slug='top-region')
+        html = self._render(region)
+        self.assertEqual(html.count('breadcrumb-item'), 1)
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{reverse("dcim:region_list")}">Regions</a></li>', html
+        )

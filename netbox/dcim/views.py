@@ -20,6 +20,7 @@ from ipam.tables import VLANTranslationRuleTable
 from ipam.ui.panels import FHRPGroupAssignmentsPanel
 from netbox.object_actions import *
 from netbox.ui import actions, layout
+from netbox.ui.breadcrumbs import Breadcrumb, filtered_list_url, object_view_url
 from netbox.ui.panels import (
     CommentsPanel,
     ContextTablePanel,
@@ -243,6 +244,12 @@ class RegionListView(generic.ObjectListView):
 class RegionView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Region.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('dcim:region_list', 'parent_id'),
+            ),
+        ],
         left_panels=[
             NestedGroupObjectPanel(),
             TagsPanel(),
@@ -376,6 +383,12 @@ class SiteGroupListView(generic.ObjectListView):
 class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = SiteGroup.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('dcim:sitegroup_list', 'parent_id'),
+            ),
+        ],
         left_panels=[
             NestedGroupObjectPanel(),
             TagsPanel(),
@@ -660,8 +673,12 @@ class LocationListView(generic.ObjectListView):
 
 @register_model_view(Location)
 class LocationView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Location.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(lambda o: o.get_ancestors()),
+        ],
         left_panels=[
             panels.LocationPanel(),
             TagsPanel(),
@@ -1098,6 +1115,14 @@ class RackElevationListView(generic.ObjectListView):
 class RackView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Rack.objects.prefetch_related('site__region', 'tenant__group', 'location', 'role')
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('site', url=filtered_list_url('dcim:rack_list', 'site_id')),
+            Breadcrumb(
+                lambda o: o.location.get_ancestors() if o.location else [],
+                url=filtered_list_url('dcim:rack_list', 'location_id'),
+            ),
+            Breadcrumb('location', url=filtered_list_url('dcim:rack_list', 'location_id')),
+        ],
         left_panels=[
             panels.RackPanel(),
             panels.RackDimensionsPanel(title=_('Dimensions')),
@@ -1245,10 +1270,15 @@ class RackReservationListView(generic.ObjectListView):
 
 @register_model_view(RackReservation)
 class RackReservationView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = RackReservation.objects.annotate(
         unit_count=Func('units', function='CARDINALITY', output_field=IntegerField())
     )
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('rack', url=filtered_list_url('dcim:rackreservation_list', 'rack_id')),
+            Breadcrumb(label=lambda o: f"{_('Units')} {o.unit_list}"),
+        ],
         left_panels=[
             panels.RackPanel(accessor='object.rack', only=['region', 'site', 'location', 'group', 'name']),
             panels.RackReservationPanel(title=_('Reservation')),
@@ -1414,6 +1444,9 @@ class DeviceTypeListView(generic.ObjectListView):
 class DeviceTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceType.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('manufacturer', url=filtered_list_url('dcim:devicetype_list', 'manufacturer_id')),
+        ],
         left_panels=[
             panels.DeviceTypePanel(),
             TagsPanel(),
@@ -1764,6 +1797,9 @@ class ModuleTypeListView(generic.ObjectListView):
 class ModuleTypeView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ModuleType.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('manufacturer', url=filtered_list_url('dcim:moduletype_list', 'manufacturer_id')),
+        ],
         left_panels=[
             panels.ModuleTypePanel(),
             TagsPanel(),
@@ -2429,6 +2465,12 @@ class DeviceRoleListView(generic.ObjectListView):
 class DeviceRoleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = DeviceRole.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb(
+                lambda o: o.get_ancestors(),
+                url=filtered_list_url('dcim:devicerole_list', 'parent_id'),
+            ),
+        ],
         left_panels=[
             panels.DeviceRolePanel(),
             TagsPanel(),
@@ -2530,6 +2572,9 @@ class PlatformListView(generic.ObjectListView):
 class PlatformView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Platform.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('manufacturer', url=filtered_list_url('dcim:platform_list', 'manufacturer_id')),
+        ],
         left_panels=[
             panels.PlatformPanel(),
             TagsPanel(),
@@ -2956,6 +3001,9 @@ class ModuleListView(generic.ObjectListView):
 class ModuleView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Module.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('module_type', url=filtered_list_url('dcim:module_list', 'module_type_id')),
+        ],
         left_panels=[
             panels.ModulePanel(),
             TagsPanel(),
@@ -3024,8 +3072,12 @@ class ConsolePortListView(generic.ObjectListView):
 
 @register_model_view(ConsolePort)
 class ConsolePortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ConsolePort.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_consoleports')),
+        ],
         left_panels=[
             panels.ConsolePortPanel(),
             CustomFieldsPanel(),
@@ -3118,8 +3170,12 @@ class ConsoleServerPortListView(generic.ObjectListView):
 
 @register_model_view(ConsoleServerPort)
 class ConsoleServerPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ConsoleServerPort.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_consoleserverports')),
+        ],
         left_panels=[
             panels.ConsoleServerPortPanel(),
             CustomFieldsPanel(),
@@ -3208,8 +3264,12 @@ class PowerPortListView(generic.ObjectListView):
 
 @register_model_view(PowerPort)
 class PowerPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerPort.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_powerports')),
+        ],
         left_panels=[
             panels.PowerPortPanel(),
             CustomFieldsPanel(),
@@ -3297,8 +3357,12 @@ class PowerOutletListView(generic.ObjectListView):
 
 @register_model_view(PowerOutlet)
 class PowerOutletView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerOutlet.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_poweroutlets')),
+        ],
         left_panels=[
             panels.PowerOutletPanel(),
             CustomFieldsPanel(),
@@ -3387,6 +3451,9 @@ class InterfaceListView(generic.ObjectListView):
 class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_interfaces')),
+        ],
         left_panels=[
             panels.InterfacePanel(),
             panels.RelatedInterfacesPanel(),
@@ -3563,8 +3630,12 @@ class FrontPortListView(generic.ObjectListView):
 
 @register_model_view(FrontPort)
 class FrontPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = FrontPort.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_frontports')),
+        ],
         left_panels=[
             panels.FrontPortPanel(),
             CustomFieldsPanel(),
@@ -3667,8 +3738,12 @@ class RearPortListView(generic.ObjectListView):
 
 @register_model_view(RearPort)
 class RearPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = RearPort.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_rearports')),
+        ],
         left_panels=[
             panels.RearPortPanel(),
             CustomFieldsPanel(),
@@ -3769,8 +3844,12 @@ class ModuleBayListView(generic.ObjectListView):
 
 @register_model_view(ModuleBay)
 class ModuleBayView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ModuleBay.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_modulebays')),
+        ],
         left_panels=[
             panels.ModuleBayPanel(),
             TagsPanel(),
@@ -3842,8 +3921,12 @@ class DeviceBayListView(generic.ObjectListView):
 
 @register_model_view(DeviceBay)
 class DeviceBayView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = DeviceBay.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_devicebays')),
+        ],
         left_panels=[
             panels.DeviceBayPanel(),
             CustomFieldsPanel(),
@@ -3996,8 +4079,12 @@ class InventoryItemListView(generic.ObjectListView):
 
 @register_model_view(InventoryItem)
 class InventoryItemView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = InventoryItem.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('device', url=object_view_url('dcim:device_inventory')),
+        ],
         left_panels=[
             panels.InventoryItemPanel(),
             CustomFieldsPanel(),
@@ -4744,8 +4831,13 @@ class PowerPanelListView(generic.ObjectListView):
 
 @register_model_view(PowerPanel)
 class PowerPanelView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerPanel.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('site', url=filtered_list_url('dcim:powerpanel_list', 'site_id')),
+            Breadcrumb('location'),
+        ],
         left_panels=[
             panels.PowerPanelPanel(),
             TagsPanel(),
@@ -4828,8 +4920,14 @@ class PowerFeedListView(generic.ObjectListView):
 
 @register_model_view(PowerFeed)
 class PowerFeedView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerFeed.objects.all()
     layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('power_panel.site', url=filtered_list_url('dcim:powerfeed_list', 'site_id')),
+            Breadcrumb('power_panel', url=filtered_list_url('dcim:powerfeed_list', 'power_panel_id')),
+            Breadcrumb('rack', url=filtered_list_url('dcim:powerfeed_list', 'rack_id')),
+        ],
         left_panels=[
             panels.PowerFeedPanel(),
             panels.PowerFeedElectricalPanel(),
