@@ -28,7 +28,7 @@ python3 netbox/manage.py nbshell
 
 ## populate_image_sizes
 
-!!! info "This command was introduced in NetBox v4.7."
+!!! info "This command was introduced in NetBox v4.6.4."
 
 Populate the cached file size for image attachments that predate the `image_size` field. Running this once after upgrading is recommended for deployments with many existing attachments on a remote storage backend (such as S3). It is safe to run on a live system and may be re-run; any file that cannot be read is skipped and retried on the next run.
 
