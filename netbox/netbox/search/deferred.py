@@ -153,9 +153,11 @@ def _flush(batch, using):
 
     # Imported here, not at module load, to avoid an import cycle: backends.py
     # imports this module at module level (for the signal handlers), and
-    # netbox.search.tasks imports search_backend from backends.py, which is
-    # defined at the bottom of that module. A proper fix is tracked in #22485.
-    from netbox.search.tasks import SearchCacheJob, update_search_cache
+    # netbox.search.jobs imports the search_backend singleton from backends.py,
+    # which is bound at the bottom of that module. A proper fix is tracked in
+    # #22485.
+    from netbox.search.backends import search_backend
+    from netbox.search.jobs import SearchCacheJob
 
     try:
         # Both the worker-availability check and the job enqueue talk to Redis,
@@ -168,4 +170,4 @@ def _flush(batch, using):
     except RedisError:
         logger.warning("Search cache: broker unavailable; indexing inline", exc_info=True)
 
-    update_search_cache(using=using, cache_groups=cache_groups, remove_groups=remove_groups)
+    search_backend.apply_deferred_updates(using=using, cache_groups=cache_groups, remove_groups=remove_groups)

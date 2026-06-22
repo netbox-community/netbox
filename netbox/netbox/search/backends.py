@@ -4,7 +4,7 @@ from collections import defaultdict
 import netaddr
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.db import ProgrammingError
+from django.db import DatabaseError, ProgrammingError, transaction
 from django.db.models import F, Q, Window, prefetch_related_objects
 from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
@@ -31,7 +31,8 @@ logger = logging.getLogger(__name__)
 
 class SearchBackend:
     """
-    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, and `clear()` methods below.
+    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, `clear()`, and
+    `apply_deferred_updates()` methods below.
     """
     _object_types = None
 
@@ -116,6 +117,15 @@ class SearchBackend:
     def clear(self, object_types=None):
         """
         Delete *all* cached data (optionally filtered by object type).
+        """
+        raise NotImplementedError
+
+    def apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=None):
+        """
+        Apply a coalesced batch of deferred cache updates (called by the background search cache job
+        and by the inline fallback). `cache_groups` and `remove_groups` are {object_type_id: [pk, ...]}
+        maps; `using` is the database alias the originating writes used, replayed here so entries land
+        in the originating schema.
         """
         raise NotImplementedError
 
@@ -306,6 +316,69 @@ class CachedValueSearchBackend(SearchBackend):
         object_type = ObjectType.objects.get_for_model(indexer.model)
 
         return self._remove_by_id(object_type.pk, [instance.pk], using=using)
+
+    # Postgres SQLSTATEs indicating the target schema/table no longer exists. This happens when a
+    # branch is merged or deprovisioned (its schema dropped) between the time an update was enqueued
+    # and when it is applied. Such errors are expected and safe to skip; the index is rebuilt on the
+    # next reindex. Any other DatabaseError (e.g. a deadlock or lost connection) is transient and must
+    # propagate so the work fails visibly, rather than silently dropping index updates.
+    _MISSING_SCHEMA_SQLSTATES = frozenset((
+        '3F000',  # invalid_schema_name
+        '42P01',  # undefined_table
+    ))
+
+    def _is_missing_schema(self, exc):
+        """
+        Return True if the given DatabaseError was caused by the target schema/table no longer existing
+        (vs. a transient error that should propagate).
+        """
+        sqlstate = getattr(getattr(exc, '__cause__', None), 'sqlstate', None)
+        return sqlstate in self._MISSING_SCHEMA_SQLSTATES
+
+    def apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=logger):
+        """
+        Apply a coalesced batch of updates to the search cache. The `using` alias captured when each
+        object was saved/deleted is replayed here so entries are written to the originating
+        database/schema (e.g. a branch schema under netbox-branching), regardless of any routing
+        context that is no longer active by the time this runs.
+        """
+        # Removals are a single DELETE per content type, so (unlike the cache loop below) there is no
+        # multi-step state to wrap in a transaction. A transient error here propagates and errors the
+        # caller; the remaining work is dropped rather than retried (NetBox does not retry these jobs
+        # by default) and is recovered by the next reindex.
+        for object_type_id, pks in (remove_groups or {}).items():
+            try:
+                self._remove_by_id(object_type_id, pks, using=using)
+            except DatabaseError as e:
+                if not self._is_missing_schema(e):
+                    raise
+                log.warning(f"Skipping search cache removal for object type {object_type_id}: {e}")
+
+        for object_type_id, pks in (cache_groups or {}).items():
+            try:
+                object_type = ObjectType.objects.get(pk=object_type_id)
+            except ObjectType.DoesNotExist:
+                continue
+            model = object_type.model_class()
+            if model is None:
+                continue
+
+            try:
+                # Re-fetch live instances from the originating database. Reading on `using` is
+                # required: a branch object's PK may be absent (or refer to a different object) on the
+                # default connection.
+                queryset = model.objects.using(using).filter(pk__in=pks)
+
+                # Clear any stale entries for these objects, then re-insert. Wrapping both in one
+                # transaction avoids leaving an object with no cache rows if execution fails between
+                # the delete and the insert.
+                with transaction.atomic(using=using):
+                    self._remove_by_id(object_type_id, pks, using=using)
+                    self.cache(queryset, remove_existing=False, using=using)
+            except DatabaseError as e:
+                if not self._is_missing_schema(e):
+                    raise
+                log.warning(f"Skipping search cache update for object type {object_type_id}: {e}")
 
     def clear(self, object_types=None):
         qs = CachedValue.objects.all()

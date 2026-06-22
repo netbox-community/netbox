@@ -10,7 +10,7 @@ from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
 from netbox.search.backends import search_backend
-from netbox.search.tasks import SearchCacheJob, update_search_cache
+from netbox.search.jobs import SearchCacheJob
 
 
 def scheduled_search_flushes():
@@ -444,8 +444,9 @@ class DeferredCachingTestCase(TestCase):
 
     def test_cache_update_skips_deleted_object(self):
         """
-        update_search_cache tolerates a pk that no longer exists (object deleted
-        between enqueue and execution): it must not error or create cache rows.
+        apply_deferred_updates tolerates a pk that no longer exists (object
+        deleted between enqueue and execution): it must not error or create cache
+        rows.
         """
         site = Site.objects.create(name='Vanished', slug='vanished')
         site_ct = ContentType.objects.get_for_model(Site)
@@ -454,7 +455,7 @@ class DeferredCachingTestCase(TestCase):
         CachedValue.objects.filter(object_type=site_ct, object_id=pk).delete()
 
         # No exception, and no rows resurrected for the missing object.
-        update_search_cache(using=None, cache_groups={site_ct.pk: [pk]}, remove_groups={})
+        search_backend.apply_deferred_updates(using=None, cache_groups={site_ct.pk: [pk]}, remove_groups={})
         self.assertFalse(
             CachedValue.objects.filter(object_type=site_ct, object_id=pk).exists()
         )
