@@ -10,9 +10,6 @@ sudo apt install -y redis-server
 
 Before continuing, verify that your installed version of Redis is at least v6.0:
 
-!!! warning "Redis v5.x is deprecated"
-    Support for Redis versions older than 6.0 is deprecated and will be removed in NetBox v4.7.
-
 ```no-highlight
 redis-server -v
 ```
