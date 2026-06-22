@@ -27,6 +27,7 @@ class CoreConfig(AppConfig):
         from netbox.models.features import register_models
 
         from . import data_backends, events, search  # noqa: F401
+        from .ui import breadcrumbs  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

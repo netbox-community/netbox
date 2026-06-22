@@ -1,8 +1,0 @@
-{% extends 'generic/object.html' %}
-{% load buttons %}
-{% load helpers %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'ipam:aggregate_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
-{% endblock %}

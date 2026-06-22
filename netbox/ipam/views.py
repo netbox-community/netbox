@@ -358,6 +358,7 @@ class ASNRangeListView(generic.ObjectListView):
 
 @register_model_view(ASNRange)
 class ASNRangeView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ASNRange.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -448,6 +449,7 @@ class ASNListView(generic.ObjectListView):
 
 @register_model_view(ASN)
 class ASNView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ASN.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -534,6 +536,7 @@ class AggregateListView(generic.ObjectListView):
 
 @register_model_view(Aggregate)
 class AggregateView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Aggregate.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -992,6 +995,7 @@ class IPRangeListView(generic.ObjectListView):
 
 @register_model_view(IPRange)
 class IPRangeView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = IPRange.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -1102,6 +1106,7 @@ class IPAddressListView(generic.ObjectListView):
 
 @register_model_view(IPAddress)
 class IPAddressView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
     layout = layout.SimpleLayout(
         left_panels=[

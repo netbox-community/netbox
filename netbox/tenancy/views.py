@@ -142,6 +142,7 @@ class TenantListView(generic.ObjectListView):
 
 @register_model_view(Tenant)
 class TenantView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Tenant.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -214,6 +215,7 @@ class ContactGroupListView(generic.ObjectListView):
 
 @register_model_view(ContactGroup)
 class ContactGroupView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ContactGroup.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[

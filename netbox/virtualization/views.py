@@ -636,6 +636,7 @@ class VMInterfaceListView(generic.ObjectListView):
 
 @register_model_view(VMInterface)
 class VMInterfaceView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VMInterface.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -768,6 +769,7 @@ class VirtualDiskListView(generic.ObjectListView):
 
 @register_model_view(VirtualDisk)
 class VirtualDiskView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VirtualDisk.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[

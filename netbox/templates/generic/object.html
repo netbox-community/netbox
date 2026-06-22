@@ -35,6 +35,7 @@ Context:
           <li class="breadcrumb-item">
             <a href="{% action_url object 'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a>
           </li>
+          {% render_breadcrumbs %}
         {% endblock breadcrumbs %}
       </ol>
 

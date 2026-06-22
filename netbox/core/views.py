@@ -195,6 +195,7 @@ class DataFileListView(generic.ObjectListView):
 
 @register_model_view(DataFile)
 class DataFileView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = DataFile.objects.all()
     actions = (DeleteObject,)
     layout = layout.Layout(

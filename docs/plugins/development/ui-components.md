@@ -53,6 +53,47 @@ class MyView(generic.ObjectView):
 
 ::: netbox.ui.layout.Column
 
+## Breadcrumbs
+
+Breadcrumbs are rendered at the top of an object's page to convey its position within a hierarchy and to provide quick navigation to related objects. By default, a single breadcrumb linking to the object's list view is shown. To add object-specific breadcrumbs, pass a list of `Breadcrumb` instances to your layout, just as you would its panels.
+
+Each `Breadcrumb` references an _accessor_ (rather than a static value), which is resolved against the object being viewed when the page is rendered. The accessor may be a dotted attribute path or a callable.
+
+```python
+from netbox.ui import layout
+from netbox.ui.breadcrumbs import Breadcrumb
+from netbox.views import generic
+
+class MyView(generic.ObjectView):
+    layout = layout.SimpleLayout(
+        breadcrumbs=[
+            Breadcrumb('site'),
+            Breadcrumb('location'),
+            Breadcrumb('rack'),
+        ],
+        left_panels=[...],
+        right_panels=[...],
+    )
+```
+
+Each breadcrumb renders as a label (the string representation of the resolved object) and an optional link. If no explicit `url` is provided, the object's `get_absolute_url()` is used when available. A breadcrumb whose accessor resolves to `None` (or an empty iterable) renders as an empty string and is omitted, which simplifies conditional breadcrumbs (e.g. where a device may or may not be assigned to a rack).
+
+To link a breadcrumb somewhere other than the related object's own page (for example, to a filtered list view), pass a `url`. A callable `url` receives the resolved object:
+
+```python
+from django.urls import reverse
+
+Breadcrumb('rir', url=lambda rir: f"{reverse('ipam:asn_list')}?rir_id={rir.pk}")
+```
+
+A callable accessor which returns an iterable renders one breadcrumb per object, which is useful for representing a hierarchy of ancestors:
+
+```python
+Breadcrumb(lambda obj: obj.get_ancestors())
+```
+
+::: netbox.ui.breadcrumbs.Breadcrumb
+
 ## Panels
 
 Within each column, related blocks of content are arranged into panels. Each panel has a title and may have a set of associated actions, but the content within is otherwise arbitrary.

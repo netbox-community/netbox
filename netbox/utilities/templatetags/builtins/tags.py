@@ -201,3 +201,22 @@ def render(context, component):
     Render a UI component (e.g. a Panel) by calling its render() method and passing the current template context.
     """
     return mark_safe(component.render(context))
+
+
+@register.simple_tag(takes_context=True)
+def render_breadcrumbs(context):
+    """
+    Render the breadcrumb trail registered for the current object's model, if any. Resolving the trail here
+    (rather than in each view) ensures that an object's detail view and all of its peer/tabbed views render
+    the same trail.
+    """
+    from netbox.ui.breadcrumbs import get_breadcrumbs
+
+    obj = context.get('object')
+    # The object on some pages (e.g. RQ workers/tasks) is not a model instance and has no registered trail
+    if obj is None or not hasattr(obj, '_meta'):
+        return ''
+    trail = get_breadcrumbs(type(obj))
+    if trail is None:
+        return ''
+    return mark_safe(trail.render(context))

@@ -10,6 +10,7 @@ class VirtualizationConfig(AppConfig):
 
         from . import search, signals  # noqa: F401
         from .models import VirtualMachine, VirtualMachineType
+        from .ui import breadcrumbs  # noqa: F401
 
         # Register models
         register_models(*self.get_models())

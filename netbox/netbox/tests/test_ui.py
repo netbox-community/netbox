@@ -3,6 +3,7 @@ from types import SimpleNamespace
 
 from django.template import Context, Template
 from django.test import RequestFactory, SimpleTestCase, TestCase
+from django.urls import reverse
 from netaddr import IPNetwork
 
 from circuits.choices import CircuitStatusChoices, VirtualCircuitTerminationRoleChoices
@@ -15,8 +16,9 @@ from circuits.models import (
 )
 from core.models import ObjectType
 from dcim.choices import InterfaceTypeChoices
-from dcim.models import Interface, Site
+from dcim.models import Interface, Region, Site
 from netbox.ui import attrs
+from netbox.ui.breadcrumbs import Breadcrumb, BreadcrumbTrail, get_breadcrumbs, register_breadcrumbs
 from netbox.ui.panels import ObjectsTablePanel
 from netbox.ui.utils import build_coords_url
 from users.models import ObjectPermission, User
@@ -858,3 +860,169 @@ class ObjectsTablePanelTestCase(TestCase):
         """
         context = self.panel_no_perm.get_context(self._make_context(self.user))
         self.assertFalse(self.panel_no_perm.should_render(context))
+
+
+class BreadcrumbTestCase(SimpleTestCase):
+    """
+    Validate the rendering behavior of the Breadcrumb class.
+    """
+    class _LinkedObject:
+        def __init__(self, label, url, pk=None):
+            self.label = label
+            self._url = url
+            self.pk = pk
+
+        def __str__(self):
+            return self.label
+
+        def get_absolute_url(self):
+            return self._url
+
+    class _PlainObject:
+        def __str__(self):
+            return 'Plain'
+
+    @staticmethod
+    def _render(breadcrumb, instance):
+        return breadcrumb.render({'object': instance})
+
+    def test_accessor_absolute_url(self):
+        """
+        A string accessor resolves the related object, which links to its get_absolute_url() by default.
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/'))
+        html = self._render(Breadcrumb('region'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/region/1/">Region 1</a></li>', html)
+
+    def test_explicit_url_string(self):
+        """
+        An explicit url string overrides the resolved object's get_absolute_url().
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/'))
+        html = self._render(Breadcrumb('region', url='/explicit/'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/explicit/">Region 1</a></li>', html)
+
+    def test_url_callable(self):
+        """
+        A callable url is invoked with the resolved object.
+        """
+        instance = SimpleNamespace(region=self._LinkedObject('Region 1', '/region/1/', pk=7))
+        html = self._render(Breadcrumb('region', url=lambda o: f'/list/?region_id={o.pk}'), instance)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/list/?region_id=7">Region 1</a></li>', html)
+
+    def test_callable_accessor_iterable(self):
+        """
+        A callable accessor resolving to an iterable renders one breadcrumb per object.
+        """
+        a = self._LinkedObject('A', '/a/')
+        b = self._LinkedObject('B', '/b/')
+        html = self._render(Breadcrumb(lambda o: [a, b]), SimpleNamespace())
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/a/">A</a></li>', html)
+        self.assertInHTML('<li class="breadcrumb-item"><a href="/b/">B</a></li>', html)
+
+    def test_no_link(self):
+        """
+        An object with neither an explicit url nor get_absolute_url() renders as a plain label.
+        """
+        html = self._render(Breadcrumb('thing'), SimpleNamespace(thing=self._PlainObject()))
+        self.assertNotIn('<a', html)
+        self.assertInHTML('<li class="breadcrumb-item">Plain</li>', html)
+
+    def test_unresolved_accessor(self):
+        """
+        A breadcrumb whose accessor resolves to None renders as an empty string (and is therefore omitted).
+        """
+        self.assertEqual(self._render(Breadcrumb('region'), SimpleNamespace(region=None)), '')
+
+    def test_empty_iterable(self):
+        """
+        A callable accessor resolving to an empty iterable renders as an empty string.
+        """
+        self.assertEqual(self._render(Breadcrumb(lambda o: []), SimpleNamespace()), '')
+
+    def test_no_instance(self):
+        """
+        With no object in context, the breadcrumb renders as an empty string.
+        """
+        self.assertEqual(Breadcrumb('region').render({}), '')
+
+
+class BreadcrumbTrailRegistrationTestCase(SimpleTestCase):
+    """
+    Validate registration and resolution of BreadcrumbTrail classes.
+    """
+    def test_register_and_resolve(self):
+        """
+        A registered BreadcrumbTrail is resolvable by its model.
+        """
+        trail = get_breadcrumbs(Site)
+        self.assertIsNotNone(trail)
+        self.assertTrue(issubclass(trail, BreadcrumbTrail))
+        self.assertEqual(trail.model, Site)
+
+    def test_unregistered_model(self):
+        """
+        Resolving a model with no registered trail returns None rather than raising.
+        """
+        self.assertIsNone(get_breadcrumbs(ObjectPermission))
+
+    def test_register_decorator_stores_by_label(self):
+        """
+        The register_breadcrumbs decorator stores the trail keyed by the model's label and returns the class.
+        """
+        from netbox.registry import registry
+
+        class RegionBreadcrumbs(BreadcrumbTrail):
+            model = Region
+
+        try:
+            returned = register_breadcrumbs(RegionBreadcrumbs)
+            self.assertIs(returned, RegionBreadcrumbs)
+            self.assertIs(registry['breadcrumbs']['dcim.region'], RegionBreadcrumbs)
+        finally:
+            registry['breadcrumbs'].pop('dcim.region', None)
+
+
+class RenderBreadcrumbsTagTestCase(SimpleTestCase):
+    """
+    Validate the render_breadcrumbs template tag's handling of non-model objects.
+    """
+    @staticmethod
+    def _render(obj):
+        template = Template('{% render_breadcrumbs %}')
+        return template.render(Context({'object': obj}))
+
+    def test_none_object(self):
+        self.assertEqual(self._render(None), '')
+
+    def test_non_model_object(self):
+        # An object lacking _meta (e.g. an RQ worker) must not raise
+        self.assertEqual(self._render(SimpleNamespace(name='not a model')), '')
+
+
+class BreadcrumbTrailRenderTestCase(TestCase):
+    """
+    Validate the breadcrumbs rendered by trails registered for migrated object views.
+    """
+    @staticmethod
+    def _render(instance):
+        trail = get_breadcrumbs(type(instance))
+        return trail.render({'object': instance}) if trail else ''
+
+    def test_site_region_breadcrumbs(self):
+        parent = Region.objects.create(name='Parent Region', slug='parent-region')
+        child = Region.objects.create(name='Child Region', slug='child-region', parent=parent)
+        site = Site.objects.create(name='Site 1', slug='site-1', region=child)
+
+        html = self._render(site)
+        list_url = reverse('dcim:site_list')
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{list_url}?region_id={parent.pk}">{parent}</a></li>', html
+        )
+        self.assertInHTML(
+            f'<li class="breadcrumb-item"><a href="{list_url}?region_id={child.pk}">{child}</a></li>', html
+        )
+
+    def test_site_without_region_or_group(self):
+        site = Site.objects.create(name='Site 2', slug='site-2')
+        self.assertEqual(self._render(site), '')

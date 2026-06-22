@@ -525,6 +525,7 @@ class SiteListView(generic.ObjectListView):
 
 @register_model_view(Site)
 class SiteView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Site.objects.prefetch_related('tenant__group')
     layout = layout.SimpleLayout(
         left_panels=[
@@ -660,6 +661,7 @@ class LocationListView(generic.ObjectListView):
 
 @register_model_view(Location)
 class LocationView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Location.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3024,6 +3026,7 @@ class ConsolePortListView(generic.ObjectListView):
 
 @register_model_view(ConsolePort)
 class ConsolePortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ConsolePort.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3118,6 +3121,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
 
 @register_model_view(ConsoleServerPort)
 class ConsoleServerPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ConsoleServerPort.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3208,6 +3212,7 @@ class PowerPortListView(generic.ObjectListView):
 
 @register_model_view(PowerPort)
 class PowerPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerPort.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3297,6 +3302,7 @@ class PowerOutletListView(generic.ObjectListView):
 
 @register_model_view(PowerOutlet)
 class PowerOutletView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerOutlet.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3563,6 +3569,7 @@ class FrontPortListView(generic.ObjectListView):
 
 @register_model_view(FrontPort)
 class FrontPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = FrontPort.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3667,6 +3674,7 @@ class RearPortListView(generic.ObjectListView):
 
 @register_model_view(RearPort)
 class RearPortView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = RearPort.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3769,6 +3777,7 @@ class ModuleBayListView(generic.ObjectListView):
 
 @register_model_view(ModuleBay)
 class ModuleBayView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ModuleBay.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3842,6 +3851,7 @@ class DeviceBayListView(generic.ObjectListView):
 
 @register_model_view(DeviceBay)
 class DeviceBayView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = DeviceBay.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -3996,6 +4006,7 @@ class InventoryItemListView(generic.ObjectListView):
 
 @register_model_view(InventoryItem)
 class InventoryItemView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = InventoryItem.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -4744,6 +4755,7 @@ class PowerPanelListView(generic.ObjectListView):
 
 @register_model_view(PowerPanel)
 class PowerPanelView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerPanel.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -4828,6 +4840,7 @@ class PowerFeedListView(generic.ObjectListView):
 
 @register_model_view(PowerFeed)
 class PowerFeedView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = PowerFeed.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[

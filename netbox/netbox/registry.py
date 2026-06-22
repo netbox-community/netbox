@@ -23,6 +23,7 @@ class Registry(dict):
 
 # Initialize the global registry
 registry = Registry({
+    'breadcrumbs': dict(),
     'counter_fields': collections.defaultdict(dict),
     'data_backends': dict(),
     'event_types': dict(),

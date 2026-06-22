@@ -147,6 +147,7 @@ class ProviderAccountListView(generic.ObjectListView):
 
 @register_model_view(ProviderAccount)
 class ProviderAccountView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ProviderAccount.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -240,6 +241,7 @@ class ProviderNetworkListView(generic.ObjectListView):
 
 @register_model_view(ProviderNetwork)
 class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = ProviderNetwork.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -422,6 +424,7 @@ class CircuitListView(generic.ObjectListView):
 
 @register_model_view(Circuit)
 class CircuitView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = Circuit.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -508,6 +511,7 @@ class CircuitTerminationListView(generic.ObjectListView):
 
 @register_model_view(CircuitTermination)
 class CircuitTerminationView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = CircuitTermination.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -646,6 +650,7 @@ class CircuitGroupAssignmentListView(generic.ObjectListView):
 
 @register_model_view(CircuitGroupAssignment)
 class CircuitGroupAssignmentView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = CircuitGroupAssignment.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -785,6 +790,7 @@ class VirtualCircuitListView(generic.ObjectListView):
 
 @register_model_view(VirtualCircuit)
 class VirtualCircuitView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VirtualCircuit.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[
@@ -881,6 +887,7 @@ class VirtualCircuitTerminationListView(generic.ObjectListView):
 
 @register_model_view(VirtualCircuitTermination)
 class VirtualCircuitTerminationView(generic.ObjectView):
+    template_name = 'generic/object.html'
     queryset = VirtualCircuitTermination.objects.all()
     layout = layout.SimpleLayout(
         left_panels=[

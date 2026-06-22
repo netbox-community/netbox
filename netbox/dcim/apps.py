@@ -11,6 +11,7 @@ class DCIMConfig(AppConfig):
 
         from . import search, signals  # noqa: F401
         from .models import Device, DeviceType, ModuleType, RackType, VirtualChassis
+        from .ui import breadcrumbs  # noqa: F401
 
         # Register models
         register_models(*self.get_models())
