@@ -58,11 +58,15 @@ class TaggedItemSerializer(BaseModelSerializer):
     def get_object(self, obj):
         """
         Serialize a nested representation of the tagged object.
+
+        TaggedItemViewSet filters list/detail responses to targets the requesting user may view, so
+        the None check here guards against a missing or concurrently deleted target.
         """
+        content_object = obj.content_object
+        if content_object is None:
+            return None
         try:
-            serializer = get_serializer_for_model(obj.content_object)
+            serializer = get_serializer_for_model(content_object)
         except SerializerNotFound:
             return obj.object_repr
-        data = serializer(obj.content_object, nested=True, context={'request': self.context['request']}).data
-
-        return data
+        return serializer(content_object, nested=True, context={'request': self.context['request']}).data

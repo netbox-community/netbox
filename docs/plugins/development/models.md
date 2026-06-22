@@ -162,6 +162,13 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.TagsMixin
 
+!!! note "Tagged objects and the REST API"
+    The `/api/extras/tagged-objects/` endpoint returns only tagged objects the requesting user is
+    permitted to view, which requires the target model's manager to provide `RestrictedQuerySet` (as
+    `NetBoxModel` does). A model that uses `TagsMixin` without `NetBoxModel` has a plain manager, so
+    its tagged objects are omitted from that endpoint unless its view permission is exempted via
+    [`EXEMPT_VIEW_PERMISSIONS`](../../configuration/security.md#exempt_view_permissions).
+
 ## Custom Model Features
 
 In addition to utilizing the model features provided natively by NetBox (listed above), plugins can register their own model features. This is done using the `register_model_feature()` function from `netbox.utils`. This function takes two arguments: a feature name, and a callable which accepts a model class. The callable must return a boolean value indicting whether the given model supports the named feature.

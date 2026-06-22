@@ -15,6 +15,7 @@ __all__ = (
     'qs_filter_from_constraints',
     'resolve_permission',
     'resolve_permission_type',
+    'restrict_queryset_by_gfk',
 )
 
 
@@ -159,3 +160,61 @@ def qs_filter_from_constraints(constraints, tokens=None):
             return Q()
 
     return params
+
+
+def restrict_queryset_by_gfk(
+    queryset,
+    user,
+    action='view',
+    content_type_field='content_type',
+    object_id_field='object_id',
+):
+    """
+    Restrict a queryset carrying a GenericForeignKey-style (content_type, object_id) pair so that
+    only rows whose related target object the user is permitted to perform `action` on are returned.
+
+    Each target's visibility is evaluated against that target model's own restricted queryset
+    (RestrictedQuerySet.restrict()), so per-model object permissions, exempt views, anonymous
+    access, and superuser access are all honored. Rows whose target model does not participate in
+    NetBox's object-permission system (no restrict() method) are excluded (fail closed).
+    """
+    # Superusers may view everything; skip the (potentially per-type) filtering for efficiency.
+    if user and user.is_superuser:
+        return queryset
+
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    content_type_id_field = f'{content_type_field}_id'
+
+    # Resolve the distinct content types referenced by the (already filtered) queryset
+    content_type_ids = queryset.order_by().values_list(content_type_id_field, flat=True).distinct()
+
+    query = Q()
+    matched = False
+    for ct_id in content_type_ids:
+        # get_for_id() is process-cached, avoiding a DB hit once each content type is warm.
+        model = ContentType.objects.get_for_id(ct_id).model_class()
+        if model is None:
+            continue
+
+        # Exempt-view models are visible to everyone; match the content type without a subquery.
+        if permission_is_exempt(get_permission_for_model(model, action)):
+            query |= Q(**{content_type_id_field: ct_id})
+            matched = True
+            continue
+
+        target_queryset = model._default_manager.all()
+        if not hasattr(target_queryset, 'restrict'):
+            # Fail closed: target model has no object-level permission enforcement.
+            continue
+        visible_pks = target_queryset.restrict(user, action).values('pk')
+        query |= Q(**{
+            content_type_id_field: ct_id,
+            f'{object_id_field}__in': visible_pks,
+        })
+        matched = True
+
+    if not matched:
+        # Fail closed: an empty Q() would match every row, so return nothing instead.
+        return queryset.none()
+
+    return queryset.filter(query)

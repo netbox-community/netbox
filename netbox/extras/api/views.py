@@ -22,6 +22,7 @@ from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import BaseViewSet, NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from utilities.exceptions import RQWorkerNotRunningException
+from utilities.permissions import restrict_queryset_by_gfk
 from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
 
@@ -191,6 +192,12 @@ class TaggedItemViewSet(RetrieveModelMixin, ListModelMixin, BaseViewSet):
     ).order_by('tag__weight', 'tag__name')
     serializer_class = serializers.TaggedItemSerializer
     filterset_class = filtersets.TaggedItemFilterSet
+
+    def filter_queryset(self, queryset):
+        # Limit results to tagged items whose target object the requesting user may view, so the
+        # endpoint does not disclose objects (or their identity) outside the user's permissions.
+        queryset = super().filter_queryset(queryset)
+        return restrict_queryset_by_gfk(queryset, self.request.user, action='view')
 
 
 #

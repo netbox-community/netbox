@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware, now
 from rest_framework import status
@@ -18,7 +19,7 @@ from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
-from users.models import Group, Token, User
+from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -749,6 +750,149 @@ class TaggedItemTestCase(
         sites[0].tags.set([tags[0], tags[1]])
         sites[1].tags.set([tags[1], tags[2]])
         sites[2].tags.set([tags[2], tags[0]])
+
+    def setUp(self):
+        super().setUp()
+        # Tagged-object visibility now requires view permission on the target model.
+        self.add_permissions('dcim.view_site')
+
+
+class TaggedObjectPermissionTestCase(APITestCase):
+    """The tagged-objects endpoint must not disclose objects outside the user's view permissions."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.tag = Tag.objects.create(name='Tag 1', slug='tag-1')
+        # Two distinct target models: one the test user will be granted view on, one not.
+        cls.visible_obj = Site.objects.create(name='Visible Site', slug='visible-site')
+        cls.hidden_obj = Manufacturer.objects.create(name='Hidden Manufacturer', slug='hidden-manufacturer')
+        cls.visible_obj.tags.set([cls.tag])
+        cls.hidden_obj.tags.set([cls.tag])
+
+    def _list_url(self):
+        # Scope to the tag, matching the reported GET /api/extras/tagged-objects/?tag=<slug>
+        return f"{reverse('extras-api:taggeditem-list')}?tag={self.tag.slug}"
+
+    def test_hidden_target_excluded_from_list(self):
+        """A tagged object the user cannot view is absent from both results and count."""
+        self.add_permissions('extras.view_taggeditem', 'dcim.view_site')
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['count'], 1)
+        object_types = {r['object_type'] for r in response.data['results']}
+        self.assertIn('dcim.site', object_types)
+        self.assertNotIn('dcim.manufacturer', object_types)
+
+        visible_row = response.data['results'][0]
+        self.assertIsNotNone(visible_row['object'])
+        self.assertEqual(visible_row['object']['id'], self.visible_obj.pk)
+
+    def test_no_target_permission_returns_no_rows(self):
+        """With view_taggeditem but no target view permission, results and count are empty (not 403)."""
+        self.add_permissions('extras.view_taggeditem')
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 0)
+        self.assertEqual(response.data['results'], [])
+
+    def test_target_object_constraints_are_honored(self):
+        """Object-level constraints on the target model gate tagged rows of the same model."""
+        # A second Site, tagged the same, that the constrained permission must exclude.
+        hidden_site = Site.objects.create(name='Hidden Site', slug='hidden-site')
+        hidden_site.tags.set([self.tag])
+
+        obj_perm = ObjectPermission(
+            name='View one site',
+            constraints={'pk': self.visible_obj.pk},
+            actions=['view'],
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(Site))
+        self.add_permissions('extras.view_taggeditem')
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['count'], 1)
+        row = response.data['results'][0]
+        self.assertEqual(row['object_type'], 'dcim.site')
+        self.assertEqual(row['object_id'], self.visible_obj.pk)
+
+    def test_hidden_target_detail_returns_404(self):
+        """A tagged-item row for a hidden target is not retrievable by id; a visible one is."""
+        self.add_permissions('extras.view_taggeditem', 'dcim.view_site')
+
+        visible_item = TaggedItem.objects.get(
+            content_type__model='site', object_id=self.visible_obj.pk, tag=self.tag
+        )
+        hidden_item = TaggedItem.objects.get(
+            content_type__model='manufacturer', object_id=self.hidden_obj.pk, tag=self.tag
+        )
+
+        hidden_url = reverse('extras-api:taggeditem-detail', kwargs={'pk': hidden_item.pk})
+        self.assertHttpStatus(self.client.get(hidden_url, **self.header), status.HTTP_404_NOT_FOUND)
+
+        visible_url = reverse('extras-api:taggeditem-detail', kwargs={'pk': visible_item.pk})
+        self.assertHttpStatus(self.client.get(visible_url, **self.header), status.HTTP_200_OK)
+
+    def test_authorized_target_includes_nested_object(self):
+        """With view permission on all targets, every row exposes its nested object."""
+        self.add_permissions('extras.view_taggeditem', 'dcim.view_site', 'dcim.view_manufacturer')
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['count'], 2)
+        object_types = {r['object_type'] for r in response.data['results']}
+        self.assertIn('dcim.site', object_types)
+        self.assertIn('dcim.manufacturer', object_types)
+        for r in response.data['results']:
+            self.assertIsNotNone(r['object'])
+            self.assertEqual(r['object']['id'], r['object_id'])
+
+    def test_superuser_sees_all_rows(self):
+        """A superuser is unaffected by target-object filtering."""
+        self.user.is_superuser = True
+        self.user.save()
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 2)
+        object_types = {r['object_type'] for r in response.data['results']}
+        self.assertIn('dcim.site', object_types)
+        self.assertIn('dcim.manufacturer', object_types)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['dcim.manufacturer'])
+    def test_exempt_target_visible_without_object_permission(self):
+        """A target whose view permission is exempt is included without an explicit grant."""
+        self.add_permissions('extras.view_taggeditem', 'dcim.view_site')
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['count'], 2)
+        object_types = {r['object_type'] for r in response.data['results']}
+        self.assertIn('dcim.manufacturer', object_types)
+        manufacturer_row = next(r for r in response.data['results'] if r['object_type'] == 'dcim.manufacturer')
+        self.assertEqual(manufacturer_row['object_id'], self.hidden_obj.pk)
+        self.assertIsNotNone(manufacturer_row['object'])
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_blanket_exempt_includes_all_targets(self):
+        """With EXEMPT_VIEW_PERMISSIONS=['*'], every tagged target is visible without object perms."""
+        self.add_permissions('extras.view_taggeditem')
+
+        response = self.client.get(self._list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['count'], 2)
+        object_types = {r['object_type'] for r in response.data['results']}
+        self.assertIn('dcim.site', object_types)
+        self.assertIn('dcim.manufacturer', object_types)
 
 
 # TODO: Standardize to APIViewTestCase (needs create & update tests)

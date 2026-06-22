@@ -31,7 +31,7 @@
   "tableconfig:list_objects_with_permission": 19,
   "tag:api_list_objects": 10,
   "tag:list_objects_with_permission": 18,
-  "taggeditem:api_list_objects": 12,
+  "taggeditem:api_list_objects": 13,
   "webhook:api_list_objects": 13,
   "webhook:list_objects_with_permission": 20
 }
