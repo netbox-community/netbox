@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import MagicMock
 
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -10,6 +11,7 @@ from social_core.exceptions import AuthFailed
 
 from core.models import ObjectType
 from dcim.models import Rack, Site
+from netbox.authentication.misc import _mirror_groups
 from netbox.middleware import SocialAuthExceptionMiddleware
 from users.constants import TOKEN_PREFIX
 from users.models import Group, ObjectPermission, Token, User
@@ -514,6 +516,47 @@ class ExternalAuthenticationTestCase(TestCase):
         self.assertListEqual(
             [groups[0], groups[1]],
             list(new_user.groups.all())
+        )
+
+
+class LDAPMirrorGroupsTestCase(TestCase):
+    """
+    Test the custom _mirror_groups() patched onto django-auth-ldap's _LDAPUser.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create(username='ldapuser')
+        Group.objects.create(name='Group 1')
+
+    def _build_ldap_user(self, group_names):
+        """
+        Construct a mock _LDAPUser whose LDAP group search returns the given names.
+        """
+        ldap_user = MagicMock()
+        ldap_user._user = self.user
+        ldap_user._get_groups.return_value.get_group_names.return_value = group_names
+        # Disable allow/deny list handling
+        ldap_user.settings.MIRROR_GROUPS_EXCEPT = None
+        ldap_user.settings.MIRROR_GROUPS = None
+        return ldap_user
+
+    def test_mirror_groups_ignores_empty_names(self):
+        """
+        An LDAP group search returning an empty or null name must not attempt to
+        create a Group with a null name (see #21310).
+        """
+        ldap_user = self._build_ldap_user({'Group 1', '', None})
+
+        _mirror_groups(ldap_user)
+
+        # No group with a null or empty name should have been created
+        self.assertFalse(Group.objects.filter(name__isnull=True).exists())
+        self.assertFalse(Group.objects.filter(name='').exists())
+        # The user should be mirrored into the one valid, matching group
+        self.assertListEqual(
+            ['Group 1'],
+            list(self.user.groups.values_list('name', flat=True))
         )
 
 
