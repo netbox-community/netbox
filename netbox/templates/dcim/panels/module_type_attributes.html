@@ -14,8 +14,6 @@
           <td>
             {% if v is True or v is False %}
               {% checkmark v %}
-            {% elif v|is_iterable %}
-              {{ v|join:", "|placeholder }}
             {% else %}
               {{ v|placeholder }}
             {% endif %}
