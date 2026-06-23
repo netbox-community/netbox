@@ -9,6 +9,6 @@
   "ownergroup:list_objects_with_permission": 17,
   "token:api_list_objects": 10,
   "token:list_objects_with_permission": 17,
-  "user:api_list_objects": 12,
+  "user:api_list_objects": 13,
   "user:list_objects_with_permission": 17
 }
