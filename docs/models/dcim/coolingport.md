@@ -29,7 +29,7 @@ Indicates whether the port carries supply (cold) or return (warm) coolant.
 
 ### Connector Type
 
-The physical coolant connector type (e.g. UQD, QDC, blind-mate, or threaded).
+The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded NPT/BSP).
 
 ### Diameter
 

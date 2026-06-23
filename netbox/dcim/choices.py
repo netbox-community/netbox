@@ -2238,19 +2238,21 @@ class RackCoolingCapabilityChoices(ChoiceSet):
 class CoolingConnectorTypeChoices(ChoiceSet):
 
     TYPE_UQD = 'uqd'
+    TYPE_UQDB = 'uqdb'
     TYPE_QDC = 'qdc'
-    TYPE_BLIND_MATE = 'blind-mate'
-    TYPE_THREADED_NPT = 'threaded-npt'
-    TYPE_THREADED_BSP = 'threaded-bsp'
-    TYPE_OTHER = 'other'
+    TYPE_CAMLOCK = 'camlock'
+    TYPE_NPT = 'npt'
+    TYPE_BSP = 'bsp'
+    TYPE_PROPRIETARY = 'proprietary'
 
     CHOICES = [
         (TYPE_UQD, _('UQD (Universal Quick Disconnect)')),
+        (TYPE_UQDB, _('UQDB (Universal Quick Disconnect, Blind-mate)')),
         (TYPE_QDC, _('QDC (Quick Disconnect Coupling)')),
-        (TYPE_BLIND_MATE, _('Blind-mate')),
-        (TYPE_THREADED_NPT, _('Threaded (NPT)')),
-        (TYPE_THREADED_BSP, _('Threaded (BSP)')),
-        (TYPE_OTHER, _('Other')),
+        (TYPE_CAMLOCK, _('Camlock (cam-and-groove)')),
+        (TYPE_NPT, _('NPT (threaded)')),
+        (TYPE_BSP, _('BSP (threaded)')),
+        (TYPE_PROPRIETARY, _('Proprietary')),
     ]
 
 
