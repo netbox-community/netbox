@@ -11,6 +11,8 @@ from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Site
 from extras.management.commands import renaturalize, webhook_receiver
 from extras.management.commands.webhook_receiver import WebhookHandler
+from extras.models import ImageAttachment
+from extras.tests.test_models import OverwriteStyleMemoryStorage, UnreadableSizeMemoryStorage
 from users.models import User
 from utilities.fields import NaturalOrderingField
 
@@ -502,3 +504,65 @@ class WebhookReceiverTestCase(TestCase):
 
         print_.assert_any_call('(No body)')
         print_.assert_any_call('Completed request #1')
+
+
+class PopulateImageSizesTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.ct_site = ContentType.objects.get_by_natural_key('dcim', 'site')
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+
+    def _legacy_attachment(self, name, image_name):
+        # bulk_create skips save(), so image_size starts NULL, mimicking a row created before the field existed.
+        attachment = ImageAttachment(
+            object_type=self.ct_site,
+            object_id=self.site.pk,
+            name=name,
+            image=image_name,
+            image_height=100,
+            image_width=100,
+        )
+        ImageAttachment.objects.bulk_create([attachment])
+        return ImageAttachment.objects.get(name=name)
+
+    def test_populates_null_image_sizes(self):
+        field = ImageAttachment._meta.get_field('image')
+        storage = OverwriteStyleMemoryStorage()
+        storage.files['image-attachments/site_1_a.png'] = b'\x00' * 321
+
+        attachment = self._legacy_attachment('Legacy 1', 'image-attachments/site_1_a.png')
+        self.assertIsNone(attachment.image_size)
+
+        out = StringIO()
+        with patch.object(field, 'storage', storage):
+            call_command('populate_image_sizes', stdout=out)
+            # Read the persisted value back under the patched storage (refreshing the image field re-reads
+            # dimensions from storage, which must be the in-memory backend).
+            persisted = ImageAttachment.objects.get(pk=attachment.pk)
+            self.assertEqual(persisted.image_size, 321)
+
+        self.assertIn('Updated 1', out.getvalue())
+
+    def test_skips_unreadable_files_and_is_rerunnable(self):
+        field = ImageAttachment._meta.get_field('image')
+        attachment = self._legacy_attachment('Legacy 2', 'image-attachments/site_1_missing.png')
+
+        # First run: storage can't report size, so the row is skipped and left NULL.
+        out = StringIO()
+        with patch.object(field, 'storage', UnreadableSizeMemoryStorage()):
+            call_command('populate_image_sizes', stdout=out)
+            self.assertIsNone(ImageAttachment.objects.get(pk=attachment.pk).image_size)
+        self.assertIn('Skipped 1', out.getvalue())
+
+        # Second run: storage now works, and the previously-skipped row is picked up.
+        storage = OverwriteStyleMemoryStorage()
+        storage.files['image-attachments/site_1_missing.png'] = b'\x00' * 654
+        out = StringIO()
+        with patch.object(field, 'storage', storage):
+            call_command('populate_image_sizes', stdout=out)
+            self.assertEqual(ImageAttachment.objects.get(pk=attachment.pk).image_size, 654)
+
+    def test_noop_when_nothing_to_update(self):
+        out = StringIO()
+        call_command('populate_image_sizes', stdout=out)
+        self.assertIn('No image attachments require updating.', out.getvalue())

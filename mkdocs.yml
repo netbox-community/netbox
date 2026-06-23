@@ -170,6 +170,7 @@ nav:
             - Okta: 'administration/authentication/okta.md'
         - Permissions: 'administration/permissions.md'
         - Error Reporting: 'administration/error-reporting.md'
+        - Management Commands: 'administration/management-commands.md'
         - Replicating NetBox: 'administration/replicating-netbox.md'
         - NetBox Shell: 'administration/netbox-shell.md'
     - Data Model:
