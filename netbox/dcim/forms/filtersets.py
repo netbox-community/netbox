@@ -582,8 +582,9 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
             'manufacturer_id', 'default_platform_id', 'part_number', 'device_count',
-            'subdevice_role', 'airflow', 'cooling_method', name=_('Hardware')
+            'subdevice_role', name=_('Hardware')
         ),
+        FieldSet('cooling_method', 'airflow', name=_('Cooling')),
         FieldSet('has_front_image', 'has_rear_image', name=_('Images')),
         FieldSet(
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces',
@@ -932,8 +933,9 @@ class DeviceFilterForm(
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
-        FieldSet('status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address', name=_('Operation')),
-        FieldSet('manufacturer_id', 'device_type_id', 'platform_id', 'cooling_method', name=_('Hardware')),
+        FieldSet('status', 'role_id', 'serial', 'asset_tag', 'mac_address', name=_('Operation')),
+        FieldSet('manufacturer_id', 'device_type_id', 'platform_id', name=_('Hardware')),
+        FieldSet('cooling_method', 'airflow', name=_('Cooling')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),

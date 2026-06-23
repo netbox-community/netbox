@@ -518,8 +518,9 @@ class DeviceTypeForm(PrimaryModelForm):
         FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
         FieldSet(
             'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role',
-            'cooling_method', 'airflow', 'weight', 'weight_unit', name=_('Chassis')
+            'weight', 'weight_unit', name=_('Chassis')
         ),
+        FieldSet('cooling_method', 'airflow', name=_('Cooling')),
         FieldSet('end_of_life', name=_('Lifecycle')),
         FieldSet('front_image', 'rear_image', name=_('Images')),
     )
