@@ -123,8 +123,8 @@ class DevicePanel(panels.ObjectAttributesPanel):
     gps_coordinates = attrs.GPSCoordinatesAttr()
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
-    airflow = attrs.ChoiceAttr('airflow')
     cooling_method = attrs.ChoiceAttr('cooling_method')
+    airflow = attrs.ChoiceAttr('airflow')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
     config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
@@ -187,8 +187,8 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     full_depth = attrs.BooleanAttr('is_full_depth')
     weight = attrs.WeightAttr('weight')
     subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
-    airflow = attrs.ChoiceAttr('airflow')
     cooling_method = attrs.ChoiceAttr('cooling_method')
+    airflow = attrs.ChoiceAttr('airflow')
     end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
     front_image = attrs.ImageAttr('front_image')
     rear_image = attrs.ImageAttr('rear_image')
@@ -464,8 +464,6 @@ class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
     flow_rate = attrs.TextAttr('flow_rate', format_string=_('{} L/min'))
     pressure = attrs.TextAttr('pressure', format_string=_('{} kPa'))
-    supply_temperature = attrs.TextAttr('supply_temperature', format_string=_('{} °C'))
-    return_temperature = attrs.TextAttr('return_temperature', format_string=_('{} °C'))
 
 
 class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):

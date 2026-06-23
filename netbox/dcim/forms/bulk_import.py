@@ -2152,7 +2152,7 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         model = CoolingFeed
         fields = (
             'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'pressure', 'supply_temperature', 'return_temperature', 'tenant',
+            'cooling_capacity', 'flow_rate', 'pressure', 'tenant',
             'description', 'owner', 'comments', 'tags',
         )
 

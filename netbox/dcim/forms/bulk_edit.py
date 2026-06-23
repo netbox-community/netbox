@@ -1200,14 +1200,6 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
         min_value=0,
         required=False
     )
-    supply_temperature = forms.DecimalField(
-        label=_('Supply temperature'),
-        required=False
-    )
-    return_temperature = forms.DecimalField(
-        label=_('Return temperature'),
-        required=False
-    )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
@@ -1222,12 +1214,12 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
     fieldsets = (
         FieldSet('cooling_source', 'rack', 'status', 'type', 'fluid_type', 'mark_connected', 'description', 'tenant'),
         FieldSet(
-            'cooling_capacity', 'flow_rate', 'pressure', 'supply_temperature', 'return_temperature',
+            'cooling_capacity', 'flow_rate', 'pressure',
             name=_('Characteristics')
         ),
     )
     nullable_fields = (
-        'rack', 'fluid_type', 'cooling_capacity', 'flow_rate', 'pressure', 'supply_temperature', 'return_temperature',
+        'rack', 'fluid_type', 'cooling_capacity', 'flow_rate', 'pressure',
         'tenant', 'description', 'comments',
     )
 

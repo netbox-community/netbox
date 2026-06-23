@@ -3395,7 +3395,7 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEnd
     class Meta:
         model = CoolingFeed
         fields = (
-            'id', 'name', 'cooling_capacity', 'flow_rate', 'pressure', 'supply_temperature', 'return_temperature',
+            'id', 'name', 'cooling_capacity', 'flow_rate', 'pressure',
             'mark_connected', 'cable_end', 'cable_connector', 'description',
         )
 

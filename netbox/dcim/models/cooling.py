@@ -180,22 +180,6 @@ class CoolingFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
         validators=[MinValueValidator(0)],
         help_text=_('Operating pressure (kPa)')
     )
-    supply_temperature = models.DecimalField(
-        verbose_name=_('supply temperature'),
-        max_digits=5,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        help_text=_('Supply temperature (°C)')
-    )
-    return_temperature = models.DecimalField(
-        verbose_name=_('return temperature'),
-        max_digits=5,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        help_text=_('Return temperature (°C)')
-    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -206,7 +190,7 @@ class CoolingFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
     clone_fields = (
         'cooling_source', 'rack', 'status', 'type', 'mark_connected', 'fluid_type', 'cooling_capacity', 'flow_rate',
-        'pressure', 'supply_temperature', 'return_temperature', 'tenant',
+        'pressure', 'tenant',
     )
     prerequisite_models = (
         'dcim.CoolingSource',

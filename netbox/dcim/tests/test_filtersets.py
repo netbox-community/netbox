@@ -8455,8 +8455,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 cooling_capacity=100,
                 flow_rate=10,
                 pressure=100,
-                supply_temperature=18,
-                return_temperature=30,
                 description='foobar1'
             ),
             CoolingFeed(
@@ -8470,8 +8468,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 cooling_capacity=200,
                 flow_rate=20,
                 pressure=200,
-                supply_temperature=20,
-                return_temperature=32,
                 description='foobar2'
             ),
             CoolingFeed(
@@ -8485,8 +8481,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 cooling_capacity=300,
                 flow_rate=30,
                 pressure=300,
-                supply_temperature=22,
-                return_temperature=34,
                 description='foobar3'
             ),
         )
@@ -8534,14 +8528,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_pressure(self):
         params = {'pressure': [100, 200]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_supply_temperature(self):
-        params = {'supply_temperature': [18, 20]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_return_temperature(self):
-        params = {'return_temperature': [30, 32]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

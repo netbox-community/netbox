@@ -79,7 +79,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
         model = CoolingFeed
         fields = [
             'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'type', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'pressure', 'supply_temperature', 'return_temperature', 'mark_connected',
+            'cooling_capacity', 'flow_rate', 'pressure', 'mark_connected',
             'cable', 'cable_end', 'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
             'connected_endpoints_reachable', 'description', 'tenant', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',

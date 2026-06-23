@@ -45,10 +45,6 @@ The coolant flow rate, in litres per minute (L/min).
 
 The operating pressure of the loop, in kilopascals (kPa).
 
-### Supply / Return Temperature
-
-The supply and return coolant temperatures, in degrees Celsius (°C).
-
 ### Mark Connected
 
 If selected, the cooling feed will be treated as if a cable has been connected.

@@ -517,8 +517,8 @@ class DeviceTypeForm(PrimaryModelForm):
     fieldsets = (
         FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
         FieldSet(
-            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
-            'cooling_method', 'weight', 'weight_unit', name=_('Chassis')
+            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role',
+            'cooling_method', 'airflow', 'weight', 'weight_unit', name=_('Chassis')
         ),
         FieldSet('end_of_life', name=_('Lifecycle')),
         FieldSet('front_image', 'rear_image', name=_('Images')),
@@ -1194,7 +1194,7 @@ class CoolingFeedForm(TenancyForm, PrimaryModelForm):
             name=_('Cooling Feed')
         ),
         FieldSet(
-            'cooling_capacity', 'flow_rate', 'pressure', 'supply_temperature', 'return_temperature',
+            'cooling_capacity', 'flow_rate', 'pressure',
             name=_('Characteristics')
         ),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
@@ -1204,8 +1204,7 @@ class CoolingFeedForm(TenancyForm, PrimaryModelForm):
         model = CoolingFeed
         fields = [
             'cooling_source', 'rack', 'name', 'status', 'type', 'mark_connected', 'fluid_type', 'cooling_capacity',
-            'flow_rate', 'pressure', 'supply_temperature', 'return_temperature', 'tenant_group', 'tenant',
-            'description', 'owner', 'comments', 'tags',
+            'flow_rate', 'pressure', 'tenant_group', 'tenant', 'description', 'owner', 'comments', 'tags',
         ]
 
 

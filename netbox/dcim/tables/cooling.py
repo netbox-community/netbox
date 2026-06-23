@@ -118,12 +118,6 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
     pressure = tables.Column(
         verbose_name=_('Pressure (kPa)')
     )
-    supply_temperature = tables.Column(
-        verbose_name=_('Supply Temperature (°C)')
-    )
-    return_temperature = tables.Column(
-        verbose_name=_('Return Temperature (°C)')
-    )
     tenant = tables.Column(
         linkify=True,
         verbose_name=_('Tenant')
@@ -141,9 +135,8 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
         model = CoolingFeed
         fields = (
             'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'type', 'fluid_type', 'cooling_capacity',
-            'flow_rate', 'pressure', 'supply_temperature', 'return_temperature', 'mark_connected', 'cable',
-            'cable_color', 'link_peer', 'tenant', 'tenant_group', 'description', 'comments', 'tags', 'created',
-            'last_updated',
+            'flow_rate', 'pressure', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tenant', 'tenant_group',
+            'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'cooling_source', 'rack', 'status', 'type', 'fluid_type', 'cooling_capacity', 'flow_rate',
