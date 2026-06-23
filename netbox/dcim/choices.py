@@ -1911,6 +1911,9 @@ class CableTypeChoices(ChoiceSet):
     # USB
     TYPE_USB = 'usb'
 
+    # Cooling
+    TYPE_COOLING_HOSE = 'cooling-hose'
+
     CHOICES = (
         (
             _('Copper - Twisted Pair (UTP/STP)'),
@@ -1981,6 +1984,12 @@ class CableTypeChoices(ChoiceSet):
             _('USB'),
             (
                 Choice(TYPE_USB, 'USB'),
+            ),
+        ),
+        (
+            _('Cooling'),
+            (
+                (TYPE_COOLING_HOSE, 'Cooling Hose'),
             ),
         ),
     )
@@ -2113,6 +2122,156 @@ class PowerOutletStatusChoices(ChoiceSet):
         Choice(STATUS_ENABLED, _('Enabled'), color='green', description=_('Powered on and supplying power')),
         Choice(STATUS_DISABLED, _('Disabled'), color='red', description=_('Powered off and not supplying power')),
         Choice(STATUS_FAULTY, _('Faulty'), color='gray', description=_('Malfunctioning or in an error state')),
+    ]
+
+
+#
+# Cooling
+#
+
+class CoolingMethodChoices(ChoiceSet):
+    key = 'CoolingMethod'
+
+    METHOD_AIR = 'air'
+    METHOD_LIQUID = 'liquid'
+    METHOD_HYBRID = 'hybrid'
+    METHOD_IMMERSION = 'immersion'
+
+    CHOICES = [
+        (METHOD_AIR, _('Air'), 'cyan'),
+        (METHOD_LIQUID, _('Liquid'), 'blue'),
+        (METHOD_HYBRID, _('Hybrid'), 'purple'),
+        (METHOD_IMMERSION, _('Immersion'), 'indigo'),
+    ]
+
+
+class CoolingSourceTypeChoices(ChoiceSet):
+
+    TYPE_CHILLER = 'chiller'
+    TYPE_COOLING_TOWER = 'cooling-tower'
+    TYPE_DRY_COOLER = 'dry-cooler'
+    TYPE_CRAC = 'crac'
+    TYPE_CRAH = 'crah'
+
+    CHOICES = [
+        (TYPE_CHILLER, _('Chiller')),
+        (TYPE_COOLING_TOWER, _('Cooling tower')),
+        (TYPE_DRY_COOLER, _('Dry cooler')),
+        (TYPE_CRAC, _('CRAC')),
+        (TYPE_CRAH, _('CRAH')),
+    ]
+
+
+class CoolingSourceStatusChoices(ChoiceSet):
+    key = 'CoolingSource.status'
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = [
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+    ]
+
+
+class CoolingFeedStatusChoices(ChoiceSet):
+    key = 'CoolingFeed.status'
+
+    STATUS_OFFLINE = 'offline'
+    STATUS_ACTIVE = 'active'
+    STATUS_PLANNED = 'planned'
+    STATUS_FAILED = 'failed'
+
+    CHOICES = [
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+    ]
+
+
+class CoolingFeedTypeChoices(ChoiceSet):
+
+    TYPE_SUPPLY = 'supply'
+    TYPE_RETURN = 'return'
+
+    CHOICES = [
+        (TYPE_SUPPLY, _('Supply'), 'blue'),
+        (TYPE_RETURN, _('Return'), 'red'),
+    ]
+
+
+class FluidTypeChoices(ChoiceSet):
+
+    FLUID_WATER = 'water'
+    FLUID_WATER_GLYCOL = 'water-glycol'
+    FLUID_DIELECTRIC = 'dielectric'
+    FLUID_REFRIGERANT = 'refrigerant'
+    FLUID_OTHER = 'other'
+
+    CHOICES = [
+        (FLUID_WATER, _('Water')),
+        (FLUID_WATER_GLYCOL, _('Water/glycol')),
+        (FLUID_DIELECTRIC, _('Dielectric')),
+        (FLUID_REFRIGERANT, _('Refrigerant')),
+        (FLUID_OTHER, _('Other')),
+    ]
+
+
+class RackCoolingCapabilityChoices(ChoiceSet):
+
+    AIR_ONLY = 'air-only'
+    LIQUID_CAPABLE = 'liquid-capable'
+    LIQUID_REQUIRED = 'liquid-required'
+
+    CHOICES = [
+        (AIR_ONLY, _('Air only'), 'cyan'),
+        (LIQUID_CAPABLE, _('Liquid capable'), 'blue'),
+        (LIQUID_REQUIRED, _('Liquid required'), 'purple'),
+    ]
+
+
+class CoolingConnectorTypeChoices(ChoiceSet):
+
+    TYPE_UQD = 'uqd'
+    TYPE_QDC = 'qdc'
+    TYPE_BLIND_MATE = 'blind-mate'
+    TYPE_THREADED_NPT = 'threaded-npt'
+    TYPE_THREADED_BSP = 'threaded-bsp'
+    TYPE_OTHER = 'other'
+
+    CHOICES = [
+        (TYPE_UQD, _('UQD (Universal Quick Disconnect)')),
+        (TYPE_QDC, _('QDC (Quick Disconnect Coupling)')),
+        (TYPE_BLIND_MATE, _('Blind-mate')),
+        (TYPE_THREADED_NPT, _('Threaded (NPT)')),
+        (TYPE_THREADED_BSP, _('Threaded (BSP)')),
+        (TYPE_OTHER, _('Other')),
+    ]
+
+
+class CoolingDiameterChoices(ChoiceSet):
+
+    DN10 = 'dn10'
+    DN15 = 'dn15'
+    DN20 = 'dn20'
+    DN25 = 'dn25'
+    DN32 = 'dn32'
+    DN40 = 'dn40'
+    DN50 = 'dn50'
+
+    CHOICES = [
+        (DN10, 'DN10'),
+        (DN15, 'DN15'),
+        (DN20, 'DN20'),
+        (DN25, 'DN25'),
+        (DN32, 'DN32'),
+        (DN40, 'DN40'),
+        (DN50, 'DN50'),
     ]
 
 

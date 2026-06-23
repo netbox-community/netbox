@@ -136,6 +136,13 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
+    cooling_method = models.CharField(
+        verbose_name=_('cooling method'),
+        max_length=50,
+        choices=CoolingMethodChoices,
+        blank=True,
+        null=True
+    )
     end_of_life = models.DateField(
         verbose_name=_('end of life'),
         blank=True,
@@ -168,6 +175,14 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_model='dcim.PowerOutletTemplate',
         to_field='device_type'
     )
+    cooling_port_template_count = CounterCacheField(
+        to_model='dcim.CoolingPortTemplate',
+        to_field='device_type'
+    )
+    cooling_outlet_template_count = CounterCacheField(
+        to_model='dcim.CoolingOutletTemplate',
+        to_field='device_type'
+    )
     interface_template_count = CounterCacheField(
         to_model='dcim.InterfaceTemplate',
         to_field='device_type'
@@ -198,8 +213,8 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     )
 
     clone_fields = (
-        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
-        'weight_unit',
+        'manufacturer', 'default_platform', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
+        'cooling_method', 'weight', 'weight_unit',
     )
     prerequisite_models = (
         'dcim.Manufacturer',
@@ -249,6 +264,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'is_full_depth': self.is_full_depth,
             'subdevice_role': self.subdevice_role,
             'airflow': self.airflow,
+            'cooling_method': self.cooling_method,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
             'end_of_life': self.end_of_life.isoformat() if self.end_of_life else None,
@@ -271,6 +287,14 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
                 c.to_yaml() for c in self.poweroutlettemplates.all()
+            ]
+        if self.coolingporttemplates.exists():
+            data['cooling-ports'] = [
+                c.to_yaml() for c in self.coolingporttemplates.all()
+            ]
+        if self.coolingoutlettemplates.exists():
+            data['cooling-outlets'] = [
+                c.to_yaml() for c in self.coolingoutlettemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
@@ -602,6 +626,13 @@ class Device(
         blank=True,
         null=True
     )
+    cooling_method = models.CharField(
+        verbose_name=_('cooling method'),
+        max_length=50,
+        choices=CoolingMethodChoices,
+        blank=True,
+        null=True
+    )
     primary_ip4 = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.SET_NULL,
@@ -701,6 +732,14 @@ class Device(
         to_model='dcim.PowerOutlet',
         to_field='device'
     )
+    cooling_port_count = CounterCacheField(
+        to_model='dcim.CoolingPort',
+        to_field='device'
+    )
+    cooling_outlet_count = CounterCacheField(
+        to_model='dcim.CoolingOutlet',
+        to_field='device'
+    )
     interface_count = CounterCacheField(
         to_model='dcim.Interface',
         to_field='device'
@@ -730,7 +769,7 @@ class Device(
 
     clone_fields = (
         'device_type', 'role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
-        'cluster', 'virtual_chassis',
+        'cooling_method', 'cluster', 'virtual_chassis',
     )
     prerequisite_models = (
         'dcim.Site',
@@ -1044,6 +1083,10 @@ class Device(
         if is_new and not self.airflow:
             self.airflow = self.device_type.airflow
 
+        # Inherit cooling_method attribute from DeviceType if not set
+        if is_new and not self.cooling_method:
+            self.cooling_method = self.device_type.cooling_method
+
         # Inherit default_platform from DeviceType if not set
         if is_new and not self.platform:
             self.platform = self.device_type.default_platform
@@ -1060,6 +1103,8 @@ class Device(
             self._instantiate_components(self.device_type.consoleserverporttemplates.all())
             self._instantiate_components(self.device_type.powerporttemplates.all())
             self._instantiate_components(self.device_type.poweroutlettemplates.all())
+            self._instantiate_components(self.device_type.coolingporttemplates.all())
+            self._instantiate_components(self.device_type.coolingoutlettemplates.all())
             self._instantiate_components(self.device_type.interfacetemplates.all())
             self._instantiate_components(self.device_type.rearporttemplates.all())
             self._instantiate_components(self.device_type.frontporttemplates.all())

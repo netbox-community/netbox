@@ -34,6 +34,12 @@ __all__ = (
     'ConsolePortTemplateFilterForm',
     'ConsoleServerPortFilterForm',
     'ConsoleServerPortTemplateFilterForm',
+    'CoolingFeedFilterForm',
+    'CoolingOutletFilterForm',
+    'CoolingOutletTemplateFilterForm',
+    'CoolingPortFilterForm',
+    'CoolingPortTemplateFilterForm',
+    'CoolingSourceFilterForm',
     'DeviceBayFilterForm',
     'DeviceBayTemplateFilterForm',
     'DeviceFilterForm',
@@ -370,6 +376,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'group_id', name=_('Location')),
         FieldSet('status', 'role_id', 'manufacturer_id', 'rack_type_id', 'serial', 'asset_tag', name=_('Rack')),
         FieldSet('form_factor', 'width', 'u_height', 'airflow', name=_('Hardware')),
+        FieldSet('cooling_capability', 'has_rdhx', name=_('Cooling')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -438,6 +445,18 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
         label=_('Airflow'),
         choices=add_blank_choice(RackAirflowChoices),
         required=False
+    )
+    cooling_capability = forms.MultipleChoiceField(
+        label=_('Cooling capability'),
+        choices=RackCoolingCapabilityChoices,
+        required=False
+    )
+    has_rdhx = forms.NullBooleanField(
+        required=False,
+        label=_('Has RDHx'),
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     serial = forms.CharField(
         label=_('Serial'),
@@ -562,7 +581,7 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet(
             'manufacturer_id', 'default_platform_id', 'part_number', 'device_count',
-            'subdevice_role', 'airflow', name=_('Hardware')
+            'subdevice_role', 'airflow', 'cooling_method', name=_('Hardware')
         ),
         FieldSet('has_front_image', 'has_rear_image', name=_('Images')),
         FieldSet(
@@ -601,6 +620,11 @@ class DeviceTypeFilterForm(PrimaryModelFilterSetForm):
     airflow = forms.MultipleChoiceField(
         label=_('Airflow'),
         choices=add_blank_choice(DeviceAirflowChoices),
+        required=False
+    )
+    cooling_method = forms.MultipleChoiceField(
+        label=_('Cooling method'),
+        choices=add_blank_choice(CoolingMethodChoices),
         required=False
     )
     has_front_image = forms.NullBooleanField(
@@ -908,7 +932,7 @@ class DeviceFilterForm(
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
         FieldSet('status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address', name=_('Operation')),
-        FieldSet('manufacturer_id', 'device_type_id', 'platform_id', name=_('Hardware')),
+        FieldSet('manufacturer_id', 'device_type_id', 'platform_id', 'cooling_method', name=_('Hardware')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
@@ -994,6 +1018,11 @@ class DeviceFilterForm(
     airflow = forms.MultipleChoiceField(
         label=_('Airflow'),
         choices=add_blank_choice(DeviceAirflowChoices),
+        required=False
+    )
+    cooling_method = forms.MultipleChoiceField(
+        label=_('Cooling method'),
+        choices=add_blank_choice(CoolingMethodChoices),
         required=False
     )
     serial = forms.CharField(
@@ -1476,6 +1505,120 @@ class PowerFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+class CoolingSourceFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm):
+    model = CoolingSource
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
+        FieldSet('type', 'status', name=_('Attributes')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
+    )
+    selector_fields = ('filter_id', 'q', 'site_id', 'location_id')
+    region_id = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region_id',
+            'group_id': '$site_group_id',
+        },
+        label=_('Site')
+    )
+    location_id = DynamicModelMultipleChoiceField(
+        queryset=Location.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Location')
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=CoolingSourceTypeChoices,
+        required=False
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=CoolingSourceStatusChoices,
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
+class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
+    model = CoolingFeed
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'cooling_source_id', 'rack_id', name=_('Location')),
+        FieldSet('status', 'type', 'fluid_type', name=_('Attributes')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    region_id = DynamicModelMultipleChoiceField(
+        queryset=Region.objects.all(),
+        required=False,
+        label=_('Region')
+    )
+    site_group_id = DynamicModelMultipleChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region_id'
+        },
+        label=_('Site')
+    )
+    cooling_source_id = DynamicModelMultipleChoiceField(
+        queryset=CoolingSource.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Cooling source')
+    )
+    rack_id = DynamicModelMultipleChoiceField(
+        queryset=Rack.objects.all(),
+        required=False,
+        null_option='None',
+        query_params={
+            'site_id': '$site_id'
+        },
+        label=_('Rack')
+    )
+    status = forms.MultipleChoiceField(
+        label=_('Status'),
+        choices=CoolingFeedStatusChoices,
+        required=False
+    )
+    type = forms.ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(CoolingFeedTypeChoices),
+        required=False
+    )
+    fluid_type = forms.ChoiceField(
+        label=_('Fluid type'),
+        choices=add_blank_choice(FluidTypeChoices),
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
 #
 # Device components
 #
@@ -1679,6 +1822,120 @@ class PowerOutletTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
     type = forms.MultipleChoiceField(
         label=_('Type'),
         choices=PowerOutletTypeChoices,
+        required=False
+    )
+
+
+class CoolingPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
+    model = CoolingPort
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'connector_type', 'diameter', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
+        FieldSet(
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
+        FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=CoolingFeedTypeChoices,
+        required=False
+    )
+    connector_type = forms.MultipleChoiceField(
+        label=_('Connector type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False
+    )
+    diameter = forms.MultipleChoiceField(
+        label=_('Diameter'),
+        choices=CoolingDiameterChoices,
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
+class CoolingPortTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = CoolingPortTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'connector_type', 'diameter', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=CoolingFeedTypeChoices,
+        required=False
+    )
+    connector_type = forms.MultipleChoiceField(
+        label=_('Connector type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False
+    )
+    diameter = forms.MultipleChoiceField(
+        label=_('Diameter'),
+        choices=CoolingDiameterChoices,
+        required=False
+    )
+
+
+class CoolingOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
+    model = CoolingOutlet
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'connector_type', 'diameter', 'color', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', name=_('Location')),
+        FieldSet(
+            'tenant_id', 'device_type_id', 'device_role_id', 'device_id', 'device_status', 'virtual_chassis_id',
+            name=_('Device')
+        ),
+        FieldSet('cabled', 'connected', 'occupied', name=_('Connection')),
+        FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=CoolingFeedTypeChoices,
+        required=False
+    )
+    connector_type = forms.MultipleChoiceField(
+        label=_('Connector type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False
+    )
+    diameter = forms.MultipleChoiceField(
+        label=_('Diameter'),
+        choices=CoolingDiameterChoices,
+        required=False
+    )
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
+class CoolingOutletTemplateFilterForm(ModularDeviceComponentTemplateFilterForm):
+    model = CoolingOutletTemplate
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('name', 'label', 'type', 'connector_type', 'diameter', name=_('Attributes')),
+        FieldSet('device_type_id', 'module_type_id', name=_('Device')),
+    )
+    type = forms.MultipleChoiceField(
+        label=_('Type'),
+        choices=CoolingFeedTypeChoices,
+        required=False
+    )
+    connector_type = forms.MultipleChoiceField(
+        label=_('Connector type'),
+        choices=CoolingConnectorTypeChoices,
+        required=False
+    )
+    diameter = forms.MultipleChoiceField(
+        label=_('Diameter'),
+        choices=CoolingDiameterChoices,
         required=False
     )
 

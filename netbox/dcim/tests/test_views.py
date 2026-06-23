@@ -4554,6 +4554,415 @@ class PowerFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(response, 200)
 
 
+class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingPortTemplate
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        CoolingPortTemplate.objects.bulk_create((
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        ))
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Port Template X',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'maximum_flow': 100,
+            'heat_capacity': 50,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Port Template [4-6]',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'maximum_flow': 100,
+            'heat_capacity': 50,
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'maximum_flow': 100,
+            'heat_capacity': 50,
+        }
+
+
+class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestCase):
+    model = CoolingOutletTemplate
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+
+        CoolingOutletTemplate.objects.bulk_create((
+            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        ))
+
+        coolingports = (
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+        )
+        CoolingPortTemplate.objects.bulk_create(coolingports)
+
+        cls.form_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Outlet Template X',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'cooling_port': coolingports[0].pk,
+        }
+
+        cls.bulk_create_data = {
+            'device_type': devicetype.pk,
+            'name': 'Cooling Outlet Template [4-6]',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'cooling_port': coolingports[0].pk,
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+        }
+
+
+class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingPort
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        cooling_ports = (
+            CoolingPort(device=device, name='Cooling Port 1'),
+            CoolingPort(device=device, name='Cooling Port 2'),
+            CoolingPort(device=device, name='Cooling Port 3'),
+        )
+        CoolingPort.objects.bulk_create(cooling_ports)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Cooling Port X',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'maximum_flow': 100,
+            'heat_capacity': 50,
+            'description': 'A cooling port',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name': 'Cooling Port [4-6]]',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'maximum_flow': 100,
+            'heat_capacity': 50,
+            'description': 'A cooling port',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'maximum_flow': 100,
+            'heat_capacity': 50,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Cooling Port 4",
+            "Device 1,Cooling Port 5",
+            "Device 1,Cooling Port 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cooling_ports[0].pk},Cooling Port 7,New description7",
+            f"{cooling_ports[1].pk},Cooling Port 8,New description8",
+            f"{cooling_ports[2].pk},Cooling Port 9,New description9",
+        )
+
+    def test_trace(self):
+        self.add_permissions(
+            'dcim.view_coolingport',
+            'dcim.view_coolingoutlet',
+            'dcim.view_cable',
+            'dcim.view_device',
+        )
+        coolingport = CoolingPort.objects.first()
+        coolingoutlet = CoolingOutlet.objects.create(
+            device=coolingport.device,
+            name='Cooling Outlet 1'
+        )
+        Cable(a_terminations=[coolingport], b_terminations=[coolingoutlet]).save()
+
+        response = self.client.get(reverse('dcim:coolingport_trace', kwargs={'pk': coolingport.pk}))
+        self.assertHttpStatus(response, 200)
+
+
+class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
+    model = CoolingOutlet
+    validation_excluded_fields = ('name', 'label')
+
+    @classmethod
+    def setUpTestData(cls):
+        device = create_test_device('Device 1')
+
+        coolingports = (
+            CoolingPort(device=device, name='Cooling Port 1'),
+            CoolingPort(device=device, name='Cooling Port 2'),
+        )
+        CoolingPort.objects.bulk_create(coolingports)
+
+        cooling_outlets = (
+            CoolingOutlet(device=device, name='Cooling Outlet 1', cooling_port=coolingports[0]),
+            CoolingOutlet(device=device, name='Cooling Outlet 2', cooling_port=coolingports[0]),
+            CoolingOutlet(device=device, name='Cooling Outlet 3', cooling_port=coolingports[0]),
+        )
+        CoolingOutlet.objects.bulk_create(cooling_outlets)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': device.pk,
+            'name': 'Cooling Outlet X',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'cooling_port': coolingports[1].pk,
+            'description': 'A cooling outlet',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_create_data = {
+            'device': device.pk,
+            'name': 'Cooling Outlet [4-6]',
+            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
+            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'diameter': CoolingDiameterChoices.DN25,
+            'cooling_port': coolingports[1].pk,
+            'description': 'A cooling outlet',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.bulk_edit_data = {
+            'type': CoolingFeedTypeChoices.TYPE_RETURN,
+            'cooling_port': coolingports[1].pk,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "device,name",
+            "Device 1,Cooling Outlet 4",
+            "Device 1,Cooling Outlet 5",
+            "Device 1,Cooling Outlet 6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{cooling_outlets[0].pk},Cooling Outlet 7,New description7",
+            f"{cooling_outlets[1].pk},Cooling Outlet 8,New description8",
+            f"{cooling_outlets[2].pk},Cooling Outlet 9,New description9",
+        )
+
+    def test_trace(self):
+        self.add_permissions(
+            'dcim.view_coolingoutlet',
+            'dcim.view_coolingport',
+            'dcim.view_cable',
+            'dcim.view_device',
+        )
+        coolingoutlet = CoolingOutlet.objects.first()
+        coolingport = CoolingPort.objects.first()
+        Cable(a_terminations=[coolingoutlet], b_terminations=[coolingport]).save()
+
+        response = self.client.get(reverse('dcim:coolingoutlet_trace', kwargs={'pk': coolingoutlet.pk}))
+        self.assertHttpStatus(response, 200)
+
+
+class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CoolingSource
+
+    @classmethod
+    def setUpTestData(cls):
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        locations = (
+            Location(name='Location 1', slug='location-1', site=sites[0]),
+            Location(name='Location 2', slug='location-2', site=sites[1]),
+        )
+        for location in locations:
+            location.save()
+
+        cooling_sources = (
+            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 1'),
+            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 2'),
+            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 3'),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'site': sites[1].pk,
+            'location': locations[1].pk,
+            'name': 'Cooling Source X',
+            'status': CoolingSourceStatusChoices.STATUS_ACTIVE,
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "site,location,name,status",
+            "Site 1,Location 1,Cooling Source 4,active",
+            "Site 1,Location 1,Cooling Source 5,active",
+            "Site 1,Location 1,Cooling Source 6,active",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{cooling_sources[0].pk},Cooling Source 7",
+            f"{cooling_sources[1].pk},Cooling Source 8",
+            f"{cooling_sources[2].pk},Cooling Source 9",
+        )
+
+        cls.bulk_edit_data = {
+            'site': sites[1].pk,
+            'location': locations[1].pk,
+        }
+
+
+class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CoolingFeed
+
+    @classmethod
+    def setUpTestData(cls):
+
+        site = Site.objects.create(name='Site 1', slug='site-1')
+
+        cooling_sources = (
+            CoolingSource(site=site, name='Cooling Source 1'),
+            CoolingSource(site=site, name='Cooling Source 2'),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        racks = (
+            Rack(site=site, name='Rack 1'),
+            Rack(site=site, name='Rack 2'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        cooling_feeds = (
+            CoolingFeed(name='Cooling Feed 1', cooling_source=cooling_sources[0], rack=racks[0]),
+            CoolingFeed(name='Cooling Feed 2', cooling_source=cooling_sources[0], rack=racks[0]),
+            CoolingFeed(name='Cooling Feed 3', cooling_source=cooling_sources[0], rack=racks[0]),
+        )
+        CoolingFeed.objects.bulk_create(cooling_feeds)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Cooling Feed X',
+            'cooling_source': cooling_sources[1].pk,
+            'rack': racks[1].pk,
+            'status': CoolingFeedStatusChoices.STATUS_PLANNED,
+            'type': CoolingFeedTypeChoices.TYPE_RETURN,
+            'fluid_type': FluidTypeChoices.FLUID_WATER,
+            'cooling_capacity': 100,
+            'flow_rate': 50,
+            'pressure': 200,
+            'supply_temperature': 18,
+            'return_temperature': 30,
+            'comments': 'New comments',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "site,cooling_source,name,status,type",
+            "Site 1,Cooling Source 1,Cooling Feed 4,active,supply",
+            "Site 1,Cooling Source 1,Cooling Feed 5,active,supply",
+            "Site 1,Cooling Source 1,Cooling Feed 6,active,supply",
+        )
+
+        cls.csv_update_data = (
+            "id,name,status",
+            f"{cooling_feeds[0].pk},Cooling Feed 7,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+            f"{cooling_feeds[1].pk},Cooling Feed 8,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+            f"{cooling_feeds[2].pk},Cooling Feed 9,{CoolingFeedStatusChoices.STATUS_PLANNED}",
+        )
+
+        cls.bulk_edit_data = {
+            'cooling_source': cooling_sources[1].pk,
+            'rack': racks[1].pk,
+            'status': CoolingFeedStatusChoices.STATUS_PLANNED,
+            'type': CoolingFeedTypeChoices.TYPE_RETURN,
+            'fluid_type': FluidTypeChoices.FLUID_WATER,
+            'cooling_capacity': 100,
+            'flow_rate': 50,
+            'pressure': 200,
+            'supply_temperature': 18,
+            'return_temperature': 30,
+            'comments': 'New comments',
+        }
+
+    def test_trace(self):
+        self.add_permissions(
+            'dcim.view_coolingfeed',
+            'dcim.view_coolingport',
+            'dcim.view_cable',
+            'dcim.view_device',
+        )
+        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        role = DeviceRole.objects.create(
+            name='Device Role', slug='device-role-1'
+        )
+        device = Device.objects.create(
+            site=Site.objects.first(), device_type=device_type, role=role
+        )
+
+        coolingfeed = CoolingFeed.objects.first()
+        coolingport = CoolingPort.objects.create(
+            device=device,
+            name='Cooling Port 1'
+        )
+        Cable(a_terminations=[coolingfeed], b_terminations=[coolingport]).save()
+
+        response = self.client.get(reverse('dcim:coolingfeed_trace', kwargs={'pk': coolingfeed.pk}))
+        self.assertHttpStatus(response, 200)
+
+
 class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = VirtualDeviceContext
 

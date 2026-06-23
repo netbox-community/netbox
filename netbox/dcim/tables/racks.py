@@ -196,13 +196,24 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
         template_code=WEIGHT,
         order_by=('_abs_max_weight', 'weight_unit')
     )
+    cooling_capability = columns.ChoiceFieldColumn(
+        verbose_name=_('Cooling Capability'),
+    )
+    has_rdhx = columns.BooleanColumn(
+        verbose_name=_('Has RDHx'),
+        false_mark=None
+    )
+    cooling_capacity = tables.Column(
+        verbose_name=_('Cooling Capacity (kW)')
+    )
 
     class Meta(PrimaryModelTable.Meta):
         model = Rack
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'group', 'status', 'facility_id', 'tenant', 'tenant_group', 'role',
             'rack_type', 'serial', 'asset_tag', 'form_factor', 'u_height', 'starting_unit', 'width', 'outer_width',
-            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'weight', 'max_weight', 'comments',
+            'outer_height', 'outer_depth', 'mounting_depth', 'airflow', 'cooling_capability', 'has_rdhx',
+            'cooling_capacity', 'weight', 'max_weight', 'comments',
             'device_count', 'get_utilization', 'get_power_utilization', 'description', 'contacts',
             'tags', 'created', 'last_updated',
         )

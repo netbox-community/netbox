@@ -1,5 +1,6 @@
 from .cables import *
 from .connections import *
+from .cooling import *
 from .devices import *
 from .devicetypes import *
 from .modules import *

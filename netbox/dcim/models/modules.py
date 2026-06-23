@@ -185,6 +185,14 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_model='dcim.PowerOutletTemplate',
         to_field='module_type'
     )
+    cooling_port_template_count = CounterCacheField(
+        to_model='dcim.CoolingPortTemplate',
+        to_field='module_type'
+    )
+    cooling_outlet_template_count = CounterCacheField(
+        to_model='dcim.CoolingOutletTemplate',
+        to_field='module_type'
+    )
     interface_template_count = CounterCacheField(
         to_model='dcim.InterfaceTemplate',
         to_field='module_type'
@@ -311,6 +319,14 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         if self.poweroutlettemplates.exists():
             data['power-outlets'] = [
                 c.to_yaml() for c in self.poweroutlettemplates.all()
+            ]
+        if self.coolingporttemplates.exists():
+            data['cooling-ports'] = [
+                c.to_yaml() for c in self.coolingporttemplates.all()
+            ]
+        if self.coolingoutlettemplates.exists():
+            data['cooling-outlets'] = [
+                c.to_yaml() for c in self.coolingoutlettemplates.all()
             ]
         if self.interfacetemplates.exists():
             data['interfaces'] = [
@@ -502,6 +518,8 @@ class Module(TrackingModelMixin, PrimaryModel):
             ("interfacetemplates", "interfaces", Interface),
             ("powerporttemplates", "powerports", PowerPort),
             ("poweroutlettemplates", "poweroutlets", PowerOutlet),
+            ("coolingporttemplates", "coolingports", CoolingPort),
+            ("coolingoutlettemplates", "coolingoutlets", CoolingOutlet),
             ("rearporttemplates", "rearports", RearPort),
             ("frontporttemplates", "frontports", FrontPort),
             ("modulebaytemplates", "modulebays", ModuleBay),

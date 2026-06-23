@@ -8,9 +8,17 @@ __all__ = (
     'CableTypeEnum',
     'ConsolePortSpeedEnum',
     'ConsolePortTypeEnum',
+    'CoolingConnectorTypeEnum',
+    'CoolingDiameterEnum',
+    'CoolingFeedStatusEnum',
+    'CoolingFeedTypeEnum',
+    'CoolingMethodEnum',
+    'CoolingSourceStatusEnum',
+    'CoolingSourceTypeEnum',
     'DeviceAirflowEnum',
     'DeviceFaceEnum',
     'DeviceStatusEnum',
+    'FluidTypeEnum',
     'InterfaceDuplexEnum',
     'InterfaceKindEnum',
     'InterfaceModeEnum',
@@ -47,9 +55,17 @@ CableLengthUnitEnum = strawberry.enum(CableLengthUnitChoices.as_enum(prefix='uni
 CableTypeEnum = strawberry.enum(CableTypeChoices.as_enum(prefix='type'))
 ConsolePortSpeedEnum = strawberry.enum(ConsolePortSpeedChoices.as_enum(prefix='speed'))
 ConsolePortTypeEnum = strawberry.enum(ConsolePortTypeChoices.as_enum(prefix='type'))
+CoolingConnectorTypeEnum = strawberry.enum(CoolingConnectorTypeChoices.as_enum(prefix='type'))
+CoolingDiameterEnum = strawberry.enum(CoolingDiameterChoices.as_enum(prefix='diameter'))
+CoolingFeedStatusEnum = strawberry.enum(CoolingFeedStatusChoices.as_enum(prefix='status'))
+CoolingFeedTypeEnum = strawberry.enum(CoolingFeedTypeChoices.as_enum(prefix='type'))
+CoolingMethodEnum = strawberry.enum(CoolingMethodChoices.as_enum(prefix='method'))
+CoolingSourceStatusEnum = strawberry.enum(CoolingSourceStatusChoices.as_enum(prefix='status'))
+CoolingSourceTypeEnum = strawberry.enum(CoolingSourceTypeChoices.as_enum(prefix='type'))
 DeviceAirflowEnum = strawberry.enum(DeviceAirflowChoices.as_enum(prefix='airflow'))
 DeviceFaceEnum = strawberry.enum(DeviceFaceChoices.as_enum(prefix='face'))
 DeviceStatusEnum = strawberry.enum(DeviceStatusChoices.as_enum(prefix='status'))
+FluidTypeEnum = strawberry.enum(FluidTypeChoices.as_enum(prefix='fluid'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
 InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))
 InterfaceModeEnum = strawberry.enum(InterfaceModeChoices.as_enum(prefix='mode'))

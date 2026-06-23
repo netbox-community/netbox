@@ -24,6 +24,24 @@ class DCIMQuery:
     console_server_port_template: ConsoleServerPortTemplateType = strawberry_django.field()
     console_server_port_template_list: list[ConsoleServerPortTemplateType] = strawberry_django.field()
 
+    cooling_feed: CoolingFeedType = strawberry_django.field()
+    cooling_feed_list: list[CoolingFeedType] = strawberry_django.field()
+
+    cooling_outlet: CoolingOutletType = strawberry_django.field()
+    cooling_outlet_list: list[CoolingOutletType] = strawberry_django.field()
+
+    cooling_outlet_template: CoolingOutletTemplateType = strawberry_django.field()
+    cooling_outlet_template_list: list[CoolingOutletTemplateType] = strawberry_django.field()
+
+    cooling_port: CoolingPortType = strawberry_django.field()
+    cooling_port_list: list[CoolingPortType] = strawberry_django.field()
+
+    cooling_port_template: CoolingPortTemplateType = strawberry_django.field()
+    cooling_port_template_list: list[CoolingPortTemplateType] = strawberry_django.field()
+
+    cooling_source: CoolingSourceType = strawberry_django.field()
+    cooling_source_list: list[CoolingSourceType] = strawberry_django.field()
+
     device: DeviceType = strawberry_django.field()
     device_list: list[DeviceType] = strawberry_django.field()
 

@@ -8,6 +8,8 @@ from wireless.choices import WirelessRoleChoices
 __all__ = (
     'ConsolePortTemplateImportForm',
     'ConsoleServerPortTemplateImportForm',
+    'CoolingOutletTemplateImportForm',
+    'CoolingPortTemplateImportForm',
     'DeviceBayTemplateImportForm',
     'FrontPortTemplateImportForm',
     'InterfaceTemplateImportForm',
@@ -76,6 +78,46 @@ class PowerOutletTemplateImportForm(forms.ModelForm):
         if module_type := self.cleaned_data['module_type']:
             power_port = self.fields['power_port']
             power_port.queryset = power_port.queryset.filter(module_type=module_type)
+
+        return module_type
+
+
+class CoolingPortTemplateImportForm(forms.ModelForm):
+
+    class Meta:
+        model = CoolingPortTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
+            'heat_capacity', 'description',
+        ]
+
+
+class CoolingOutletTemplateImportForm(forms.ModelForm):
+    cooling_port = forms.ModelChoiceField(
+        label=_('Cooling port'),
+        queryset=CoolingPortTemplate.objects.all(),
+        to_field_name='name',
+        required=False
+    )
+
+    class Meta:
+        model = CoolingOutletTemplate
+        fields = [
+            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'color',
+            'cooling_port', 'description',
+        ]
+
+    def clean_device_type(self):
+        if device_type := self.cleaned_data['device_type']:
+            cooling_port = self.fields['cooling_port']
+            cooling_port.queryset = cooling_port.queryset.filter(device_type=device_type)
+
+        return device_type
+
+    def clean_module_type(self):
+        if module_type := self.cleaned_data['module_type']:
+            cooling_port = self.fields['cooling_port']
+            cooling_port.queryset = cooling_port.queryset.filter(module_type=module_type)
 
         return module_type
 

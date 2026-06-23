@@ -3075,3 +3075,126 @@ class InventoryItemTemplateCycleTestCase(TestCase):
         a.parent = a
         with self.assertRaises(ValidationError):
             a.full_clean()
+
+
+class CoolingComponentTestCase(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Site 1', slug='site-1')
+        cls.manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        cls.role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+    def test_cooling_method_inherited_from_device_type(self):
+        """
+        A new Device should inherit its cooling_method from the DeviceType when not explicitly set.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 1',
+            slug='device-type-1',
+            cooling_method=CoolingMethodChoices.METHOD_LIQUID
+        )
+        device = Device.objects.create(
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 1'
+        )
+        self.assertEqual(device.cooling_method, CoolingMethodChoices.METHOD_LIQUID)
+
+    def test_cooling_method_not_overridden_when_set(self):
+        """
+        A new Device with an explicitly-set cooling_method should not be overridden by the DeviceType.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 2',
+            slug='device-type-2',
+            cooling_method=CoolingMethodChoices.METHOD_LIQUID
+        )
+        device = Device.objects.create(
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 2',
+            cooling_method=CoolingMethodChoices.METHOD_AIR
+        )
+        self.assertEqual(device.cooling_method, CoolingMethodChoices.METHOD_AIR)
+
+    def test_device_creation_instantiates_cooling_components(self):
+        """
+        Creating a Device from a DeviceType with cooling component templates should auto-instantiate
+        matching CoolingPort and CoolingOutlet components.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 3',
+            slug='device-type-3'
+        )
+
+        cooling_port_template = CoolingPortTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Port 1',
+            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=CoolingDiameterChoices.DN25,
+            maximum_flow=100,
+            heat_capacity=50
+        )
+        CoolingOutletTemplate.objects.create(
+            device_type=device_type,
+            name='Cooling Outlet 1',
+            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=CoolingDiameterChoices.DN25
+        )
+
+        device = Device.objects.create(
+            site=self.site,
+            device_type=device_type,
+            role=self.role,
+            name='Device 3'
+        )
+
+        cooling_port = CoolingPort.objects.get(
+            device=device,
+            name='Cooling Port 1',
+            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=CoolingDiameterChoices.DN25,
+            maximum_flow=100,
+            heat_capacity=50
+        )
+        self.assertEqual(cooling_port_template.maximum_flow, cooling_port.maximum_flow)
+
+        CoolingOutlet.objects.get(
+            device=device,
+            name='Cooling Outlet 1',
+            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            diameter=CoolingDiameterChoices.DN25
+        )
+
+    def test_cooling_outlet_clean_different_device(self):
+        """
+        CoolingOutlet.clean() should raise a ValidationError when its cooling_port belongs to a
+        different device.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 4',
+            slug='device-type-4'
+        )
+        device1 = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device A'
+        )
+        device2 = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device B'
+        )
+
+        cooling_port = CoolingPort.objects.create(device=device1, name='Cooling Port 1')
+        cooling_outlet = CoolingOutlet(device=device2, name='Cooling Outlet 1', cooling_port=cooling_port)
+
+        with self.assertRaises(ValidationError):
+            cooling_outlet.full_clean()

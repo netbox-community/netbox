@@ -6,6 +6,8 @@ from dcim.constants import *
 from dcim.models import (
     ConsolePortTemplate,
     ConsoleServerPortTemplate,
+    CoolingOutletTemplate,
+    CoolingPortTemplate,
     DeviceBayTemplate,
     FrontPortTemplate,
     InterfaceTemplate,
@@ -30,6 +32,8 @@ from .roles import InventoryItemRoleSerializer
 __all__ = (
     'ConsolePortTemplateSerializer',
     'ConsoleServerPortTemplateSerializer',
+    'CoolingOutletTemplateSerializer',
+    'CoolingPortTemplateSerializer',
     'DeviceBayTemplateSerializer',
     'FrontPortTemplateSerializer',
     'InterfaceTemplateSerializer',
@@ -166,6 +170,93 @@ class PowerOutletTemplateSerializer(ComponentTemplateSerializer):
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type',
             'color', 'power_port', 'feed_leg', 'description', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+
+class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
+    device_type = DeviceTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = ModuleTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    type = ChoiceField(
+        choices=CoolingFeedTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    connector_type = ChoiceField(
+        choices=CoolingConnectorTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    diameter = ChoiceField(
+        choices=CoolingDiameterChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = CoolingPortTemplate
+        fields = [
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
+            'diameter', 'maximum_flow', 'heat_capacity', 'description', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
+
+
+class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
+    device_type = DeviceTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    module_type = ModuleTypeSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        default=None
+    )
+    type = ChoiceField(
+        choices=CoolingFeedTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    connector_type = ChoiceField(
+        choices=CoolingConnectorTypeChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    diameter = ChoiceField(
+        choices=CoolingDiameterChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    cooling_port = CoolingPortTemplateSerializer(
+        nested=True,
+        required=False,
+        allow_null=True
+    )
+
+    class Meta:
+        model = CoolingOutletTemplate
+        fields = [
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
+            'diameter', 'color', 'cooling_port', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

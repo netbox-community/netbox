@@ -343,6 +343,100 @@ POWEROUTLET_BUTTONS = """
 {% endif %}
 """
 
+COOLINGPORT_BUTTONS = """
+{% if perms.dcim.add_inventoryitem %}
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_coolingports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
+    <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+  </a>
+{% endif %}
+{% if record.cable %}
+    <a href="{% url 'dcim:coolingport_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
+    {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
+        <span class="dropdown">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+            {% if perms.dcim.change_cable %}
+                <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_coolingports' pk=object.pk %}">
+                    <i class="mdi mdi-pencil-outline"></i>
+                    Edit cable
+                    </a>
+                </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
+                <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_coolingports' pk=object.pk %}">
+                    <i class="mdi mdi-trash-can-outline"></i>
+                    Delete cable
+                    </a>
+                </li>
+            {% endif %}
+            </ul>
+        </span>
+    {% endif %}
+{% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-secondary btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-outline-secondary btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
+    <span class="dropdown">
+        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.coolingport&a_terminations={{ record.pk }}&b_terminations_type=dcim.coolingoutlet&termination_b_site={{ object.site.pk }}&termination_b_rack={{ object.rack.pk }}&return_url={% url 'dcim:device_coolingports' pk=object.pk %}">Cooling Outlet</a></li>
+            <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.coolingport&a_terminations={{ record.pk }}&b_terminations_type=dcim.coolingfeed&termination_b_site={{ object.site.pk }}&termination_b_rack={{ object.rack.pk }}&return_url={% url 'dcim:device_coolingports' pk=object.pk %}">Cooling Feed</a></li>
+        </ul>
+    </span>
+{% else %}
+    <a href="#" class="btn btn-outline-secondary btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
+{% endif %}
+"""
+
+COOLINGOUTLET_BUTTONS = """
+{% if perms.dcim.add_inventoryitem %}
+  <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_coolingoutlets' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
+    <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+  </a>
+{% endif %}
+{% if record.cable %}
+    <a href="{% url 'dcim:coolingoutlet_trace' pk=record.pk %}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant"></i></a>
+    {% include 'dcim/inc/cable_toggle_buttons.html' with cable=record.cable %}
+    {% if perms.dcim.change_cable or perms.dcim.delete_cable %}
+        <span class="dropdown">
+            <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+            {% if perms.dcim.change_cable %}
+                <li><a class="dropdown-item" href="{% url 'dcim:cable_edit' pk=record.cable.pk %}?return_url={% url 'dcim:device_coolingoutlets' pk=object.pk %}">
+                    <i class="mdi mdi-pencil-outline"></i>
+                    Edit cable
+                    </a>
+                </li>
+            {% endif %}
+            {% if perms.dcim.delete_cable %}
+                <li><a class="dropdown-item" href="{% url 'dcim:cable_delete' pk=record.cable.pk %}?return_url={% url 'dcim:device_coolingoutlets' pk=object.pk %}">
+                    <i class="mdi mdi-trash-can-outline"></i>
+                    Delete cable
+                    </a>
+                </li>
+            {% endif %}
+            </ul>
+        </span>
+    {% endif %}
+{% elif perms.dcim.add_cable %}
+    <a href="#" class="btn btn-outline-secondary btn-sm disabled"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+    <a href="#" class="btn btn-outline-secondary btn-sm disabled"><i class="mdi mdi-lan-connect" aria-hidden="true"></i></a>
+    {% if not record.mark_connected %}
+        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.coolingoutlet&a_terminations={{ record.pk }}&b_terminations_type=dcim.coolingport&termination_b_site={{ object.site.pk }}&termination_b_rack={{ object.rack.pk }}&return_url={% url 'dcim:device_coolingoutlets' pk=object.pk %}" title="Connect" class="btn btn-success btn-sm">
+            <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i>
+        </a>
+    {% else %}
+        <a href="#" class="btn btn-outline-secondary btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
+    {% endif %}
+{% endif %}
+"""
+
 INTERFACE_BUTTONS = """
 {% if perms.dcim.change_interface %}
   <span class="dropdown">

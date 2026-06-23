@@ -4238,6 +4238,303 @@ class PowerFeedTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class CoolingPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingPortTemplate
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
+        )
+
+        cooling_port_templates = (
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 3'),
+        )
+        CoolingPortTemplate.objects.bulk_create(cooling_port_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Port Template 4',
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Port Template 5',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Port Template 6',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Port Template 7',
+            },
+        ]
+
+
+class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingOutletTemplate
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    user_permissions = ('dcim.view_devicetype', )
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(
+            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
+        )
+        moduletype = ModuleType.objects.create(
+            manufacturer=manufacturer, model='Module Type 1'
+        )
+
+        cooling_port_templates = (
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 1'),
+            CoolingPortTemplate(device_type=devicetype, name='Cooling Port Template 2'),
+        )
+        CoolingPortTemplate.objects.bulk_create(cooling_port_templates)
+
+        cooling_outlet_templates = (
+            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 1'),
+            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 2'),
+            CoolingOutletTemplate(device_type=devicetype, name='Cooling Outlet Template 3'),
+        )
+        CoolingOutletTemplate.objects.bulk_create(cooling_outlet_templates)
+
+        cls.create_data = [
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Outlet Template 4',
+                'cooling_port': cooling_port_templates[0].pk,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Outlet Template 5',
+                'cooling_port': cooling_port_templates[1].pk,
+            },
+            {
+                'device_type': devicetype.pk,
+                'name': 'Cooling Outlet Template 6',
+                'cooling_port': None,
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Outlet Template 7',
+            },
+            {
+                'module_type': moduletype.pk,
+                'name': 'Cooling Outlet Template 8',
+            },
+        ]
+
+
+class CoolingPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+    model = CoolingPort
+    brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    peer_termination_type = CoolingOutlet
+    user_permissions = ('dcim.view_device', )
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
+        device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
+
+        cooling_ports = (
+            CoolingPort(device=device, name='Cooling Port 1'),
+            CoolingPort(device=device, name='Cooling Port 2'),
+            CoolingPort(device=device, name='Cooling Port 3'),
+        )
+        CoolingPort.objects.bulk_create(cooling_ports)
+
+        cls.create_data = [
+            {
+                'device': device.pk,
+                'name': 'Cooling Port 4',
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Port 5',
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Port 6',
+            },
+        ]
+
+
+class CoolingOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+    model = CoolingOutlet
+    brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    peer_termination_type = CoolingPort
+    user_permissions = ('dcim.view_device', )
+
+    @classmethod
+    def setUpTestData(cls):
+        manufacturer = Manufacturer.objects.create(name='Test Manufacturer 1', slug='test-manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
+        device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
+
+        cooling_ports = (
+            CoolingPort(device=device, name='Cooling Port 1'),
+            CoolingPort(device=device, name='Cooling Port 2'),
+        )
+        CoolingPort.objects.bulk_create(cooling_ports)
+
+        cooling_outlets = (
+            CoolingOutlet(device=device, name='Cooling Outlet 1'),
+            CoolingOutlet(device=device, name='Cooling Outlet 2'),
+            CoolingOutlet(device=device, name='Cooling Outlet 3'),
+        )
+        CoolingOutlet.objects.bulk_create(cooling_outlets)
+
+        cls.create_data = [
+            {
+                'device': device.pk,
+                'name': 'Cooling Outlet 4',
+                'cooling_port': cooling_ports[0].pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Outlet 5',
+                'cooling_port': cooling_ports[1].pk,
+            },
+            {
+                'device': device.pk,
+                'name': 'Cooling Outlet 6',
+                'cooling_port': None,
+            },
+        ]
+
+
+class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingSource
+    brief_fields = ['cooling_feed_count', 'description', 'display', 'id', 'name', 'url']
+    user_permissions = ('dcim.view_site', )
+
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site.objects.create(name='Site 1', slug='site-1'),
+            Site.objects.create(name='Site 2', slug='site-2'),
+        )
+
+        locations = (
+            Location.objects.create(name='Location 1', slug='location-1', site=sites[0]),
+            Location.objects.create(name='Location 2', slug='location-2', site=sites[0]),
+            Location.objects.create(name='Location 3', slug='location-3', site=sites[0]),
+            Location.objects.create(name='Location 4', slug='location-3', site=sites[1]),
+        )
+
+        cooling_sources = (
+            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 1'),
+            CoolingSource(site=sites[0], location=locations[1], name='Cooling Source 2'),
+            CoolingSource(site=sites[0], location=locations[2], name='Cooling Source 3'),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        cls.create_data = [
+            {
+                'name': 'Cooling Source 4',
+                'site': sites[0].pk,
+                'location': locations[0].pk,
+            },
+            {
+                'name': 'Cooling Source 5',
+                'site': sites[0].pk,
+                'location': locations[1].pk,
+            },
+            {
+                'name': 'Cooling Source 6',
+                'site': sites[0].pk,
+                'location': locations[2].pk,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'site': sites[1].pk,
+            'location': locations[3].pk
+        }
+
+
+class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
+    model = CoolingFeed
+    brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'status': 'planned',
+    }
+    user_permissions = ('dcim.view_coolingsource', )
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        location = Location.objects.create(site=site, name='Location 1', slug='location-1')
+        rackrole = RackRole.objects.create(name='Rack Role 1', slug='rack-role-1', color='ff0000')
+
+        racks = (
+            Rack(site=site, location=location, role=rackrole, name='Rack 1'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 2'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 3'),
+            Rack(site=site, location=location, role=rackrole, name='Rack 4'),
+        )
+        Rack.objects.bulk_create(racks)
+
+        cooling_sources = (
+            CoolingSource(site=site, location=location, name='Cooling Source 1'),
+            CoolingSource(site=site, location=location, name='Cooling Source 2'),
+        )
+        CoolingSource.objects.bulk_create(cooling_sources)
+
+        SUPPLY = CoolingFeedTypeChoices.TYPE_SUPPLY
+        RETURN = CoolingFeedTypeChoices.TYPE_RETURN
+        cooling_feeds = (
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[0], name='Cooling Feed 1A', type=SUPPLY),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[0], name='Cooling Feed 1B', type=RETURN),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[1], name='Cooling Feed 2A', type=SUPPLY),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[1], name='Cooling Feed 2B', type=RETURN),
+            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[2], name='Cooling Feed 3A', type=SUPPLY),
+            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[2], name='Cooling Feed 3B', type=RETURN),
+        )
+        CoolingFeed.objects.bulk_create(cooling_feeds)
+
+        cls.create_data = [
+            {
+                'name': 'Cooling Feed 4A',
+                'cooling_source': cooling_sources[0].pk,
+                'rack': racks[3].pk,
+                'type': SUPPLY,
+            },
+            {
+                'name': 'Cooling Feed 4B',
+                'cooling_source': cooling_sources[1].pk,
+                'rack': racks[3].pk,
+                'type': RETURN,
+            },
+        ]
+
+
 class VirtualDeviceContextTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualDeviceContext
     brief_fields = ['description', 'device', 'display', 'id', 'identifier', 'name', 'url']

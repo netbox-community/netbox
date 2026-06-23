@@ -22,6 +22,8 @@ from wireless.choices import WirelessRoleChoices
 from .device_components import (
     ConsolePort,
     ConsoleServerPort,
+    CoolingOutlet,
+    CoolingPort,
     DeviceBay,
     FrontPort,
     Interface,
@@ -35,6 +37,8 @@ from .device_components import (
 __all__ = (
     'ConsolePortTemplate',
     'ConsoleServerPortTemplate',
+    'CoolingOutletTemplate',
+    'CoolingPortTemplate',
     'DeviceBayTemplate',
     'FrontPortTemplate',
     'InterfaceTemplate',
@@ -433,6 +437,174 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             'color': self.color,
             'power_port': self.power_port.name if self.power_port else None,
             'feed_leg': self.feed_leg,
+            'label': self.label,
+            'description': self.description,
+        }
+
+
+class CoolingPortTemplate(ModularComponentTemplateModel):
+    """
+    A template for a CoolingPort to be created for a new Device.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingFeedTypeChoices,
+        blank=True,
+        null=True
+    )
+    connector_type = models.CharField(
+        verbose_name=_('connector type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True
+    )
+    diameter = models.CharField(
+        verbose_name=_('diameter'),
+        max_length=50,
+        choices=CoolingDiameterChoices,
+        blank=True,
+        null=True
+    )
+    maximum_flow = models.DecimalField(
+        verbose_name=_('maximum flow'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=_('Maximum coolant flow rate (L/min)')
+    )
+    heat_capacity = models.DecimalField(
+        verbose_name=_('heat capacity'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=_('Heat removal capacity (kW)')
+    )
+
+    component_model = CoolingPort
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('cooling port template')
+        verbose_name_plural = _('cooling port templates')
+
+    def instantiate(self, **kwargs):
+        return self.component_model(
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
+            type=self.type,
+            connector_type=self.connector_type,
+            diameter=self.diameter,
+            maximum_flow=self.maximum_flow,
+            heat_capacity=self.heat_capacity,
+            **kwargs
+        )
+    instantiate.do_not_call_in_templates = True
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'connector_type': self.connector_type,
+            'diameter': self.diameter,
+            'maximum_flow': float(self.maximum_flow) if self.maximum_flow is not None else None,
+            'heat_capacity': float(self.heat_capacity) if self.heat_capacity is not None else None,
+            'label': self.label,
+            'description': self.description,
+        }
+
+
+class CoolingOutletTemplate(ModularComponentTemplateModel):
+    """
+    A template for a CoolingOutlet to be created for a new Device.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingFeedTypeChoices,
+        blank=True,
+        null=True
+    )
+    connector_type = models.CharField(
+        verbose_name=_('connector type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True
+    )
+    diameter = models.CharField(
+        verbose_name=_('diameter'),
+        max_length=50,
+        choices=CoolingDiameterChoices,
+        blank=True,
+        null=True
+    )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
+    )
+    cooling_port = models.ForeignKey(
+        to='dcim.CoolingPortTemplate',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingoutlet_templates'
+    )
+
+    component_model = CoolingOutlet
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('cooling outlet template')
+        verbose_name_plural = _('cooling outlet templates')
+
+    def clean(self):
+        super().clean()
+
+        # Validate cooling port assignment
+        if self.cooling_port:
+            if self.device_type and self.cooling_port.device_type != self.device_type:
+                raise ValidationError(
+                    _("Parent cooling port ({cooling_port}) must belong to the same device type").format(
+                        cooling_port=self.cooling_port
+                    )
+                )
+            if self.module_type and self.cooling_port.module_type != self.module_type:
+                raise ValidationError(
+                    _("Parent cooling port ({cooling_port}) must belong to the same module type").format(
+                        cooling_port=self.cooling_port
+                    )
+                )
+
+    def instantiate(self, **kwargs):
+        if self.cooling_port:
+            cooling_port_name = self.cooling_port.resolve_name(kwargs.get('module'), kwargs.get('device'))
+            cooling_port = CoolingPort.objects.get(name=cooling_port_name, **kwargs)
+        else:
+            cooling_port = None
+        return self.component_model(
+            name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
+            label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
+            type=self.type,
+            connector_type=self.connector_type,
+            diameter=self.diameter,
+            color=self.color,
+            cooling_port=cooling_port,
+            **kwargs
+        )
+    instantiate.do_not_call_in_templates = True
+
+    def to_yaml(self):
+        return {
+            'name': self.name,
+            'type': self.type,
+            'connector_type': self.connector_type,
+            'diameter': self.diameter,
+            'color': self.color,
+            'cooling_port': self.cooling_port.name if self.cooling_port else None,
             'label': self.label,
             'description': self.description,
         }

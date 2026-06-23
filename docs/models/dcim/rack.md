@@ -51,5 +51,17 @@ The unique physical serial number assigned to this rack.
 
 A unique, locally-administered label used to identify hardware resources.
 
+### Cooling Capability
+
+The rack's coolant capability: air-only, liquid-capable, or liquid-required.
+
+### Has RDHx
+
+Indicates whether the rack is equipped with a rear-door heat exchanger (RDHx).
+
+### Cooling Capacity
+
+The rack's cooling capacity, expressed in kilowatts (kW).
+
 !!! note
     Some additional fields pertaining to physical attributes such as height and weight can also be defined on each rack, but should generally be defined instead on the [rack type](./racktype.md).

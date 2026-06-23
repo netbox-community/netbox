@@ -13,6 +13,8 @@ from .object_create import ComponentCreateForm
 __all__ = (
     'ConsolePortBulkCreateForm',
     'ConsoleServerPortBulkCreateForm',
+    'CoolingOutletBulkCreateForm',
+    'CoolingPortBulkCreateForm',
     'DeviceBayBulkCreateForm',
     # 'FrontPortBulkCreateForm',
     'InterfaceBulkCreateForm',
@@ -78,6 +80,29 @@ class PowerOutletBulkCreateForm(
     field_order = (
         'name', 'label', 'type', 'status', 'color', 'feed_leg', 'mark_connected',
         'description', 'tags',
+    )
+
+
+class CoolingPortBulkCreateForm(
+    form_from_model(
+        CoolingPort, ['type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity', 'mark_connected']
+    ),
+    DeviceBulkAddComponentForm
+):
+    model = CoolingPort
+    field_order = (
+        'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity', 'mark_connected',
+        'description', 'tags',
+    )
+
+
+class CoolingOutletBulkCreateForm(
+    form_from_model(CoolingOutlet, ['type', 'connector_type', 'diameter', 'color', 'mark_connected']),
+    DeviceBulkAddComponentForm
+):
+    model = CoolingOutlet
+    field_order = (
+        'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'mark_connected', 'description', 'tags',
     )
 
 

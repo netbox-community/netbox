@@ -109,6 +109,8 @@ DEVICES_MENU = Menu(
                 get_model_item('dcim', 'consoleserverport', _('Console Server Ports')),
                 get_model_item('dcim', 'powerport', _('Power Ports')),
                 get_model_item('dcim', 'poweroutlet', _('Power Outlets')),
+                get_model_item('dcim', 'coolingport', _('Cooling Ports')),
+                get_model_item('dcim', 'coolingoutlet', _('Cooling Outlets')),
                 get_model_item('dcim', 'modulebay', _('Module Bays')),
                 get_model_item('dcim', 'devicebay', _('Device Bays')),
                 get_model_item('dcim', 'inventoryitem', _('Inventory Items')),
@@ -335,6 +337,20 @@ POWER_MENU = Menu(
     ),
 )
 
+COOLING_MENU = Menu(
+    label=_('Cooling'),
+    icon_class='mdi mdi-snowflake',
+    groups=(
+        MenuGroup(
+            label=_('Cooling'),
+            items=(
+                get_model_item('dcim', 'coolingsource', _('Cooling Sources')),
+                get_model_item('dcim', 'coolingfeed', _('Cooling Feeds')),
+            ),
+        ),
+    ),
+)
+
 PROVISIONING_MENU = Menu(
     label=_('Provisioning'),
     icon_class='mdi mdi-file-document-multiple-outline',
@@ -482,6 +498,7 @@ def get_menus():
         VIRTUALIZATION_MENU,
         CIRCUITS_MENU,
         POWER_MENU,
+        COOLING_MENU,
         PROVISIONING_MENU,
         CUSTOMIZATION_MENU,
         OPERATIONS_MENU,

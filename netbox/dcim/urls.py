@@ -62,6 +62,12 @@ urlpatterns = [
     path('power-outlet-templates/', include(get_model_urls('dcim', 'poweroutlettemplate', detail=False))),
     path('power-outlet-templates/<int:pk>/', include(get_model_urls('dcim', 'poweroutlettemplate'))),
 
+    path('cooling-port-templates/', include(get_model_urls('dcim', 'coolingporttemplate', detail=False))),
+    path('cooling-port-templates/<int:pk>/', include(get_model_urls('dcim', 'coolingporttemplate'))),
+
+    path('cooling-outlet-templates/', include(get_model_urls('dcim', 'coolingoutlettemplate', detail=False))),
+    path('cooling-outlet-templates/<int:pk>/', include(get_model_urls('dcim', 'coolingoutlettemplate'))),
+
     path('interface-templates/', include(get_model_urls('dcim', 'interfacetemplate', detail=False))),
     path('interface-templates/<int:pk>/', include(get_model_urls('dcim', 'interfacetemplate'))),
 
@@ -123,6 +129,22 @@ urlpatterns = [
         name='device_bulk_add_poweroutlet'
     ),
 
+    path('cooling-ports/', include(get_model_urls('dcim', 'coolingport', detail=False))),
+    path('cooling-ports/<int:pk>/', include(get_model_urls('dcim', 'coolingport'))),
+    path(
+        'devices/cooling-ports/add/',
+        views.DeviceBulkAddCoolingPortView.as_view(),
+        name='device_bulk_add_coolingport'
+    ),
+
+    path('cooling-outlets/', include(get_model_urls('dcim', 'coolingoutlet', detail=False))),
+    path('cooling-outlets/<int:pk>/', include(get_model_urls('dcim', 'coolingoutlet'))),
+    path(
+        'devices/cooling-outlets/add/',
+        views.DeviceBulkAddCoolingOutletView.as_view(),
+        name='device_bulk_add_coolingoutlet'
+    ),
+
     path('interfaces/', include(get_model_urls('dcim', 'interface', detail=False))),
     path('interfaces/<int:pk>/', include(get_model_urls('dcim', 'interface'))),
     path('devices/interfaces/add/', views.DeviceBulkAddInterfaceView.as_view(), name='device_bulk_add_interface'),
@@ -177,6 +199,12 @@ urlpatterns = [
 
     path('power-feeds/', include(get_model_urls('dcim', 'powerfeed', detail=False))),
     path('power-feeds/<int:pk>/', include(get_model_urls('dcim', 'powerfeed'))),
+
+    path('cooling-sources/', include(get_model_urls('dcim', 'coolingsource', detail=False))),
+    path('cooling-sources/<int:pk>/', include(get_model_urls('dcim', 'coolingsource'))),
+
+    path('cooling-feeds/', include(get_model_urls('dcim', 'coolingfeed', detail=False))),
+    path('cooling-feeds/<int:pk>/', include(get_model_urls('dcim', 'coolingfeed'))),
 
     path('mac-addresses/', include(get_model_urls('dcim', 'macaddress', detail=False))),
     path('mac-addresses/<int:pk>/', include(get_model_urls('dcim', 'macaddress'))),

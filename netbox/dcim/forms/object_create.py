@@ -21,6 +21,10 @@ __all__ = (
     'ConsolePortTemplateCreateForm',
     'ConsoleServerPortCreateForm',
     'ConsoleServerPortTemplateCreateForm',
+    'CoolingOutletCreateForm',
+    'CoolingOutletTemplateCreateForm',
+    'CoolingPortCreateForm',
+    'CoolingPortTemplateCreateForm',
     'DeviceBayCreateForm',
     'DeviceBayTemplateCreateForm',
     'FrontPortCreateForm',
@@ -106,6 +110,18 @@ class PowerPortTemplateCreateForm(ComponentCreateForm, model_forms.PowerPortTemp
 class PowerOutletTemplateCreateForm(ComponentCreateForm, model_forms.PowerOutletTemplateForm):
 
     class Meta(model_forms.PowerOutletTemplateForm.Meta):
+        exclude = ('name', 'label')
+
+
+class CoolingPortTemplateCreateForm(ComponentCreateForm, model_forms.CoolingPortTemplateForm):
+
+    class Meta(model_forms.CoolingPortTemplateForm.Meta):
+        exclude = ('name', 'label')
+
+
+class CoolingOutletTemplateCreateForm(ComponentCreateForm, model_forms.CoolingOutletTemplateForm):
+
+    class Meta(model_forms.CoolingOutletTemplateForm.Meta):
         exclude = ('name', 'label')
 
 
@@ -203,6 +219,18 @@ class PowerPortCreateForm(ComponentCreateForm, model_forms.PowerPortForm):
 class PowerOutletCreateForm(ComponentCreateForm, model_forms.PowerOutletForm):
 
     class Meta(model_forms.PowerOutletForm.Meta):
+        exclude = ('name', 'label')
+
+
+class CoolingPortCreateForm(ComponentCreateForm, model_forms.CoolingPortForm):
+
+    class Meta(model_forms.CoolingPortForm.Meta):
+        exclude = ('name', 'label')
+
+
+class CoolingOutletCreateForm(ComponentCreateForm, model_forms.CoolingOutletForm):
+
+    class Meta(model_forms.CoolingOutletForm.Meta):
         exclude = ('name', 'label')
 
 

@@ -30,6 +30,8 @@ __all__ = (
     'CabledObjectModel',
     'ConsolePort',
     'ConsoleServerPort',
+    'CoolingOutlet',
+    'CoolingPort',
     'DeviceBay',
     'FrontPort',
     'Interface',
@@ -682,6 +684,128 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
     def get_status_color(self):
         return PowerOutletStatusChoices.colors.get(self.status)
+
+
+#
+# Cooling components
+#
+
+class CoolingPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+    """
+    A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake).
+    CoolingPorts connect to CoolingOutlets.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingFeedTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Supply (cold) or return (warm)')
+    )
+    connector_type = models.CharField(
+        verbose_name=_('connector type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Physical connector type')
+    )
+    diameter = models.CharField(
+        verbose_name=_('diameter'),
+        max_length=50,
+        choices=CoolingDiameterChoices,
+        blank=True,
+        null=True,
+        help_text=_('Nominal connector diameter')
+    )
+    maximum_flow = models.DecimalField(
+        verbose_name=_('maximum flow'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=_('Maximum coolant flow rate (L/min)')
+    )
+    heat_capacity = models.DecimalField(
+        verbose_name=_('heat capacity'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+        help_text=_('Heat removal capacity (kW)')
+    )
+
+    clone_fields = ('device', 'module', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity')
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('cooling port')
+        verbose_name_plural = _('cooling ports')
+
+    def get_type_color(self):
+        return CoolingFeedTypeChoices.colors.get(self.type)
+
+
+class CoolingOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+    """
+    A coolant outlet within a Device (e.g. a CDU or manifold outlet) which feeds a CoolingPort.
+    """
+    type = models.CharField(
+        verbose_name=_('type'),
+        max_length=50,
+        choices=CoolingFeedTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Supply (cold) or return (warm)')
+    )
+    connector_type = models.CharField(
+        verbose_name=_('connector type'),
+        max_length=50,
+        choices=CoolingConnectorTypeChoices,
+        blank=True,
+        null=True,
+        help_text=_('Physical connector type')
+    )
+    diameter = models.CharField(
+        verbose_name=_('diameter'),
+        max_length=50,
+        choices=CoolingDiameterChoices,
+        blank=True,
+        null=True,
+        help_text=_('Nominal connector diameter')
+    )
+    cooling_port = models.ForeignKey(
+        to='dcim.CoolingPort',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='coolingoutlets'
+    )
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
+    )
+
+    clone_fields = ('device', 'module', 'type', 'connector_type', 'diameter', 'cooling_port')
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('cooling outlet')
+        verbose_name_plural = _('cooling outlets')
+
+    def clean(self):
+        super().clean()
+
+        # Validate cooling port assignment
+        if self.cooling_port and self.cooling_port.device != self.device:
+            raise ValidationError(
+                _("Parent cooling port ({cooling_port}) must belong to the same device").format(
+                    cooling_port=self.cooling_port)
+            )
+
+    def get_type_color(self):
+        return CoolingFeedTypeChoices.colors.get(self.type)
 
 
 #

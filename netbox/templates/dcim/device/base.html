@@ -33,6 +33,12 @@
                 {% if perms.dcim.add_poweroutlet %}
                     <li><a class="dropdown-item" href="{% url 'dcim:poweroutlet_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}">{% trans "Power Outlets" %}</a></li>
                 {% endif %}
+                {% if perms.dcim.add_coolingport %}
+                    <li><a class="dropdown-item" href="{% url 'dcim:coolingport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_coolingports' pk=object.pk %}">{% trans "Cooling Ports" %}</a></li>
+                {% endif %}
+                {% if perms.dcim.add_coolingoutlet %}
+                    <li><a class="dropdown-item" href="{% url 'dcim:coolingoutlet_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_coolingoutlets' pk=object.pk %}">{% trans "Cooling Outlets" %}</a></li>
+                {% endif %}
                 {% if perms.dcim.add_interface %}
                     <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">{% trans "Interfaces" %}</a></li>
                 {% endif %}

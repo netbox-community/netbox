@@ -30,6 +30,8 @@ router.register('console-port-templates', views.ConsolePortTemplateViewSet)
 router.register('console-server-port-templates', views.ConsoleServerPortTemplateViewSet)
 router.register('power-port-templates', views.PowerPortTemplateViewSet)
 router.register('power-outlet-templates', views.PowerOutletTemplateViewSet)
+router.register('cooling-port-templates', views.CoolingPortTemplateViewSet)
+router.register('cooling-outlet-templates', views.CoolingOutletTemplateViewSet)
 router.register('interface-templates', views.InterfaceTemplateViewSet)
 router.register('front-port-templates', views.FrontPortTemplateViewSet)
 router.register('rear-port-templates', views.RearPortTemplateViewSet)
@@ -49,6 +51,8 @@ router.register('console-ports', views.ConsolePortViewSet)
 router.register('console-server-ports', views.ConsoleServerPortViewSet)
 router.register('power-ports', views.PowerPortViewSet)
 router.register('power-outlets', views.PowerOutletViewSet)
+router.register('cooling-ports', views.CoolingPortViewSet)
+router.register('cooling-outlets', views.CoolingOutletViewSet)
 router.register('interfaces', views.InterfaceViewSet)
 router.register('front-ports', views.FrontPortViewSet)
 router.register('rear-ports', views.RearPortViewSet)
@@ -73,6 +77,10 @@ router.register('virtual-chassis', views.VirtualChassisViewSet)
 # Power
 router.register('power-panels', views.PowerPanelViewSet)
 router.register('power-feeds', views.PowerFeedViewSet)
+
+# Cooling
+router.register('cooling-sources', views.CoolingSourceViewSet)
+router.register('cooling-feeds', views.CoolingFeedViewSet)
 
 # Miscellaneous
 router.register('connected-device', views.ConnectedDeviceViewSet, basename='connected-device')

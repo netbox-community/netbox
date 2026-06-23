@@ -79,6 +79,9 @@ class RackPanel(panels.ObjectAttributesPanel):
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
     airflow = attrs.ChoiceAttr('airflow')
+    cooling_capability = attrs.ChoiceAttr('cooling_capability')
+    has_rdhx = attrs.BooleanAttr('has_rdhx', label=_('Has RDHx'))
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
     space_utilization = attrs.UtilizationAttr('get_utilization')
     power_utilization = attrs.UtilizationAttr('get_power_utilization')
 
@@ -119,6 +122,7 @@ class DevicePanel(panels.ObjectAttributesPanel):
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
     description = attrs.TextAttr('description')
     airflow = attrs.ChoiceAttr('airflow')
+    cooling_method = attrs.ChoiceAttr('cooling_method')
     serial = attrs.TextAttr('serial', label=_('Serial number'), style='font-monospace', copy_button=True)
     asset_tag = attrs.TextAttr('asset_tag', style='font-monospace', copy_button=True)
     config_template = attrs.RelatedObjectAttr('config_template', linkify=True)
@@ -182,6 +186,7 @@ class DeviceTypePanel(panels.ObjectAttributesPanel):
     weight = attrs.WeightAttr('weight')
     subdevice_role = attrs.ChoiceAttr('subdevice_role', label=_('Parent/child'))
     airflow = attrs.ChoiceAttr('airflow')
+    cooling_method = attrs.ChoiceAttr('cooling_method')
     end_of_life = attrs.DateTimeAttr('end_of_life', spec='date')
     front_image = attrs.ImageAttr('front_image')
     rear_image = attrs.ImageAttr('rear_image')
@@ -271,6 +276,32 @@ class PowerOutletPanel(panels.ObjectAttributesPanel):
     color = attrs.ColorAttr('color')
     power_port = attrs.RelatedObjectAttr('power_port', linkify=True)
     feed_leg = attrs.ChoiceAttr('feed_leg')
+
+
+class CoolingPortPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    connector_type = attrs.ChoiceAttr('connector_type')
+    diameter = attrs.ChoiceAttr('diameter')
+    description = attrs.TextAttr('description')
+    maximum_flow = attrs.TextAttr('maximum_flow', format_string=_('{} L/min'))
+    heat_capacity = attrs.TextAttr('heat_capacity', format_string=_('{} kW'))
+
+
+class CoolingOutletPanel(panels.ObjectAttributesPanel):
+    device = attrs.RelatedObjectAttr('device', linkify=True)
+    module = attrs.RelatedObjectAttr('module', linkify=True)
+    name = attrs.TextAttr('name')
+    label = attrs.TextAttr('label')
+    type = attrs.ChoiceAttr('type')
+    connector_type = attrs.ChoiceAttr('connector_type')
+    diameter = attrs.ChoiceAttr('diameter')
+    description = attrs.TextAttr('description')
+    color = attrs.ColorAttr('color')
+    cooling_port = attrs.RelatedObjectAttr('cooling_port', linkify=True)
 
 
 class FrontPortPanel(panels.ObjectAttributesPanel):
@@ -397,6 +428,42 @@ class PowerFeedElectricalPanel(panels.ObjectAttributesPanel):
     amperage = attrs.TextAttr('amperage', format_string='{}A')
     phase = attrs.ChoiceAttr('phase')
     max_utilization = attrs.TextAttr('max_utilization', format_string='{}%')
+
+
+class CoolingSourcePanel(panels.ObjectAttributesPanel):
+    site = attrs.RelatedObjectAttr('site', linkify=True)
+    location = attrs.NestedObjectAttr('location', linkify=True)
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
+    supply_temperature = attrs.TextAttr('supply_temperature', format_string=_('{} °C'))
+    return_temperature = attrs.TextAttr('return_temperature', format_string=_('{} °C'))
+    description = attrs.TextAttr('description')
+
+
+class CoolingFeedPanel(panels.ObjectAttributesPanel):
+    cooling_source = attrs.RelatedObjectAttr('cooling_source', linkify=True)
+    rack = attrs.RelatedObjectAttr('rack', linkify=True)
+    type = attrs.ChoiceAttr('type')
+    status = attrs.ChoiceAttr('status')
+    fluid_type = attrs.ChoiceAttr('fluid_type')
+    description = attrs.TextAttr('description')
+    tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
+    connected_device = attrs.TemplatedAttr(
+        'connected_endpoints',
+        label=_('Connected device'),
+        template_name='dcim/powerfeed/attrs/connected_device.html',
+    )
+
+
+class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):
+    title = _('Cooling Characteristics')
+
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
+    flow_rate = attrs.TextAttr('flow_rate', format_string=_('{} L/min'))
+    pressure = attrs.TextAttr('pressure', format_string=_('{} kPa'))
+    supply_temperature = attrs.TextAttr('supply_temperature', format_string=_('{} °C'))
+    return_temperature = attrs.TextAttr('return_temperature', format_string=_('{} °C'))
 
 
 class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):
