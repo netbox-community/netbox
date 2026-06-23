@@ -361,12 +361,17 @@ class RackTypeFilterSet(PrimaryModelFilterSet):
         choices=RackWidthChoices,
         distinct=False,
     )
+    cooling_capability = django_filters.MultipleChoiceFilter(
+        choices=RackCoolingCapabilityChoices,
+        distinct=False,
+    )
 
     class Meta:
         model = RackType
         fields = (
             'id', 'model', 'slug', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_height',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'cooling_capacity',
+            'description',
 
             # Counters
             'rack_count',

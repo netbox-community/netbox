@@ -344,6 +344,11 @@ class RackBaseFilterForm(PrimaryModelFilterSetForm):
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
+    cooling_capability = forms.MultipleChoiceField(
+        label=_('Cooling capability'),
+        choices=RackCoolingCapabilityChoices,
+        required=False
+    )
 
 
 class RackTypeFilterForm(RackBaseFilterForm):
@@ -353,6 +358,7 @@ class RackTypeFilterForm(RackBaseFilterForm):
         FieldSet('manufacturer_id', 'form_factor', 'width', 'u_height', 'rack_count', name=_('Rack Type')),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
         FieldSet('weight', 'max_weight', 'weight_unit', name=_('Weight')),
+        FieldSet('cooling_capability', name=_('Cooling')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
     selector_fields = ('filter_id', 'q', 'manufacturer_id')
@@ -444,11 +450,6 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, RackBaseFilterFo
     airflow = forms.MultipleChoiceField(
         label=_('Airflow'),
         choices=add_blank_choice(RackAirflowChoices),
-        required=False
-    )
-    cooling_capability = forms.MultipleChoiceField(
-        label=_('Cooling capability'),
-        choices=RackCoolingCapabilityChoices,
         required=False
     )
     has_rdhx = forms.NullBooleanField(

@@ -308,6 +308,16 @@ class RackTypeBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         initial=''
     )
+    cooling_capability = forms.ChoiceField(
+        label=_('Cooling capability'),
+        choices=add_blank_choice(RackCoolingCapabilityChoices),
+        required=False
+    )
+    cooling_capacity = forms.DecimalField(
+        label=_('Cooling capacity'),
+        min_value=0,
+        required=False
+    )
 
     model = RackType
     fieldsets = (
@@ -319,10 +329,11 @@ class RackTypeBulkEditForm(PrimaryModelBulkEditForm):
             name=_('Dimensions')
         ),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
     )
     nullable_fields = (
         'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'weight',
-        'max_weight', 'weight_unit', 'description', 'comments',
+        'max_weight', 'weight_unit', 'cooling_capability', 'cooling_capacity', 'description', 'comments',
     )
 
 

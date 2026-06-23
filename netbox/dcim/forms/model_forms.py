@@ -315,6 +315,7 @@ class RackTypeForm(PrimaryModelForm):
             'mounting_depth', name=_('Dimensions')
         ),
         FieldSet('starting_unit', 'desc_units', name=_('Numbering')),
+        FieldSet('cooling_capability', 'cooling_capacity', name=_('Cooling')),
     )
 
     class Meta:
@@ -322,7 +323,7 @@ class RackTypeForm(PrimaryModelForm):
         fields = [
             'manufacturer', 'model', 'slug', 'form_factor', 'width', 'u_height', 'starting_unit', 'desc_units',
             'outer_width', 'outer_height', 'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight',
-            'weight_unit', 'description', 'owner', 'comments', 'tags',
+            'weight_unit', 'cooling_capability', 'cooling_capacity', 'description', 'owner', 'comments', 'tags',
         ]
 
 

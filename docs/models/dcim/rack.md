@@ -53,15 +53,15 @@ A unique, locally-administered label used to identify hardware resources.
 
 ### Cooling Capability
 
-The rack's coolant capability: air-only, liquid-capable, or liquid-required.
+The rack's coolant capability: air-only, liquid-capable, or liquid-required. When the rack is assigned a [rack type](./racktype.md), this value is inherited from the rack type.
 
 ### Has RDHx
 
-Indicates whether the rack is equipped with a rear-door heat exchanger (RDHx).
+Indicates whether the rack is equipped with a rear-door heat exchanger (RDHx). This is a per-rack attribute and is not derived from the rack type.
 
 ### Cooling Capacity
 
-The rack's cooling capacity, expressed in kilowatts (kW).
+The rack's cooling capacity, expressed in kilowatts (kW). When the rack is assigned a [rack type](./racktype.md), this value is inherited from the rack type.
 
 !!! note
     Some additional fields pertaining to physical attributes such as height and weight can also be defined on each rack, but should generally be defined instead on the [rack type](./racktype.md).

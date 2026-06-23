@@ -679,6 +679,8 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'manufacturer', 'model', 'rack_count', 'slug', 'url']
     bulk_update_data = {
         'description': 'new description',
+        'cooling_capability': RackCoolingCapabilityChoices.LIQUID_CAPABLE,
+        'cooling_capacity': 50,
     }
     user_permissions = ('dcim.view_manufacturer',)
 
@@ -718,12 +720,15 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
                 'model': 'Rack Type 4',
                 'slug': 'rack-type-4',
                 'form_factor': RackFormFactorChoices.TYPE_CABINET,
+                'cooling_capability': RackCoolingCapabilityChoices.LIQUID_REQUIRED,
+                'cooling_capacity': 80,
             },
             {
                 'manufacturer': manufacturers[1].pk,
                 'model': 'Rack Type 5',
                 'slug': 'rack-type-5',
                 'form_factor': RackFormFactorChoices.TYPE_CABINET,
+                'cooling_capability': RackCoolingCapabilityChoices.LIQUID_CAPABLE,
             },
             {
                 'manufacturer': manufacturers[1].pk,

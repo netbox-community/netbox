@@ -54,6 +54,14 @@ The numeric weight of the rack, including a unit designation (e.g. 10 kilograms 
 
 The maximum total weight capacity for all installed devices, inclusive of the rack itself.
 
+### Cooling Capability
+
+The rack design's coolant capability: air-only, liquid-capable, or liquid-required. Racks of this type inherit this value.
+
+### Cooling Capacity
+
+The rack design's cooling capacity, expressed in kilowatts (kW). Racks of this type inherit this value.
+
 ### Descending Units
 
 If selected, the rack's elevation will display unit 1 at the top of the rack. (Most racks use ascending numbering, with unit 1 assigned to the bottommost position.)

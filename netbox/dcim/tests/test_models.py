@@ -242,6 +242,8 @@ class RackTypeTestCase(TestCase):
             weight_unit=WeightUnitChoices.UNIT_POUND,
             max_weight=7777,
             mounting_depth=8,
+            cooling_capability=RackCoolingCapabilityChoices.LIQUID_REQUIRED,
+            cooling_capacity=80,
         )
 
     def test_rack_creation(self):
@@ -261,7 +263,8 @@ class RackTypeTestCase(TestCase):
             facility_id='A101',
             site=sites[0],
             location=locations[0],
-            rack_type=rack_type
+            rack_type=rack_type,
+            has_rdhx=True,
         )
         self.assertEqual(rack.width, rack_type.width)
         self.assertEqual(rack.u_height, rack_type.u_height)
@@ -274,6 +277,10 @@ class RackTypeTestCase(TestCase):
         self.assertEqual(rack.weight_unit, rack_type.weight_unit)
         self.assertEqual(rack.max_weight, rack_type.max_weight)
         self.assertEqual(rack.mounting_depth, rack_type.mounting_depth)
+        # Cooling capability/capacity are inherited from the rack type; has_rdhx is rack-specific
+        self.assertEqual(rack.cooling_capability, rack_type.cooling_capability)
+        self.assertEqual(rack.cooling_capacity, rack_type.cooling_capacity)
+        self.assertTrue(rack.has_rdhx)
 
 
 class RackTestCase(TestCase):

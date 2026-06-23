@@ -109,6 +109,8 @@ class RackTypePanel(panels.ObjectAttributesPanel):
     manufacturer = attrs.RelatedObjectAttr('manufacturer', linkify=True)
     model = attrs.TextAttr('model')
     description = attrs.TextAttr('description')
+    cooling_capability = attrs.ChoiceAttr('cooling_capability')
+    cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
 
 
 class DevicePanel(panels.ObjectAttributesPanel):
