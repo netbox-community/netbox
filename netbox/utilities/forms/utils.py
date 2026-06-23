@@ -303,7 +303,7 @@ def __getattr__(name):
         warnings.warn(
             "expand_ipaddress_pattern() has been renamed to expand_ipnetwork_pattern(). "
             "expand_ipaddress_pattern() will be removed in NetBox v4.7.0.",
-            DeprecationWarning,
+            FutureWarning,
         )
         return expand_ipnetwork_pattern
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

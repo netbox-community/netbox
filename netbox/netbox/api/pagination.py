@@ -230,7 +230,7 @@ def __getattr__(name):
         warnings.warn(
             "OptionalLimitOffsetPagination has been renamed to NetBoxPagination. "
             "OptionalLimitOffsetPagination will be removed in NetBox v4.7.0.",
-            DeprecationWarning,
+            FutureWarning,
         )
         return NetBoxPagination
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

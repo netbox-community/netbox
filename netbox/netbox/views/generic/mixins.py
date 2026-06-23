@@ -45,7 +45,7 @@ class ActionsMixin:
         warnings.warn(
             f"{self.__class__.__name__}.actions is defined as a dictionary, which is deprecated and will be removed "
             "in NetBox v4.7. Define actions as a list of ObjectAction subclasses instead.",
-            DeprecationWarning,
+            FutureWarning,
             stacklevel=2,
         )
 

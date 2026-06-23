@@ -15,7 +15,7 @@ class Registry(dict):
             warnings.warn(
                 'The "models" registry key is deprecated and will be removed in NetBox v4.7. Registered models can be '
                 'obtained by calling ObjectType.objects.public().',
-                DeprecationWarning,
+                FutureWarning,
                 stacklevel=2,
             )
         try:
