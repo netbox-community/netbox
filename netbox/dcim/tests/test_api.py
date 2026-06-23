@@ -3880,3 +3880,25 @@ class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
                 'mac_address': '00:00:00:00:00:06',
             },
         ]
+
+    def test_is_primary_field(self):
+        """
+        The read-only is_primary field should reflect whether the MAC address is the primary on its interface.
+        """
+        self.add_permissions('dcim.view_macaddress')
+
+        primary_mac = MACAddress.objects.get(mac_address='00:00:00:00:00:01')
+        non_primary_mac = MACAddress.objects.get(mac_address='00:00:00:00:00:02')
+
+        # Designate one MAC address as the primary on its interface
+        interface = primary_mac.assigned_object
+        interface.primary_mac_address = primary_mac
+        interface.save()
+
+        url = reverse('dcim-api:macaddress-detail', kwargs={'pk': primary_mac.pk})
+        response = self.client.get(url, **self.header)
+        self.assertTrue(response.data['is_primary'])
+
+        url = reverse('dcim-api:macaddress-detail', kwargs={'pk': non_primary_mac.pk})
+        response = self.client.get(url, **self.header)
+        self.assertFalse(response.data['is_primary'])
