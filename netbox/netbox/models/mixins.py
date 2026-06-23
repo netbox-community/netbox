@@ -3,9 +3,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import *
-from utilities.conversion import to_grams, to_meters
+from utilities.conversion import to_grams, to_meters, to_millimeters
 
 __all__ = (
+    'DiameterMixin',
     'DistanceMixin',
     'OwnerMixin',
     'WeightMixin',
@@ -73,6 +74,58 @@ class WeightMixin(models.Model):
         # Validate weight and weight_unit
         if self.weight and not self.weight_unit:
             raise ValidationError(_("Must specify a unit when setting a weight"))
+
+
+class DiameterMixin(models.Model):
+    diameter = models.DecimalField(
+        verbose_name=_('diameter'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
+    diameter_unit = models.CharField(
+        verbose_name=_('diameter unit'),
+        max_length=50,
+        choices=DiameterUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized diameter (in millimeters) for database ordering
+    _abs_diameter = models.DecimalField(
+        max_digits=13,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def abs_diameter(self):
+        # Public alias for _abs_diameter; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_diameter
+
+    def save(self, *args, **kwargs):
+        # Store the given diameter (if any) in millimeters for use in database ordering
+        if self.diameter is not None and self.diameter_unit:
+            self._abs_diameter = to_millimeters(self.diameter, self.diameter_unit)
+        else:
+            self._abs_diameter = None
+
+        # Clear diameter_unit if no diameter is defined
+        if self.diameter is None:
+            self.diameter_unit = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Validate diameter and diameter_unit
+        if self.diameter and not self.diameter_unit:
+            raise ValidationError(_("Must specify a unit when setting a diameter"))
 
 
 class DistanceMixin(models.Model):

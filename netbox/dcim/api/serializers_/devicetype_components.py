@@ -21,6 +21,7 @@ from dcim.models import (
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
+from netbox.choices import DiameterUnitChoices
 from wireless.choices import *
 
 from .base import PortSerializer
@@ -199,8 +200,8 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True
     )
-    diameter = ChoiceField(
-        choices=CoolingDiameterChoices,
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -210,7 +211,7 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
         model = CoolingPortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'maximum_flow', 'heat_capacity', 'description', 'created', 'last_updated',
+            'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -240,8 +241,8 @@ class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True
     )
-    diameter = ChoiceField(
-        choices=CoolingDiameterChoices,
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -256,7 +257,7 @@ class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
         model = CoolingOutletTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'color', 'cooling_port', 'description', 'created', 'last_updated',
+            'diameter', 'diameter_unit', 'color', 'cooling_port', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

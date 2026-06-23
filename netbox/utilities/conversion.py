@@ -3,11 +3,12 @@ from decimal import Decimal, InvalidOperation
 from django.utils.translation import gettext as _
 
 from dcim.choices import CableLengthUnitChoices
-from netbox.choices import WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, WeightUnitChoices
 
 __all__ = (
     'to_grams',
     'to_meters',
+    'to_millimeters',
 )
 
 
@@ -64,5 +65,30 @@ def to_meters(length, unit) -> Decimal:
         _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
             unit=unit,
             valid_units=', '.join(CableLengthUnitChoices.values())
+        )
+    )
+
+
+def to_millimeters(diameter, unit) -> Decimal:
+    """
+    Convert the given diameter to millimeters, returning a Decimal value.
+    """
+    try:
+        diameter = Decimal(diameter)
+    except InvalidOperation:
+        raise TypeError(_("Invalid value '{diameter}' for diameter (must be a number)").format(diameter=diameter))
+    if diameter < 0:
+        raise ValueError(_("Diameter must be a positive number"))
+
+    if unit == DiameterUnitChoices.UNIT_MILLIMETER:
+        return round(Decimal(diameter), 4)
+    if unit == DiameterUnitChoices.UNIT_CENTIMETER:
+        return round(Decimal(diameter * 10), 4)
+    if unit == DiameterUnitChoices.UNIT_INCH:
+        return round(diameter * Decimal(25.4), 4)
+    raise ValueError(
+        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+            unit=unit,
+            valid_units=', '.join(DiameterUnitChoices.values())
         )
     )

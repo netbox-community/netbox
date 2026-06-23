@@ -1005,18 +1005,18 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Physical connector type')
     )
-    diameter = CSVChoiceField(
-        label=_('Diameter'),
-        choices=CoolingDiameterChoices,
+    diameter_unit = CSVChoiceField(
+        label=_('Diameter unit'),
+        choices=DiameterUnitChoices,
         required=False,
-        help_text=_('Nominal connector diameter')
+        help_text=_('Diameter unit')
     )
 
     class Meta:
         model = CoolingPort
         fields = (
-            'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',
-            'mark_connected', 'description', 'owner', 'tags',
+            'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'heat_capacity', 'mark_connected', 'description', 'owner', 'tags',
         )
 
 
@@ -1038,11 +1038,11 @@ class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Physical connector type')
     )
-    diameter = CSVChoiceField(
-        label=_('Diameter'),
-        choices=CoolingDiameterChoices,
+    diameter_unit = CSVChoiceField(
+        label=_('Diameter unit'),
+        choices=DiameterUnitChoices,
         required=False,
-        help_text=_('Nominal connector diameter')
+        help_text=_('Diameter unit')
     )
     cooling_port = CSVModelChoiceField(
         label=_('Cooling port'),
@@ -1055,8 +1055,8 @@ class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = CoolingOutlet
         fields = (
-            'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'mark_connected', 'cooling_port',
-            'description', 'owner', 'tags',
+            'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'color', 'mark_connected',
+            'cooling_port', 'description', 'owner', 'tags',
         )
 
     def __init__(self, *args, **kwargs):

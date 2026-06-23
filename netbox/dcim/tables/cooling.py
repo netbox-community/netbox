@@ -9,7 +9,12 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 from .devices import CableTerminationTable, DeviceComponentTable, ModularDeviceComponentTable, PathEndpointTable
 from .devicetypes import ComponentTemplateTable
-from .template_code import COOLINGOUTLET_BUTTONS, COOLINGPORT_BUTTONS, MODULAR_COMPONENT_TEMPLATE_BUTTONS
+from .template_code import (
+    COOLINGOUTLET_BUTTONS,
+    COOLINGPORT_BUTTONS,
+    DIAMETER,
+    MODULAR_COMPONENT_TEMPLATE_BUTTONS,
+)
 
 __all__ = (
     'CoolingFeedTable',
@@ -164,8 +169,10 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
     connector_type = columns.ChoiceFieldColumn(
         verbose_name=_('Connector Type'),
     )
-    diameter = columns.ChoiceFieldColumn(
+    diameter = columns.TemplateColumn(
         verbose_name=_('Diameter'),
+        template_code=DIAMETER,
+        order_by=('_abs_diameter', 'diameter_unit')
     )
     maximum_flow = tables.Column(
         verbose_name=_('Maximum flow (L/min)')
@@ -208,8 +215,10 @@ class CoolingOutletTable(ModularDeviceComponentTable, PathEndpointTable):
     connector_type = columns.ChoiceFieldColumn(
         verbose_name=_('Connector Type'),
     )
-    diameter = columns.ChoiceFieldColumn(
+    diameter = columns.TemplateColumn(
         verbose_name=_('Diameter'),
+        template_code=DIAMETER,
+        order_by=('_abs_diameter', 'diameter_unit')
     )
     cooling_port = tables.Column(
         verbose_name=_('Cooling Port'),
@@ -238,6 +247,11 @@ class CoolingOutletTable(ModularDeviceComponentTable, PathEndpointTable):
 #
 
 class CoolingPortTemplateTable(ComponentTemplateTable):
+    diameter = columns.TemplateColumn(
+        verbose_name=_('Diameter'),
+        template_code=DIAMETER,
+        order_by=('_abs_diameter', 'diameter_unit')
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
@@ -257,6 +271,11 @@ class CoolingPortTemplateTable(ComponentTemplateTable):
 #
 
 class CoolingOutletTemplateTable(ComponentTemplateTable):
+    diameter = columns.TemplateColumn(
+        verbose_name=_('Diameter'),
+        template_code=DIAMETER,
+        order_by=('_abs_diameter', 'diameter_unit')
+    )
     color = columns.ColorColumn(
         verbose_name=_('Color'),
     )

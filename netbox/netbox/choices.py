@@ -7,6 +7,7 @@ __all__ = (
     'ButtonColorChoices',
     'CSVDelimiterChoices',
     'ColorChoices',
+    'DiameterUnitChoices',
     'DistanceUnitChoices',
     'ImportFormatChoices',
     'ImportMethodChoices',
@@ -196,4 +197,20 @@ class WeightUnitChoices(ChoiceSet):
         Choice(UNIT_GRAM, _('Grams')),
         Choice(UNIT_POUND, _('Pounds')),
         Choice(UNIT_OUNCE, _('Ounces')),
+    )
+
+
+class DiameterUnitChoices(ChoiceSet):
+
+    # Metric
+    UNIT_MILLIMETER = 'mm'
+    UNIT_CENTIMETER = 'cm'
+
+    # Imperial
+    UNIT_INCH = 'in'
+
+    CHOICES = (
+        (UNIT_MILLIMETER, _('Millimeters')),
+        (UNIT_CENTIMETER, _('Centimeters')),
+        (UNIT_INCH, _('Inches')),
     )

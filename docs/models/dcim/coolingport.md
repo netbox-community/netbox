@@ -33,7 +33,7 @@ The physical coolant connector type (e.g. UQD, UQDB, QDC, camlock, or threaded N
 
 ### Diameter
 
-The nominal connector diameter.
+The connector diameter, expressed as a numeric value with a selectable unit (millimeters, centimeters, or inches).
 
 ### Maximum Flow
 

@@ -27,6 +27,7 @@ from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import NetBoxModelSerializer
+from netbox.choices import DiameterUnitChoices
 from users.api.serializers_.mixins import OwnerMixin
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.serializers_.nested import NestedWirelessLinkSerializer
@@ -228,8 +229,8 @@ class CoolingPortSerializer(
         required=False,
         allow_null=True
     )
-    diameter = ChoiceField(
-        choices=CoolingDiameterChoices,
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -239,7 +240,8 @@ class CoolingPortSerializer(
         model = CoolingPort
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'maximum_flow', 'heat_capacity', 'description', 'mark_connected', 'cable', 'cable_end',
+            'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity', 'description', 'mark_connected', 'cable',
+            'cable_end',
             'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
             'connected_endpoints_reachable', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
@@ -271,8 +273,8 @@ class CoolingOutletSerializer(
         required=False,
         allow_null=True
     )
-    diameter = ChoiceField(
-        choices=CoolingDiameterChoices,
+    diameter_unit = ChoiceField(
+        choices=DiameterUnitChoices,
         allow_blank=True,
         required=False,
         allow_null=True
@@ -287,7 +289,8 @@ class CoolingOutletSerializer(
         model = CoolingOutlet
         fields = [
             'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'color', 'cooling_port', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers',
+            'diameter', 'diameter_unit', 'color', 'cooling_port', 'description', 'mark_connected', 'cable', 'cable_end',
+            'link_peers',
             'link_peers_type', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
             'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]

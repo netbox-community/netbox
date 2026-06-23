@@ -1028,7 +1028,10 @@ class CoolingOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMi
     connector_type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
-    diameter: BaseFilterLookup[Annotated['CoolingDiameterEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+    diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     cooling_port: Annotated['CoolingPortFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -1048,7 +1051,10 @@ class CoolingOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLog
     connector_type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
-    diameter: BaseFilterLookup[Annotated['CoolingDiameterEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+    diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     cooling_port: Annotated['CoolingPortTemplateFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
@@ -1065,7 +1071,10 @@ class CoolingPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixi
     connector_type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
-    diameter: BaseFilterLookup[Annotated['CoolingDiameterEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+    diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     maximum_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
@@ -1084,7 +1093,10 @@ class CoolingPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLogge
     connector_type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
-    diameter: BaseFilterLookup[Annotated['CoolingDiameterEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
+    diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    diameter_unit: BaseFilterLookup[Annotated['DiameterUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
     maximum_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (

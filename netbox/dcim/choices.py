@@ -2256,27 +2256,6 @@ class CoolingConnectorTypeChoices(ChoiceSet):
     ]
 
 
-class CoolingDiameterChoices(ChoiceSet):
-
-    DN10 = 'dn10'
-    DN15 = 'dn15'
-    DN20 = 'dn20'
-    DN25 = 'dn25'
-    DN32 = 'dn32'
-    DN40 = 'dn40'
-    DN50 = 'dn50'
-
-    CHOICES = [
-        (DN10, 'DN10'),
-        (DN15, 'DN15'),
-        (DN20, 'DN20'),
-        (DN25, 'DN25'),
-        (DN32, 'DN32'),
-        (DN40, 'DN40'),
-        (DN50, 'DN50'),
-    ]
-
-
 #
 # VDC
 #

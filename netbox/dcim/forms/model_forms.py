@@ -1457,15 +1457,17 @@ class CoolingPortTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity', 'description',
+            'name', 'label', 'type', 'connector_type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'maximum_flow', 'heat_capacity', 'description',
         ),
     )
 
     class Meta:
         model = CoolingPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
-            'heat_capacity', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit',
+            'maximum_flow', 'heat_capacity', 'description',
         ]
 
 
@@ -1485,15 +1487,17 @@ class CoolingOutletTemplateForm(ModularComponentTemplateForm):
                 FieldSet('device_type', name=_('Device Type')),
                 FieldSet('module_type', name=_('Module Type')),
             ),
-            'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'cooling_port', 'description',
+            'name', 'label', 'type', 'connector_type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'color', 'cooling_port', 'description',
         ),
     )
 
     class Meta:
         model = CoolingOutletTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'color',
-            'cooling_port', 'description',
+            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit',
+            'color', 'cooling_port', 'description',
         ]
 
 
@@ -1941,16 +1945,17 @@ class PowerOutletForm(ModularDeviceComponentForm):
 class CoolingPortForm(ModularDeviceComponentForm):
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
-            'heat_capacity', 'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'connector_type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'maximum_flow', 'heat_capacity', 'mark_connected', 'description', 'tags',
         ),
     )
 
     class Meta:
         model = CoolingPort
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',
-            'mark_connected', 'description', 'owner', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'heat_capacity', 'mark_connected', 'description', 'owner', 'tags',
         ]
 
 
@@ -1966,16 +1971,17 @@ class CoolingOutletForm(ModularDeviceComponentForm):
 
     fieldsets = (
         FieldSet(
-            'device', 'module', 'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'cooling_port',
-            'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'connector_type',
+            InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
+            'color', 'cooling_port', 'mark_connected', 'description', 'tags',
         ),
     )
 
     class Meta:
         model = CoolingOutlet
         fields = [
-            'device', 'module', 'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'cooling_port',
-            'mark_connected', 'description', 'tags',
+            'device', 'module', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'color',
+            'cooling_port', 'mark_connected', 'description', 'tags',
         ]
 
 

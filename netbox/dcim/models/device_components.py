@@ -17,7 +17,7 @@ from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
-from netbox.models.mixins import OwnerMixin
+from netbox.models.mixins import DiameterMixin, OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -690,7 +690,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Cooling components
 #
 
-class CoolingPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+class CoolingPort(DiameterMixin, ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake).
     CoolingPorts connect to CoolingOutlets.
@@ -711,14 +711,7 @@ class CoolingPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         null=True,
         help_text=_('Physical connector type')
     )
-    diameter = models.CharField(
-        verbose_name=_('diameter'),
-        max_length=50,
-        choices=CoolingDiameterChoices,
-        blank=True,
-        null=True,
-        help_text=_('Nominal connector diameter')
-    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
     maximum_flow = models.DecimalField(
         verbose_name=_('maximum flow'),
         max_digits=8,
@@ -738,7 +731,9 @@ class CoolingPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         help_text=_('Heat removal capacity (kW)')
     )
 
-    clone_fields = ('device', 'module', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity')
+    clone_fields = (
+        'device', 'module', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity',
+    )
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling port')
@@ -748,7 +743,7 @@ class CoolingPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
         return CoolingFeedTypeChoices.colors.get(self.type)
 
 
-class CoolingOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+class CoolingOutlet(DiameterMixin, ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A coolant outlet within a Device (e.g. a CDU or manifold outlet) which feeds a CoolingPort.
     """
@@ -768,14 +763,7 @@ class CoolingOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Trac
         null=True,
         help_text=_('Physical connector type')
     )
-    diameter = models.CharField(
-        verbose_name=_('diameter'),
-        max_length=50,
-        choices=CoolingDiameterChoices,
-        blank=True,
-        null=True,
-        help_text=_('Nominal connector diameter')
-    )
+    # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
     cooling_port = models.ForeignKey(
         to='dcim.CoolingPort',
         on_delete=models.SET_NULL,
@@ -788,7 +776,7 @@ class CoolingOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Trac
         blank=True
     )
 
-    clone_fields = ('device', 'module', 'type', 'connector_type', 'diameter', 'cooling_port')
+    clone_fields = ('device', 'module', 'type', 'connector_type', 'diameter', 'diameter_unit', 'cooling_port')
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling outlet')

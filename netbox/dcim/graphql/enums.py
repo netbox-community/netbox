@@ -1,6 +1,7 @@
 import strawberry
 
 from dcim.choices import *
+from netbox.choices import DiameterUnitChoices
 
 __all__ = (
     'CableEndEnum',
@@ -9,7 +10,6 @@ __all__ = (
     'ConsolePortSpeedEnum',
     'ConsolePortTypeEnum',
     'CoolingConnectorTypeEnum',
-    'CoolingDiameterEnum',
     'CoolingFeedStatusEnum',
     'CoolingFeedTypeEnum',
     'CoolingMethodEnum',
@@ -18,6 +18,7 @@ __all__ = (
     'DeviceAirflowEnum',
     'DeviceFaceEnum',
     'DeviceStatusEnum',
+    'DiameterUnitEnum',
     'FluidTypeEnum',
     'InterfaceDuplexEnum',
     'InterfaceKindEnum',
@@ -56,7 +57,6 @@ CableTypeEnum = strawberry.enum(CableTypeChoices.as_enum(prefix='type'))
 ConsolePortSpeedEnum = strawberry.enum(ConsolePortSpeedChoices.as_enum(prefix='speed'))
 ConsolePortTypeEnum = strawberry.enum(ConsolePortTypeChoices.as_enum(prefix='type'))
 CoolingConnectorTypeEnum = strawberry.enum(CoolingConnectorTypeChoices.as_enum(prefix='type'))
-CoolingDiameterEnum = strawberry.enum(CoolingDiameterChoices.as_enum(prefix='diameter'))
 CoolingFeedStatusEnum = strawberry.enum(CoolingFeedStatusChoices.as_enum(prefix='status'))
 CoolingFeedTypeEnum = strawberry.enum(CoolingFeedTypeChoices.as_enum(prefix='type'))
 CoolingMethodEnum = strawberry.enum(CoolingMethodChoices.as_enum(prefix='method'))
@@ -65,6 +65,7 @@ CoolingSourceTypeEnum = strawberry.enum(CoolingSourceTypeChoices.as_enum(prefix=
 DeviceAirflowEnum = strawberry.enum(DeviceAirflowChoices.as_enum(prefix='airflow'))
 DeviceFaceEnum = strawberry.enum(DeviceFaceChoices.as_enum(prefix='face'))
 DeviceStatusEnum = strawberry.enum(DeviceStatusChoices.as_enum(prefix='status'))
+DiameterUnitEnum = strawberry.enum(DiameterUnitChoices.as_enum(prefix='unit'))
 FluidTypeEnum = strawberry.enum(FluidTypeChoices.as_enum(prefix='fluid'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
 InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))

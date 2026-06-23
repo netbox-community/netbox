@@ -19,7 +19,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
-from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, WeightUnitChoices
+from netbox.choices import CSVDelimiterChoices, DiameterUnitChoices, ImportFormatChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from users.models import ObjectPermission, User
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
@@ -4574,7 +4574,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
             'name': 'Cooling Port Template X',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'heat_capacity': 50,
         }
@@ -4584,7 +4585,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
             'name': 'Cooling Port Template [4-6]',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'heat_capacity': 50,
         }
@@ -4592,7 +4594,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
         cls.bulk_edit_data = {
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'heat_capacity': 50,
         }
@@ -4623,7 +4626,8 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             'name': 'Cooling Outlet Template X',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[0].pk,
         }
 
@@ -4632,14 +4636,16 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
             'name': 'Cooling Outlet Template [4-6]',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[0].pk,
         }
 
         cls.bulk_edit_data = {
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
         }
 
 
@@ -4665,7 +4671,8 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Cooling Port X',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'heat_capacity': 50,
             'description': 'A cooling port',
@@ -4677,7 +4684,8 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Cooling Port [4-6]]',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'heat_capacity': 50,
             'description': 'A cooling port',
@@ -4687,7 +4695,8 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_edit_data = {
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
             'heat_capacity': 50,
             'description': 'New description',
@@ -4753,7 +4762,8 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Cooling Outlet X',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[1].pk,
             'description': 'A cooling outlet',
             'tags': [t.pk for t in tags],
@@ -4764,7 +4774,8 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             'name': 'Cooling Outlet [4-6]',
             'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
             'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
-            'diameter': CoolingDiameterChoices.DN25,
+            'diameter': Decimal('25'),
+            'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[1].pk,
             'description': 'A cooling outlet',
             'tags': [t.pk for t in tags],
