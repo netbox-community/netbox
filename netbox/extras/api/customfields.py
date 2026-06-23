@@ -14,6 +14,18 @@ from utilities.api import get_serializer_for_model
 #
 
 
+def restrict_queryset(model, request):
+    """
+    Return a queryset for the given model, restricted to the objects the requesting user is
+    permitted to view. If no request is available (e.g. during internal serialization) or the
+    model's manager does not support restriction, the unrestricted queryset is returned.
+    """
+    manager = model.objects
+    if request is not None and hasattr(manager, 'restrict'):
+        return manager.restrict(request.user, 'view')
+    return manager.all()
+
+
 class CustomFieldDefaultValues:
     """
     Return a dictionary of all CustomFields assigned to the parent model and their default values.
@@ -50,21 +62,32 @@ class CustomFieldsDataField(Field):
         from utilities.api import get_serializer_for_model
         data = {}
         cache = self.parent.context.get('cf_object_cache')
+        request = self.parent.context.get('request')
 
         for cf in self._get_custom_fields():
-            if cache is not None and cf.type in (
+            if cf.type in (
                 CustomFieldTypeChoices.TYPE_OBJECT,
                 CustomFieldTypeChoices.TYPE_MULTIOBJECT,
             ):
                 raw = obj.get(cf.name)
+                model = cf.related_object_type.model_class()
                 if raw is None:
                     value = None
-                elif cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
-                    model = cf.related_object_type.model_class()
-                    value = cache.get((model, raw))
+                elif cache is not None:
+                    # Use the pre-fetched (and permission-restricted) bulk cache populated by
+                    # CustomFieldListSerializer
+                    if cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
+                        value = cache.get((model, raw))
+                    else:
+                        value = [cache[(model, pk)] for pk in raw if (model, pk) in cache]
                 else:
-                    model = cf.related_object_type.model_class()
-                    value = [cache[(model, pk)] for pk in raw if (model, pk) in cache] or None
+                    # No bulk cache available (single-object serialization); query directly,
+                    # restricting to objects the requesting user is permitted to view
+                    queryset = restrict_queryset(model, request)
+                    if cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
+                        value = queryset.filter(pk=raw).first()
+                    else:
+                        value = list(queryset.filter(pk__in=raw))
             else:
                 value = cf.deserialize(obj.get(cf.name))
 
@@ -124,6 +147,7 @@ class CustomFieldListSerializer(ListSerializer):
     def to_representation(self, data):
         cf_field = self.child.fields.get('custom_fields')
         if isinstance(cf_field, CustomFieldsDataField):
+            request = self.context.get('request')
             object_type_cfs = [
                 cf for cf in cf_field._get_custom_fields()
                 if cf.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT)
@@ -139,7 +163,8 @@ class CustomFieldListSerializer(ListSerializer):
                             pks.update(raw)
                         else:
                             pks.add(raw)
-                for obj in model.objects.filter(pk__in=pks):
+                # Restrict to objects the requesting user is permitted to view
+                for obj in restrict_queryset(model, request).filter(pk__in=pks):
                     cache[(model, obj.pk)] = obj
             self.child.context['cf_object_cache'] = cache
         return super().to_representation(data)
