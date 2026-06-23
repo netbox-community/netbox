@@ -752,6 +752,8 @@ class DeviceTypeFilterSet(PrimaryModelFilterSet):
             'console_server_port_template_count',
             'power_port_template_count',
             'power_outlet_template_count',
+            'cooling_port_template_count',
+            'cooling_outlet_template_count',
             'interface_template_count',
             'front_port_template_count',
             'rear_port_template_count',
@@ -953,6 +955,8 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
             'console_server_port_template_count',
             'power_port_template_count',
             'power_outlet_template_count',
+            'cooling_port_template_count',
+            'cooling_outlet_template_count',
             'interface_template_count',
             'front_port_template_count',
             'rear_port_template_count',
@@ -1591,6 +1595,8 @@ class DeviceFilterSet(
             'console_server_port_count',
             'power_port_count',
             'power_outlet_count',
+            'cooling_port_count',
+            'cooling_outlet_count',
             'interface_count',
             'front_port_count',
             'rear_port_count',
@@ -2914,6 +2920,15 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     powerfeed_id = MultiValueNumberFilter(
         method='filter_by_powerfeed'
     )
+    coolingport_id = MultiValueNumberFilter(
+        method='filter_by_coolingport'
+    )
+    coolingoutlet_id = MultiValueNumberFilter(
+        method='filter_by_coolingoutlet'
+    )
+    coolingfeed_id = MultiValueNumberFilter(
+        method='filter_by_coolingfeed'
+    )
     circuittermination_id = MultiValueNumberFilter(
         method='filter_by_circuittermination'
     )
@@ -2993,6 +3008,15 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     def filter_by_powerfeed(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, PowerFeed, value)
 
+    def filter_by_coolingport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CoolingPort, value)
+
+    def filter_by_coolingoutlet(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CoolingOutlet, value)
+
+    def filter_by_coolingfeed(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CoolingFeed, value)
+
     def filter_by_circuittermination(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, CircuitTermination, value)
 
@@ -3031,6 +3055,15 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
     powerfeed_id = MultiValueNumberFilter(
         method='filter_by_powerfeed'
     )
+    coolingport_id = MultiValueNumberFilter(
+        method='filter_by_coolingport'
+    )
+    coolingoutlet_id = MultiValueNumberFilter(
+        method='filter_by_coolingoutlet'
+    )
+    coolingfeed_id = MultiValueNumberFilter(
+        method='filter_by_coolingfeed'
+    )
     circuittermination_id = MultiValueNumberFilter(
         method='filter_by_circuittermination'
     )
@@ -3066,6 +3099,15 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
 
     def filter_by_powerfeed(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, PowerFeed, value)
+
+    def filter_by_coolingport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CoolingPort, value)
+
+    def filter_by_coolingoutlet(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CoolingOutlet, value)
+
+    def filter_by_coolingfeed(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CoolingFeed, value)
 
     def filter_by_circuittermination(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, CircuitTermination, value)

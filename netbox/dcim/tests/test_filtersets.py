@@ -7869,6 +7869,9 @@ class CableTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         'frontport': 'frontport_id',
         'rearport': 'rearport_id',
         'powerfeed': 'powerfeed_id',
+        'coolingport': 'coolingport_id',
+        'coolingoutlet': 'coolingoutlet_id',
+        'coolingfeed': 'coolingfeed_id',
         'circuittermination': 'circuittermination_id',
     }
 
