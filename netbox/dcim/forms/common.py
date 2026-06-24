@@ -87,7 +87,7 @@ class InterfaceCommonForm(forms.Form):
     def save(self, commit=True):
         instance = super().save(commit=commit)
 
-        if 'mac_address' not in self.changed_data:
+        if not commit or 'mac_address' not in self.changed_data:
             return instance
 
         from dcim.models import MACAddress
@@ -102,12 +102,10 @@ class InterfaceCommonForm(forms.Form):
                 mac.save()
             if instance.primary_mac_address_id != mac.pk:
                 instance.primary_mac_address = mac
-                if commit:
-                    instance.save()
+                instance.save()
         else:
             instance.primary_mac_address = None
-            if commit:
-                instance.save()
+            instance.save()
 
         instance.__dict__.pop('mac_address', None)
         return instance

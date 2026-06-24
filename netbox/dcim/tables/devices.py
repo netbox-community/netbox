@@ -1,4 +1,7 @@
 import django_tables2 as tables
+from django.middleware.csrf import get_token
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
@@ -1225,15 +1228,35 @@ class MACAddressActionsColumn(columns.ActionsColumn):
     }
 
     def render(self, record, table, **kwargs):
-        # Only offer "Set as primary" for non-primary MACs that are assigned to an interface.
-        if record.is_primary or not record.assigned_object_id:
-            saved = self.actions
-            try:
-                self.actions = {k: v for k, v in saved.items() if k != 'set_primary'}
-                return super().render(record, table, **kwargs)
-            finally:
-                self.actions = saved
-        return super().render(record, table, **kwargs)
+        # Always exclude set_primary from the parent's action loop (which renders GET links).
+        # We inject a CSRF-protected POST form for set_primary in the dropdown below.
+        show_set_primary = not record.is_primary and record.assigned_object_id
+        original_actions = self.actions
+        self.actions = {k: v for k, v in original_actions.items() if k != 'set_primary'}
+        try:
+            html = super().render(record, table, **kwargs)
+        finally:
+            self.actions = original_actions
+
+        if show_set_primary and html:
+            request = getattr(table, 'context', {}).get('request')
+            if request:
+                url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
+                form_li = (
+                    f'<li>'
+                    f'<form method="post" action="{url}">'
+                    f'<input type="hidden" name="csrfmiddlewaretoken" value="{get_token(request)}">'
+                    f'<button type="submit" class="dropdown-item">'
+                    f'<i class="mdi mdi-star-outline"></i> {_("Set as primary")}'
+                    f'</button>'
+                    f'</form>'
+                    f'</li>'
+                )
+                html_str = str(html)
+                if '</ul>' in html_str:
+                    html = mark_safe(html_str.replace('</ul>', form_li + '</ul>', 1))
+
+        return html
 
 
 class MACAddressTable(PrimaryModelTable):

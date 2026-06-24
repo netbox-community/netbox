@@ -5034,18 +5034,12 @@ class MACAddressDeleteView(generic.ObjectDeleteView):
 class MACAddressSetPrimaryView(View):
     queryset = MACAddress.objects.all()
 
-    def get(self, request, pk):
-        return self._handle(request, pk)
-
     def post(self, request, pk):
-        return self._handle(request, pk)
-
-    def _handle(self, request, pk):
         if not request.user.is_authenticated:
             from django.contrib.auth.views import redirect_to_login
             return redirect_to_login(request.get_full_path())
 
-        mac = get_object_or_404(self.queryset, pk=pk)
+        mac = get_object_or_404(self.queryset.restrict(request.user, 'view'), pk=pk)
         assigned_object = mac.assigned_object
 
         if assigned_object is None:

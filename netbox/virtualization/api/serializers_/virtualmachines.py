@@ -1,7 +1,9 @@
+from django.db import transaction
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from netaddr import EUI, AddrFormatError
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 from dcim.api.serializers_.devices import DeviceSerializer, MACAddressSerializer
 from dcim.api.serializers_.platforms import PlatformSerializer
@@ -192,33 +194,52 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
 
     def create(self, validated_data):
         mac_address = validated_data.pop('mac_address', None)
-        instance = super().create(validated_data)
         if mac_address is not None:
-            mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
-            instance.primary_mac_address = mac
-            instance.save()
-            instance.__dict__.pop('mac_address', None)
+            request = self.context.get('request')
+            if request and not request.user.has_perm('dcim.add_macaddress'):
+                raise PermissionDenied(_('You do not have permission to create MAC addresses.'))
+        with transaction.atomic():
+            instance = super().create(validated_data)
+            if mac_address is not None:
+                mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
+                instance.primary_mac_address = mac
+                instance.save()
+                instance.__dict__.pop('mac_address', None)
         return instance
 
     def update(self, instance, validated_data):
         mac_address = validated_data.pop('mac_address', _UNSET)
-        instance = super().update(instance, validated_data)
-        if mac_address is _UNSET:
-            pass
-        elif mac_address is None:
-            instance.primary_mac_address = None
-            instance.save()
-            instance.__dict__.pop('mac_address', None)
+
+        # Check permission and locate any existing MAC before any writes.
+        if mac_address not in (_UNSET, None):
+            existing_mac = instance.mac_addresses.filter(mac_address=mac_address).first()
+            if existing_mac is None:
+                request = self.context.get('request')
+                if request and not request.user.has_perm('dcim.add_macaddress'):
+                    raise PermissionDenied(_('You do not have permission to create MAC addresses.'))
         else:
-            # Find an existing MACAddress on this interface with the target value, or create one.
-            # Using find-or-create avoids duplicating a MAC that already exists on this interface.
-            mac = instance.mac_addresses.filter(mac_address=mac_address).first()
-            if mac is None:
-                mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
-            if instance.primary_mac_address_id != mac.pk:
-                instance.primary_mac_address = mac
-                instance.save()
-            instance.__dict__.pop('mac_address', None)
+            existing_mac = None
+
+        with transaction.atomic():
+            instance = super().update(instance, validated_data)
+            if mac_address is _UNSET:
+                pass
+            elif mac_address is None:
+                if instance.primary_mac_address_id is not None:
+                    instance.snapshot()
+                    instance.primary_mac_address = None
+                    instance.save()
+            else:
+                # Find-or-create: prefer existing MAC on this interface; create only if absent.
+                mac = existing_mac
+                if mac is None:
+                    mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
+                if instance.primary_mac_address_id != mac.pk:
+                    instance.snapshot()
+                    instance.primary_mac_address = mac
+                    instance.save()
+
+        instance.__dict__.pop('mac_address', None)
         return instance
 
 

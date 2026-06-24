@@ -4405,7 +4405,7 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         self.assertIsNone(interface.primary_mac_address)
 
         url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         self.assertHttpStatus(response, 302)
         self.assertEqual(response['Location'], interface.get_absolute_url())
@@ -4425,7 +4425,7 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         interface.save()
 
         url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         self.assertHttpStatus(response, 302)
         self.assertEqual(response['Location'], interface.get_absolute_url())
@@ -4441,7 +4441,7 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         mac = MACAddress.objects.first()
         url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
-        response = self.client.get(url)
+        response = self.client.post(url)
 
         self.assertHttpStatus(response, 302)
         self.assertEqual(response['Location'], mac.get_absolute_url())
