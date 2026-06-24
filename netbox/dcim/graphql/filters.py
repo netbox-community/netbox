@@ -1018,6 +1018,15 @@ class CoolingFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, Primar
     pressure_unit: (
         BaseFilterLookup[Annotated['PressureUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
     ) = strawberry_django.filter_field()
+    supply_temperature: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    return_temperature: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    temperature_unit: (
+        BaseFilterLookup[Annotated['TemperatureUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
 
 
 @register_filter(models.CoolingOutlet, lookups=True)

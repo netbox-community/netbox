@@ -1591,7 +1591,8 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         FieldSet('region_id', 'site_group_id', 'site_id', 'cooling_source_id', 'rack_id', name=_('Location')),
         FieldSet('status', 'type', 'fluid_type', name=_('Attributes')),
         FieldSet(
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', name=_('Characteristics')
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'return_temperature', 'temperature_unit', name=_('Characteristics')
         ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
@@ -1667,6 +1668,19 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     pressure_unit = forms.MultipleChoiceField(
         label=_('Pressure unit'),
         choices=PressureUnitChoices,
+        required=False
+    )
+    supply_temperature = forms.DecimalField(
+        label=_('Supply temperature'),
+        required=False
+    )
+    return_temperature = forms.DecimalField(
+        label=_('Return temperature'),
+        required=False
+    )
+    temperature_unit = forms.MultipleChoiceField(
+        label=_('Temperature unit'),
+        choices=TemperatureUnitChoices,
         required=False
     )
     tag = TagFilterField(model)

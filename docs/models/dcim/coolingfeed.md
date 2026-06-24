@@ -45,6 +45,14 @@ The coolant flow rate, expressed as a numeric value with a selectable unit (L/mi
 
 The operating pressure of the loop, expressed as a numeric value with a selectable unit (kPa, bar, or PSI).
 
+### Supply / Return Temperature
+
+The supply and return coolant temperatures, each expressed in the selected temperature unit.
+
+### Temperature Unit
+
+The unit (Celsius or Fahrenheit) in which the supply and return temperatures are expressed.
+
 ### Mark Connected
 
 If selected, the cooling feed will be treated as if a cable has been connected.

@@ -22,7 +22,90 @@ __all__ = (
 # Cooling
 #
 
-class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
+class CoolingTemperatureMixin(models.Model):
+    """
+    Adds design supply/return temperatures sharing a single unit, with normalized (°C) fields for ordering.
+    """
+    supply_temperature = models.DecimalField(
+        verbose_name=_('supply temperature'),
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_('Supply (cold) temperature')
+    )
+    return_temperature = models.DecimalField(
+        verbose_name=_('return temperature'),
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_('Return (warm) temperature')
+    )
+    temperature_unit = models.CharField(
+        verbose_name=_('temperature unit'),
+        max_length=50,
+        choices=TemperatureUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized temperatures (in degrees Celsius) for database ordering
+    _abs_supply_temperature = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+    _abs_return_temperature = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def abs_supply_temperature(self):
+        # Public alias for _abs_supply_temperature; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_supply_temperature
+
+    @property
+    def abs_return_temperature(self):
+        # Public alias for _abs_return_temperature; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_return_temperature
+
+    def save(self, *args, **kwargs):
+        # Store the given temperatures (if any) in degrees Celsius for use in database ordering
+        if self.temperature_unit:
+            self._abs_supply_temperature = (
+                to_celsius(self.supply_temperature, self.temperature_unit)
+                if self.supply_temperature is not None else None
+            )
+            self._abs_return_temperature = (
+                to_celsius(self.return_temperature, self.temperature_unit)
+                if self.return_temperature is not None else None
+            )
+        else:
+            self._abs_supply_temperature = None
+            self._abs_return_temperature = None
+
+        # Clear temperature_unit if no temperatures are defined
+        if self.supply_temperature is None and self.return_temperature is None:
+            self.temperature_unit = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # A temperature unit is required when a temperature is set
+        if (self.supply_temperature is not None or self.return_temperature is not None) and not self.temperature_unit:
+            raise ValidationError(_("Must specify a unit when setting a temperature"))
+
+
+class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     """
     A facility-level source of cooling; e.g. a chiller, cooling tower, or dry cooler.
     """
@@ -61,42 +144,7 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
         validators=[MinValueValidator(0)],
         help_text=_('Total cooling capacity (kW)')
     )
-    supply_temperature = models.DecimalField(
-        verbose_name=_('supply temperature'),
-        max_digits=6,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        help_text=_('Design supply temperature')
-    )
-    return_temperature = models.DecimalField(
-        verbose_name=_('return temperature'),
-        max_digits=6,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        help_text=_('Design return temperature')
-    )
-    temperature_unit = models.CharField(
-        verbose_name=_('temperature unit'),
-        max_length=50,
-        choices=TemperatureUnitChoices,
-        blank=True,
-        null=True,
-    )
-    # Stores the normalized temperatures (in degrees Celsius) for database ordering
-    _abs_supply_temperature = models.DecimalField(
-        max_digits=8,
-        decimal_places=4,
-        blank=True,
-        null=True
-    )
-    _abs_return_temperature = models.DecimalField(
-        max_digits=8,
-        decimal_places=4,
-        blank=True,
-        null=True
-    )
+    # supply_temperature, return_temperature, temperature_unit, _abs_* provided by CoolingTemperatureMixin
 
     clone_fields = (
         'site', 'location', 'type', 'status', 'cooling_capacity', 'supply_temperature', 'return_temperature',
@@ -120,39 +168,8 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
-    @property
-    def abs_supply_temperature(self):
-        # Public alias for _abs_supply_temperature; Django templates cannot access underscore-prefixed attributes.
-        return self._abs_supply_temperature
-
-    @property
-    def abs_return_temperature(self):
-        # Public alias for _abs_return_temperature; Django templates cannot access underscore-prefixed attributes.
-        return self._abs_return_temperature
-
     def get_status_color(self):
         return CoolingSourceStatusChoices.colors.get(self.status)
-
-    def save(self, *args, **kwargs):
-        # Store the given temperatures (if any) in degrees Celsius for use in database ordering
-        if self.temperature_unit:
-            self._abs_supply_temperature = (
-                to_celsius(self.supply_temperature, self.temperature_unit)
-                if self.supply_temperature is not None else None
-            )
-            self._abs_return_temperature = (
-                to_celsius(self.return_temperature, self.temperature_unit)
-                if self.return_temperature is not None else None
-            )
-        else:
-            self._abs_supply_temperature = None
-            self._abs_return_temperature = None
-
-        # Clear temperature_unit if no temperatures are defined
-        if self.supply_temperature is None and self.return_temperature is None:
-            self.temperature_unit = None
-
-        super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
@@ -164,12 +181,8 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
                     location=self.location, location_site=self.location.site, site=self.site)
             )
 
-        # A temperature unit is required when a temperature is set
-        if (self.supply_temperature is not None or self.return_temperature is not None) and not self.temperature_unit:
-            raise ValidationError(_("Must specify a unit when setting a temperature"))
 
-
-class CoolingFeed(FlowRateMixin, PressureMixin, PrimaryModel, PathEndpoint, CabledObjectModel):
+class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, PrimaryModel, PathEndpoint, CabledObjectModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
     represented as separate feeds so each can be traced independently.
@@ -231,7 +244,8 @@ class CoolingFeed(FlowRateMixin, PressureMixin, PrimaryModel, PathEndpoint, Cabl
 
     clone_fields = (
         'cooling_source', 'rack', 'status', 'type', 'mark_connected', 'fluid_type', 'cooling_capacity', 'flow_rate',
-        'flow_rate_unit', 'pressure', 'pressure_unit', 'tenant',
+        'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature', 'return_temperature', 'temperature_unit',
+        'tenant',
     )
     prerequisite_models = (
         'dcim.CoolingSource',

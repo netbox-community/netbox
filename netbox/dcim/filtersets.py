@@ -3415,11 +3415,17 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEnd
         distinct=False,
         null_value=None
     )
+    temperature_unit = django_filters.MultipleChoiceFilter(
+        choices=TemperatureUnitChoices,
+        distinct=False,
+        null_value=None
+    )
 
     class Meta:
         model = CoolingFeed
         fields = (
             'id', 'name', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
+            'supply_temperature', 'return_temperature', 'temperature_unit',
             'mark_connected', 'cable_end', 'cable_connector', 'description',
         )
 

@@ -2170,13 +2170,19 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Unit for pressure')
     )
+    temperature_unit = CSVChoiceField(
+        label=_('Temperature unit'),
+        choices=TemperatureUnitChoices,
+        required=False,
+        help_text=_('Unit for supply/return temperatures')
+    )
 
     class Meta:
         model = CoolingFeed
         fields = (
             'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'tenant',
-            'description', 'owner', 'comments', 'tags',
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'return_temperature', 'temperature_unit', 'tenant', 'description', 'owner', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

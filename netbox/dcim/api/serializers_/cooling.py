@@ -85,6 +85,12 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
         required=False,
         allow_null=True
     )
+    temperature_unit = ChoiceField(
+        choices=TemperatureUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
     tenant = TenantSerializer(
         nested=True,
         required=False,
@@ -95,7 +101,8 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
         model = CoolingFeed
         fields = [
             'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'type', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'mark_connected',
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'return_temperature', 'temperature_unit', 'mark_connected',
             'cable', 'cable_end', 'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
             'connected_endpoints_reachable', 'description', 'tenant', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
