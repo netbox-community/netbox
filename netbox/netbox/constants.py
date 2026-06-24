@@ -61,7 +61,7 @@ def __getattr__(name):
         warnings.warn(
             f"{name} is deprecated and will be removed in NetBox v4.7. "
             "Define action permissions via ObjectAction subclasses instead.",
-            DeprecationWarning,
+            FutureWarning,
             stacklevel=2,
         )
         return _DEFAULT_ACTION_PERMISSIONS

@@ -79,7 +79,7 @@ def __getattr__(name):
         warnings.warn(
             "ExpandableIPAddressField has been renamed to ExpandableIPNetworkField. "
             "ExpandableIPAddressField will be removed in NetBox v4.7.0.",
-            DeprecationWarning,
+            FutureWarning,
         )
         return ExpandableIPNetworkField
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
