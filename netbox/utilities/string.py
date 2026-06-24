@@ -12,9 +12,9 @@ __all__ = (
 def humanize_duration(value):
     """
     Express a timedelta in a human-friendly format. Example: 1h 5m 23s. Returns an empty string
-    for a null or zero-length duration.
+    for None; zero-duration timedeltas render as "0s".
     """
-    if not value:
+    if value is None:
         return ''
 
     # Round to whole seconds and decompose

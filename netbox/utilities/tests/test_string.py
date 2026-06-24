@@ -7,9 +7,11 @@ from utilities.string import humanize_duration
 
 class HumanizeDurationTest(TestCase):
 
-    def test_none_and_zero(self):
+    def test_none(self):
         self.assertEqual(humanize_duration(None), '')
-        self.assertEqual(humanize_duration(timedelta(0)), '')
+
+    def test_zero_duration(self):
+        self.assertEqual(humanize_duration(timedelta(0)), '0s')
 
     def test_seconds_only(self):
         self.assertEqual(humanize_duration(timedelta(seconds=45)), '45s')

@@ -132,7 +132,9 @@ class JobFilterSet(BaseFilterSet):
         field_name='completed',
         lookup_expr='gte'
     )
-    execution_time = django_filters.DurationFilter()
+    execution_time = django_filters.DurationFilter(
+        label=_('Execution time')
+    )
     execution_time__gte = django_filters.DurationFilter(
         field_name='execution_time',
         lookup_expr='gte',
