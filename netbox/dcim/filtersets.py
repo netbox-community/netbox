@@ -3298,6 +3298,13 @@ class CoolingSourceFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         lookup_expr='in',
         label=_('Location (ID)'),
     )
+    location = TreeNodeMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        field_name='location',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Location (slug)'),
+    )
     type = django_filters.MultipleChoiceFilter(
         choices=CoolingSourceTypeChoices,
         distinct=False,

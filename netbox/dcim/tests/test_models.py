@@ -11,7 +11,7 @@ from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
-from netbox.choices import DiameterUnitChoices, WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, TemperatureUnitChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
@@ -3209,3 +3209,59 @@ class CoolingComponentTestCase(TestCase):
 
         with self.assertRaises(ValidationError):
             cooling_outlet.full_clean()
+
+    def test_cooling_source_location_site_mismatch(self):
+        """
+        CoolingSource.clean() should raise a ValidationError when its location belongs to a different site.
+        """
+        site2 = Site.objects.create(name='Site 2', slug='site-2')
+        location = Location.objects.create(name='Location 1', slug='location-1', site=site2)
+        cooling_source = CoolingSource(
+            site=self.site,
+            location=location,
+            name='Cooling Source 1',
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_source.full_clean()
+
+    def test_cooling_source_temperature_without_unit(self):
+        """
+        CoolingSource.clean() should raise a ValidationError when a temperature is set without a unit.
+        """
+        cooling_source = CoolingSource(
+            site=self.site,
+            name='Cooling Source 2',
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+            supply_temperature=Decimal('18'),
+        )
+        with self.assertRaises(ValidationError):
+            cooling_source.full_clean()
+
+        # Setting a unit should resolve the error and populate the normalized value on save
+        cooling_source.temperature_unit = TemperatureUnitChoices.UNIT_CELSIUS
+        cooling_source.full_clean()
+        cooling_source.save()
+        self.assertEqual(cooling_source._abs_supply_temperature, Decimal('18.0000'))
+
+    def test_cooling_feed_rack_site_mismatch(self):
+        """
+        CoolingFeed.clean() should raise a ValidationError when its rack is in a different site than the
+        cooling source.
+        """
+        site2 = Site.objects.create(name='Site 3', slug='site-3')
+        cooling_source = CoolingSource.objects.create(
+            site=self.site,
+            name='Cooling Source 3',
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        rack = Rack.objects.create(name='Rack 1', site=site2, status=RackStatusChoices.STATUS_ACTIVE)
+        cooling_feed = CoolingFeed(
+            cooling_source=cooling_source,
+            rack=rack,
+            name='Cooling Feed 1',
+            status=CoolingFeedStatusChoices.STATUS_ACTIVE,
+            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_feed.full_clean()

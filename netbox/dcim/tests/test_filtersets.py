@@ -8331,7 +8331,9 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 description='foobar3'
             ),
         )
-        CoolingSource.objects.bulk_create(cooling_sources)
+        # Use save() rather than bulk_create() so that the normalized _abs_*_temperature fields are populated
+        for cooling_source in cooling_sources:
+            cooling_source.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -8393,6 +8395,8 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_location(self):
         locations = Location.objects.all()[:2]
         params = {'location_id': [locations[0].pk, locations[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'location': [locations[0].slug, locations[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
