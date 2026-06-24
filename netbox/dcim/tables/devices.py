@@ -1,6 +1,7 @@
 import django_tables2 as tables
 from django.middleware.csrf import get_token
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
@@ -1242,19 +1243,17 @@ class MACAddressActionsColumn(columns.ActionsColumn):
             request = getattr(table, 'context', {}).get('request')
             if request:
                 url = reverse('dcim:macaddress_set_primary', kwargs={'pk': record.pk})
-                form_li = (
-                    f'<li>'
-                    f'<form method="post" action="{url}">'
-                    f'<input type="hidden" name="csrfmiddlewaretoken" value="{get_token(request)}">'
-                    f'<button type="submit" class="dropdown-item">'
-                    f'<i class="mdi mdi-star-outline"></i> {_("Set as primary")}'
-                    f'</button>'
-                    f'</form>'
-                    f'</li>'
+                form_li = format_html(
+                    '<li><form method="post" action="{}">'
+                    '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
+                    '<button type="submit" class="dropdown-item">'
+                    '<i class="mdi mdi-star-outline"></i> {}'
+                    '</button></form></li>',
+                    url, get_token(request), _('Set as primary'),
                 )
                 html_str = str(html)
                 if '</ul>' in html_str:
-                    html = mark_safe(html_str.replace('</ul>', form_li + '</ul>', 1))
+                    html = mark_safe(html_str.replace('</ul>', str(form_li) + '</ul>', 1))
 
         return html
 

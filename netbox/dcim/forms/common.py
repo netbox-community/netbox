@@ -1,4 +1,5 @@
 from django import forms
+from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from netaddr import EUI, AddrFormatError
 
@@ -6,6 +7,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import MACAddress
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
+from netbox.context import current_request
 from utilities.forms import get_field_value
 
 __all__ = (
@@ -59,6 +61,12 @@ class InterfaceCommonForm(forms.Form):
                 raise forms.ValidationError({
                     'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
                 })
+            # Require add_macaddress permission when a MAC value is provided (it may need to be created).
+            request = current_request.get()
+            if request is not None and not request.user.has_perm('dcim.add_macaddress'):
+                raise forms.ValidationError({
+                    'mac_address': _('You do not have permission to create MAC addresses.')
+                })
         parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
         if 'tagged_vlans' in self.fields.keys():
             tagged_vlans = self.cleaned_data.get('tagged_vlans') if self.is_bound else \
@@ -93,19 +101,23 @@ class InterfaceCommonForm(forms.Form):
 
         mac_address = self.cleaned_data.get('mac_address')
 
-        if mac_address:
-            # Find an existing MACAddress on this interface with the target value, or create one.
-            # Using find-or-create avoids duplicating a MAC that already exists on this interface.
-            mac = instance.mac_addresses.filter(mac_address=mac_address).first()
-            if mac is None:
-                mac = MACAddress(mac_address=mac_address, assigned_object=instance)
-                mac.save()
-            if instance.primary_mac_address_id != mac.pk:
-                instance.primary_mac_address = mac
+        with transaction.atomic():
+            if mac_address:
+                # Find an existing MACAddress on this interface with the target value, or create one.
+                # Using find-or-create avoids duplicating a MAC that already exists on this interface.
+                mac = instance.mac_addresses.filter(mac_address=mac_address).first()
+                if mac is None:
+                    mac = MACAddress(mac_address=mac_address, assigned_object=instance)
+                    mac.save()
+                if instance.primary_mac_address_id != mac.pk:
+                    instance.snapshot()
+                    instance.primary_mac_address = mac
+                    instance.save()
+            else:
+                if instance.primary_mac_address_id is not None:
+                    instance.snapshot()
+                instance.primary_mac_address = None
                 instance.save()
-        else:
-            instance.primary_mac_address = None
-            instance.save()
 
         instance.__dict__.pop('mac_address', None)
         return instance
