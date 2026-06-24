@@ -4,6 +4,7 @@ from netaddr import EUI, AddrFormatError
 
 from dcim.choices import *
 from dcim.constants import *
+from dcim.models import MACAddress
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from utilities.forms import get_field_value
 
@@ -90,7 +91,6 @@ class InterfaceCommonForm(forms.Form):
         if not commit or 'mac_address' not in self.changed_data:
             return instance
 
-        from dcim.models import MACAddress
         mac_address = self.cleaned_data.get('mac_address')
 
         if mac_address:
