@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
+from netaddr import EUI, AddrFormatError
 from rest_framework import serializers
 
 from dcim.choices import *
@@ -11,6 +12,7 @@ from dcim.models import (
     FrontPort,
     Interface,
     InventoryItem,
+    MACAddress,
     ModuleBay,
     PortMapping,
     PowerOutlet,
@@ -37,6 +39,8 @@ from .devices import DeviceSerializer, MACAddressSerializer, ModuleSerializer, V
 from .manufacturers import ManufacturerSerializer
 from .nested import NestedInterfaceSerializer
 from .roles import InventoryItemRoleSerializer
+
+_UNSET = object()
 
 __all__ = (
     'ConsolePortSerializer',
@@ -249,8 +253,9 @@ class InterfaceSerializer(
     )
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    # Maintains backward compatibility with NetBox <v4.2
-    mac_address = serializers.CharField(allow_null=True, read_only=True)
+    # Maintains backward compatibility with NetBox <v4.2; also accepts a MAC string on write to
+    # create/update the primary MAC address in a single request.
+    mac_address = serializers.CharField(allow_null=True, required=False)
     primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
     wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
@@ -270,8 +275,18 @@ class InterfaceSerializer(
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
     def validate(self, data):
+        # Pop mac_address before model validation — it's a cached_property, not a model field,
+        # and passing it to Interface(**attrs) in ValidatedModelSerializer.validate() would raise TypeError.
+        mac_address = data.pop('mac_address', _UNSET)
 
         if not self.nested:
+            if mac_address not in (_UNSET, None):
+                try:
+                    EUI(mac_address, version=48)
+                except (AddrFormatError, ValueError, TypeError):
+                    raise serializers.ValidationError({
+                        'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
+                    })
 
             # Validate 802.1q mode and vlan(s)
             mode = None
@@ -329,7 +344,43 @@ class InterfaceSerializer(
                                         f"or it must be global."
                     })
 
-        return super().validate(data)
+        data = super().validate(data)
+
+        if mac_address is not _UNSET:
+            data['mac_address'] = mac_address
+
+        return data
+
+    def create(self, validated_data):
+        mac_address = validated_data.pop('mac_address', None)
+        instance = super().create(validated_data)
+        if mac_address is not None:
+            mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
+            instance.primary_mac_address = mac
+            instance.save()
+            instance.__dict__.pop('mac_address', None)
+        return instance
+
+    def update(self, instance, validated_data):
+        mac_address = validated_data.pop('mac_address', _UNSET)
+        instance = super().update(instance, validated_data)
+        if mac_address is _UNSET:
+            pass
+        elif mac_address is None:
+            instance.primary_mac_address = None
+            instance.save()
+            instance.__dict__.pop('mac_address', None)
+        else:
+            # Find an existing MACAddress on this interface with the target value, or create one.
+            # Using find-or-create avoids duplicating a MAC that already exists on this interface.
+            mac = instance.mac_addresses.filter(mac_address=mac_address).first()
+            if mac is None:
+                mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
+            if instance.primary_mac_address_id != mac.pk:
+                instance.primary_mac_address = mac
+                instance.save()
+            instance.__dict__.pop('mac_address', None)
+        return instance
 
 
 class RearPortMappingSerializer(serializers.ModelSerializer):

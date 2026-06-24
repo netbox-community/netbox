@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from netaddr import EUI, AddrFormatError
 
 from dcim.choices import *
 from dcim.constants import *
@@ -19,6 +20,12 @@ class InterfaceCommonForm(forms.Form):
         max_value=INTERFACE_MTU_MAX,
         label=_('MTU')
     )
+    mac_address = forms.CharField(
+        required=False,
+        empty_value=None,
+        label=_('MAC address'),
+        help_text=_('Enter a MAC address to create and assign it as the primary MAC in one step.')
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,12 +43,21 @@ class InterfaceCommonForm(forms.Form):
         if interface_mode != InterfaceModeChoices.MODE_Q_IN_Q:
             del self.fields['qinq_svlan']
 
-        if self.instance and self.instance.pk:
-            filter_name = f'{self._meta.model._meta.model_name}_id'
-            self.fields['primary_mac_address'].widget.add_query_param(filter_name, self.instance.pk)
+        if self.instance and self.instance.pk and self.instance.primary_mac_address:
+            # Pre-populate mac_address with the current primary MAC string so it round-trips cleanly
+            self.fields['mac_address'].initial = str(self.instance.primary_mac_address.mac_address)
 
     def clean(self):
         super().clean()
+
+        mac_address = self.cleaned_data.get('mac_address')
+        if mac_address:
+            try:
+                EUI(mac_address, version=48)
+            except (AddrFormatError, ValueError, TypeError):
+                raise forms.ValidationError({
+                    'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
+                })
         parent_field = 'device' if 'device' in self.cleaned_data else 'virtual_machine'
         if 'tagged_vlans' in self.fields.keys():
             tagged_vlans = self.cleaned_data.get('tagged_vlans') if self.is_bound else \
@@ -67,6 +83,34 @@ class InterfaceCommonForm(forms.Form):
                 self.instance.untagged_vlan = None
             if 'tagged_vlans' not in self.cleaned_data and self.instance.tagged_vlans is not None:
                 self.instance.tagged_vlans.clear()
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+
+        if 'mac_address' not in self.changed_data:
+            return instance
+
+        from dcim.models import MACAddress
+        mac_address = self.cleaned_data.get('mac_address')
+
+        if mac_address:
+            # Find an existing MACAddress on this interface with the target value, or create one.
+            # Using find-or-create avoids duplicating a MAC that already exists on this interface.
+            mac = instance.mac_addresses.filter(mac_address=mac_address).first()
+            if mac is None:
+                mac = MACAddress(mac_address=mac_address, assigned_object=instance)
+                mac.save()
+            if instance.primary_mac_address_id != mac.pk:
+                instance.primary_mac_address = mac
+                if commit:
+                    instance.save()
+        else:
+            instance.primary_mac_address = None
+            if commit:
+                instance.save()
+
+        instance.__dict__.pop('mac_address', None)
+        return instance
 
 
 class ModuleCommonForm(forms.Form):

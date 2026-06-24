@@ -3415,6 +3415,11 @@ class InterfaceView(generic.ObjectView):
                 filters={'interface_id': lambda ctx: ctx['object'].pk},
                 title=_('MAC Addresses'),
                 exclude_columns=['assigned_object', 'assigned_object_parent'],
+                actions=[
+                    actions.AddObject(
+                        'dcim.MACAddress', url_params={'interface': lambda ctx: ctx['object'].pk}
+                    ),
+                ],
             ),
             ObjectsTablePanel(
                 model='ipam.VLAN',
@@ -5023,6 +5028,50 @@ class MACAddressEditView(generic.ObjectEditView):
 @register_model_view(MACAddress, 'delete')
 class MACAddressDeleteView(generic.ObjectDeleteView):
     queryset = MACAddress.objects.all()
+
+
+@register_model_view(MACAddress, 'set_primary')
+class MACAddressSetPrimaryView(View):
+    queryset = MACAddress.objects.all()
+
+    def get(self, request, pk):
+        return self._handle(request, pk)
+
+    def post(self, request, pk):
+        return self._handle(request, pk)
+
+    def _handle(self, request, pk):
+        if not request.user.is_authenticated:
+            from django.contrib.auth.views import redirect_to_login
+            return redirect_to_login(request.get_full_path())
+
+        mac = get_object_or_404(self.queryset, pk=pk)
+        assigned_object = mac.assigned_object
+
+        if assigned_object is None:
+            messages.error(request, _('This MAC address is not assigned to an interface.'))
+            return redirect(mac.get_absolute_url())
+
+        perm = get_permission_for_model(assigned_object, 'change')
+        if not request.user.has_perm(perm):
+            messages.error(
+                request,
+                _('You do not have permission to modify {object}.').format(object=assigned_object)
+            )
+            return redirect(mac.get_absolute_url())
+
+        if assigned_object.primary_mac_address_id != mac.pk:
+            assigned_object.snapshot()
+            assigned_object.primary_mac_address = mac
+            assigned_object.save()
+            messages.success(
+                request,
+                _('Set {mac} as primary MAC address for {interface}.').format(
+                    mac=mac, interface=assigned_object
+                )
+            )
+
+        return redirect(assigned_object.get_absolute_url())
 
 
 @register_model_view(MACAddress, 'bulk_import', path='import', detail=False)

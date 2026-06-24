@@ -1218,6 +1218,24 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, PrimaryModelTable):
         )
 
 
+class MACAddressActionsColumn(columns.ActionsColumn):
+    actions = {
+        **columns.ActionsColumn.actions,
+        'set_primary': columns.ActionsItem('Set as primary', 'star-outline', None, 'warning'),
+    }
+
+    def render(self, record, table, **kwargs):
+        # Only offer "Set as primary" for non-primary MACs that are assigned to an interface.
+        if record.is_primary or not record.assigned_object_id:
+            saved = self.actions
+            try:
+                self.actions = {k: v for k, v in saved.items() if k != 'set_primary'}
+                return super().render(record, table, **kwargs)
+            finally:
+                self.actions = saved
+        return super().render(record, table, **kwargs)
+
+
 class MACAddressTable(PrimaryModelTable):
     mac_address = tables.TemplateColumn(
         template_code=MACADDRESS_LINK,
@@ -1241,7 +1259,8 @@ class MACAddressTable(PrimaryModelTable):
     tags = columns.TagColumn(
         url_name='dcim:macaddress_list'
     )
-    actions = columns.ActionsColumn(
+    actions = MACAddressActionsColumn(
+        actions=('edit', 'delete', 'changelog', 'set_primary'),
         extra_buttons=MACADDRESS_COPY_BUTTON
     )
 

@@ -1,4 +1,6 @@
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
+from netaddr import EUI, AddrFormatError
 from rest_framework import serializers
 
 from dcim.api.serializers_.devices import DeviceSerializer, MACAddressSerializer
@@ -6,6 +8,7 @@ from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
 from dcim.choices import InterfaceModeChoices
+from dcim.models import MACAddress
 from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from ipam.api.serializers_.vlans import VLANSerializer, VLANTranslationPolicySerializer
@@ -21,6 +24,8 @@ from ...choices import *
 from ...models import VirtualDisk, VirtualMachine, VirtualMachineType, VMInterface
 from .clusters import ClusterSerializer
 from .nested import NestedVMInterfaceSerializer
+
+_UNSET = object()
 
 __all__ = (
     'VMInterfaceSerializer',
@@ -120,8 +125,9 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
     l2vpn_termination = L2VPNTerminationSerializer(nested=True, read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    # Maintains backward compatibility with NetBox <v4.2
-    mac_address = serializers.CharField(allow_null=True, read_only=True)
+    # Maintains backward compatibility with NetBox <v4.2; also accepts a MAC string on write to
+    # create/update the primary MAC address in a single request.
+    mac_address = serializers.CharField(allow_null=True, required=False)
     primary_mac_address = MACAddressSerializer(nested=True, required=False, allow_null=True)
     mac_addresses = MACAddressSerializer(many=True, nested=True, read_only=True, allow_null=True)
 
@@ -136,6 +142,20 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
         brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 
     def validate(self, data):
+        # Pop mac_address before model validation — it's a cached_property, not a model field.
+        # data may be a VMInterface instance (not a dict) in some custom field code paths (#18887).
+        mac_address = _UNSET
+        if isinstance(data, dict):
+            mac_address = data.pop('mac_address', _UNSET)
+
+        if not self.nested and isinstance(data, dict) and mac_address not in (_UNSET, None):
+            try:
+                EUI(mac_address, version=48)
+            except (AddrFormatError, ValueError, TypeError):
+                raise serializers.ValidationError({
+                    'mac_address': _('Enter a valid MAC address (e.g. 00:11:22:33:44:55).')
+                })
+
         # Validate many-to-many VLAN assignments
         virtual_machine = None
         tagged_vlans = []
@@ -163,7 +183,43 @@ class VMInterfaceSerializer(OwnerMixin, NetBoxModelSerializer):
                                         f"machine, or it must be global."
                     })
 
-        return super().validate(data)
+        data = super().validate(data)
+
+        if mac_address is not _UNSET:
+            data['mac_address'] = mac_address
+
+        return data
+
+    def create(self, validated_data):
+        mac_address = validated_data.pop('mac_address', None)
+        instance = super().create(validated_data)
+        if mac_address is not None:
+            mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
+            instance.primary_mac_address = mac
+            instance.save()
+            instance.__dict__.pop('mac_address', None)
+        return instance
+
+    def update(self, instance, validated_data):
+        mac_address = validated_data.pop('mac_address', _UNSET)
+        instance = super().update(instance, validated_data)
+        if mac_address is _UNSET:
+            pass
+        elif mac_address is None:
+            instance.primary_mac_address = None
+            instance.save()
+            instance.__dict__.pop('mac_address', None)
+        else:
+            # Find an existing MACAddress on this interface with the target value, or create one.
+            # Using find-or-create avoids duplicating a MAC that already exists on this interface.
+            mac = instance.mac_addresses.filter(mac_address=mac_address).first()
+            if mac is None:
+                mac = MACAddress.objects.create(mac_address=mac_address, assigned_object=instance)
+            if instance.primary_mac_address_id != mac.pk:
+                instance.primary_mac_address = mac
+                instance.save()
+            instance.__dict__.pop('mac_address', None)
+        return instance
 
 
 #
