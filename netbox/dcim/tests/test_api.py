@@ -4454,9 +4454,18 @@ class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
         )
 
         cooling_sources = (
-            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 1'),
-            CoolingSource(site=sites[0], location=locations[1], name='Cooling Source 2'),
-            CoolingSource(site=sites[0], location=locations[2], name='Cooling Source 3'),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 1',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[1], name='Cooling Source 2',
+                type=CoolingSourceTypeChoices.TYPE_COOLING_TOWER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[2], name='Cooling Source 3',
+                type=CoolingSourceTypeChoices.TYPE_DRY_COOLER
+            ),
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 
@@ -4465,16 +4474,19 @@ class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Cooling Source 4',
                 'site': sites[0].pk,
                 'location': locations[0].pk,
+                'type': CoolingSourceTypeChoices.TYPE_CHILLER,
             },
             {
                 'name': 'Cooling Source 5',
                 'site': sites[0].pk,
                 'location': locations[1].pk,
+                'type': CoolingSourceTypeChoices.TYPE_CHILLER,
             },
             {
                 'name': 'Cooling Source 6',
                 'site': sites[0].pk,
                 'location': locations[2].pk,
+                'type': CoolingSourceTypeChoices.TYPE_CHILLER,
             },
         ]
 
@@ -4507,8 +4519,12 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
         Rack.objects.bulk_create(racks)
 
         cooling_sources = (
-            CoolingSource(site=site, location=location, name='Cooling Source 1'),
-            CoolingSource(site=site, location=location, name='Cooling Source 2'),
+            CoolingSource(
+                site=site, location=location, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=site, location=location, name='Cooling Source 2', type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 

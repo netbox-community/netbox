@@ -8454,9 +8454,9 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         cooling_sources = (
-            CoolingSource(name='Cooling Source 1', site=sites[0]),
-            CoolingSource(name='Cooling Source 2', site=sites[1]),
-            CoolingSource(name='Cooling Source 3', site=sites[2]),
+            CoolingSource(name='Cooling Source 1', site=sites[0], type=CoolingSourceTypeChoices.TYPE_CHILLER),
+            CoolingSource(name='Cooling Source 2', site=sites[1], type=CoolingSourceTypeChoices.TYPE_CHILLER),
+            CoolingSource(name='Cooling Source 3', site=sites[2], type=CoolingSourceTypeChoices.TYPE_CHILLER),
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 

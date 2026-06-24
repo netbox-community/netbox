@@ -25,10 +25,7 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
         default=None
     )
     type = ChoiceField(
-        choices=CoolingSourceTypeChoices,
-        allow_blank=True,
-        required=False,
-        allow_null=True
+        choices=CoolingSourceTypeChoices
     )
     status = ChoiceField(
         choices=CoolingSourceStatusChoices,

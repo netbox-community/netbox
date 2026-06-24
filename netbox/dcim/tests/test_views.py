@@ -4852,9 +4852,18 @@ class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             location.save()
 
         cooling_sources = (
-            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 1'),
-            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 2'),
-            CoolingSource(site=sites[0], location=locations[0], name='Cooling Source 3'),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 1',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 2',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
+            CoolingSource(
+                site=sites[0], location=locations[0], name='Cooling Source 3',
+                type=CoolingSourceTypeChoices.TYPE_CHILLER
+            ),
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 
@@ -4864,15 +4873,16 @@ class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'site': sites[1].pk,
             'location': locations[1].pk,
             'name': 'Cooling Source X',
+            'type': CoolingSourceTypeChoices.TYPE_COOLING_TOWER,
             'status': CoolingSourceStatusChoices.STATUS_ACTIVE,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "site,location,name,status",
-            "Site 1,Location 1,Cooling Source 4,active",
-            "Site 1,Location 1,Cooling Source 5,active",
-            "Site 1,Location 1,Cooling Source 6,active",
+            "site,location,name,type,status",
+            "Site 1,Location 1,Cooling Source 4,chiller,active",
+            "Site 1,Location 1,Cooling Source 5,chiller,active",
+            "Site 1,Location 1,Cooling Source 6,chiller,active",
         )
 
         cls.csv_update_data = (
@@ -4897,8 +4907,8 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
 
         cooling_sources = (
-            CoolingSource(site=site, name='Cooling Source 1'),
-            CoolingSource(site=site, name='Cooling Source 2'),
+            CoolingSource(site=site, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER),
+            CoolingSource(site=site, name='Cooling Source 2', type=CoolingSourceTypeChoices.TYPE_CHILLER),
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 

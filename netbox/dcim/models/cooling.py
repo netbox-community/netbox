@@ -43,9 +43,7 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     type = models.CharField(
         verbose_name=_('type'),
         max_length=50,
-        choices=CoolingSourceTypeChoices,
-        blank=True,
-        null=True
+        choices=CoolingSourceTypeChoices
     )
     status = models.CharField(
         verbose_name=_('status'),
