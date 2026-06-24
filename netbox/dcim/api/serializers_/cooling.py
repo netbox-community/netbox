@@ -2,6 +2,7 @@ from dcim.choices import *
 from dcim.models import CoolingFeed, CoolingSource
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import PrimaryModelSerializer
+from netbox.choices import TemperatureUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from .base import ConnectedEndpointsSerializer
@@ -33,6 +34,12 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
         choices=CoolingSourceStatusChoices,
         default=lambda: CoolingSourceStatusChoices.STATUS_ACTIVE,
     )
+    temperature_unit = ChoiceField(
+        choices=TemperatureUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
 
     # Related object counts
     cooling_feed_count = RelatedObjectCountField('cooling_feeds')
@@ -41,8 +48,8 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
         model = CoolingSource
         fields = [
             'id', 'url', 'display_url', 'display', 'site', 'location', 'name', 'type', 'status', 'cooling_capacity',
-            'supply_temperature', 'return_temperature', 'description', 'owner', 'comments', 'tags', 'custom_fields',
-            'cooling_feed_count', 'created', 'last_updated',
+            'supply_temperature', 'return_temperature', 'temperature_unit', 'description', 'owner', 'comments', 'tags',
+            'custom_fields', 'cooling_feed_count', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'cooling_feed_count')
 

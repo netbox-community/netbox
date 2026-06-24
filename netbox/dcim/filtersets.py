@@ -12,7 +12,7 @@ from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, VRF, IPAddress, VLANTranslationPolicy
-from netbox.choices import ColorChoices
+from netbox.choices import ColorChoices, TemperatureUnitChoices
 from netbox.filtersets import (
     AttributeFiltersMixin,
     BaseFilterSet,
@@ -3307,11 +3307,17 @@ class CoolingSourceFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
         distinct=False,
         null_value=None
     )
+    temperature_unit = django_filters.MultipleChoiceFilter(
+        choices=TemperatureUnitChoices,
+        distinct=False,
+        null_value=None
+    )
 
     class Meta:
         model = CoolingSource
         fields = (
-            'id', 'name', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'description',
+            'id', 'name', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'temperature_unit',
+            'description',
         )
 
     def search(self, queryset, name, value):

@@ -11,6 +11,7 @@ __all__ = (
     'DistanceUnitChoices',
     'ImportFormatChoices',
     'ImportMethodChoices',
+    'TemperatureUnitChoices',
     'WeightUnitChoices',
 )
 
@@ -213,4 +214,18 @@ class DiameterUnitChoices(ChoiceSet):
         (UNIT_MILLIMETER, _('Millimeters')),
         (UNIT_CENTIMETER, _('Centimeters')),
         (UNIT_INCH, _('Inches')),
+    )
+
+
+class TemperatureUnitChoices(ChoiceSet):
+
+    # Metric
+    UNIT_CELSIUS = 'c'
+
+    # Imperial
+    UNIT_FAHRENHEIT = 'f'
+
+    CHOICES = (
+        (UNIT_CELSIUS, _('Celsius')),
+        (UNIT_FAHRENHEIT, _('Fahrenheit')),
     )

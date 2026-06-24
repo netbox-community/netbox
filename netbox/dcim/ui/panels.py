@@ -438,8 +438,8 @@ class CoolingSourcePanel(panels.ObjectAttributesPanel):
     type = attrs.ChoiceAttr('type')
     status = attrs.ChoiceAttr('status')
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
-    supply_temperature = attrs.TextAttr('supply_temperature', format_string=_('{} °C'))
-    return_temperature = attrs.TextAttr('return_temperature', format_string=_('{} °C'))
+    supply_temperature = attrs.NumericAttr('supply_temperature', unit_accessor='get_temperature_unit_display')
+    return_temperature = attrs.NumericAttr('return_temperature', unit_accessor='get_temperature_unit_display')
     description = attrs.TextAttr('description')
 
 

@@ -4,8 +4,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
+from netbox.choices import TemperatureUnitChoices
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from utilities.conversion import to_celsius
 
 from .device_components import CabledObjectModel, PathEndpoint
 
@@ -62,23 +64,44 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     )
     supply_temperature = models.DecimalField(
         verbose_name=_('supply temperature'),
-        max_digits=5,
+        max_digits=6,
         decimal_places=2,
         blank=True,
         null=True,
-        help_text=_('Design supply temperature (°C)')
+        help_text=_('Design supply temperature')
     )
     return_temperature = models.DecimalField(
         verbose_name=_('return temperature'),
-        max_digits=5,
+        max_digits=6,
         decimal_places=2,
         blank=True,
         null=True,
-        help_text=_('Design return temperature (°C)')
+        help_text=_('Design return temperature')
+    )
+    temperature_unit = models.CharField(
+        verbose_name=_('temperature unit'),
+        max_length=50,
+        choices=TemperatureUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized temperatures (in degrees Celsius) for database ordering
+    _abs_supply_temperature = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+    _abs_return_temperature = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        blank=True,
+        null=True
     )
 
     clone_fields = (
         'site', 'location', 'type', 'status', 'cooling_capacity', 'supply_temperature', 'return_temperature',
+        'temperature_unit',
     )
     prerequisite_models = (
         'dcim.Site',
@@ -98,8 +121,39 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     def __str__(self):
         return self.name
 
+    @property
+    def abs_supply_temperature(self):
+        # Public alias for _abs_supply_temperature; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_supply_temperature
+
+    @property
+    def abs_return_temperature(self):
+        # Public alias for _abs_return_temperature; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_return_temperature
+
     def get_status_color(self):
         return CoolingSourceStatusChoices.colors.get(self.status)
+
+    def save(self, *args, **kwargs):
+        # Store the given temperatures (if any) in degrees Celsius for use in database ordering
+        if self.temperature_unit:
+            self._abs_supply_temperature = (
+                to_celsius(self.supply_temperature, self.temperature_unit)
+                if self.supply_temperature is not None else None
+            )
+            self._abs_return_temperature = (
+                to_celsius(self.return_temperature, self.temperature_unit)
+                if self.return_temperature is not None else None
+            )
+        else:
+            self._abs_supply_temperature = None
+            self._abs_return_temperature = None
+
+        # Clear temperature_unit if no temperatures are defined
+        if self.supply_temperature is None and self.return_temperature is None:
+            self.temperature_unit = None
+
+        super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
@@ -110,6 +164,10 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
                 _("Location {location} ({location_site}) is in a different site than {site}").format(
                     location=self.location, location_site=self.location.site, site=self.site)
             )
+
+        # A temperature unit is required when a temperature is set
+        if (self.supply_temperature is not None or self.return_temperature is not None) and not self.temperature_unit:
+            raise ValidationError(_("Must specify a unit when setting a temperature"))
 
 
 class CoolingFeed(PrimaryModel, PathEndpoint, CabledObjectModel):

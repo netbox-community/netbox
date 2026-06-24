@@ -1514,6 +1514,8 @@ class CoolingSourceFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm)
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
         FieldSet('type', 'status', name=_('Attributes')),
+        FieldSet('cooling_capacity', 'supply_temperature', 'return_temperature', 'temperature_unit',
+                 name=_('Characteristics')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
@@ -1554,6 +1556,23 @@ class CoolingSourceFilterForm(ContactModelFilterForm, PrimaryModelFilterSetForm)
     status = forms.MultipleChoiceField(
         label=_('Status'),
         choices=CoolingSourceStatusChoices,
+        required=False
+    )
+    cooling_capacity = forms.DecimalField(
+        label=_('Cooling capacity'),
+        required=False
+    )
+    supply_temperature = forms.DecimalField(
+        label=_('Supply temperature'),
+        required=False
+    )
+    return_temperature = forms.DecimalField(
+        label=_('Return temperature'),
+        required=False
+    )
+    temperature_unit = forms.MultipleChoiceField(
+        label=_('Temperature unit'),
+        choices=TemperatureUnitChoices,
         required=False
     )
     tag = TagFilterField(model)

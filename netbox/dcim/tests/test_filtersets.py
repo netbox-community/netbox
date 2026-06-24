@@ -10,7 +10,7 @@ from dcim.filtersets import *
 from dcim.models import *
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF, IPAddress, VLANTranslationPolicy
-from netbox.choices import ColorChoices, DiameterUnitChoices, WeightUnitChoices
+from netbox.choices import ColorChoices, DiameterUnitChoices, TemperatureUnitChoices, WeightUnitChoices
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
@@ -8297,6 +8297,7 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 cooling_capacity=100,
                 supply_temperature=18,
                 return_temperature=30,
+                temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
                 description='foobar1'
             ),
             CoolingSource(
@@ -8308,6 +8309,7 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 cooling_capacity=200,
                 supply_temperature=20,
                 return_temperature=32,
+                temperature_unit=TemperatureUnitChoices.UNIT_CELSIUS,
                 description='foobar2'
             ),
             CoolingSource(
@@ -8319,6 +8321,7 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 cooling_capacity=300,
                 supply_temperature=22,
                 return_temperature=34,
+                temperature_unit=TemperatureUnitChoices.UNIT_FAHRENHEIT,
                 description='foobar3'
             ),
         )
@@ -8354,6 +8357,10 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_return_temperature(self):
         params = {'return_temperature': [30, 32]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_temperature_unit(self):
+        params = {'temperature_unit': [TemperatureUnitChoices.UNIT_CELSIUS]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):

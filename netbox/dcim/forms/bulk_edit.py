@@ -1145,11 +1145,20 @@ class CoolingSourceBulkEditForm(PrimaryModelBulkEditForm):
         label=_('Return temperature'),
         required=False
     )
+    temperature_unit = forms.ChoiceField(
+        label=_('Temperature unit'),
+        choices=add_blank_choice(TemperatureUnitChoices),
+        required=False,
+        initial=''
+    )
 
     model = CoolingSource
     fieldsets = (
         FieldSet('region', 'site_group', 'site', 'location', 'type', 'status', 'description'),
-        FieldSet('cooling_capacity', 'supply_temperature', 'return_temperature', name=_('Characteristics')),
+        FieldSet(
+            'cooling_capacity', 'supply_temperature', 'return_temperature', 'temperature_unit',
+            name=_('Characteristics')
+        ),
     )
     nullable_fields = (
         'location', 'type', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'description', 'comments',

@@ -1163,7 +1163,9 @@ class CoolingSourceForm(PrimaryModelForm):
     fieldsets = (
         FieldSet('site', 'location', 'name', 'type', 'status', 'description', 'tags', name=_('Cooling Source')),
         FieldSet(
-            'cooling_capacity', 'supply_temperature', 'return_temperature', name=_('Characteristics')
+            'cooling_capacity',
+            InlineFields('supply_temperature', 'return_temperature', 'temperature_unit', label=_('Temperatures')),
+            name=_('Characteristics')
         ),
     )
 
@@ -1171,7 +1173,7 @@ class CoolingSourceForm(PrimaryModelForm):
         model = CoolingSource
         fields = [
             'site', 'location', 'name', 'type', 'status', 'cooling_capacity', 'supply_temperature',
-            'return_temperature', 'description', 'owner', 'comments', 'tags',
+            'return_temperature', 'temperature_unit', 'description', 'owner', 'comments', 'tags',
         ]
 
 

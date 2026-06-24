@@ -33,8 +33,12 @@ The total heat-removal capacity of the source, expressed in kilowatts (kW).
 
 ### Supply Temperature
 
-The design supply (cold) coolant temperature, in degrees Celsius (°C).
+The design supply (cold) coolant temperature, expressed in the selected temperature unit.
 
 ### Return Temperature
 
-The design return (warm) coolant temperature, in degrees Celsius (°C).
+The design return (warm) coolant temperature, expressed in the selected temperature unit.
+
+### Temperature Unit
+
+The unit (Celsius or Fahrenheit) in which the supply and return temperatures are expressed.

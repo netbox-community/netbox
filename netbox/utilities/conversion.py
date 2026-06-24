@@ -3,9 +3,10 @@ from decimal import Decimal, InvalidOperation
 from django.utils.translation import gettext as _
 
 from dcim.choices import CableLengthUnitChoices
-from netbox.choices import DiameterUnitChoices, WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, TemperatureUnitChoices, WeightUnitChoices
 
 __all__ = (
+    'to_celsius',
     'to_grams',
     'to_meters',
     'to_millimeters',
@@ -65,6 +66,29 @@ def to_meters(length, unit) -> Decimal:
         _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
             unit=unit,
             valid_units=', '.join(CableLengthUnitChoices.values())
+        )
+    )
+
+
+def to_celsius(temperature, unit) -> Decimal:
+    """
+    Convert the given temperature to degrees Celsius, returning a Decimal value. Temperatures may be negative.
+    """
+    try:
+        temperature = Decimal(temperature)
+    except InvalidOperation:
+        raise TypeError(
+            _("Invalid value '{temperature}' for temperature (must be a number)").format(temperature=temperature)
+        )
+
+    if unit == TemperatureUnitChoices.UNIT_CELSIUS:
+        return round(Decimal(temperature), 4)
+    if unit == TemperatureUnitChoices.UNIT_FAHRENHEIT:
+        return round((Decimal(temperature) - 32) * 5 / 9, 4)
+    raise ValueError(
+        _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+            unit=unit,
+            valid_units=', '.join(TemperatureUnitChoices.values())
         )
     )
 
