@@ -116,8 +116,8 @@ class InterfaceCommonForm(forms.Form):
             else:
                 if instance.primary_mac_address_id is not None:
                     instance.snapshot()
-                instance.primary_mac_address = None
-                instance.save()
+                    instance.primary_mac_address = None
+                    instance.save()
 
         instance.__dict__.pop('mac_address', None)
         return instance

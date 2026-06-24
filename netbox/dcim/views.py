@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
 from django.db import router, transaction
@@ -5036,7 +5037,6 @@ class MACAddressSetPrimaryView(View):
 
     def post(self, request, pk):
         if not request.user.is_authenticated:
-            from django.contrib.auth.views import redirect_to_login
             return redirect_to_login(request.get_full_path())
 
         mac = get_object_or_404(self.queryset.restrict(request.user, 'view'), pk=pk)

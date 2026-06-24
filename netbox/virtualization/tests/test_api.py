@@ -787,6 +787,30 @@ class VMInterfaceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertIn('mac_address', response.data)
 
+    def test_mac_address_find_or_create(self):
+        """
+        Patching mac_address with a MAC that already exists on the VMInterface promotes it to
+        primary without creating a duplicate MACAddress record.
+        """
+        from dcim.models import MACAddress
+        self.add_permissions('virtualization.change_vminterface', 'dcim.add_macaddress', 'dcim.change_macaddress')
+        iface = VMInterface.objects.first()
+
+        mac1 = MACAddress.objects.create(mac_address='CC:DD:EE:FF:00:01', assigned_object=iface)
+        mac2 = MACAddress.objects.create(mac_address='CC:DD:EE:FF:00:02', assigned_object=iface)
+        iface.primary_mac_address = mac1
+        iface.save()
+
+        mac_count_before = iface.mac_addresses.count()
+        url = self._get_detail_url(iface)
+
+        response = self.client.patch(url, {'mac_address': 'CC:DD:EE:FF:00:02'}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        iface.refresh_from_db()
+        self.assertEqual(iface.primary_mac_address.pk, mac2.pk)
+        self.assertEqual(iface.mac_addresses.count(), mac_count_before)
+
 
 class VirtualDiskTestCase(APIViewTestCases.APIViewTestCase):
     model = VirtualDisk

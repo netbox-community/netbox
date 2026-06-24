@@ -3387,7 +3387,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         Submitting the Interface form with a mac_address string creates a MACAddress
         and sets it as primary in one request.
         """
-        self.add_permissions('dcim.add_interface')
+        self.add_permissions('dcim.add_interface', 'dcim.add_macaddress')
 
         data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
         response = self.client.post(self._get_url('add'), data=post_data(data))
@@ -3403,7 +3403,7 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         Submitting the Interface edit form with a mac_address string creates a MACAddress
         and assigns it as primary when none existed before.
         """
-        self.add_permissions('dcim.change_interface')
+        self.add_permissions('dcim.change_interface', 'dcim.add_macaddress')
 
         instance = Interface.objects.filter(device_id=self.form_data['device']).first()
         self.assertIsNone(instance.primary_mac_address)

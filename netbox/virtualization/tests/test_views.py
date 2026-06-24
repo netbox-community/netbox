@@ -693,7 +693,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         Submitting the VMInterface form with a mac_address string creates a MACAddress
         and sets it as primary in one request.
         """
-        self.add_permissions('virtualization.add_vminterface')
+        self.add_permissions('virtualization.add_vminterface', 'dcim.add_macaddress')
 
         data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
         response = self.client.post(self._get_url('add'), data=post_data(data))
@@ -709,7 +709,7 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         Submitting the VMInterface edit form with a mac_address string creates a MACAddress
         and assigns it as primary when none existed before.
         """
-        self.add_permissions('virtualization.change_vminterface')
+        self.add_permissions('virtualization.change_vminterface', 'dcim.add_macaddress')
 
         instance = VMInterface.objects.filter(virtual_machine_id=self.form_data['virtual_machine']).first()
         self.assertIsNone(instance.primary_mac_address)
