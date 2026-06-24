@@ -3382,6 +3382,59 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(Interface.objects.filter(device=device, name__startswith='xe').count(), 37)
 
+    def test_mac_address_shortcut_create(self):
+        """
+        Submitting the Interface form with a mac_address string creates a MACAddress
+        and sets it as primary in one request.
+        """
+        self.add_permissions('dcim.add_interface')
+
+        data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('add'), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        interface = Interface.objects.get(device=data['device'], name=data['name'])
+        self.assertIsNotNone(interface.primary_mac_address)
+        self.assertEqual(str(interface.primary_mac_address.mac_address), 'AA:BB:CC:DD:EE:FF')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_edit(self):
+        """
+        Submitting the Interface edit form with a mac_address string creates a MACAddress
+        and assigns it as primary when none existed before.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        self.assertIsNone(instance.primary_mac_address)
+
+        data = {**self.form_data, 'mac_address': '11:22:33:44:55:66', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNotNone(instance.primary_mac_address)
+        self.assertEqual(str(instance.primary_mac_address.mac_address), '11:22:33:44:55:66')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_clear(self):
+        """
+        Submitting the Interface edit form with an empty mac_address clears the primary MAC.
+        """
+        self.add_permissions('dcim.change_interface')
+
+        instance = Interface.objects.filter(device_id=self.form_data['device']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        data = {**self.form_data, 'mac_address': '', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort
@@ -4338,10 +4391,67 @@ class MACAddressTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_set_primary(self):
+        """
+        Test that MACAddressSetPrimaryView promotes a non-primary MAC to primary and
+        redirects to the assigned interface's detail page.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        # Use the first MAC fixture which is assigned to an interface but not yet primary
+        mac = MACAddress.objects.first()
+        interface = mac.assigned_object
+        self.assertIsNotNone(interface)
+        self.assertIsNone(interface.primary_mac_address)
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertEqual(interface.primary_mac_address_id, mac.pk)
+
+    def test_set_primary_already_primary(self):
+        """
+        Clicking Set as primary on the current primary MAC is a no-op and still
+        redirects to the interface.
+        """
+        self.add_permissions('dcim.view_macaddress', 'dcim.change_interface')
+
+        mac = MACAddress.objects.first()
+        interface = mac.assigned_object
+        interface.primary_mac_address = mac
+        interface.save()
+
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], interface.get_absolute_url())
+        interface.refresh_from_db()
+        self.assertEqual(interface.primary_mac_address_id, mac.pk)
+
+    def test_set_primary_requires_interface_change_permission(self):
+        """
+        Attempting to set a primary MAC without change_interface permission
+        redirects to the MAC's detail page with an error.
+        """
+        self.add_permissions('dcim.view_macaddress')
+
+        mac = MACAddress.objects.first()
+        url = reverse('dcim:macaddress_set_primary', kwargs={'pk': mac.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 302)
+        self.assertEqual(response['Location'], mac.get_absolute_url())
+        mac.assigned_object.refresh_from_db()
+        self.assertIsNone(mac.assigned_object.primary_mac_address)
+
     @tag('regression')  # Issue #20542
     def test_create_macaddress_via_quickadd(self):
         """
-        Test creating a MAC address via quick-add modal (e.g., from Interface form).
+        Test creating a MAC address via the quick-add modal mechanism.
         Regression test for issue #20542 where form prefix was missing in POST handler.
         """
         self.add_permissions('dcim.view_macaddress', 'dcim.view_interface', 'extras.view_tag')

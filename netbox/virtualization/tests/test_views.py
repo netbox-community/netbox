@@ -1,13 +1,14 @@
 from decimal import Decimal
 
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 
 from dcim.choices import InterfaceModeChoices
-from dcim.models import DeviceRole, Platform, Site
+from dcim.models import DeviceRole, MACAddress, Platform, Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VRF
-from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_virtualmachine
+from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_virtualmachine, post_data
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -686,6 +687,59 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
         self.client.post(self._get_url('bulk_delete'), data)
         self.assertEqual(virtual_machine.interfaces.count(), 2)  # Child & parent were both deleted
+
+    def test_mac_address_shortcut_create(self):
+        """
+        Submitting the VMInterface form with a mac_address string creates a MACAddress
+        and sets it as primary in one request.
+        """
+        self.add_permissions('virtualization.add_vminterface')
+
+        data = {**self.form_data, 'mac_address': 'AA:BB:CC:DD:EE:FF', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('add'), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        interface = VMInterface.objects.get(virtual_machine=data['virtual_machine'], name=data['name'])
+        self.assertIsNotNone(interface.primary_mac_address)
+        self.assertEqual(str(interface.primary_mac_address.mac_address), 'AA:BB:CC:DD:EE:FF')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_edit(self):
+        """
+        Submitting the VMInterface edit form with a mac_address string creates a MACAddress
+        and assigns it as primary when none existed before.
+        """
+        self.add_permissions('virtualization.change_vminterface')
+
+        instance = VMInterface.objects.filter(virtual_machine_id=self.form_data['virtual_machine']).first()
+        self.assertIsNone(instance.primary_mac_address)
+
+        data = {**self.form_data, 'mac_address': '11:22:33:44:55:66', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNotNone(instance.primary_mac_address)
+        self.assertEqual(str(instance.primary_mac_address.mac_address), '11:22:33:44:55:66')
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_mac_address_shortcut_clear(self):
+        """
+        Submitting the VMInterface edit form with an empty mac_address clears the primary MAC.
+        """
+        self.add_permissions('virtualization.change_vminterface')
+
+        instance = VMInterface.objects.filter(virtual_machine_id=self.form_data['virtual_machine']).first()
+        mac = MACAddress.objects.create(mac_address='AA:BB:CC:DD:EE:FF', assigned_object=instance)
+        instance.primary_mac_address = mac
+        instance.save()
+
+        data = {**self.form_data, 'mac_address': '', 'changelog_message': 'test'}
+        response = self.client.post(self._get_url('edit', instance), data=post_data(data))
+        self.assertHttpStatus(response, 302)
+
+        instance.refresh_from_db()
+        self.assertIsNone(instance.primary_mac_address)
 
 
 class VirtualDiskTestCase(ViewTestCases.DeviceComponentViewTestCase):
