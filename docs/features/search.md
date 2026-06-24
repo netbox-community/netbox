@@ -2,7 +2,7 @@
 
 ## Global Search
 
-NetBox includes a powerful global search engine, providing a single convenient interface to search across its complex data model. Relevant fields on each model are indexed according to their precedence, so that the most relevant results are returned first. When objects are created or modified, the search index is updated immediately, ensuring real-time accuracy.
+NetBox includes a powerful global search engine, providing a single convenient interface to search across its complex data model. Relevant fields on each model are indexed according to their precedence, so that the most relevant results are returned first. When objects are created, modified, or deleted, the search index is updated by a background task shortly afterward. As a result, a newly created or changed object may not appear in search results for a brief period. (When no background worker is running, the index is updated immediately as part of the request.)
 
 When entering a search query, the user can choose a specific lookup type: exact match, partial match, etc. When a partial match is found, the matching portion of the applicable field value is included with each result so that the user can easily determine its relevance.
 
