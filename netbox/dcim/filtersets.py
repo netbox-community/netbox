@@ -948,7 +948,8 @@ class ModuleTypeFilterSet(AttributeFiltersMixin, PrimaryModelFilterSet):
     class Meta:
         model = ModuleType
         fields = (
-            'id', 'model', 'part_number', 'airflow', 'weight', 'weight_unit', 'end_of_life', 'description',
+            'id', 'model', 'part_number', 'airflow', 'cooling_method', 'weight', 'weight_unit', 'end_of_life',
+            'description',
 
             # Counters
             'console_port_template_count',

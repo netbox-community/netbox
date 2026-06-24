@@ -1642,6 +1642,7 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight_unit=WeightUnitChoices.UNIT_POUND,
                 description='foobar1',
                 airflow=ModuleAirflowChoices.FRONT_TO_REAR,
+                cooling_method=CoolingMethodChoices.METHOD_LIQUID,
                 end_of_life='2030-01-01',
                 profile=module_type_profiles[0],
                 attribute_data={
@@ -1659,6 +1660,7 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
                 weight_unit=WeightUnitChoices.UNIT_POUND,
                 description='foobar2',
                 airflow=ModuleAirflowChoices.REAR_TO_FRONT,
+                cooling_method=CoolingMethodChoices.METHOD_HYBRID,
                 end_of_life='2035-06-30',
                 profile=module_type_profiles[1],
                 attribute_data={
@@ -1809,6 +1811,10 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_airflow(self):
         params = {'airflow': RackAirflowChoices.FRONT_TO_REAR}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_cooling_method(self):
+        params = {'cooling_method': CoolingMethodChoices.METHOD_LIQUID}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_profile(self):

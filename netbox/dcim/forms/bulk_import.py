@@ -522,6 +522,12 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    cooling_method = CSVChoiceField(
+        label=_('Cooling method'),
+        choices=CoolingMethodChoices,
+        required=False,
+        help_text=_('Cooling method')
+    )
     weight = forms.DecimalField(
         label=_('Weight'),
         required=False,
@@ -542,8 +548,8 @@ class ModuleTypeImportForm(PrimaryModelImportForm):
     class Meta:
         model = ModuleType
         fields = [
-            'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit', 'end_of_life',
-            'profile', 'attribute_data', 'owner', 'comments', 'tags',
+            'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight', 'weight_unit',
+            'end_of_life', 'profile', 'attribute_data', 'owner', 'comments', 'tags',
         ]
 
     def clean(self):

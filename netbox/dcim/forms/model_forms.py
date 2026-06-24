@@ -614,7 +614,8 @@ class ModuleTypeForm(PrimaryModelForm):
     def fieldsets(self):
         return [
             FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
-            FieldSet('airflow', 'weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('weight', 'weight_unit', name=_('Hardware')),
+            FieldSet('cooling_method', 'airflow', name=_('Cooling')),
             FieldSet('module_bay_types', name=_('Bay Type Compatibility')),
             FieldSet('end_of_life', name=_('Lifecycle')),
             FieldSet('profile', *self.attr_fields, name=_('Profile & Attributes'), html_id='profile-attributes')
@@ -623,8 +624,8 @@ class ModuleTypeForm(PrimaryModelForm):
     class Meta:
         model = ModuleType
         fields = [
-            'profile', 'manufacturer', 'model', 'part_number', 'description', 'airflow', 'weight', 'weight_unit',
-            'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
+            'profile', 'manufacturer', 'model', 'part_number', 'description', 'cooling_method', 'airflow', 'weight',
+            'weight_unit', 'module_bay_types', 'end_of_life', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'end_of_life': DatePicker(),

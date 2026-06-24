@@ -75,6 +75,10 @@ The numeric weight of the module, including a unit designation (e.g. 3 kilograms
 
 The direction in which air circulates through the device chassis for cooling.
 
+### Cooling Method
+
+The cooling method employed by modules of this type (air, liquid, hybrid, or immersion). This is useful for liquid-cooled modules such as direct-to-chip accelerator (OAM) modules or liquid-cooled line cards.
+
 ### End of Life
 
 The date after which this module type is no longer supported by its manufacturer. This can be used to identify modules approaching or past their support horizon to aid in hardware lifecycle planning.

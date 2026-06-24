@@ -145,6 +145,13 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         blank=True,
         null=True
     )
+    cooling_method = models.CharField(
+        verbose_name=_('cooling method'),
+        max_length=50,
+        choices=CoolingMethodChoices,
+        blank=True,
+        null=True
+    )
     end_of_life = models.DateField(
         verbose_name=_('end of life'),
         blank=True,
@@ -210,7 +217,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         to_field='module_type'
     )
 
-    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow')
+    clone_fields = ('profile', 'manufacturer', 'weight', 'weight_unit', 'airflow', 'cooling_method')
     prerequisite_models = (
         'dcim.Manufacturer',
     )
@@ -298,6 +305,7 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
             'airflow': self.airflow,
+            'cooling_method': self.cooling_method,
             'end_of_life': self.end_of_life.isoformat() if self.end_of_life else None,
             'attribute_data': self.attribute_data,
             'comments': self.comments,
