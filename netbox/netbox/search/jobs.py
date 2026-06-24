@@ -16,7 +16,7 @@ class SearchCacheJob(JobRunner):
         name = 'Search cache update'
 
     def run(self, using=None, cache_groups=None, remove_groups=None, **kwargs):
-        search_backend.apply_deferred_updates(
+        search_backend._apply_deferred_updates(
             using=using,
             cache_groups=cache_groups,
             remove_groups=remove_groups,

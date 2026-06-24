@@ -43,6 +43,12 @@ def mark_for_deferred_indexing(object_type_id, pk, op, using=None):
             (e.g. a branch schema under netbox-branching), regardless of any
             routing context that may be unset by the time the flush runs.
     """
+    # Fall back to the default alias when no originating alias was captured. This is correct for the
+    # common case (autocommit / non-branch writes route to the default connection), but if a write
+    # under a branch schema ever reached here without its alias, the deferred write would silently
+    # land in the main schema. Log at debug so that case is observable rather than invisible.
+    if not using:
+        logger.debug("Search cache: no originating DB alias for object %s/%s; using default", object_type_id, pk)
     alias = using or DEFAULT_DB_ALIAS
     connection = connections[alias]
 
@@ -170,4 +176,4 @@ def _flush(batch, using):
     except RedisError:
         logger.warning("Search cache: broker unavailable; indexing inline", exc_info=True)
 
-    search_backend.apply_deferred_updates(using=using, cache_groups=cache_groups, remove_groups=remove_groups)
+    search_backend._apply_deferred_updates(using=using, cache_groups=cache_groups, remove_groups=remove_groups)

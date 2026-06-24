@@ -31,8 +31,8 @@ logger = logging.getLogger(__name__)
 
 class SearchBackend:
     """
-    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, `clear()`, and
-    `apply_deferred_updates()` methods below.
+    Base class for search backends. Subclasses must extend the `cache()`, `remove()`, and `clear()`
+    methods below.
     """
     _object_types = None
 
@@ -64,6 +64,69 @@ class SearchBackend:
         """
         raise NotImplementedError
 
+    # caching_handler() and removal_handler() are the default, synchronous signal receivers connected
+    # to post_save/post_delete at module load. They are internal plumbing for signal dispatch, not a
+    # documented extension point: the public backend contract is cache()/remove()/clear(). A backend
+    # that needs to do something other than index inline (e.g. defer the work) overrides these in its
+    # subclass; see CachedValueSearchBackend.
+    def caching_handler(self, sender, instance, created, **kwargs):
+        """
+        Receiver for the post_save signal, responsible for caching object creation/changes.
+        """
+        try:
+            self.cache(instance, remove_existing=not created)
+        except ProgrammingError as e:
+            # The schema may be incomplete during migrations; skip caching.
+            logger.warning(f"Skipping search cache update due to schema error: {e}")
+            pass
+
+    def removal_handler(self, sender, instance, **kwargs):
+        """
+        Receiver for the post_delete signal, responsible for caching object deletion.
+        """
+        self.remove(instance)
+
+    def cache(self, instances, indexer=None, remove_existing=True):
+        """
+        Create or update the cached representation of an instance.
+        """
+        raise NotImplementedError
+
+    def remove(self, instance):
+        """
+        Delete any cached representation of an instance.
+        """
+        raise NotImplementedError
+
+    def clear(self, object_types=None):
+        """
+        Delete *all* cached data (optionally filtered by object type).
+        """
+        raise NotImplementedError
+
+    def count(self, object_types=None):
+        """
+        Return a count of all cache entries (optionally filtered by object type).
+        """
+        raise NotImplementedError
+
+    @property
+    def size(self):
+        """
+        Return a total number of cached entries. The meaning of this value will be
+        backend-dependent.
+        """
+        return None
+
+
+class CachedValueSearchBackend(SearchBackend):
+
+    # These override the base's synchronous receivers to defer indexing past the response. They are
+    # the seam where this backend captures the `using` alias Django passes to post_save/post_delete:
+    # the deferred write runs after the transaction commits (and possibly in a worker), by which point
+    # the originating routing context is gone, so the alias must be captured here and replayed on the
+    # deferred write to keep cache entries in the originating schema (e.g. a branch schema under
+    # netbox-branching). Deferral is internal to this backend; the public contract is unchanged.
     def caching_handler(self, sender, instance, created, using=None, **kwargs):
         """
         Receiver for the post_save signal, responsible for caching object creation/changes.
@@ -101,50 +164,6 @@ class SearchBackend:
             return
 
         mark_for_deferred_indexing(object_type.pk, instance.pk, OP_REMOVE, using=using)
-
-    def cache(self, instances, indexer=None, remove_existing=True):
-        """
-        Create or update the cached representation of an instance.
-        """
-        raise NotImplementedError
-
-    def remove(self, instance):
-        """
-        Delete any cached representation of an instance.
-        """
-        raise NotImplementedError
-
-    def clear(self, object_types=None):
-        """
-        Delete *all* cached data (optionally filtered by object type).
-        """
-        raise NotImplementedError
-
-    def apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=None):
-        """
-        Apply a coalesced batch of deferred cache updates (called by the background search cache job
-        and by the inline fallback). `cache_groups` and `remove_groups` are {object_type_id: [pk, ...]}
-        maps; `using` is the database alias the originating writes used, replayed here so entries land
-        in the originating schema.
-        """
-        raise NotImplementedError
-
-    def count(self, object_types=None):
-        """
-        Return a count of all cache entries (optionally filtered by object type).
-        """
-        raise NotImplementedError
-
-    @property
-    def size(self):
-        """
-        Return a total number of cached entries. The meaning of this value will be
-        backend-dependent.
-        """
-        return None
-
-
-class CachedValueSearchBackend(SearchBackend):
 
     def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
 
@@ -227,6 +246,11 @@ class CachedValueSearchBackend(SearchBackend):
 
         return ret
 
+    # `using` here is a PostgreSQL/schema concern specific to this backend's deferred-write path (it
+    # replays the originating alias so branch writes land in the branch schema). It is deliberately
+    # NOT on the base cache()/remove() contract: a non-PostgreSQL backend (Redis, Solr, etc.) has no
+    # such concept. Do not lift `using` onto the base for symmetry; doing so would leak this backend's
+    # storage model into the generic contract.
     def cache(self, instances, indexer=None, remove_existing=True, using=None):
         custom_fields = None
 
@@ -335,12 +359,15 @@ class CachedValueSearchBackend(SearchBackend):
         sqlstate = getattr(getattr(exc, '__cause__', None), 'sqlstate', None)
         return sqlstate in self._MISSING_SCHEMA_SQLSTATES
 
-    def apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=logger):
+    def _apply_deferred_updates(self, using=None, cache_groups=None, remove_groups=None, log=logger):
         """
-        Apply a coalesced batch of updates to the search cache. The `using` alias captured when each
-        object was saved/deleted is replayed here so entries are written to the originating
-        database/schema (e.g. a branch schema under netbox-branching), regardless of any routing
-        context that is no longer active by the time this runs.
+        Apply a coalesced batch of updates to the search cache. Private to this backend; called by the
+        deferred-flush machinery (netbox.search.deferred) and the background job
+        (netbox.search.jobs.SearchCacheJob), not part of the public backend contract.
+
+        The `using` alias captured when each object was saved/deleted is replayed here so entries are
+        written to the originating database/schema (e.g. a branch schema under netbox-branching),
+        regardless of any routing context that is no longer active by the time this runs.
         """
         # Removals are a single DELETE per content type, so (unlike the cache loop below) there is no
         # multi-step state to wrap in a transaction. A transient error here propagates and errors the

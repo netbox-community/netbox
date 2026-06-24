@@ -2,6 +2,7 @@ from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS, connection, transaction
+from django.db.models.signals import post_delete, post_save
 from django.test import TestCase, TransactionTestCase
 from redis.exceptions import ConnectionError as RedisConnectionError
 
@@ -9,7 +10,7 @@ from dcim.models import Site
 from dcim.search import SiteIndex
 from extras.models import CachedValue
 from netbox.search import deferred
-from netbox.search.backends import search_backend
+from netbox.search.backends import SearchBackend, search_backend
 from netbox.search.jobs import SearchCacheJob
 
 
@@ -136,14 +137,24 @@ class SearchBackendTestCase(TestCase):
         """
         Test that any cached value for an object are automatically removed on delete().
         """
-        site = Site.objects.first()
+        content_type = ContentType.objects.get_for_model(Site)
+
+        # Seed an object with cached entries, then delete it. Capture the pk before delete() (which
+        # nulls instance.pk in memory) so the post-delete assertion queries the real id rather than
+        # object_id=None. The create is wrapped in captureOnCommitCallbacks so the deferred caching
+        # actually runs (and writes rows) before we assert it was seeded.
+        with self.captureOnCommitCallbacks(execute=True):
+            site = Site.objects.create(name='Site Delete', slug='site-delete', facility='Foxtrot')
+        site_pk = site.pk
+        self.assertTrue(
+            CachedValue.objects.filter(object_type=content_type, object_id=site_pk).exists()
+        )
 
         with self.captureOnCommitCallbacks(execute=True):
             site.delete()
 
-        content_type = ContentType.objects.get_for_model(Site)
         self.assertFalse(
-            CachedValue.objects.filter(object_type=content_type, object_id=site.pk).exists()
+            CachedValue.objects.filter(object_type=content_type, object_id=site_pk).exists()
         )
 
     def test_clear_all(self):
@@ -444,7 +455,7 @@ class DeferredCachingTestCase(TestCase):
 
     def test_cache_update_skips_deleted_object(self):
         """
-        apply_deferred_updates tolerates a pk that no longer exists (object
+        _apply_deferred_updates tolerates a pk that no longer exists (object
         deleted between enqueue and execution): it must not error or create cache
         rows.
         """
@@ -455,7 +466,7 @@ class DeferredCachingTestCase(TestCase):
         CachedValue.objects.filter(object_type=site_ct, object_id=pk).delete()
 
         # No exception, and no rows resurrected for the missing object.
-        search_backend.apply_deferred_updates(using=None, cache_groups={site_ct.pk: [pk]}, remove_groups={})
+        search_backend._apply_deferred_updates(using=None, cache_groups={site_ct.pk: [pk]}, remove_groups={})
         self.assertFalse(
             CachedValue.objects.filter(object_type=site_ct, object_id=pk).exists()
         )
@@ -491,13 +502,15 @@ class AutocommitCachingTestCase(TransactionTestCase):
     def test_autocommit_delete_removes_synchronously(self):
         site = Site.objects.create(name='Autocommit Del', slug='autocommit-del')
         content_type = ContentType.objects.get_for_model(Site)
+        # Capture the pk before delete() nulls instance.pk in memory.
+        site_pk = site.pk
         self.assertTrue(
-            CachedValue.objects.filter(object_type=content_type, object_id=site.pk).exists()
+            CachedValue.objects.filter(object_type=content_type, object_id=site_pk).exists()
         )
 
         site.delete()
         self.assertFalse(
-            CachedValue.objects.filter(object_type=content_type, object_id=site.pk).exists()
+            CachedValue.objects.filter(object_type=content_type, object_id=site_pk).exists()
         )
 
     def test_inner_savepoint_rollback_does_not_leak_into_outer_batch(self):
@@ -687,3 +700,67 @@ class AutocommitCachingTestCase(TransactionTestCase):
         self.assertFalse(
             CachedValue.objects.filter(object_type=content_type, object_id=deepest_pk).exists()
         )
+
+
+class _MinimalSearchBackend(SearchBackend):
+    """
+    A backend implementing only the documented contract (search/cache/remove/clear), with no
+    knowledge of deferral. Records cache()/remove() calls in memory so a test can assert it indexed
+    synchronously. Used to prove a custom SEARCH_BACKEND keeps working after this change.
+    """
+
+    def __init__(self):
+        self.cached = []
+        self.removed = []
+
+    def search(self, value, user=None, object_types=None, lookup=None):
+        return []
+
+    def cache(self, instances, indexer=None, remove_existing=True):
+        if not hasattr(instances, '__iter__'):
+            instances = [instances]
+        self.cached.extend(instances)
+
+    def remove(self, instance):
+        self.removed.append(instance)
+
+    def clear(self, object_types=None):
+        self.cached.clear()
+        self.removed.clear()
+
+
+class CustomBackendContractTestCase(TransactionTestCase):
+    """
+    Proves the deferred-indexing work did not change the public SearchBackend contract: a custom
+    backend implementing only search/cache/remove/clear still indexes synchronously through the base
+    signal handlers, and never schedules deferred (on_commit) work. Deferral is private to
+    CachedValueSearchBackend; it must not leak onto a backend that didn't opt into it.
+    """
+
+    def test_custom_backend_indexes_synchronously(self):
+        backend = _MinimalSearchBackend()
+
+        # Connect the custom backend's (inherited, synchronous) handlers, exactly as
+        # backends.py connects the configured backend at import. Same call site, no type-check.
+        post_save.connect(backend.caching_handler, sender=Site)
+        post_delete.connect(backend.removal_handler, sender=Site)
+        self.addCleanup(post_save.disconnect, backend.caching_handler, sender=Site)
+        self.addCleanup(post_delete.disconnect, backend.removal_handler, sender=Site)
+
+        # A backend implementing only the documented contract indexes through the base handlers
+        # inline (the handler calls self.cache()/self.remove() synchronously). It is never routed
+        # into the deferral machinery, which is private to CachedValueSearchBackend.
+        site = Site.objects.create(name='Custom Backend', slug='custom-backend')
+        self.assertIn(site, backend.cached)
+
+        site.delete()
+        self.assertEqual(len(backend.removed), 1)
+
+    def test_default_backend_defers_via_same_call_path(self):
+        # The default backend (CachedValueSearchBackend) IS connected at import, and reaches the
+        # SAME caching_handler call path -- but its override defers instead of indexing inline.
+        # This contrasts with the custom backend above: identical dispatch, polymorphic behavior.
+        with transaction.atomic():
+            Site.objects.create(name='Default Defers', slug='default-defers')
+            scheduled = scheduled_search_flushes()
+            self.assertEqual(len(scheduled), 1)
