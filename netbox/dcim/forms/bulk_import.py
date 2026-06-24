@@ -2158,12 +2158,24 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         required=False,
         help_text=_('Coolant fluid type')
     )
+    flow_rate_unit = CSVChoiceField(
+        label=_('Flow rate unit'),
+        choices=FlowRateUnitChoices,
+        required=False,
+        help_text=_('Unit for flow rate')
+    )
+    pressure_unit = CSVChoiceField(
+        label=_('Pressure unit'),
+        choices=PressureUnitChoices,
+        required=False,
+        help_text=_('Unit for pressure')
+    )
 
     class Meta:
         model = CoolingFeed
         fields = (
             'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'pressure', 'tenant',
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'tenant',
             'description', 'owner', 'comments', 'tags',
         )
 

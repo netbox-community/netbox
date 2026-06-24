@@ -10,7 +10,14 @@ from dcim.filtersets import *
 from dcim.models import *
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, RIR, VLAN, VRF, IPAddress, VLANTranslationPolicy
-from netbox.choices import ColorChoices, DiameterUnitChoices, TemperatureUnitChoices, WeightUnitChoices
+from netbox.choices import (
+    ColorChoices,
+    DiameterUnitChoices,
+    FlowRateUnitChoices,
+    PressureUnitChoices,
+    TemperatureUnitChoices,
+    WeightUnitChoices,
+)
 from tenancy.models import Tenant, TenantGroup
 from users.models import User
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
@@ -8471,7 +8478,9 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=100,
                 flow_rate=10,
+                flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 pressure=100,
+                pressure_unit=PressureUnitChoices.UNIT_KILOPASCAL,
                 description='foobar1'
             ),
             CoolingFeed(
@@ -8484,7 +8493,9 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=200,
                 flow_rate=20,
+                flow_rate_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 pressure=200,
+                pressure_unit=PressureUnitChoices.UNIT_KILOPASCAL,
                 description='foobar2'
             ),
             CoolingFeed(
@@ -8497,11 +8508,15 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 fluid_type=FluidTypeChoices.FLUID_DIELECTRIC,
                 cooling_capacity=300,
                 flow_rate=30,
+                flow_rate_unit=FlowRateUnitChoices.UNIT_GALLONS_PER_MINUTE,
                 pressure=300,
+                pressure_unit=PressureUnitChoices.UNIT_PSI,
                 description='foobar3'
             ),
         )
-        CoolingFeed.objects.bulk_create(cooling_feeds)
+        # Use save() rather than bulk_create() so the normalized _abs_* fields are populated
+        for cooling_feed in cooling_feeds:
+            cooling_feed.save()
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model', slug='model')
@@ -8543,8 +8558,16 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'flow_rate': [10, 20]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_flow_rate_unit(self):
+        params = {'flow_rate_unit': [FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_pressure(self):
         params = {'pressure': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_pressure_unit(self):
+        params = {'pressure_unit': [PressureUnitChoices.UNIT_KILOPASCAL]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

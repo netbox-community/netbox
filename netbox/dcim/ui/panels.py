@@ -463,8 +463,8 @@ class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):
     title = _('Cooling Characteristics')
 
     cooling_capacity = attrs.TextAttr('cooling_capacity', format_string=_('{} kW'))
-    flow_rate = attrs.TextAttr('flow_rate', format_string=_('{} L/min'))
-    pressure = attrs.TextAttr('pressure', format_string=_('{} kPa'))
+    flow_rate = attrs.NumericAttr('flow_rate', unit_accessor='get_flow_rate_unit_display')
+    pressure = attrs.NumericAttr('pressure', unit_accessor='get_pressure_unit_display')
 
 
 class VirtualDeviceContextPanel(panels.ObjectAttributesPanel):

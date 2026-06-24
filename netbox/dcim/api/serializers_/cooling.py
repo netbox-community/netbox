@@ -2,7 +2,7 @@ from dcim.choices import *
 from dcim.models import CoolingFeed, CoolingSource
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import PrimaryModelSerializer
-from netbox.choices import TemperatureUnitChoices
+from netbox.choices import FlowRateUnitChoices, PressureUnitChoices, TemperatureUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 
 from .base import ConnectedEndpointsSerializer
@@ -73,6 +73,18 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
         required=False,
         allow_null=True
     )
+    flow_rate_unit = ChoiceField(
+        choices=FlowRateUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
+    pressure_unit = ChoiceField(
+        choices=PressureUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
     tenant = TenantSerializer(
         nested=True,
         required=False,
@@ -83,7 +95,7 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
         model = CoolingFeed
         fields = [
             'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'type', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'pressure', 'mark_connected',
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'mark_connected',
             'cable', 'cable_end', 'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
             'connected_endpoints_reachable', 'description', 'tenant', 'owner', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',

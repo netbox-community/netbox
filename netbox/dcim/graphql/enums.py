@@ -1,7 +1,7 @@
 import strawberry
 
 from dcim.choices import *
-from netbox.choices import DiameterUnitChoices, TemperatureUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, PressureUnitChoices, TemperatureUnitChoices
 
 __all__ = (
     'CableEndEnum',
@@ -19,6 +19,7 @@ __all__ = (
     'DeviceFaceEnum',
     'DeviceStatusEnum',
     'DiameterUnitEnum',
+    'FlowRateUnitEnum',
     'FluidTypeEnum',
     'InterfaceDuplexEnum',
     'InterfaceKindEnum',
@@ -40,6 +41,7 @@ __all__ = (
     'PowerOutletStatusEnum',
     'PowerOutletTypeEnum',
     'PowerPortTypeEnum',
+    'PressureUnitEnum',
     'RackAirflowEnum',
     'RackDimensionUnitEnum',
     'RackFormFactorEnum',
@@ -67,6 +69,7 @@ DeviceAirflowEnum = strawberry.enum(DeviceAirflowChoices.as_enum(prefix='airflow
 DeviceFaceEnum = strawberry.enum(DeviceFaceChoices.as_enum(prefix='face'))
 DeviceStatusEnum = strawberry.enum(DeviceStatusChoices.as_enum(prefix='status'))
 DiameterUnitEnum = strawberry.enum(DiameterUnitChoices.as_enum(prefix='unit'))
+FlowRateUnitEnum = strawberry.enum(FlowRateUnitChoices.as_enum(prefix='unit'))
 FluidTypeEnum = strawberry.enum(FluidTypeChoices.as_enum(prefix='fluid'))
 InterfaceDuplexEnum = strawberry.enum(InterfaceDuplexChoices.as_enum(prefix='duplex'))
 InterfaceKindEnum = strawberry.enum(InterfaceKindChoices.as_enum(prefix='kind'))
@@ -88,6 +91,7 @@ PowerOutletFeedLegEnum = strawberry.enum(PowerOutletFeedLegChoices.as_enum(prefi
 PowerOutletStatusEnum = strawberry.enum(PowerOutletStatusChoices.as_enum(prefix='status'))
 PowerOutletTypeEnum = strawberry.enum(PowerOutletTypeChoices.as_enum(prefix='type'))
 PowerPortTypeEnum = strawberry.enum(PowerPortTypeChoices.as_enum(prefix='type'))
+PressureUnitEnum = strawberry.enum(PressureUnitChoices.as_enum(prefix='unit'))
 RackAirflowEnum = strawberry.enum(RackAirflowChoices.as_enum())
 RackDimensionUnitEnum = strawberry.enum(RackDimensionUnitChoices.as_enum(prefix='unit'))
 RackFormFactorEnum = strawberry.enum(RackFormFactorChoices.as_enum(prefix='type'))

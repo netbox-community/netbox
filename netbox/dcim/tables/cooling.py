@@ -118,10 +118,18 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
         verbose_name=_('Cooling Capacity (kW)')
     )
     flow_rate = tables.Column(
-        verbose_name=_('Flow Rate (L/min)')
+        verbose_name=_('Flow Rate'),
+        order_by=('_abs_flow_rate',)
+    )
+    flow_rate_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Flow Rate Unit'),
     )
     pressure = tables.Column(
-        verbose_name=_('Pressure (kPa)')
+        verbose_name=_('Pressure'),
+        order_by=('_abs_pressure',)
+    )
+    pressure_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Pressure Unit'),
     )
     tenant = tables.Column(
         linkify=True,
@@ -140,8 +148,8 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
         model = CoolingFeed
         fields = (
             'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'type', 'fluid_type', 'cooling_capacity',
-            'flow_rate', 'pressure', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tenant', 'tenant_group',
-            'description', 'comments', 'tags', 'created', 'last_updated',
+            'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'mark_connected', 'cable', 'cable_color',
+            'link_peer', 'tenant', 'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'cooling_source', 'rack', 'status', 'type', 'fluid_type', 'cooling_capacity', 'flow_rate',

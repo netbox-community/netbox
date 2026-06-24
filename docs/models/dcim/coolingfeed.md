@@ -39,11 +39,11 @@ The heat-removal capacity of the feed, in kilowatts (kW).
 
 ### Flow Rate
 
-The coolant flow rate, in litres per minute (L/min).
+The coolant flow rate, expressed as a numeric value with a selectable unit (L/min, m³/h, or GPM).
 
 ### Pressure
 
-The operating pressure of the loop, in kilopascals (kPa).
+The operating pressure of the loop, expressed as a numeric value with a selectable unit (kPa, bar, or PSI).
 
 ### Mark Connected
 

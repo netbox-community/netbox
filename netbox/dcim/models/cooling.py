@@ -7,6 +7,7 @@ from dcim.choices import *
 from netbox.choices import TemperatureUnitChoices
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
+from netbox.models.mixins import FlowRateMixin, PressureMixin
 from utilities.conversion import to_celsius
 
 from .device_components import CabledObjectModel, PathEndpoint
@@ -168,7 +169,7 @@ class CoolingSource(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
             raise ValidationError(_("Must specify a unit when setting a temperature"))
 
 
-class CoolingFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
+class CoolingFeed(FlowRateMixin, PressureMixin, PrimaryModel, PathEndpoint, CabledObjectModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
     represented as separate feeds so each can be traced independently.
@@ -218,24 +219,8 @@ class CoolingFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
         validators=[MinValueValidator(0)],
         help_text=_('Cooling capacity (kW)')
     )
-    flow_rate = models.DecimalField(
-        verbose_name=_('flow rate'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Coolant flow rate (L/min)')
-    )
-    pressure = models.DecimalField(
-        verbose_name=_('pressure'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Operating pressure (kPa)')
-    )
+    # flow_rate, flow_rate_unit, _abs_flow_rate provided by FlowRateMixin
+    # pressure, pressure_unit, _abs_pressure provided by PressureMixin
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -246,7 +231,7 @@ class CoolingFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
     clone_fields = (
         'cooling_source', 'rack', 'status', 'type', 'mark_connected', 'fluid_type', 'cooling_capacity', 'flow_rate',
-        'pressure', 'tenant',
+        'flow_rate_unit', 'pressure', 'pressure_unit', 'tenant',
     )
     prerequisite_models = (
         'dcim.CoolingSource',

@@ -1009,9 +1009,15 @@ class CoolingFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, Primar
     flow_rate: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    flow_rate_unit: (
+        BaseFilterLookup[Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
     pressure: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    pressure_unit: (
+        BaseFilterLookup[Annotated['PressureUnitEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
 
 
 @register_filter(models.CoolingOutlet, lookups=True)

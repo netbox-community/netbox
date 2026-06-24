@@ -1,14 +1,17 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import *
-from utilities.conversion import to_grams, to_meters, to_millimeters
+from utilities.conversion import to_grams, to_kilopascals, to_liters_per_minute, to_meters, to_millimeters
 
 __all__ = (
     'DiameterMixin',
     'DistanceMixin',
+    'FlowRateMixin',
     'OwnerMixin',
+    'PressureMixin',
     'WeightMixin',
 )
 
@@ -126,6 +129,112 @@ class DiameterMixin(models.Model):
         # Validate diameter and diameter_unit
         if self.diameter and not self.diameter_unit:
             raise ValidationError(_("Must specify a unit when setting a diameter"))
+
+
+class FlowRateMixin(models.Model):
+    flow_rate = models.DecimalField(
+        verbose_name=_('flow rate'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+    )
+    flow_rate_unit = models.CharField(
+        verbose_name=_('flow rate unit'),
+        max_length=50,
+        choices=FlowRateUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized flow rate (in liters per minute) for database ordering
+    _abs_flow_rate = models.DecimalField(
+        max_digits=13,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def abs_flow_rate(self):
+        # Public alias for _abs_flow_rate; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_flow_rate
+
+    def save(self, *args, **kwargs):
+        # Store the given flow rate (if any) in liters per minute for use in database ordering
+        if self.flow_rate is not None and self.flow_rate_unit:
+            self._abs_flow_rate = to_liters_per_minute(self.flow_rate, self.flow_rate_unit)
+        else:
+            self._abs_flow_rate = None
+
+        # Clear flow_rate_unit if no flow rate is defined
+        if self.flow_rate is None:
+            self.flow_rate_unit = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Validate flow_rate and flow_rate_unit
+        if self.flow_rate is not None and not self.flow_rate_unit:
+            raise ValidationError(_("Must specify a unit when setting a flow rate"))
+
+
+class PressureMixin(models.Model):
+    pressure = models.DecimalField(
+        verbose_name=_('pressure'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+    )
+    pressure_unit = models.CharField(
+        verbose_name=_('pressure unit'),
+        max_length=50,
+        choices=PressureUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized pressure (in kilopascals) for database ordering
+    _abs_pressure = models.DecimalField(
+        max_digits=13,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def abs_pressure(self):
+        # Public alias for _abs_pressure; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_pressure
+
+    def save(self, *args, **kwargs):
+        # Store the given pressure (if any) in kilopascals for use in database ordering
+        if self.pressure is not None and self.pressure_unit:
+            self._abs_pressure = to_kilopascals(self.pressure, self.pressure_unit)
+        else:
+            self._abs_pressure = None
+
+        # Clear pressure_unit if no pressure is defined
+        if self.pressure is None:
+            self.pressure_unit = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Validate pressure and pressure_unit
+        if self.pressure is not None and not self.pressure_unit:
+            raise ValidationError(_("Must specify a unit when setting a pressure"))
 
 
 class DistanceMixin(models.Model):

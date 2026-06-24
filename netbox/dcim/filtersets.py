@@ -12,7 +12,7 @@ from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, VRF, IPAddress, VLANTranslationPolicy
-from netbox.choices import ColorChoices, TemperatureUnitChoices
+from netbox.choices import ColorChoices, FlowRateUnitChoices, PressureUnitChoices, TemperatureUnitChoices
 from netbox.filtersets import (
     AttributeFiltersMixin,
     BaseFilterSet,
@@ -3405,11 +3405,21 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEnd
         distinct=False,
         null_value=None
     )
+    flow_rate_unit = django_filters.MultipleChoiceFilter(
+        choices=FlowRateUnitChoices,
+        distinct=False,
+        null_value=None
+    )
+    pressure_unit = django_filters.MultipleChoiceFilter(
+        choices=PressureUnitChoices,
+        distinct=False,
+        null_value=None
+    )
 
     class Meta:
         model = CoolingFeed
         fields = (
-            'id', 'name', 'cooling_capacity', 'flow_rate', 'pressure',
+            'id', 'name', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
             'mark_connected', 'cable_end', 'cable_connector', 'description',
         )
 

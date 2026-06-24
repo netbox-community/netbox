@@ -1590,6 +1590,9 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', 'cooling_source_id', 'rack_id', name=_('Location')),
         FieldSet('status', 'type', 'fluid_type', name=_('Attributes')),
+        FieldSet(
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', name=_('Characteristics')
+        ),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
         FieldSet('owner_group_id', 'owner_id', name=_('Ownership')),
     )
@@ -1642,6 +1645,28 @@ class CoolingFeedFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     fluid_type = forms.ChoiceField(
         label=_('Fluid type'),
         choices=add_blank_choice(FluidTypeChoices),
+        required=False
+    )
+    cooling_capacity = forms.DecimalField(
+        label=_('Cooling capacity'),
+        required=False
+    )
+    flow_rate = forms.DecimalField(
+        label=_('Flow rate'),
+        required=False
+    )
+    flow_rate_unit = forms.MultipleChoiceField(
+        label=_('Flow rate unit'),
+        choices=FlowRateUnitChoices,
+        required=False
+    )
+    pressure = forms.DecimalField(
+        label=_('Pressure'),
+        required=False
+    )
+    pressure_unit = forms.MultipleChoiceField(
+        label=_('Pressure unit'),
+        choices=PressureUnitChoices,
         required=False
     )
     tag = TagFilterField(model)
