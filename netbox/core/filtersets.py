@@ -132,6 +132,17 @@ class JobFilterSet(BaseFilterSet):
         field_name='completed',
         lookup_expr='gte'
     )
+    execution_time = django_filters.DurationFilter()
+    execution_time__gte = django_filters.DurationFilter(
+        field_name='execution_time',
+        lookup_expr='gte',
+        label=_('Execution time (minimum)')
+    )
+    execution_time__lte = django_filters.DurationFilter(
+        field_name='execution_time',
+        lookup_expr='lte',
+        label=_('Execution time (maximum)')
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=JobStatusChoices,
         distinct=False,
@@ -160,7 +171,7 @@ class JobFilterSet(BaseFilterSet):
         model = Job
         fields = (
             'id', 'object_type', 'object_type_id', 'object_id', 'name', 'interval', 'status', 'user', 'job_id',
-            'queue_name',
+            'queue_name', 'execution_time',
         )
 
     def search(self, queryset, name, value):
