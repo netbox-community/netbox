@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs, panels
+from utilities.forms.utils import get_capacity_unit_label
 
 #
 # Cluster
@@ -26,7 +28,11 @@ class VirtualMachineTypePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
     default_vcpus = attrs.TextAttr('default_vcpus', label=_('Default vCPUs'))
-    default_memory = attrs.TextAttr('default_memory', format_string=_('{0} MB'), label=_('Default memory'))
+    default_memory = attrs.TextAttr(
+        'default_memory',
+        format_string=_(f'{{0}} {get_capacity_unit_label(settings.RAM_BASE_UNIT)}'),
+        label=_('Default memory')
+    )
     description = attrs.TextAttr('description')
 
 

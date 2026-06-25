@@ -104,6 +104,14 @@ class VirtualMachineTypeBulkEditForm(PrimaryModelBulkEditForm):
         'default_platform', 'default_vcpus', 'default_memory', 'description', 'comments',
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set unit label based on configured RAM_BASE_UNIT (MB vs MiB)
+        self.fields['default_memory'].label = _('Default Memory ({unit})').format(
+            unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
+        )
+
 
 class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
     virtual_machine_type = DynamicModelChoiceField(
