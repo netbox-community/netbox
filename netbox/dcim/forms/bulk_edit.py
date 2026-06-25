@@ -1168,7 +1168,8 @@ class CoolingSourceBulkEditForm(PrimaryModelBulkEditForm):
         ),
     )
     nullable_fields = (
-        'location', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'description', 'comments',
+        'location', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'temperature_unit',
+        'description', 'comments',
     )
 
 
@@ -1263,7 +1264,7 @@ class CoolingFeedBulkEditForm(PrimaryModelBulkEditForm):
     )
     nullable_fields = (
         'rack', 'fluid_type', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
-        'supply_temperature', 'return_temperature', 'tenant', 'description', 'comments',
+        'supply_temperature', 'return_temperature', 'temperature_unit', 'tenant', 'description', 'comments',
     )
 
 

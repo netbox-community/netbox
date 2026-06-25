@@ -4,9 +4,17 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.choices import *
-from utilities.conversion import to_grams, to_kilopascals, to_liters_per_minute, to_meters, to_millimeters
+from utilities.conversion import (
+    to_celsius,
+    to_grams,
+    to_kilopascals,
+    to_liters_per_minute,
+    to_meters,
+    to_millimeters,
+)
 
 __all__ = (
+    'CoolingTemperatureMixin',
     'DiameterMixin',
     'DistanceMixin',
     'FlowRateMixin',
@@ -235,6 +243,89 @@ class PressureMixin(models.Model):
         # Validate pressure and pressure_unit
         if self.pressure is not None and not self.pressure_unit:
             raise ValidationError(_("Must specify a unit when setting a pressure"))
+
+
+class CoolingTemperatureMixin(models.Model):
+    """
+    Adds supply/return temperatures sharing a single unit, with normalized (°C) fields for ordering.
+    """
+    supply_temperature = models.DecimalField(
+        verbose_name=_('supply temperature'),
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_('Supply (cold) temperature')
+    )
+    return_temperature = models.DecimalField(
+        verbose_name=_('return temperature'),
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text=_('Return (warm) temperature')
+    )
+    temperature_unit = models.CharField(
+        verbose_name=_('temperature unit'),
+        max_length=50,
+        choices=TemperatureUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized temperatures (in degrees Celsius) for database ordering
+    _abs_supply_temperature = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+    _abs_return_temperature = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def abs_supply_temperature(self):
+        # Public alias for _abs_supply_temperature; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_supply_temperature
+
+    @property
+    def abs_return_temperature(self):
+        # Public alias for _abs_return_temperature; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_return_temperature
+
+    def save(self, *args, **kwargs):
+        # Store the given temperatures (if any) in degrees Celsius for use in database ordering
+        if self.temperature_unit:
+            self._abs_supply_temperature = (
+                to_celsius(self.supply_temperature, self.temperature_unit)
+                if self.supply_temperature is not None else None
+            )
+            self._abs_return_temperature = (
+                to_celsius(self.return_temperature, self.temperature_unit)
+                if self.return_temperature is not None else None
+            )
+        else:
+            self._abs_supply_temperature = None
+            self._abs_return_temperature = None
+
+        # Clear temperature_unit if no temperatures are defined
+        if self.supply_temperature is None and self.return_temperature is None:
+            self.temperature_unit = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # A temperature unit is required when a temperature is set
+        if (self.supply_temperature is not None or self.return_temperature is not None) and not self.temperature_unit:
+            raise ValidationError(_("Must specify a unit when setting a temperature"))
 
 
 class DistanceMixin(models.Model):

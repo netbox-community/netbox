@@ -1,0 +1,6 @@
+{% load helpers %}
+{% if value %}
+  {{ value.0.device|linkify }} ({{ value.0|linkify:"name" }})
+{% else %}
+  {{ ''|placeholder }}
+{% endif %}

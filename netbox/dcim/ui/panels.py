@@ -455,7 +455,7 @@ class CoolingFeedPanel(panels.ObjectAttributesPanel):
     connected_device = attrs.TemplatedAttr(
         'connected_endpoints',
         label=_('Connected device'),
-        template_name='dcim/powerfeed/attrs/connected_device.html',
+        template_name='dcim/coolingfeed/attrs/connected_device.html',
     )
 
 
