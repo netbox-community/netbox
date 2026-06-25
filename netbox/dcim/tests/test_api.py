@@ -4436,7 +4436,7 @@ class CoolingOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
 
 class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
     model = CoolingSource
-    brief_fields = ['cooling_feed_count', 'description', 'display', 'id', 'name', 'url']
+    brief_fields = ['coolingfeed_count', 'description', 'display', 'id', 'name', 'url']
     user_permissions = ('dcim.view_site', )
 
     @classmethod

@@ -65,7 +65,7 @@ class CoolingSourceTable(ContactsColumnMixin, PrimaryModelTable):
     temperature_unit = columns.ChoiceFieldColumn(
         verbose_name=_('Temperature Unit'),
     )
-    cooling_feed_count = columns.LinkedCountColumn(
+    coolingfeed_count = columns.LinkedCountColumn(
         viewname='dcim:coolingfeed_list',
         url_params={'cooling_source_id': 'pk'},
         verbose_name=_('Cooling Feeds')
@@ -78,11 +78,11 @@ class CoolingSourceTable(ContactsColumnMixin, PrimaryModelTable):
         model = CoolingSource
         fields = (
             'pk', 'id', 'name', 'site', 'location', 'type', 'status', 'cooling_capacity', 'supply_temperature',
-            'return_temperature', 'temperature_unit', 'cooling_feed_count', 'contacts', 'description', 'comments',
+            'return_temperature', 'temperature_unit', 'coolingfeed_count', 'contacts', 'description', 'comments',
             'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'site', 'location', 'type', 'status', 'cooling_capacity', 'cooling_feed_count',
+            'pk', 'name', 'site', 'location', 'type', 'status', 'cooling_capacity', 'coolingfeed_count',
         )
 
 

@@ -39,16 +39,16 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
     )
 
     # Related object counts
-    cooling_feed_count = RelatedObjectCountField('cooling_feeds')
+    coolingfeed_count = RelatedObjectCountField('cooling_feeds')
 
     class Meta:
         model = CoolingSource
         fields = [
             'id', 'url', 'display_url', 'display', 'site', 'location', 'name', 'type', 'status', 'cooling_capacity',
             'supply_temperature', 'return_temperature', 'temperature_unit', 'description', 'owner', 'comments', 'tags',
-            'custom_fields', 'cooling_feed_count', 'created', 'last_updated',
+            'custom_fields', 'coolingfeed_count', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description', 'cooling_feed_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'coolingfeed_count')
 
 
 class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
