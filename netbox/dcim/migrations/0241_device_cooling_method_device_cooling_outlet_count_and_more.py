@@ -10,6 +10,7 @@ import netbox.models.deletion
 import utilities.fields
 import utilities.json
 import utilities.tracking
+from utilities.migration import InstallDenormalizationTrigger
 
 
 class Migration(migrations.Migration):
@@ -1042,4 +1043,15 @@ class Migration(migrations.Migration):
                 name="dcim_coolingfeed_unique_cooling_source_name",
             ),
         ),
+        # Install denormalized device → component triggers for the cooling device components,
+        # mirroring the triggers created for the other device components in migration 0239.
+        *[
+            InstallDenormalizationTrigger(
+                dependent_table=table,
+                source_table="dcim_device",
+                fk_column="device_id",
+                mappings={"_site_id": "site_id", "_location_id": "location_id", "_rack_id": "rack_id"},
+            )
+            for table in ("dcim_coolingport", "dcim_coolingoutlet")
+        ],
     ]

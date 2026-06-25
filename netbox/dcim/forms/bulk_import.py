@@ -1017,12 +1017,17 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Diameter unit')
     )
+    maximum_flow_unit = CSVChoiceField(
+        choices=FlowRateUnitChoices,
+        required=False,
+        help_text=_('Unit for maximum flow')
+    )
 
     class Meta:
         model = CoolingPort
         fields = (
             'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'heat_capacity', 'mark_connected', 'description', 'owner', 'tags',
+            'maximum_flow_unit', 'heat_capacity', 'mark_connected', 'description', 'owner', 'tags',
         )
 
 

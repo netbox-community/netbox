@@ -11,7 +11,7 @@ from dcim.models import *
 from extras.events import serialize_for_event
 from extras.models import CustomField
 from ipam.models import Prefix
-from netbox.choices import DiameterUnitChoices, TemperatureUnitChoices, WeightUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices, TemperatureUnitChoices, WeightUnitChoices
 from tenancy.models import Tenant
 from utilities.data import drange
 from virtualization.models import Cluster, ClusterType
@@ -3148,6 +3148,7 @@ class CoolingComponentTestCase(TestCase):
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
             maximum_flow=100,
+            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             heat_capacity=50
         )
         CoolingOutletTemplate.objects.create(
@@ -3174,6 +3175,7 @@ class CoolingComponentTestCase(TestCase):
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
             maximum_flow=100,
+            maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
             heat_capacity=50
         )
         self.assertEqual(cooling_port_template.maximum_flow, cooling_port.maximum_flow)

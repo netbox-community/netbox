@@ -290,7 +290,7 @@ class CoolingPortPanel(panels.ObjectAttributesPanel):
     connector_type = attrs.ChoiceAttr('connector_type')
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
-    maximum_flow = attrs.TextAttr('maximum_flow', format_string=_('{} L/min'))
+    maximum_flow = attrs.NumericAttr('maximum_flow', unit_accessor='get_maximum_flow_unit_display')
     heat_capacity = attrs.TextAttr('heat_capacity', format_string=_('{} kW'))
 
 

@@ -88,7 +88,7 @@ class CoolingPortTemplateImportForm(forms.ModelForm):
         model = CoolingPortTemplate
         fields = [
             'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
-            'heat_capacity', 'description',
+            'maximum_flow_unit', 'heat_capacity', 'description',
         ]
 
 

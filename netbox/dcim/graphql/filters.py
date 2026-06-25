@@ -1098,6 +1098,9 @@ class CoolingPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixi
     maximum_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    maximum_flow_unit: BaseFilterLookup[
+        Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]
+    ] | None = strawberry_django.filter_field()
     heat_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
@@ -1120,6 +1123,9 @@ class CoolingPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLogge
     maximum_flow: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )
+    maximum_flow_unit: BaseFilterLookup[
+        Annotated['FlowRateUnitEnum', strawberry.lazy('dcim.graphql.enums')]
+    ] | None = strawberry_django.filter_field()
     heat_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

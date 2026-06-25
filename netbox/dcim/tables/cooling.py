@@ -193,7 +193,11 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
         order_by=('_abs_diameter', 'diameter_unit')
     )
     maximum_flow = tables.Column(
-        verbose_name=_('Maximum flow (L/min)')
+        verbose_name=_('Maximum flow'),
+        order_by=('_abs_maximum_flow',)
+    )
+    maximum_flow_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Maximum Flow Unit')
     )
     heat_capacity = tables.Column(
         verbose_name=_('Heat capacity (kW)')
@@ -206,8 +210,8 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
         model = models.CoolingPort
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'connector_type', 'diameter',
-            'description', 'mark_connected', 'maximum_flow', 'heat_capacity', 'cable', 'cable_color', 'link_peer',
-            'connection', 'inventory_items', 'tags', 'created', 'last_updated',
+            'description', 'mark_connected', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cable',
+            'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'device', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',
@@ -270,6 +274,13 @@ class CoolingPortTemplateTable(ComponentTemplateTable):
         template_code=DIAMETER,
         order_by=('_abs_diameter', 'diameter_unit')
     )
+    maximum_flow = tables.Column(
+        verbose_name=_('Maximum flow'),
+        order_by=('_abs_maximum_flow',)
+    )
+    maximum_flow_unit = columns.ChoiceFieldColumn(
+        verbose_name=_('Maximum Flow Unit')
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
@@ -278,8 +289,8 @@ class CoolingPortTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.CoolingPortTemplate
         fields = (
-            'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',
-            'description', 'actions',
+            'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
+            'heat_capacity', 'description', 'actions',
         )
         empty_text = "None"
 
@@ -329,8 +340,8 @@ class DeviceCoolingPortTable(CoolingPortTable):
         model = models.CoolingPort
         fields = (
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
-            'heat_capacity', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags',
-            'actions',
+            'maximum_flow_unit', 'heat_capacity', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer',
+            'connection', 'tags', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',

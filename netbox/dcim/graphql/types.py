@@ -848,7 +848,7 @@ class CoolingOutletTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingPort,
-    exclude=['_path', '_abs_diameter'],
+    exclude=['_path', '_abs_diameter', '_abs_maximum_flow'],
     filters=CoolingPortFilter,
     pagination=True
 )
@@ -859,7 +859,7 @@ class CoolingPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin
 
 @register_type(
     models.CoolingPortTemplate,
-    exclude=['_abs_diameter'],
+    exclude=['_abs_diameter', '_abs_maximum_flow'],
     filters=CoolingPortTemplateFilter,
     pagination=True
 )

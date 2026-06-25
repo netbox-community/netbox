@@ -1853,14 +1853,19 @@ class PowerOutletBulkEditForm(
 class CoolingPortBulkEditForm(
     ComponentBulkEditForm,
     form_from_model(CoolingPort, [
-        'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity',
-        'mark_connected', 'description'
+        'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'heat_capacity', 'mark_connected', 'description'
     ])
 ):
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),
         required=False,
         widget=BulkEditNullBooleanSelect
+    )
+    maximum_flow_unit = forms.ChoiceField(
+        label=_('Maximum flow unit'),
+        choices=add_blank_choice(FlowRateUnitChoices),
+        required=False
     )
 
     model = CoolingPort
@@ -1870,11 +1875,14 @@ class CoolingPortBulkEditForm(
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
             'label', 'description', 'mark_connected',
         ),
-        FieldSet('maximum_flow', 'heat_capacity', name=_('Characteristics')),
+        FieldSet(
+            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            'heat_capacity', name=_('Characteristics')
+        ),
     )
     nullable_fields = (
-        'module', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity',
-        'description',
+        'module', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'heat_capacity', 'description',
     )
 
 
