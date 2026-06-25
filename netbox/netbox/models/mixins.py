@@ -127,7 +127,7 @@ class DiameterMixin(models.Model):
         super().clean()
 
         # Validate diameter and diameter_unit
-        if self.diameter and not self.diameter_unit:
+        if self.diameter is not None and not self.diameter_unit:
             raise ValidationError(_("Must specify a unit when setting a diameter"))
 
 

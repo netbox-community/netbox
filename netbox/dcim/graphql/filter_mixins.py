@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from dcim.graphql.filters import LocationFilter, RegionFilter, SiteFilter, SiteGroupFilter
     from extras.graphql.filters import ConfigTemplateFilter
     from ipam.graphql.filters import VLANFilter, VLANTranslationPolicyFilter
-    from netbox.graphql.filter_lookups import IntegerLookup
+    from netbox.graphql.filter_lookups import FloatLookup, IntegerLookup
 
     from .filters import *
 
@@ -175,5 +175,11 @@ class RackFilterMixin:
         strawberry_django.filter_field()
     )
     max_weight: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
+        strawberry_django.filter_field()
+    )
+    cooling_capability: (
+        BaseFilterLookup[Annotated['RackCoolingCapabilityEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
+    cooling_capacity: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
         strawberry_django.filter_field()
     )

@@ -43,6 +43,7 @@ __all__ = (
     'PowerPortTypeEnum',
     'PressureUnitEnum',
     'RackAirflowEnum',
+    'RackCoolingCapabilityEnum',
     'RackDimensionUnitEnum',
     'RackFormFactorEnum',
     'RackReservationStatusEnum',
@@ -93,6 +94,7 @@ PowerOutletTypeEnum = strawberry.enum(PowerOutletTypeChoices.as_enum(prefix='typ
 PowerPortTypeEnum = strawberry.enum(PowerPortTypeChoices.as_enum(prefix='type'))
 PressureUnitEnum = strawberry.enum(PressureUnitChoices.as_enum(prefix='unit'))
 RackAirflowEnum = strawberry.enum(RackAirflowChoices.as_enum())
+RackCoolingCapabilityEnum = strawberry.enum(RackCoolingCapabilityChoices.as_enum())
 RackDimensionUnitEnum = strawberry.enum(RackDimensionUnitChoices.as_enum(prefix='unit'))
 RackFormFactorEnum = strawberry.enum(RackFormFactorChoices.as_enum(prefix='type'))
 RackReservationStatusEnum = strawberry.enum(RackReservationStatusChoices.as_enum(prefix='status'))

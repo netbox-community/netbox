@@ -1168,7 +1168,7 @@ class CoolingSourceBulkEditForm(PrimaryModelBulkEditForm):
         ),
     )
     nullable_fields = (
-        'location', 'type', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'description', 'comments',
+        'location', 'cooling_capacity', 'supply_temperature', 'return_temperature', 'description', 'comments',
     )
 
 

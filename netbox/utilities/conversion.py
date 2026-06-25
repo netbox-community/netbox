@@ -167,7 +167,7 @@ def to_millimeters(diameter, unit) -> Decimal:
     if unit == DiameterUnitChoices.UNIT_CENTIMETER:
         return round(Decimal(diameter * 10), 4)
     if unit == DiameterUnitChoices.UNIT_INCH:
-        return round(diameter * Decimal(25.4), 4)
+        return round(diameter * Decimal('25.4'), 4)
     raise ValueError(
         _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
             unit=unit,
