@@ -530,8 +530,8 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'prefix': IPNetwork('192.0.2.0/24'),
-            'scope_type': ContentType.objects.get_for_model(Site).pk,
-            'scope': sites[1].pk,
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'vrf': vrfs[1].pk,
             'tenant': None,
             'vlan': None,
@@ -1340,6 +1340,8 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'vlan-group-x',
             'description': 'A new VLAN group',
             'vid_ranges': '100-199,300-399',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
             'tags': [t.pk for t in tags],
         }
 
@@ -1367,6 +1369,8 @@ class VLANGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            'scope_object_id': sites[1].pk,
         }
 
     def test_vlans_filter_suppresses_available_vlans(self):
@@ -1868,8 +1872,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'parent_object_type': ContentType.objects.get_for_model(Device).pk,
-            'parent': device.pk,
+            'parent_content_type': ContentType.objects.get_for_model(Device).pk,
+            'parent_object_id': device.pk,
             'name': 'Service X',
             'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
             'ports': '104,105',
@@ -1978,8 +1982,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         request = {
             'path': self._get_url('add'),
             'data': {
-                'parent_object_type': ContentType.objects.get_for_model(Device).pk,
-                'parent': device.pk,
+                'parent_content_type': ContentType.objects.get_for_model(Device).pk,
+                'parent_object_id': device.pk,
                 'service_template': service_template.pk,
             },
         }

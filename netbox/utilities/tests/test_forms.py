@@ -1,4 +1,8 @@
+import warnings
+from types import SimpleNamespace
+
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 
 from dcim.models import Site
@@ -6,7 +10,9 @@ from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
+from utilities.forms.fields.generic import GenericObjectChoiceField
 from utilities.forms.forms import BulkRenameForm
+from utilities.forms.mixins import GenericObjectFormMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
     expand_alphanumeric_pattern,
@@ -614,6 +620,208 @@ class DynamicMultipleChoiceFieldTestCase(TestCase):
         form = self._make_form(data={})
         form.fields['field'].get_bound_field(form, 'field')
         self.assertEqual(form.fields['field'].choices, [])
+
+
+class GenericObjectChoiceFieldTestCase(TestCase):
+    """Validate generic foreign key object selection via a content type plus an API-backed object selector."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Test Site 1', slug='test-site-1')
+        cls.site_type = ContentType.objects.get_for_model(Site)
+        cls.invalid_type = ContentType.objects.get_for_model(ContentType)
+
+    def _make_form(self, data=None, initial=None, required=False):
+        site_type = self.site_type
+
+        class TestForm(forms.Form):
+            obj = GenericObjectChoiceField(
+                content_type_queryset=ContentType.objects.filter(pk=site_type.pk),
+                required=required,
+                selector=True,
+            )
+
+        return TestForm(data=data, initial=initial)
+
+    def test_valid_value_returns_selected_object(self):
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk)},
+            required=True,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['obj'], self.site)
+
+    def test_optional_empty_value_returns_none(self):
+        form = self._make_form(data={'obj_content_type': '', 'obj_object_id': ''})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertIsNone(form.cleaned_data['obj'])
+
+    def test_required_empty_value_is_invalid(self):
+        form = self._make_form(data={'obj_content_type': '', 'obj_object_id': ''}, required=True)
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_incomplete_value_is_invalid(self):
+        for data in (
+            {'obj_content_type': str(self.site_type.pk), 'obj_object_id': ''},
+            {'obj_content_type': '', 'obj_object_id': str(self.site.pk)},
+        ):
+            form = self._make_form(data=data)
+            self.assertFalse(form.is_valid())
+            self.assertIn('obj', form.errors)
+
+    def test_invalid_content_type_is_rejected(self):
+        form = self._make_form(
+            data={'obj_content_type': str(self.invalid_type.pk), 'obj_object_id': str(self.site.pk)}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_invalid_object_id_is_rejected(self):
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk + 1000)}
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_initial_object_configures_object_selector(self):
+        form = self._make_form(initial={'obj': self.site})
+        field = form.fields['obj']
+        bound_field = field.get_bound_field(form, 'obj')
+        self.assertEqual(field.selected_model, Site)
+        self.assertEqual(list(field.object_field.queryset), [self.site])
+        self.assertEqual(field.object_field.widget.attrs['selector'], Site._meta.label_lower)
+        self.assertIn('data-url', field.object_field.widget.attrs)
+        self.assertIn('obj_content_type', str(bound_field))
+        self.assertIn('obj_object_id', str(bound_field))
+
+    def test_unbound_htmx_rerender_preserves_selection(self):
+        # Simulates an HTMX content-type change: the view passes the submitted subwidget values
+        # via `initial` (form is unbound). The object selector must reconfigure for the new type.
+        form = self._make_form(initial={
+            'obj_content_type': str(self.site_type.pk),
+            'obj_object_id': str(self.site.pk),
+        })
+        field = form.fields['obj']
+        field.get_bound_field(form, 'obj')
+        self.assertEqual(field.selected_model, Site)
+        self.assertIn('data-url', field.object_field.widget.attrs)
+        self.assertEqual(field.initial, [str(self.site_type.pk), str(self.site.pk)])
+
+    def test_initial_content_type_is_selected_on_render(self):
+        # The content-type subwidget must render its options and mark the current type selected on edit forms.
+        form = self._make_form(initial={'obj': self.site})
+        content_type_html = str(form['obj']).split('name="obj_object_id"')[0]
+        self.assertRegex(content_type_html, rf'value="{self.site_type.pk}"\s+selected')
+
+    def test_queryset_property_proxies_object_field(self):
+        """The top-level queryset proxy reads and writes the nested object field's queryset."""
+        form = self._make_form()
+        field = form.fields['obj']
+        self.assertIs(field.queryset, field.object_field.queryset)
+        field.queryset = Site.objects.all()
+        self.assertIs(field.object_field.queryset, field.queryset)
+        self.assertEqual(list(field.queryset), list(Site.objects.all()))
+
+    def test_restricted_queryset_rejects_unviewable_object(self):
+        """An object outside the restricted queryset is rejected, mirroring restrict_form_fields()."""
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk)},
+            required=True,
+        )
+        # restrict_form_fields() narrows the nested queryset via the top-level proxy before validation.
+        form.fields['obj'].queryset = Site.objects.exclude(pk=self.site.pk)
+        self.assertFalse(form.is_valid())
+        self.assertIn('obj', form.errors)
+
+    def test_restricted_queryset_allows_viewable_object(self):
+        """An object within the restricted queryset still validates."""
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': str(self.site.pk)},
+            required=True,
+        )
+        form.fields['obj'].queryset = Site.objects.all()
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['obj'], self.site)
+
+    def test_incomplete_value_names_selected_type(self):
+        """When a type is chosen but no object, the error names the selected type."""
+        form = self._make_form(
+            data={'obj_content_type': str(self.site_type.pk), 'obj_object_id': ''},
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn('Please select a site.', form.errors['obj'])
+
+    def test_content_type_change_clears_stale_object_id(self):
+        """The content-type selector clears its paired object_id client-side on change (stale-PK guard)."""
+        form = self._make_form(initial={'obj': self.site})
+        field = form.fields['obj']
+        field.get_bound_field(form, 'obj')
+        self.assertEqual(
+            field.content_type_field.widget.attrs.get('hx-on::config-request'),
+            "event.detail.parameters['obj_object_id'] = ''",
+        )
+
+    def test_compress_is_not_implemented(self):
+        """compress() is intentionally unreachable and raises to signal clean() owns the conversion."""
+        field = self._make_form().fields['obj']
+        with self.assertRaises(NotImplementedError):
+            field.compress([self.site_type, self.site])
+
+
+class GenericObjectFormMixinTestCase(TestCase):
+    """Validate the DEBUG warning emitted when an HTMX target has no matching FieldSet."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.site = Site.objects.create(name='Mixin Test Site', slug='mixin-test-site')
+        cls.site_type = ContentType.objects.get_for_model(Site)
+
+    def _field(self):
+        return GenericObjectChoiceField(
+            content_type_queryset=ContentType.objects.filter(pk=self.site_type.pk),
+            required=False,
+            hx_target_id='scope',
+        )
+
+    @override_settings(DEBUG=True)
+    def test_missing_htmx_fieldset_warns(self):
+        field = self._field()
+
+        class MissingFieldsetForm(GenericObjectFormMixin, forms.Form):
+            obj = field
+
+        with self.assertWarns(UserWarning):
+            MissingFieldsetForm()
+
+    @override_settings(DEBUG=True)
+    def test_present_htmx_fieldset_does_not_warn(self):
+        field = self._field()
+
+        class PresentFieldsetForm(GenericObjectFormMixin, forms.Form):
+            obj = field
+            fieldsets = (FieldSet('obj', name='Scope', html_id='scope'),)
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            PresentFieldsetForm()
+        self.assertEqual([w for w in caught if 'html_id' in str(w.message)], [])
+
+    def test_gfk_name_routes_assignment(self):
+        """When gfk_name differs from the field name, the cleaned object is assigned to that attribute."""
+        site_type = self.site_type
+
+        class TargetForm(GenericObjectFormMixin, forms.Form):
+            target = GenericObjectChoiceField(
+                content_type_queryset=ContentType.objects.filter(pk=site_type.pk),
+                required=False,
+                gfk_name='assigned_object',
+            )
+
+        form = TargetForm(data={'target_content_type': str(site_type.pk), 'target_object_id': str(self.site.pk)})
+        form.instance = SimpleNamespace()
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.instance.assigned_object, self.site)
 
 
 class GetCapacityUnitLabelTestCase(TestCase):

@@ -73,7 +73,7 @@ class ClusterBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     model = Cluster
     fieldsets = (
         FieldSet('type', 'group', 'status', 'tenant', 'description'),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
     )
     nullable_fields = (
         'group', 'scope', 'tenant', 'description', 'comments',

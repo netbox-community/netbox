@@ -8,7 +8,7 @@ from ipam.forms.bulk_import import IPAddressImportForm
 
 
 class PrefixFormTestCase(TestCase):
-    default_dynamic_params = '[{"fieldName":"scope","queryParam":"available_at_site"}]'
+    default_dynamic_params = '[{"fieldName":"scope_object_id","queryParam":"available_at_site"}]'
 
     @classmethod
     def setUpTestData(cls):
@@ -23,8 +23,8 @@ class PrefixFormTestCase(TestCase):
     def test_vlan_field_sets_dynamic_params_for_scope_site(self):
         """data-dynamic-params present when scope type is Site and when scope is specifc site"""
         form = PrefixForm(data={
-            'scope_type': ContentType.objects.get_for_model(Site).id,
-            'scope': self.site,
+            'scope_content_type': ContentType.objects.get_for_model(Site).id,
+            'scope_object_id': self.site.pk,
         })
 
         assert form.fields['vlan'].widget.attrs['data-dynamic-params'] == self.default_dynamic_params
@@ -37,9 +37,10 @@ class PrefixFormTestCase(TestCase):
             SiteGroup(name='Site Group 1', slug='site-group-1'),
         ]
         for case in cases:
+            case.save()
             form = PrefixForm(data={
-                'scope_type': ContentType.objects.get_for_model(case._meta.model).id,
-                'scope': case,
+                'scope_content_type': ContentType.objects.get_for_model(case._meta.model).id,
+                'scope_object_id': case.pk,
             })
 
             assert 'data-dynamic-params' not in form.fields['vlan'].widget.attrs

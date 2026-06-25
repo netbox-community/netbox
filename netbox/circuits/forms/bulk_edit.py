@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import (
@@ -11,21 +10,19 @@ from circuits.choices import (
 )
 from circuits.constants import CIRCUIT_TERMINATION_TERMINATION_TYPES
 from circuits.models import *
-from dcim.models import Site
 from ipam.models import ASN
 from netbox.choices import DistanceUnitChoices
 from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditForm, PrimaryModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice, get_field_value
+from utilities.forms import GenericObjectFormMixin, add_blank_choice
 from utilities.forms.fields import (
     ColorField,
-    ContentTypeChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
+    GenericObjectChoiceField,
 )
 from utilities.forms.rendering import FieldSet
-from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, HTMXSelect, NumberWithOptions
-from utilities.templatetags.builtins.filters import bettertitle
+from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitBulkEditForm',
@@ -179,24 +176,18 @@ class CircuitBulkEditForm(PrimaryModelBulkEditForm):
     )
 
 
-class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
+class CircuitTerminationBulkEditForm(GenericObjectFormMixin, NetBoxModelBulkEditForm):
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
         required=False
     )
-    termination_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
-        required=False,
-        label=_('Termination type')
-    )
-    termination = DynamicModelChoiceField(
+    termination = GenericObjectChoiceField(
         label=_('Termination'),
-        queryset=Site.objects.none(),  # Initial queryset
+        content_type_queryset=ContentType.objects.filter(model__in=CIRCUIT_TERMINATION_TERMINATION_TYPES),
         required=False,
-        disabled=True,
-        selector=True
+        selector=True,
+        hx_method='post',
     )
     port_speed = forms.IntegerField(
         required=False,
@@ -215,27 +206,11 @@ class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
     model = CircuitTermination
     fieldsets = (
         FieldSet(
-            'description',
-            'termination_type', 'termination',
-            'mark_connected', name=_('Circuit Termination')
+            'description', 'termination', 'mark_connected', name=_('Circuit Termination')
         ),
         FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
     )
     nullable_fields = ('description', 'termination')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if termination_type_id := get_field_value(self, 'termination_type'):
-            try:
-                termination_type = ContentType.objects.get(pk=termination_type_id)
-                model = termination_type.model_class()
-                self.fields['termination'].queryset = model.objects.all()
-                self.fields['termination'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['termination'].disabled = False
-                self.fields['termination'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
 
 
 class CircuitGroupBulkEditForm(OrganizationalModelBulkEditForm):

@@ -74,14 +74,14 @@ class ClusterForm(TenancyForm, ScopedForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet('name', 'type', 'group', 'status', 'description', 'tags', name=_('Cluster')),
-        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
         model = Cluster
         fields = (
-            'name', 'type', 'group', 'status', 'tenant', 'scope_type', 'description', 'owner', 'comments', 'tags',
+            'name', 'type', 'group', 'status', 'tenant', 'description', 'owner', 'comments', 'tags',
         )
 
 
