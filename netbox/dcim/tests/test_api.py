@@ -4553,6 +4553,12 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
                 'rack': racks[3].pk,
                 'type': RETURN,
             },
+            {
+                'name': 'Cooling Feed 4C',
+                'cooling_source': cooling_sources[0].pk,
+                'rack': racks[3].pk,
+                'type': SUPPLY,
+            },
         ]
 
 
