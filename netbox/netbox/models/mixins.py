@@ -18,6 +18,7 @@ __all__ = (
     'DiameterMixin',
     'DistanceMixin',
     'FlowRateMixin',
+    'MaximumFlowMixin',
     'OwnerMixin',
     'PressureMixin',
     'WeightMixin',
@@ -190,6 +191,59 @@ class FlowRateMixin(models.Model):
         # Validate flow_rate and flow_rate_unit
         if self.flow_rate is not None and not self.flow_rate_unit:
             raise ValidationError(_("Must specify a unit when setting a flow rate"))
+
+
+class MaximumFlowMixin(models.Model):
+    maximum_flow = models.DecimalField(
+        verbose_name=_('maximum flow'),
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        validators=[MinValueValidator(0)],
+    )
+    maximum_flow_unit = models.CharField(
+        verbose_name=_('maximum flow unit'),
+        max_length=50,
+        choices=FlowRateUnitChoices,
+        blank=True,
+        null=True,
+    )
+    # Stores the normalized maximum flow (in liters per minute) for database ordering
+    _abs_maximum_flow = models.DecimalField(
+        max_digits=13,
+        decimal_places=4,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    @property
+    def abs_maximum_flow(self):
+        # Public alias for _abs_maximum_flow; Django templates cannot access underscore-prefixed attributes.
+        return self._abs_maximum_flow
+
+    def save(self, *args, **kwargs):
+        # Store the given maximum flow (if any) in liters per minute for use in database ordering
+        if self.maximum_flow is not None and self.maximum_flow_unit:
+            self._abs_maximum_flow = to_liters_per_minute(self.maximum_flow, self.maximum_flow_unit)
+        else:
+            self._abs_maximum_flow = None
+
+        # Clear maximum_flow_unit if no maximum flow is defined
+        if self.maximum_flow is None:
+            self.maximum_flow_unit = None
+
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Validate maximum_flow and maximum_flow_unit
+        if self.maximum_flow is not None and not self.maximum_flow_unit:
+            raise ValidationError(_("Must specify a unit when setting a maximum flow"))
 
 
 class PressureMixin(models.Model):

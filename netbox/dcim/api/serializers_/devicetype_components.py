@@ -21,7 +21,7 @@ from dcim.models import (
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
-from netbox.choices import DiameterUnitChoices
+from netbox.choices import DiameterUnitChoices, FlowRateUnitChoices
 from wireless.choices import *
 
 from .base import PortSerializer
@@ -206,12 +206,19 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
         required=False,
         allow_null=True
     )
+    maximum_flow_unit = ChoiceField(
+        choices=FlowRateUnitChoices,
+        allow_blank=True,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = CoolingPortTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity', 'description', 'created', 'last_updated',
+            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'description',
+            'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

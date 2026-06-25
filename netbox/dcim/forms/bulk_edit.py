@@ -1442,6 +1442,11 @@ class CoolingPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         min_value=0,
         required=False
     )
+    maximum_flow_unit = forms.ChoiceField(
+        label=_('Maximum flow unit'),
+        choices=add_blank_choice(FlowRateUnitChoices),
+        required=False
+    )
     heat_capacity = forms.DecimalField(
         label=_('Heat capacity'),
         min_value=0,
@@ -1456,12 +1461,13 @@ class CoolingPortTemplateBulkEditForm(ComponentTemplateBulkEditForm):
         FieldSet(
             'label', 'type', 'connector_type',
             InlineFields('diameter', 'diameter_unit', label=_('Diameter')),
-            'maximum_flow', 'heat_capacity', 'description',
+            InlineFields('maximum_flow', 'maximum_flow_unit', label=_('Maximum flow')),
+            'heat_capacity', 'description',
         ),
     )
     nullable_fields = (
-        'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity',
-        'description',
+        'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'heat_capacity', 'description',
     )
 
 

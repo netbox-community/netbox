@@ -13,7 +13,7 @@ from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
-from netbox.models.mixins import DiameterMixin
+from netbox.models.mixins import DiameterMixin, MaximumFlowMixin
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
@@ -443,7 +443,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
         }
 
 
-class CoolingPortTemplate(DiameterMixin, ModularComponentTemplateModel):
+class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTemplateModel):
     """
     A template for a CoolingPort to be created for a new Device.
     """
@@ -462,15 +462,7 @@ class CoolingPortTemplate(DiameterMixin, ModularComponentTemplateModel):
         null=True
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
-    maximum_flow = models.DecimalField(
-        verbose_name=_('maximum flow'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Maximum coolant flow rate (L/min)')
-    )
+    # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
     heat_capacity = models.DecimalField(
         verbose_name=_('heat capacity'),
         max_digits=8,
@@ -496,6 +488,7 @@ class CoolingPortTemplate(DiameterMixin, ModularComponentTemplateModel):
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
             maximum_flow=self.maximum_flow,
+            maximum_flow_unit=self.maximum_flow_unit,
             heat_capacity=self.heat_capacity,
             **kwargs
         )
@@ -509,6 +502,7 @@ class CoolingPortTemplate(DiameterMixin, ModularComponentTemplateModel):
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,
             'maximum_flow': float(self.maximum_flow) if self.maximum_flow is not None else None,
+            'maximum_flow_unit': self.maximum_flow_unit,
             'heat_capacity': float(self.heat_capacity) if self.heat_capacity is not None else None,
             'label': self.label,
             'description': self.description,

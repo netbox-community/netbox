@@ -17,7 +17,7 @@ from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
-from netbox.models.mixins import DiameterMixin, OwnerMixin
+from netbox.models.mixins import DiameterMixin, MaximumFlowMixin, OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -690,7 +690,9 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Cooling components
 #
 
-class CoolingPort(DiameterMixin, ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+class CoolingPort(
+    DiameterMixin, MaximumFlowMixin, ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin
+):
     """
     A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake).
     CoolingPorts connect to CoolingOutlets.
@@ -712,15 +714,7 @@ class CoolingPort(DiameterMixin, ModularComponentModel, CabledObjectModel, PathE
         help_text=_('Physical connector type')
     )
     # diameter, diameter_unit, _abs_diameter provided by DiameterMixin
-    maximum_flow = models.DecimalField(
-        verbose_name=_('maximum flow'),
-        max_digits=8,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        validators=[MinValueValidator(0)],
-        help_text=_('Maximum coolant flow rate (L/min)')
-    )
+    # maximum_flow, maximum_flow_unit, _abs_maximum_flow provided by MaximumFlowMixin
     heat_capacity = models.DecimalField(
         verbose_name=_('heat capacity'),
         max_digits=8,
@@ -732,7 +726,8 @@ class CoolingPort(DiameterMixin, ModularComponentModel, CabledObjectModel, PathE
     )
 
     clone_fields = (
-        'device', 'module', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'heat_capacity',
+        'device', 'module', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
+        'maximum_flow_unit', 'heat_capacity',
     )
 
     class Meta(ModularComponentModel.Meta):
