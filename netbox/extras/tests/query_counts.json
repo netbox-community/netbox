@@ -20,7 +20,7 @@
   "imageattachment:api_list_objects": 11,
   "imageattachment:list_objects_with_permission": 21,
   "journalentry:api_list_objects": 15,
-  "journalentry:list_objects_with_permission": 24,
+  "journalentry:list_objects_with_permission": 26,
   "notification:api_list_objects": 12,
   "notificationgroup:api_list_objects": 11,
   "notificationgroup:list_objects_with_permission": 18,

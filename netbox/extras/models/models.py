@@ -896,6 +896,11 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         verbose_name = _('journal entry')
         verbose_name_plural = _('journal entries')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Store the initial value so we can detect changes later
+        self.__original_created_by = self.created_by
+
     def __str__(self):
         created = timezone.localtime(self.created)
         return (
@@ -917,6 +922,16 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            if self.created_by != self.__original_created_by:
+                raise ValidationError(
+                    _("{field} is immutable and cannot be changed after creation.").format(field='created_by')
+                )
+        super().save(*args, **kwargs)
+        # After a successful save, update the original value
+        self.__original_created_by = self.created_by
 
 
 class Bookmark(models.Model):
