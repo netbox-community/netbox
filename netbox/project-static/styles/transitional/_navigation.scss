@@ -1,5 +1,13 @@
 // Navbar and light theme styling
 .navbar-vertical.navbar-expand-lg {
+  // Render the <button> menu headings identically to the surrounding nav links
+  .navbar-collapse .nav-item.dropdown > button.nav-link {
+    width: 100%;
+    background-color: transparent;
+    border: 0;
+    text-align: left;
+  }
+
   // Adjust hover color & style for menu items
   .navbar-collapse {
     .nav-link-icon,
