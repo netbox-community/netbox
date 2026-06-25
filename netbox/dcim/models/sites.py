@@ -53,23 +53,15 @@ class Region(ContactsMixin, NestedLtreeGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
-                name='%(app_label)s_%(class)s_parent_name'
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level region with this name already exists.")
+                name='%(app_label)s_%(class)s_parent_name',
+                nulls_distinct=False,
+                violation_error_message=_("A region with this name already exists.")
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
-                name='%(app_label)s_%(class)s_parent_slug'
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level region with this slug already exists.")
+                name='%(app_label)s_%(class)s_parent_slug',
+                nulls_distinct=False,
+                violation_error_message=_("A region with this slug already exists.")
             ),
         )
         verbose_name = _('region')
@@ -114,23 +106,15 @@ class SiteGroup(ContactsMixin, NestedLtreeGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
-                name='%(app_label)s_%(class)s_parent_name'
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level site group with this name already exists.")
+                name='%(app_label)s_%(class)s_parent_name',
+                nulls_distinct=False,
+                violation_error_message=_("A site group with this name already exists.")
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
-                name='%(app_label)s_%(class)s_parent_slug'
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level site group with this slug already exists.")
+                name='%(app_label)s_%(class)s_parent_slug',
+                nulls_distinct=False,
+                violation_error_message=_("A site group with this slug already exists.")
             ),
         )
         verbose_name = _('site group')
@@ -341,22 +325,14 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedLtreeGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('site', 'parent', 'name'),
-                name='%(app_label)s_%(class)s_parent_name'
-            ),
-            models.UniqueConstraint(
-                fields=('site', 'name'),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(parent__isnull=True),
+                name='%(app_label)s_%(class)s_parent_name',
+                nulls_distinct=False,
                 violation_error_message=_("A location with this name already exists within the specified site.")
             ),
             models.UniqueConstraint(
                 fields=('site', 'parent', 'slug'),
-                name='%(app_label)s_%(class)s_parent_slug'
-            ),
-            models.UniqueConstraint(
-                fields=('site', 'slug'),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(parent__isnull=True),
+                name='%(app_label)s_%(class)s_parent_slug',
+                nulls_distinct=False,
                 violation_error_message=_("A location with this slug already exists within the specified site.")
             ),
         )
