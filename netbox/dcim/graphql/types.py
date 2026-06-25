@@ -814,7 +814,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingFeed,
-    exclude=['_path'],
+    exclude=['_path', '_abs_flow_rate', '_abs_pressure', '_abs_supply_temperature', '_abs_return_temperature'],
     filters=CoolingFeedFilter,
     pagination=True
 )
@@ -826,7 +826,7 @@ class CoolingFeedType(CabledObjectMixin, PathEndpointMixin, PrimaryObjectType):
 
 @register_type(
     models.CoolingOutlet,
-    exclude=['_path'],
+    exclude=['_path', '_abs_diameter'],
     filters=CoolingOutletFilter,
     pagination=True
 )
@@ -837,7 +837,7 @@ class CoolingOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMix
 
 @register_type(
     models.CoolingOutletTemplate,
-    fields='__all__',
+    exclude=['_abs_diameter'],
     filters=CoolingOutletTemplateFilter,
     pagination=True
 )
@@ -848,7 +848,7 @@ class CoolingOutletTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingPort,
-    exclude=['_path'],
+    exclude=['_path', '_abs_diameter'],
     filters=CoolingPortFilter,
     pagination=True
 )
@@ -859,7 +859,7 @@ class CoolingPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin
 
 @register_type(
     models.CoolingPortTemplate,
-    fields='__all__',
+    exclude=['_abs_diameter'],
     filters=CoolingPortTemplateFilter,
     pagination=True
 )
@@ -869,7 +869,7 @@ class CoolingPortTemplateType(ModularComponentTemplateType):
 
 @register_type(
     models.CoolingSource,
-    fields='__all__',
+    exclude=['_abs_supply_temperature', '_abs_return_temperature'],
     filters=CoolingSourceFilter,
     pagination=True
 )
