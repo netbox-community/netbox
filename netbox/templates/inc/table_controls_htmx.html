@@ -1,6 +1,9 @@
 {% load helpers %}
 {% load i18n %}
 
+{# Live region used to announce updated results (e.g. after a quick search) to assistive technology #}
+<div id="object-list-status" class="visually-hidden" role="status" aria-live="polite"></div>
+
 <div class="row mb-3" id="results">
   <div class="col-auto d-print-none">
     <div class="input-group input-group-flat me-2 quicksearch" hx-disinherit="hx-select hx-swap">
