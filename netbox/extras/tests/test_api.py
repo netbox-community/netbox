@@ -1581,6 +1581,27 @@ class NotificationTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
+class _InMemoryScriptStorage:
+    """Stateful stand-in for the scripts storage backend; mimics allow_overwrite=True."""
+
+    def __init__(self):
+        self.files = {}
+
+    def save(self, name, content):
+        content.seek(0)
+        self.files[name] = content.read()
+        return name
+
+    def open(self, name, mode='rb'):
+        return io.BytesIO(self.files[name])
+
+    def delete(self, name):
+        self.files.pop(name, None)
+
+    def exists(self, name):
+        return name in self.files
+
+
 class ScriptModuleTestCase(APITestCase):
     """
     Tests for the POST /api/extras/scripts/upload/ endpoint.
@@ -1652,6 +1673,52 @@ class ScriptModuleTestCase(APITestCase):
         )
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(ScriptModule.objects.filter(file_path='test_faulty.py').exists())
+
+    def test_upload_duplicate_script_module_preserves_existing_file(self):
+        """A duplicate-filename upload returns 400 and leaves the existing file unchanged."""
+        self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
+        original_content = (
+            b"from extras.scripts import Script\n\n\n"
+            b"class ProbeScript(Script):\n    def run(self, data, commit):\n        return 'v1'\n"
+        )
+        updated_content = original_content.replace(b"'v1'", b"'v2'")
+
+        fake_storage = _InMemoryScriptStorage()
+
+        with (
+            patch('extras.api.serializers_.scripts.storages') as mock_serializer_storages,
+            patch('extras.models.mixins.storages') as mock_module_storages,
+        ):
+            mock_serializer_storages.create_storage.return_value = fake_storage
+            mock_serializer_storages.backends = {'scripts': {}}
+            mock_module_storages.__getitem__.return_value = fake_storage
+
+            # First upload succeeds and writes the file
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_probe.py', original_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_201_CREATED)
+            self.assertEqual(fake_storage.files['zz_probe.py'], original_content)
+
+            # Re-uploading the same filename with different content must be rejected
+            response = self.client.post(
+                self.url,
+                {'file': SimpleUploadedFile('zz_probe.py', updated_content, content_type='text/plain')},
+                format='multipart',
+                **self.header,
+            )
+            self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+            self.assertIn('already exists', str(response.data))
+
+            # Existing file must survive intact: neither deleted nor overwritten with v2
+            self.assertTrue(fake_storage.exists('zz_probe.py'))
+            self.assertEqual(fake_storage.files['zz_probe.py'], original_content)
+
+        # Exactly one ScriptModule remains, still pointing at the original file
+        self.assertEqual(ScriptModule.objects.filter(file_path='zz_probe.py').count(), 1)
 
     def test_upload_script_module_without_file_fails(self):
         self.add_permissions('extras.add_scriptmodule', 'core.add_managedfile')
