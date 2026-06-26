@@ -104,9 +104,9 @@ Selection and multiple selection fields are returned as objects exposing both th
 
 ```json
     "custom_fields": {
-        "cluster": {
-            "value": 1,
-            "label": "cluster1"
+        "site_type": {
+            "value": "datacenter",
+            "label": "Data Center"
         },
         "regions": [
             {
@@ -134,4 +134,4 @@ To set or change these values, simply include nested JSON data. For example:
 }
 ```
 
-As with built-in choice fields, selection custom fields are written by passing the raw value (e.g. `"cluster": 1`), not the `{value, label}` object returned on read.
+As with built-in choice fields, selection custom fields are written by passing the raw value (e.g. `"site_type": "datacenter"`), not the `{value, label}` object returned on read.
