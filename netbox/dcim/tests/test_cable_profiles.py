@@ -2,6 +2,7 @@ from django.test import tag
 
 from dcim.cable_profiles import (
     Breakout1C4Px4C1PCableProfile,
+    Breakout1C8Px8C1PCableProfile,
     Single1C1PCableProfile,
     Single1C4PCableProfile,
     Trunk2C2PCableProfile,
@@ -73,6 +74,32 @@ class CableProfileLinkPeerTestCase(BaseCablePathTestCase):
 
         for interface in interfaces[2:4] + interfaces[6:8]:
             self.assertEqual(interface.link_peers, [rear_ports[1]])
+
+    def test_breakout_1c8p_8c1p_link_peers(self):
+        """
+        Link peers for a 1C8P:8C1P breakout map the single A-side connector's
+        eight positions to the eight B-side connectors, and each back to it.
+        """
+        a_interface = Interface.objects.create(device=self.device, name='Interface A')
+        b_interfaces = [
+            Interface.objects.create(device=self.device, name=f'Interface B{i}') for i in range(1, 9)
+        ]
+
+        cable = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C8P_8C1P,
+            a_terminations=[a_interface],
+            b_terminations=b_interfaces,
+        )
+        cable.clean()
+        cable.save()
+
+        a_interface.refresh_from_db()
+        for iface in b_interfaces:
+            iface.refresh_from_db()
+
+        self.assertEqual(a_interface.link_peers, b_interfaces)
+        for iface in b_interfaces:
+            self.assertEqual(iface.link_peers, [a_interface])
 
 
 class CableProfilePeerTerminationTestCase(BaseCablePathTestCase):
@@ -226,6 +253,32 @@ class CableProfilePeerTerminationTestCase(BaseCablePathTestCase):
 
         # Test B→A direction (4 connectors, 1 position each → one connector)
         b_pairs = [(iface, 1) for iface in self.interfaces[9:13]]
+        self._assert_batch_matches_singular(profile, b_pairs)
+
+    def test_breakout_1c8p_profile(self):
+        """
+        Batch resolution on a 1C8P:8C1P breakout maps one A-side connector's
+        eight positions to eight B-side connectors.
+        """
+        cable = Cable(
+            profile=CableProfileChoices.BREAKOUT_1C8P_8C1P,
+            a_terminations=[self.interfaces[0]],
+            b_terminations=self.interfaces[1:9],
+        )
+        cable.clean()
+        cable.save()
+
+        self.interfaces[0].refresh_from_db()
+        for iface in self.interfaces[1:9]:
+            iface.refresh_from_db()
+        profile = Breakout1C8Px8C1PCableProfile()
+
+        # A→B direction (one connector, 8 positions → 8 connectors)
+        a_pairs = [(self.interfaces[0], pos) for pos in self.interfaces[0].cable_positions]
+        self._assert_batch_matches_singular(profile, a_pairs)
+
+        # B→A direction (8 connectors, 1 position each → one connector)
+        b_pairs = [(iface, 1) for iface in self.interfaces[1:9]]
         self._assert_batch_matches_singular(profile, b_pairs)
 
     def test_multi_position_single_termination(self):

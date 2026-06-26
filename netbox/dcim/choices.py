@@ -1787,6 +1787,7 @@ class CableProfileChoices(ChoiceSet):
     BREAKOUT_1C2P_2C1P = 'breakout-1c2p-2c1p'
     BREAKOUT_1C4P_4C1P = 'breakout-1c4p-4c1p'
     BREAKOUT_1C6P_6C1P = 'breakout-1c6p-6c1p'
+    BREAKOUT_1C8P_8C1P = 'breakout-1c8p-8c1p'
     BREAKOUT_2C4P_8C1P_SHUFFLE = 'breakout-2c4p-8c1p-shuffle'
 
     CHOICES = (
@@ -1827,6 +1828,7 @@ class CableProfileChoices(ChoiceSet):
                 (BREAKOUT_1C2P_2C1P, _('1C2P:2C1P breakout')),
                 (BREAKOUT_1C4P_4C1P, _('1C4P:4C1P breakout')),
                 (BREAKOUT_1C6P_6C1P, _('1C6P:6C1P breakout')),
+                (BREAKOUT_1C8P_8C1P, _('1C8P:8C1P breakout')),
                 (BREAKOUT_2C4P_8C1P_SHUFFLE, _('2C4P:8C1P breakout (shuffle)')),
             ),
         ),

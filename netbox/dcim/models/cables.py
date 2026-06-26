@@ -207,6 +207,7 @@ class Cable(PrimaryModel):
             CableProfileChoices.BREAKOUT_1C2P_2C1P: cable_profiles.Breakout1C2Px2C1PCableProfile,
             CableProfileChoices.BREAKOUT_1C4P_4C1P: cable_profiles.Breakout1C4Px4C1PCableProfile,
             CableProfileChoices.BREAKOUT_1C6P_6C1P: cable_profiles.Breakout1C6Px6C1PCableProfile,
+            CableProfileChoices.BREAKOUT_1C8P_8C1P: cable_profiles.Breakout1C8Px8C1PCableProfile,
             CableProfileChoices.BREAKOUT_2C4P_8C1P_SHUFFLE: cable_profiles.Breakout2C4Px8C1PShuffleCableProfile,
         }.get(self.profile)
 
