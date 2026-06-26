@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-24 06:18+0000\n"
+"POT-Creation-Date: 2026-06-26 06:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12489,8 +12489,8 @@ msgid "{class_name} must specify a model class."
 msgstr ""
 
 #: netbox/netbox/forms/mixins.py:114
-#: netbox/templates/inc/table_controls_htmx.html:21
-#: netbox/templates/inc/table_controls_htmx.html:22
+#: netbox/templates/inc/table_controls_htmx.html:25
+#: netbox/templates/inc/table_controls_htmx.html:26
 msgid "Saved filter"
 msgstr ""
 
@@ -13263,7 +13263,7 @@ msgid "Toggle all"
 msgstr ""
 
 #: netbox/netbox/tables/columns.py:321
-#: netbox/templates/inc/table_controls_htmx.html:37
+#: netbox/templates/inc/table_controls_htmx.html:41
 msgid "Toggle Dropdown"
 msgstr ""
 
@@ -13555,8 +13555,8 @@ msgstr ""
 #: netbox/templates/extras/dashboard/widget_config.html:19
 #: netbox/templates/extras/object_journal.html:27
 #: netbox/templates/generic/object_edit.html:77
-#: netbox/templates/htmx/table.html:27
-#: netbox/templates/inc/table_controls_htmx.html:41
+#: netbox/templates/htmx/table.html:38
+#: netbox/templates/inc/table_controls_htmx.html:45
 #: netbox/templates/users/token_edit.html:34
 #: netbox/utilities/templates/helpers/applied_filters.html:16
 msgid "Save"
@@ -14062,8 +14062,8 @@ msgstr ""
 #: netbox/templates/core/rq_worker_list.html:50
 #: netbox/templates/extras/script_result.html:67
 #: netbox/templates/extras/script_result.html:69
-#: netbox/templates/inc/table_controls_htmx.html:32
-#: netbox/templates/inc/table_controls_htmx.html:33
+#: netbox/templates/inc/table_controls_htmx.html:36
+#: netbox/templates/inc/table_controls_htmx.html:37
 msgid "Configure Table"
 msgstr ""
 
@@ -15266,6 +15266,13 @@ msgid ""
 "    "
 msgstr ""
 
+#: netbox/templates/htmx/table.html:28
+#, python-format
+msgid "%(count)s result found"
+msgid_plural "%(count)s results found"
+msgstr[0] ""
+msgstr[1] ""
+
 #: netbox/templates/inc/filter_list.html:40
 #: netbox/utilities/templates/helpers/table_config_form.html:39
 msgid "Reset"
@@ -15327,12 +15334,12 @@ msgstr ""
 msgid "Data is out of sync with upstream file"
 msgstr ""
 
-#: netbox/templates/inc/table_controls_htmx.html:7
-#: netbox/templates/inc/table_controls_htmx.html:8
+#: netbox/templates/inc/table_controls_htmx.html:11
+#: netbox/templates/inc/table_controls_htmx.html:12
 msgid "Quick search"
 msgstr ""
 
-#: netbox/templates/inc/table_controls_htmx.html:11
+#: netbox/templates/inc/table_controls_htmx.html:15
 msgid "Clear quick search"
 msgstr ""
 
