@@ -37,6 +37,13 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
         # Pop 'file' before model instantiation — ScriptModule has no such field.
         file = data.pop('file', None)
         data['file_root'] = ManagedFileRootPathChoices.SCRIPTS
+
+        # Reject duplicates before writing to storage so a failed upload can't touch the existing file
+        if file is not None and ScriptModule.objects.filter(
+            file_root=ManagedFileRootPathChoices.SCRIPTS, file_path=file.name
+        ).exists():
+            raise serializers.ValidationError(_("A script module with this file name already exists."))
+
         data = super().validate(data)
         data.pop('file_root', None)
         if file is not None:
@@ -68,7 +75,11 @@ class ScriptModuleSerializer(ValidatedModelSerializer):
                 )
             raise
         finally:
-            if not created and (file_path := validated_data.get('file_path')):
+            # Don't delete a path another ScriptModule still references (e.g. a concurrent upload won the race)
+            file_path = validated_data.get('file_path')
+            if not created and file_path and not ScriptModule.objects.filter(
+                file_root=ManagedFileRootPathChoices.SCRIPTS, file_path=file_path
+            ).exists():
                 try:
                     storage.delete(file_path)
                 except Exception:
