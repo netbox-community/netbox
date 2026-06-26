@@ -128,9 +128,7 @@ class VirtualMachineTypeFilterForm(PrimaryModelFilterSetForm):
         required=False,
     )
     default_memory = forms.IntegerField(
-        label=_('Default memory ({unit})').format(
-            unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
-        ),
+        label=_('Default memory'),
         required=False,
         min_value=0,
     )
@@ -141,6 +139,14 @@ class VirtualMachineTypeFilterForm(PrimaryModelFilterSetForm):
     )
 
     tag = TagFilterField(model)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set unit label based on configured RAM_BASE_UNIT (MB vs MiB)
+        self.fields['default_memory'].label = _('Default Memory ({unit})').format(
+            unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
+        )
 
 
 class VirtualMachineFilterForm(

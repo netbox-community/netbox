@@ -30,7 +30,7 @@ class VirtualMachineTypePanel(panels.ObjectAttributesPanel):
     default_vcpus = attrs.TextAttr('default_vcpus', label=_('Default vCPUs'))
     default_memory = attrs.TextAttr(
         'default_memory',
-        format_string=_(f'{{0}} {get_capacity_unit_label(settings.RAM_BASE_UNIT)}'),
+        format_string=f'{{0}} {get_capacity_unit_label(settings.RAM_BASE_UNIT)}',
         label=_('Default memory')
     )
     description = attrs.TextAttr('description')
