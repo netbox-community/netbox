@@ -1,4 +1,3 @@
-import django_filters
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -46,6 +45,7 @@ class GenericObjectChoiceField(forms.MultiValueField):
         hx_method='get', hx_include_id='form_fields', hx_target_id=None, **kwargs
     ):
         self.content_type_queryset = content_type_queryset
+        self._content_type_cache = {}
         self.query_params = query_params or {}
         self.selector = selector
         self.gfk_name = gfk_name
@@ -94,6 +94,11 @@ class GenericObjectChoiceField(forms.MultiValueField):
 
     @queryset.setter
     def queryset(self, queryset):
+        # Sync widget refs first so choices land on the rendered MultiWidget subwidget, not an orphan copy.
+        self._sync_widget_refs()
+        self._set_object_queryset(queryset)
+
+    def _set_object_queryset(self, queryset):
         self.object_field.queryset = queryset
         self.object_field.widget.choices = self.object_field.choices
 
@@ -135,9 +140,16 @@ class GenericObjectChoiceField(forms.MultiValueField):
         if value in self.empty_values:
             return None
         try:
-            return self.content_type_queryset.get(pk=value)
-        except (ObjectDoesNotExist, TypeError, ValueError):
+            pk = int(value)
+        except (TypeError, ValueError):
             return None
+        if pk not in self._content_type_cache:
+            try:
+                # Constrain to the allowed queryset so out-of-set types resolve to None.
+                self._content_type_cache[pk] = self.content_type_queryset.get(pk=pk)
+            except ObjectDoesNotExist:
+                self._content_type_cache[pk] = None
+        return self._content_type_cache[pk]
 
     def _configure_object_field(self, content_type, object_value=None):
         # Clear any state left over from a previously selected content type
@@ -151,8 +163,7 @@ class GenericObjectChoiceField(forms.MultiValueField):
         model = content_type.model_class() if content_type else None
         if model is None:
             # No type selected: keep an empty placeholder queryset and disable the object selector.
-            self.object_field.queryset = ContentType.objects.none()
-            self.object_field.widget.choices = self.object_field.choices
+            self._set_object_queryset(ContentType.objects.none())
             widget.attrs['disabled'] = 'disabled'
             return None
 
@@ -165,11 +176,10 @@ class GenericObjectChoiceField(forms.MultiValueField):
         else:
             lookup = getattr(self.object_field, 'to_field_name', None) or 'pk'
             try:
-                queryset = django_filters.ModelChoiceFilter(field_name=lookup).filter(queryset, object_value)
-            except (TypeError, ValueError):
+                queryset = queryset.filter(**{lookup: object_value})
+            except (TypeError, ValueError, ValidationError):
                 queryset = queryset.none()
-        self.object_field.queryset = queryset
-        self.object_field.widget.choices = self.object_field.choices
+        self._set_object_queryset(queryset)
 
         widget.attrs['data-url'] = get_action_url(model, action='list', rest_api=True)
         if self.query_params:

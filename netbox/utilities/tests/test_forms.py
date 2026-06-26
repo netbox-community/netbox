@@ -723,6 +723,15 @@ class GenericObjectChoiceFieldTestCase(TestCase):
         self.assertIs(field.object_field.queryset, field.queryset)
         self.assertEqual(list(field.queryset), list(Site.objects.all()))
 
+    def test_queryset_setter_syncs_rendered_subwidget(self):
+        """Assigning queryset (as restrict_form_fields does, pre-render) populates the rendered subwidget."""
+        form = self._make_form()
+        field = form.fields['obj']
+        field.queryset = Site.objects.all()
+        self.assertIs(field.object_field.widget, field.widget.widgets[1])
+        rendered_values = [getattr(value, 'value', value) for value, label in field.object_field.widget.choices]
+        self.assertIn(self.site.pk, rendered_values)
+
     def test_restricted_queryset_rejects_unviewable_object(self):
         """An object outside the restricted queryset is rejected, mirroring restrict_form_fields()."""
         form = self._make_form(
@@ -761,6 +770,20 @@ class GenericObjectChoiceFieldTestCase(TestCase):
             field.content_type_field.widget.attrs.get('hx-on::config-request'),
             "event.detail.parameters['obj_object_id'] = ''",
         )
+
+    def test_content_type_lookup_is_cached(self):
+        """Repeated content-type resolution hits the database only once per field instance."""
+        field = self._make_form().fields['obj']
+        with self.assertNumQueries(1):
+            first = field._get_content_type(str(self.site_type.pk))
+            second = field._get_content_type(str(self.site_type.pk))
+        self.assertEqual(first, self.site_type)
+        self.assertEqual(second, self.site_type)
+
+    def test_content_type_outside_queryset_returns_none(self):
+        """A content type outside the allowed queryset still resolves to None (constraint preserved)."""
+        field = self._make_form().fields['obj']
+        self.assertIsNone(field._get_content_type(str(self.invalid_type.pk)))
 
     def test_compress_is_not_implemented(self):
         """compress() is intentionally unreachable and raises to signal clean() owns the conversion."""

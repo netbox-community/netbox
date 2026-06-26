@@ -574,6 +574,38 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
+    def test_bulk_edit_htmx_dependent_field_refresh_skips_validation(self):
+        """An HTMX content-type change (no _apply) re-renders the bulk-edit form without validation errors."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.99.0.0/24'))
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [prefix.pk],
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+            # The client-side hx-on::config-request clears the paired object id on a type change.
+            'scope_object_id': '',
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data, headers={'HX-Request': 'true'})
+        self.assertHttpStatus(response, 200)
+        self.assertNotContains(response, 'Please select a site')
+        # The object selector is rebuilt for the new type rather than erroring out.
+        self.assertContains(response, 'name="scope_object_id"')
+        self.assertContains(response, 'data-url="/api/dcim/sites/"')
+
+    def test_bulk_edit_apply_still_validates_incomplete_scope(self):
+        """A real apply with a content type but no object still surfaces the validation error."""
+        prefix = Prefix.objects.create(prefix=IPNetwork('10.99.1.0/24'))
+        self.add_permissions('ipam.view_prefix', 'ipam.change_prefix')
+
+        data = {
+            'pk': [prefix.pk],
+            '_apply': '1',
+            'scope_content_type': ContentType.objects.get_for_model(Site).pk,
+        }
+        response = self.client.post(self._get_url('bulk_edit'), data)
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Please select a site')
+
     def test_bulk_add_ipv4_prefixes(self):
         """Test bulk creating IPv4 prefixes using a pattern."""
         self.add_permissions('ipam.view_prefix')
