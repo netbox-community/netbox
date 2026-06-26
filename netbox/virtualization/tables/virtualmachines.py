@@ -1,11 +1,9 @@
 import django_tables2 as tables
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from utilities.forms.utils import get_capacity_unit_label
 from utilities.templatetags.helpers import humanize_disk_capacity, humanize_ram_capacity
 
 from ..models import VirtualDisk, VirtualMachine, VirtualMachineType, VMInterface
@@ -40,11 +38,6 @@ class VirtualMachineTypeTable(PrimaryModelTable):
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachinetype_list'
     )
-    default_memory = tables.Column(
-        verbose_name=_('Default Memory ({unit})').format(
-            unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
-        )
-    )
 
     class Meta(PrimaryModelTable.Meta):
         model = VirtualMachineType
@@ -55,6 +48,9 @@ class VirtualMachineTypeTable(PrimaryModelTable):
         default_columns = (
             'pk', 'name', 'default_platform', 'default_vcpus', 'default_memory', 'virtual_machine_count', 'description',
         )
+
+    def render_default_memory(self, value):
+        return humanize_ram_capacity(value)
 
 
 #

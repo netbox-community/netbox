@@ -128,7 +128,9 @@ class VirtualMachineTypeFilterForm(PrimaryModelFilterSetForm):
         required=False,
     )
     default_memory = forms.IntegerField(
-        label=_(f'Default memory ({get_capacity_unit_label(settings.RAM_BASE_UNIT)})'),
+        label=_('Default memory ({unit})').format(
+            unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
+        ),
         required=False,
         min_value=0,
     )
