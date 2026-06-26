@@ -70,12 +70,6 @@ class WirelessLANGroup(NestedLtreeGroupModel):
             GistIndex(fields=['path'], name='wireless_lan_grp_path_gist'),
             models.Index(fields=['sort_path'], name='wireless_lan_grp_sort_idx'),
         )
-        constraints = (
-            models.UniqueConstraint(
-                fields=('parent', 'name'),
-                name='%(app_label)s_%(class)s_unique_parent_name'
-            ),
-        )
         verbose_name = _('wireless LAN group')
         verbose_name_plural = _('wireless LAN groups')
 

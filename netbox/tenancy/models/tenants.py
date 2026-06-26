@@ -1,6 +1,5 @@
 from django.contrib.postgres.indexes import GistIndex
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import NestedLtreeGroupModel, PrimaryModel
@@ -71,22 +70,14 @@ class Tenant(ContactsMixin, PrimaryModel):
             models.UniqueConstraint(
                 fields=('group', 'name'),
                 name='%(app_label)s_%(class)s_unique_group_name',
+                nulls_distinct=False,
                 violation_error_message=_("Tenant name must be unique per group.")
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_unique_name',
-                condition=Q(group__isnull=True)
             ),
             models.UniqueConstraint(
                 fields=('group', 'slug'),
                 name='%(app_label)s_%(class)s_unique_group_slug',
+                nulls_distinct=False,
                 violation_error_message=_("Tenant slug must be unique per group.")
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_unique_slug',
-                condition=Q(group__isnull=True)
             ),
         )
         verbose_name = _('tenant')

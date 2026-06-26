@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -78,17 +77,6 @@ class Tunnel(ContactsMixin, PrimaryModel):
 
     class Meta:
         ordering = ('name',)
-        constraints = (
-            models.UniqueConstraint(
-                fields=('group', 'name'),
-                name='%(app_label)s_%(class)s_group_name'
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(group__isnull=True)
-            ),
-        )
         verbose_name = _('tunnel')
         verbose_name_plural = _('tunnels')
 

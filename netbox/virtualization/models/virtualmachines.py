@@ -264,25 +264,16 @@ class VirtualMachine(
             models.UniqueConstraint(
                 Lower('name'), 'cluster', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_cluster_tenant',
+                condition=Q(cluster__isnull=False),
+                nulls_distinct=False,
                 violation_error_message=_('Virtual machine name must be unique per cluster and tenant.')
-            ),
-            models.UniqueConstraint(
-                Lower('name'), 'cluster',
-                name='%(app_label)s_%(class)s_unique_name_cluster',
-                condition=Q(tenant__isnull=True),
-                violation_error_message=_('Virtual machine name must be unique per cluster.')
             ),
             models.UniqueConstraint(
                 Lower('name'), 'device', 'tenant',
                 name='%(app_label)s_%(class)s_unique_name_device_tenant',
                 condition=Q(cluster__isnull=True, device__isnull=False),
+                nulls_distinct=False,
                 violation_error_message=_('Virtual machine name must be unique per device and tenant.')
-            ),
-            models.UniqueConstraint(
-                Lower('name'), 'device',
-                name='%(app_label)s_%(class)s_unique_name_device',
-                condition=Q(cluster__isnull=True, device__isnull=False, tenant__isnull=True),
-                violation_error_message=_('Virtual machine name must be unique per device.')
             ),
         )
         verbose_name = _('virtual machine')
