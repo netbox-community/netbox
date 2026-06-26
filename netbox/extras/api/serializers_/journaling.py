@@ -49,4 +49,12 @@ class JournalEntrySerializer(NetBoxModelSerializer):
                     f"Invalid assigned_object: {data['assigned_object_type']} ID {data['assigned_object_id']}"
                 )
 
+        # If we're updating an existing instance (PATCH/PUT)
+        if self.instance:
+            # Check if created_by is being changed
+            if 'created_by' in data and data['created_by'] != getattr(self.instance, 'created_by'):
+                raise serializers.ValidationError(
+                    {'created_by': "This field is immutable and cannot be changed after creation."}
+                )
+
         return super().validate(data)
