@@ -424,7 +424,7 @@ class NotificationTable(NetBoxTable):
         orderable=False,
         attrs={
             'td': {'class': 'w-1'},
-            'th': {'class': 'w-1'},
+            'th': {'class': 'w-1', 'aria-label': _('Type')},
         },
         verbose_name=''
     )
