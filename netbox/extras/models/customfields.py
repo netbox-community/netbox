@@ -8,7 +8,7 @@ import jsonschema
 from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator, ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F, Func, Value
 from django.db.models.expressions import RawSQL
 from django.urls import reverse
@@ -19,6 +19,7 @@ from jsonschema.exceptions import ValidationError as JSONValidationError
 
 from core.models import ObjectType
 from extras.choices import *
+from extras.constants import CUSTOMFIELD_DATA_BATCH_SIZE
 from extras.data import CHOICE_SETS
 from extras.fields import ChoiceSetField
 from netbox.context import query_cache
@@ -322,6 +323,32 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
             return self.choice_set.get_choice_color(value)
         return None
 
+    @staticmethod
+    def _update_object_data(model, **update_kwargs):
+        """
+        Apply an UPDATE to the custom_field_data of every instance of the given model in batches,
+        bounding the number of rows touched by each statement. A single unbounded UPDATE across
+        millions of rows can exceed the database statement timeout, because JSONB updates rewrite
+        each affected row in full. Batches are selected via keyset pagination on the primary key.
+
+        The batched updates are wrapped in a transaction so that the operation remains atomic, as
+        it was when performed by a single UPDATE. This guards against partially-applied data (e.g.
+        a renamed field landing on only some objects) should the loop be interrupted when not
+        already running inside a request's transaction. Batching avoids the statement timeout
+        regardless, as that limit applies per statement rather than per transaction.
+        """
+        with transaction.atomic():
+            last_pk = 0
+            while True:
+                pks = list(
+                    model.objects.filter(pk__gt=last_pk).order_by('pk')
+                    .values_list('pk', flat=True)[:CUSTOMFIELD_DATA_BATCH_SIZE]
+                )
+                if not pks:
+                    break
+                model.objects.filter(pk__in=pks).update(**update_kwargs)
+                last_pk = pks[-1]
+
     def populate_initial_data(self, content_types):
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
@@ -333,14 +360,16 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         else:
             value = Value(self.default, models.JSONField())
         for ct in content_types:
-            ct.model_class().objects.update(
-                custom_field_data=Func(
-                    F('custom_field_data'),
-                    Value([self.name]),
-                    value,
-                    function='jsonb_set'
+            if model := ct.model_class():
+                self._update_object_data(
+                    model,
+                    custom_field_data=Func(
+                        F('custom_field_data'),
+                        Value([self.name]),
+                        value,
+                        function='jsonb_set'
+                    )
                 )
-            )
 
     def remove_stale_data(self, content_types):
         """
@@ -349,7 +378,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         """
         for ct in content_types:
             if model := ct.model_class():
-                model.objects.update(
+                self._update_object_data(
+                    model,
                     custom_field_data=F('custom_field_data') - self.name
                 )
 
@@ -359,17 +389,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
         one, copying the value of the old key.
         """
         for ct in self.object_types.all():
-            ct.model_class().objects.update(
-                custom_field_data=Func(
-                    F('custom_field_data') - old_name,
-                    Value([new_name]),
-                    Func(
-                        F('custom_field_data'),
-                        function='jsonb_extract_path_text',
-                        template=f"to_jsonb(%(expressions)s -> '{old_name}')"
-                    ),
-                    function='jsonb_set')
-            )
+            if model := ct.model_class():
+                self._update_object_data(
+                    model,
+                    custom_field_data=Func(
+                        F('custom_field_data') - old_name,
+                        Value([new_name]),
+                        Func(
+                            F('custom_field_data'),
+                            function='jsonb_extract_path_text',
+                            template=f"to_jsonb(%(expressions)s -> '{old_name}')"
+                        ),
+                        function='jsonb_set')
+                )
 
     def clean(self):
         super().clean()
