@@ -12,7 +12,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.models import ConfigTemplate, Tag
 from ipam.choices import VLANQinQRoleChoices
-from ipam.models import ASN, RIR, VLAN, VRF
+from ipam.models import ASN, RIR, VLAN, VRF, IPAddress
 from netbox.api.serializers import GenericObjectSerializer
 from tenancy.models import Tenant
 from users.constants import TOKEN_PREFIX
@@ -2081,6 +2081,58 @@ class DeviceTestCase(APIViewTestCases.APIViewTestCase):
         self.assertEqual(response.data['oob_ip']['nat_inside']['address'], str(real_ip.address))
         self.assertEqual(response.data['oob_ip']['nat_outside'], [])
 
+    def test_get_object_includes_dns_name_on_primary_ip(self):
+        device = create_test_device('dns-device')
+        interfaces = (
+            Interface.objects.create(device=device, name='eth0', type='other'),
+            Interface.objects.create(device=device, name='eth1', type='other'),
+        )
+
+        ip4 = IPAddress(address='192.0.2.10/32', dns_name='device4.example.com')
+        ip4.assigned_object = interfaces[0]
+        ip4.save()
+        ip6 = IPAddress(address='2001:db8::10/128', dns_name='device6.example.com')
+        ip6.assigned_object = interfaces[1]
+        ip6.save()
+
+        device.primary_ip4 = ip4
+        device.primary_ip6 = ip6
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(device)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['dns_name'], 'device4.example.com')
+        self.assertEqual(response.data['primary_ip6']['dns_name'], 'device6.example.com')
+        self.assertIn(
+            response.data['primary_ip']['dns_name'],
+            ('device4.example.com', 'device6.example.com'),
+        )
+
+    def test_get_object_includes_dns_name_on_oob_ip(self):
+        device = create_test_device('dns-oob-device')
+        interface = Interface.objects.create(device=device, name='oob0', type='other')
+
+        ip = IPAddress(address='192.0.2.20/32', dns_name='oob.example.com')
+        ip.assigned_object = interface
+        ip.save()
+
+        device.oob_ip = ip
+        device.save()
+
+        self.add_permissions('dcim.view_device', 'ipam.view_ipaddress')
+        response = self.client.get(
+            f'{self._get_detail_url(device)}?exclude=config_context',
+            **self.header,
+        )
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['oob_ip']['dns_name'], 'oob.example.com')
+
     def test_render_config_with_config_template_id(self):
         default_template = ConfigTemplate.objects.create(
             name='Default Template',
@@ -3847,6 +3899,75 @@ class VirtualDeviceContextTestCase(APIViewTestCases.APIViewTestCase):
                 # Omit identifier to test uniqueness constraint
             },
         ]
+
+    def test_get_object_includes_nat_on_primary_ip(self):
+        device = create_test_device('vdc-nat-device')
+        interfaces = (
+            Interface.objects.create(device=device, name='eth0', type='other'),
+            Interface.objects.create(device=device, name='eth1', type='other'),
+        )
+
+        real_ip4, nat_ip4 = create_test_nat_ip_pair(
+            real_address='10.0.2.10/32',
+            nat_address='198.51.100.30/32',
+            inside_interface=interfaces[0],
+        )
+        real_ip6, nat_ip6 = create_test_nat_ip_pair(
+            real_address='2001:db8:2::10/128',
+            nat_address='2001:db8:2::20/128',
+            inside_interface=interfaces[1],
+        )
+
+        vdc = VirtualDeviceContext.objects.create(
+            name='VDC NAT', identifier=98, device=device, status='active'
+        )
+        vdc.primary_ip4 = nat_ip4
+        vdc.primary_ip6 = real_ip6
+        vdc.save()
+
+        self.add_permissions('dcim.view_virtualdevicecontext', 'ipam.view_ipaddress')
+        response = self.client.get(self._get_detail_url(vdc), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['nat_inside']['address'], str(real_ip4.address))
+        self.assertEqual(response.data['primary_ip4']['nat_outside'], [])
+        self.assertIsNone(response.data['primary_ip6']['nat_inside'])
+        self.assertCountEqual(
+            [ip['address'] for ip in response.data['primary_ip6']['nat_outside']],
+            [str(nat_ip6.address)],
+        )
+
+    def test_get_object_includes_dns_name_on_primary_ip(self):
+        device = create_test_device('vdc-dns-device')
+        interfaces = (
+            Interface.objects.create(device=device, name='eth0', type='other'),
+            Interface.objects.create(device=device, name='eth1', type='other'),
+        )
+
+        ip4 = IPAddress(address='192.0.2.30/32', dns_name='vdc4.example.com')
+        ip4.assigned_object = interfaces[0]
+        ip4.save()
+        ip6 = IPAddress(address='2001:db8::30/128', dns_name='vdc6.example.com')
+        ip6.assigned_object = interfaces[1]
+        ip6.save()
+
+        vdc = VirtualDeviceContext.objects.create(
+            name='VDC DNS', identifier=99, device=device, status='active'
+        )
+        vdc.primary_ip4 = ip4
+        vdc.primary_ip6 = ip6
+        vdc.save()
+
+        self.add_permissions('dcim.view_virtualdevicecontext', 'ipam.view_ipaddress')
+        response = self.client.get(self._get_detail_url(vdc), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        self.assertEqual(response.data['primary_ip4']['dns_name'], 'vdc4.example.com')
+        self.assertEqual(response.data['primary_ip6']['dns_name'], 'vdc6.example.com')
+        self.assertIn(
+            response.data['primary_ip']['dns_name'],
+            ('vdc4.example.com', 'vdc6.example.com'),
+        )
 
 
 class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
