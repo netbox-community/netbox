@@ -22,14 +22,14 @@
     <li class="nav-item dropdown">
 
       {# Menu heading #}
-      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" aria-label="{{ menu.label }}">
+      <button type="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="false" aria-expanded="false" aria-label="{{ menu.label }}">
         <span class="nav-link-icon d-md-none d-lg-inline-block">
           <i class="{{ menu.icon_class }}" aria-hidden="true"></i>
         </span>
         <span class="nav-link-title">
           {{ menu.label }}
         </span>
-      </a>
+      </button>
 
       {# Menu groups #}
       <div class="dropdown-menu">
