@@ -179,6 +179,45 @@ class ModuleTypeTestCase(TestCase):
         module_type.refresh_from_db()
         self.assertEqual(module_type.interface_template_count, 1)
 
+    def test_attributes(self):
+        """
+        ModuleType.attributes should normalize iterable values into strings for presentation.
+        """
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 1',
+            schema={
+                'properties': {
+                    'media': {
+                        'title': 'Media',
+                        'type': 'array',
+                        'items': {'type': 'string'},
+                    },
+                    'enabled': {
+                        'title': 'Enabled',
+                        'type': 'boolean',
+                    },
+                },
+            },
+        )
+        module_type = ModuleType.objects.create(
+            manufacturer=manufacturer,
+            model='Module Type 1',
+            profile=profile,
+            attribute_data={
+                'media': ['sfp', 'qsfp28'],
+                'enabled': True,
+            },
+        )
+
+        self.assertEqual(
+            module_type.attributes,
+            {
+                'Enabled': True,
+                'Media': 'sfp, qsfp28',
+            },
+        )
+
 
 class RackTypeTestCase(TestCase):
 

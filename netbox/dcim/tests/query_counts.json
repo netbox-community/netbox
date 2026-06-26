@@ -42,7 +42,7 @@
   "modulebay:list_objects_with_permission": 21,
   "modulebaytemplate:api_list_objects": 11,
   "moduletype:api_list_objects": 14,
-  "moduletype:list_objects_with_permission": 21,
+  "moduletype:list_objects_with_permission": 22,
   "moduletypeprofile:api_list_objects": 13,
   "moduletypeprofile:list_objects_with_permission": 20,
   "platform:api_list_objects": 13,

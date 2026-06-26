@@ -1226,6 +1226,19 @@ console-ports:
 class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ModuleType
 
+    SCHEMA = {
+        'properties': {
+            'media': {
+                'title': 'Media',
+                'type': 'array',
+                'items': {
+                    'type': 'string',
+                    'enum': ['copper', 'sfp', 'qsfp28'],
+                },
+            },
+        },
+    }
+
     @classmethod
     def setUpTestData(cls):
 
@@ -1235,8 +1248,15 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
+        profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1', schema=cls.SCHEMA)
+
         module_types = ModuleType.objects.bulk_create([
-            ModuleType(model='Module Type 1', manufacturer=manufacturers[0]),
+            ModuleType(
+                model='Module Type 1',
+                manufacturer=manufacturers[0],
+                profile=profile,
+                attribute_data={'media': ['copper', 'qsfp28']},
+            ),
             ModuleType(model='Module Type 2', manufacturer=manufacturers[0]),
             ModuleType(model='Module Type 3', manufacturer=manufacturers[0]),
         ])
@@ -1318,6 +1338,19 @@ class ModuleTypeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         super().test_bulk_import_objects_with_constrained_permission()
+
+    @tag('regression')
+    def test_get_object_renders_profile_attribute_lists(self):
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.view_moduletypeprofile',
+        )
+        moduletype = ModuleType.objects.first()
+        response = self.client.get(moduletype.get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Media')
+        self.assertContains(response, 'copper, qsfp28')
 
     def test_moduletype_consoleports(self):
         self.add_permissions('dcim.view_moduletype', 'dcim.view_consoleporttemplate')
@@ -2558,14 +2591,33 @@ class ModuleTestCase(
     @classmethod
     def setUpTestData(cls):
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
-        module_type_profile = ModuleTypeProfile.objects.create(name='Module Type Profile 1')
+        module_type_profile = ModuleTypeProfile.objects.create(
+            name='Module Type Profile 1',
+            schema={
+                'properties': {
+                    'media': {
+                        'title': 'Media',
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'enum': ['copper', 'sfp', 'qsfp28'],
+                        },
+                    },
+                },
+            },
+        )
         devices = (
             create_test_device('Device 1'),
             create_test_device('Device 2'),
         )
 
         module_types = (
-            ModuleType(manufacturer=manufacturer, model='Module Type 1', profile=module_type_profile),
+            ModuleType(
+                manufacturer=manufacturer,
+                model='Module Type 1',
+                profile=module_type_profile,
+                attribute_data={'media': ['copper', 'qsfp28']},
+            ),
             ModuleType(manufacturer=manufacturer, model='Module Type 2'),
             ModuleType(manufacturer=manufacturer, model='Module Type 3'),
             ModuleType(manufacturer=manufacturer, model='Module Type 4'),
@@ -2633,6 +2685,19 @@ class ModuleTestCase(
         response = self.client.get(self._get_queryset().first().get_absolute_url())
 
         self.assertContains(response, 'Module Type Profile 1')
+
+    @tag('regression')
+    def test_module_detail_renders_module_type_attribute_lists(self):
+        self.add_permissions(
+            'dcim.view_module',
+            'dcim.view_moduletype',
+            'dcim.view_moduletypeprofile',
+        )
+        response = self.client.get(self._get_queryset().first().get_absolute_url())
+
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, 'Media')
+        self.assertContains(response, 'copper, qsfp28')
 
     def test_module_component_replication(self):
         self.add_permissions(

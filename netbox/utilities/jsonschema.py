@@ -94,7 +94,9 @@ class JSONSchemaProperty:
         }
 
         # Choices
-        if self.enum:
+        if self.type == PropertyTypeEnum.ARRAY.value and (item_enums := self.items.get('enum')):
+            field_kwargs['choices'] = [(v, v) for v in item_enums]
+        elif self.enum:
             choices = [(v, v) for v in self.enum]
             if not required:
                 choices = [(None, ''), *choices]
@@ -102,8 +104,9 @@ class JSONSchemaProperty:
 
         # Arrays
         if self.type == PropertyTypeEnum.ARRAY.value:
-            items_type = self.items.get('type', PropertyTypeEnum.STRING.value)
-            field_kwargs['base_field'] = FORM_FIELDS[items_type]()
+            if not self.items.get('enum'):
+                items_type = self.items.get('type', PropertyTypeEnum.STRING.value)
+                field_kwargs['base_field'] = FORM_FIELDS[items_type]()
 
         # String validation
         if self.type == PropertyTypeEnum.STRING.value:
@@ -135,6 +138,8 @@ class JSONSchemaProperty:
         """
         Resolve the property's type (and string format, if specified) to the appropriate field class.
         """
+        if self.type == PropertyTypeEnum.ARRAY.value and self.items.get('enum'):
+            return forms.MultipleChoiceField
         if self.enum:
             if self.type == PropertyTypeEnum.ARRAY.value:
                 return forms.MultipleChoiceField
