@@ -28,9 +28,9 @@ def handle_protectederror(obj_list, request, e):
         raise e
 
     # Formulate the error message
-    err_message = _("Unable to delete <strong>{objects}</strong>. {count} dependent objects were found: ").format(
+    err_message = _('Unable to delete <strong>{objects}</strong>. {count} dependent objects were found: ').format(
         objects=', '.join(escape(obj) for obj in obj_list),
-        count=len(protected_objects) if len(protected_objects) <= 50 else _('More than 50')
+        count=len(protected_objects) if len(protected_objects) <= 50 else _('More than 50'),
     )
 
     # Append dependent objects to error message
@@ -49,10 +49,17 @@ def handle_rest_api_exception(request, *args, **kwargs):
     """
     Handle exceptions and return a useful error message for REST API requests.
     """
-    type_, error = sys.exc_info()[:2]
+    if 'error' in kwargs:
+        error_message = str(kwargs['error'])
+        type_, _ = sys.exc_info()[:2]
+        exception_name = type_.__name__ if type_ else 'Exception'
+    else:
+        type_, error = sys.exc_info()[:2]
+        error_message = str(error)
+        exception_name = type_.__name__
     data = {
-        'error': str(error),
-        'exception': type_.__name__,
+        'error': error_message,
+        'exception': exception_name,
         'netbox_version': settings.RELEASE.full_version,
         'python_version': platform.python_version(),
     }
