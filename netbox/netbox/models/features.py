@@ -154,20 +154,27 @@ class CloningMixin(models.Model):
 
         for field_name in getattr(self, 'clone_fields', []):
             field = self._meta.get_field(field_name)
+
+            # A GenericForeignKey is cloned under the subwidget names the creation form's
+            # GenericObjectChoiceField expects (e.g. scope_content_type / scope_object_id).
+            if isinstance(field, GenericForeignKey):
+                content_type_id = getattr(self, f'{field.ct_field}_id', None)
+                object_id = getattr(self, field.fk_field, None)
+
+                if content_type_id not in (None, '') and object_id not in (None, ''):
+                    attrs[f'{field.name}_content_type'] = content_type_id
+                    attrs[f'{field.name}_object_id'] = object_id
+
+                continue
+
             field_value = field.value_from_object(self)
+
             if field_value and isinstance(field, models.ManyToManyField):
                 attrs[field_name] = [v.pk for v in field_value]
             elif field_value and isinstance(field, models.JSONField):
                 attrs[field_name] = json.dumps(field_value)
             elif field_value not in (None, ''):
                 attrs[field_name] = field_value
-
-        # Handle GenericForeignKeys. If the CT and ID fields are being cloned, also
-        # include the name of the GFK attribute itself, as this is what forms expect.
-        for field in self._meta.private_fields:
-            if isinstance(field, GenericForeignKey):
-                if field.ct_field in attrs and field.fk_field in attrs:
-                    attrs[field.name] = attrs[field.fk_field]
 
         # Include tags (if applicable)
         if is_taggable(self):

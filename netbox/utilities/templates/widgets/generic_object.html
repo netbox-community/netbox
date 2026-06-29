@@ -1,0 +1,13 @@
+{% load i18n %}
+{% with content_type_widget=widget.subwidgets.0 object_widget=widget.subwidgets.1 %}
+  <div class="row g-2">
+    <div class="col-12 col-md-5">
+      {% include content_type_widget.template_name with widget=content_type_widget %}
+      <div class="form-text mb-1">{% trans "Object type" %}</div>
+    </div>
+    <div class="col-12 col-md-7">
+      {% include object_widget.template_name with widget=object_widget %}
+      <div class="form-text mb-1">{% trans "Object" %}</div>
+    </div>
+  </div>
+{% endwith %}

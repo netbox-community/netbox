@@ -99,7 +99,7 @@ class Service(ContactsMixin, ServiceBase, PrimaryModel):
     )
 
     clone_fields = (
-        'protocol', 'ports', 'description', 'parent_object_type', 'parent_object_id', 'ipaddresses',
+        'protocol', 'ports', 'description', 'parent', 'ipaddresses',
     )
 
     class Meta:

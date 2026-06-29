@@ -79,7 +79,7 @@ class WirelessLANBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
     model = WirelessLAN
     fieldsets = (
         FieldSet('group', 'ssid', 'status', 'vlan', 'tenant', 'description'),
-        FieldSet('scope_type', 'scope', name=_('Scope')),
+        FieldSet('scope', name=_('Scope')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
     nullable_fields = (
