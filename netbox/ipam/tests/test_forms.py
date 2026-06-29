@@ -66,6 +66,30 @@ class IPAddressImportFormTestCase(TestCase):
             type=InterfaceTypeChoices.TYPE_1GE_FIXED,
         )
 
+    def test_import_with_empty_is_primary_column_no_device(self):
+        """
+        Regression test for #22561: importing an IP where the is_primary column is present
+        but empty (and no device/VM specified) should succeed, not raise AttributeError.
+        """
+        form = IPAddressImportForm(data={
+            'address': '172.16.0.1/20',
+            'status': 'active',
+            'vrf': '',
+            'tenant': '',
+            'role': '',
+            'device': '',
+            'virtual_machine': '',
+            'interface': '',
+            'fhrp_group': '',
+            'is_primary': '',
+            'is_oob': '',
+            'dns_name': '',
+            'description': 'gateway for group A - Site 01',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        ip = form.save()
+        self.assertEqual(str(ip.address), '172.16.0.1/20')
+
     def test_oob_import_not_cleared_by_subsequent_non_oob_row(self):
         """
         Regression test for #21440: importing a second IP with is_oob=False should
