@@ -74,6 +74,17 @@ class CustomFieldsDataField(Field):
             elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
                 serializer = get_serializer_for_model(cf.related_object_type.model_class())
                 value = serializer(value, nested=True, many=True, context=self.parent.context).data
+            elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_SELECT:
+                # Represent the selected choice as an object with its value and resolved label
+                value = {
+                    'value': value,
+                    'label': cf.get_choice_label(value),
+                }
+            elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+                # Represent each selected choice as an object with its value and resolved label
+                value = [
+                    {'value': v, 'label': cf.get_choice_label(v)} for v in value
+                ]
             data[cf.name] = value
 
         return data

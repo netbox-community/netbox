@@ -35,6 +35,7 @@ from utilities.htmx import htmx_partial
 from utilities.jobs import is_background_request, process_request_as_job
 from utilities.permissions import get_permission_for_model
 from utilities.query import reapply_model_ordering
+from utilities.querydict import normalize_querydict
 from utilities.request import safe_for_redirect
 from utilities.string import title
 from utilities.tables import get_table_configs
@@ -912,7 +913,16 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
         post_data = request.POST.copy()
         post_data.setlist('pk', pk_list)
-        form = self.form(post_data, initial=initial_data)
+
+        # An HTMX request without "_apply" is a dependent-field refresh (e.g. changing a content type), not a
+        # submission. Build the form unbound with the submitted state as initial data so fields reconfigure
+        # without surfacing validation errors before the user clicks Apply.
+        if htmx_partial(request) and '_apply' not in request.POST:
+            initial_data.update(normalize_querydict(post_data))
+            initial_data['pk'] = pk_list
+            form = self.form(initial=initial_data)
+        else:
+            form = self.form(post_data, initial=initial_data)
         restrict_form_fields(form, request.user)
 
         if '_apply' in request.POST:

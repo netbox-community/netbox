@@ -290,11 +290,13 @@ class MACAddressSerializer(PrimaryModelSerializer):
         allow_null=True
     )
     assigned_object = GFKSerializerField(read_only=True)
+    is_primary = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = MACAddress
         fields = [
             'id', 'url', 'display_url', 'display', 'mac_address', 'assigned_object_type', 'assigned_object_id',
-            'assigned_object', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'assigned_object', 'is_primary', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'mac_address', 'description')

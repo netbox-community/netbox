@@ -32,12 +32,12 @@ class CircuitTerminationFormTestCase(TestCase):
             data={
                 'circuit': self.circuit.pk,
                 'term_side': 'A',
-                'termination_type': provider_network_type.pk,
-                'termination': '',
+                'termination_content_type': provider_network_type.pk,
+                'termination_object_id': '',
             }
         )
 
         self.assertFalse(form.is_valid())
         self.assertIn('termination', form.errors)
-        self.assertIn('Please select a Provider Network.', form.errors['termination'])
-        self.assertNotIn('termination_id', form.errors)
+        self.assertIn('Please select a provider network.', form.errors['termination'])
+        self.assertNotIn('termination_object_id', form.errors)

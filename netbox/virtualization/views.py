@@ -497,8 +497,8 @@ class VirtualMachineView(generic.ObjectView):
                     actions.AddObject(
                         'ipam.Service',
                         url_params={
-                            'parent_object_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
-                            'parent': lambda ctx: ctx['object'].pk,
+                            'parent_content_type': lambda ctx: ContentType.objects.get_for_model(ctx['object']).pk,
+                            'parent_object_id': lambda ctx: ctx['object'].pk,
                         },
                     ),
                 ],

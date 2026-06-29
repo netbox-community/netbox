@@ -19,6 +19,7 @@ class OwnerMixin(models.Model):
     owner = models.ForeignKey(
         to='users.Owner',
         on_delete=models.PROTECT,
+        related_name='+',
         blank=True,
         null=True
     )

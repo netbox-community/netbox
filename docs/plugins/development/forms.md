@@ -230,6 +230,18 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
     options:
       members: false
 
+## Generic Object Fields
+
+`GenericObjectChoiceField` represents a generic foreign key (a `content_type` plus `object_id` pair) as a single, REST API-backed form field. Pair it with `GenericObjectFormMixin` on the form to seed the field's initial value from the model's GFK descriptor and assign the selected object back to it automatically.
+
+::: utilities.forms.fields.GenericObjectChoiceField
+    options:
+      members: false
+
+::: utilities.forms.mixins.GenericObjectFormMixin
+    options:
+      members: false
+
 ## CSV Import Fields
 
 ::: utilities.forms.fields.CSVChoiceField

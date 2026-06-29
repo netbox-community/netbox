@@ -66,7 +66,10 @@ class Mixins:
             cable = Cable(a_terminations=[obj], b_terminations=[peer_obj], label='Cable 1')
             cable.save()
 
-            self.add_permissions(f'dcim.view_{self.model._meta.model_name}')
+            self.add_permissions(
+                f'dcim.view_{self.model._meta.model_name}',
+                f'dcim.view_{self.peer_termination_type._meta.model_name}',
+            )
             url = reverse(f'dcim-api:{self.model._meta.model_name}-trace', kwargs={'pk': obj.pk})
             response = self.client.get(url, **self.header)
 
@@ -1444,6 +1447,7 @@ class RearPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    user_permissions = ('dcim.view_frontporttemplate', )
 
     @classmethod
     def setUpTestData(cls):
@@ -2624,7 +2628,7 @@ class InterfaceTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTest
         'description': 'New description',
     }
     peer_termination_type = Interface
-    user_permissions = ('dcim.view_device', )
+    user_permissions = ('dcim.view_device', 'ipam.view_vlan')
 
     @classmethod
     def setUpTestData(cls):
@@ -2944,6 +2948,25 @@ class FrontPortTestCase(APIViewTestCases.APIViewTestCase):
 
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
+    def test_create_front_port_with_unviewable_rear_port_fails(self):
+        """A front port cannot be created against a rear port the user cannot view."""
+        self.remove_permissions('dcim.view_rearport')
+        self.add_permissions('dcim.add_frontport')
+
+        device = Device.objects.first()
+        rear_port = RearPort.objects.first()
+        data = {
+            'device': device.pk,
+            'name': 'Front Port Hidden',
+            'type': PortTypeChoices.TYPE_8P8C,
+            'rear_ports': [
+                {'position': 1, 'rear_port': rear_port.pk, 'rear_port_position': 1},
+            ],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('rear_ports', response.data)
+
 
 class RearPortTestCase(APIViewTestCases.APIViewTestCase):
     model = RearPort
@@ -2952,7 +2975,7 @@ class RearPortTestCase(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     peer_termination_type = Interface
-    user_permissions = ('dcim.view_device', )
+    user_permissions = ('dcim.view_device', 'dcim.view_frontport')
 
     @classmethod
     def setUpTestData(cls):
@@ -3326,6 +3349,8 @@ class CableBundleTestCase(APIViewTestCases.APIViewTestCase):
 class CableTestCase(APIViewTestCases.APIViewTestCase):
     model = Cable
     brief_fields = ['description', 'display', 'id', 'label', 'url']
+    # Cable terminations are generic-FK references; view permission cannot be auto-derived
+    user_permissions = ('dcim.view_interface',)
     bulk_update_data = {
         'length': 100,
         'length_unit': 'm',
@@ -3880,3 +3905,25 @@ class MACAddressTestCase(APIViewTestCases.APIViewTestCase):
                 'mac_address': '00:00:00:00:00:06',
             },
         ]
+
+    def test_is_primary_field(self):
+        """
+        The read-only is_primary field should reflect whether the MAC address is the primary on its interface.
+        """
+        self.add_permissions('dcim.view_macaddress')
+
+        primary_mac = MACAddress.objects.get(mac_address='00:00:00:00:00:01')
+        non_primary_mac = MACAddress.objects.get(mac_address='00:00:00:00:00:02')
+
+        # Designate one MAC address as the primary on its interface
+        interface = primary_mac.assigned_object
+        interface.primary_mac_address = primary_mac
+        interface.save()
+
+        url = reverse('dcim-api:macaddress-detail', kwargs={'pk': primary_mac.pk})
+        response = self.client.get(url, **self.header)
+        self.assertTrue(response.data['is_primary'])
+
+        url = reverse('dcim-api:macaddress-detail', kwargs={'pk': non_primary_mac.pk})
+        response = self.client.get(url, **self.header)
+        self.assertFalse(response.data['is_primary'])

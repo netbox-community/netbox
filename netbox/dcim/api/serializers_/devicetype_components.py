@@ -16,7 +16,7 @@ from dcim.models import (
     PowerPortTemplate,
     RearPortTemplate,
 )
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, RestrictedPrimaryKeyRelatedField
 from netbox.api.gfk_fields import GFKSerializerField
 from netbox.api.serializers import ChangeLogMessageSerializer, ValidatedModelSerializer
 from wireless.choices import *
@@ -220,7 +220,7 @@ class RearPortTemplateMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='rear_port_position'
     )
-    front_port = serializers.PrimaryKeyRelatedField(
+    front_port = RestrictedPrimaryKeyRelatedField(
         queryset=FrontPortTemplate.objects.all(),
     )
 
@@ -262,7 +262,7 @@ class FrontPortTemplateMappingSerializer(serializers.ModelSerializer):
     position = serializers.IntegerField(
         source='front_port_position'
     )
-    rear_port = serializers.PrimaryKeyRelatedField(
+    rear_port = RestrictedPrimaryKeyRelatedField(
         queryset=RearPortTemplate.objects.all(),
     )
 
@@ -341,7 +341,7 @@ class InventoryItemTemplateSerializer(ComponentTemplateSerializer):
     device_type = DeviceTypeSerializer(
         nested=True
     )
-    parent = serializers.PrimaryKeyRelatedField(
+    parent = RestrictedPrimaryKeyRelatedField(
         queryset=InventoryItemTemplate.objects.all(),
         allow_null=True,
         default=None

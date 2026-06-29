@@ -4,3 +4,4 @@ from .csv import *
 from .dynamic import *
 from .expandable import *
 from .fields import *
+from .generic import *

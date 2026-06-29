@@ -420,23 +420,15 @@ class DeviceRole(NestedLtreeGroupModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('parent', 'name'),
-                name='%(app_label)s_%(class)s_parent_name'
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level device role with this name already exists.")
+                name='%(app_label)s_%(class)s_parent_name',
+                nulls_distinct=False,
+                violation_error_message=_("A device role with this name already exists.")
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
-                name='%(app_label)s_%(class)s_parent_slug'
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(parent__isnull=True),
-                violation_error_message=_("A top-level device role with this slug already exists.")
+                name='%(app_label)s_%(class)s_parent_slug',
+                nulls_distinct=False,
+                violation_error_message=_("A device role with this slug already exists.")
             ),
         )
         verbose_name = _('device role')
@@ -478,21 +470,13 @@ class Platform(NestedLtreeGroupModel):
             models.UniqueConstraint(
                 fields=('manufacturer', 'name'),
                 name='%(app_label)s_%(class)s_manufacturer_name',
-            ),
-            models.UniqueConstraint(
-                fields=('name',),
-                name='%(app_label)s_%(class)s_name',
-                condition=Q(manufacturer__isnull=True),
+                nulls_distinct=False,
                 violation_error_message=_("Platform name must be unique.")
             ),
             models.UniqueConstraint(
                 fields=('manufacturer', 'slug'),
                 name='%(app_label)s_%(class)s_manufacturer_slug',
-            ),
-            models.UniqueConstraint(
-                fields=('slug',),
-                name='%(app_label)s_%(class)s_slug',
-                condition=Q(manufacturer__isnull=True),
+                nulls_distinct=False,
                 violation_error_message=_("Platform slug must be unique.")
             ),
         )
@@ -764,13 +748,10 @@ class Device(
         constraints = (
             models.UniqueConstraint(
                 Lower('name'), 'site', 'tenant',
-                name='%(app_label)s_%(class)s_unique_name_site_tenant'
-            ),
-            models.UniqueConstraint(
-                Lower('name'), 'site',
-                name='%(app_label)s_%(class)s_unique_name_site',
-                condition=Q(tenant__isnull=True),
-                violation_error_message=_("Device name must be unique per site.")
+                name='%(app_label)s_%(class)s_unique_name_site_tenant',
+                condition=Q(name__isnull=False),
+                nulls_distinct=False,
+                violation_error_message=_("Device name must be unique per site and tenant.")
             ),
             models.UniqueConstraint(
                 fields=('rack', 'position', 'face'),
@@ -1407,9 +1388,10 @@ class MACAddress(PrimaryModel):
 
     @cached_property
     def is_primary(self):
-        if self.assigned_object and hasattr(self.assigned_object, 'primary_mac_address'):
-            if self.assigned_object.primary_mac_address and self.assigned_object.primary_mac_address.pk == self.pk:
-                return True
+        # Compare against primary_mac_address_id (a column already loaded on the assigned object) rather than
+        # dereferencing primary_mac_address, to avoid an extra query per object in list responses.
+        if (obj := self.assigned_object) is not None and hasattr(obj, 'primary_mac_address_id'):
+            return obj.primary_mac_address_id == self.pk
         return False
 
     def clean(self, *args, **kwargs):

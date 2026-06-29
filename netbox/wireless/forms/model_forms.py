@@ -52,7 +52,7 @@ class WirelessLANForm(ScopedForm, TenancyForm, PrimaryModelForm):
 
     fieldsets = (
         FieldSet('ssid', 'group', 'vlan', 'status', 'description', 'tags', name=_('Wireless LAN')),
-        FieldSet('scope_type', 'scope', name=_('Scope'), html_id='scope'),
+        FieldSet('scope', name=_('Scope'), html_id='scope'),
         FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
         FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
@@ -61,7 +61,7 @@ class WirelessLANForm(ScopedForm, TenancyForm, PrimaryModelForm):
         model = WirelessLAN
         fields = [
             'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
-            'scope_type', 'description', 'owner', 'comments', 'tags',
+            'description', 'owner', 'comments', 'tags',
         ]
         widgets = {
             'auth_psk': PasswordInput(

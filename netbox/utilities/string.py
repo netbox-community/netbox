@@ -2,10 +2,37 @@ import re
 
 __all__ = (
     'enum_key',
+    'humanize_duration',
     'remove_linebreaks',
     'title',
     'trailing_slash',
 )
+
+
+def humanize_duration(value):
+    """
+    Express a timedelta in a human-friendly format. Example: 1h 5m 23s. Returns an empty string
+    for None; zero-duration timedeltas render as "0s".
+    """
+    if value is None:
+        return ''
+
+    # Round to whole seconds and decompose
+    total_seconds = int(value.total_seconds())
+    days, remainder = divmod(total_seconds, 86400)
+    hours, remainder = divmod(remainder, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    ret = ''
+    if days:
+        ret += f'{days}d '
+    if hours:
+        ret += f'{hours}h '
+    if minutes:
+        ret += f'{minutes}m '
+    if seconds or not ret:
+        ret += f'{seconds}s'
+    return ret.strip()
 
 
 def enum_key(value):

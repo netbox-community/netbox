@@ -1,12 +1,14 @@
 import time
+import warnings
 from decimal import Decimal
 
 from django import forms
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
-from utilities.forms.fields import ColorField, QueryField, TagFilterField
+from utilities.forms.fields import ColorField, GenericObjectChoiceField, QueryField, TagFilterField
 from utilities.forms.widgets import FilterModifierWidget
 from utilities.forms.widgets.modifiers import MODIFIER_EMPTY_FALSE, MODIFIER_EMPTY_TRUE
 
@@ -16,6 +18,7 @@ __all__ = (
     'CheckLastUpdatedMixin',
     'DistanceValidationMixin',
     'FilterModifierMixin',
+    'GenericObjectFormMixin',
 )
 
 
@@ -162,6 +165,65 @@ class DistanceValidationMixin(forms.Form):
             MaxValueValidator(Decimal(100000)),
         ]
     )
+
+
+class GenericObjectFormMixin:
+    """
+    Initialize and assign any GenericObjectChoiceField fields on a form.
+
+    Seeds each field's initial value from the model's GFK descriptor, configures the API-backed object
+    selector for the current content type, and copies the cleaned object back to the instance before model
+    validation runs. Keeps the common GFK form pattern out of individual model forms.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        instance = getattr(self, 'instance', None)
+        for field_name, field in self._generic_object_fields():
+            gfk_name = field.gfk_name or field_name
+            # On an HTMX re-render the submitted subwidget values take precedence over the stored instance value.
+            rerendered = any(f'{field_name}_{suffix}' in self.initial for suffix in ('content_type', 'object_id'))
+            if instance is not None and not self.is_bound and field_name not in self.initial and not rerendered:
+                if (initial := getattr(instance, gfk_name, None)) is not None:
+                    self.initial[field_name] = initial
+            # Prepare eagerly so forms can read field.selected_model in their own __init__ (e.g. PrefixForm).
+            # prepare() is idempotent and re-runs at render via get_bound_field().
+            field.prepare(self, field_name)
+
+        if settings.DEBUG:
+            self._warn_missing_htmx_fieldsets()
+
+    def _generic_object_fields(self):
+        for field_name, field in self.fields.items():
+            if isinstance(field, GenericObjectChoiceField):
+                yield field_name, field
+
+    def _warn_missing_htmx_fieldsets(self):
+        # Each GenericObjectChoiceField with an HTMX target needs a matching FieldSet(html_id=...) for the
+        # partial swap to land; warn in development if a consumer forgot to declare one.
+        fieldset_ids = {getattr(fs, 'html_id', None) for fs in getattr(self, 'fieldsets', [])}
+        for field_name, field in self._generic_object_fields():
+            if field.hx_target_id and field.hx_target_id not in fieldset_ids:
+                warnings.warn(
+                    f"{type(self).__name__} has a GenericObjectChoiceField '{field_name}' targeting "
+                    f"#{field.hx_target_id} for HTMX swap but declares no FieldSet with "
+                    f"html_id='{field.hx_target_id}'; the partial swap will fail silently.",
+                    stacklevel=3,
+                )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data is None:
+            cleaned_data = self.cleaned_data
+
+        instance = getattr(self, 'instance', None)
+        if instance is not None:
+            for field_name, field in self._generic_object_fields():
+                if field_name in cleaned_data:
+                    setattr(instance, field.gfk_name or field_name, cleaned_data[field_name])
+
+        return cleaned_data
 
 
 class FilterModifierMixin:

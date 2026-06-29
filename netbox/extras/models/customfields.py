@@ -829,7 +829,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, OwnerMixin, ChangeLoggedMo
 
             # Validate all selected choices
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-                if not set(value).issubset(self.choice_set.values):
+                # Require a list of valid string choices. The isinstance() check short-circuits the membership
+                # test so that non-string members (e.g. a client echoing back the {value, label} read
+                # representation) raise a ValidationError rather than an unhashable-type TypeError.
+                valid_values = set(self.choice_set.values)
+                if type(value) is not list or not all(isinstance(v, str) and v in valid_values for v in value):
                     raise ValidationError(
                         _("Invalid choice(s) ({value}) for choice set {choiceset}.").format(
                             value=value,

@@ -1,22 +1,17 @@
-import warnings
-
 from django import forms
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
 
 from dcim.constants import LOCATION_SCOPE_TYPES
-from dcim.models import PortMapping, PortTemplateMapping, Site
-from utilities.forms import get_field_value
+from dcim.models import PortMapping, PortTemplateMapping
+from utilities.forms import GenericObjectFormMixin
 from utilities.forms.fields import (
-    ContentTypeChoiceField,
     CSVContentTypeField,
-    DynamicModelChoiceField,
+    GenericObjectChoiceField,
 )
-from utilities.forms.widgets import HTMXSelect
 from utilities.templatetags.builtins.filters import bettertitle
 
 __all__ = (
@@ -27,108 +22,24 @@ __all__ = (
 )
 
 
-class ScopedForm(forms.Form):
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
-        # hx_target_id='scope' — all ScopedForm consumers must declare a FieldSet with html_id='scope'
-        widget=HTMXSelect(hx_target_id='scope'),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
+class ScopedForm(GenericObjectFormMixin, forms.Form):
+    scope = GenericObjectChoiceField(
         label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
+        content_type_queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
         required=False,
-        disabled=True,
-        selector=True
+        selector=True,
+        hx_target_id='scope',
     )
 
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {})
 
-        if instance is not None and instance.scope:
-            initial['scope'] = instance.scope
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
-        self._set_scoped_values()
-
-        if settings.DEBUG:
-            has_scope_fieldset = any(
-                getattr(fs, 'html_id', None) == 'scope'
-                for fs in getattr(self, 'fieldsets', [])
-            )
-            if not has_scope_fieldset:
-                warnings.warn(
-                    f"{self.__class__.__name__} uses ScopedForm but declares no "
-                    "FieldSet with html_id='scope'; HTMX partial swap will fail silently.",
-                    stacklevel=2,
-                )
-
-    def clean(self):
-        super().clean()
-
-        scope = self.cleaned_data.get('scope')
-        scope_type = self.cleaned_data.get('scope_type')
-        if scope_type and not scope:
-            raise ValidationError({
-                'scope': _(
-                    "Please select a {scope_type}."
-                ).format(scope_type=scope_type.model_class()._meta.model_name)
-            })
-
-        # Assign the selected scope (if any)
-        self.instance.scope = scope
-
-    def _set_scoped_values(self):
-        if scope_type_id := get_field_value(self, 'scope_type'):
-            try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
-
-            if self.instance and self.instance.pk and scope_type_id != self.instance.scope_type_id:
-                self.initial['scope'] = None
-
-        else:
-            # Clear the initial scope value if scope_type is not set
-            self.initial['scope'] = None
-
-
-class ScopedBulkEditForm(forms.Form):
-    scope_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
-        widget=HTMXSelect(method='post', attrs={'hx-select': '#form_fields'}),
-        required=False,
-        label=_('Scope type')
-    )
-    scope = DynamicModelChoiceField(
+class ScopedBulkEditForm(GenericObjectFormMixin, forms.Form):
+    scope = GenericObjectChoiceField(
         label=_('Scope'),
-        queryset=Site.objects.none(),  # Initial queryset
+        content_type_queryset=ContentType.objects.filter(model__in=LOCATION_SCOPE_TYPES),
         required=False,
-        disabled=True,
-        selector=True
+        selector=True,
+        hx_method='post',
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if scope_type_id := get_field_value(self, 'scope_type'):
-            try:
-                scope_type = ContentType.objects.get(pk=scope_type_id)
-                model = scope_type.model_class()
-                self.fields['scope'].queryset = model.objects.all()
-                self.fields['scope'].widget.attrs['selector'] = model._meta.label_lower
-                self.fields['scope'].disabled = False
-                self.fields['scope'].label = _(bettertitle(model._meta.verbose_name))
-            except ObjectDoesNotExist:
-                pass
 
 
 class ScopedImportForm(forms.Form):

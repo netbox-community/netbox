@@ -942,6 +942,24 @@ class CustomFieldAPITestCase(APITestCase):
         }
         sites[1].save()
 
+    # Labels for the choice set created in setUpTestData, used to build the expected
+    # API representation of selection custom fields ({'value': ..., 'label': ...}).
+    CHOICE_LABELS = {'foo': 'Foo', 'bar': 'Bar', 'baz': 'Baz'}
+
+    @classmethod
+    def _select(cls, value):
+        """Return the expected API representation of a single selection choice."""
+        if value is None:
+            return None
+        return {'value': value, 'label': cls.CHOICE_LABELS[value]}
+
+    @classmethod
+    def _multiselect(cls, values):
+        """Return the expected API representation of a multiple selection value."""
+        if values is None:
+            return None
+        return [cls._select(v) for v in values]
+
     def test_get_custom_fields(self):
         TYPES = {
             CustomFieldTypeChoices.TYPE_TEXT: 'string',
@@ -1015,13 +1033,85 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response.data['custom_fields']['datetime_field'], site2_cfvs['datetime_field'])
         self.assertEqual(response.data['custom_fields']['url_field'], site2_cfvs['url_field'])
         self.assertEqual(response.data['custom_fields']['json_field'], site2_cfvs['json_field'])
-        self.assertEqual(response.data['custom_fields']['select_field'], site2_cfvs['select_field'])
-        self.assertEqual(response.data['custom_fields']['multiselect_field'], site2_cfvs['multiselect_field'])
+        self.assertEqual(response.data['custom_fields']['select_field'], self._select(site2_cfvs['select_field']))
+        self.assertEqual(
+            response.data['custom_fields']['multiselect_field'],
+            self._multiselect(site2_cfvs['multiselect_field'])
+        )
         self.assertEqual(response.data['custom_fields']['object_field']['id'], site2_cfvs['object_field'].pk)
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
             [obj.pk for obj in site2_cfvs['multiobject_field']]
         )
+
+    def test_get_object_selection_field_representation(self):
+        """
+        Selection custom fields are rendered as an object exposing both the stored value and its
+        human-friendly label on read access (see #20897).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.view_site')
+
+        response = self.client.get(url, **self.header)
+
+        # A single selection value is rendered as a {value, label} object
+        self.assertEqual(response.data['custom_fields']['select_field'], {
+            'value': 'bar',
+            'label': 'Bar',
+        })
+
+        # A multiple selection value is rendered as a list of {value, label} objects
+        self.assertEqual(response.data['custom_fields']['multiselect_field'], [
+            {'value': 'bar', 'label': 'Bar'},
+            {'value': 'baz', 'label': 'Baz'},
+        ])
+
+    def test_get_object_selection_field_unresolved_label(self):
+        """
+        A stored selection value with no matching choice falls back to using the raw value as its label.
+        """
+        site2 = Site.objects.get(name='Site 2')
+        site2.custom_field_data['select_field'] = 'stale'
+        site2.save()
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.view_site')
+
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data['custom_fields']['select_field'], {
+            'value': 'stale',
+            'label': 'stale',
+        })
+
+    @tag('regression')
+    def test_update_selection_field_rejects_read_format(self):
+        """
+        Selection fields are written by passing the raw value; submitting the {value, label} read
+        representation must be rejected with a clean 400, not a 500 (see #20897).
+        """
+        site2 = Site.objects.get(name='Site 2')
+        url = reverse('dcim-api:site-detail', kwargs={'pk': site2.pk})
+        self.add_permissions('dcim.change_site')
+
+        # A single selection submitted as an object is rejected
+        response = self.client.patch(
+            url, {'custom_fields': {'select_field': {'value': 'foo', 'label': 'Foo'}}}, format='json', **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # A multiple selection submitted as a list of objects is rejected (must not raise a TypeError/500)
+        response = self.client.patch(
+            url,
+            {'custom_fields': {'multiselect_field': [{'value': 'foo', 'label': 'Foo'}]}},
+            format='json',
+            **self.header
+        )
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+        # The stored values are unchanged
+        site2.refresh_from_db()
+        self.assertEqual(site2.custom_field_data['select_field'], 'bar')
+        self.assertEqual(site2.custom_field_data['multiselect_field'], ['bar', 'baz'])
 
     def test_create_single_object_with_defaults(self):
         """
@@ -1051,8 +1141,8 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response_cf['datetime_field'].isoformat(), cf_defaults['datetime_field'])
         self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
         self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
-        self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
-        self.assertEqual(response_cf['multiselect_field'], cf_defaults['multiselect_field'])
+        self.assertEqual(response_cf['select_field'], self._select(cf_defaults['select_field']))
+        self.assertEqual(response_cf['multiselect_field'], self._multiselect(cf_defaults['multiselect_field']))
         self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response.data['custom_fields']['multiobject_field']],
@@ -1099,7 +1189,7 @@ class CustomFieldAPITestCase(APITestCase):
             },
         }
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
+        self.add_permissions('dcim.add_site', 'ipam.view_vlan')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -1116,8 +1206,8 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response_cf['datetime_field'], data_cf['datetime_field'])
         self.assertEqual(response_cf['url_field'], data_cf['url_field'])
         self.assertEqual(response_cf['json_field'], data_cf['json_field'])
-        self.assertEqual(response_cf['select_field'], data_cf['select_field'])
-        self.assertEqual(response_cf['multiselect_field'], data_cf['multiselect_field'])
+        self.assertEqual(response_cf['select_field'], self._select(data_cf['select_field']))
+        self.assertEqual(response_cf['multiselect_field'], self._multiselect(data_cf['multiselect_field']))
         self.assertEqual(response_cf['object_field']['id'], data_cf['object_field'])
         self.assertEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1182,8 +1272,8 @@ class CustomFieldAPITestCase(APITestCase):
             self.assertEqual(response_cf['datetime_field'].isoformat(), cf_defaults['datetime_field'])
             self.assertEqual(response_cf['url_field'], cf_defaults['url_field'])
             self.assertEqual(response_cf['json_field'], cf_defaults['json_field'])
-            self.assertEqual(response_cf['select_field'], cf_defaults['select_field'])
-            self.assertEqual(response_cf['multiselect_field'], cf_defaults['multiselect_field'])
+            self.assertEqual(response_cf['select_field'], self._select(cf_defaults['select_field']))
+            self.assertEqual(response_cf['multiselect_field'], self._multiselect(cf_defaults['multiselect_field']))
             self.assertEqual(response_cf['object_field']['id'], cf_defaults['object_field'])
             self.assertEqual(
                 [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1243,7 +1333,7 @@ class CustomFieldAPITestCase(APITestCase):
             },
         )
         url = reverse('dcim-api:site-list')
-        self.add_permissions('dcim.add_site')
+        self.add_permissions('dcim.add_site', 'ipam.view_vlan')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_201_CREATED)
@@ -1262,8 +1352,11 @@ class CustomFieldAPITestCase(APITestCase):
             self.assertEqual(response_cf['datetime_field'], custom_field_data['datetime_field'])
             self.assertEqual(response_cf['url_field'], custom_field_data['url_field'])
             self.assertEqual(response_cf['json_field'], custom_field_data['json_field'])
-            self.assertEqual(response_cf['select_field'], custom_field_data['select_field'])
-            self.assertEqual(response_cf['multiselect_field'], custom_field_data['multiselect_field'])
+            self.assertEqual(response_cf['select_field'], self._select(custom_field_data['select_field']))
+            self.assertEqual(
+                response_cf['multiselect_field'],
+                self._multiselect(custom_field_data['multiselect_field'])
+            )
             self.assertEqual(response_cf['object_field']['id'], custom_field_data['object_field'])
             self.assertEqual(
                 [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1316,8 +1409,8 @@ class CustomFieldAPITestCase(APITestCase):
         self.assertEqual(response_cf['datetime_field'], original_cfvs['datetime_field'])
         self.assertEqual(response_cf['url_field'], original_cfvs['url_field'])
         self.assertEqual(response_cf['json_field'], original_cfvs['json_field'])
-        self.assertEqual(response_cf['select_field'], original_cfvs['select_field'])
-        self.assertEqual(response_cf['multiselect_field'], original_cfvs['multiselect_field'])
+        self.assertEqual(response_cf['select_field'], self._select(original_cfvs['select_field']))
+        self.assertEqual(response_cf['multiselect_field'], self._multiselect(original_cfvs['multiselect_field']))
         self.assertEqual(response_cf['object_field']['id'], original_cfvs['object_field'].pk)
         self.assertListEqual(
             [obj['id'] for obj in response_cf['multiobject_field']],
@@ -1423,7 +1516,7 @@ class CustomFieldAPITestCase(APITestCase):
         site1 = Site.objects.get(name='Site 1')
         vlans = VLAN.objects.all()[:3]
         url = reverse('dcim-api:site-detail', kwargs={'pk': site1.pk})
-        self.add_permissions('dcim.change_site')
+        self.add_permissions('dcim.change_site', 'ipam.view_vlan')
 
         # Set related objects by PK
         data = {
