@@ -8,12 +8,11 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import InterfaceValidationMixin
+from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaximumFlowMixin
 from dcim.utils import get_module_bay_positions, resolve_module_placeholder
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel
-from netbox.models.mixins import DiameterMixin, MaximumFlowMixin
 from utilities.exceptions import AbortRequest
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface

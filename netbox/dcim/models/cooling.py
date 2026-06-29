@@ -6,9 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
-from netbox.models.mixins import CoolingTemperatureMixin, FlowRateMixin, PressureMixin
 
 from .device_components import CabledObjectModel, PathEndpoint
+from .mixins import CoolingTemperatureMixin, FlowRateMixin, PressureMixin
 
 __all__ = (
     'CoolingFeed',

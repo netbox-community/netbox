@@ -12,12 +12,12 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import WWNField
 from dcim.models.base import PortMappingBase
-from dcim.models.mixins import InterfaceValidationMixin
+from dcim.models.mixins import DiameterMixin, InterfaceValidationMixin, MaximumFlowMixin
 from netbox.choices import ColorChoices
 from netbox.models import NetBoxModel, OrganizationalModel
 from netbox.models.features import ChangeLoggingMixin
 from netbox.models.ltree import LtreeManager, LtreeModel, SortPathField
-from netbox.models.mixins import DiameterMixin, MaximumFlowMixin, OwnerMixin
+from netbox.models.mixins import OwnerMixin
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
