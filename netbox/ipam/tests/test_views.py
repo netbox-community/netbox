@@ -719,6 +719,23 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_prefixes', kwargs={'pk': prefixes[0].pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    def test_prefix_prefixes_add_links_include_scope_params(self):
+        """Child-prefix Add links pre-populate scope via the GenericObjectChoiceField subwidget params."""
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        site = Site.objects.create(name='Scope Site', slug='scope-site')
+        parent = Prefix.objects.create(prefix=IPNetwork('203.0.113.0/24'), scope=site)
+        Prefix.objects.create(prefix=IPNetwork('203.0.113.0/26'), scope=site)
+
+        url = reverse('ipam:prefix_prefixes', kwargs={'pk': parent.pk})
+        response = self.client.get(url)
+
+        self.assertHttpStatus(response, 200)
+        scope_ct = ContentType.objects.get_for_model(Site)
+        # The new GenericObjectChoiceField reads these subwidget-named query params.
+        self.assertContains(response, f'scope_content_type={scope_ct.pk}')
+        self.assertContains(response, f'scope_object_id={site.pk}')
+
     def test_prefix_prefixes_filter_suppresses_available_prefixes(self):
         self.add_permissions('ipam.view_prefix')
 
