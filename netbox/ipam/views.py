@@ -1729,10 +1729,10 @@ class VLANView(generic.ObjectView):
                         'ipam.prefix',
                         url_params={
                             'tenant': lambda ctx: ctx['object'].tenant_id,
-                            'scope_type': lambda ctx: (
+                            'scope_content_type': lambda ctx: (
                                 ContentType.objects.get_for_model(Site).pk if ctx['object'].site_id else None
                             ),
-                            'scope': lambda ctx: ctx['object'].site_id,
+                            'scope_object_id': lambda ctx: ctx['object'].site_id,
                             'vlan': lambda ctx: ctx['object'].pk,
                         },
                         label=_('Add a Prefix'),
