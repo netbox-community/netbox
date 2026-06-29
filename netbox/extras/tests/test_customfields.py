@@ -102,6 +102,17 @@ class CustomFieldTestCase(TestCase):
         queryset, _ = column.order(Site.objects.all(), is_descending=False)
         self.assertEqual(list(queryset), [site_a, site_b, site_c])
 
+        # Null placement is independent of sort direction: nulls_first=True keeps the null value
+        # first even when sorting descending
+        cf.nulls_first = True
+        queryset, _ = column.order(Site.objects.all(), is_descending=True)
+        self.assertEqual(list(queryset), [site_c, site_b, site_a])
+
+        # nulls_first=False keeps the null value last even when sorting descending
+        cf.nulls_first = False
+        queryset, _ = column.order(Site.objects.all(), is_descending=True)
+        self.assertEqual(list(queryset), [site_b, site_a, site_c])
+
     def test_longtext_field(self):
         value = 'A' * 256
 
