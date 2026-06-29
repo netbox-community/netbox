@@ -196,7 +196,7 @@ class VirtualMachineTypeForm(PrimaryModelForm):
         super().__init__(*args, **kwargs)
 
         # Set unit label based on configured RAM_BASE_UNIT (MB vs MiB)
-        self.fields['default_memory'].label = _('Default Memory ({unit})').format(
+        self.fields['default_memory'].label = _('Default memory ({unit})').format(
             unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
         )
 
