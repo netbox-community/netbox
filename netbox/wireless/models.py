@@ -116,7 +116,7 @@ class WirelessLAN(WirelessAuthenticationBase, CachedScopeMixin, PrimaryModel):
         null=True
     )
 
-    clone_fields = ('ssid', 'group', 'scope_type', 'scope_id', 'tenant', 'description')
+    clone_fields = ('ssid', 'group', 'scope', 'tenant', 'description')
 
     class Meta:
         ordering = ('ssid', 'pk')
