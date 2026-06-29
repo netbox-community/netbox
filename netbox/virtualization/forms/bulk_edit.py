@@ -91,9 +91,6 @@ class VirtualMachineTypeBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
     )
     default_memory = forms.IntegerField(
-        label=_('Default Memory (MB)'),
-        required=False,
-    default_memory = forms.IntegerField(
         label=_('Default memory)'),
         required=False,
     )
