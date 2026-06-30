@@ -818,9 +818,6 @@ class ScriptResultsTable(BaseTable):
     def render_object(self, value, record):
         return format_html("<a href='{}'>{}</a>", record['url'], value)
 
-    def render_url(self, value):
-        return format_html("<a href='{}'>{}</a>", value, value)
-
 
 class ScriptJobTable(JobTable):
     id = tables.TemplateColumn(
