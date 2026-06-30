@@ -9,8 +9,12 @@ from utilities.testing import create_test_device
 class VirtualChassisSearchCacheTestCase(TestCase):
 
     def setUp(self):
-        self.vc = VirtualChassis.objects.create(name='VC1')
-        self.device = create_test_device('Switch-1', virtual_chassis=self.vc, vc_position=1)
+        # Object creation triggers deferred (post-commit) search caching. With no RQ worker
+        # running in tests the flush falls back to synchronous indexing; execute the on_commit
+        # callbacks so the member Device's cache is populated before each test runs.
+        with self.captureOnCommitCallbacks(execute=True):
+            self.vc = VirtualChassis.objects.create(name='VC1')
+            self.device = create_test_device('Switch-1', virtual_chassis=self.vc, vc_position=1)
         self.object_type = ObjectType.objects.get_for_model(Device)
 
     def test_renaming_virtual_chassis_refreshes_member_search_cache(self):
