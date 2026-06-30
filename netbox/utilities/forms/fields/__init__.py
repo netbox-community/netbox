@@ -1,4 +1,5 @@
 from .array import *
+from .choices import *
 from .content_types import *
 from .csv import *
 from .dynamic import *

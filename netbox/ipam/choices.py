@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from utilities.choices import ChoiceSet
+from utilities.choices import Choice, ChoiceSet
 
 
 class IPAddressFamilyChoices(ChoiceSet):
@@ -9,8 +9,8 @@ class IPAddressFamilyChoices(ChoiceSet):
     FAMILY_6 = 6
 
     CHOICES = (
-        (FAMILY_4, 'IPv4'),
-        (FAMILY_6, 'IPv6'),
+        Choice(FAMILY_4, 'IPv4'),
+        Choice(FAMILY_6, 'IPv6'),
     )
 
 
@@ -27,10 +27,10 @@ class PrefixStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_CONTAINER, _('Container'), 'gray'),
-        (STATUS_ACTIVE, _('Active'), 'blue'),
-        (STATUS_RESERVED, _('Reserved'), 'cyan'),
-        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
+        Choice(STATUS_CONTAINER, _('Container'), color='gray', description=_('Organizes a set of child prefixes')),
+        Choice(STATUS_ACTIVE, _('Active'), color='blue', description=_('Provisioned and in use')),
+        Choice(STATUS_RESERVED, _('Reserved'), color='cyan', description=_('Designated for future use')),
+        Choice(STATUS_DEPRECATED, _('Deprecated'), color='red', description=_('No longer in use')),
     ]
 
 
@@ -46,9 +46,9 @@ class IPRangeStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, _('Active'), 'blue'),
-        (STATUS_RESERVED, _('Reserved'), 'cyan'),
-        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
+        Choice(STATUS_ACTIVE, _('Active'), color='blue', description=_('Provisioned and in use')),
+        Choice(STATUS_RESERVED, _('Reserved'), color='cyan', description=_('Designated for future use')),
+        Choice(STATUS_DEPRECATED, _('Deprecated'), color='red', description=_('No longer in use')),
     ]
 
 
@@ -66,11 +66,16 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_SLAAC = 'slaac'
 
     CHOICES = [
-        (STATUS_ACTIVE, _('Active'), 'blue'),
-        (STATUS_RESERVED, _('Reserved'), 'cyan'),
-        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
-        (STATUS_DHCP, _('DHCP'), 'green'),
-        (STATUS_SLAAC, _('SLAAC'), 'purple'),
+        Choice(STATUS_ACTIVE, _('Active'), color='blue', description=_('Provisioned and in use')),
+        Choice(STATUS_RESERVED, _('Reserved'), color='cyan', description=_('Designated for future use')),
+        Choice(STATUS_DEPRECATED, _('Deprecated'), color='red', description=_('No longer in use')),
+        Choice(STATUS_DHCP, _('DHCP'), color='green', description=_('Assigned dynamically via DHCP')),
+        Choice(
+            STATUS_SLAAC,
+            _('SLAAC'),
+            color='purple',
+            description=_('Assigned via IPv6 stateless address autoconfiguration')
+        ),
     ]
 
 
@@ -86,14 +91,14 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_CARP = 'carp'
 
     CHOICES = (
-        (ROLE_LOOPBACK, _('Loopback'), 'gray'),
-        (ROLE_SECONDARY, _('Secondary'), 'blue'),
-        (ROLE_ANYCAST, _('Anycast'), 'yellow'),
-        (ROLE_VIP, 'VIP', 'purple'),
-        (ROLE_VRRP, 'VRRP', 'green'),
-        (ROLE_HSRP, 'HSRP', 'green'),
-        (ROLE_GLBP, 'GLBP', 'green'),
-        (ROLE_CARP, 'CARP', 'green'),
+        Choice(ROLE_LOOPBACK, _('Loopback'), color='gray', description=_('A loopback interface address')),
+        Choice(ROLE_SECONDARY, _('Secondary'), color='blue', description=_('A secondary address on an interface')),
+        Choice(ROLE_ANYCAST, _('Anycast'), color='yellow', description=_('An address shared among multiple nodes')),
+        Choice(ROLE_VIP, 'VIP', color='purple', description=_('A virtual IP address')),
+        Choice(ROLE_VRRP, 'VRRP', color='green', description=_('A virtual address managed by VRRP')),
+        Choice(ROLE_HSRP, 'HSRP', color='green', description=_('A virtual address managed by HSRP')),
+        Choice(ROLE_GLBP, 'GLBP', color='green', description=_('A virtual address managed by GLBP')),
+        Choice(ROLE_CARP, 'CARP', color='green', description=_('A virtual address managed by CARP')),
     )
 
 
@@ -113,18 +118,18 @@ class FHRPGroupProtocolChoices(ChoiceSet):
 
     CHOICES = (
         (_('Standard'), (
-            (PROTOCOL_VRRP2, 'VRRPv2'),
-            (PROTOCOL_VRRP3, 'VRRPv3'),
-            (PROTOCOL_CARP, 'CARP'),
+            Choice(PROTOCOL_VRRP2, 'VRRPv2', description=_('Virtual Router Redundancy Protocol version 2')),
+            Choice(PROTOCOL_VRRP3, 'VRRPv3', description=_('Virtual Router Redundancy Protocol version 3')),
+            Choice(PROTOCOL_CARP, 'CARP', description=_('Common Address Redundancy Protocol')),
         )),
         (_('CheckPoint'), (
-            (PROTOCOL_CLUSTERXL, 'ClusterXL'),
+            Choice(PROTOCOL_CLUSTERXL, 'ClusterXL', description=_('Check Point ClusterXL high-availability protocol')),
         )),
         (_('Cisco'), (
-            (PROTOCOL_HSRP, 'HSRP'),
-            (PROTOCOL_GLBP, 'GLBP'),
+            Choice(PROTOCOL_HSRP, 'HSRP', description=_('Hot Standby Router Protocol')),
+            Choice(PROTOCOL_GLBP, 'GLBP', description=_('Gateway Load Balancing Protocol')),
         )),
-        (PROTOCOL_OTHER, 'Other'),
+        Choice(PROTOCOL_OTHER, 'Other'),
     )
 
 
@@ -134,8 +139,8 @@ class FHRPGroupAuthTypeChoices(ChoiceSet):
     AUTHENTICATION_MD5 = 'md5'
 
     CHOICES = (
-        (AUTHENTICATION_PLAINTEXT, _('Plaintext')),
-        (AUTHENTICATION_MD5, 'MD5'),
+        Choice(AUTHENTICATION_PLAINTEXT, _('Plaintext'), description=_('Authentication using a cleartext password')),
+        Choice(AUTHENTICATION_MD5, 'MD5', description=_('Authentication using an MD5 hash')),
     )
 
 
@@ -151,9 +156,9 @@ class VLANStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, _('Active'), 'blue'),
-        (STATUS_RESERVED, _('Reserved'), 'cyan'),
-        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
+        Choice(STATUS_ACTIVE, _('Active'), color='blue', description=_('Provisioned and in use')),
+        Choice(STATUS_RESERVED, _('Reserved'), color='cyan', description=_('Designated for future use')),
+        Choice(STATUS_DEPRECATED, _('Deprecated'), color='red', description=_('No longer in use')),
     ]
 
 
@@ -163,8 +168,8 @@ class VLANQinQRoleChoices(ChoiceSet):
     ROLE_CUSTOMER = 'cvlan'
 
     CHOICES = [
-        (ROLE_SERVICE, _('Service'), 'blue'),
-        (ROLE_CUSTOMER, _('Customer'), 'orange'),
+        Choice(ROLE_SERVICE, _('Service'), color='blue', description=_('An outer service VLAN (S-VLAN)')),
+        Choice(ROLE_CUSTOMER, _('Customer'), color='orange', description=_('An inner customer VLAN (C-VLAN)')),
     ]
 
 
@@ -179,7 +184,7 @@ class ServiceProtocolChoices(ChoiceSet):
     PROTOCOL_SCTP = 'sctp'
 
     CHOICES = (
-        (PROTOCOL_TCP, 'TCP'),
-        (PROTOCOL_UDP, 'UDP'),
-        (PROTOCOL_SCTP, 'SCTP'),
+        Choice(PROTOCOL_TCP, 'TCP'),
+        Choice(PROTOCOL_UDP, 'UDP'),
+        Choice(PROTOCOL_SCTP, 'SCTP'),
     )

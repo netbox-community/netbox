@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
-from utilities.choices import ChoiceSet
+from utilities.choices import Choice, ChoiceSet
 
 #
 # Data sources
@@ -15,11 +15,11 @@ class DataSourceStatusChoices(ChoiceSet):
     FAILED = 'failed'
 
     CHOICES = (
-        (NEW, _('New'), 'blue'),
-        (QUEUED, _('Queued'), 'orange'),
-        (SYNCING, _('Syncing'), 'cyan'),
-        (COMPLETED, _('Completed'), 'green'),
-        (FAILED, _('Failed'), 'red'),
+        Choice(NEW, _('New'), color='blue', description=_('Newly created and not yet synchronized')),
+        Choice(QUEUED, _('Queued'), color='orange', description=_('Queued for synchronization')),
+        Choice(SYNCING, _('Syncing'), color='cyan', description=_('Synchronization in progress')),
+        Choice(COMPLETED, _('Completed'), color='green', description=_('Most recent synchronization succeeded')),
+        Choice(FAILED, _('Failed'), color='red', description=_('Most recent synchronization failed')),
     )
 
 
@@ -32,8 +32,8 @@ class ManagedFileRootPathChoices(ChoiceSet):
     REPORTS = 'reports'  # settings.REPORTS_ROOT
 
     CHOICES = (
-        (SCRIPTS, _('Scripts')),
-        (REPORTS, _('Reports')),
+        Choice(SCRIPTS, _('Scripts')),
+        Choice(REPORTS, _('Reports')),
     )
 
 
@@ -51,12 +51,12 @@ class JobStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
 
     CHOICES = (
-        (STATUS_PENDING, _('Pending'), 'cyan'),
-        (STATUS_SCHEDULED, _('Scheduled'), 'gray'),
-        (STATUS_RUNNING, _('Running'), 'blue'),
-        (STATUS_COMPLETED, _('Completed'), 'green'),
-        (STATUS_ERRORED, _('Errored'), 'red'),
-        (STATUS_FAILED, _('Failed'), 'red'),
+        Choice(STATUS_PENDING, _('Pending'), color='cyan', description=_('Awaiting execution')),
+        Choice(STATUS_SCHEDULED, _('Scheduled'), color='gray', description=_('Scheduled to run at a future time')),
+        Choice(STATUS_RUNNING, _('Running'), color='blue', description=_('Currently executing')),
+        Choice(STATUS_COMPLETED, _('Completed'), color='green', description=_('Finished successfully')),
+        Choice(STATUS_ERRORED, _('Errored'), color='red', description=_('Terminated due to an unhandled error')),
+        Choice(STATUS_FAILED, _('Failed'), color='red', description=_('Failed to complete')),
     )
 
     ENQUEUED_STATE_CHOICES = (
@@ -78,9 +78,9 @@ class JobNotificationChoices(ChoiceSet):
     NOTIFICATION_NEVER = 'never'
 
     CHOICES = (
-        (NOTIFICATION_ALWAYS, _('Always')),
-        (NOTIFICATION_ON_FAILURE, _('On failure')),
-        (NOTIFICATION_NEVER, _('Never')),
+        Choice(NOTIFICATION_ALWAYS, _('Always'), description=_('Notify after every job execution')),
+        Choice(NOTIFICATION_ON_FAILURE, _('On failure'), description=_('Notify only when a job fails')),
+        Choice(NOTIFICATION_NEVER, _('Never'), description=_('Never send job notifications')),
     )
 
 
@@ -91,12 +91,12 @@ class JobIntervalChoices(ChoiceSet):
     INTERVAL_WEEKLY = 60 * 24 * 7
 
     CHOICES = (
-        (INTERVAL_MINUTELY, _('Minutely')),
-        (INTERVAL_HOURLY, _('Hourly')),
-        (INTERVAL_HOURLY * 12, _('12 hours')),
-        (INTERVAL_DAILY, _('Daily')),
-        (INTERVAL_WEEKLY, _('Weekly')),
-        (INTERVAL_DAILY * 30, _('30 days')),
+        Choice(INTERVAL_MINUTELY, _('Minutely')),
+        Choice(INTERVAL_HOURLY, _('Hourly')),
+        Choice(INTERVAL_HOURLY * 12, _('12 hours')),
+        Choice(INTERVAL_DAILY, _('Daily')),
+        Choice(INTERVAL_WEEKLY, _('Weekly')),
+        Choice(INTERVAL_DAILY * 30, _('30 days')),
     )
 
 
@@ -111,7 +111,7 @@ class ObjectChangeActionChoices(ChoiceSet):
     ACTION_DELETE = 'delete'
 
     CHOICES = (
-        (ACTION_CREATE, _('Created'), 'green'),
-        (ACTION_UPDATE, _('Updated'), 'blue'),
-        (ACTION_DELETE, _('Deleted'), 'red'),
+        Choice(ACTION_CREATE, _('Created'), color='green'),
+        Choice(ACTION_UPDATE, _('Updated'), color='blue'),
+        Choice(ACTION_DELETE, _('Deleted'), color='red'),
     )

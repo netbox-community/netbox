@@ -56,6 +56,20 @@ FIELD_CHOICES = {
 }
 ```
 
+In addition to plain tuples, each choice may be defined as a dictionary, which allows specifying a description (shown as a subtitle beneath the option) alongside the value, label, and color. `value` and `label` are required; `color` and `description` are optional:
+
+```python
+FIELD_CHOICES = {
+    'dcim.Site.status': (
+        {'value': 'foo', 'label': 'Foo', 'color': 'red', 'description': 'The foo status'},
+        {'value': 'bar', 'label': 'Bar', 'color': 'green'},
+    )
+}
+```
+
+!!! info "New in NetBox v4.7"
+    The dictionary-based format for declaring choices was introduced in NetBox v4.7. The tuple-based format remains supported, but will be deprecated in a future release and support for it will eventually be removed.
+
 !!! info "Case-Insensitive Field Identifiers"
     Field identifiers are case-insensitive. Both `dcim.Site.status` and `dcim.site.status` are valid and equivalent.
 

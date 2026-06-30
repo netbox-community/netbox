@@ -7,7 +7,9 @@ from django.test import TestCase, override_settings
 
 from dcim.models import Site
 from netbox.choices import ImportFormatChoices
+from utilities.choices import Choice, ChoiceSet
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.fields import ChoiceField, MultipleChoiceField, TypedChoiceField
 from utilities.forms.fields.csv import CSVSelectWidget
 from utilities.forms.fields.dynamic import DynamicChoiceField, DynamicMultipleChoiceField
 from utilities.forms.fields.generic import GenericObjectChoiceField
@@ -15,12 +17,13 @@ from utilities.forms.forms import BulkRenameForm
 from utilities.forms.mixins import GenericObjectFormMixin
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import (
+    add_blank_choice,
     expand_alphanumeric_pattern,
     expand_ipnetwork_pattern,
     get_capacity_unit_label,
     get_field_value,
 )
-from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, SelectedOptions
+from utilities.forms.widgets.select import AvailableOptions, HTMXSelect, Select, SelectedOptions
 
 
 class ExpandIPNetworkTestCase(TestCase):
@@ -898,3 +901,110 @@ class HTMXSelectTestCase(TestCase):
     def test_hx_target_id_include_stays_on_form_fields(self):
         widget = HTMXSelect(hx_target_id='my-fieldset')
         self.assertEqual(widget.attrs['hx-include'], '#form_fields')
+
+
+class DescriptionSelectTestCase(TestCase):
+    """
+    Validate the rendering of option descriptions in static select fields.
+    """
+    class ExampleChoices(ChoiceSet):
+        FOO = 'foo'
+        BAR = 'bar'
+        CHOICES = (
+            Choice(FOO, 'Foo', description='Description of foo'),
+            Choice(BAR, 'Bar'),
+        )
+
+    def test_choiceset_descriptions_populate_widget(self):
+        field = ChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_multiplechoicefield_descriptions_populate_widget(self):
+        field = MultipleChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_show_descriptions_false_suppresses_descriptions(self):
+        field = ChoiceField(choices=self.ExampleChoices, show_descriptions=False)
+        self.assertEqual(field.widget.descriptions, {})
+
+    def test_add_blank_choice_preserves_descriptions(self):
+        field = ChoiceField(choices=add_blank_choice(self.ExampleChoices))
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_data_description_rendered_on_option(self):
+        field = ChoiceField(choices=self.ExampleChoices)
+        html = field.widget.render('test', None)
+        self.assertInHTML(
+            '<option value="foo" data-description="Description of foo">Foo</option>',
+            html
+        )
+        # Options without a description should not receive the attribute
+        self.assertInHTML('<option value="bar">Bar</option>', html)
+
+    def test_choiceset_without_descriptions(self):
+        class NoDescriptions(ChoiceSet):
+            CHOICES = (('a', 'A'),)
+
+        field = ChoiceField(choices=NoDescriptions)
+        self.assertEqual(field.widget.descriptions, {})
+
+    def test_descriptions_refresh_when_choices_reassigned(self):
+        """Reassigning a field's choices after construction should refresh the widget's description map."""
+        class OtherChoices(ChoiceSet):
+            CHOICES = (
+                Choice('baz', 'Baz', description='Description of baz'),
+            )
+
+        field = ChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+        field.choices = OtherChoices
+        self.assertEqual(field.widget.descriptions, {'baz': 'Description of baz'})
+
+    def test_show_descriptions_false_suppresses_on_reassignment(self):
+        field = ChoiceField(choices=self.ExampleChoices, show_descriptions=False)
+        field.choices = self.ExampleChoices
+        self.assertEqual(field.widget.descriptions, {})
+
+    def test_typedchoicefield_populates_descriptions(self):
+        field = TypedChoiceField(choices=self.ExampleChoices)
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})
+
+    def test_typedchoicefield_empty_value_defaults_to_none(self):
+        """A blank selection on a TypedChoiceField resolves to None (for storage as NULL) rather than ''."""
+        field = TypedChoiceField(choices=add_blank_choice(self.ExampleChoices), required=False)
+        self.assertIsNone(field.empty_value)
+        self.assertIsNone(field.clean(''))
+
+    def test_explicit_descriptions_mapping(self):
+        widget = Select(choices=[('x', 'X'), ('y', 'Y')], descriptions={'x': 'Description X'})
+        html = widget.render('test', None)
+        self.assertInHTML('<option value="x" data-description="Description X">X</option>', html)
+        self.assertInHTML('<option value="y">Y</option>', html)
+
+    def test_choices_setter_delegates_through_mro(self):
+        """
+        AttrChoiceMixin must delegate to the parent field's choices setter via the MRO, not a hardcoded base,
+        so a setter override on an intermediate class is not bypassed.
+        """
+        from django import forms
+
+        from utilities.forms.fields.choices import AttrChoiceMixin
+        from utilities.forms.widgets import Select as DescriptionSelect
+
+        calls = []
+
+        class OverridingChoiceField(forms.ChoiceField):
+            def _set_choices(self, value):
+                calls.append(value)
+                forms.ChoiceField.choices.fset(self, value)
+            choices = property(forms.ChoiceField.choices.fget, _set_choices)
+
+        class CustomField(AttrChoiceMixin, OverridingChoiceField):
+            widget = DescriptionSelect
+
+        field = CustomField(choices=self.ExampleChoices)
+        # The intermediate class's setter must have been invoked (delegation not bypassed)
+        self.assertTrue(calls)
+        # And descriptions are still collected as normal
+        self.assertEqual(field.widget.descriptions, {self.ExampleChoices.FOO: 'Description of foo'})

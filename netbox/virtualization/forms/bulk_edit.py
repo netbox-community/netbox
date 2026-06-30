@@ -12,7 +12,7 @@ from netbox.forms import NetBoxModelBulkEditForm, OrganizationalModelBulkEditFor
 from netbox.forms.mixins import OwnerMixin
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import ChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.utils import get_capacity_unit_label
 from utilities.forms.widgets import BulkEditNullBooleanSelect
@@ -58,7 +58,7 @@ class ClusterBulkEditForm(ScopedBulkEditForm, PrimaryModelBulkEditForm):
         queryset=ClusterGroup.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(ClusterStatusChoices),
         required=False,
@@ -111,13 +111,13 @@ class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
         queryset=VirtualMachineType.objects.all(),
         required=False
     )
-    status = forms.ChoiceField(
+    status = ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
     )
-    start_on_boot = forms.ChoiceField(
+    start_on_boot = ChoiceField(
         label=_('Start on boot'),
         choices=add_blank_choice(VirtualMachineStartOnBootChoices),
         required=False,
@@ -240,7 +240,7 @@ class VMInterfaceBulkEditForm(OwnerMixin, NetBoxModelBulkEditForm):
         max_length=100,
         required=False
     )
-    mode = forms.ChoiceField(
+    mode = ChoiceField(
         label=_('Mode'),
         choices=add_blank_choice(InterfaceModeChoices),
         required=False

@@ -11,17 +11,21 @@ from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.choices import VLANQinQRoleChoices
 from ipam.models import ASN, VLAN, VRF, IPAddress, VLANGroup, VLANTranslationPolicy
+from netbox.choices import WeightUnitChoices
 from netbox.forms import NestedGroupModelForm, NetBoxModelForm, OrganizationalModelForm, PrimaryModelForm
 from netbox.forms.mixins import ChangelogMessageMixin, OwnerMixin
 from tenancy.forms import TenancyForm
 from users.models import User
+from utilities.choices import Choice
 from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
+    ChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     JSONField,
     NumericArrayField,
     SlugField,
+    TypedChoiceField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, M2MAddRemoveFields, TabbedGroups
 from utilities.forms.widgets import (
@@ -34,6 +38,7 @@ from utilities.forms.widgets import (
 )
 from utilities.jsonschema import JSONSchemaProperty
 from virtualization.models import Cluster, VMInterface
+from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 from wireless.models import WirelessLAN, WirelessLANGroup
 
 from .common import InterfaceCommonForm, ModuleCommonForm
@@ -127,6 +132,11 @@ class SiteGroupForm(NestedGroupModelForm):
 
 
 class SiteForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=SiteStatusChoices,
+        initial=SiteStatusChoices.STATUS_ACTIVE,
+    )
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
@@ -207,6 +217,11 @@ class SiteForm(TenancyForm, PrimaryModelForm):
 
 
 class LocationForm(TenancyForm, NestedGroupModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=LocationStatusChoices,
+        initial=LocationStatusChoices.STATUS_ACTIVE,
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -259,6 +274,20 @@ class RackRoleForm(OrganizationalModelForm):
 
 
 class RackTypeForm(PrimaryModelForm):
+    form_factor = ChoiceField(
+        label=_('Form factor'),
+        choices=RackFormFactorChoices,
+    )
+    outer_unit = TypedChoiceField(
+        label=_('Outer unit'),
+        choices=add_blank_choice(RackDimensionUnitChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -290,6 +319,31 @@ class RackTypeForm(PrimaryModelForm):
 
 
 class RackForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=RackStatusChoices,
+        initial=RackStatusChoices.STATUS_ACTIVE,
+    )
+    form_factor = TypedChoiceField(
+        label=_('Form factor'),
+        choices=add_blank_choice(RackFormFactorChoices),
+        required=False,
+    )
+    outer_unit = TypedChoiceField(
+        label=_('Outer unit'),
+        choices=add_blank_choice(RackDimensionUnitChoices),
+        required=False,
+    )
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(RackAirflowChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -367,6 +421,11 @@ class RackForm(TenancyForm, PrimaryModelForm):
 
 
 class RackReservationForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=RackReservationStatusChoices,
+        initial=RackReservationStatusChoices.STATUS_ACTIVE,
+    )
     rack = DynamicModelChoiceField(
         label=_('Rack'),
         queryset=Rack.objects.all(),
@@ -407,6 +466,25 @@ class ManufacturerForm(OrganizationalModelForm):
 
 
 class DeviceTypeForm(PrimaryModelForm):
+    subdevice_role = TypedChoiceField(
+        label=_('Parent/child status'),
+        choices=add_blank_choice(SubdeviceRoleChoices),
+        required=False,
+        help_text=_(
+            'Parent devices house child devices in device bays. Leave blank if this device type is neither a '
+            'parent nor a child.'
+        ),
+    )
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     manufacturer = DynamicModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -471,6 +549,16 @@ class ModuleTypeProfileForm(PrimaryModelForm):
 
 
 class ModuleTypeForm(PrimaryModelForm):
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(ModuleAirflowChoices),
+        required=False,
+    )
+    weight_unit = TypedChoiceField(
+        label=_('Weight unit'),
+        choices=add_blank_choice(WeightUnitChoices),
+        required=False,
+    )
     profile = forms.ModelChoiceField(
         queryset=ModuleTypeProfile.objects.all(),
         label=_('Profile'),
@@ -611,6 +699,16 @@ class PlatformForm(NestedGroupModelForm):
 
 
 class DeviceForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=DeviceStatusChoices,
+        initial=DeviceStatusChoices.STATUS_ACTIVE,
+    )
+    airflow = TypedChoiceField(
+        label=_('Airflow'),
+        choices=add_blank_choice(DeviceAirflowChoices),
+        required=False,
+    )
     site = DynamicModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -649,7 +747,7 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
             },
         )
     )
-    face = forms.ChoiceField(
+    face = TypedChoiceField(
         label=_('Face'),
         choices=add_blank_choice(DeviceFaceChoices),
         required=False,
@@ -790,6 +888,11 @@ class DeviceForm(TenancyForm, PrimaryModelForm):
 
 
 class ModuleForm(ModuleCommonForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=ModuleStatusChoices,
+        initial=ModuleStatusChoices.STATUS_ACTIVE,
+    )
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -853,7 +956,7 @@ class ModuleForm(ModuleCommonForm, PrimaryModelForm):
 
 def get_termination_type_choices():
     return add_blank_choice([
-        (f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
+        Choice(f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
         for ct in ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     ])
 
@@ -870,13 +973,33 @@ class CableBundleForm(PrimaryModelForm):
 
 
 class CableForm(TenancyForm, PrimaryModelForm):
-    a_terminations_type = forms.ChoiceField(
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(CableTypeChoices),
+        required=False,
+    )
+    status = ChoiceField(
+        label=_('Status'),
+        choices=LinkStatusChoices,
+        initial=LinkStatusChoices.STATUS_CONNECTED,
+    )
+    profile = ChoiceField(
+        label=_('Profile'),
+        choices=add_blank_choice(CableProfileChoices),
+        required=False,
+    )
+    length_unit = TypedChoiceField(
+        label=_('Length unit'),
+        choices=add_blank_choice(CableLengthUnitChoices),
+        required=False,
+    )
+    a_terminations_type = ChoiceField(
         choices=get_termination_type_choices,
         required=False,
         widget=HTMXSelect(hx_target_id='cable-side-a'),
         label=_('Type')
     )
-    b_terminations_type = forms.ChoiceField(
+    b_terminations_type = ChoiceField(
         choices=get_termination_type_choices,
         required=False,
         widget=HTMXSelect(hx_target_id='cable-side-b'),
@@ -923,6 +1046,26 @@ class PowerPanelForm(PrimaryModelForm):
 
 
 class PowerFeedForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=PowerFeedStatusChoices,
+        initial=PowerFeedStatusChoices.STATUS_ACTIVE,
+    )
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PowerFeedTypeChoices,
+        initial=PowerFeedTypeChoices.TYPE_PRIMARY,
+    )
+    supply = ChoiceField(
+        label=_('Supply'),
+        choices=PowerFeedSupplyChoices,
+        initial=PowerFeedSupplyChoices.SUPPLY_AC,
+    )
+    phase = ChoiceField(
+        label=_('Phase'),
+        choices=PowerFeedPhaseChoices,
+        initial=PowerFeedPhaseChoices.PHASE_SINGLE,
+    )
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
@@ -1106,6 +1249,12 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
 
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+    )
+
     class Meta:
         model = ConsolePortTemplate
         fields = [
@@ -1114,6 +1263,12 @@ class ConsolePortTemplateForm(ModularComponentTemplateForm):
 
 
 class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+    )
+
     class Meta:
         model = ConsoleServerPortTemplate
         fields = [
@@ -1122,6 +1277,11 @@ class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
 
 
 class PowerPortTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+    )
     fieldsets = (
         FieldSet(
             TabbedGroups(
@@ -1140,6 +1300,17 @@ class PowerPortTemplateForm(ModularComponentTemplateForm):
 
 
 class PowerOutletTemplateForm(ModularComponentTemplateForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+    )
+    feed_leg = TypedChoiceField(
+        label=_('Feed leg'),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
+        required=False,
+        help_text=_('Phase (for three-phase feeds)'),
+    )
     power_port = DynamicModelChoiceField(
         label=_('Power port'),
         queryset=PowerPortTemplate.objects.all(),
@@ -1167,6 +1338,25 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
 
 
 class InterfaceTemplateForm(ModularComponentTemplateForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=InterfaceTypeChoices,
+    )
+    poe_mode = TypedChoiceField(
+        label=_('PoE mode'),
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+    )
+    poe_type = TypedChoiceField(
+        label=_('PoE type'),
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+    )
+    rf_role = TypedChoiceField(
+        label=_('Wireless role'),
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
+    )
     bridge = DynamicModelChoiceField(
         label=_('Bridge'),
         queryset=InterfaceTemplate.objects.all(),
@@ -1198,6 +1388,10 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
 
 
 class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             TabbedGroups(
@@ -1238,6 +1432,10 @@ class FrontPortTemplateForm(FrontPortFormMixin, ModularComponentTemplateForm):
 
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             TabbedGroups(
@@ -1461,6 +1659,12 @@ class ModularDeviceComponentForm(DeviceComponentForm):
 
 
 class ConsolePortForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
@@ -1475,6 +1679,12 @@ class ConsolePortForm(ModularDeviceComponentForm):
 
 
 class ConsoleServerPortForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(ConsolePortTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
@@ -1489,6 +1699,12 @@ class ConsoleServerPortForm(ModularDeviceComponentForm):
 
 
 class PowerPortForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerPortTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
@@ -1505,6 +1721,23 @@ class PowerPortForm(ModularDeviceComponentForm):
 
 
 class PowerOutletForm(ModularDeviceComponentForm):
+    type = TypedChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(PowerOutletTypeChoices),
+        required=False,
+        help_text=_('Physical port type'),
+    )
+    status = ChoiceField(
+        label=_('Status'),
+        choices=PowerOutletStatusChoices,
+        initial=PowerOutletStatusChoices.STATUS_ENABLED,
+    )
+    feed_leg = TypedChoiceField(
+        label=_('Feed leg'),
+        choices=add_blank_choice(PowerOutletFeedLegChoices),
+        required=False,
+        help_text=_('Phase (for three-phase feeds)'),
+    )
     power_port = DynamicModelChoiceField(
         label=_('Power port'),
         queryset=PowerPort.objects.all(),
@@ -1530,6 +1763,41 @@ class PowerOutletForm(ModularDeviceComponentForm):
 
 
 class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=InterfaceTypeChoices,
+    )
+    duplex = TypedChoiceField(
+        label=_('Duplex'),
+        choices=add_blank_choice(InterfaceDuplexChoices),
+        required=False,
+    )
+    poe_mode = TypedChoiceField(
+        label=_('PoE mode'),
+        choices=add_blank_choice(InterfacePoEModeChoices),
+        required=False,
+    )
+    poe_type = TypedChoiceField(
+        label=_('PoE type'),
+        choices=add_blank_choice(InterfacePoETypeChoices),
+        required=False,
+    )
+    mode = TypedChoiceField(
+        label=_('802.1Q Mode'),
+        choices=add_blank_choice(InterfaceModeChoices),
+        required=False,
+        help_text=_('IEEE 802.1Q tagging strategy'),
+    )
+    rf_role = TypedChoiceField(
+        label=_('Wireless role'),
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
+    )
+    rf_channel = TypedChoiceField(
+        label=_('Wireless channel'),
+        choices=add_blank_choice(WirelessChannelChoices),
+        required=False,
+    )
     vdcs = DynamicModelMultipleChoiceField(
         queryset=VirtualDeviceContext.objects.all(),
         required=False,
@@ -1676,6 +1944,10 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
 
 
 class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'rear_ports', 'mark_connected',
@@ -1712,6 +1984,10 @@ class FrontPortForm(FrontPortFormMixin, ModularDeviceComponentForm):
 
 
 class RearPortForm(ModularDeviceComponentForm):
+    type = ChoiceField(
+        label=_('Type'),
+        choices=PortTypeChoices,
+    )
     fieldsets = (
         FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
@@ -1770,6 +2046,11 @@ class PopulateDeviceBayForm(forms.Form):
 
 
 class InventoryItemForm(DeviceComponentForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=InventoryItemStatusChoices,
+        initial=InventoryItemStatusChoices.STATUS_ACTIVE,
+    )
     parent = DynamicModelChoiceField(
         label=_('Parent'),
         queryset=InventoryItem.objects.all(),
@@ -1930,6 +2211,10 @@ class InventoryItemRoleForm(OrganizationalModelForm):
 
 
 class VirtualDeviceContextForm(TenancyForm, PrimaryModelForm):
+    status = ChoiceField(
+        label=_('Status'),
+        choices=VirtualDeviceContextStatusChoices,
+    )
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
