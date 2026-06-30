@@ -20,7 +20,7 @@ class AppTestCase(APITestCase):
 
 class TunnelGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = TunnelGroup
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'tunnel_count', 'url']
     create_data = (
         {
             'name': 'Tunnel Group 4',

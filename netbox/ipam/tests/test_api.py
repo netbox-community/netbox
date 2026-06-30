@@ -202,7 +202,7 @@ class ASNTestCase(APIViewTestCases.APIViewTestCase):
 
 class VRFTestCase(APIViewTestCases.APIViewTestCase):
     model = VRF
-    brief_fields = ['description', 'display', 'id', 'name', 'rd', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'prefix_count', 'rd', 'url']
     create_data = [
         {
             'name': 'VRF 4',
@@ -263,7 +263,7 @@ class RouteTargetTestCase(APIViewTestCases.APIViewTestCase):
 
 class RIRTestCase(APIViewTestCases.APIViewTestCase):
     model = RIR
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['aggregate_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'RIR 4',
@@ -383,7 +383,7 @@ class AggregateTestCase(APIViewTestCases.APIViewTestCase):
 
 class RoleTestCase(APIViewTestCases.APIViewTestCase):
     model = Role
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['asn_count', 'description', 'display', 'id', 'name', 'prefix_count', 'slug', 'url', 'vlan_count']
     create_data = [
         {
             'name': 'Role 4',
@@ -1115,7 +1115,7 @@ class FHRPGroupAssignmentTestCase(APIViewTestCases.APIViewTestCase):
 
 class VLANGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = VLANGroup
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url', 'vlan_count']
     create_data = [
         {
             'name': 'VLAN Group 4',

@@ -39,7 +39,7 @@ class ProviderSerializer(PrimaryModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'accounts', 'description', 'owner', 'comments',
             'asns', 'tags', 'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
 
 
 class ProviderAccountSerializer(PrimaryModelSerializer):

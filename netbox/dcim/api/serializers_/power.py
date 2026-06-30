@@ -33,7 +33,7 @@ class PowerPanelSerializer(PrimaryModelSerializer):
             'id', 'url', 'display_url', 'display', 'site', 'location', 'name', 'description', 'owner', 'comments',
             'tags', 'custom_fields', 'powerfeed_count', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'powerfeed_count')
 
 
 class PowerFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):

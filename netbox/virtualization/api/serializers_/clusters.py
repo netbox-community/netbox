@@ -27,7 +27,7 @@ class ClusterTypeSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'cluster_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
 class ClusterGroupSerializer(OrganizationalModelSerializer):
@@ -41,7 +41,7 @@ class ClusterGroupSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'cluster_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
 class ClusterSerializer(PrimaryModelSerializer):
@@ -79,4 +79,4 @@ class ClusterSerializer(PrimaryModelSerializer):
             'scope_id', 'scope', 'description', 'owner', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'device_count', 'virtualmachine_count', 'allocated_vcpus', 'allocated_memory', 'allocated_disk'
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'virtualmachine_count')

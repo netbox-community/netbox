@@ -575,7 +575,7 @@ class LocationTestCase(APIViewTestCases.APIViewTestCase):
 
 class RackGroupTestCase(APIViewTestCases.APIViewTestCase):
     model = RackGroup
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     create_data = [
         {
             'name': 'Rack Group 4',
@@ -607,7 +607,7 @@ class RackGroupTestCase(APIViewTestCases.APIViewTestCase):
 
 class RackRoleTestCase(APIViewTestCases.APIViewTestCase):
     model = RackRole
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'rack_count', 'slug', 'url']
     create_data = [
         {
             'name': 'Rack Role 4',
@@ -702,7 +702,7 @@ class RackTypeTestCase(APIViewTestCases.APIViewTestCase):
 
 class RackTestCase(APIViewTestCases.APIViewTestCase):
     model = Rack
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'device_count', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -3246,7 +3246,7 @@ class InventoryItemTestCase(APIViewTestCases.APIViewTestCase):
 
 class InventoryItemRoleTestCase(APIViewTestCases.APIViewTestCase):
     model = InventoryItemRole
-    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'inventoryitem_count', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Inventory Item Role 4',
@@ -3691,7 +3691,7 @@ class VirtualChassisTestCase(APIViewTestCases.APIViewTestCase):
 
 class PowerPanelTestCase(APIViewTestCases.APIViewTestCase):
     model = PowerPanel
-    brief_fields = ['description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'powerfeed_count', 'url']
     user_permissions = ('dcim.view_site', )
 
     @classmethod

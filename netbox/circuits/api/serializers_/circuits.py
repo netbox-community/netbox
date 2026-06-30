@@ -51,7 +51,7 @@ class CircuitTypeSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
 
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
@@ -174,7 +174,7 @@ class VirtualCircuitTypeSerializer(OrganizationalModelSerializer):
             'id', 'url', 'display_url', 'display', 'name', 'slug', 'color', 'description', 'owner', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated', 'virtual_circuit_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'virtual_circuit_count')
 
 
 class VirtualCircuitSerializer(PrimaryModelSerializer):
