@@ -3,7 +3,9 @@ import re
 
 import strawberry
 from django.contrib.contenttypes.models import ContentType
+from django.db import connection
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 from strawberry.extensions import QueryDepthLimiter
@@ -332,6 +334,63 @@ class GraphQLAPITestCase(APITestCase):
         data = json.loads(response.content)
         self.assertNotIn('errors', data)
         self.assertEqual(int(data['data']['table_config']['object_type']['id']), site_ct.pk)
+
+    @override_settings(LOGIN_REQUIRED=True)
+    def test_graphql_device_list_tags_are_prefetched(self):
+        """
+        Requesting tags on device_list must batch tag lookups (no N+1 per device).
+        """
+        self.add_permissions('dcim.view_device', 'extras.view_tag')
+
+        manufacturer = Manufacturer.objects.create(name='Prefetch Manufacturer', slug='prefetch-manufacturer')
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturer,
+            model='Prefetch Model',
+            slug='prefetch-model',
+        )
+        device_role = DeviceRole.objects.create(name='Prefetch Role', slug='prefetch-role')
+        site = Site.objects.first()
+        tag_alpha = Tag.objects.create(name='Prefetch Alpha', slug='prefetch-alpha')
+        tag_beta = Tag.objects.create(name='Prefetch Beta', slug='prefetch-beta')
+
+        devices = Device.objects.bulk_create([
+            Device(
+                name=f'Prefetch Device {index}',
+                device_type=device_type,
+                role=device_role,
+                site=site,
+            )
+            for index in range(10)
+        ])
+        for device in devices:
+            device.tags.set([tag_alpha, tag_beta])
+
+        query = """
+        {
+            device_list(filters: {role: {slug: {exact: "prefetch-role"}}}) {
+                name
+                tags {
+                    slug
+                }
+            }
+        }
+        """
+        url = reverse('graphql')
+
+        with CaptureQueriesContext(connection) as context:
+            response = self.client.post(url, data={'query': query}, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        self.assertNotIn('errors', data)
+        self.assertEqual(len(data['data']['device_list']), 10)
+
+        tag_queries = sum(1 for query_record in context.captured_queries if 'extras_tag' in query_record['sql'])
+        self.assertLessEqual(
+            tag_queries,
+            2,
+            msg=f'Expected batched tag prefetch, got {tag_queries} tag queries for 10 devices',
+        )
 
     def test_offset_pagination(self):
         self.add_permissions('dcim.view_site')

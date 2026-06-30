@@ -77,7 +77,9 @@ class JournalEntriesMixin:
 @strawberry.type
 class TagsMixin:
 
-    tags: list[Annotated['TagType', strawberry.lazy('.types')]]
+    tags: list[Annotated['TagType', strawberry.lazy('.types')]] = strawberry_django.field(
+        prefetch_related=['tags'],
+    )
 
 
 @strawberry.type
