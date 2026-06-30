@@ -51,7 +51,7 @@ def handle_rest_api_exception(request, *args, **kwargs):
     """
     if 'error' in kwargs:
         error_message = str(kwargs['error'])
-        type_, _ = sys.exc_info()[:2]
+        type_, __ = sys.exc_info()[:2]
         exception_name = type_.__name__ if type_ else 'Exception'
     else:
         type_, error = sys.exc_info()[:2]
