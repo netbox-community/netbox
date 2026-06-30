@@ -21,21 +21,22 @@
     .dropdown-menu {
       // Adjust hover color & style for menu items
       .dropdown-item {
-        a {
+        > a {
           color: $rich-black;
         }
-        .btn-group {
+        .dropdown-item-buttons {
           visibility: hidden;
         }
 
         // Style menu item hover/active state
         &:hover,
-        &.active {
+        &.active,
+        &:focus-within {
           background-color: var(--tblr-navbar-active-bg);
-          a {
+          > a {
             text-decoration: none;
           }
-          .btn-group {
+          .dropdown-item-buttons {
             visibility: visible;
           }
         }
@@ -106,7 +107,7 @@ html[data-bs-theme='dark'] .navbar-vertical.navbar-expand-lg {
 
   // Adjust hover color & style for menu items
   .dropdown-item {
-    a {
+    > a {
       color: white !important;
     }
     &.active,
