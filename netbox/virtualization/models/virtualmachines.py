@@ -62,7 +62,7 @@ class VirtualMachineType(ImageAttachmentsMixin, PrimaryModel):
         validators=(MinValueValidator(decimal.Decimal('0.01')),),
     )
     default_memory = models.PositiveIntegerField(
-        verbose_name=_('Default memory'),
+        verbose_name=_('default memory'),
         blank=True,
         null=True,
     )

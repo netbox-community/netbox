@@ -1,7 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
 from netbox.ui import attrs, panels
-from utilities.templatetags.helpers import humanize_ram_capacity
 
 #
 # Cluster
@@ -27,9 +26,9 @@ class VirtualMachineTypePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     default_platform = attrs.RelatedObjectAttr('default_platform', linkify=True)
     default_vcpus = attrs.TextAttr('default_vcpus', label=_('Default vCPUs'))
-    default_memory = attrs.TextAttr(
+    default_memory = attrs.TemplatedAttr(
         'default_memory',
-        format_callable=humanize_ram_capacity,
+        template_name='virtualization/virtualmachinetype/attrs/default_memory.html',
         label=_('Default memory')
     )
     description = attrs.TextAttr('description')

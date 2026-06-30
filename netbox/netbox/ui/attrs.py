@@ -119,26 +119,20 @@ class TextAttr(ObjectAttribute):
          style (str): CSS class to apply to the rendered attribute
          format_string (str): If specified, the value will be formatted using this string when rendering
          copy_button (bool): Set to True to include a copy-to-clipboard button
-         format_callable(callable): If specified, the callable will be called with the value to format the string.
     """
     template_name = 'ui/attrs/text.html'
 
-    def __init__(self, *args, style=None, format_string=None, copy_button=False, format_callable=None, **kwargs):
+    def __init__(self, *args, style=None, format_string=None, copy_button=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.style = style
         self.format_string = format_string
-        self.format_callable = format_callable if callable(format_callable) else None
         self.copy_button = copy_button
 
     def get_value(self, obj):
         value = resolve_attr_path(obj, self.accessor)
-        # Apply format callable or string (if any)
-        # format callable takes precedence over format string
-        if value is not None and value != '':
-            if self.format_callable:
-                return self.format_callable(value)
-            if self.format_string:
-                return self.format_string.format(value)
+        # Apply format string (if any)
+        if value is not None and value != '' and self.format_string:
+            return self.format_string.format(value)
         return value
 
     def get_context(self, obj, attr, value, context):
