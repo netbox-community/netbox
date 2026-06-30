@@ -816,6 +816,28 @@ class ScriptResultsTable(BaseTable):
         )
 
     def render_object(self, value, record):
+        try:
+            if record['url']:
+                from django.urls import resolve
+                match = resolve(record['url'])
+                view_class = match.func.view_class
+                if not (hasattr(view_class, "queryset") and hasattr(view_class.queryset, "model")):
+                    return format_html("<a href='{}'>{}</a>", record['url'], value)
+                model = view_class.queryset.model
+                obj = model.objects.get(**match.kwargs)
+
+                if hasattr(obj, "parent_object") and obj.parent_object:
+                    return format_html(
+                        "<a href='{}'>{}</a> / <a href='{}'>{}</a>",
+                        obj.parent_object.get_absolute_url(),
+                        obj.parent_object,
+                        record['url'],
+                        value,
+                    )
+        except RuntimeException:
+            # in case anything goes wrong at all, we always can fall back to the previous style
+            pass
+
         return format_html("<a href='{}'>{}</a>", record['url'], value)
 
 
