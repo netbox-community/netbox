@@ -67,7 +67,7 @@
 * [#22346](https://github.com/netbox-community/netbox/issues/22346) - Render SSO/SAML authentication failures as a login page message instead of an HTTP 500 error
 * [#22357](https://github.com/netbox-community/netbox/issues/22357) - Remove the unused `local_context_data` field from `dcim.Module` (which no longer inherits from `ConfigContextModel`)
 * [#22376](https://github.com/netbox-community/netbox/issues/22376) - Fix `AssertionError` in event rule script jobs when a device type has an image attached
-* [#22388](https://github.com/netbox-community/netbox/issues/22388) - Pin redis-py to <8.0 to avoid a startup failure on older Redis releases
+* [#22388](https://github.com/netbox-community/netbox/issues/22388) - Pin redis-py to 7.x to avoid a startup failure on older Redis releases
 * [#22397](https://github.com/netbox-community/netbox/issues/22397) - Fix `AttributeError` exception when an unauthenticated user attempts to export devices
 * [#22399](https://github.com/netbox-community/netbox/issues/22399) - Enforce object permissions on the related object when serving static media
 * [#22427](https://github.com/netbox-community/netbox/issues/22427) - Validate `JSONFilter.path` to prevent ORM operator injection over JSONField contents in the GraphQL API
