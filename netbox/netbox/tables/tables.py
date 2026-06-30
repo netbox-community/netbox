@@ -287,6 +287,38 @@ class NetBoxTable(BaseTable):
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
+    def configure(self, request):
+        # Remove custom link columns referencing CustomLinks the user cannot view (#22439).
+        # These columns are added for all enabled CustomLinks in __init__(), before the request
+        # (and thus the user) is known, so object-level permissions are enforced here instead.
+        self._restrict_customlink_columns(request.user)
+
+        super().configure(request)
+
+    def _restrict_customlink_columns(self, user):
+        """
+        Exclude any custom link columns which reference a CustomLink the user does not have
+        permission to view.
+        """
+        customlinks = {
+            name: column.column.customlink
+            for name, column in self.columns.iteritems()
+            if isinstance(column.column, columns.CustomLinkColumn)
+        }
+        if not customlinks:
+            return
+
+        permitted = set(
+            CustomLink.objects.restrict(user, 'view').filter(
+                pk__in=[cl.pk for cl in customlinks.values()]
+            ).values_list('pk', flat=True)
+        )
+        excluded = tuple(
+            name for name, customlink in customlinks.items() if customlink.pk not in permitted
+        )
+        if excluded:
+            self.exclude = (*self.exclude, *excluded)
+
     @cached_property
     def htmx_url(self):
         """

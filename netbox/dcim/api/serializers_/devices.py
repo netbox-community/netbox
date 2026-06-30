@@ -61,25 +61,25 @@ class DeviceSerializer(PrimaryModelSerializer):
         nested=True,
         read_only=True,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     primary_ip4 = IPAddressSerializer(
         nested=True,
         required=False,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     primary_ip6 = IPAddressSerializer(
         nested=True,
         required=False,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     oob_ip = IPAddressSerializer(
         nested=True,
         required=False,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     parent_device = serializers.SerializerMethodField()
     cluster = ClusterSerializer(nested=True, required=False, allow_null=True)
@@ -133,9 +133,24 @@ class VirtualDeviceContextSerializer(PrimaryModelSerializer):
     device = DeviceSerializer(nested=True)
     identifier = serializers.IntegerField(allow_null=True, max_value=32767, min_value=0, required=False, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
-    primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
-    primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
-    primary_ip6 = IPAddressSerializer(nested=True, required=False, allow_null=True)
+    primary_ip = IPAddressSerializer(
+        nested=True,
+        read_only=True,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
+    )
+    primary_ip4 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
+    )
+    primary_ip6 = IPAddressSerializer(
+        nested=True,
+        required=False,
+        allow_null=True,
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
+    )
     status = ChoiceField(choices=VirtualDeviceContextStatusChoices)
 
     # Related object counts

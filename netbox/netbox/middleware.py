@@ -105,8 +105,8 @@ class CoreMiddleware:
         if settings.DEBUG:
             return None
 
-        # Cleanly handle exceptions that occur from REST API requests
-        if is_api_request(request):
+        # Cleanly handle exceptions that occur from REST or GraphQL API requests
+        if is_api_request(request) or is_graphql_request(request):
             # Fire Django's got_request_exception signal so error-tracking
             # integrations (e.g. Sentry) capture the exception.
             got_request_exception.send(sender=self.__class__, request=request)
@@ -283,7 +283,7 @@ class MaintenanceModeMiddleware:
             error_message = 'NetBox is currently operating in maintenance mode and is unable to perform write ' \
                             'operations. Please try again later.'
 
-            if is_api_request(request):
+            if is_api_request(request) or is_graphql_request(request):
                 return handle_rest_api_exception(request, error=error_message)
 
             messages.error(request, error_message)

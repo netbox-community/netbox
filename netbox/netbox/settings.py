@@ -255,13 +255,13 @@ if not LOGIN_REQUIRED:
     warnings.warn(
         "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. Unauthenticated access to the application "
         "will no longer be supported. Please plan to require authentication for all users before upgrading.",
-        DeprecationWarning,
+        FutureWarning,
     )
 elif hasattr(configuration, 'LOGIN_REQUIRED'):
     warnings.warn(
         "LOGIN_REQUIRED is deprecated and will be removed in NetBox v5.0. This parameter can be removed from your "
         "configuration file.",
-        DeprecationWarning,
+        FutureWarning,
     )
 if hasattr(configuration, 'JINJA2_FILTERS'):
     warnings.warn(
@@ -298,13 +298,13 @@ if STORAGE_BACKEND is not None:
     else:
         warnings.warn(
             "STORAGE_BACKEND is deprecated, use the new STORAGES setting instead.",
-            DeprecationWarning,
+            FutureWarning,
         )
 
 if STORAGE_CONFIG is not None:
     warnings.warn(
         "STORAGE_CONFIG is deprecated, use the new STORAGES setting instead.",
-        DeprecationWarning,
+        FutureWarning,
     )
 
 # Default STORAGES for Django

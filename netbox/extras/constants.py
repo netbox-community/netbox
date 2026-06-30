@@ -6,6 +6,14 @@ from extras.choices import LogLevelChoices
 # Custom fields
 CUSTOMFIELD_EMPTY_VALUES = (None, '', [])
 
+# Maximum number of objects to update per query when provisioning, removing, or renaming custom
+# field data. Bounding the number of rows touched by each statement prevents very large tables from
+# exceeding the database statement timeout (JSONB updates rewrite each affected row). This value
+# sits at the throughput "knee": benchmarking jsonb_set() across a 1M-row table showed throughput
+# plateaus by ~5K rows/statement (raising it further yields no meaningful speedup), while keeping
+# each statement orders of magnitude below a typical statement timeout.
+CUSTOMFIELD_DATA_BATCH_SIZE = 5000
+
 # ImageAttachment
 IMAGE_ATTACHMENT_IMAGE_FORMATS = {
     'avif': 'image/avif',

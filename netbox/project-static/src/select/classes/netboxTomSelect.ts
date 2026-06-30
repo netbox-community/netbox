@@ -18,6 +18,18 @@ import TomSelect from 'tom-select';
  * NetBox issue:  https://github.com/netbox-community/netbox/issues/20077
  */
 export class NetBoxTomSelect extends TomSelect {
+  setup(): void {
+    super.setup();
+
+    // After TomSelect takes over, the original <select> is visually hidden via the
+    // `ts-hidden-accessible` class and made unfocusable (tabindex=-1), but it remains in the
+    // accessibility tree. Screen readers (e.g. JAWS) then announce a stray listbox/combobox for
+    // every enhanced field. The TomSelect-rendered control already exposes an accessible
+    // combobox, so hide the redundant native element from assistive technology.
+    // See https://github.com/netbox-community/netbox/issues/22530
+    this.input.setAttribute('aria-hidden', 'true');
+  }
+
   focus(): void {
     if (this.isDisabled || this.isReadOnly) return;
 

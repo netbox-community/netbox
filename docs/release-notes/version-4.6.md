@@ -1,5 +1,43 @@
 # NetBox v4.6
 
+## v4.6.4 (2026-06-30)
+
+### Enhancements
+
+* [#21710](https://github.com/netbox-community/netbox/issues/21710) - Render JSON schema `enum` options as a dropdown selection in module and device profile attribute forms
+* [#22174](https://github.com/netbox-community/netbox/issues/22174) - Include the `dns_name` of primary & out-of-band IP addresses in event payloads
+* [#22279](https://github.com/netbox-community/netbox/issues/22279) - Add a 1C8P:8C1P breakout cable profile
+* [#22548](https://github.com/netbox-community/netbox/issues/22548) - Improve the styling of action buttons in the navigation sidebar
+
+### Performance Improvements
+
+* [#22169](https://github.com/netbox-community/netbox/issues/22169) - Improve performance of the image attachments view when using S3 storage
+* [#22442](https://github.com/netbox-community/netbox/issues/22442) - Avoid repeated serializer instantiation in `GFKSerializerField`
+* [#22526](https://github.com/netbox-community/netbox/issues/22526) - Chunk bulk updates to custom field data to better handle a large number of records
+
+### Bug Fixes
+
+* [#21310](https://github.com/netbox-community/netbox/issues/21310) - Fix LDAP group lookup failure when a returned row contains a null value
+* [#22439](https://github.com/netbox-community/netbox/issues/22439) - Enforce object-level permissions on custom links rendered via the `custom_links` template tag
+* [#22440](https://github.com/netbox-community/netbox/issues/22440) - Remove errant `changelog` relation from GraphQL schema
+* [#22480](https://github.com/netbox-community/netbox/issues/22480) - Restore inline browser display of device front/rear images instead of forcing a download
+* [#22489](https://github.com/netbox-community/netbox/issues/22489) - Update the cached virtual chassis name on member devices in the search index when a virtual chassis is renamed
+* [#22501](https://github.com/netbox-community/netbox/issues/22501) - Return JSON rather than an HTML error page for GraphQL API exceptions
+* [#22507](https://github.com/netbox-community/netbox/issues/22507) - Also check `is_active` in the superuser bypass for `restrict()` and `IsSuperuser`
+* [#22543](https://github.com/netbox-community/netbox/issues/22543) - Prevent deletion of an existing custom script's file when re-uploading a same-named script via the REST API
+* [#22561](https://github.com/netbox-community/netbox/issues/22561) - Fix `AttributeError` when importing IP addresses with `is_primary`/`is_oob` set but no device assigned
+
+### Accessibility
+
+* [#22527](https://github.com/netbox-community/netbox/issues/22527) - Announce quick search results to screen readers
+* [#22528](https://github.com/netbox-community/netbox/issues/22528) - Make the Results/Filters tabs keyboard-operable
+* [#22529](https://github.com/netbox-community/netbox/issues/22529) - Allow the left sidebar accordion to be toggled with the spacebar
+* [#22530](https://github.com/netbox-community/netbox/issues/22530) - Remove hidden `<select>` inputs from the accessibility tree
+* [#22531](https://github.com/netbox-community/netbox/issues/22531) - Associate a label with the "Saved Filter" combobox for screen readers
+* [#22532](https://github.com/netbox-community/netbox/issues/22532) - Provide an accessible name for the empty checkbox column header cell in object tables
+
+---
+
 ## v4.6.3 (2026-06-16)
 
 ### Enhancements

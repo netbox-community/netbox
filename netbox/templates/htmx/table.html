@@ -22,6 +22,17 @@
     <div hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
   {% endif %}
 
+  {# Announce the updated result count to assistive technology #}
+  {% if not table.embedded %}
+    <div hx-swap-oob="innerHTML:#object-list-status">
+      {% blocktrans trimmed count count=table.page.paginator.count %}
+        {{ count }} result found
+      {% plural %}
+        {{ count }} results found
+      {% endblocktrans %}
+    </div>
+  {% endif %}
+
   {# Include the updated "save" link for the table configuration #}
   {% if table.config_params and not table.embedded %}
     <a class="dropdown-item" hx-swap-oob="outerHTML:#table_save_link" href="{% url 'extras:tableconfig_add' %}?{{ table.config_params }}&return_url={{ request.path }}" id="table_save_link">{% trans "Save" %}</a>

@@ -60,19 +60,19 @@ class VirtualMachineSerializer(PrimaryModelSerializer):
         nested=True,
         read_only=True,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     primary_ip4 = IPAddressSerializer(
         nested=True,
         required=False,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     primary_ip6 = IPAddressSerializer(
         nested=True,
         required=False,
         allow_null=True,
-        fields=[*IPAddressSerializer.Meta.brief_fields, 'nat_inside', 'nat_outside'],
+        fields=[*IPAddressSerializer.Meta.brief_fields, 'dns_name', 'nat_inside', 'nat_outside'],
     )
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
     config_context = serializers.SerializerMethodField(read_only=True)

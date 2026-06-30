@@ -249,6 +249,9 @@ class ActionsColumn(tables.Column):
         direct button link and icon (default: True)
     """
     attrs = {
+        'th': {
+            'aria-label': _('Actions'),
+        },
         'td': {
             'class': 'text-end text-nowrap noprint p-1'
         }

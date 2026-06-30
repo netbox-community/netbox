@@ -1,3 +1,5 @@
+from collections.abc import Iterable, Mapping
+
 import jsonschema
 import yaml
 from django.core.exceptions import ValidationError
@@ -169,7 +171,10 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         attrs = {}
         for name, options in self.profile.schema.get('properties', {}).items():
             key = options.get('title', title(name))
-            attrs[key] = self.attribute_data.get(name)
+            value = self.attribute_data.get(name)
+            if isinstance(value, Iterable) and not isinstance(value, (str, bytes, Mapping)):
+                value = ', '.join(str(v) for v in value)
+            attrs[key] = value
         return dict(sorted(attrs.items()))
 
     def clean(self):

@@ -179,7 +179,7 @@ Together, these values identify a unique object in NetBox. The assigned object (
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://netbox/api/ipam/ip-addresses/ \
@@ -502,7 +502,7 @@ To create a new object, make a `POST` request to the model's _list_ endpoint wit
 
 ```no-highlight
 curl -s -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/ipam/prefixes/ \
 --data '{"prefix": "192.0.2.0/24", "scope_type": "dcim.site", "scope_id": 6}' | jq '.'
@@ -555,7 +555,7 @@ http://netbox/api/ipam/prefixes/ \
 To create multiple instances of a model using a single request, make a `POST` request to the model's _list_ endpoint with a list of JSON objects representing each instance to be created. If successful, the response will contain a list of the newly created instances. The example below illustrates the creation of three new sites.
 
 ```no-highlight
-curl -X POST -H "Authorization: Token $TOKEN" \
+curl -X POST -H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json; indent=4" \
 http://netbox/api/dcim/sites/ \
@@ -595,7 +595,7 @@ To modify an object which has already been created, make a `PATCH` request to th
 
 ```no-highlight
 curl -s -X PATCH \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/ipam/prefixes/18691/ \
 --data '{"status": "reserved"}' | jq '.'
@@ -652,7 +652,7 @@ Multiple objects can be updated simultaneously by issuing a `PUT` or `PATCH` req
 
 ```no-highlight
 curl -s -X PATCH \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/dcim/sites/ \
 --data '[{"id": 10, "status": "active"}, {"id": 11, "status": "active"}]'
@@ -714,7 +714,7 @@ To delete an object from NetBox, make a `DELETE` request to the model's _detail_
 
 ```no-highlight
 curl -s -X DELETE \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 http://netbox/api/ipam/prefixes/18691/
 ```
 
@@ -729,7 +729,7 @@ NetBox supports the simultaneous deletion of multiple objects of the same type b
 
 ```no-highlight
 curl -s -X DELETE \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/dcim/sites/ \
 --data '[{"id": 10}, {"id": 11}, {"id": 12}]'
@@ -793,7 +793,7 @@ For example, the following API request will create a new site and record a messa
 
 ```no-highlight
 curl -s -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Content-Type: application/json" \
 http://netbox/api/dcim/sites/ \
 --data '{
@@ -813,7 +813,7 @@ For example, we can upload an image attachment using the `curl` command shown be
 
 ```no-highlight
 curl -X POST \
--H "Authorization: Token $TOKEN" \
+-H "Authorization: Bearer $TOKEN" \
 -H "Accept: application/json; indent=4" \
 -F "object_type=dcim.site" \
 -F "object_id=2" \
