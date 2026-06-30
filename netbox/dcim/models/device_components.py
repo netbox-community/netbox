@@ -690,23 +690,21 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Cooling components
 #
 
-class CoolingPort(
-    DiameterMixin, MaximumFlowMixin, ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin
-):
+class CoolingPort(DiameterMixin, MaximumFlowMixin, ModularComponentModel, TrackingModelMixin):
     """
-    A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake).
-    CoolingPorts connect to CoolingOutlets.
+    A coolant intake/outlet port within a Device (e.g. a server cold-plate inlet or CDU intake). A
+    CoolingPort is supplied by an upstream CoolingOutlet or CoolingFeed.
     """
-    type = models.CharField(
-        verbose_name=_('type'),
+    flow_direction = models.CharField(
+        verbose_name=_('flow direction'),
         max_length=50,
-        choices=CoolingFeedTypeChoices,
+        choices=CoolingFlowDirectionChoices,
         blank=True,
         null=True,
-        help_text=_('Supply (cold) or return (warm)')
+        help_text=_('Direction of coolant flow (supply or return)')
     )
-    connector_type = models.CharField(
-        verbose_name=_('connector type'),
+    type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CoolingConnectorTypeChoices,
         blank=True,
@@ -724,9 +722,25 @@ class CoolingPort(
         validators=[MinValueValidator(0)],
         help_text=_('Heat removal capacity (kW)')
     )
+    cooling_outlet = models.ForeignKey(
+        to='dcim.CoolingOutlet',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='cooling_ports',
+        help_text=_('The upstream cooling outlet supplying this port')
+    )
+    cooling_feed = models.ForeignKey(
+        to='dcim.CoolingFeed',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='cooling_ports',
+        help_text=_('The upstream cooling feed supplying this port')
+    )
 
     clone_fields = (
-        'device', 'module', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
+        'device', 'module', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
         'maximum_flow_unit', 'heat_capacity',
     )
 
@@ -734,24 +748,34 @@ class CoolingPort(
         verbose_name = _('cooling port')
         verbose_name_plural = _('cooling ports')
 
-    def get_type_color(self):
-        return CoolingFeedTypeChoices.colors.get(self.type)
+    def clean(self):
+        super().clean()
+
+        # A port may be supplied by either a cooling outlet or a cooling feed, but not both
+        if self.cooling_outlet and self.cooling_feed:
+            raise ValidationError(
+                _("A cooling port cannot be supplied by both a cooling outlet and a cooling feed.")
+            )
+
+    def get_flow_direction_color(self):
+        return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
 
 
-class CoolingOutlet(DiameterMixin, ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
+class CoolingOutlet(DiameterMixin, ModularComponentModel, TrackingModelMixin):
     """
-    A coolant outlet within a Device (e.g. a CDU or manifold outlet) which feeds a CoolingPort.
+    A coolant outlet within a Device (e.g. a CDU or manifold outlet) which supplies one or more
+    CoolingPorts (referenced via CoolingPort.cooling_outlet).
     """
-    type = models.CharField(
-        verbose_name=_('type'),
+    flow_direction = models.CharField(
+        verbose_name=_('flow direction'),
         max_length=50,
-        choices=CoolingFeedTypeChoices,
+        choices=CoolingFlowDirectionChoices,
         blank=True,
         null=True,
-        help_text=_('Supply (cold) or return (warm)')
+        help_text=_('Direction of coolant flow (supply or return)')
     )
-    connector_type = models.CharField(
-        verbose_name=_('connector type'),
+    type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CoolingConnectorTypeChoices,
         blank=True,
@@ -771,7 +795,7 @@ class CoolingOutlet(DiameterMixin, ModularComponentModel, CabledObjectModel, Pat
         blank=True
     )
 
-    clone_fields = ('device', 'module', 'type', 'connector_type', 'diameter', 'diameter_unit', 'cooling_port')
+    clone_fields = ('device', 'module', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'cooling_port')
 
     class Meta(ModularComponentModel.Meta):
         verbose_name = _('cooling outlet')
@@ -787,8 +811,8 @@ class CoolingOutlet(DiameterMixin, ModularComponentModel, CabledObjectModel, Pat
                     cooling_port=self.cooling_port)
             )
 
-    def get_type_color(self):
-        return CoolingFeedTypeChoices.colors.get(self.type)
+    def get_flow_direction_color(self):
+        return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
 
 
 #

@@ -87,7 +87,7 @@ class CoolingPortTemplateImportForm(forms.ModelForm):
     class Meta:
         model = CoolingPortTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
+            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow',
             'maximum_flow_unit', 'heat_capacity', 'description',
         ]
 
@@ -103,7 +103,7 @@ class CoolingOutletTemplateImportForm(forms.ModelForm):
     class Meta:
         model = CoolingOutletTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'connector_type', 'diameter', 'color',
+            'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type', 'diameter', 'color',
             'cooling_port', 'description',
         ]
 

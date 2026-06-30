@@ -87,26 +87,26 @@ class CoolingPortBulkCreateForm(
     form_from_model(
         CoolingPort,
         [
-            'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-            'heat_capacity', 'mark_connected'
+            'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+            'heat_capacity'
         ]
     ),
     DeviceBulkAddComponentForm
 ):
     model = CoolingPort
     field_order = (
-        'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
-        'heat_capacity', 'mark_connected', 'description', 'tags',
+        'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit',
+        'heat_capacity', 'description', 'tags',
     )
 
 
 class CoolingOutletBulkCreateForm(
-    form_from_model(CoolingOutlet, ['type', 'connector_type', 'diameter', 'diameter_unit', 'color', 'mark_connected']),
+    form_from_model(CoolingOutlet, ['flow_direction', 'type', 'diameter', 'diameter_unit', 'color']),
     DeviceBulkAddComponentForm
 ):
     model = CoolingOutlet
     field_order = (
-        'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'color', 'mark_connected',
+        'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'color',
         'description', 'tags',
     )
 

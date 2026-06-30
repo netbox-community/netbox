@@ -3143,8 +3143,8 @@ class CoolingComponentTestCase(TestCase):
         cooling_port_template = CoolingPortTemplate.objects.create(
             device_type=device_type,
             name='Cooling Port 1',
-            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
             maximum_flow=100,
@@ -3154,8 +3154,8 @@ class CoolingComponentTestCase(TestCase):
         CoolingOutletTemplate.objects.create(
             device_type=device_type,
             name='Cooling Outlet 1',
-            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
         )
@@ -3170,8 +3170,8 @@ class CoolingComponentTestCase(TestCase):
         cooling_port = CoolingPort.objects.get(
             device=device,
             name='Cooling Port 1',
-            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
             maximum_flow=100,
@@ -3183,8 +3183,8 @@ class CoolingComponentTestCase(TestCase):
         CoolingOutlet.objects.get(
             device=device,
             name='Cooling Outlet 1',
-            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-            connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            type=CoolingConnectorTypeChoices.TYPE_UQD,
             diameter=Decimal('25'),
             diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER
         )
@@ -3266,7 +3266,53 @@ class CoolingComponentTestCase(TestCase):
             rack=rack,
             name='Cooling Feed 1',
             status=CoolingFeedStatusChoices.STATUS_ACTIVE,
-            type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
         )
         with self.assertRaises(ValidationError):
             cooling_feed.full_clean()
+
+    def test_cooling_port_supply_mutually_exclusive(self):
+        """
+        CoolingPort.clean() should raise a ValidationError when both cooling_outlet and cooling_feed
+        are set, but permit either one alone.
+        """
+        device_type = DeviceType.objects.create(
+            manufacturer=self.manufacturer,
+            model='Device Type 5',
+            slug='device-type-5'
+        )
+        device = Device.objects.create(
+            site=self.site, device_type=device_type, role=self.role, name='Device C'
+        )
+        cooling_outlet = CoolingOutlet.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_source = CoolingSource.objects.create(
+            site=self.site,
+            name='Cooling Source 4',
+            type=CoolingSourceTypeChoices.TYPE_CHILLER,
+            status=CoolingSourceStatusChoices.STATUS_ACTIVE,
+        )
+        cooling_feed = CoolingFeed.objects.create(
+            cooling_source=cooling_source,
+            name='Cooling Feed 1',
+            status=CoolingFeedStatusChoices.STATUS_ACTIVE,
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+        )
+
+        # Setting both a cooling outlet and a cooling feed should raise a ValidationError
+        cooling_port = CoolingPort(
+            device=device,
+            name='Cooling Port 1',
+            cooling_outlet=cooling_outlet,
+            cooling_feed=cooling_feed,
+        )
+        with self.assertRaises(ValidationError):
+            cooling_port.full_clean()
+
+        # Setting just the cooling outlet should be valid
+        cooling_port.cooling_feed = None
+        cooling_port.full_clean()
+
+        # Setting just the cooling feed should be valid
+        cooling_port.cooling_outlet = None
+        cooling_port.cooling_feed = cooling_feed
+        cooling_port.full_clean()

@@ -2124,8 +2124,8 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
             CoolingPortTemplate(
                 device_type=device_types[0],
                 name='Cooling Port 1',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=100,
@@ -2136,8 +2136,8 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
             CoolingPortTemplate(
                 device_type=device_types[1],
                 name='Cooling Port 2',
-                type=CoolingFeedTypeChoices.TYPE_RETURN,
-                connector_type=CoolingConnectorTypeChoices.TYPE_QDC,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
+                type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=200,
@@ -2148,8 +2148,8 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
             CoolingPortTemplate(
                 device_type=device_types[2],
                 name='Cooling Port 3',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQDB,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=300,
@@ -2163,12 +2163,12 @@ class CoolingPortTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTest
         params = {'name': ['Cooling Port 1', 'Cooling Port 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': CoolingFeedTypeChoices.TYPE_SUPPLY}
+    def test_flow_direction(self):
+        params = {'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connector_type(self):
-        params = {'connector_type': CoolingConnectorTypeChoices.TYPE_UQD}
+    def test_type(self):
+        params = {'type': CoolingConnectorTypeChoices.TYPE_UQD}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_diameter(self):
@@ -2210,8 +2210,8 @@ class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
             CoolingOutletTemplate(
                 device_type=device_types[0],
                 name='Cooling Outlet 1',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 color=ColorChoices.COLOR_RED,
@@ -2220,8 +2220,8 @@ class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
             CoolingOutletTemplate(
                 device_type=device_types[1],
                 name='Cooling Outlet 2',
-                type=CoolingFeedTypeChoices.TYPE_RETURN,
-                connector_type=CoolingConnectorTypeChoices.TYPE_QDC,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
+                type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 color=ColorChoices.COLOR_GREEN,
@@ -2230,8 +2230,8 @@ class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
             CoolingOutletTemplate(
                 device_type=device_types[2],
                 name='Cooling Outlet 3',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQDB,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 color=ColorChoices.COLOR_BLUE,
@@ -2243,12 +2243,12 @@ class CoolingOutletTemplateTestCase(TestCase, DeviceComponentTemplateFilterSetTe
         params = {'name': ['Cooling Outlet 1', 'Cooling Outlet 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': CoolingFeedTypeChoices.TYPE_SUPPLY}
+    def test_flow_direction(self):
+        params = {'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connector_type(self):
-        params = {'connector_type': CoolingConnectorTypeChoices.TYPE_UQD}
+    def test_type(self):
+        params = {'type': CoolingConnectorTypeChoices.TYPE_UQD}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_diameter(self):
@@ -4746,7 +4746,6 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = CoolingPort.objects.all()
     filterset = CoolingPortFilterSet
-    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -4871,11 +4870,15 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         )
         Module.objects.bulk_create(modules)
 
-        cooling_outlets = (
-            CoolingOutlet(device=devices[3], name='Cooling Outlet 1'),
-            CoolingOutlet(device=devices[3], name='Cooling Outlet 2'),
+        cooling_outlet = CoolingOutlet.objects.create(device=devices[3], name='Cooling Outlet 1')
+
+        cooling_source = CoolingSource.objects.create(
+            site=sites[0], name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
         )
-        CoolingOutlet.objects.bulk_create(cooling_outlets)
+        cooling_feed = CoolingFeed.objects.create(
+            cooling_source=cooling_source, name='Cooling Feed 1',
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY
+        )
 
         cooling_ports = (
             CoolingPort(
@@ -4883,14 +4886,15 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 module=modules[0],
                 name='Cooling Port 1',
                 label='A',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=100,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_LITERS_PER_MINUTE,
                 heat_capacity=50,
                 description='First',
+                cooling_outlet=cooling_outlet,
                 _site=devices[0].site,
                 _location=devices[0].location,
                 _rack=devices[0].rack,
@@ -4900,14 +4904,15 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 module=modules[1],
                 name='Cooling Port 2',
                 label='B',
-                type=CoolingFeedTypeChoices.TYPE_RETURN,
-                connector_type=CoolingConnectorTypeChoices.TYPE_QDC,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
+                type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=200,
                 maximum_flow_unit=FlowRateUnitChoices.UNIT_CUBIC_METERS_PER_HOUR,
                 heat_capacity=100,
                 description='Second',
+                cooling_feed=cooling_feed,
                 _site=devices[1].site,
                 _location=devices[1].location,
                 _rack=devices[1].rack,
@@ -4917,8 +4922,8 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
                 module=modules[2],
                 name='Cooling Port 3',
                 label='C',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQDB,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 maximum_flow=300,
@@ -4932,11 +4937,6 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         )
         CoolingPort.objects.bulk_create(cooling_ports)
 
-        # Cables
-        Cable(a_terminations=[cooling_ports[0]], b_terminations=[cooling_outlets[0]]).save()
-        Cable(a_terminations=[cooling_ports[1]], b_terminations=[cooling_outlets[1]]).save()
-        # Third port is not connected
-
     def test_name(self):
         params = {'name': ['Cooling Port 1', 'Cooling Port 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -4949,13 +4949,23 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         params = {'description': ['First', 'Second']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [CoolingFeedTypeChoices.TYPE_SUPPLY]}
+    def test_flow_direction(self):
+        params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connector_type(self):
-        params = {'connector_type': [CoolingConnectorTypeChoices.TYPE_UQD, CoolingConnectorTypeChoices.TYPE_QDC]}
+    def test_type(self):
+        params = {'type': [CoolingConnectorTypeChoices.TYPE_UQD, CoolingConnectorTypeChoices.TYPE_QDC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cooling_outlet(self):
+        cooling_outlet = CoolingOutlet.objects.first()
+        params = {'cooling_outlet_id': [cooling_outlet.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_cooling_feed(self):
+        cooling_feed = CoolingFeed.objects.first()
+        params = {'cooling_feed_id': [cooling_feed.pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_diameter(self):
         params = {'diameter': [Decimal('25'), Decimal('32')]}
@@ -5022,29 +5032,10 @@ class CoolingPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_cabled(self):
-        params = {'cabled': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_occupied(self):
-        params = {'occupied': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'occupied': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
 
 class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = CoolingOutlet.objects.all()
     filterset = CoolingOutletFilterSet
-    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -5170,8 +5161,8 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         Module.objects.bulk_create(modules)
 
         cooling_ports = (
-            CoolingPort(device=devices[3], name='Cooling Outlet 1'),
-            CoolingPort(device=devices[3], name='Cooling Outlet 2'),
+            CoolingPort(device=devices[0], name='Cooling Port 1'),
+            CoolingPort(device=devices[1], name='Cooling Port 2'),
         )
         CoolingPort.objects.bulk_create(cooling_ports)
 
@@ -5181,12 +5172,13 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 module=modules[0],
                 name='Cooling Outlet 1',
                 label='A',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQD,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQD,
                 diameter=Decimal('25'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 description='First',
                 color='ff0000',
+                cooling_port=cooling_ports[0],
                 _site=devices[0].site,
                 _location=devices[0].location,
                 _rack=devices[0].rack,
@@ -5196,12 +5188,13 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 module=modules[1],
                 name='Cooling Outlet 2',
                 label='B',
-                type=CoolingFeedTypeChoices.TYPE_RETURN,
-                connector_type=CoolingConnectorTypeChoices.TYPE_QDC,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
+                type=CoolingConnectorTypeChoices.TYPE_QDC,
                 diameter=Decimal('32'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 description='Second',
                 color='00ff00',
+                cooling_port=cooling_ports[1],
                 _site=devices[1].site,
                 _location=devices[1].location,
                 _rack=devices[1].rack,
@@ -5211,8 +5204,8 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
                 module=modules[2],
                 name='Cooling Outlet 3',
                 label='C',
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
-                connector_type=CoolingConnectorTypeChoices.TYPE_UQDB,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                type=CoolingConnectorTypeChoices.TYPE_UQDB,
                 diameter=Decimal('40'),
                 diameter_unit=DiameterUnitChoices.UNIT_MILLIMETER,
                 description='Third',
@@ -5223,11 +5216,6 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
             ),
         )
         CoolingOutlet.objects.bulk_create(cooling_outlets)
-
-        # Cables
-        Cable(a_terminations=[cooling_outlets[0]], b_terminations=[cooling_ports[0]]).save()
-        Cable(a_terminations=[cooling_outlets[1]], b_terminations=[cooling_ports[1]]).save()
-        # Third port is not connected
 
     def test_name(self):
         params = {'name': ['Cooling Outlet 1', 'Cooling Outlet 2']}
@@ -5245,16 +5233,21 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         params = {'color': ['ff0000', '00ff00']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [CoolingFeedTypeChoices.TYPE_SUPPLY]}
+    def test_flow_direction(self):
+        params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_connector_type(self):
-        params = {'connector_type': [CoolingConnectorTypeChoices.TYPE_UQD, CoolingConnectorTypeChoices.TYPE_QDC]}
+    def test_type(self):
+        params = {'type': [CoolingConnectorTypeChoices.TYPE_UQD, CoolingConnectorTypeChoices.TYPE_QDC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_diameter(self):
         params = {'diameter': [Decimal('25'), Decimal('32')]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_cooling_port(self):
+        cooling_ports = CoolingPort.objects.all()[:2]
+        params = {'cooling_port_id': [cooling_ports[0].pk, cooling_ports[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -5303,24 +5296,6 @@ class CoolingOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLogge
         modules = Module.objects.all()[:2]
         params = {'module_id': [modules[0].pk, modules[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_cabled(self):
-        params = {'cabled': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_occupied(self):
-        params = {'occupied': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'occupied': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
@@ -7900,9 +7875,6 @@ class CableTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         'frontport': 'frontport_id',
         'rearport': 'rearport_id',
         'powerfeed': 'powerfeed_id',
-        'coolingport': 'coolingport_id',
-        'coolingoutlet': 'coolingoutlet_id',
-        'coolingfeed': 'coolingfeed_id',
         'circuittermination': 'circuittermination_id',
     }
 
@@ -8253,18 +8225,6 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_cabled(self):
-        params = {'cabled': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
@@ -8428,7 +8388,6 @@ class CoolingSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
 class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CoolingFeed.objects.all()
     filterset = CoolingFeedFilterSet
-    ignore_fields = ('cable_positions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -8492,7 +8451,7 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Cooling Feed 1',
                 tenant=tenants[0],
                 status=CoolingFeedStatusChoices.STATUS_ACTIVE,
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=100,
                 flow_rate=10,
@@ -8510,7 +8469,7 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Cooling Feed 2',
                 tenant=tenants[1],
                 status=CoolingFeedStatusChoices.STATUS_FAILED,
-                type=CoolingFeedTypeChoices.TYPE_SUPPLY,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY,
                 fluid_type=FluidTypeChoices.FLUID_WATER,
                 cooling_capacity=200,
                 flow_rate=20,
@@ -8528,7 +8487,7 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='Cooling Feed 3',
                 tenant=tenants[2],
                 status=CoolingFeedStatusChoices.STATUS_OFFLINE,
-                type=CoolingFeedTypeChoices.TYPE_RETURN,
+                flow_direction=CoolingFlowDirectionChoices.TYPE_RETURN,
                 fluid_type=FluidTypeChoices.FLUID_DIELECTRIC,
                 cooling_capacity=300,
                 flow_rate=30,
@@ -8545,18 +8504,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         for cooling_feed in cooling_feeds:
             cooling_feed.save()
 
-        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
-        device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model', slug='model')
-        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        device = Device.objects.create(name='Device', device_type=device_type, role=role, site=sites[0])
-        cooling_ports = [
-            CoolingPort(device=device, name='Cooling Port 1'),
-            CoolingPort(device=device, name='Cooling Port 2'),
-        ]
-        CoolingPort.objects.bulk_create(cooling_ports)
-        Cable(a_terminations=[cooling_feeds[0]], b_terminations=[cooling_ports[0]]).save()
-        Cable(a_terminations=[cooling_feeds[1]], b_terminations=[cooling_ports[1]]).save()
-
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -8569,8 +8516,8 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'status': [CoolingFeedStatusChoices.STATUS_ACTIVE, CoolingFeedStatusChoices.STATUS_FAILED]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_type(self):
-        params = {'type': [CoolingFeedTypeChoices.TYPE_SUPPLY]}
+    def test_flow_direction(self):
+        params = {'flow_direction': [CoolingFlowDirectionChoices.TYPE_SUPPLY]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_fluid_type(self):
@@ -8643,18 +8590,6 @@ class CoolingFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         racks = Rack.objects.all()[:2]
         params = {'rack_id': [racks[0].pk, racks[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_cabled(self):
-        params = {'cabled': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'cabled': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_connected(self):
-        params = {'connected': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]

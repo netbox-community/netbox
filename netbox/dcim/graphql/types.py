@@ -818,7 +818,7 @@ class PowerPortTemplateType(ModularComponentTemplateType):
     filters=CoolingFeedFilter,
     pagination=True
 )
-class CoolingFeedType(CabledObjectMixin, PathEndpointMixin, PrimaryObjectType):
+class CoolingFeedType(PrimaryObjectType):
     cooling_source: Annotated["CoolingSourceType", strawberry.lazy('dcim.graphql.types')]
     rack: Annotated["RackType", strawberry.lazy('dcim.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
@@ -830,7 +830,7 @@ class CoolingFeedType(CabledObjectMixin, PathEndpointMixin, PrimaryObjectType):
     filters=CoolingOutletFilter,
     pagination=True
 )
-class CoolingOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
+class CoolingOutletType(ModularComponentType):
     cooling_port: Annotated["CoolingPortType", strawberry.lazy('dcim.graphql.types')] | None
     color: str
 
@@ -852,7 +852,9 @@ class CoolingOutletTemplateType(ModularComponentTemplateType):
     filters=CoolingPortFilter,
     pagination=True
 )
-class CoolingPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
+class CoolingPortType(ModularComponentType):
+    cooling_outlet: Annotated["CoolingOutletType", strawberry.lazy('dcim.graphql.types')] | None
+    cooling_feed: Annotated["CoolingFeedType", strawberry.lazy('dcim.graphql.types')] | None
 
     coolingoutlets: list[Annotated["CoolingOutletType", strawberry.lazy('dcim.graphql.types')]]
 

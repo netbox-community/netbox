@@ -188,13 +188,13 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
         allow_null=True,
         default=None
     )
-    type = ChoiceField(
-        choices=CoolingFeedTypeChoices,
+    flow_direction = ChoiceField(
+        choices=CoolingFlowDirectionChoices,
         allow_blank=True,
         required=False,
         allow_null=True
     )
-    connector_type = ChoiceField(
+    type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
         allow_blank=True,
         required=False,
@@ -216,7 +216,7 @@ class CoolingPortTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = CoolingPortTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type',
             'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'description',
             'created', 'last_updated',
         ]
@@ -236,13 +236,13 @@ class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
         allow_null=True,
         default=None
     )
-    type = ChoiceField(
-        choices=CoolingFeedTypeChoices,
+    flow_direction = ChoiceField(
+        choices=CoolingFlowDirectionChoices,
         allow_blank=True,
         required=False,
         allow_null=True
     )
-    connector_type = ChoiceField(
+    type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
         allow_blank=True,
         required=False,
@@ -263,7 +263,7 @@ class CoolingOutletTemplateSerializer(ComponentTemplateSerializer):
     class Meta:
         model = CoolingOutletTemplate
         fields = [
-            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'connector_type',
+            'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'flow_direction', 'type',
             'diameter', 'diameter_unit', 'color', 'cooling_port', 'description', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')

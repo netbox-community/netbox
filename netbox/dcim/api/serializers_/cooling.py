@@ -5,8 +5,6 @@ from netbox.api.serializers import PrimaryModelSerializer
 from netbox.choices import FlowRateUnitChoices, PressureUnitChoices, TemperatureUnitChoices
 from tenancy.api.serializers_.tenants import TenantSerializer
 
-from .base import ConnectedEndpointsSerializer
-from .cables import CabledObjectSerializer
 from .racks import RackSerializer
 from .sites import LocationSerializer, SiteSerializer
 
@@ -51,7 +49,7 @@ class CoolingSourceSerializer(PrimaryModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'coolingfeed_count')
 
 
-class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
+class CoolingFeedSerializer(PrimaryModelSerializer):
     cooling_source = CoolingSourceSerializer(nested=True)
     rack = RackSerializer(
         nested=True,
@@ -59,9 +57,9 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
         allow_null=True,
         default=None
     )
-    type = ChoiceField(
-        choices=CoolingFeedTypeChoices,
-        default=lambda: CoolingFeedTypeChoices.TYPE_SUPPLY,
+    flow_direction = ChoiceField(
+        choices=CoolingFlowDirectionChoices,
+        default=lambda: CoolingFlowDirectionChoices.TYPE_SUPPLY,
     )
     status = ChoiceField(
         choices=CoolingFeedStatusChoices,
@@ -100,11 +98,9 @@ class CoolingFeedSerializer(PrimaryModelSerializer, CabledObjectSerializer, Conn
     class Meta:
         model = CoolingFeed
         fields = [
-            'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'type', 'fluid_type',
-            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
-            'return_temperature', 'temperature_unit', 'mark_connected',
-            'cable', 'cable_end', 'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
-            'connected_endpoints_reachable', 'description', 'tenant', 'owner', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', '_occupied',
+            'id', 'url', 'display_url', 'display', 'cooling_source', 'rack', 'name', 'status', 'flow_direction',
+            'fluid_type', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
+            'supply_temperature', 'return_temperature', 'temperature_unit', 'description', 'tenant', 'owner',
+            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')

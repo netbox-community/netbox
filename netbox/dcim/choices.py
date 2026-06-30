@@ -1911,9 +1911,6 @@ class CableTypeChoices(ChoiceSet):
     # USB
     TYPE_USB = 'usb'
 
-    # Cooling
-    TYPE_COOLING_HOSE = 'cooling-hose'
-
     CHOICES = (
         (
             _('Copper - Twisted Pair (UTP/STP)'),
@@ -1984,12 +1981,6 @@ class CableTypeChoices(ChoiceSet):
             _('USB'),
             (
                 Choice(TYPE_USB, 'USB'),
-            ),
-        ),
-        (
-            _('Cooling'),
-            (
-                (TYPE_COOLING_HOSE, 'Cooling Hose'),
             ),
         ),
     )
@@ -2194,7 +2185,7 @@ class CoolingFeedStatusChoices(ChoiceSet):
     ]
 
 
-class CoolingFeedTypeChoices(ChoiceSet):
+class CoolingFlowDirectionChoices(ChoiceSet):
 
     TYPE_SUPPLY = 'supply'
     TYPE_RETURN = 'return'

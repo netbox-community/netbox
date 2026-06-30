@@ -286,12 +286,14 @@ class CoolingPortPanel(panels.ObjectAttributesPanel):
     module = attrs.RelatedObjectAttr('module', linkify=True)
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
+    flow_direction = attrs.ChoiceAttr('flow_direction')
     type = attrs.ChoiceAttr('type')
-    connector_type = attrs.ChoiceAttr('connector_type')
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
     maximum_flow = attrs.NumericAttr('maximum_flow', unit_accessor='get_maximum_flow_unit_display')
     heat_capacity = attrs.TextAttr('heat_capacity', format_string=_('{} kW'))
+    cooling_outlet = attrs.RelatedObjectAttr('cooling_outlet', linkify=True)
+    cooling_feed = attrs.RelatedObjectAttr('cooling_feed', linkify=True)
 
 
 class CoolingOutletPanel(panels.ObjectAttributesPanel):
@@ -299,8 +301,8 @@ class CoolingOutletPanel(panels.ObjectAttributesPanel):
     module = attrs.RelatedObjectAttr('module', linkify=True)
     name = attrs.TextAttr('name')
     label = attrs.TextAttr('label')
+    flow_direction = attrs.ChoiceAttr('flow_direction')
     type = attrs.ChoiceAttr('type')
-    connector_type = attrs.ChoiceAttr('connector_type')
     diameter = attrs.NumericAttr('diameter', unit_accessor='get_diameter_unit_display')
     description = attrs.TextAttr('description')
     color = attrs.ColorAttr('color')
@@ -447,16 +449,11 @@ class CoolingSourcePanel(panels.ObjectAttributesPanel):
 class CoolingFeedPanel(panels.ObjectAttributesPanel):
     cooling_source = attrs.RelatedObjectAttr('cooling_source', linkify=True)
     rack = attrs.RelatedObjectAttr('rack', linkify=True)
-    type = attrs.ChoiceAttr('type')
+    flow_direction = attrs.ChoiceAttr('flow_direction')
     status = attrs.ChoiceAttr('status')
     fluid_type = attrs.ChoiceAttr('fluid_type')
     description = attrs.TextAttr('description')
     tenant = attrs.RelatedObjectAttr('tenant', linkify=True, grouped_by='group')
-    connected_device = attrs.TemplatedAttr(
-        'connected_endpoints',
-        label=_('Connected device'),
-        template_name='dcim/coolingfeed/attrs/connected_device.html',
-    )
 
 
 class CoolingFeedElectricalPanel(panels.ObjectAttributesPanel):

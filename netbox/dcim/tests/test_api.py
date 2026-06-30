@@ -4271,6 +4271,8 @@ class CoolingPortTemplateTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Cooling Port Template 4',
+                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
             },
             {
                 'device_type': devicetype.pk,
@@ -4322,6 +4324,8 @@ class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
             {
                 'device_type': devicetype.pk,
                 'name': 'Cooling Outlet Template 4',
+                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
                 'cooling_port': cooling_port_templates[0].pk,
             },
             {
@@ -4345,13 +4349,12 @@ class CoolingOutletTemplateTestCase(APIViewTestCases.APIViewTestCase):
         ]
 
 
-class CoolingPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class CoolingPortTestCase(APIViewTestCases.APIViewTestCase):
     model = CoolingPort
-    brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
-    peer_termination_type = CoolingOutlet
     user_permissions = ('dcim.view_device', )
 
     @classmethod
@@ -4361,6 +4364,15 @@ class CoolingPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
         site = Site.objects.create(name='Site 1', slug='site-1')
         role = DeviceRole.objects.create(name='Test Device Role 1', slug='test-device-role-1', color='ff0000')
         device = Device.objects.create(device_type=devicetype, role=role, name='Device 1', site=site)
+
+        cooling_outlet = CoolingOutlet.objects.create(device=device, name='Cooling Outlet 1')
+        cooling_source = CoolingSource.objects.create(
+            site=site, name='Cooling Source 1', type=CoolingSourceTypeChoices.TYPE_CHILLER
+        )
+        cooling_feed = CoolingFeed.objects.create(
+            cooling_source=cooling_source, name='Cooling Feed 1',
+            flow_direction=CoolingFlowDirectionChoices.TYPE_SUPPLY
+        )
 
         cooling_ports = (
             CoolingPort(device=device, name='Cooling Port 1'),
@@ -4373,10 +4385,16 @@ class CoolingPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
             {
                 'device': device.pk,
                 'name': 'Cooling Port 4',
+                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
+                'cooling_outlet': cooling_outlet.pk,
             },
             {
                 'device': device.pk,
                 'name': 'Cooling Port 5',
+                'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
+                'type': CoolingConnectorTypeChoices.TYPE_QDC,
+                'cooling_feed': cooling_feed.pk,
             },
             {
                 'device': device.pk,
@@ -4385,13 +4403,12 @@ class CoolingPortTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTe
         ]
 
 
-class CoolingOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase):
+class CoolingOutletTestCase(APIViewTestCases.APIViewTestCase):
     model = CoolingOutlet
-    brief_fields = ['_occupied', 'cable', 'description', 'device', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'device', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
-    peer_termination_type = CoolingPort
     user_permissions = ('dcim.view_device', )
 
     @classmethod
@@ -4419,6 +4436,8 @@ class CoolingOutletTestCase(Mixins.ComponentTraceMixin, APIViewTestCases.APIView
             {
                 'device': device.pk,
                 'name': 'Cooling Outlet 4',
+                'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+                'type': CoolingConnectorTypeChoices.TYPE_UQD,
                 'cooling_port': cooling_ports[0].pk,
             },
             {
@@ -4498,7 +4517,7 @@ class CoolingSourceTestCase(APIViewTestCases.APIViewTestCase):
 
 class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
     model = CoolingFeed
-    brief_fields = ['_occupied', 'cable', 'description', 'display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -4528,15 +4547,27 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
         )
         CoolingSource.objects.bulk_create(cooling_sources)
 
-        SUPPLY = CoolingFeedTypeChoices.TYPE_SUPPLY
-        RETURN = CoolingFeedTypeChoices.TYPE_RETURN
+        SUPPLY = CoolingFlowDirectionChoices.TYPE_SUPPLY
+        RETURN = CoolingFlowDirectionChoices.TYPE_RETURN
         cooling_feeds = (
-            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[0], name='Cooling Feed 1A', type=SUPPLY),
-            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[0], name='Cooling Feed 1B', type=RETURN),
-            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[1], name='Cooling Feed 2A', type=SUPPLY),
-            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[1], name='Cooling Feed 2B', type=RETURN),
-            CoolingFeed(cooling_source=cooling_sources[0], rack=racks[2], name='Cooling Feed 3A', type=SUPPLY),
-            CoolingFeed(cooling_source=cooling_sources[1], rack=racks[2], name='Cooling Feed 3B', type=RETURN),
+            CoolingFeed(
+                cooling_source=cooling_sources[0], rack=racks[0], name='Cooling Feed 1A', flow_direction=SUPPLY
+            ),
+            CoolingFeed(
+                cooling_source=cooling_sources[1], rack=racks[0], name='Cooling Feed 1B', flow_direction=RETURN
+            ),
+            CoolingFeed(
+                cooling_source=cooling_sources[0], rack=racks[1], name='Cooling Feed 2A', flow_direction=SUPPLY
+            ),
+            CoolingFeed(
+                cooling_source=cooling_sources[1], rack=racks[1], name='Cooling Feed 2B', flow_direction=RETURN
+            ),
+            CoolingFeed(
+                cooling_source=cooling_sources[0], rack=racks[2], name='Cooling Feed 3A', flow_direction=SUPPLY
+            ),
+            CoolingFeed(
+                cooling_source=cooling_sources[1], rack=racks[2], name='Cooling Feed 3B', flow_direction=RETURN
+            ),
         )
         CoolingFeed.objects.bulk_create(cooling_feeds)
 
@@ -4545,19 +4576,19 @@ class CoolingFeedTestCase(APIViewTestCases.APIViewTestCase):
                 'name': 'Cooling Feed 4A',
                 'cooling_source': cooling_sources[0].pk,
                 'rack': racks[3].pk,
-                'type': SUPPLY,
+                'flow_direction': SUPPLY,
             },
             {
                 'name': 'Cooling Feed 4B',
                 'cooling_source': cooling_sources[1].pk,
                 'rack': racks[3].pk,
-                'type': RETURN,
+                'flow_direction': RETURN,
             },
             {
                 'name': 'Cooling Feed 4C',
                 'cooling_source': cooling_sources[0].pk,
                 'rack': racks[3].pk,
-                'type': SUPPLY,
+                'flow_direction': SUPPLY,
             },
         ]
 

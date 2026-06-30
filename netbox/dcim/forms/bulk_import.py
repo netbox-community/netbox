@@ -999,14 +999,14 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    flow_direction = CSVChoiceField(
+        label=_('Flow direction'),
+        choices=CoolingFlowDirectionChoices,
+        required=False,
+        help_text=_('Port flow direction')
+    )
     type = CSVChoiceField(
         label=_('Type'),
-        choices=CoolingFeedTypeChoices,
-        required=False,
-        help_text=_('Port type')
-    )
-    connector_type = CSVChoiceField(
-        label=_('Connector type'),
         choices=CoolingConnectorTypeChoices,
         required=False,
         help_text=_('Physical connector type')
@@ -1022,13 +1022,49 @@ class CoolingPortImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         required=False,
         help_text=_('Unit for maximum flow')
     )
+    cooling_outlet = CSVModelChoiceField(
+        label=_('Cooling outlet'),
+        queryset=CoolingOutlet.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Local cooling outlet which feeds this port')
+    )
+    cooling_feed = CSVModelChoiceField(
+        label=_('Cooling feed'),
+        queryset=CoolingFeed.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Cooling feed which feeds this port')
+    )
 
     class Meta:
         model = CoolingPort
         fields = (
-            'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'mark_connected', 'description', 'owner', 'tags',
+            'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'maximum_flow_unit', 'heat_capacity', 'cooling_outlet', 'cooling_feed', 'description', 'owner', 'tags',
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit CoolingOutlet choices to those belonging to this device (or VC master)
+        if self.is_bound and 'device' in self.data:
+            try:
+                device = self.fields['device'].to_python(self.data['device'])
+            except forms.ValidationError:
+                device = None
+        else:
+            try:
+                device = self.instance.device
+            except Device.DoesNotExist:
+                device = None
+
+        if device:
+            self.fields['cooling_outlet'].queryset = CoolingOutlet.objects.filter(
+                device__in=[device, device.get_vc_master()]
+            )
+        else:
+            self.fields['cooling_outlet'].queryset = CoolingOutlet.objects.none()
 
 
 class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
@@ -1037,14 +1073,14 @@ class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
         queryset=Device.objects.all(),
         to_field_name='name'
     )
+    flow_direction = CSVChoiceField(
+        label=_('Flow direction'),
+        choices=CoolingFlowDirectionChoices,
+        required=False,
+        help_text=_('Outlet flow direction')
+    )
     type = CSVChoiceField(
         label=_('Type'),
-        choices=CoolingFeedTypeChoices,
-        required=False,
-        help_text=_('Outlet type')
-    )
-    connector_type = CSVChoiceField(
-        label=_('Connector type'),
         choices=CoolingConnectorTypeChoices,
         required=False,
         help_text=_('Physical connector type')
@@ -1066,7 +1102,7 @@ class CoolingOutletImportForm(OwnerCSVMixin, NetBoxModelImportForm):
     class Meta:
         model = CoolingOutlet
         fields = (
-            'device', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'color', 'mark_connected',
+            'device', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'color',
             'cooling_port', 'description', 'owner', 'tags',
         )
 
@@ -2152,9 +2188,9 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
         choices=CoolingFeedStatusChoices,
         help_text=_('Operational status')
     )
-    type = CSVChoiceField(
-        label=_('Type'),
-        choices=CoolingFeedTypeChoices,
+    flow_direction = CSVChoiceField(
+        label=_('Flow direction'),
+        choices=CoolingFlowDirectionChoices,
         help_text=_('Supply or return')
     )
     fluid_type = CSVChoiceField(
@@ -2185,7 +2221,7 @@ class CoolingFeedImportForm(PrimaryModelImportForm):
     class Meta:
         model = CoolingFeed
         fields = (
-            'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'fluid_type',
+            'site', 'cooling_source', 'location', 'rack', 'name', 'status', 'flow_direction', 'fluid_type',
             'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
             'return_temperature', 'temperature_unit', 'tenant', 'description', 'owner', 'comments', 'tags',
         )

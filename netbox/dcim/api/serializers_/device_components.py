@@ -8,6 +8,7 @@ from dcim.constants import *
 from dcim.models import (
     ConsolePort,
     ConsoleServerPort,
+    CoolingFeed,
     CoolingOutlet,
     CoolingPort,
     DeviceBay,
@@ -204,12 +205,7 @@ class PowerOutletSerializer(
         brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
-class CoolingPortSerializer(
-    OwnerMixin,
-    NetBoxModelSerializer,
-    CabledObjectSerializer,
-    ConnectedEndpointsSerializer
-):
+class CoolingPortSerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -217,13 +213,13 @@ class CoolingPortSerializer(
         required=False,
         allow_null=True
     )
-    type = ChoiceField(
-        choices=CoolingFeedTypeChoices,
+    flow_direction = ChoiceField(
+        choices=CoolingFlowDirectionChoices,
         allow_blank=True,
         required=False,
         allow_null=True
     )
-    connector_type = ChoiceField(
+    type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
         allow_blank=True,
         required=False,
@@ -241,26 +237,28 @@ class CoolingPortSerializer(
         required=False,
         allow_null=True
     )
+    cooling_outlet = RestrictedPrimaryKeyRelatedField(
+        queryset=CoolingOutlet.objects.all(),
+        required=False,
+        allow_null=True
+    )
+    cooling_feed = RestrictedPrimaryKeyRelatedField(
+        queryset=CoolingFeed.objects.all(),
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = CoolingPort
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'description',
-            'mark_connected', 'cable',
-            'cable_end',
-            'link_peers', 'link_peers_type', 'connected_endpoints', 'connected_endpoints_type',
-            'connected_endpoints_reachable', 'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'flow_direction', 'type',
+            'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cooling_outlet',
+            'cooling_feed', 'description', 'owner', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
 
 
-class CoolingOutletSerializer(
-    OwnerMixin,
-    NetBoxModelSerializer,
-    CabledObjectSerializer,
-    ConnectedEndpointsSerializer
-):
+class CoolingOutletSerializer(OwnerMixin, NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
@@ -268,13 +266,13 @@ class CoolingOutletSerializer(
         required=False,
         allow_null=True
     )
-    type = ChoiceField(
-        choices=CoolingFeedTypeChoices,
+    flow_direction = ChoiceField(
+        choices=CoolingFlowDirectionChoices,
         allow_blank=True,
         required=False,
         allow_null=True
     )
-    connector_type = ChoiceField(
+    type = ChoiceField(
         choices=CoolingConnectorTypeChoices,
         allow_blank=True,
         required=False,
@@ -295,13 +293,11 @@ class CoolingOutletSerializer(
     class Meta:
         model = CoolingOutlet
         fields = [
-            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'type', 'connector_type',
-            'diameter', 'diameter_unit', 'color', 'cooling_port', 'description', 'mark_connected', 'cable', 'cable_end',
-            'link_peers',
-            'link_peers_type', 'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable',
-            'owner', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'id', 'url', 'display_url', 'display', 'device', 'module', 'name', 'label', 'flow_direction', 'type',
+            'diameter', 'diameter_unit', 'color', 'cooling_port', 'description', 'owner', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
 
 
 class InterfaceSerializer(

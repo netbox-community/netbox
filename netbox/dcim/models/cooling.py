@@ -7,7 +7,6 @@ from dcim.choices import *
 from netbox.models import PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 
-from .device_components import CabledObjectModel, PathEndpoint
 from .mixins import CoolingTemperatureMixin, FlowRateMixin, PressureMixin
 
 __all__ = (
@@ -97,10 +96,11 @@ class CoolingSource(CoolingTemperatureMixin, ContactsMixin, ImageAttachmentsMixi
             )
 
 
-class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, PrimaryModel, PathEndpoint, CabledObjectModel):
+class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, PrimaryModel):
     """
     A coolant loop delivered from a CoolingSource to a rack or CDU. Supply and return loops are
-    represented as separate feeds so each can be traced independently.
+    represented as separate feeds. A CoolingFeed supplies one or more CoolingPorts (referenced via
+    CoolingPort.cooling_feed) rather than being cabled.
     """
     cooling_source = models.ForeignKey(
         to='CoolingSource',
@@ -125,11 +125,11 @@ class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, Primary
         choices=CoolingFeedStatusChoices,
         default=CoolingFeedStatusChoices.STATUS_ACTIVE
     )
-    type = models.CharField(
-        verbose_name=_('type'),
+    flow_direction = models.CharField(
+        verbose_name=_('flow direction'),
         max_length=50,
-        choices=CoolingFeedTypeChoices,
-        default=CoolingFeedTypeChoices.TYPE_SUPPLY
+        choices=CoolingFlowDirectionChoices,
+        default=CoolingFlowDirectionChoices.TYPE_SUPPLY
     )
     fluid_type = models.CharField(
         verbose_name=_('fluid type'),
@@ -158,7 +158,7 @@ class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, Primary
     )
 
     clone_fields = (
-        'cooling_source', 'rack', 'status', 'type', 'mark_connected', 'fluid_type', 'cooling_capacity', 'flow_rate',
+        'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity', 'flow_rate',
         'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature', 'return_temperature', 'temperature_unit',
         'tenant',
     )
@@ -198,8 +198,8 @@ class CoolingFeed(CoolingTemperatureMixin, FlowRateMixin, PressureMixin, Primary
     def parent_object(self):
         return self.cooling_source
 
-    def get_type_color(self):
-        return CoolingFeedTypeChoices.colors.get(self.type)
+    def get_flow_direction_color(self):
+        return CoolingFlowDirectionChoices.colors.get(self.flow_direction)
 
     def get_status_color(self):
         return CoolingFeedStatusChoices.colors.get(self.status)

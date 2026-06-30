@@ -4596,8 +4596,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
         cls.form_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Port Template X',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
@@ -4608,8 +4608,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Port Template [4-6]',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
@@ -4618,8 +4618,8 @@ class CoolingPortTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTestC
         }
 
         cls.bulk_edit_data = {
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
@@ -4651,8 +4651,8 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
         cls.form_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Outlet Template X',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[0].pk,
@@ -4661,16 +4661,16 @@ class CoolingOutletTemplateTestCase(ViewTestCases.DeviceComponentTemplateViewTes
         cls.bulk_create_data = {
             'device_type': devicetype.pk,
             'name': 'Cooling Outlet Template [4-6]',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[0].pk,
         }
 
         cls.bulk_edit_data = {
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
         }
@@ -4696,8 +4696,8 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.form_data = {
             'device': device.pk,
             'name': 'Cooling Port X',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
@@ -4710,8 +4710,8 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name': 'Cooling Port [4-6]]',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
@@ -4722,8 +4722,8 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'maximum_flow': 100,
@@ -4745,23 +4745,6 @@ class CoolingPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{cooling_ports[1].pk},Cooling Port 8,New description8",
             f"{cooling_ports[2].pk},Cooling Port 9,New description9",
         )
-
-    def test_trace(self):
-        self.add_permissions(
-            'dcim.view_coolingport',
-            'dcim.view_coolingoutlet',
-            'dcim.view_cable',
-            'dcim.view_device',
-        )
-        coolingport = CoolingPort.objects.first()
-        coolingoutlet = CoolingOutlet.objects.create(
-            device=coolingport.device,
-            name='Cooling Outlet 1'
-        )
-        Cable(a_terminations=[coolingport], b_terminations=[coolingoutlet]).save()
-
-        response = self.client.get(reverse('dcim:coolingport_trace', kwargs={'pk': coolingport.pk}))
-        self.assertHttpStatus(response, 200)
 
 
 class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
@@ -4790,8 +4773,8 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.form_data = {
             'device': device.pk,
             'name': 'Cooling Outlet X',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[1].pk,
@@ -4802,8 +4785,8 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         cls.bulk_create_data = {
             'device': device.pk,
             'name': 'Cooling Outlet [4-6]',
-            'type': CoolingFeedTypeChoices.TYPE_SUPPLY,
-            'connector_type': CoolingConnectorTypeChoices.TYPE_UQD,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_SUPPLY,
+            'type': CoolingConnectorTypeChoices.TYPE_UQD,
             'diameter': Decimal('25'),
             'diameter_unit': DiameterUnitChoices.UNIT_MILLIMETER,
             'cooling_port': coolingports[1].pk,
@@ -4812,7 +4795,7 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
         }
 
         cls.bulk_edit_data = {
-            'type': CoolingFeedTypeChoices.TYPE_RETURN,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
             'cooling_port': coolingports[1].pk,
             'description': 'New description',
         }
@@ -4830,20 +4813,6 @@ class CoolingOutletTestCase(ViewTestCases.DeviceComponentViewTestCase):
             f"{cooling_outlets[1].pk},Cooling Outlet 8,New description8",
             f"{cooling_outlets[2].pk},Cooling Outlet 9,New description9",
         )
-
-    def test_trace(self):
-        self.add_permissions(
-            'dcim.view_coolingoutlet',
-            'dcim.view_coolingport',
-            'dcim.view_cable',
-            'dcim.view_device',
-        )
-        coolingoutlet = CoolingOutlet.objects.first()
-        coolingport = CoolingPort.objects.first()
-        Cable(a_terminations=[coolingoutlet], b_terminations=[coolingport]).save()
-
-        response = self.client.get(reverse('dcim:coolingoutlet_trace', kwargs={'pk': coolingoutlet.pk}))
-        self.assertHttpStatus(response, 200)
 
 
 class CoolingSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -4946,7 +4915,7 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'cooling_source': cooling_sources[1].pk,
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
-            'type': CoolingFeedTypeChoices.TYPE_RETURN,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
             'fluid_type': FluidTypeChoices.FLUID_WATER,
             'cooling_capacity': 100,
             'flow_rate': 50,
@@ -4961,7 +4930,7 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "site,cooling_source,name,status,type",
+            "site,cooling_source,name,status,flow_direction",
             "Site 1,Cooling Source 1,Cooling Feed 4,active,supply",
             "Site 1,Cooling Source 1,Cooling Feed 5,active,supply",
             "Site 1,Cooling Source 1,Cooling Feed 6,active,supply",
@@ -4978,7 +4947,7 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'cooling_source': cooling_sources[1].pk,
             'rack': racks[1].pk,
             'status': CoolingFeedStatusChoices.STATUS_PLANNED,
-            'type': CoolingFeedTypeChoices.TYPE_RETURN,
+            'flow_direction': CoolingFlowDirectionChoices.TYPE_RETURN,
             'fluid_type': FluidTypeChoices.FLUID_WATER,
             'cooling_capacity': 100,
             'flow_rate': 50,
@@ -4990,34 +4959,6 @@ class CoolingFeedTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'temperature_unit': TemperatureUnitChoices.UNIT_CELSIUS,
             'comments': 'New comments',
         }
-
-    def test_trace(self):
-        self.add_permissions(
-            'dcim.view_coolingfeed',
-            'dcim.view_coolingport',
-            'dcim.view_cable',
-            'dcim.view_device',
-        )
-        manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer-1')
-        device_type = DeviceType.objects.create(
-            manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'
-        )
-        role = DeviceRole.objects.create(
-            name='Device Role', slug='device-role-1'
-        )
-        device = Device.objects.create(
-            site=Site.objects.first(), device_type=device_type, role=role
-        )
-
-        coolingfeed = CoolingFeed.objects.first()
-        coolingport = CoolingPort.objects.create(
-            device=device,
-            name='Cooling Port 1'
-        )
-        Cable(a_terminations=[coolingfeed], b_terminations=[coolingport]).save()
-
-        response = self.client.get(reverse('dcim:coolingfeed_trace', kwargs={'pk': coolingfeed.pk}))
-        self.assertHttpStatus(response, 200)
 
 
 class VirtualDeviceContextTestCase(ViewTestCases.PrimaryObjectViewTestCase):

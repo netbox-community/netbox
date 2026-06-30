@@ -1084,7 +1084,7 @@ class CoolingPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
     class Meta:
         model = CoolingPortTemplate
         fields = (
-            'id', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'maximum_flow',
+            'id', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'maximum_flow',
             'maximum_flow_unit', 'heat_capacity', 'description',
         )
 
@@ -1099,7 +1099,7 @@ class CoolingOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTy
 
     class Meta:
         model = CoolingOutletTemplate
-        fields = ('id', 'name', 'label', 'type', 'connector_type', 'diameter', 'diameter_unit', 'color', 'description')
+        fields = ('id', 'name', 'label', 'flow_direction', 'type', 'diameter', 'diameter_unit', 'color', 'description')
 
 
 @register_filterset
@@ -2156,13 +2156,13 @@ class PowerOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
 
 
 @register_filterset
-class CoolingPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        choices=CoolingFeedTypeChoices,
+class CoolingPortFilterSet(ModularDeviceComponentFilterSet):
+    flow_direction = django_filters.MultipleChoiceFilter(
+        choices=CoolingFlowDirectionChoices,
         distinct=False,
         null_value=None
     )
-    connector_type = django_filters.MultipleChoiceFilter(
+    type = django_filters.MultipleChoiceFilter(
         choices=CoolingConnectorTypeChoices,
         distinct=False,
         null_value=None
@@ -2172,23 +2172,35 @@ class CoolingPortFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSe
         distinct=False,
         null_value=None
     )
+    cooling_outlet_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CoolingOutlet.objects.all(),
+        field_name='cooling_outlet',
+        distinct=False,
+        label=_('Cooling outlet (ID)'),
+    )
+    cooling_feed_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CoolingFeed.objects.all(),
+        field_name='cooling_feed',
+        distinct=False,
+        label=_('Cooling feed (ID)'),
+    )
 
     class Meta:
         model = CoolingPort
         fields = (
             'id', 'name', 'label', 'diameter', 'diameter_unit', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity',
-            'description', 'mark_connected', 'cable_end', 'cable_connector',
+            'description',
         )
 
 
 @register_filterset
-class CoolingOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
-    type = django_filters.MultipleChoiceFilter(
-        choices=CoolingFeedTypeChoices,
+class CoolingOutletFilterSet(ModularDeviceComponentFilterSet):
+    flow_direction = django_filters.MultipleChoiceFilter(
+        choices=CoolingFlowDirectionChoices,
         distinct=False,
         null_value=None
     )
-    connector_type = django_filters.MultipleChoiceFilter(
+    type = django_filters.MultipleChoiceFilter(
         choices=CoolingConnectorTypeChoices,
         distinct=False,
         null_value=None
@@ -2202,8 +2214,7 @@ class CoolingOutletFilterSet(ModularDeviceComponentFilterSet, CabledObjectFilter
     class Meta:
         model = CoolingOutlet
         fields = (
-            'id', 'name', 'label', 'diameter', 'diameter_unit', 'description', 'color', 'mark_connected', 'cable_end',
-            'cable_connector',
+            'id', 'name', 'label', 'diameter', 'diameter_unit', 'description', 'color',
         )
 
 
@@ -2931,15 +2942,6 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     powerfeed_id = MultiValueNumberFilter(
         method='filter_by_powerfeed'
     )
-    coolingport_id = MultiValueNumberFilter(
-        method='filter_by_coolingport'
-    )
-    coolingoutlet_id = MultiValueNumberFilter(
-        method='filter_by_coolingoutlet'
-    )
-    coolingfeed_id = MultiValueNumberFilter(
-        method='filter_by_coolingfeed'
-    )
     circuittermination_id = MultiValueNumberFilter(
         method='filter_by_circuittermination'
     )
@@ -3019,15 +3021,6 @@ class CableFilterSet(TenancyFilterSet, PrimaryModelFilterSet):
     def filter_by_powerfeed(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, PowerFeed, value)
 
-    def filter_by_coolingport(self, queryset, name, value):
-        return self.filter_by_termination_object(queryset, CoolingPort, value)
-
-    def filter_by_coolingoutlet(self, queryset, name, value):
-        return self.filter_by_termination_object(queryset, CoolingOutlet, value)
-
-    def filter_by_coolingfeed(self, queryset, name, value):
-        return self.filter_by_termination_object(queryset, CoolingFeed, value)
-
     def filter_by_circuittermination(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, CircuitTermination, value)
 
@@ -3066,15 +3059,6 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
     powerfeed_id = MultiValueNumberFilter(
         method='filter_by_powerfeed'
     )
-    coolingport_id = MultiValueNumberFilter(
-        method='filter_by_coolingport'
-    )
-    coolingoutlet_id = MultiValueNumberFilter(
-        method='filter_by_coolingoutlet'
-    )
-    coolingfeed_id = MultiValueNumberFilter(
-        method='filter_by_coolingfeed'
-    )
     circuittermination_id = MultiValueNumberFilter(
         method='filter_by_circuittermination'
     )
@@ -3110,15 +3094,6 @@ class CableTerminationFilterSet(ChangeLoggedModelFilterSet):
 
     def filter_by_powerfeed(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, PowerFeed, value)
-
-    def filter_by_coolingport(self, queryset, name, value):
-        return self.filter_by_termination_object(queryset, CoolingPort, value)
-
-    def filter_by_coolingoutlet(self, queryset, name, value):
-        return self.filter_by_termination_object(queryset, CoolingOutlet, value)
-
-    def filter_by_coolingfeed(self, queryset, name, value):
-        return self.filter_by_termination_object(queryset, CoolingFeed, value)
 
     def filter_by_circuittermination(self, queryset, name, value):
         return self.filter_by_termination_object(queryset, CircuitTermination, value)
@@ -3349,7 +3324,7 @@ class CoolingSourceFilterSet(PrimaryModelFilterSet, ContactModelFilterSet):
 
 
 @register_filterset
-class CoolingFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet, TenancyFilterSet):
+class CoolingFeedFilterSet(PrimaryModelFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='cooling_source__site__region',
@@ -3405,8 +3380,8 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEnd
         distinct=False,
         null_value=None
     )
-    type = django_filters.MultipleChoiceFilter(
-        choices=CoolingFeedTypeChoices,
+    flow_direction = django_filters.MultipleChoiceFilter(
+        choices=CoolingFlowDirectionChoices,
         distinct=False,
         null_value=None
     )
@@ -3435,8 +3410,7 @@ class CoolingFeedFilterSet(PrimaryModelFilterSet, CabledObjectFilterSet, PathEnd
         model = CoolingFeed
         fields = (
             'id', 'name', 'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit',
-            'supply_temperature', 'return_temperature', 'temperature_unit',
-            'mark_connected', 'cable_end', 'cable_connector', 'description',
+            'supply_temperature', 'return_temperature', 'temperature_unit', 'description',
         )
 
     def search(self, queryset, name, value):

@@ -1185,8 +1185,7 @@ class Device(
         from .cables import Cable
         cable_pks = []
         for component_model in [
-            ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, CoolingPort, CoolingOutlet, Interface, FrontPort,
-            RearPort
+            ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, FrontPort, RearPort
         ]:
             cable_pks += component_model.objects.filter(
                 device=self, cable__isnull=False

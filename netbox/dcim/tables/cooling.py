@@ -7,11 +7,9 @@ from dcim.models import CoolingFeed, CoolingSource
 from netbox.tables import PrimaryModelTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
-from .devices import CableTerminationTable, DeviceComponentTable, ModularDeviceComponentTable, PathEndpointTable
+from .devices import DeviceComponentTable, ModularDeviceComponentTable
 from .devicetypes import ComponentTemplateTable
 from .template_code import (
-    COOLINGOUTLET_BUTTONS,
-    COOLINGPORT_BUTTONS,
     DIAMETER,
     MODULAR_COMPONENT_TEMPLATE_BUTTONS,
 )
@@ -90,9 +88,7 @@ class CoolingSourceTable(ContactsColumnMixin, PrimaryModelTable):
 # Cooling feeds
 #
 
-# We're not using PathEndpointTable for CoolingFeed because cooling connections
-# cannot traverse pass-through ports.
-class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelTable):
+class CoolingFeedTable(TenancyColumnsMixin, PrimaryModelTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
@@ -108,8 +104,8 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
-    type = columns.ChoiceFieldColumn(
-        verbose_name=_('Type'),
+    flow_direction = columns.ChoiceFieldColumn(
+        verbose_name=_('Flow Direction'),
     )
     fluid_type = columns.ChoiceFieldColumn(
         verbose_name=_('Fluid Type'),
@@ -155,17 +151,17 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
         url_name='dcim:coolingfeed_list'
     )
 
-    class Meta(CableTerminationTable.Meta, PrimaryModelTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = CoolingFeed
         fields = (
-            'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'type', 'fluid_type', 'cooling_capacity',
-            'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature', 'return_temperature',
-            'temperature_unit', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'tenant', 'tenant_group',
-            'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'cooling_source', 'site', 'rack', 'status', 'flow_direction', 'fluid_type',
+            'cooling_capacity', 'flow_rate', 'flow_rate_unit', 'pressure', 'pressure_unit', 'supply_temperature',
+            'return_temperature', 'temperature_unit', 'tenant', 'tenant_group', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'cooling_source', 'rack', 'status', 'type', 'fluid_type', 'cooling_capacity', 'flow_rate',
-            'cable', 'link_peer',
+            'pk', 'name', 'cooling_source', 'rack', 'status', 'flow_direction', 'fluid_type', 'cooling_capacity',
+            'flow_rate',
         )
 
 
@@ -173,7 +169,7 @@ class CoolingFeedTable(TenancyColumnsMixin, CableTerminationTable, PrimaryModelT
 # Cooling ports
 #
 
-class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
+class CoolingPortTable(ModularDeviceComponentTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify={
@@ -181,11 +177,11 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
+    flow_direction = columns.ChoiceFieldColumn(
+        verbose_name=_('Flow Direction'),
+    )
     type = columns.ChoiceFieldColumn(
         verbose_name=_('Type'),
-    )
-    connector_type = columns.ChoiceFieldColumn(
-        verbose_name=_('Connector Type'),
     )
     diameter = columns.TemplateColumn(
         verbose_name=_('Diameter'),
@@ -202,6 +198,14 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
     heat_capacity = tables.Column(
         verbose_name=_('Heat capacity (kW)')
     )
+    cooling_outlet = tables.Column(
+        verbose_name=_('Cooling Outlet'),
+        linkify=True
+    )
+    cooling_feed = tables.Column(
+        verbose_name=_('Cooling Feed'),
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:coolingport_list'
     )
@@ -209,12 +213,12 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingPort
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'connector_type', 'diameter',
-            'description', 'mark_connected', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cable',
-            'cable_color', 'link_peer', 'connection', 'inventory_items', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
+            'description', 'maximum_flow', 'maximum_flow_unit', 'heat_capacity', 'cooling_outlet', 'cooling_feed',
+            'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',
+            'pk', 'name', 'device', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'heat_capacity',
             'description',
         )
 
@@ -223,7 +227,7 @@ class CoolingPortTable(ModularDeviceComponentTable, PathEndpointTable):
 # Cooling outlets
 #
 
-class CoolingOutletTable(ModularDeviceComponentTable, PathEndpointTable):
+class CoolingOutletTable(ModularDeviceComponentTable):
     device = tables.Column(
         verbose_name=_('Device'),
         linkify={
@@ -231,11 +235,11 @@ class CoolingOutletTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
+    flow_direction = columns.ChoiceFieldColumn(
+        verbose_name=_('Flow Direction'),
+    )
     type = columns.ChoiceFieldColumn(
         verbose_name=_('Type'),
-    )
-    connector_type = columns.ChoiceFieldColumn(
-        verbose_name=_('Connector Type'),
     )
     diameter = columns.TemplateColumn(
         verbose_name=_('Diameter'),
@@ -254,12 +258,11 @@ class CoolingOutletTable(ModularDeviceComponentTable, PathEndpointTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.CoolingOutlet
         fields = (
-            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'type', 'connector_type', 'diameter',
-            'description', 'cooling_port', 'color', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection',
-            'inventory_items', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter',
+            'description', 'cooling_port', 'color', 'inventory_items', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'device', 'label', 'type', 'connector_type', 'diameter', 'color', 'cooling_port',
+            'pk', 'name', 'device', 'label', 'flow_direction', 'type', 'diameter', 'color', 'cooling_port',
             'description',
         )
 
@@ -289,7 +292,7 @@ class CoolingPortTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.CoolingPortTemplate
         fields = (
-            'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
+            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'maximum_flow_unit',
             'heat_capacity', 'description', 'actions',
         )
         empty_text = "None"
@@ -316,7 +319,7 @@ class CoolingOutletTemplateTable(ComponentTemplateTable):
     class Meta(ComponentTemplateTable.Meta):
         model = models.CoolingOutletTemplate
         fields = (
-            'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'cooling_port', 'description',
+            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'color', 'cooling_port', 'description',
             'actions',
         )
         empty_text = "None"
@@ -332,20 +335,16 @@ class DeviceCoolingPortTable(CoolingPortTable):
         template_code='<i class="mdi mdi-snowflake"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = columns.ActionsColumn(
-        extra_buttons=COOLINGPORT_BUTTONS
-    )
 
-    class Meta(CableTerminationTable.Meta, DeviceComponentTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = models.CoolingPort
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow',
-            'maximum_flow_unit', 'heat_capacity', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer',
-            'connection', 'tags', 'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow',
+            'maximum_flow_unit', 'heat_capacity', 'description', 'cooling_outlet', 'cooling_feed', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'maximum_flow', 'heat_capacity',
-            'description', 'cable', 'connection',
+            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'maximum_flow', 'heat_capacity',
+            'description',
         )
 
 
@@ -355,18 +354,13 @@ class DeviceCoolingOutletTable(CoolingOutletTable):
         template_code='<i class="mdi mdi-snowflake"></i> <a href="{{ record.get_absolute_url }}">{{ value }}</a>',
         attrs={'td': {'class': 'text-nowrap'}}
     )
-    actions = columns.ActionsColumn(
-        extra_buttons=COOLINGOUTLET_BUTTONS
-    )
 
-    class Meta(CableTerminationTable.Meta, DeviceComponentTable.Meta):
+    class Meta(DeviceComponentTable.Meta):
         model = models.CoolingOutlet
         fields = (
-            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'type', 'connector_type', 'diameter', 'color',
-            'cooling_port', 'description', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'connection', 'tags',
-            'actions',
+            'pk', 'id', 'name', 'module_bay', 'module', 'label', 'flow_direction', 'type', 'diameter', 'color',
+            'cooling_port', 'description', 'tags', 'actions',
         )
         default_columns = (
-            'pk', 'name', 'label', 'type', 'connector_type', 'diameter', 'color', 'cooling_port', 'description',
-            'cable', 'connection',
+            'pk', 'name', 'label', 'flow_direction', 'type', 'diameter', 'color', 'cooling_port', 'description',
         )

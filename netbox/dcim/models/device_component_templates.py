@@ -446,15 +446,15 @@ class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTempl
     """
     A template for a CoolingPort to be created for a new Device.
     """
-    type = models.CharField(
-        verbose_name=_('type'),
+    flow_direction = models.CharField(
+        verbose_name=_('flow direction'),
         max_length=50,
-        choices=CoolingFeedTypeChoices,
+        choices=CoolingFlowDirectionChoices,
         blank=True,
         null=True
     )
-    connector_type = models.CharField(
-        verbose_name=_('connector type'),
+    type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CoolingConnectorTypeChoices,
         blank=True,
@@ -482,8 +482,8 @@ class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTempl
         return self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
+            flow_direction=self.flow_direction,
             type=self.type,
-            connector_type=self.connector_type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
             maximum_flow=self.maximum_flow,
@@ -496,8 +496,8 @@ class CoolingPortTemplate(DiameterMixin, MaximumFlowMixin, ModularComponentTempl
     def to_yaml(self):
         return {
             'name': self.name,
+            'flow_direction': self.flow_direction,
             'type': self.type,
-            'connector_type': self.connector_type,
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,
             'maximum_flow': float(self.maximum_flow) if self.maximum_flow is not None else None,
@@ -512,15 +512,15 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
     """
     A template for a CoolingOutlet to be created for a new Device.
     """
-    type = models.CharField(
-        verbose_name=_('type'),
+    flow_direction = models.CharField(
+        verbose_name=_('flow direction'),
         max_length=50,
-        choices=CoolingFeedTypeChoices,
+        choices=CoolingFlowDirectionChoices,
         blank=True,
         null=True
     )
-    connector_type = models.CharField(
-        verbose_name=_('connector type'),
+    type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CoolingConnectorTypeChoices,
         blank=True,
@@ -572,8 +572,8 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module'), kwargs.get('device')),
             label=self.resolve_label(kwargs.get('module'), kwargs.get('device')),
+            flow_direction=self.flow_direction,
             type=self.type,
-            connector_type=self.connector_type,
             diameter=self.diameter,
             diameter_unit=self.diameter_unit,
             color=self.color,
@@ -585,8 +585,8 @@ class CoolingOutletTemplate(DiameterMixin, ModularComponentTemplateModel):
     def to_yaml(self):
         return {
             'name': self.name,
+            'flow_direction': self.flow_direction,
             'type': self.type,
-            'connector_type': self.connector_type,
             'diameter': float(self.diameter) if self.diameter is not None else None,
             'diameter_unit': self.diameter_unit,
             'color': self.color,

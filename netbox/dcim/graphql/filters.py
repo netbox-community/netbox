@@ -995,7 +995,7 @@ class PowerPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedM
 
 
 @register_filter(models.CoolingFeed, lookups=True)
-class CoolingFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, PrimaryModelFilter):
+class CoolingFeedFilter(TenancyFilterMixin, PrimaryModelFilter):
     cooling_source: Annotated['CoolingSourceFilter', strawberry.lazy('dcim.graphql.filters')] | None = (
         strawberry_django.filter_field()
     )
@@ -1006,9 +1006,9 @@ class CoolingFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, Primar
     status: BaseFilterLookup[Annotated['CoolingFeedStatusEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
-    type: BaseFilterLookup[Annotated['CoolingFeedTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
+    flow_direction: (
+        BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
     fluid_type: BaseFilterLookup[Annotated['FluidTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
         strawberry_django.filter_field()
     )
@@ -1039,11 +1039,11 @@ class CoolingFeedFilter(CabledObjectModelFilterMixin, TenancyFilterMixin, Primar
 
 
 @register_filter(models.CoolingOutlet, lookups=True)
-class CoolingOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
-    type: BaseFilterLookup[Annotated['CoolingFeedTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
-    connector_type: BaseFilterLookup[
+class CoolingOutletFilter(ModularComponentFilterMixin, NetBoxModelFilter):
+    flow_direction: (
+        BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
+    type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
     diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
@@ -1063,10 +1063,10 @@ class CoolingOutletFilter(ModularComponentFilterMixin, CabledObjectModelFilterMi
 
 @register_filter(models.CoolingOutletTemplate, lookups=True)
 class CoolingOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
-    type: BaseFilterLookup[Annotated['CoolingFeedTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
-    connector_type: BaseFilterLookup[
+    flow_direction: (
+        BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
+    type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
     diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
@@ -1082,11 +1082,11 @@ class CoolingOutletTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLog
 
 
 @register_filter(models.CoolingPort, lookups=True)
-class CoolingPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixin, NetBoxModelFilter):
-    type: BaseFilterLookup[Annotated['CoolingFeedTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
-    connector_type: BaseFilterLookup[
+class CoolingPortFilter(ModularComponentFilterMixin, NetBoxModelFilter):
+    flow_direction: (
+        BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
+    type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
     diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
@@ -1108,10 +1108,10 @@ class CoolingPortFilter(ModularComponentFilterMixin, CabledObjectModelFilterMixi
 
 @register_filter(models.CoolingPortTemplate, lookups=True)
 class CoolingPortTemplateFilter(ModularComponentTemplateFilterMixin, ChangeLoggedModelFilter):
-    type: BaseFilterLookup[Annotated['CoolingFeedTypeEnum', strawberry.lazy('dcim.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
-    connector_type: BaseFilterLookup[
+    flow_direction: (
+        BaseFilterLookup[Annotated['CoolingFlowDirectionEnum', strawberry.lazy('dcim.graphql.enums')]] | None
+    ) = strawberry_django.filter_field()
+    type: BaseFilterLookup[
         Annotated['CoolingConnectorTypeEnum', strawberry.lazy('dcim.graphql.enums')]
     ] | None = strawberry_django.filter_field()
     diameter: Annotated['FloatLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
