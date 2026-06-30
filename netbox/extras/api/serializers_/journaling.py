@@ -38,6 +38,15 @@ class JournalEntrySerializer(NetBoxModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'created')
 
+    def get_fields(self):
+        fields = super().get_fields()
+
+        # Make created_by field read-only if updating an existing JournalEntry.
+        if self.instance is not None:
+            fields['created_by'].read_only = True
+
+        return fields
+
     def validate(self, data):
 
         # Validate that the parent object exists
@@ -47,14 +56,6 @@ class JournalEntrySerializer(NetBoxModelSerializer):
             except ObjectDoesNotExist:
                 raise serializers.ValidationError(
                     f"Invalid assigned_object: {data['assigned_object_type']} ID {data['assigned_object_id']}"
-                )
-
-        # If we're updating an existing instance (PATCH/PUT)
-        if self.instance:
-            # Check if created_by is being changed
-            if 'created_by' in data and data['created_by'] != getattr(self.instance, 'created_by'):
-                raise serializers.ValidationError(
-                    {'created_by': "This field is immutable and cannot be changed after creation."}
                 )
 
         return super().validate(data)

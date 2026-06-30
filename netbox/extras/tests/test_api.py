@@ -867,7 +867,7 @@ class JournalEntryTestCase(APIViewTestCases.APIViewTestCase):
         self.add_permissions('extras.change_journalentry')
         response = self.client.patch(url, {'created_by': change_user.id}, format='json', **self.header)
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
 
         entry.refresh_from_db()
         created_by_after = entry.created_by_id

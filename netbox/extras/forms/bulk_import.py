@@ -344,6 +344,12 @@ class JournalEntryImportForm(NetBoxModelImportForm):
             'assigned_object_type', 'assigned_object_id', 'created_by', 'kind', 'comments', 'tags'
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If not creating a new JournalEntry, disable the created_by field
+        if self.instance and not self.instance._state.adding:
+            self.fields['created_by'].disabled = True
+
 
 class NotificationGroupImportForm(CSVModelForm):
     users = CSVModelMultipleChoiceField(
