@@ -38,6 +38,18 @@ tr[data-enabled='disabled'] > * {
   box-shadow: none;
 }
 
+// --tblr-gray-300 is a fixed light-theme grey; in dark mode it renders as a
+// harsh bright line on every highlighted row. Use the theme-aware border color
+// so the separator stays visible against tinted rows without being jarring.
+html[data-bs-theme='dark'] {
+  tr[data-cable-status] > *,
+  tr[data-mark-connected='true'] > *,
+  tr[data-virtual='true'] > *,
+  tr[data-enabled='disabled'] > * {
+    border-bottom-color: var(--tblr-border-color);
+  }
+}
+
 // Only show the correct button depending on the cable status
 tr[data-cable-status='connected'] button.mark-installed {
   display: none;
