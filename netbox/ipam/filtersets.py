@@ -22,7 +22,6 @@ from utilities.filters import (
     MultiValueCharFilter,
     MultiValueContentTypeFilter,
     MultiValueNumberFilter,
-    NumericArrayFilter,
     TreeNodeMultipleChoiceFilter,
 )
 from utilities.filtersets import register_filterset
@@ -1206,16 +1205,43 @@ class VLANTranslationRuleFilterSet(NetBoxModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-@register_filterset
-class ServiceTemplateFilterSet(PrimaryModelFilterSet):
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
+class ServicePortFilterMixin(django_filters.FilterSet):
+    """
+    Shared protocol/port filters operating on the port_assignments JSON field.
+    """
+    protocol = django_filters.MultipleChoiceFilter(
+        choices=ServiceProtocolChoices,
+        method='filter_protocol',
+        label=_('Protocol'),
     )
+    port = MultiValueNumberFilter(
+        method='filter_port',
+        label=_('Port'),
+    )
+
+    def filter_protocol(self, queryset, name, value):
+        if not value:
+            return queryset
+        query = Q()
+        for protocol in value:
+            query |= Q(port_assignments__contains=[{'protocol': protocol}])
+        return queryset.filter(query)
+
+    def filter_port(self, queryset, name, value):
+        if not value:
+            return queryset
+        query = Q()
+        for port in value:
+            query |= Q(port_assignments__contains=[{'port': int(port)}])
+        return queryset.filter(query)
+
+
+@register_filterset
+class ServiceTemplateFilterSet(ServicePortFilterMixin, PrimaryModelFilterSet):
 
     class Meta:
         model = ServiceTemplate
-        fields = ('id', 'name', 'protocol', 'description')
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1228,7 +1254,7 @@ class ServiceTemplateFilterSet(PrimaryModelFilterSet):
 
 
 @register_filterset
-class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
+class ServiceFilterSet(ServicePortFilterMixin, ContactModelFilterSet, PrimaryModelFilterSet):
     parent_object_type = MultiValueContentTypeFilter()
     device = MultiValueCharFilter(
         method='filter_device',
@@ -1271,14 +1297,9 @@ class ServiceFilterSet(ContactModelFilterSet, PrimaryModelFilterSet):
         to_field_name='address',
         label=_('IP address'),
     )
-    port = NumericArrayFilter(
-        field_name='ports',
-        lookup_expr='contains'
-    )
-
     class Meta:
         model = Service
-        fields = ('id', 'name', 'protocol', 'description', 'parent_object_type', 'parent_object_id')
+        fields = ('id', 'name', 'description', 'parent_object_type', 'parent_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -1845,13 +1845,18 @@ class VLANTranslationRuleTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ServiceTemplate
+    # ports is a deprecated property derived from port_assignments; exclude it from instance comparison
+    validation_excluded_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
         service_templates = (
-            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            ServiceTemplate(name='Service Template 1', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 101}]),
+            ServiceTemplate(name='Service Template 2', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 102}]),
+            ServiceTemplate(name='Service Template 3', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 103}]),
         )
         ServiceTemplate.objects.bulk_create(service_templates)
 
@@ -1859,7 +1864,7 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'Service Template X',
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
+            'protocols': [ServiceProtocolChoices.PROTOCOL_UDP],
             'ports': '104,105',
             'description': 'A new service template',
             'tags': [t.pk for t in tags],
@@ -1880,16 +1885,16 @@ class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '106,107',
             'description': 'New description',
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
         }
 
 
 class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Service
-    # TODO, related to #9816, cannot validate GFK
-    validation_excluded_fields = ('device',)
+    # TODO, related to #9816, cannot validate GFK. ports is a deprecated property derived from
+    # port_assignments; exclude it from instance comparison.
+    validation_excluded_fields = ('device', 'ports')
 
     @classmethod
     def setUpTestData(cls):
@@ -1905,9 +1910,12 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         services = (
-            Service(parent=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
-            Service(parent=device, name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[102]),
-            Service(parent=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
+            Service(parent=device, name='Service 1', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 101}]),
+            Service(parent=device, name='Service 2', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 102}]),
+            Service(parent=device, name='Service 3', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 103}]),
         )
         Service.objects.bulk_create(services)
 
@@ -1924,7 +1932,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'parent_content_type': ContentType.objects.get_for_model(Device).pk,
             'parent_object_id': device.pk,
             'name': 'Service X',
-            'protocol': ServiceProtocolChoices.PROTOCOL_TCP,
+            'protocols': [ServiceProtocolChoices.PROTOCOL_TCP],
             'ports': '104,105',
             'ipaddresses': [],
             'description': 'A new service',
@@ -1947,9 +1955,8 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
-            'ports': '106,107',
             'description': 'New description',
+            'protocol': ServiceProtocolChoices.PROTOCOL_UDP,
         }
 
     def test_unassigned_ip_addresses(self):

@@ -1418,7 +1418,7 @@ class VLANTranslationRuleTestCase(APIViewTestCases.APIViewTestCase):
 
 class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
-    brief_fields = ['description', 'display', 'id', 'name', 'ports', 'protocol', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'port_assignments', 'ports', 'protocol', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1427,9 +1427,18 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         service_templates = (
-            ServiceTemplate(name='Service Template 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1, 2]),
-            ServiceTemplate(name='Service Template 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3, 4]),
-            ServiceTemplate(name='Service Template 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[5, 6]),
+            ServiceTemplate(name='Service Template 1', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 1},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 2},
+            ]),
+            ServiceTemplate(name='Service Template 2', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 3},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 4},
+            ]),
+            ServiceTemplate(name='Service Template 3', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 5},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 6},
+            ]),
         )
         ServiceTemplate.objects.bulk_create(service_templates)
 
@@ -1454,7 +1463,7 @@ class ServiceTemplateTestCase(APIViewTestCases.APIViewTestCase):
 
 class ServiceTestCase(APIViewTestCases.APIViewTestCase):
     model = Service
-    brief_fields = ['description', 'display', 'id', 'name', 'ports', 'protocol', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'port_assignments', 'ports', 'protocol', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -1474,9 +1483,15 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
         Device.objects.bulk_create(devices)
 
         services = (
-            Service(parent=devices[0], name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
-            Service(parent=devices[0], name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[2]),
-            Service(parent=devices[0], name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[3]),
+            Service(parent=devices[0], name='Service 1', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 1},
+            ]),
+            Service(parent=devices[0], name='Service 2', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 2},
+            ]),
+            Service(parent=devices[0], name='Service 3', port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 3},
+            ]),
         )
         Service.objects.bulk_create(services)
 
@@ -1503,6 +1518,40 @@ class ServiceTestCase(APIViewTestCases.APIViewTestCase):
                 'ports': [6],
             },
         ]
+
+    def test_create_with_port_assignments(self):
+        """
+        A service may be created via the new port_assignments field, mixing protocols on a port.
+        """
+        self.add_permissions('ipam.add_service')
+        device = Device.objects.first()
+        data = {
+            'parent_object_id': device.pk,
+            'parent_object_type': 'dcim.device',
+            'name': 'DNS',
+            'port_assignments': [
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 53},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 53},
+            ],
+        }
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        service = Service.objects.get(pk=response.data['id'])
+        self.assertEqual(len(service.port_assignments), 2)
+        # Deprecated protocol accessor is null for a mixed-protocol service; ports is flattened
+        self.assertIsNone(response.data['protocol'])
+        self.assertEqual(response.data['ports'], [53])
+
+    def test_backward_compatible_protocol_read(self):
+        """
+        A uniform-protocol service exposes the deprecated protocol field as a single value.
+        """
+        self.add_permissions('ipam.view_service')
+        service = Service.objects.get(name='Service 1')
+        url = self._get_detail_url(service)
+        response = self.client.get(url, **self.header)
+        self.assertEqual(response.data['protocol']['value'], ServiceProtocolChoices.PROTOCOL_TCP)
+        self.assertEqual(response.data['ports'], [1])
 
 
 class NestedObjectPermissionAPITest(APITestCase):

@@ -1,13 +1,10 @@
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Annotated
 
 import strawberry
 import strawberry_django
-from strawberry_django import BaseFilterLookup
+from django.db.models import Q
 
 if TYPE_CHECKING:
-    from netbox.graphql.filter_lookups import IntegerLookup
-
     from .enums import *
 
 __all__ = (
@@ -15,11 +12,26 @@ __all__ = (
 )
 
 
-@dataclass
 class ServiceFilterMixin:
-    protocol: BaseFilterLookup[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]] | None = (
-        strawberry_django.filter_field()
-    )
-    ports: Annotated['IntegerLookup', strawberry.lazy('netbox.graphql.filter_lookups')] | None = (
-        strawberry_django.filter_field()
-    )
+
+    @strawberry_django.filter_field()
+    def protocol(
+        self,
+        value: list[Annotated['ServiceProtocolEnum', strawberry.lazy('ipam.graphql.enums')]],
+        prefix,
+    ) -> Q:
+        if not value:
+            return Q()
+        q = Q()
+        for protocol in value:
+            q |= Q(**{f'{prefix}port_assignments__contains': [{'protocol': protocol.value}]})
+        return q
+
+    @strawberry_django.filter_field()
+    def port(self, value: list[int], prefix) -> Q:
+        if not value:
+            return Q()
+        q = Q()
+        for port in value:
+            q |= Q(**{f'{prefix}port_assignments__contains': [{'port': port}]})
+        return q

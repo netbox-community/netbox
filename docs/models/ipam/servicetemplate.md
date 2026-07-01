@@ -12,10 +12,12 @@ Application service templates can be used to instantiate [application services](
 
 A service or protocol name.
 
-### Protocol
+### Port Assignments
 
-The wire protocol on which the service runs. Choices include UDP, TCP, and SCTP.
+!!! note "Changed in NetBox v4.7"
 
-### Ports
+    Previously, a service template defined a single `protocol` (UDP, TCP, or SCTP) shared by all of its `ports`. A template now defines a list of port assignments, where each assignment pairs an individual protocol with a port number. This allows a single template to combine multiple protocols — for example, both TCP/53 and UDP/53.
 
-One or more numeric ports to which the service is bound. Multiple ports can be expressed using commas and/or hyphens. For example, `80,8001-8003` specifies ports 80, 8001, 8002, and 8003.
+Each port assignment comprises a wire protocol (UDP, TCP, or SCTP) and a numeric port. In the UI, selecting multiple protocols alongside one or more ports creates an assignment for every protocol/port combination.
+
+The deprecated `protocol` and `ports` fields remain available in the REST and GraphQL APIs for backward compatibility, as described for [application services](./service.md).

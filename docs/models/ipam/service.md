@@ -23,13 +23,15 @@ The parent object to which the application service is assigned. This must be one
 
 A service or protocol name.
 
-### Protocol
+### Port Assignments
 
-The wire protocol on which the service runs. Choices include UDP, TCP, and SCTP.
+!!! note "Changed in NetBox v4.7"
 
-### Ports
+    Previously, a service defined a single `protocol` (UDP, TCP, or SCTP) shared by all of its `ports`. A service now defines a list of port assignments, where each assignment pairs an individual protocol with a port number. This allows a single service to combine multiple protocols — for example, a DNS service listening on both TCP/53 and UDP/53.
 
-One or more numeric ports to which the service is bound. Multiple ports can be expressed using commas and/or hyphens. For example, `80,8001-8003` specifies ports 80, 8001, 8002, and 8003.
+Each port assignment comprises a wire protocol (UDP, TCP, or SCTP) and a numeric port. In the UI, selecting multiple protocols alongside one or more ports creates an assignment for every protocol/port combination.
+
+The deprecated `protocol` and `ports` fields remain available in the REST and GraphQL APIs for backward compatibility. On read, `protocol` returns the single protocol shared by all assignments, or `null` when a service mixes protocols; `ports` returns the flattened list of port numbers. On write, supplying `protocol` and `ports` is translated into the equivalent port assignments (unless `port_assignments` is provided directly).
 
 ### IP Addresses
 

@@ -2358,43 +2358,37 @@ class VLANTranslationRuleTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ServiceTemplate.objects.all()
     filterset = ServiceTemplateFilterSet
-    ignore_fields = ('ports',)
+    ignore_fields = ('port_assignments',)
 
     @classmethod
     def setUpTestData(cls):
         service_templates = (
             ServiceTemplate(
                 name='Service Template 1',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1001],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 1001}],
                 description='foobar1'
             ),
             ServiceTemplate(
                 name='Service Template 2',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1002],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 1002}],
                 description='foobar2'
             ),
             ServiceTemplate(
                 name='Service Template 3',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[1003],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 1003}],
                 description='foobar3'
             ),
             ServiceTemplate(
                 name='Service Template 4',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2001]
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 2001}],
             ),
             ServiceTemplate(
                 name='Service Template 5',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2002]
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 2002}],
             ),
             ServiceTemplate(
                 name='Service Template 6',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[2003]
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 2003}],
             ),
         )
         ServiceTemplate.objects.bulk_create(service_templates)
@@ -2408,11 +2402,11 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_protocol(self):
-        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_port(self):
-        params = {'port': '1001'}
+        params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
@@ -2423,7 +2417,7 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
-    ignore_fields = ('ports',)
+    ignore_fields = ('port_assignments',)
 
     @classmethod
     def setUpTestData(cls):
@@ -2472,46 +2466,39 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
             Service(
                 parent=devices[0],
                 name='Service 1',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1001],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 1001}],
                 description='foobar1',
             ),
             Service(
                 parent=devices[1],
                 name='Service 2',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[1002],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 1002}],
                 description='foobar2',
             ),
             Service(
                 parent=devices[2],
                 name='Service 3',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[1003]
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 1003}],
             ),
             Service(
                 parent=virtual_machines[0],
                 name='Service 4',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2001],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 2001}],
             ),
             Service(
                 parent=virtual_machines[1],
                 name='Service 5',
-                protocol=ServiceProtocolChoices.PROTOCOL_TCP,
-                ports=[2002],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 2002}],
             ),
             Service(
                 parent=virtual_machines[2],
                 name='Service 6',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[2003],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 2003}],
             ),
             Service(
                 parent=fhrp_group,
                 name='Service 7',
-                protocol=ServiceProtocolChoices.PROTOCOL_UDP,
-                ports=[2004],
+                port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 2004}],
             ),
         )
         Service.objects.bulk_create(services)
@@ -2528,7 +2515,7 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_protocol(self):
-        params = {'protocol': ServiceProtocolChoices.PROTOCOL_TCP}
+        params = {'protocol': [ServiceProtocolChoices.PROTOCOL_TCP]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_description(self):
@@ -2536,7 +2523,7 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_port(self):
-        params = {'port': '1001'}
+        params = {'port': [1001]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_device(self):

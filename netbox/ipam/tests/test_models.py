@@ -1894,6 +1894,55 @@ class ServiceTemplateTestCase(TestCase):
         )
         self.assertRaises(ValidationError, template.full_clean)
 
+    def test_servicetemplate_port_assignments(self):
+        """
+        Test a template defined directly via port_assignments, mixing protocols on the same port.
+        """
+        template = ServiceTemplate(
+            name='Template 4',
+            port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 53},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_UDP, 'port': 53},
+            ],
+        )
+        template.full_clean()
+        template.save()
+        self.assertEqual(template._ports_lowest, 53)
+        # Deprecated accessors: protocol is None when mixed, ports is the flattened set
+        self.assertIsNone(template.protocol)
+        self.assertEqual(template.ports, [53])
+
+    def test_servicetemplate_uniform_protocol_accessor(self):
+        """
+        The deprecated protocol accessor returns the single protocol when assignments are uniform.
+        """
+        template = ServiceTemplate(
+            name='Template 5',
+            port_assignments=[
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 80},
+                {'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 443},
+            ],
+        )
+        template.full_clean()
+        self.assertEqual(template.protocol, ServiceProtocolChoices.PROTOCOL_TCP)
+        self.assertEqual(template.ports, [80, 443])
+
+    def test_servicetemplate_invalid_port_assignment(self):
+        """
+        Invalid protocol/port values are rejected.
+        """
+        template = ServiceTemplate(
+            name='Template 6',
+            port_assignments=[{'protocol': 'bogus', 'port': 80}],
+        )
+        self.assertRaises(ValidationError, template.full_clean)
+
+        template = ServiceTemplate(
+            name='Template 7',
+            port_assignments=[{'protocol': ServiceProtocolChoices.PROTOCOL_TCP, 'port': 99999}],
+        )
+        self.assertRaises(ValidationError, template.full_clean)
+
 
 class ServiceTestCase(TestCase):
 

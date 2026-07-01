@@ -10,6 +10,7 @@ from ipam import models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType, PrimaryObjectType
 
+from .enums import ServiceProtocolEnum
 from .filters import *
 from .mixins import IPAddressesMixin
 
@@ -249,8 +250,17 @@ class RouteTargetType(PrimaryObjectType):
     pagination=True
 )
 class ServiceType(ContactsMixin, PrimaryObjectType):
-    ports: list[int]
+    # port_assignments (a JSONField) is auto-exposed as a JSON scalar
     ipaddresses: list[Annotated['IPAddressType', strawberry.lazy('ipam.graphql.types')]]
+
+    # Deprecated backward-compatibility fields, derived from port_assignments
+    @strawberry.field
+    def ports(self) -> list[int]:
+        return self.ports
+
+    @strawberry.field
+    def protocol(self) -> ServiceProtocolEnum | None:
+        return ServiceProtocolEnum(self.protocol) if self.protocol else None
 
     @strawberry_django.field(prefetch_related='parent')
     def parent(self) -> Annotated[
@@ -269,7 +279,16 @@ class ServiceType(ContactsMixin, PrimaryObjectType):
     pagination=True
 )
 class ServiceTemplateType(PrimaryObjectType):
-    ports: list[int]
+    # port_assignments (a JSONField) is auto-exposed as a JSON scalar
+
+    # Deprecated backward-compatibility fields, derived from port_assignments
+    @strawberry.field
+    def ports(self) -> list[int]:
+        return self.ports
+
+    @strawberry.field
+    def protocol(self) -> ServiceProtocolEnum | None:
+        return ServiceProtocolEnum(self.protocol) if self.protocol else None
 
 
 @strawberry_django.type(

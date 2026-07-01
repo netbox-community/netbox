@@ -14,6 +14,7 @@ from utilities.forms.fields import (
     CSVContentTypeField,
     CSVModelChoiceField,
     CSVModelMultipleChoiceField,
+    NumericArrayField,
     NumericRangeArrayField,
     SlugField,
 )
@@ -586,11 +587,33 @@ class VLANTranslationRuleImportForm(NetBoxModelImportForm):
         fields = ('policy', 'local_vid', 'remote_vid')
 
 
-class ServiceTemplateImportForm(PrimaryModelImportForm):
+class ServicePortImportMixin:
+    """
+    Compose a service's port_assignments from the deprecated protocol and ports import columns.
+    """
+    def clean(self):
+        super().clean()
+        protocol = self.cleaned_data.get('protocol')
+        ports = self.cleaned_data.get('ports')
+        if protocol and ports:
+            # Buffer the values for recomposition into port_assignments during model validation
+            self.instance.protocol = protocol
+            self.instance.ports = ports
+
+
+class ServiceTemplateImportForm(ServicePortImportMixin, PrimaryModelImportForm):
     protocol = CSVChoiceField(
         label=_('Protocol'),
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
+    )
+    ports = NumericArrayField(
+        label=_('Ports'),
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
+        help_text=_('Comma-separated list of one or more port numbers')
     )
 
     class Meta:
@@ -598,7 +621,7 @@ class ServiceTemplateImportForm(PrimaryModelImportForm):
         fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
 
 
-class ServiceImportForm(PrimaryModelImportForm):
+class ServiceImportForm(ServicePortImportMixin, PrimaryModelImportForm):
     parent_object_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
@@ -619,6 +642,14 @@ class ServiceImportForm(PrimaryModelImportForm):
         label=_('Protocol'),
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
+    )
+    ports = NumericArrayField(
+        label=_('Ports'),
+        base_field=forms.IntegerField(
+            min_value=SERVICE_PORT_MIN,
+            max_value=SERVICE_PORT_MAX
+        ),
+        help_text=_('Comma-separated list of one or more port numbers')
     )
     ipaddresses = CSVModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),

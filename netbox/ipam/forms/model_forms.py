@@ -800,10 +800,37 @@ class VLANTranslationRuleForm(NetBoxModelForm):
         ]
 
 
-class ServiceTemplateForm(PrimaryModelForm):
-    protocol = ChoiceField(
-        label=_('Protocol'),
+class ServicePortAssignmentsMixin:
+    """
+    Shared handling for composing a service's port_assignments from a set of protocols and ports. Each
+    selected protocol is paired with every port (the cartesian product).
+    """
+    def _init_port_assignments(self):
+        # Populate the protocols/ports selections from an existing instance
+        if self.instance and self.instance.pk:
+            self.initial.setdefault(
+                'protocols', sorted({a['protocol'] for a in self.instance.port_assignments})
+            )
+            self.initial.setdefault(
+                'ports', sorted({a['port'] for a in self.instance.port_assignments})
+            )
+
+    def _apply_port_assignments(self):
+        protocols = self.cleaned_data.get('protocols')
+        ports = self.cleaned_data.get('ports')
+        if protocols and ports:
+            self.instance.port_assignments = [
+                {'protocol': protocol, 'port': port}
+                for port in ports
+                for protocol in protocols
+            ]
+
+
+class ServiceTemplateForm(ServicePortAssignmentsMixin, PrimaryModelForm):
+    protocols = forms.MultipleChoiceField(
         choices=ServiceProtocolChoices,
+        label=_('Protocols'),
+        help_text=_("Each selected protocol is paired with every port below to form the port assignments.")
     )
     ports = NumericArrayField(
         label=_('Ports'),
@@ -815,25 +842,34 @@ class ServiceTemplateForm(PrimaryModelForm):
     )
 
     fieldsets = (
-        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Application Service Template')),
+        FieldSet('name', 'protocols', 'ports', 'description', 'tags', name=_('Application Service Template')),
     )
 
     class Meta:
         model = ServiceTemplate
-        fields = ('name', 'protocol', 'ports', 'description', 'owner', 'comments', 'tags')
+        fields = ('name', 'description', 'owner', 'comments', 'tags')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._init_port_assignments()
+
+    def clean(self):
+        super().clean()
+        self._apply_port_assignments()
 
 
-class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
-    protocol = ChoiceField(
-        label=_('Protocol'),
-        choices=ServiceProtocolChoices,
-    )
+class ServiceForm(ServicePortAssignmentsMixin, GenericObjectFormMixin, PrimaryModelForm):
     parent = GenericObjectChoiceField(
         label=_('Parent'),
         content_type_queryset=ContentType.objects.filter(SERVICE_ASSIGNMENT_MODELS),
         required=True,
         selector=True,
         hx_target_id='service',
+    )
+    protocols = forms.MultipleChoiceField(
+        choices=ServiceProtocolChoices,
+        label=_('Protocols'),
+        help_text=_("Each selected protocol is paired with every port below to form the port assignments.")
     )
     ports = NumericArrayField(
         label=_('Ports'),
@@ -852,7 +888,7 @@ class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
     fieldsets = (
         FieldSet(
             'parent', 'name',
-            InlineFields('protocol', 'ports', label=_('Port(s)')),
+            InlineFields('protocols', 'ports', label=_('Port(s)')),
             'ipaddresses', 'description', 'tags', name=_('Application Service'),
             html_id='service',
         ),
@@ -861,11 +897,12 @@ class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
     class Meta:
         model = Service
         fields = [
-            'name', 'protocol', 'ports', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
+            'name', 'ipaddresses', 'description', 'owner', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._init_port_assignments()
 
         # Filter the IP address selector to those belonging to the selected parent. The object subwidget is
         # named "parent_object_id", so the dynamic param references "$parent_object_id".
@@ -876,6 +913,10 @@ class ServiceForm(GenericObjectFormMixin, PrimaryModelForm):
             self.fields['ipaddresses'].widget.add_query_params({'virtual_machine_id': '$parent_object_id'})
         elif parent_model is FHRPGroup:
             self.fields['ipaddresses'].widget.add_query_params({'fhrpgroup_id': '$parent_object_id'})
+
+    def clean(self):
+        super().clean()
+        self._apply_port_assignments()
 
 
 class ServiceCreateForm(ServiceForm):
@@ -890,7 +931,7 @@ class ServiceCreateForm(ServiceForm):
             'parent',
             TabbedGroups(
                 FieldSet('service_template', name=_('From Template')),
-                FieldSet('name', 'protocol', 'ports', name=_('Custom')),
+                FieldSet('name', 'protocols', 'ports', name=_('Custom')),
             ),
             'ipaddresses', 'description', 'tags', name=_('Application Service'),
             html_id='service',
@@ -899,7 +940,7 @@ class ServiceCreateForm(ServiceForm):
 
     class Meta(ServiceForm.Meta):
         fields = [
-            'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
+            'service_template', 'name', 'ipaddresses', 'description',
             'comments', 'tags',
         ]
 
@@ -907,21 +948,21 @@ class ServiceCreateForm(ServiceForm):
         super().__init__(*args, **kwargs)
 
         # Fields which may be populated from a ServiceTemplate are not required
-        for field in ('name', 'protocol', 'ports'):
+        for field in ('name', 'protocols', 'ports'):
             self.fields[field].required = False
             self.fields[field].widget.is_required = False
 
     def clean(self):
         super().clean()
-        if self.cleaned_data['service_template']:
+        if self.cleaned_data.get('service_template'):
             # Create a new Service from the specified template
             service_template = self.cleaned_data['service_template']
             self.cleaned_data['name'] = service_template.name
-            self.cleaned_data['protocol'] = service_template.protocol
-            self.cleaned_data['ports'] = service_template.ports
-            if not self.cleaned_data['description']:
+            self.instance.port_assignments = service_template.port_assignments
+            if not self.cleaned_data.get('description'):
                 self.cleaned_data['description'] = service_template.description
-        elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
+        elif not (self.cleaned_data.get('name') and self.cleaned_data.get('protocols') and
+                  self.cleaned_data.get('ports')):
             raise forms.ValidationError(
                 _("Must specify name, protocol, and port(s) if not using an application service template.")
             )

@@ -236,16 +236,14 @@ class VLANCustomerVLANsPanel(panels.ObjectsTablePanel):
 
 class ServiceTemplatePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
-    protocol = attrs.ChoiceAttr('protocol')
-    ports = attrs.TextAttr('port_list', label=_('Ports'))
+    ports = attrs.TextAttr('port_list', label=_('Port assignments'))
     description = attrs.TextAttr('description')
 
 
 class ServicePanel(panels.ObjectAttributesPanel):
     name = attrs.TextAttr('name')
     parent = attrs.RelatedObjectAttr('parent', linkify=True)
-    protocol = attrs.ChoiceAttr('protocol')
-    ports = attrs.TextAttr('port_list', label=_('Ports'))
+    ports = attrs.TextAttr('port_list', label=_('Port assignments'))
     ip_addresses = attrs.TemplatedAttr(
         'ipaddresses',
         template_name='ipam/service/attrs/ip_addresses.html',
