@@ -91,7 +91,7 @@ class VirtualMachineTypeBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
     )
     default_memory = forms.IntegerField(
-        label=_('Default Memory (MB)'),
+        label=_('Default memory'),
         required=False,
     )
 
@@ -103,6 +103,14 @@ class VirtualMachineTypeBulkEditForm(PrimaryModelBulkEditForm):
     nullable_fields = (
         'default_platform', 'default_vcpus', 'default_memory', 'description', 'comments',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Set unit label based on configured RAM_BASE_UNIT (MB vs MiB)
+        self.fields['default_memory'].label = _('Default memory ({unit})').format(
+            unit=get_capacity_unit_label(settings.RAM_BASE_UNIT)
+        )
 
 
 class VirtualMachineBulkEditForm(PrimaryModelBulkEditForm):
