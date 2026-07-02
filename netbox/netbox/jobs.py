@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from datetime import timedelta
 from io import BytesIO
 from pathlib import Path
-from urllib.parse import urlsplit
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
@@ -269,41 +268,52 @@ class AsyncAPIJob(JobRunner):
         name = 'Async API Request'
 
     @staticmethod
-    def _build_request(payload, method, request_id, scheme, host):
+    def _build_request(request_copy, payload, scheme):
         """
-        Reconstruct a minimal WSGIRequest carrying the original JSON payload. DRF's Request
-        wrapper requires a real HttpRequest, and the original scheme/host are applied so that
+        Reconstruct a real WSGIRequest from a copy_safe_request() snapshot, injecting the JSON
+        payload as the request body. DRF's Request wrapper requires a real HttpRequest to parse
+        the body, and the snapshot's host metadata (already correctly separated into
+        SERVER_NAME/SERVER_PORT/HTTP_HOST by the original WSGI layer) is carried verbatim so that
         absolute URLs in the captured result (serializer hyperlink fields) point at the real
-        server. The host is passed via HTTP_HOST verbatim (request.get_host() already formats
-        it correctly, including bracketed IPv6, and Django's get_host() prefers it);
-        SERVER_NAME/SERVER_PORT are populated only to satisfy WSGI, parsed via urlsplit so
-        host:port and [::1]:port split correctly.
+        server. The scheme is applied separately, as copy_safe_request() does not capture it.
         """
-        parsed_host = urlsplit(f'//{host}')
         body = json.dumps(payload).encode('utf-8')
-        request = WSGIRequest({
-            'REQUEST_METHOD': method.upper(),
-            'PATH_INFO': '/',
+        environ = {
+            'REQUEST_METHOD': request_copy.method,
+            'PATH_INFO': getattr(request_copy, 'path', '/') or '/',
             'CONTENT_TYPE': 'application/json',
             'CONTENT_LENGTH': str(len(body)),
             'wsgi.input': BytesIO(body),
             'wsgi.url_scheme': scheme,
-            'HTTP_HOST': host,
-            'SERVER_NAME': parsed_host.hostname or 'localhost',
-            'SERVER_PORT': str(parsed_host.port) if parsed_host.port else ('443' if scheme == 'https' else '80'),
             'SERVER_PROTOCOL': 'HTTP/1.1',
-        })
-        request.id = request_id
+            # Sensible defaults (a real WSGI layer always sets these); overridden below by the
+            # snapshot's host metadata when present.
+            'SERVER_NAME': 'localhost',
+            'SERVER_PORT': '443' if scheme == 'https' else '80',
+        }
+        # Carry the host/forwarding metadata from the safe request copy (no host:port parsing
+        # needed: these were already split correctly when the original request was received).
+        for key in (
+            'HTTP_HOST', 'SERVER_NAME', 'SERVER_PORT',
+            'HTTP_X_FORWARDED_HOST', 'HTTP_X_FORWARDED_PORT', 'HTTP_X_FORWARDED_PROTO',
+        ):
+            if value := request_copy.META.get(key):
+                environ[key] = value
+
+        request = WSGIRequest(environ)
+        request.id = getattr(request_copy, 'id', None)
         return request
 
     def run(
-        self, viewset_class, action, payload, user_pk, request_id, method,
-        action_kwargs=None, scheme='http', host='localhost', **kwargs
+        self, viewset_class, action, payload, user_pk, request,
+        action_kwargs=None, scheme='http', **kwargs
     ):
         # Imported here to avoid a circular import (netbox.api.viewsets imports from this module).
         from netbox.api.viewsets import HTTP_ACTIONS
 
         action_kwargs = action_kwargs or {}
+        method = request.method
+        request_id = getattr(request, 'id', '') or ''
         viewset_class = import_string(viewset_class)
 
         # Re-fetch the requesting user. If the user no longer exists or is inactive, fail
@@ -320,7 +330,7 @@ class AsyncAPIJob(JobRunner):
             self.job.save()
             raise JobFailed()
 
-        django_request = self._build_request(payload, method, request_id, scheme, host)
+        django_request = self._build_request(request, payload, scheme)
 
         # Instantiate the viewset and apply the minimal scaffolding that DRF's as_view()
         # normally sets, so initialize_request() can wire up parsers, etc.
