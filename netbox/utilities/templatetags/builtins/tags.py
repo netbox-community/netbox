@@ -201,3 +201,31 @@ def render(context, component):
     Render a UI component (e.g. a Panel) by calling its render() method and passing the current template context.
     """
     return mark_safe(component.render(context))
+
+
+@register.simple_tag(takes_context=True)
+def render_breadcrumbs(context):
+    """
+    Render the breadcrumb trail for the current object. The trail comprises a default root breadcrumb
+    (a link to the object's list view) followed by any breadcrumbs defined on the layout of the object's
+    base (detail) view. Resolving the trail from the base view—rather than the view currently rendering—
+    ensures that an object's detail view and all of its peer/tabbed views render the same trail. A layout
+    may suppress the default root breadcrumb (e.g. to substitute its own) via `root_breadcrumb=False`.
+    """
+    from netbox.ui.breadcrumbs import get_root_breadcrumb
+    from utilities.views import get_view
+
+    obj = context.get('object')
+    # The object on some pages (e.g. RQ workers/tasks) is not a model instance and has no associated view
+    if obj is None or not hasattr(obj, '_meta'):
+        return ''
+
+    # Pull the breadcrumbs from the layout of the object's base (detail) view
+    layout = getattr(get_view(obj), 'layout', None)
+    breadcrumbs = list(getattr(layout, 'breadcrumbs', None) or [])
+
+    # Prepend the default root breadcrumb unless the layout opts out
+    if getattr(layout, 'root_breadcrumb', True):
+        breadcrumbs.insert(0, get_root_breadcrumb(obj))
+
+    return mark_safe(''.join(breadcrumb.render(context) for breadcrumb in breadcrumbs))
