@@ -15,7 +15,17 @@ __all__ = (
     'ConfigContextQuerySetMixin',
     'ConfigTemplateRenderMixin',
     'RenderConfigMixin',
+    'SharedObjectQuerySetMixin',
 )
+
+
+class SharedObjectQuerySetMixin:
+    """
+    Restrict the queryset to shared objects, or those owned by the current user, unless the user is a superuser.
+    This mirrors the visibility enforced in the UI by extras.utils.SharedObjectViewMixin.
+    """
+    def get_queryset(self):
+        return super().get_queryset().restrict_to_shared(self.request.user)
 
 
 class ConfigContextQuerySetMixin:

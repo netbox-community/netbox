@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import io
+import json
 from unittest.mock import MagicMock, patch
 
 from django.contrib.contenttypes.models import ContentType
@@ -18,7 +19,7 @@ from extras.models import *
 from extras.scripts import BooleanVar, IntegerVar, StringVar
 from extras.scripts import Script as PythonClass
 from users.constants import TOKEN_PREFIX
-from users.models import Group, Token, User
+from users.models import Group, ObjectPermission, Token, User
 from utilities.tables import get_table_for_model
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -444,7 +445,24 @@ class CustomLinkTestCase(APIViewTestCases.APIViewTestCase):
             custom_link.object_types.set([site_type])
 
 
-class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
+class SharedObjectAPITestMixin:
+    """
+    Helpers for testing the shared/owner visibility enforced on SavedFilter and TableConfig.
+    """
+    def _grant_view_permission_and_authenticate(self, user, model):
+        """
+        Grant `user` an unconstrained view permission on `model`, create an API token, and return the
+        corresponding authentication header.
+        """
+        obj_perm = ObjectPermission(name=f'{model._meta.model_name} view', actions=['view'])
+        obj_perm.save()
+        obj_perm.users.add(user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(model))
+        token = Token.objects.create(user=user)
+        return {'HTTP_AUTHORIZATION': f'Bearer {TOKEN_PREFIX}{token.key}.{token.token}'}
+
+
+class SavedFilterTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTestCase):
     model = SavedFilter
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
@@ -516,8 +534,55 @@ class SavedFilterTestCase(APIViewTestCases.APIViewTestCase):
         for i, savedfilter in enumerate(saved_filters):
             savedfilter.object_types.set([site_type])
 
+    def test_private_filter_not_visible_to_other_users(self):
+        """
+        A private (shared=False) SavedFilter owned by another user must not be exposed via the REST API, even to
+        a user holding an unconstrained view permission.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        owner = User.objects.create_user(username='filter-owner')
+        private_filter = SavedFilter.objects.create(
+            name='Private Filter',
+            slug='private-filter',
+            user=owner,
+            shared=False,
+            parameters={'status': ['active']},
+        )
+        private_filter.object_types.set([site_type])
 
-class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
+        # Grant an unconstrained view permission (the common case)
+        self.add_permissions('extras.view_savedfilter')
+
+        # The private filter must not appear in the list
+        response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        returned_ids = [obj['id'] for obj in response.data['results']]
+        self.assertNotIn(private_filter.pk, returned_ids)
+
+        # The private filter must not be retrievable directly
+        response = self.client.get(self._get_detail_url(private_filter), **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+        # The private filter must not be exposed via GraphQL either
+        query = '{ saved_filter_list { id } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['saved_filter_list']]
+        self.assertNotIn(private_filter.pk, returned_ids)
+
+        # The owner, however, must still be able to access their own private filter
+        owner_header = self._grant_view_permission_and_authenticate(owner, SavedFilter)
+        response = self.client.get(self._get_detail_url(private_filter), **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['saved_filter_list']]
+        self.assertIn(private_filter.pk, returned_ids)
+
+
+class TableConfigTestCase(SharedObjectAPITestMixin, APIViewTestCases.APIViewTestCase):
     model = TableConfig
     brief_fields = ['description', 'display', 'id', 'name', 'object_type', 'table', 'url']
     bulk_update_data = {
@@ -545,6 +610,7 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 object_type=site_type,
                 table=site_table_name,
                 user=users[0],
+                shared=True,
                 columns=['name', 'status'],
             ),
             TableConfig(
@@ -552,6 +618,7 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 object_type=site_type,
                 table=site_table_name,
                 user=users[1],
+                shared=True,
                 columns=['name', 'region'],
             ),
             TableConfig(
@@ -559,6 +626,7 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 object_type=site_type,
                 table=site_table_name,
                 user=users[2],
+                shared=True,
                 columns=['name', 'tenant'],
             ),
         )
@@ -586,6 +654,54 @@ class TableConfigTestCase(APIViewTestCases.APIViewTestCase):
                 'columns': ['name', 'tenant'],
             },
         ]
+
+    def test_private_table_config_not_visible_to_other_users(self):
+        """
+        A private (shared=False) TableConfig owned by another user must not be exposed via the REST API, even to
+        a user holding an unconstrained view permission.
+        """
+        site_type = ObjectType.objects.get_for_model(Site)
+        site_table_name = get_table_for_model(Site).__name__
+        owner = User.objects.create_user(username='tableconfig-owner')
+        private_config = TableConfig.objects.create(
+            name='Private Table Config',
+            object_type=site_type,
+            table=site_table_name,
+            user=owner,
+            shared=False,
+            columns=['name', 'status'],
+        )
+
+        # Grant an unconstrained view permission (the common case)
+        self.add_permissions('extras.view_tableconfig')
+
+        # The private table config must not appear in the list
+        response = self.client.get(self._get_list_url(), **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        returned_ids = [obj['id'] for obj in response.data['results']]
+        self.assertNotIn(private_config.pk, returned_ids)
+
+        # The private table config must not be retrievable directly
+        response = self.client.get(self._get_detail_url(private_config), **self.header)
+        self.assertHttpStatus(response, status.HTTP_404_NOT_FOUND)
+
+        # The private table config must not be exposed via GraphQL either
+        query = '{ table_config_list { id } }'
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['table_config_list']]
+        self.assertNotIn(private_config.pk, returned_ids)
+
+        # The owner, however, must still be able to access their own private table config
+        owner_header = self._grant_view_permission_and_authenticate(owner, TableConfig)
+        response = self.client.get(self._get_detail_url(private_config), **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        response = self.client.post(reverse('graphql'), data={'query': query}, format='json', **owner_header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        data = json.loads(response.content)
+        returned_ids = [int(obj['id']) for obj in data['data']['table_config_list']]
+        self.assertIn(private_config.pk, returned_ids)
 
 
 class BookmarkTestCase(

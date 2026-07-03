@@ -9,6 +9,7 @@ __all__ = (
     'ConfigContextModelQuerySet',
     'ConfigContextQuerySet',
     'NotificationQuerySet',
+    'SharedObjectQuerySet',
 )
 
 
@@ -190,3 +191,20 @@ class NotificationQuerySet(RestrictedQuerySet):
         Return only unread notifications.
         """
         return self.filter(read__isnull=True)
+
+
+class SharedObjectQuerySet(RestrictedQuerySet):
+
+    def restrict_to_shared(self, user):
+        """
+        Restrict the queryset to objects which are shared or owned by the given user. Superusers are exempt;
+        anonymous users see only shared objects. This enforces consistent visibility across the UI, REST API,
+        and GraphQL API.
+        """
+        if user.is_superuser:
+            return self
+        if user.is_anonymous:
+            return self.filter(shared=True)
+        return self.filter(
+            Q(shared=True) | Q(user=user)
+        )

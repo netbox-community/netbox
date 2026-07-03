@@ -26,7 +26,7 @@ from utilities.request import copy_safe_request
 from utilities.rqworker import any_workers_for_queue
 
 from . import serializers
-from .mixins import ConfigTemplateRenderMixin
+from .mixins import ConfigTemplateRenderMixin, SharedObjectQuerySetMixin
 
 
 class ExtrasRootView(APIRootView):
@@ -125,7 +125,7 @@ class ExportTemplateViewSet(SyncedDataMixin, NetBoxModelViewSet):
 # Saved filters
 #
 
-class SavedFilterViewSet(NetBoxModelViewSet):
+class SavedFilterViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = SavedFilter.objects.all()
     serializer_class = serializers.SavedFilterSerializer
@@ -136,7 +136,7 @@ class SavedFilterViewSet(NetBoxModelViewSet):
 # Table Configs
 #
 
-class TableConfigViewSet(NetBoxModelViewSet):
+class TableConfigViewSet(SharedObjectQuerySetMixin, NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
     queryset = TableConfig.objects.all()
     serializer_class = serializers.TableConfigSerializer
