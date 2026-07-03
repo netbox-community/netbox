@@ -48,6 +48,17 @@ __all__ = (
 )
 
 
+class SharedObjectMixin:
+    """
+    Restrict the queryset to shared objects, or those owned by the current user, unless the user is a superuser.
+    This mirrors the visibility enforced in the UI (extras.utils.SharedObjectViewMixin) and the REST API.
+    """
+    @classmethod
+    def get_queryset(cls, queryset, info, **kwargs):
+        queryset = super().get_queryset(queryset, info, **kwargs)
+        return queryset.restrict_to_shared(info.context.request.user)
+
+
 @strawberry_django.type(
     models.ConfigContextProfile,
     fields='__all__',
@@ -184,7 +195,7 @@ class NotificationGroupType(ObjectType):
     filters=SavedFilterFilter,
     pagination=True
 )
-class SavedFilterType(OwnerMixin, ObjectType):
+class SavedFilterType(SharedObjectMixin, OwnerMixin, ObjectType):
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
 
@@ -203,7 +214,7 @@ class SubscriptionType(ObjectType):
     filters=TableConfigFilter,
     pagination=True
 )
-class TableConfigType(ObjectType):
+class TableConfigType(SharedObjectMixin, ObjectType):
     object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
     user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
