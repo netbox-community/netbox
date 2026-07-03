@@ -4,7 +4,7 @@ of the Python `post_save` handler formerly registered in netbox.denormalized.
 """
 from django.db import migrations
 
-from utilities.migration import cached_scope_triggers
+from utilities.migration import InstallDenormalizationTrigger
 
 
 class Migration(migrations.Migration):
@@ -15,4 +15,24 @@ class Migration(migrations.Migration):
         ('dcim', '0238_ltree_paths'),
     ]
 
-    operations = cached_scope_triggers('circuits_circuittermination')
+    operations = [
+        InstallDenormalizationTrigger(
+            dependent_table='circuits_circuittermination',
+            source_table='dcim_site',
+            fk_column='_site_id',
+            mappings={'_region_id': 'region_id', '_site_group_id': 'group_id'},
+        ),
+        InstallDenormalizationTrigger(
+            dependent_table='circuits_circuittermination',
+            source_table='dcim_location',
+            fk_column='_location_id',
+            mappings={'_site_id': 'site_id'},
+            related_mappings=(
+                {
+                    'table': 'dcim_site',
+                    'source_fk': 'site_id',
+                    'mappings': {'_region_id': 'region_id', '_site_group_id': 'group_id'},
+                },
+            ),
+        ),
+    ]
