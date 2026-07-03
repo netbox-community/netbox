@@ -1,10 +1,12 @@
 import django_filters
 from django.conf import settings
 from django.db import models
+from django.http import QueryDict
 from django.test import TestCase
 from mptt.fields import TreeForeignKey
 from taggit.managers import TaggableManager
 
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.fields import MACAddressField
 from dcim.filtersets import DeviceFilterSet, InterfaceFilterSet, SiteFilterSet
@@ -21,7 +23,7 @@ from dcim.models import (
     Site,
 )
 from extras.filters import TagFilter
-from extras.models import TaggedItem
+from extras.models import SavedFilter, TaggedItem
 from ipam.filtersets import ASNFilterSet
 from ipam.models import ASN, RIR
 from netbox.filtersets import BaseFilterSet
@@ -670,3 +672,43 @@ class DynamicFilterLookupExpressionTestCase(TestCase):
         self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 5)
         params = {'rf_role__empty': 'false'}
         self.assertEqual(InterfaceFilterSet(params, Interface.objects.all()).qs.count(), 1)
+
+
+class SavedFilterApplicationTestCase(TestCase):
+    """
+    Validate the application of referenced SavedFilters to a FilterSet's data.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE),
+            Site(name='Site 2', slug='site-2', status=SiteStatusChoices.STATUS_PLANNED),
+        )
+        Site.objects.bulk_create(sites)
+
+        cls.saved_filter = SavedFilter.objects.create(
+            name='Active Sites',
+            slug='active-sites',
+            parameters={'status': [SiteStatusChoices.STATUS_ACTIVE]},
+        )
+        cls.saved_filter.object_types.set([ObjectType.objects.get_for_model(Site)])
+
+    def test_filter_id_valid(self):
+        # A referenced SavedFilter's parameters are applied to the queryset
+        data = QueryDict(f'filter_id={self.saved_filter.pk}')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 1)
+
+    def test_filter_id_nonexistent(self):
+        # A non-existent (but valid integer) filter_id is ignored
+        data = QueryDict('filter_id=999999')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 2)
+
+    def test_filter_id_non_integer(self):
+        # A non-integer filter_id is ignored rather than raising a ValueError (#22568)
+        data = QueryDict('filter_id=abc')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 2)
+
+    def test_filter_slug(self):
+        # A referenced SavedFilter may also be applied by slug
+        data = QueryDict('filter=active-sites')
+        self.assertEqual(SiteFilterSet(data, Site.objects.all()).qs.count(), 1)
