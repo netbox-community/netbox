@@ -1,13 +1,5 @@
 # NetBox v4.6
 
-## v4.6.5 (FUTURE)
-
-### Enhancements
-
-* [#18828](https://github.com/netbox-community/netbox/issues/18828) - Add MDC fiber connector to the list of available port types
-
----
-
 ## v4.6.4 (2026-06-30)
 
 ### Enhancements
